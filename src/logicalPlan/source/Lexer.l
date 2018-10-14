@@ -1,0 +1,104 @@
+/***********************************************************************
+ * SECTION 1
+ ***********************************************************************/
+/* The code in %{ %} is included as it is in lex.yy.c file
+ * it has C global variables, prototypes, and comments 
+ */
+
+%{
+
+#include "Lexer.h"
+#include "ParserHelperFunctions.h"
+#include <stdio.h>  // For fileno()
+#include <stdlib.h> // For malloc()
+#include <string.h> // For strdup()
+
+#define YY_USER_INIT (yylineno = 1)
+
+%}
+
+
+/******************************************************************************
+ * SECTION 2
+ ******************************************************************************/
+/* This is the DEFINITION section which contains substitutions, code, and
+ * start stats; will be copied into lex.yy.c
+ */
+
+%option noinput
+%option nounput
+
+%option bison-bridge
+%option extra-type="struct LexerExtra *"
+%option reentrant
+%x C_COMMENT
+
+/******************************************************************************
+ * SECTION 3
+ ******************************************************************************/
+/* This is the RULES section which defines how to "scan" and what action
+ * to take for each token
+ */
+
+%%
+
+"/*"            { BEGIN(C_COMMENT); }
+<C_COMMENT>"*/" { BEGIN(INITIAL); }
+<C_COMMENT>.    { }
+<C_COMMENT>\n   { }
+
+[Ff][Ii][Ll][Tt][Ee][Rr]	return FILTER;
+
+[Aa][Pp][Pp][Ll][Yy]		return APPLY;
+
+[Hh][Aa][Ss][Hh][Ll][Ee][Ff][Tt] return HASHLEFT;
+
+[Hh][Aa][Ss][Hh][Rr][Ii][Gg][Hh][Tt]  return HASHRIGHT;
+
+[Hh][Aa][Ss][Hh][Oo][Nn][Ee]    return HASHONE;
+
+[Ff][Ll][Aa][Tt][Tt][Ee][Nn]    return FLATTEN;
+
+[Ss][Cc][Aa][Nn]		return SCAN;
+
+[Aa][Gg][Gg][Rr][Ee][Gg][Aa][Tt][Ee]	return AGG;
+
+[Jj][Oo][Ii][Nn]		return JOIN;
+
+[Oo][Uu][Tt][Pp][Uu][Tt]	return OUTPUT;
+
+"<="			return GETS;
+
+")"    	        	return (')');
+
+"("    	        	return ('(');
+
+","			return (',');
+
+[A-Za-z][A-Za-z0-9_-]* {yylval->myChar = strdup (yytext);
+  			return IDENTIFIER;
+			}     
+
+'(\\.|[^'])*'		{char *temp = strdup (yytext); /* strip the open and close quotes */
+                         temp[strlen (temp) - 1] = 0;
+			 yylval->myChar = strdup (temp + 1);
+		         free (temp);	
+			 return STRING;
+			}
+
+\n                	++yylineno;
+
+[ \t]             	;
+
+.                 	yyerror(yyscanner, 0, "LEX_ERROR: invalid character");
+
+%%
+
+void yyerror(yyscan_t scanner, struct AtomicComputationList **myStatement, const char *s) {
+	struct LexerExtra * const extra = yyget_extra (scanner);
+	snprintf (extra->errorMessage, sizeof (extra->errorMessage), "error at line %d: %s at %s\n", yyget_lineno (scanner), s, yyget_text (scanner));
+}
+
+int yywrap(yyscan_t scanner){
+  return 1;
+}

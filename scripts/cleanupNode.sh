@@ -1,0 +1,13 @@
+rm -rf /var/tmp/*.so
+rm -rf pdbRoot*
+rm -rf pdbRoot
+rm -rf /mnt/pdbRoot*
+rm -rf /tmp/CatalogDir
+rm -rf CatalogDir/*
+rm -rf CatalogDir*
+rm -rf /tmp/CatalogDir*
+rm -rf logs/*
+pkill -9 pdb-server
+pkill -9 pdb-cluster
+pkill -9 test603
+pkill -9 test404

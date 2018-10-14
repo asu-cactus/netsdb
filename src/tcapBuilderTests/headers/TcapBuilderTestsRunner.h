@@ -1,0 +1,13 @@
+#ifndef PDB_TCAPINTERMEDIARYREPTESTS_TCAPBUILDERTESTSRUNNER_H
+#define PDB_TCAPINTERMEDIARYREPTESTS_TCAPBUILDERTESTSRUNNER_H
+
+#include "qunit.h"
+
+using QUnit::UnitTest;
+
+namespace pdb_tests {
+void runBuildTcapBuilderTests(UnitTest& qunit);
+}
+
+
+#endif  // PDB_TCAPINTERMEDIARYREPTESTS_TCAPBUILDERTESTSRUNNER_H
