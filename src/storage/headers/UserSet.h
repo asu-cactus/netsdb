@@ -53,7 +53,8 @@ public:
             OperationType operation = Read,
             DurabilityType durability = TryCache,
             PersistenceType persistence = Persistent,
-            size_t pageSize = DEFAULT_PAGE_SIZE);
+            size_t pageSize = DEFAULT_PAGE_SIZE,
+            size_t desiredSize = 1);
 
     /**
      * Create a UserSet instance, file needs to be set here
@@ -72,7 +73,8 @@ public:
             LocalitySetReplacementPolicy policy = MRU,
             OperationType operation = Read,
             DurabilityType durability = TryCache,
-            PersistenceType persistence = Persistent);
+            PersistenceType persistence = Persistent,
+            size_t desiredSize = 1);
 
     /**
      * Destructor.
@@ -192,6 +194,7 @@ public:
      * Get number of pages.
      */
     int getNumPages();
+
 
 
     /**
@@ -368,7 +371,7 @@ protected:
     unordered_map<PageID, FileSearchKey>* dirtyPagesInPageCache;
     pthread_mutex_t dirtyPageSetMutex;
     bool isPinned;
-    int numPages;
+    int numPages = 0;
     pthread_mutex_t addBytesMutex;
     size_t pageSize;
 };

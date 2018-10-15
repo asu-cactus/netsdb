@@ -24,8 +24,9 @@ UserSet::UserSet(pdb::PDBLoggerPtr logger,
                  OperationType operation,
                  DurabilityType durability,
                  PersistenceType persistence,
-                 size_t pageSize)
-    : LocalitySet(localityType, policy, operation, durability, persistence) {
+                 size_t pageSize,
+                 size_t desiredSize)
+    : LocalitySet(localityType, policy, operation, durability, persistence, desiredSize) {
     this->pageSize = pageSize;
     this->logger = logger;
     this->shm = shm;
@@ -62,8 +63,9 @@ UserSet::UserSet(size_t pageSize,
                  LocalitySetReplacementPolicy policy,
                  OperationType operation,
                  DurabilityType durability,
-                 PersistenceType persistence)
-    : LocalitySet(localityType, policy, operation, durability, persistence) {
+                 PersistenceType persistence,
+                 size_t desiredSize)
+    : LocalitySet(localityType, policy, operation, durability, persistence, desiredSize) {
     this->pageSize = pageSize;
     this->logger = logger;
     this->shm = shm;

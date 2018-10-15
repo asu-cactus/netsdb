@@ -26,11 +26,13 @@ public:
                              size_t pageSize,
                              std::string createdJobId = "",
                              Handle<Computation> dispatchComputation = nullptr,
-                             Handle<LambdaIdentifier> lambdaIdentifier = nullptr)
+                             Handle<LambdaIdentifier> lambdaIdentifier = nullptr,
+                             size_t desiredSize = 1)
         : dataBase(dataBase), setName(setName), typeName(typeName), pageSize(pageSize), createdJobId(createdJobId) {
 
         this->dispatchComputation = dispatchComputation;
         this->lambdaIdentifier = lambdaIdentifier;
+        this->desiredSize = desiredSize;
 
     }
 
@@ -75,6 +77,14 @@ public:
         this->lambdaIdentifier = lambdaIdentifier;
     }
 
+    size_t getDesiredSize() {
+        return this->desiredSize;
+    }
+
+    void setDesiredSize(size_t desiredSize) {
+        this->desiredSize = desiredSize;
+    }
+
     ENABLE_DEEP_COPY
 
 private:
@@ -85,6 +95,7 @@ private:
     size_t pageSize;
     Handle<Computation> dispatchComputation;
     Handle<LambdaIdentifier> lambdaIdentifier;
+    size_t desiredSize;
 };
 }
 

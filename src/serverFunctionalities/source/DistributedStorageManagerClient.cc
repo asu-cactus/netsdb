@@ -52,7 +52,8 @@ bool DistributedStorageManagerClient::createSet(const std::string& databaseName,
                                                 size_t pageSize,
                                                 const std::string& createdJobId,
                                                 Handle<Computation> dispatchComputation,
-                                                Handle<LambdaIdentifier> lambdaIdentifier ) {
+                                                Handle<LambdaIdentifier> lambdaIdentifier,
+                                                size_t desiredSize ) {
     return simpleRequest<DistributedStorageAddSet, SimpleRequestResult, bool>(
         logger,
         port,
@@ -66,7 +67,8 @@ bool DistributedStorageManagerClient::createSet(const std::string& databaseName,
         pageSize,
         createdJobId,
         dispatchComputation,
-        lambdaIdentifier);
+        lambdaIdentifier,
+        desiredSize);
 }
 
 bool DistributedStorageManagerClient::createTempSet(const std::string& databaseName,
@@ -76,7 +78,8 @@ bool DistributedStorageManagerClient::createTempSet(const std::string& databaseN
                                                     size_t pageSize,
                                                     const std::string& createdJobId,
                                                     Handle<Computation> dispatchComputation,
-                                                    Handle<LambdaIdentifier> lambdaIdentifier) {
+                                                    Handle<LambdaIdentifier> lambdaIdentifier,
+                                                    size_t desiredSize ) {
     return simpleRequest<DistributedStorageAddTempSet, SimpleRequestResult, bool>(
         logger,
         port,
@@ -91,7 +94,8 @@ bool DistributedStorageManagerClient::createTempSet(const std::string& databaseN
         pageSize,
         createdJobId,
         dispatchComputation,
-        lambdaIdentifier);
+        lambdaIdentifier,
+        desiredSize);
 }
 
 bool DistributedStorageManagerClient::removeDatabase(const std::string& databaseName,

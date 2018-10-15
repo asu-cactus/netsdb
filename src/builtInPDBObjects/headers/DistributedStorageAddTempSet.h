@@ -25,13 +25,15 @@ public:
                                  std::string setName,
                                  std::string typeName,
                                  size_t pageSize,
-                                 std::string createdJobId,
-                                 Handle<Computation> dispatchComputation,
-                                 Handle<LambdaIdentifier> lambdaIdentifier)
+                                 std::string createdJobId = "",
+                                 Handle<Computation> dispatchComputation = nullptr,
+                                 Handle<LambdaIdentifier> lambdaIdentifier = nullptr,
+                                 size_t desiredSize = 1)
         : databaseName(databaseName), setName(setName), typeName(typeName), pageSize(pageSize), createdJobId(createdJobId) {
 
        this->dispatchComputation = dispatchComputation;
        this->lambdaIdentifier = lambdaIdentifier;
+       this->desiredSize = desiredSize;
 
 }
 
@@ -57,9 +59,18 @@ public:
         return this->createdJobId;
     }
 
-    void setCreatedJobId (std::string createdJobId) {
+    void setCreatedJobId(std::string createdJobId) {
         this->createdJobId = createdJobId;
     }
+
+    size_t getDesiredSize() {
+        return this->desiredSize;
+    }
+
+    void setDesiredSize(size_t desiredSize) {
+        this->desiredSize = desiredSize;
+    }
+
 
 
     ENABLE_DEEP_COPY
@@ -72,6 +83,7 @@ private:
     String createdJobId;
     Handle<Computation> dispatchComputation;
     Handle<LambdaIdentifier> lambdaIdentifier;
+    size_t desiredSize;
 };
 }
 

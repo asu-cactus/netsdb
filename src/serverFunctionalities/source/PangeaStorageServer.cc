@@ -498,7 +498,8 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                     res = getFunctionality<PangeaStorageServer>().addSet(request->getDatabase(),
                                                                          request->getTypeName(),
                                                                          request->getSetName(),
-                                                                         request->getPageSize());
+                                                                         request->getPageSize(),
+                                                                         request->getDesiredSize());
                     if (res == false) {
                         errMsg = "Set " + request->getDatabase() + ":" + request->getSetName() +
                             ":" + request->getTypeName() + " already exists\n";
@@ -526,7 +527,8 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                              request->getDatabase(),
                              request->getTypeName(),
                              request->getSetName(),
-                             request->getPageSize())) == false) {
+                             request->getPageSize(),
+                             request->getDesiredSize())) == false) {
                         errMsg = "Set " + request->getDatabase() + ":" + request->getSetName() +
                             ":" + request->getTypeName() + " already exists\n";
                         cout << errMsg << endl;
@@ -677,6 +679,7 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                 errMsg = "Set doesn't exist\n";
             } else {
                 size_t pageSize = set->getPageSize();
+                size_t desiredSize = set->getDesiredSize();
                 if (standalone == true) {
                     PDB_COUT << "removing set in standalone mode" << std::endl;
                     res = getFunctionality<PangeaStorageServer>().removeSet(
@@ -688,7 +691,8 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                         res = getFunctionality<PangeaStorageServer>().addSet(request->getDatabase(),
                                                                              request->getTypeName(),
                                                                              request->getSetName(),
-                                                                             pageSize);
+                                                                             pageSize,
+                                                                             desiredSize);
                     }
 
                 } else {
@@ -702,7 +706,8 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                                  request->getDatabase(),
                                  request->getTypeName(),
                                  request->getSetName(),
-                                 pageSize)) == false) {
+                                 pageSize,
+                                 desiredSize)) == false) {
                             errMsg = "Set already exists\n";
                             cout << errMsg << endl;
                         }
@@ -1792,7 +1797,7 @@ bool PangeaStorageServer::removeType(std::string typeName) {
 
 // to add a new and empty set
 bool PangeaStorageServer::addSet(
-    std::string dbName, std::string typeName, std::string setName, SetID setId, size_t pageSize) {
+    std::string dbName, std::string typeName, std::string setName, SetID setId, size_t pageSize, size_t desiredSize) {
     SetPtr set = getSet(std::pair<std::string, std::string>(dbName, setName));
     if (set != nullptr) {
         // set exists
@@ -1837,7 +1842,7 @@ bool PangeaStorageServer::addSet(
             return false;
         }
     }
-    type->addSet(setName, setId, pageSize);
+    type->addSet(setName, setId, pageSize, desiredSize);
     std::cout << "to add set with dbName=" << dbName << ", typeName=" << typeName
               << ", setName=" << setName << ", setId=" << setId << ", pageSize=" << pageSize
               << std::endl;
@@ -1861,7 +1866,8 @@ bool PangeaStorageServer::addSet(
 bool PangeaStorageServer::addSet(std::string dbName,
                                  std::string typeName,
                                  std::string setName,
-                                 size_t pageSize) {
+                                 size_t pageSize,
+                                 size_t desiredSize) {
     pthread_mutex_lock(&this->usersetLock);
     if (usersetSeqIds->count(dbName) == 0) {
         // database doesn't exist
@@ -1872,13 +1878,13 @@ bool PangeaStorageServer::addSet(std::string dbName,
     std::cout << "to add set with dbName=" << dbName << ", typeName=" << typeName
              << ", setName=" << setName << ", setId=" << setId << ", pageSize=" << pageSize << std::endl;
     pthread_mutex_unlock(&this->usersetLock);
-    return addSet(dbName, typeName, setName, setId, pageSize);
+    return addSet(dbName, typeName, setName, setId, pageSize, desiredSize);
 }
 
 
 // to add a set using only database name and set name
-bool PangeaStorageServer::addSet(std::string dbName, std::string setName, size_t pageSize) {
-    return addSet(dbName, "UnknownUserData", setName, pageSize);
+bool PangeaStorageServer::addSet(std::string dbName, std::string setName, size_t pageSize, size_t desiredSize) {
+    return addSet(dbName, "UnknownUserData", setName, pageSize, desiredSize);
 }
 
 bool PangeaStorageServer::removeSet(std::string dbName, std::string setName) {

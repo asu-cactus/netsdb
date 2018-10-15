@@ -178,7 +178,8 @@ public:
                 std::string typeName,
                 std::string setName,
                 SetID setId,
-                size_t pageSize = DEFAULT_PAGE_SIZE);
+                size_t pageSize = DEFAULT_PAGE_SIZE,
+                size_t desiredSize = 1);
 
 
     /**
@@ -187,12 +188,16 @@ public:
     bool addSet(std::string dbName,
                 std::string typeName,
                 std::string setName,
-                size_t pageSize = DEFAULT_PAGE_SIZE);
+                size_t pageSize = DEFAULT_PAGE_SIZE,
+                size_t desiredSize = 1);
 
     /**
      * Add a set using only database name and set name
      */
-    bool addSet(std::string dbName, std::string setName, size_t pageSize = DEFAULT_PAGE_SIZE);
+    bool addSet(std::string dbName, 
+                std::string setName, 
+                size_t pageSize = DEFAULT_PAGE_SIZE,
+                size_t desiredSize = 1);
 
 
     /**

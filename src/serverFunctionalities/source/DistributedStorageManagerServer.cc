@@ -265,7 +265,8 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
             Handle<StorageAddSet> storageCmd = makeObject<StorageAddSet>(request->getDatabaseName(),
                                                                          request->getSetName(),
                                                                          request->getTypeName(),
-                                                                         request->getPageSize());
+                                                                         request->getPageSize(),
+                                                                         request->getDesiredSize());
 
             getFunctionality<DistributedStorageManagerServer>()
                 .broadcast<StorageAddSet, Object, SimpleRequestResult>(
@@ -428,7 +429,8 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
             Handle<StorageAddSet> storageCmd = makeObject<StorageAddSet>(request->getDatabase(),
                                                                          request->getSetName(),
                                                                          request->getTypeName(),
-                                                                         pageSize);
+                                                                         pageSize,
+                                                                         request->getDesiredSize());
             std::cout << "Page size is determined to be " << pageSize << std::endl;
             
 

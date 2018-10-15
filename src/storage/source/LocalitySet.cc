@@ -8,7 +8,9 @@ LocalitySet::LocalitySet(LocalityType localityType,
                          LocalitySetReplacementPolicy replacementPolicy,
                          OperationType operationType,
                          DurabilityType durabilityType,
-                         PersistenceType persistenceType) {
+                         PersistenceType persistenceType,
+                         size_t desiredSize) {
+
     cachedPages = new list<PDBPagePtr>();
     this->localityType = localityType;
     this->replacementPolicy = replacementPolicy;
@@ -16,6 +18,7 @@ LocalitySet::LocalitySet(LocalityType localityType,
     this->durabilityType = durabilityType;
     this->persistenceType = persistenceType;
     this->lifetimeEnded = false;
+    this->desiredSize = desiredSize;
 }
 
 LocalitySet::~LocalitySet() {
@@ -175,6 +178,15 @@ bool LocalitySet::isLifetimeEnded() {
 
 void LocalitySet::setLifetimeEnd(bool lifetimeEnded) {
     this->lifetimeEnded = lifetimeEnded;
+}
+
+
+size_t LocalitySet::getDesiredSize() {
+    return this->desiredSize;
+}
+
+void LocalitySet::setDesiredSize(size_t desiredSize) {
+    this->desiredSize = desiredSize;
 }
 
 

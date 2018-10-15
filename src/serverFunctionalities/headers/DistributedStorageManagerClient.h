@@ -36,8 +36,8 @@ public:
                    size_t pageSize = DEFAULT_PAGE_SIZE,
                    const std::string& createdJobId = "",
                    Handle<Computation> computationForDispatch = nullptr,
-                   Handle<LambdaIdentifier> lambdaForDispatch = nullptr
-                   );
+                   Handle<LambdaIdentifier> lambdaForDispatch = nullptr,
+                   size_t desiredSize = 1);
 
 
 
@@ -49,8 +49,8 @@ public:
                        size_t pageSize = DEFAULT_PAGE_SIZE,
                        const std::string& createdJobId = "",
                        Handle<Computation> computationForDispatch = nullptr,
-                       Handle<LambdaIdentifier> lambdaForDispatch = nullptr
-                       );
+                       Handle<LambdaIdentifier> lambdaForDispatch = nullptr,
+                       size_t desiredSize = 1);
 
     // templated createSet
     template <class DataType>
@@ -60,8 +60,8 @@ public:
                    size_t pageSize = DEFAULT_PAGE_SIZE,
                    const std::string& createdJobId = "",
                    Handle<Computation> computationForDispatch = nullptr,
-                   Handle<LambdaIdentifier> lambdaForDispatch = nullptr
-                   );
+                   Handle<LambdaIdentifier> lambdaForDispatch = nullptr,
+                   size_t desiredSize = 1);
 
     // storage cleanup to flush buffered data to disk
     bool flushData(std::string& errMsg);

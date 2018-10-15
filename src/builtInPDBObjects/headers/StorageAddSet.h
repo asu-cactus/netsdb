@@ -21,8 +21,9 @@ public:
     StorageAddSet(std::string dataBase,
                   std::string setName,
                   std::string typeName,
-                  size_t pageSize = DEFAULT_PAGE_SIZE)
-        : dataBase(dataBase), setName(setName), typeName(typeName), pageSize(pageSize) {}
+                  size_t pageSize = DEFAULT_PAGE_SIZE,
+                  size_t desiredSize = 1)
+        : dataBase(dataBase), setName(setName), typeName(typeName), pageSize(pageSize), desiredSize(desiredSize) {}
 
     std::string getDatabase() {
         return dataBase;
@@ -40,6 +41,10 @@ public:
         return pageSize;
     }
 
+    size_t getDesiredSize() {
+        return desiredSize;
+    }
+
 
     ENABLE_DEEP_COPY
 
@@ -48,6 +53,7 @@ private:
     String setName;
     String typeName;
     size_t pageSize;
+    size_t desiredSize;
 };
 }
 

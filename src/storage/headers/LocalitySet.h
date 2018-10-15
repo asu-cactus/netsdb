@@ -25,7 +25,8 @@ public:
                 LocalitySetReplacementPolicy replacementPolicy,
                 OperationType operationType,
                 DurabilityType durabilityType,
-                PersistenceType persistenceType);
+                PersistenceType persistenceType,
+                size_t desiredSize = 1);
 
     /*
      * Destructor
@@ -59,6 +60,7 @@ public:
 
     void unpin();
 
+      
 
     /*
      * Getters/Setters
@@ -87,6 +89,24 @@ public:
     bool isLifetimeEnded();
 
     void setLifetimeEnd(bool lifetimeEnded);
+
+    size_t getDesiredSize();
+
+    void setDesiredSize (size_t size);
+
+    /**
+     * Get number of cached pages.
+     */
+    int getNumCachedPages() {
+        return this->numCachedPages;
+    }
+
+    /**
+     * Set number of cached pages.
+     */
+    void setNumCachedPages(int numCachedPages) {
+        this->numCachedPages = numCachedPages;
+    }
 
 protected:
     /**
@@ -151,6 +171,15 @@ protected:
      * at unpin time.
      */
     bool lifetimeEnded;
+
+
+    /**
+     * DBMIN attribute: desired size
+     */
+    size_t desiredSize;
+
+
+    int numCachedPages;
 };
 
 

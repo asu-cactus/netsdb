@@ -24,7 +24,8 @@ namespace pdb {
                                                     size_t pageSize,
                                                     const std::string& createdJobId, 
                                                     Handle<Computation> computationForDispatch,
-                                                    Handle<LambdaIdentifier> lambdaForDispatch) {
+                                                    Handle<LambdaIdentifier> lambdaForDispatch,
+                                                    size_t desiredSize) {
         std::string typeName = getTypeName<DataType>();
         int16_t typeId = getTypeID<DataType>();
         PDB_COUT << "typeName for set to create =" << typeName << ", typeId=" << typeId << std::endl;
@@ -41,7 +42,8 @@ namespace pdb {
             pageSize,
             createdJobId,
             computationForDispatch,
-            lambdaForDispatch);
+            lambdaForDispatch,
+            desiredSize);
     }
 
 }

@@ -34,7 +34,7 @@ typedef enum { JobData, ShuffleData, HashPartitionData, PartialAggregationData }
 
 typedef enum { LRU, MRU, Random } LocalitySetReplacementPolicy;
 
-typedef enum { UnifiedLRU, UnifiedMRU, UnifiedIntelligent } CacheStrategy;
+typedef enum { UnifiedLRU, UnifiedMRU, UnifiedIntelligent, UnifiedDBMIN } CacheStrategy;
 
 
 typedef enum { Read, RepeatedRead, Write } OperationType;
