@@ -95,7 +95,7 @@ int UserType::addSet(string setName, SetID setId, size_t pageSize, size_t desire
                                         pageSize);
 
     SetPtr set = make_shared<UserSet>(
-        pageSize, logger, shm, nodeId, dbId, id, setId, setName, file, this->cache, desiredSize);
+        pageSize, logger, shm, nodeId, dbId, id, setId, setName, file, this->cache, JobData, MRU, Read, TryCache, Persistent, desiredSize);
     if (set == 0) {
         this->logger->writeLn("UserType: Out of Memory.");
         return -1;

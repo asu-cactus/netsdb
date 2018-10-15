@@ -268,6 +268,8 @@ public:
     // Evict page from cache.
     bool evictPage(PDBPagePtr page, LocalitySetPtr set = nullptr);
 
+    bool evictPageForDBMIN(PDBPagePtr page, LocalitySet* set = nullptr);
+
     void addLocalitySetToPriorityList(LocalitySetPtr set, PriorityLevel level);
 
     void removeLocalitySetFromPriorityList(LocalitySetPtr set, PriorityLevel level);

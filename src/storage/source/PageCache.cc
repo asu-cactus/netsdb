@@ -325,12 +325,11 @@ PDBPagePtr PageCache::getPage(PartitionedFilePtr file,
   
     if (this->strategy == UnifiedDBMIN) {
         if (set->getNumCachedPages() >= set->getDesiredSize()) {
-             std::shared<PDBPage>  pageToEvict = (set->selectPagesForReplacement())[0];
+             PDBPagePtr  pageToEvict = set->selectPageForReplacement();
              if (pageToEvict != nullptr) {
                 this->evictionUnlock();
-                this->evictPage(pageToEvict, set);
+                this->evictPageForDBMIN(pageToEvict, set);
                 this->evictionLock();
-                delete pageToEvict;
                 pageToEvict = nullptr;
              } 
         }    
@@ -439,12 +438,11 @@ PDBPagePtr PageCache::getNewPageNonBlocking(NodeID nodeId,
                                             size_t pageSize) {
     if (this->strategy == UnifiedDBMIN) {
         if (set->getNumCachedPages() >= set->getDesiredSize()) {
-             PDBPagePtr  pageToEvict = (set->selectPagesForReplacement())[0];
+             PDBPagePtr  pageToEvict = set->selectPageForReplacement();
              if (pageToEvict != nullptr) {
                 this->evictionUnlock();
-                this->evictPage(pageToEvict, set);
+                this->evictPageForDBMIN(pageToEvict, set);
                 this->evictionLock();
-                delete pageToEvict;
                 pageToEvict = nullptr;
              }
         }
@@ -490,12 +488,11 @@ PDBPagePtr PageCache::getNewPage(NodeID nodeId, CacheKey key, LocalitySet* set, 
 
     if (this->strategy == UnifiedDBMIN) {
         if (set->getNumCachedPages() >= set->getDesiredSize()) {
-             PDBPagePtr  pageToEvict = (set->selectPagesForReplacement())[0];
+             PDBPagePtr  pageToEvict = set->selectPageForReplacement();
              if (pageToEvict != nullptr) {
                 this->evictionUnlock();
-                this->evictPage(pageToEvict, set);
+                this->evictPageForDBMIN(pageToEvict, set);
                 this->evictionLock();
-                delete pageToEvict;
                 pageToEvict = nullptr;
              }
         }
@@ -754,6 +751,26 @@ bool PageCache::evictPage(PDBPagePtr page, LocalitySetPtr set) {
     }
     return ret;
 }
+
+bool PageCache::evictPageForDBMIN(PDBPagePtr page, LocalitySet* set) {
+    CacheKey key;
+    key.dbId = page->getDbID();
+    key.typeId = page->getTypeID();
+    key.setId = page->getSetID();
+    key.pageId = page->getPageID();
+    bool ret = evictPage(key);
+    if (ret == true) {
+        if (set != nullptr) {
+            set->removeCachedPage(page);
+            if (this->strategy == UnifiedDBMIN) {
+                set->setNumCachedPages(set->getNumCachedPages()-1);
+            }
+        }
+    }
+    return ret;
+}
+
+
 
 void PageCache::runEviction() {
     pdb::PDBWorkerPtr worker;
