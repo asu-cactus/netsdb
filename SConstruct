@@ -68,7 +68,7 @@ common_env.Append(CCFLAGS='-DENABLE_COMPRESSION')
 common_env.Append(CCFLAGS='-DEVICT_STOP_THRESHOLD=0.9')
 #uncomment following for KMeans
 #common_env.Append(CCFLAGS='-DCLEANUP_INACTIVE_BLOCKS')
-#common_env.Append(CCFLAGS='-DNUM_KMEANS_DIMENSIONS=500')
+common_env.Append(CCFLAGS='-DNUM_KMEANS_DIMENSIONS=10')
 #common_env.Append(CCFLAGS='-DCOLLECT_RESULTS_AS_ONE_PARTITION')
 # Make the build multithreaded
 num_cpu = int(multiprocessing.cpu_count())
@@ -312,11 +312,9 @@ all = ['build/sqlite/sqlite3.c',
        component_dir_basename_to_cc_file_paths['objectModel'],
        component_dir_basename_to_cc_file_paths['queryExecution'],
        component_dir_basename_to_cc_file_paths['queryPlanning'],
-       component_dir_basename_to_cc_file_paths['queryIntermediaryRep'], 
        component_dir_basename_to_cc_file_paths['work'],
        component_dir_basename_to_cc_file_paths['memory'],
        component_dir_basename_to_cc_file_paths['storage'],
-       component_dir_basename_to_cc_file_paths['distributionManager'],
        component_dir_basename_to_cc_file_paths['lambdas'],
        component_dir_basename_to_cc_file_paths['logicalPlan'],
        component_dir_basename_to_cc_file_paths['linearAlgebraDSL'],

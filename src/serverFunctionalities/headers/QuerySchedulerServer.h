@@ -12,7 +12,6 @@
 #include "JobStage.h"
 #include "SimpleSingleTableQueryProcessor.h"
 #include "PDBLogger.h"
-#include "QueryGraphIr.h"
 #include "TupleSetJobStage.h"
 #include "AggregationJobStage.h"
 #include "BroadcastJoinBuildHTJobStage.h"
@@ -79,10 +78,6 @@ public:
     void initialize(bool isRMRunAsServer);
 
 
-    // deprecated
-    // to transform optimized client query into a physical plan
-    // each pipeline can have more than one output
-    void parseOptimizedQuery(pdb_detail::QueryGraphIrPtr queryGraph);
 
     // to replace above two methods to automatically build the physical plan based on TCAP string
     // and computations

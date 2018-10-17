@@ -1,7 +1,8 @@
 #ifndef QUERY_SCHEDULER_SERVER_CC
 #define QUERY_SCHEDULER_SERVER_CC
 
-
+#include "ProjectionOperator.h"
+#include "FilterOperator.h"
 #include "PDBDebug.h"
 #include "InterfaceFunctions.h"
 #include "QuerySchedulerServer.h"
@@ -24,13 +25,6 @@
 #include "SimpleRequestHandler.h"
 #include "SimpleRequestResult.h"
 #include "GenericWork.h"
-#include "SetExpressionIr.h"
-#include "SelectionIr.h"
-#include "ProjectionIr.h"
-#include "SourceSetNameIr.h"
-#include "ProjectionOperator.h"
-#include "FilterOperator.h"
-#include "IrBuilder.h"
 #include "DataTypes.h"
 #include "ScanUserSet.h"
 #include "WriteUserSet.h"
@@ -952,168 +946,6 @@ bool QuerySchedulerServer::parseTCAPString(Handle<Vector<Handle<Computation>>> m
 }
 
 
-// deprecated
-// checkSet can only be true if we deploy QuerySchedulerServer, CatalogServer and
-// DistributedStorageManagerServer on the same machine.
-void QuerySchedulerServer::parseOptimizedQuery(pdb_detail::QueryGraphIrPtr queryGraph) {
-
-    // current logical planning only supports selection and projection
-    // start from the first sink:
-    //  ---we push node to this sink's pipeline until we meet a source node, a materialized node or
-    //  a traversed node;
-    //  ------if we meet a source node, we set input for the pipeline, and start a new pipeline
-    //  stage for a new sink
-    //  ------if we meet a materialized node, we set input for the pipeline, and start a new
-    //  pipeline stage for the materialization node
-    //  ------if we meet a traversed node, which is a materialized node, we set input for the
-    //  pipeline, and start a new pipeline stage for a new sink
-    //  ------if we meet a traversed node, we set the node's set as input of this pipline stage
-    // if a node's parent is source, we stop here for this sink, and start from the next sink.
-
-    //     const UseTemporaryAllocationBlock tempBlock {1024*1024};
-    int stageOperatorCounter = 0;
-    int jobStageId = -1;
-    std::shared_ptr<pdb_detail::SetExpressionIr> curNode;
-    std::unordered_map<int, Handle<JobStage>> stageMap;
-    for (int i = 0; i < queryGraph->getSinkNodeCount(); i++) {
-
-        stageOperatorCounter = 0;
-        curNode = queryGraph->getSinkNode(i);
-        PDB_COUT << "the " << i << "-th sink:" << std::endl;
-        PDB_COUT << curNode->getName() << std::endl;
-
-        // the sink node must be a materialized node
-        shared_ptr<pdb_detail::MaterializationMode> materializationMode =
-            curNode->getMaterializationMode();
-        if (materializationMode->isNone() == true) {
-            std::cout << "Error: sink node output must be materialized." << std::endl;
-            continue;
-        }
-        string name = "";
-        Handle<SetIdentifier> output =
-            makeObject<SetIdentifier>(materializationMode->tryGetDatabaseName(name),
-                                      materializationMode->tryGetSetName(name));
-
-        jobStageId++;
-        Handle<JobStage> stage = makeObject<JobStage>(jobStageId);
-        stage->setOutput(output);
-
-        bool isNodeMaterializable = true;
-        while (curNode->getName() != "SourceSetNameIr") {
-            if (curNode->isTraversed() == false) {
-                if (stageOperatorCounter > 0) {
-                    materializationMode = curNode->getMaterializationMode();
-                    if (materializationMode->isNone() == false) {
-                        PDB_COUT << "We meet a materialization mode" << std::endl;
-                        // we meet a materialized node, we need stop this stage, set the
-                        // materialized results as the input of this stage
-                        // if in future, we remove the one output restriction from the pipeline, we
-                        // can go on
-                        Handle<SetIdentifier> input =
-                            makeObject<SetIdentifier>(materializationMode->tryGetDatabaseName(name),
-                                                      materializationMode->tryGetSetName(name));
-                        stage->setInput(input);
-
-                        // we start a new stage, which is the parent of the stopping stage
-                        jobStageId++;
-                        Handle<JobStage> newStage = makeObject<JobStage>(jobStageId);
-                        newStage->setOutput(input);
-                        stage->setParentStage(newStage);
-                        stageMap[stage->getStageId()] = stage;
-
-                        PDB_COUT << "stage with id=" << stage->getStageId() << " is added to map"
-                                 << std::endl;
-                        PDB_COUT << "verify id =" << stageMap[stage->getStageId()]->getStageId()
-                                 << std::endl;
-
-                        newStage->appendChildStage(stage);
-                        stage = newStage;
-                        stageOperatorCounter = 0;
-                        isNodeMaterializable = true;
-                    }
-                }
-                // a new operator
-                if (curNode->getName() == "SelectionIr") {
-                    PDB_COUT << "We meet a selection node" << std::endl;
-                    shared_ptr<pdb_detail::SelectionIr> selectionNode =
-                        dynamic_pointer_cast<pdb_detail::SelectionIr>(curNode);
-                    Handle<ExecutionOperator> filterOp =
-                        makeObject<FilterOperator>(selectionNode->getQueryBase());
-                    stage->addOperator(filterOp);
-                    stageOperatorCounter++;
-                    curNode->setTraversed(true, jobStageId);
-                    if (curNode->isTraversed() == false) {
-                        std::cout << "Error: the node can not be modified!" << std::endl;
-                        exit(-1);
-                    }
-                    curNode = selectionNode->getInputSet();
-                    PDB_COUT << "We set the node to be traversed with id=" << jobStageId
-                             << std::endl;
-                } else if (curNode->getName() == "ProjectionIr") {
-                    PDB_COUT << "We meet a projection node" << std::endl;
-                    shared_ptr<pdb_detail::ProjectionIr> projectionNode =
-                        dynamic_pointer_cast<pdb_detail::ProjectionIr>(curNode);
-                    if (isNodeMaterializable) {
-                        Handle<QueryBase> base = projectionNode->getQueryBase();
-                        Handle<Selection<Object, Object>> userQuery =
-                            unsafeCast<Selection<Object, Object>>(base);
-                        stage->setOutputTypeName(userQuery->getOutputType());
-                        isNodeMaterializable = false;
-                    }
-                    Handle<ExecutionOperator> projectionOp =
-                        makeObject<ProjectionOperator>(projectionNode->getQueryBase());
-                    stage->addOperator(projectionOp);
-                    stageOperatorCounter++;
-                    curNode->setTraversed(true, jobStageId);
-                    if (curNode->isTraversed() == false) {
-                        std::cout << "Error: the node can not be modified!" << std::endl;
-                        exit(-1);
-                    }
-                    curNode = projectionNode->getInputSet();
-                    PDB_COUT << "We set the node to be traversed with id=" << jobStageId
-                             << std::endl;
-                } else {
-                    PDB_COUT << "We only support Selection and Projection right now" << std::endl;
-                }
-
-
-            } else {
-                // TODO: we need check that this node's result must be materialized
-                // get the stage that generates the input
-
-                Handle<JobStage> parentStage;
-                JobStageID parentStageId = curNode->getTraversalId();
-                PDB_COUT << "We meet a node that has been traversed with id=" << parentStageId
-                         << std::endl;
-                parentStage = stageMap[parentStageId];
-                // append this stage to that stage and finishes loop for this sink
-                Handle<SetIdentifier> input = parentStage->getOutput();
-                stage->setInput(input);
-                parentStage->appendChildStage(stage);
-                stage->setParentStage(parentStage);
-                stageMap[stage->getStageId()] = stage;
-                PDB_COUT << "stage with id=" << stage->getStageId() << " is added to map"
-                         << std::endl;
-                PDB_COUT << "verify id =" << stageMap[stage->getStageId()]->getStageId()
-                         << std::endl;
-                break;
-            }
-            PDB_COUT << curNode->getName() << std::endl;
-        }
-
-        if (curNode->getName() == "SourceSetNameIr") {
-            shared_ptr<pdb_detail::SourceSetNameIr> sourceNode =
-                dynamic_pointer_cast<pdb_detail::SourceSetNameIr>(curNode);
-            Handle<SetIdentifier> input =
-                makeObject<SetIdentifier>(sourceNode->getDatabaseName(), sourceNode->getSetName());
-            stage->setInput(input);
-            stageMap[stage->getStageId()] = stage;
-            PDB_COUT << "stage with id=" << stage->getStageId() << " is added to map" << std::endl;
-            PDB_COUT << "verify id =" << stageMap[stage->getStageId()]->getStageId() << std::endl;
-            this->currentPlan.push_back(stage);
-        }
-    }
-}
 
 // to replace: printCurrentPlan()
 void QuerySchedulerServer::printStages() {
@@ -1642,73 +1474,6 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
             ));
 
 
-    // deprecated
-    // handler to schedule a query
-    forMe.registerHandler(
-        ExecuteQuery_TYPEID,
-        make_shared<SimpleRequestHandler<ExecuteQuery>>([&](Handle<ExecuteQuery> request,
-                                                            PDBCommunicatorPtr sendUsingMe) {
-
-            std::string errMsg;
-            bool success;
-
-            // parse the query
-            const UseTemporaryAllocationBlock block{128 * 1024 * 1024};
-            PDB_COUT << "Got the ExecuteQuery object" << std::endl;
-            Handle<Vector<Handle<QueryBase>>> userQuery =
-                sendUsingMe->getNextObject<Vector<Handle<QueryBase>>>(success, errMsg);
-            if (!success) {
-                std::cout << errMsg << std::endl;
-                return std::make_pair(false, errMsg);
-            }
-
-            PDB_COUT << "To transform the ExecuteQuery object into a logicalGraph" << std::endl;
-            pdb_detail::QueryGraphIrPtr queryGraph = pdb_detail::buildIr(userQuery);
-
-            PDB_COUT << "To transform the logicalGraph into a physical plan" << std::endl;
-
-            getFunctionality<QuerySchedulerServer>().parseOptimizedQuery(queryGraph);
-
-#ifdef CLEAR_SET
-            // So far we only clear for the first stage. (we now only schedule the first stage)
-            Handle<SetIdentifier> output = getFunctionality<QuerySchedulerServer>().getOutputSet();
-            std::string outputTypeName =
-                getFunctionality<QuerySchedulerServer>().getOutputTypeName();
-            // check whether output exists, if yes, we remove that set and create a new set
-            DistributedStorageManagerClient dsmClient(this->port, "localhost", logger);
-            std::cout << "QuerySchedulerServer: to clear output set with databaseName="
-                      << output->getDatabase() << " and setName=" << output->getSetName()
-                      << " and typeName=" << outputTypeName << std::endl;
-            std::cout
-                << "Please turn CLEAR_SET flag off if client is responsible for creating output set"
-                << std::endl;
-            bool ret = dsmClient.clearSet(
-                output->getDatabase(), output->getSetName(), outputTypeName, errMsg);
-            if (ret == false) {
-                std::cout << "QuerySchedulerServer: can't clear output set with databaseName="
-                          << output->getDatabase() << " and setName=" << output->getSetName()
-                          << " and typeName=" << outputTypeName << std::endl;
-                return std::make_pair(false, errMsg);
-            }
-            std::cout << "QuerySchedulerServer: set cleared" << std::endl;
-#endif
-            getFunctionality<QuerySchedulerServer>().printCurrentPlan();
-            PDB_COUT << "To get the resource object from the resource manager" << std::endl;
-            getFunctionality<QuerySchedulerServer>().initialize(true);
-            PDB_COUT << "To schedule the query to run on the cluster" << std::endl;
-            getFunctionality<QuerySchedulerServer>().schedule();
-            PDB_COUT << "To send back response to client" << std::endl;
-            Handle<SimpleRequestResult> result =
-                makeObject<SimpleRequestResult>(true, std::string("successfully executed query"));
-            if (!sendUsingMe->sendObject(result, errMsg)) {
-                return std::make_pair(false, errMsg);
-            }
-            PDB_COUT << "to cleanup" << std::endl;
-            getFunctionality<QuerySchedulerServer>().cleanup();
-            return std::make_pair(true, errMsg);
-
-
-        }));
 }
 }
 
