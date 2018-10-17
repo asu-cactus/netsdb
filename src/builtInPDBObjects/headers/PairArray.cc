@@ -15,9 +15,9 @@
 #include "InterfaceFunctions.h"
 
 namespace std {
-  template <> struct hash<double[1000]>
+  template <> struct hash<double[NUM_KMEANS_DIMENSIONS]>
   {
-    size_t operator()(const double x[1000]) const
+    size_t operator()(const double x[NUM_KMEANS_DIMENSIONS]) const
     {
       return (size_t)(x);
     }
