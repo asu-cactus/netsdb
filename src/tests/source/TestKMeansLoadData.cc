@@ -245,7 +245,6 @@ int main (int argc, char * argv[]) {
         // now, create a new database
         if (!temp.createDatabase ("kmeans_db", errMsg)) {
             COUT << "Not able to create database: " + errMsg;
-            exit (-1);
         } else {
             COUT << "Created database.\n";
         }
@@ -253,7 +252,6 @@ int main (int argc, char * argv[]) {
         // now, create a new set in that database
         if (!temp.createSet<double[NUM_KMEANS_DIMENSIONS]> ("kmeans_db", "kmeans_input_set", errMsg)) {
             COUT << "Not able to create set: " + errMsg;
-            exit (-1);
         } else {
             COUT << "Created set.\n";
         }

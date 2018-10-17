@@ -14,6 +14,16 @@
 #include "Object.h"
 #include "InterfaceFunctions.h"
 
+namespace std {
+  template <> struct hash<double[1000]>
+  {
+    size_t operator()(const double x[1000]) const
+    {
+      return (size_t)(x);
+    }
+  };
+}
+
 namespace pdb {
 
 // this little class is used to ask the compiler to build the layout of the records used to
@@ -36,6 +46,7 @@ struct MapRecordClass {
 // a special code that tells us when a hash slot is unused
 #define UNUSED 493295393
 
+
 unsigned int newHash(unsigned int x);
 
 // added by Shangyu
@@ -44,7 +55,11 @@ inline size_t specialHash(unsigned u) {
 }
 
 inline size_t specialHash(int u) {
-    return newHash((unsigned)u);
+    return newHash((unsigned)(u));
+}
+
+inline size_t specialHash(double u[1000] ) {
+    return newHash((unsigned)((size_t)(u)%65536));
 }
 
 // this uses SFINAE to call std::hash () on KeyType if applicable; otherwise, it calls KeyType.hash
@@ -58,11 +73,14 @@ class Hasher {
         return std::hash<U>().operator()(u);
     }
 
+
     // overloading rules will select this one first...  ...unless it's not valid
     template <typename U>
     static auto hash_impl(U const& u, int) -> decltype(u.hash()) {
         return u.hash();
     }
+
+
 
 public:
     static auto hash(const KeyType& k) -> decltype(hash_impl(k, 0)) {
@@ -75,11 +93,14 @@ public:
         return temp;
     }
 
+
     // allows us to specify a specialized hash function by defining specialHash (U const u)
     template <typename U>
     static auto hash_impl(U const& u, int) -> decltype(specialHash(u)) {
         return specialHash(u);
     }
+
+
 };
 
 // the maximum fill factor before we double
