@@ -28,10 +28,10 @@ namespace pdb {
 class DistributedStorageManagerServer : public BroadcastServer {
 
 public:
-    DistributedStorageManagerServer(PDBLoggerPtr logger, ConfigurationPtr conf, bool selfLearningOrNot = false);
+    DistributedStorageManagerServer(PDBLoggerPtr logger, ConfigurationPtr conf, bool selfLearningOrNot = false, bool trainingMode = false);
 
 
-    DistributedStorageManagerServer(PDBLoggerPtr logger, bool selfLearningOrNot = false);
+    DistributedStorageManagerServer(PDBLoggerPtr logger, bool selfLearningOrNot = false, bool trainingMode = false);
     ~DistributedStorageManagerServer();
 
     void setSelfLearning (bool selfLearningOrNot) {
@@ -95,6 +95,10 @@ private:
         std::vector<std::string>& success, std::vector<std::string>& failures, mutex& lock);
 
     bool selfLearningOrNot;
+
+
+    bool trainingOrNot;
+
 
     //a map from database name, set name to id in DATA table
     std::map<std::pair<std::string, std::string>, long> idMap; 

@@ -633,6 +633,7 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
                 newRequest->setOutputTypeName(request->getOutputTypeName());
 
             } else {
+                 
                 Handle<SetIdentifier> result =
                     makeObject<SetIdentifier>(outDatabaseName, outSetName);
                 result->setNumPages(0);
@@ -709,7 +710,13 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
                 }
             }
 
+            getFunctionality<PangeaStorageServer>().cleanup(false);
+            Handle<SetIdentifier> result = nullptr;
+
             if (needsRemoveCombinerSet == true) {
+                result = makeObject<SetIdentifier>(combinerDatabaseName, combinerSetName);
+                result->setNumPages(combinerSet->getNumPages());
+                result->setPageSize(combinerSet->getPageSize());
                 // remove combiner set
                 getFunctionality<PangeaStorageServer>().removeSet(combinerDatabaseName,
                                                                   combinerSetName);
@@ -723,9 +730,13 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
 
 
             // now, we send back the result
-            Handle<SetIdentifier> result = makeObject<SetIdentifier>(outDatabaseName, outSetName);
-            result->setNumPages(outputSet->getNumPages());
-            result->setPageSize(outputSet->getPageSize());
+            getFunctionality<PangeaStorageServer>().cleanup(false);
+            if (result == nullptr) {
+                result = makeObject<SetIdentifier>(outDatabaseName, outSetName);
+                result->setNumPages(outputSet->getNumPages());
+                result->setPageSize(outputSet->getPageSize());
+            }
+            std::cout << "sending back result with " << result->getNumPages() << " pages" << std::endl;
             if (success == true) {
                 PDB_COUT << "Stage is done. " << std::endl;
                 errMsg = std::string("execution complete");

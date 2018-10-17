@@ -23,10 +23,11 @@ int main(int argc, char* argv[]) {
     std::string pemFile = "conf/pdb.key";
     bool pseudoClusterMode = false;
     double partitionToCoreRatio = 0.75;
+    bool trainingMode = false;
     if (argc == 3) {
         masterIp = argv[1];
         port = atoi(argv[2]);
-    } else if ((argc == 4) || (argc == 5) || (argc == 6)) {
+    } else if ((argc == 4) || (argc == 5) || (argc == 6) || (argc == 7)) {
         masterIp = argv[1];
         port = atoi(argv[2]);
         std::string isPseudoStr(argv[3]);
@@ -34,11 +35,18 @@ int main(int argc, char* argv[]) {
             pseudoClusterMode = true;
             std::cout << "Running in pseudo cluster mode" << std::endl;
         }
-        if ((argc == 5) || (argc == 6)) {
+        if ((argc == 5) || (argc == 6) || (argc ==7)) {
             pemFile = argv[4];
         }
-        if (argc == 6) {
+        if ((argc == 6) || (argc == 7)){
             partitionToCoreRatio = stod(argv[5]);
+        }
+        if (argc == 7) {
+            std::string isTrainingStr(argv[6]);
+            if (isTrainingStr.compare(std::string("Y")) == 0) {
+                trainingMode = true;
+                std::cout << "Running in training mode" << std::endl;
+            }
         }
 
     } else {
@@ -50,10 +58,7 @@ int main(int argc, char* argv[]) {
         exit(-1);
     }
     
-
     bool isSelfLearning = true;
-
-
 
     std::cout << "Starting up a distributed storage manager server\n";
     pdb::PDBLoggerPtr myLogger = make_shared<pdb::PDBLogger>("frontendLogFile.log");
@@ -129,14 +134,13 @@ int main(int argc, char* argv[]) {
     }
     infile.close();
     infile.clear();
-    if (isSelfLearning) {
-        frontEnd.addFunctionality<pdb::SelfLearningServer>(conf, port);
-    }
+    frontEnd.addFunctionality<pdb::SelfLearningServer>(conf, port);
+    
 
     PDBLoggerPtr rlLogger = std::make_shared<PDBLogger>("rlClient.log");
     frontEnd.addFunctionality<pdb::ResourceManagerServer>(
         "conf/serverlist", port, pseudoClusterMode, pemFile);
-    frontEnd.addFunctionality<pdb::DistributedStorageManagerServer>(rlLogger, isSelfLearning);
+    frontEnd.addFunctionality<pdb::DistributedStorageManagerServer>(rlLogger, isSelfLearning, trainingMode);
     auto allNodes = frontEnd.getFunctionality<pdb::ResourceManagerServer>().getAllNodes();
     frontEnd.addFunctionality<pdb::DispatcherServer>(myLogger, isSelfLearning);
     frontEnd.getFunctionality<pdb::DispatcherServer>().registerStorageNodes(allNodes);

@@ -148,6 +148,7 @@ public:
     std::string key = databaseName + ":" + setName;
     pthread_mutex_lock(&mutex);
     dataStatistics[key].numBytes += numBytes;
+    std::cout << "we increment numBytes to " << dataStatistics[key].numBytes << std::endl;
     pthread_mutex_unlock(&mutex);
 
   }

@@ -352,7 +352,7 @@ protected:
 
     String setName;
 
-    int batchSize;
+    int batchSize = DEFAULT_PAGE_SIZE;
 
     String outputType = "";    
 

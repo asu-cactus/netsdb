@@ -153,6 +153,10 @@ public:
 
    }
 
+    size_t hash() const {
+        return Hasher<int>::hash(o_orderkey);
+    }
+
 
 };
 

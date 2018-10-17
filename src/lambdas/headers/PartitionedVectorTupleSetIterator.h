@@ -37,7 +37,7 @@ private:
 
 
     // how many objects to put into a chunk
-    size_t chunkSize;
+    size_t chunkSize = DEFAULT_BATCH_SIZE;
 
     // where we are in the chunk
     size_t pos;

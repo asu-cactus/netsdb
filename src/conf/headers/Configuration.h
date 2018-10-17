@@ -139,7 +139,7 @@ public:
     }
 
     void initDirs() {
-        rootDir = std::string("pdbRoot_") + serverAddress + std::string("_") + std::to_string(port);
+        rootDir = std::string("/mnt/pdbRoot_") + serverAddress + std::string("_") + std::to_string(port);
         // temporarily added for unit tests
         this->createDir(rootDir);
         // Example: 

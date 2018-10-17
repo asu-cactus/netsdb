@@ -121,7 +121,7 @@ public:
     // a hash on a handle just hashes the underlying object
     size_t hash() const {
         //return (*this)->hash();
-        return Hasher<ObjType>::hash(*(*this));
+        return Hasher<size_t>::hash((size_t)(this));
     }
 
     // get the reference count for this Handle, if it exists (returns 99999999 if it does not)

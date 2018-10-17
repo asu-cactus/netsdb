@@ -32,9 +32,9 @@ Handle<LambdaIdentifier> DRLBasedDataPlacementOptimizerForLoadJob :: getBestLamb
                         this->reward, errMsg);
      std::cout << "bestLambdaIndex = " << bestLambdaIndex << std::endl;
      std::cout << "lambdaCandidates.size() = " << lambdaCandidates.size() << std::endl;
-     if ((bestLambdaIndex <= this->lambdaCandidates.size()) && (bestLambdaIndex > 0)) {
+     if (bestLambdaIndex < this->lambdaCandidates.size()) {
 
-          return this->lambdaCandidates[bestLambdaIndex - 1];
+          return this->lambdaCandidates[bestLambdaIndex];
 
       } else {
           std::cout << "we didn't find any lambda probably because it is first time execution" << std::endl;

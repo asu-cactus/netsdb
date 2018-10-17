@@ -1368,6 +1368,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
           } else if (((request->isRepartition() == false) ||
               (request->isCombining() == false)) &&
               (request->isBroadcasting() == false)) {
+            //pipeline or local join
             std::cout << "run pipeline..." << std::endl;
             pipeline->runPipeline(this);
           } else if (request->isBroadcasting() == true) {

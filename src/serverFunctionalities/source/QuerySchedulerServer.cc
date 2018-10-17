@@ -359,7 +359,7 @@ void QuerySchedulerServer::scheduleStages(std::vector<Handle<AbstractJobStage>>&
                std::cout << "my input in index is " << indexInInputs << std::endl;
                getFunctionality<SelfLearningServer>().
                    createDataJobStageMapping(sourceDataId, jobInstanceStageId, indexInInputs, "Source", sourceMappingId);
-
+               std::cout << "||||create data job stage mapping: " << sourceDataId << "=>" << jobInstanceStageId << std::endl;
                //sink
                Handle<SetIdentifier> sinkContext =
                    curTupleSetJobStage->getSinkContext();
@@ -370,6 +370,7 @@ void QuerySchedulerServer::scheduleStages(std::vector<Handle<AbstractJobStage>>&
                long sinkMappingId;
                getFunctionality<SelfLearningServer>().
                    createDataJobStageMapping(sinkDataId, jobInstanceStageId, -1, "Sink", sinkMappingId);
+               std::cout << "||||create data job stage mapping: " << sinkDataId << "=>" << jobInstanceStageId << std::endl;
 
                //probe
                if (curTupleSetJobStage->isProbing()) {
@@ -413,7 +414,7 @@ void QuerySchedulerServer::scheduleStages(std::vector<Handle<AbstractJobStage>>&
                long sourceMappingId;
                getFunctionality<SelfLearningServer>().
                    createDataJobStageMapping(sourceDataId, jobInstanceStageId, 0, "Source", sourceMappingId);
-               
+               std::cout << "||||create data job stage mapping: " << sourceDataId << "=>" << jobInstanceStageId << std::endl; 
                //sink
                Handle<SetIdentifier> sinkContext =
                    curAggregationJobStage->getSinkContext();
@@ -431,7 +432,7 @@ void QuerySchedulerServer::scheduleStages(std::vector<Handle<AbstractJobStage>>&
                long sinkMappingId;
                getFunctionality<SelfLearningServer>().
                    createDataJobStageMapping(sinkDataId, jobInstanceStageId, -1, "Sink", sinkMappingId);
-               
+               std::cout << "||||create data job stage mapping: " << sinkDataId << "=>" << jobInstanceStageId << std::endl; 
 
             } else if (stageType == "HashPartitionedJoinBuildHTJobStage") {
                Handle<HashPartitionedJoinBuildHTJobStage> curHashPartitionJobStage =
@@ -448,7 +449,7 @@ void QuerySchedulerServer::scheduleStages(std::vector<Handle<AbstractJobStage>>&
                long sourceMappingId;
                getFunctionality<SelfLearningServer>().
                    createDataJobStageMapping(sourceDataId, jobInstanceStageId, -1, "Source", sourceMappingId);
-               
+               std::cout << "||||create data job stage mapping: " << sourceDataId << "=>" << jobInstanceStageId << std::endl; 
                //sink
                std::string sinkSetName = curHashPartitionJobStage->getHashSetName();
                //get id of set
@@ -462,7 +463,7 @@ void QuerySchedulerServer::scheduleStages(std::vector<Handle<AbstractJobStage>>&
                long sinkMappingId;
                getFunctionality<SelfLearningServer>().
                    createDataJobStageMapping(sinkDataId, jobInstanceStageId, -1, "Sink", sinkMappingId);
-
+               std::cout << "||||create data job stage mapping: " << sinkDataId << "=>" << jobInstanceStageId << std::endl;
             } else if (stageType == "BroadcastJoinBuildHTJobStage") {
                Handle<BroadcastJoinBuildHTJobStage> curBroadcastJobStage =
                    unsafeCast<BroadcastJoinBuildHTJobStage, AbstractJobStage>
@@ -478,7 +479,8 @@ void QuerySchedulerServer::scheduleStages(std::vector<Handle<AbstractJobStage>>&
                long sourceMappingId;
                getFunctionality<SelfLearningServer>().
                    createDataJobStageMapping(sourceDataId, jobInstanceStageId, -1, "Source", sourceMappingId);
-               
+               std::cout << "||||create data job stage mapping: " << sourceDataId << "=>" << jobInstanceStageId << std::endl; 
+
                //sink
                std::string sinkSetName = curBroadcastJobStage->getHashSetName();
                //get id of set
@@ -492,7 +494,7 @@ void QuerySchedulerServer::scheduleStages(std::vector<Handle<AbstractJobStage>>&
                long sinkMappingId;
                getFunctionality<SelfLearningServer>().
                    createDataJobStageMapping(sinkDataId, jobInstanceStageId, -1, "Sink", sinkMappingId);
-
+               std::cout << "||||create data job stage mapping: " << sinkDataId << "=>" << jobInstanceStageId << std::endl;
             } else {
                 std::cout << "Unrecognized JobStage Type: " << stageType << std::endl;
             }
@@ -607,9 +609,9 @@ void QuerySchedulerServer::scheduleStages(std::vector<Handle<AbstractJobStage>>&
               //update the jobStage entry
               getFunctionality<SelfLearningServer>().updateJobStageForCompletion(jobInstanceStageId, "Succeeded");
 
-              std::cout << "NumHashKeys = " << numHashKeys << std::endl;
+              std::cout << "****NumHashKeys = " << numHashKeys << std::endl;
               if (numHashKeys > 0) {
-                  getFunctionality<SelfLearningServer>().updateJobStageForKeyDistribution(jobInstanceStageId, numHashKeys);
+                  getFunctionality<SelfLearningServer>().updateJobStageForKeyDistribution(jobInstanceStageId-1, numHashKeys);
               }
         }
     }
@@ -707,6 +709,7 @@ bool QuerySchedulerServer::scheduleStage(int index,
     PDB_COUT << "to receive query response from the " << index << "-th remote node" << std::endl;
     Handle<SetIdentifier> result = communicator->getNextObject<SetIdentifier>(success, errMsg);
     if (result != nullptr) {
+        std::cout << "//////////update stats for TupleSetJobStage" << std::endl; 
         this->updateStats(result);
         PDB_COUT << "TupleSetJobStage execute: wrote set:" << result->getDatabase() << ":"
                  << result->getSetName() << std::endl;
@@ -795,6 +798,8 @@ bool QuerySchedulerServer::scheduleStage(int index,
         this->updateStats(result);
         pthread_mutex_lock(&connection_mutex);
         this->numHashKeys += result->getNumHashKeys();
+        std::cout << "***result->getNumHashKeys()=" << result->getNumHashKeys() << std::endl;
+        std::cout << "***this->numHashKeys=" << this->numHashKeys << std::endl;
         pthread_mutex_unlock(&connection_mutex);
         PDB_COUT << "AggregationJobStage execute: wrote set:" << result->getDatabase() << ":"
                  << result->getSetName() << std::endl;
@@ -841,6 +846,8 @@ bool QuerySchedulerServer::scheduleStage(int index,
         this->updateStats(result);
         pthread_mutex_lock(&connection_mutex);
         this->numHashKeys += result->getNumHashKeys();
+        std::cout << "***result->getNumHashKeys()=" << result->getNumHashKeys() << std::endl;
+        std::cout << "***this->numHashKeys=" << this->numHashKeys << std::endl;
         pthread_mutex_unlock(&connection_mutex);
         PDB_COUT << "HashPartitionedJoinBuildHTJobStage execute: wrote set:"
                  << result->getDatabase() << ":" << result->getSetName() << std::endl;
@@ -1277,7 +1284,7 @@ void QuerySchedulerServer::updateStats(Handle<SetIdentifier> setToUpdateStats) {
     statsForOptimization->setPageSize(databaseName, setName, pageSize);
     size_t numBytes = numPages * pageSize;
     statsForOptimization->incrementNumBytes(databaseName, setName, numBytes);
-
+    std::cout << "to increment " << numBytes << " for size" << std::endl;    
 }
 
 void QuerySchedulerServer::resetStats(Handle<SetIdentifier> setToResetStats) {
@@ -1554,6 +1561,8 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                                         // to get the id of the set
                                         long id = getFunctionality<DistributedStorageManagerServer>().getIdForData(
                                                     intermediateSet->getDatabase(), intermediateSet->getSetName());
+                                        std::cout <<"///////////id for " << intermediateSet->getDatabase() << ":" << intermediateSet->getSetName() 
+                                                  <<" is " << id << std::endl;
 
                                         // to get the size of the set
                                         size_t size = this->statsForOptimization->getNumBytes(
@@ -1561,7 +1570,7 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                                     
                                         // update the size of the set
                                         getFunctionality<SelfLearningServer>().updateDataForSize(id, size);
-
+                                        std::cout <<"///////////to update data with id=" << id << " for size=" << size << std::endl;
                                     }
 
                                     bool res =

@@ -93,11 +93,11 @@ public:
 
 private:
     long lambdaId;
-    std::string lambdaIdentifier;
-    std::string lambdaInputClass;
-    std::string jobName;
-    std::string computationName;
-    std::string lambdaName;
+    String lambdaIdentifier;
+    String lambdaInputClass;
+    String jobName;
+    String computationName;
+    String lambdaName;
 };
 }
 

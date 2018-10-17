@@ -1214,7 +1214,7 @@ std::pair<std::string, std::string> TCAPAnalyzer::getHashSource (AtomicComputati
 
               AtomicComputationPtr producer = this->logicalPlan->getComputations().getProducingAtomicComputation(joinNode->getRightInput().getSetName());
               res = producer->findSource((joinNode->getRightInput().getAtts())[0], this->logicalPlan->getComputations());
-          }
+          } 
 
           std::cout << "res.first=" << res.first << std::endl;
           std::cout << "res.second=" << res.second << std::endl;
@@ -1250,14 +1250,14 @@ bool TCAPAnalyzer::matchSourceWithQuery(std::string jobInstanceId,
                         << ", computationName is " << partitionLambda->getComputationName()
                         << ", lambdaName is " << partitionLambda->getLambdaName() << std::endl;
 
+              computationName = res.first;
+              lambdaName = res.second;
               if ((partitionLambda->getJobName() == jobName) &&
                   (partitionLambda->getComputationName() == res.first) &&
                   (partitionLambda->getLambdaName() == res.second)) {
 
                   prepartitioned = true;
 
-                  computationName = res.first;
-                  lambdaName = res.second;
 
               }
 

@@ -606,8 +606,269 @@ bool SelfLearningDB :: getInfoForLoadJob (std::string loadJobName, double & aver
     return true;
 }
 
+bool SelfLearningDB :: getAllLambdaCandidates(std::string loadJobName, std::string dataType, std::vector<Handle<LambdaIdentifier>> & lambdaCandidates, RLState & retState) {
 
-bool SelfLearningDB :: getAllLambdaCandidates(std::string loadJobName, std::string dataType, std::vector<Handle<LambdaIdentifier>> & lambdaCandidates, RLState & state) {
+    //to get all lambdas that is applicable to the data type
+    sqlite3_stmt * statement;
+    std::map<std::string, std::vector<LambdaContext>> lambdas;
+    std::string queryString = "SELECT ID, JOB_ID, COMPUTATION_NAME, LAMBDA_NAME, LAMBDA_TYPE, LAMBDA_IDENTIFIER, LAMBDA_INPUT_INDEX_IN_COMPUTATION_INPUTS from LAMBDA WHERE LAMBDA_INPUT_CLASS = " + quoteStr(dataType);
+    std::cout << "Get lambda context: " << queryString << std::endl;
+    if (sqlite3_prepare_v2(selfLearningDBHandler, queryString.c_str(), -1, &statement,
+                     NULL) == SQLITE_OK) {
+        while (1) {
+            int res = sqlite3_step(statement);
+            if (res == SQLITE_ROW) {
+                long lambdaId = sqlite3_column_int(statement, 0);
+                long jobId = sqlite3_column_int(statement, 1);
+                std::string computationName = reinterpret_cast<const char*>(sqlite3_column_text(statement, 2));
+                std::string lambdaName = reinterpret_cast<const char*>(sqlite3_column_text(statement, 3));
+                std::string lambdaType = reinterpret_cast<const char*>(sqlite3_column_text(statement, 4));
+                std::string lambdaIdentifier = reinterpret_cast<const char*>(sqlite3_column_text(statement, 5));
+                int lambdaIndexInInputs = sqlite3_column_int(statement, 6);
+                LambdaContext curLambda(lambdaId, jobId, computationName, lambdaName, lambdaIndexInInputs);
+                curLambda.identifier = lambdaIdentifier;
+                curLambda.typeName = dataType;
+                if (lambdaType == "native_lambda") {
+                   curLambda.identifier = computationName + "||" + lambdaName;
+                }
+                lambdas[curLambda.typeName+"||"+curLambda.identifier].push_back(curLambda);
+            } else if (res == SQLITE_DONE) {
+                break;
+            } else {
+                std::cout << "Query failed" << std::endl;
+                sqlite3_finalize(statement);
+                return false;
+            }
+        }
+    } else {
+           std::cout << (std::string)(sqlite3_errmsg(selfLearningDBHandler)) << std::endl;
+           sqlite3_finalize(statement);
+           return false;
+    }
+    sqlite3_finalize(statement);
+
+    std::cout << "We've identified " << lambdas.size() << " lambdas for partitioning with " << dataType 
+              << " for " << loadJobName << std::endl;    
+
+    std::map<int, LambdaContext> candidates;
+
+    int totalCount = 0;
+
+    //for each lambda, we check its data distance, frequency and selectivity
+    for (auto a : lambdas) {
+        double distance;
+        if (a.second[0].typeName == "native_lambda") {
+            distance = 1;
+        } else if (a.second[0].typeName == "att_access") {
+            distance = 0.0;
+        } else {
+            distance = 0.5;
+        }
+        double selectivity = 0;
+        double numHashKeys = DBL_MAX;
+        int count=0;
+        for (int i = 0; i < a.second.size(); i++) {
+           int freq = 0;
+           std::vector<JobStageContext> relatedStages;
+           LambdaContext curLambda = a.second[i];
+           //select dataId, jobStage that are:
+           // --- in the job processing the data that is loaded by the load job, and has the specified job id;
+           // --- has target computation that has the specified name
+           //by joining data, data_job_stage, job_stage, job_instance
+           std::string queryString = "SELECT JOB_STAGE2.JOB_INSTANCE_ID, JOB_STAGE2.ID, JOB_INSTANCE2.JOB_ID, JOB_STAGE2.SINK_TYPE, DATA_JOB_STAGE1.DATA_ID, DATA1.SIZE, DATA_JOB_STAGE2.JOB_STAGE_ID, DATA2.SIZE "
+                         "FROM DATA AS DATA1 JOIN DATA_JOB_STAGE AS DATA_JOB_STAGE1 ON (DATA1.ID=DATA_JOB_STAGE1.DATA_ID AND DATA1.CREATED_JOBID="+quoteStr(loadJobName) + ") "
+                                            "JOIN JOB_STAGE AS JOB_STAGE1 ON DATA_JOB_STAGE1.JOB_STAGE_ID = JOB_STAGE1.ID "
+                                            "JOIN JOB_STAGE AS JOB_STAGE2 ON (JOB_STAGE2.JOB_INSTANCE_ID = JOB_STAGE1.JOB_INSTANCE_ID AND JOB_STAGE2.TARGET_COMPUTATION_SPECIFIER=" + quoteStr(curLambda.computationName) + ") "
+                                            "JOIN JOB_INSTANCE AS JOB_INSTANCE2 ON JOB_STAGE2.JOB_INSTANCE_ID = JOB_INSTANCE2.ID "
+                                            "JOIN DATA_JOB_STAGE AS DATA_JOB_STAGE2 ON (DATA_JOB_STAGE2.JOB_STAGE_ID = JOB_STAGE2.ID AND DATA_JOB_STAGE2.DATA_TYPE='Sink') "
+                                            "JOIN DATA AS DATA2 ON DATA_JOB_STAGE2.DATA_ID = DATA2.ID";
+
+
+            std::cout << "Get <JOB_INSTANCEID, JOB_STAGE_ID, JOB_ID, SINK_TYPE, DATA_ID, INPUT_SIZE, STAGE_ID, OUTPUT_SIZE>: " << queryString << std::endl;
+             // get the historical runs
+             // and for each run, we should find out
+            if (sqlite3_prepare_v2(selfLearningDBHandler, queryString.c_str(), -1, &statement,
+                     NULL) == SQLITE_OK) {
+               while (1) {
+                 int res = sqlite3_step(statement);
+                 if (res == SQLITE_ROW) {
+                     long jobInstanceId = sqlite3_column_int(statement, 0);
+                     long jobStageId = sqlite3_column_int(statement, 1);
+                     long jobId = sqlite3_column_int(statement, 2);
+                     std::string sinkType = reinterpret_cast<const char*>(sqlite3_column_text(statement, 3));
+                     if (sinkType == "PartionedHashSet") {
+                        continue;
+                     }
+                     long dataId = sqlite3_column_int(statement, 4);
+                     size_t inputSize = sqlite3_column_int64(statement, 5);
+                     int stageId = sqlite3_column_int(statement, 6);
+                     size_t outputSize = sqlite3_column_int64(statement, 7);
+                     JobStageContext curStage (jobInstanceId, jobStageId, dataId, inputSize, stageId, outputSize);
+                     relatedStages.push_back(curStage);
+                     freq++;
+                 } else if (res == SQLITE_DONE) {
+                     break;
+                 } else {
+                     std::cout << "Query failed" << std::endl;
+                     sqlite3_finalize(statement);
+                     return false;
+                 }
+             }
+        } else {
+             std::cout << (std::string)(sqlite3_errmsg(selfLearningDBHandler)) << std::endl;
+             sqlite3_finalize(statement);
+             return false;
+        }
+        sqlite3_finalize(statement);
+
+        // to set the selectivity
+        for (int j = 0; j < freq; j++) {
+             JobStageContext curJobStageContext = relatedStages[j];
+             double curSelectivity = (double)curJobStageContext.sinkSize / (double)curJobStageContext.sourceSize / (double)(1000000);
+             if (curSelectivity > selectivity){
+                  selectivity = curSelectivity;
+             }
+        }
+
+        // to set the key distribution
+        for (int j = 0; j < relatedStages.size(); j++) {
+             long jobInstanceId = relatedStages[j].jobInstanceId;
+             int jobStageId = relatedStages[j].stageId;
+             std::string queryString = "SELECT NUM_HASH_KEYS from JOB_STAGE WHERE JOB_INSTANCE_ID = " + std::to_string(jobInstanceId) + " AND ID = " + std::to_string(jobStageId);
+             std::cout << "Get NUM_HASH_KEYS: " << queryString << std::endl;
+             if (sqlite3_prepare_v2(selfLearningDBHandler, queryString.c_str(), -1, &statement, NULL) == SQLITE_OK) {
+                 int res = sqlite3_step(statement);
+                 if (res == SQLITE_ROW) {
+                     double  curNumHashKeys = (double)sqlite3_column_int(statement, 0)/(double)(100000);
+                     std::cout << "curNumHashKeys = " << curNumHashKeys << std::endl;
+                     if (curNumHashKeys < numHashKeys) {
+                         numHashKeys = curNumHashKeys;
+                     }
+                 }
+
+             }
+        }
+        count = count + freq;
+        totalCount = totalCount + freq;
+     }
+     if (count > 0) {
+         LambdaContext curCandidate;
+         curCandidate.lambdaId = a.second[0].lambdaId;
+         curCandidate.jobId = a.second[0].jobId;
+         curCandidate.computationName = a.second[0].computationName;
+         curCandidate.lambdaName = a.second[0].lambdaName;
+         curCandidate.dataDistance = distance;
+         curCandidate.selectivity = selectivity;
+         curCandidate.avgNumHashKeys = numHashKeys;
+         curCandidate.count = count;
+         candidates[curCandidate.lambdaId] = curCandidate;
+     }
+   }
+
+   //ranking candidates
+    int numCandidates = 0;    
+    for (auto a : candidates) {
+        double distance = a.second.dataDistance;
+        double selectivity = a.second.selectivity;
+        a.second.frequency = (double)(a.second.count)/(double)(totalCount);
+        std::cout << "count = " << a.second.count << ", totalCount = " << totalCount
+               << ", frequency = " << a.second.frequency << std::endl;
+        double frequency = a.second.frequency;
+        std::cout << "frequency is " << frequency << std::endl;
+        double numKeys = a.second.avgNumHashKeys;
+        if (numCandidates < NUM_CANDIDATE_LAMBDA) {
+            //insert this candidate
+            retState.candidateLambdaIndex[numCandidates] = a.second.lambdaId;
+            std::cout << "retState.candidateLambdaIndex[" << numCandidates <<"]=" << a.second.lambdaId << std::endl;
+            retState.dataDistance[numCandidates] = distance;
+            retState.frequency[numCandidates] = frequency;
+            std::cout << "retState.frequency[" << numCandidates << "]=" << retState.frequency[numCandidates] << std::endl;
+            retState.selectivity[numCandidates] = selectivity;
+            retState.avgNumHashKeys[numCandidates] = numKeys;
+            if (frequency < retState.leastFrequency) {
+                retState.indexWithLeastFrequency = numCandidates;
+            }
+            numCandidates++;
+            retState.numCandidates ++;
+        } else {
+            if (frequency > retState.leastFrequency) {
+                retState.candidateLambdaIndex[retState.indexWithLeastFrequency] = a.second.lambdaId;
+                std::cout << "retState.candidateLambdaIndex[" << retState.indexWithLeastFrequency <<"]=" << a.second.lambdaId << std::endl;
+                retState.dataDistance[retState.indexWithLeastFrequency] = distance;
+                retState.frequency[retState.indexWithLeastFrequency] = frequency;
+                std::cout << "retState.frequency[" << retState.indexWithLeastFrequency << "]=" 
+                          << retState.frequency[retState.indexWithLeastFrequency] << std::endl;
+                retState.selectivity[retState.indexWithLeastFrequency] = selectivity;
+                retState.avgNumHashKeys[retState.indexWithLeastFrequency] = numKeys;
+                retState.indexWithLeastFrequency = -1;
+                retState.leastFrequency = DBL_MAX;
+                for (int i = 0; i < numCandidates; i++) {
+                    if (retState.frequency[i] < retState.leastFrequency) {
+                        retState.leastFrequency = retState.frequency[i];
+                        retState.indexWithLeastFrequency = i;
+                    }
+                }
+            }
+        }   
+    }
+
+    //remember to customize below //TODO: remove hard coding
+    int dataScale = 10;
+    int numNodes = 5;
+    std::string diskType = "SSD";
+    double memSize = (size_t)(60) * (size_t)(1024) * (size_t)(1024) * (size_t)(1024)/1000000;
+    std::string networkType = "10Gb";
+    int numCPU = 8;
+    retState.dataScale = dataScale;
+    if (dataType == "tpch::Customer") {
+       retState.inputSize = 2.44847 * (double)((double)dataScale/(double)1000);
+    } else if (dataType == "tpch::LineItem") {
+       retState.inputSize = 77.75727 * (double)((double)dataScale/(double)1000);
+    } else if (dataType == "tpch::Nation") {
+       retState.inputSize = 0.00002 * (double)((double)dataScale/(double)1000);
+    } else if (dataType == "tpch::Order") {
+       retState.inputSize = 17.49195 * (double)((double)dataScale/(double)1000);
+    } else if (dataType == "tpch::PartSupp") {
+       retState.inputSize = 12.0485 * (double)((double)dataScale/(double)1000);
+    } else if (dataType == "tpch::Part") {
+       retState.inputSize = 2.43336 * (double)((double)dataScale/(double)1000);
+    } else if (dataType == "tpch::Region") {
+       retState.inputSize = 0.000003 * (double)((double)dataScale/(double)1000);
+    } else if (dataType == "tpch::Supplier") {
+       retState.inputSize = 0.14176 * (double)((double)dataScale/(double)1000);
+    }
+    retState.numNodes = (double)(numNodes)/(double)(20);
+    retState.numCores = (double)(numCPU)/(double)(16);
+    retState.memSize = (double)(memSize)/(double)(100000);
+    if (diskType == "SSD") {
+      retState.diskSpeed = 1;
+    } else {
+      retState.diskSpeed = 0.01;
+    }
+
+    if (networkType == "10Gb") {
+      retState.networkBandwidth = 1;
+    } else {
+      retState.networkBandwidth = 0.01;
+    }
+
+    // to set output
+    const UseTemporaryAllocationBlock tempBlock{32 * 1024 * 1024};
+    for (size_t i = 0; i < retState.numCandidates; i++) {
+        size_t lambdaId  = retState.candidateLambdaIndex[i];
+        LambdaContext curLambda = candidates[lambdaId];
+        size_t jobId = curLambda.jobId;
+        std::string computationName = curLambda.computationName;
+        std::string lambdaName = curLambda.lambdaName;
+        std::string jobName = this->getJobName(jobId);
+        std::cout << "jobName: " << jobName << ", computationName: " << computationName << ", lambdaName: " << lambdaName << std::endl;
+        Handle<LambdaIdentifier> curLambdaIdentifier = makeObject<LambdaIdentifier> (jobName, computationName, lambdaName);
+        lambdaCandidates.push_back(curLambdaIdentifier);
+    }
+
+    return true;
+}
+bool SelfLearningDB :: getAllLambdaCandidates1(std::string loadJobName, std::string dataType, std::vector<Handle<LambdaIdentifier>> & lambdaCandidates, RLState & state) {
     
     //to get all lambdas that is applicable to the data type
     sqlite3_stmt * statement;
@@ -642,7 +903,7 @@ bool SelfLearningDB :: getAllLambdaCandidates(std::string loadJobName, std::stri
            return false;
     }
     sqlite3_finalize(statement);
-
+   
 
 
     //for each lambda, we check its data distance, frequency and selectivity
@@ -1434,11 +1695,13 @@ std::string SelfLearningDB::getJobName (long jobId) {
         int res = sqlite3_step(statement);
         if (res == SQLITE_ROW) {
             jobName = reinterpret_cast<const char*>(sqlite3_column_text(statement, 0));
+            std::cout << "jobName is " << jobName << std::endl;
         }
     } else {
         std::cout << (std::string)(sqlite3_errmsg(selfLearningDBHandler)) << std::endl;
     }
     sqlite3_finalize(statement);
+    std::cout << "jobName is " << jobName << std::endl;
     return jobName;
 
 }

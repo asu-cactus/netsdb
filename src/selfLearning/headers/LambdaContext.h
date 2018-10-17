@@ -11,6 +11,9 @@ namespace pdb {
 class LambdaContext  {
 
 public:
+   
+    LambdaContext () {}
+
 
     //constructor
     LambdaContext (long lambdaId, long jobId, std::string computationName, std::string lambdaName, int lambdaIndexInInputs) {
@@ -23,13 +26,18 @@ public:
 
     }
 
+    //typename
+    std::string typeName;
 
+    //identifier
+    std::string identifier;
 
     //the id of the lambda
     long lambdaId;
 
     //the id of the Job in which the Lambda is executed
     long jobId;
+
 
     //the name of the Computation in which the Lambda is executed
     std::string computationName;
@@ -58,6 +66,8 @@ public:
     //number of distinct hash keys
     double avgNumHashKeys = -1.0;
 
+    //count
+    int count = 0;
 };
 
 }

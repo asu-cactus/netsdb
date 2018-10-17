@@ -54,6 +54,12 @@ bool DistributedStorageManagerClient::createSet(const std::string& databaseName,
                                                 Handle<Computation> dispatchComputation,
                                                 Handle<LambdaIdentifier> lambdaIdentifier,
                                                 size_t desiredSize ) {
+    std::cout << "to create set for " << databaseName << ":" << setName << std::endl;
+    if (lambdaIdentifier != nullptr) {
+         std::cout << "jobName is " << lambdaIdentifier->getJobName() << std::endl;
+         std::cout << "computationName is " << lambdaIdentifier->getComputationName() << std::endl;
+         std::cout << "lambdaName is " << lambdaIdentifier->getLambdaName() << std::endl;
+    }
     return simpleRequest<DistributedStorageAddSet, SimpleRequestResult, bool>(
         logger,
         port,

@@ -140,6 +140,10 @@ public:
     // to get all lambda candidates and their information
     bool getAllLambdaCandidates(std::string loadJobName, std::string dataType, std::vector<Handle<LambdaIdentifier>> & lambdaCandidates, RLState & state);
 
+    // to get all lambda candidates and their information
+    bool getAllLambdaCandidates1(std::string loadJobName, std::string dataType, std::vector<Handle<LambdaIdentifier>> & lambdaCandidates, RLState & state);
+
+
     // to get Lambda given a Computation and a type
     Handle<LambdaIdentifier> getLambda(long jobId, std::string computationName, std::string inputType, int indexInInputs);
 

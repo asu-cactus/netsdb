@@ -55,15 +55,18 @@ namespace pdb {
 
 DistributedStorageManagerServer::DistributedStorageManagerServer(PDBLoggerPtr logger,
                                                                  ConfigurationPtr conf,
-                                                                 bool selfLearningOrNot)
+                                                                 bool selfLearningOrNot,
+                                                                 bool trainingOrNot)
     : BroadcastServer(logger, conf) {
     this->selfLearningOrNot = selfLearningOrNot;
+    this->trainingOrNot = trainingOrNot;
 }
 
 
-DistributedStorageManagerServer::DistributedStorageManagerServer(PDBLoggerPtr logger, bool selfLearningOrNot)
+DistributedStorageManagerServer::DistributedStorageManagerServer(PDBLoggerPtr logger, bool selfLearningOrNot, bool trainingOrNot)
     : BroadcastServer(logger) {
     this->selfLearningOrNot = selfLearningOrNot;
+    this->trainingOrNot = trainingOrNot;
 }
 
 
@@ -298,8 +301,7 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
             }
             stats->setNumPages("temp", request->getSetName(), 0);
             stats->setNumBytes("temp", request->getSetName(), 0);
-            //if (this->selfLearningOrNot == true) {
-            if (false) {
+            if (this->selfLearningOrNot == true) {
                 long id;
                 int typeId = VTableMap::getIDByName(request->getTypeName());
                 std::string createdJobId = request->getCreatedJobId();
@@ -398,9 +400,8 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
             std::shared_ptr<AbstractDataPlacementOptimizer> optimizer = nullptr;
             size_t pageSize = request->getPageSize();
             //to get ShuffleInfo object
-            std::shared_ptr<ShuffleInfo> shuffleInfo = nullptr;
-            if (this->selfLearningOrNot == true) {
-                shuffleInfo = getFunctionality<QuerySchedulerServer>().getShuffleInfo();
+            std::shared_ptr<ShuffleInfo> shuffleInfo = getFunctionality<QuerySchedulerServer>().getShuffleInfo();;
+            if ((this->selfLearningOrNot == true)&&(request->getLambdaIdentifier() == nullptr)&&(trainingOrNot == false)) {
 #ifdef APPLY_REINFORCEMENT_LEARNING
                 optimizer = std::make_shared<DRLBasedDataPlacementOptimizerForLoadJob> (shuffleInfo->getNumHashPartitions(),
                                                                       shuffleInfo->getNumNodes(),
@@ -444,7 +445,7 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
             Handle<Computation> myComputation = request->getDispatchComputation();
             Handle<LambdaIdentifier> myLambdaIdentifier = request->getLambdaIdentifier();
             if (myLambdaIdentifier == nullptr) {
-                 if (this->selfLearningOrNot == true) {
+                 if ((this->selfLearningOrNot == true) && (optimizer != nullptr)&&(this->trainingOrNot == false)){
                      std::cout << "to get the best lambda" << std::endl;
                      myLambdaIdentifier = optimizer->getBestLambda();
                  }
@@ -458,11 +459,11 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                  //to set the LambdaPolicy
                  //TODO
             } else if (myLambdaIdentifier != nullptr) {
-                 if (this->selfLearningOrNot == true) {
                      //to fetch the lambda object
                      std::string jobName = myLambdaIdentifier->getJobName();
                      std::string computationName = myLambdaIdentifier->getComputationName();
                      std::string lambdaName = myLambdaIdentifier->getLambdaName();
+                     
                      //to get the computation object 
                      Handle<Computation> myComputation = getFunctionality<SelfLearningServer>().getComputation(
                        jobName, computationName);
@@ -486,7 +487,6 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                      }
                      lambdaId = getFunctionality<SelfLearningServer>().getLambdaId(jobName, computationName, lambdaName);
 
-                 }
             } else {
                  std::cout << "No Computation and Lambda for partitioning" << std::endl;
                  if (this->selfLearningOrNot == true) {
@@ -501,13 +501,15 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
 
 #ifdef APPLY_REINFORCEMENT_LEARNING 
             bool isRepeatedLambda = false;
-            long latestLambdaId = getFunctionality<SelfLearningServer>().getLatestLambdaIdForLoadJob(request->getCreatedJobId());
-            std::cout << "received lambdaId is " << lambdaId << std::endl;
-            std::cout << "last lambdaId applied to the same data is " << latestLambdaId << std::endl;
-            if (latestLambdaId == lambdaId) {
-                isRepeatedLambda = true;
-            } else {
-                isRepeatedLambda = false;
+            if ((this->selfLearningOrNot == true) && (this->trainingOrNot == false)) {
+                long latestLambdaId = getFunctionality<SelfLearningServer>().getLatestLambdaIdForLoadJob(request->getCreatedJobId());
+                std::cout << "received lambdaId is " << lambdaId << std::endl;
+                std::cout << "last lambdaId applied to the same data is " << latestLambdaId << std::endl;
+                if (latestLambdaId == lambdaId) {
+                    isRepeatedLambda = true;
+                } else {
+                    isRepeatedLambda = false;
+                }
             }
 #endif
 
@@ -584,9 +586,11 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
             PDB_COUT << std::endl;
 
 #ifdef APPLY_REINFORCEMENT_LEARNING 
-            if ((res == true) && (isRepeatedLambda == true)) {
-                res = false;
-                errMsg = "RepeatedLambda";
+            if ((this->selfLearningOrNot == true)&&(this->trainingOrNot == false)) {
+                if ((res == true) && (isRepeatedLambda == true)) {
+                    res = false;
+                    errMsg = "RepeatedLambda";
+                }
             }
 #endif
 

@@ -415,7 +415,7 @@ void PipelineStage::executePipelineWork(int i,
             = unsafeCast<ScanUserSet<Object>, Computation>(computation);
         scanner->setIterator(iterators.at(i));
         scanner->setProxy(proxy);
-        if (scanner->getBatchSize() == 0) {
+        if (scanner->getBatchSize() <= 0) {
             scanner->setBatchSize(64);
         }
         std::string partitionComputationName = this->jobStage->getPartitionComputationSpecifier();
@@ -989,7 +989,11 @@ void PipelineStage::runPipeline(HermesExecutionServer* server,
     if (this->jobStage->isLocalJoinSink()) {
 
         std::string hashSetName = this->jobStage->getSinkContext()->getDatabase()+":"+this->jobStage->getSinkContext()->getSetName();
-        size_t hashSetSize = ((size_t)(this->jobStage->getSourceContext()->getNumPages())) * this->jobStage->getSourceContext()->getPageSize() * ((size_t)(2)) / ((size_t)(numSourceThreads));
+        size_t hashSetSize = ((size_t)(this->jobStage->getSourceContext()->getNumPages())) * this->jobStage->getSourceContext()->getPageSize() * 2;
+        if (hashSetSize > (size_t)(256)*(size_t)(1024)*(size_t)(1024)) {
+            hashSetSize = (size_t)(256)*(size_t)(1024)*(size_t)(1024);
+        }
+        std::cout << "hashSetSize for local join sink is " << hashSetSize << std::endl; 
         partitionedSetForSink = make_shared<PartitionedHashSet>(hashSetName, hashSetSize);
         server->addHashSet(hashSetName, partitionedSetForSink);
         for (int i = 0; i < numSourceThreads; i++) {
