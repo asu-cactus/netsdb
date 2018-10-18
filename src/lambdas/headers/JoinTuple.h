@@ -450,7 +450,7 @@ public:
         // extract the hash table we've been given
         Record<JoinMap<RHSType>>* input = (Record<JoinMap<RHSType>>*)hashTable;
         inputTable = input->getRootObject();
-
+        //std::cout << "inputTable->size()=" << inputTable->size() << std::endl;
         // set up the output tuple
         output = std::make_shared<TupleSet>();
         columns = new void*[positions.size()];
@@ -474,7 +474,9 @@ public:
 
     TupleSetPtr process(TupleSetPtr input) override {
 
+        //std::cout << "whichAtt = " << whichAtt << std::endl;
         std::vector<size_t> inputHash = input->getColumn<size_t>(whichAtt);
+        //std::cout << "inputHash.size()=" << inputHash.size() << std::endl;
         JoinMap<RHSType>& inputTableRef = *inputTable;
 
         // redo the vector of hash counts if it's not the correct size
@@ -499,6 +501,7 @@ public:
             // remember how many matches we had
             counts[i] = numHits;
         }
+        //std::cout << "count=" << overallCounter << std::endl;
 
         // truncate if we have extra
         eraseEnd<RHSType>(overallCounter, 0, columns);
@@ -553,6 +556,7 @@ public:
             JoinRecordList<RHSType>* myList = *iter;
             size_t mySize = myList->size();
             size_t myHash = myList->getHash();
+            
             if (mySize > 0) {
                 this->numHashKeys = this->numHashKeys + 1;
                 for (size_t i = 0; i < mySize; i++) {

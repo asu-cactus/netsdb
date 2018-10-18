@@ -176,10 +176,10 @@ protected:
     /**
      * DBMIN attribute: desired size
      */
-    size_t desiredSize;
+    size_t desiredSize = 1;
 
 
-    int numCachedPages;
+    int numCachedPages = 0;
 };
 
 

@@ -405,6 +405,7 @@ public:
                 outColumn.resize(numTuples);
                 for (int i = 0; i < numTuples; i++) {
                     outColumn[i] = hashHim(rightColumn[i]);
+                    //std::cout << "rh outColumn[" << i << "]=" << outColumn[i] << std::endl;
                 }
                 return output;
             },
@@ -457,6 +458,7 @@ public:
                 outColumn.resize(numTuples);
                 for (int i = 0; i < numTuples; i++) {
                     outColumn[i] = hashHim(leftColumn[i]);
+                    //std::cout << "lh outColumn[" << i << "]=" << outColumn[i] << std::endl;
                 }
                 return output;
             },

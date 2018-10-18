@@ -114,6 +114,10 @@ public:
         return 10000*meta.blockRowIndex + meta.blockColIndex;
     }
 
+    const std::string toString() const {
+        return std::string("Block: (")+std::to_string(meta.blockRowIndex)+std::string(",")
+               +std::to_string(meta.blockColIndex)+std::string(")");
+    }
 
     void printMeta() {
         std::cout << "Block: (" << meta.blockRowIndex << "," << meta.blockColIndex << "), size: ("
@@ -136,6 +140,10 @@ public:
             }
             std::cout << std::endl;
         }
+    }
+
+    friend std::ostream& operator<<(std::ostream& stream, const StringIntPair& printMe) {
+        return stream << printMe.toString();
     }
 
     std::string toSchemaString(std::string format) override {

@@ -29,7 +29,7 @@ SRC_ROOT = os.path.join(Dir('.').abspath, "src") # assume the root source dir is
 # OSX settings
 if common_env['PLATFORM'] == 'darwin':
     print 'Compiling on OSX'
-    common_env.Append(CXXFLAGS = '-std=c++1y -Wall -O3 -g')
+    common_env.Append(CXXFLAGS = '-std=c++1y -Wall -O0 -g')
     common_env.Replace(CXX = "clang++")
 
 # Linux settings
@@ -42,7 +42,7 @@ elif  common_env['PLATFORM'] == 'posix':
 
     #for debugging
     #Needs to be turned on for KMeans and TPCH
-    common_env.Append(CXXFLAGS = '-std=c++14 -g -Oz -march=native -Winline -Winline-asm -Wno-deprecated-declarations')
+    common_env.Append(CXXFLAGS = '-std=c++14 -g -O0 -march=native -Winline -Winline-asm -Wno-deprecated-declarations')
     #common_env.Append(CXXFLAGS = '-std=c++14 -g  -Oz -ldl -lstdc++ -Wno-deprecated-declarations')
     common_env.Append(LINKFLAGS = '-pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++')
     common_env.Replace(CXX = "clang++")
@@ -52,7 +52,7 @@ common_env.Append(CCFLAGS='-DINITIALIZE_ALLOCATOR_BLOCK')
 common_env.Append(CCFLAGS='-DENABLE_SHALLOW_COPY')
 common_env.Append(CCFLAGS='-DDEFAULT_BATCH_SIZE=100')
 common_env.Append(CCFLAGS='-DREMOVE_SET_WITH_EVICTION')
-common_env.Append(CCFLAGS='-DAUTO_TUNING')
+#common_env.Append(CCFLAGS='-DAUTO_TUNING')
 common_env.Append(CCFLAGS='-DPROFILING')
 common_env.Append(CCFLAGS='-DUSE_LOCALITY_SET')
 #common_env.Append(CCFLAGS='-DAPPLY_REINFORCEMENT_LEARNING')
@@ -62,7 +62,7 @@ common_env.Append(CCFLAGS='-DENABLE_LARGE_GRAPH')
 common_env.Append(CCFLAGS='-DJOIN_HASH_TABLE_SIZE_RATIO=1.5')
 common_env.Append(CCFLAGS='-DHASH_PARTITIONED_JOIN_SIZE_RATIO=0.5')
 common_env.Append(CCFLAGS='-DPROFILING')
-common_env.Append(CCFLAGS='-DJOIN_COST_THRESHOLD=0')
+common_env.Append(CCFLAGS='-DJOIN_COST_THRESHOLD=15000')
 common_env.Append(CCFLAGS='-DENABLE_COMPRESSION')
 #common_env.Append(CCFLAGS='-DPDB_DEBUG')
 common_env.Append(CCFLAGS='-DEVICT_STOP_THRESHOLD=0.9')
@@ -250,9 +250,9 @@ for src_subdir_path in src_root_subdir_paths:
         component_dir_basename_to_cc_file_paths [src_subdir_basename] = ccSources
 
         # maps .c files        
-        cSources = [(abspath(join(join ('build/', src_subdir_basename),'LAParser.c'))), (abspath(join(join ('build/', src_subdir_basename),'LALexer.c')))]
+        #cSources = [(abspath(join(join ('build/', src_subdir_basename),'LAParser.c'))), (abspath(join(join ('build/', src_subdir_basename),'LALexer.c')))]
         
-        component_dir_basename_to_lexer_c_file_paths [src_subdir_basename] = cSources
+        #component_dir_basename_to_lexer_c_file_paths [src_subdir_basename] = cSources
 
     else:
         common_env.VariantDir(join('build/', src_subdir_basename), [source_folder], duplicate = 0)
@@ -317,10 +317,10 @@ all = ['build/sqlite/sqlite3.c',
        component_dir_basename_to_cc_file_paths['storage'],
        component_dir_basename_to_cc_file_paths['lambdas'],
        component_dir_basename_to_cc_file_paths['logicalPlan'],
-       component_dir_basename_to_cc_file_paths['linearAlgebraDSL'],
+       #component_dir_basename_to_cc_file_paths['linearAlgebraDSL'],
        component_dir_basename_to_cc_file_paths['selfLearning'],
        component_dir_basename_to_lexer_file_paths['logicalPlan'],
-       component_dir_basename_to_lexer_file_paths['linearAlgebraDSL'],
+       #component_dir_basename_to_lexer_file_paths['linearAlgebraDSL'],
        boost_component_dir_basename_to_cc_file_paths['filesystem'],
        boost_component_dir_basename_to_cc_file_paths['program_options'],
        boost_component_dir_basename_to_cc_file_paths['system'],
@@ -671,7 +671,6 @@ common_env.Program('bin/test403', ['build/tests/Test403.cc'] + all)
 common_env.Program('bin/test405', ['build/tests/Test405.cc'] + all + pdb_client)
 common_env.Program('bin/test42', ['build/tests/Test42.cc'] + all)
 common_env.Program('bin/test43', ['build/tests/Test43.cc'] + all)
-common_env.Program('bin/test44', ['build/tests/Test44.cc'] + all)
 common_env.Program('bin/test45', ['build/tests/Test45.cc'] + all)
 common_env.Program('bin/test46', ['build/tests/Test46.cc'] + all)
 common_env.Program('bin/test47', ['build/tests/Test47.cc'] + all)
@@ -751,7 +750,6 @@ common_env.Depends(pdbTest, [
   'bin/CatalogTests',
   'bin/pdb-cluster',
   'bin/pdb-server', 
-  'bin/test44', 
   'bin/test46', 
   'bin/test74', 
   'bin/test79', 

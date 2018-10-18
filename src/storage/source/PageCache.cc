@@ -324,15 +324,17 @@ PDBPagePtr PageCache::getPage(PartitionedFilePtr file,
                               LocalitySet* set) {
   
     if (this->strategy == UnifiedDBMIN) {
+        pthread_mutex_lock(&this->evictionMutex);
+        std::cout << "numCachedPages = " << set->getNumCachedPages() << std::endl;
+        std::cout << "desiredSize = " << set->getDesiredSize() << std::endl;
         if (set->getNumCachedPages() >= set->getDesiredSize()) {
              PDBPagePtr  pageToEvict = set->selectPageForReplacement();
              if (pageToEvict != nullptr) {
-                this->evictionUnlock();
                 this->evictPageForDBMIN(pageToEvict, set);
-                this->evictionLock();
                 pageToEvict = nullptr;
              } 
-        }    
+        }
+        pthread_mutex_unlock(&this->evictionMutex);    
     }
     CacheKey key;
     key.dbId = file->getDbId();
@@ -437,15 +439,17 @@ PDBPagePtr PageCache::getNewPageNonBlocking(NodeID nodeId,
                                             LocalitySet* set,
                                             size_t pageSize) {
     if (this->strategy == UnifiedDBMIN) {
+        pthread_mutex_lock(&this->evictionMutex);
+        std::cout << "numCachedPages = " << set->getNumCachedPages() << std::endl;
+        std::cout << "desiredSize = " << set->getDesiredSize() << std::endl;
         if (set->getNumCachedPages() >= set->getDesiredSize()) {
              PDBPagePtr  pageToEvict = set->selectPageForReplacement();
              if (pageToEvict != nullptr) {
-                this->evictionUnlock();
                 this->evictPageForDBMIN(pageToEvict, set);
-                this->evictionLock();
                 pageToEvict = nullptr;
              }
         }
+        pthread_mutex_unlock(&this->evictionMutex);
     }
 
     if (this->containsPage(key) == true) {
@@ -487,15 +491,17 @@ PDBPagePtr PageCache::getNewPageNonBlocking(NodeID nodeId,
 PDBPagePtr PageCache::getNewPage(NodeID nodeId, CacheKey key, LocalitySet* set, size_t pageSize) {
 
     if (this->strategy == UnifiedDBMIN) {
+        pthread_mutex_lock(&this->evictionMutex);
+        std::cout << "numCachedPages = " << set->getNumCachedPages() << std::endl;
+        std::cout << "desiredSize = " << set->getDesiredSize() << std::endl;
         if (set->getNumCachedPages() >= set->getDesiredSize()) {
              PDBPagePtr  pageToEvict = set->selectPageForReplacement();
              if (pageToEvict != nullptr) {
-                this->evictionUnlock();
                 this->evictPageForDBMIN(pageToEvict, set);
-                this->evictionLock();
                 pageToEvict = nullptr;
              }
         }
+        pthread_mutex_unlock(&this->evictionMutex);
     }
 
     pthread_mutex_lock(&evictionMutex);

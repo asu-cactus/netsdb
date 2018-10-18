@@ -27,6 +27,7 @@ public:
     }
 
     int getInt() {
+        std::cout << "extract " << myInt << std::endl;
         return myInt;
     }
 
@@ -35,6 +36,7 @@ public:
     }
 
     Handle<String> getString() {
+        std::cout << "extract " << myString->c_str() << std::endl;
         return myString;
     }
 
@@ -55,6 +57,15 @@ public:
     size_t hash() const {
         return hashMe(myString->c_str(), myString->size() - 1);
     }
+
+    const std::string toString() const {
+        return (std::string(myString->c_str()) + std::string("_") + std::to_string(myInt));
+    }
+
+    friend std::ostream& operator<<(std::ostream& stream, const StringIntPair& printMe) {
+        return stream << printMe.toString();
+    }
+
 };
 }
 

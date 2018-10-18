@@ -452,7 +452,10 @@ size_t JoinRecordList<ValueType>::size() {
             //std::cout << "parent.overflows["<< JM_GET_NEXT(parent.data, whichOne) << "].size()=" << parent.overflows[JM_GET_NEXT(parent.data, whichOne)].size() << std::endl;
             return parent.overflows[JM_GET_NEXT(parent.data, whichOne)].size() + 1;
         } else {
-            std::cout << "not invalid slot, return 0" << std::endl;
+            std::cout << "whichOne = " << whichOne << std::endl;
+            std::cout << "JM_GET_NEXT(parent.data, whichOne)=" << JM_GET_NEXT(parent.data, whichOne) << std::endl;
+            std::cout << "parent.overflows.size()=" << parent.overflows.size() << std::endl;
+            std::cout << "invalid slot, return 0" << std::endl;
             return 0;
         }
     } else {
