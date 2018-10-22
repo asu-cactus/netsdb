@@ -195,6 +195,9 @@ public:
     // Invoke the eviction in a method instead of a separate thread.
     void evict();
 
+    // Evict pages with DBMIN policy
+    void evictForDBMIN(LocalitySet * set);
+
     // Evict page specified by cachekey from cache.
     bool evictPage(CacheKey key, bool tryFlushOrNot = true);
 
@@ -232,6 +235,16 @@ public:
 
     // Unlock for flushing.
     void flushUnlock();
+
+    // Lock for evictionMutex
+    void evictionMutexLock() {
+       pthread_mutex_lock(&this->evictionMutex);
+    }
+
+    // Unlock for evictionMutex
+    void evictionMutexUnlock() {
+       pthread_mutex_unlock(&this->evictionMutex);
+    }
 
     // Flush a page.
     bool flushPageWithoutEviction(CacheKey key);
@@ -284,6 +297,7 @@ public:
 
     void unpin(LocalitySetPtr set);
 
+    CacheStrategy strategy;
 
 private:
     unordered_map<CacheKey, PDBPagePtr, CacheKeyHash, CacheKeyEqual>* cache;
@@ -303,7 +317,6 @@ private:
     pthread_mutex_t countLock;
     SharedMemPtr shm;
     PageCircularBufferPtr flushBuffer;
-    CacheStrategy strategy;
     /*
      * index = 0, TransientLifetimeEnded
      * index = 1, PersistentLifetimeEnded

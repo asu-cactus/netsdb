@@ -215,27 +215,49 @@ void UserSet::dump(char* buffer) {
 }
 
 void UserSet::evictPages() {
-    setPinned(true);
-    vector<PageIteratorPtr>* iterators = this->getIterators();
-    int numIterators = iterators->size();
-    int i;
-    for (i = 0; i < numIterators; i++) {
-        PageIteratorPtr curIter = iterators->at(i);
-        while (curIter->hasNext()) {
-            PDBPagePtr curPage = curIter->next();
-            if (curPage != nullptr) {
-                CacheKey key;
-                key.dbId = this->getDbID();
-                key.typeId = this->getTypeID();
-                key.setId = this->getSetID();
-                key.pageId = curPage->getPageID();
-                curPage->resetRefCount();
-                this->pageCache->evictPage(key, false);
-            }
+
+    if (this->pageCache->strategy == UnifiedDBMIN) {
+        this->pageCache->evictionLock();
+        while (this->getNumCachedPages() > 0) {
+             PDBPagePtr  pageToEvict = this->selectPageForReplacement();
+             if (pageToEvict != nullptr) {
+                this->pageCache->evictionUnlock();
+                bool ret = this->pageCache->evictPageForDBMIN(pageToEvict, this);
+                if (ret == false) {
+                    break;
+                }
+                pageToEvict = nullptr;
+                this->pageCache->evictionLock();
+             } else {
+                std::cout << "no page to evict" << std::endl;
+                break;
+             }
         }
+        this->pageCache->evictionUnlock();
+    
+    } else { 
+        setPinned(true);
+        vector<PageIteratorPtr>* iterators = this->getIterators();
+        int numIterators = iterators->size();
+        int i;
+        for (i = 0; i < numIterators; i++) {
+            PageIteratorPtr curIter = iterators->at(i);
+            while (curIter->hasNext()) {
+                PDBPagePtr curPage = curIter->next();
+                if (curPage != nullptr) {
+                    CacheKey key;
+                    key.dbId = this->getDbID();
+                    key.typeId = this->getTypeID();
+                    key.setId = this->getSetID();
+                    key.pageId = curPage->getPageID();
+                    curPage->resetRefCount();
+                    this->pageCache->evictPage(key, false);
+                }
+             }
+         }
+         setPinned(false);
+         delete iterators;
     }
-    setPinned(false);
-    delete iterators;
 }
 
 // thread-safe

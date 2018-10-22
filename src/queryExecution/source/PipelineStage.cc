@@ -615,11 +615,13 @@ void PipelineStage::executePipelineWork(int i,
                                    outputSet->getTypeId(),
                                    outputSet->getSetId(),
                                    output);
-
+ 
                 if (output == nullptr) {
                     std::cout << "Pipeline Error: insufficient memory in heap" << std::endl;
                     return std::make_pair(nullptr, 0);
                 }
+                std::cout << i << ": Pinned new page with pageId=" << output->getPageID() << ", setId="
+                          << outputSet->getSetId() << std::endl;
                 return std::make_pair(output->getBytes(), output->getSize());
 
 
@@ -866,6 +868,7 @@ void PipelineStage::executePipelineWork(int i,
 
         info);
     std::cout << "\nRunning Pipeline\n";
+    curPipeline->id = i;
     curPipeline->run();
     curPipeline = nullptr;
     newPlan->nullifyPlanPointer();

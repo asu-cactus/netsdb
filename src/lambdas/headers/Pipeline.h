@@ -35,7 +35,6 @@ struct MemoryHolder {
     }
 
     MemoryHolder(std::pair<void*, size_t> buildMe) {
-        std::cout << "build MemoryHolder with size=" << buildMe.second << std::endl;
         location = buildMe.first;
         makeObjectAllocatorBlock(location, buildMe.second, true);
         outputSink = nullptr;
@@ -75,6 +74,9 @@ private:
     std::queue<MemoryHolderPtr> unwrittenPages;
 
 public:
+
+    int id;
+
     // the first argument is a function to call that gets a new output page...
     // the second arguement is a function to call that deals with a full output page
     // the third argument is the iterator that will create TupleSets to process
@@ -127,10 +129,10 @@ public:
         // take care of getting rid of any pages... but only get rid of those from two iterations
         // ago...
         // pages from the last iteration may still have pointers into them
-        PDB_COUT << "to clean page for iteration-" << iteration << std::endl;
-        PDB_COUT << "unwrittenPages.size() =" << unwrittenPages.size() << std::endl;
+        //std::cout << "to clean page for iteration-" << iteration << std::endl;
+        //std::cout << "unwrittenPages.size() =" << unwrittenPages.size() << std::endl;
 
-        while (unwrittenPages.size() > 0 && iteration > unwrittenPages.front()->iteration + 1) {
+        while (unwrittenPages.size() > 0 && iteration > unwrittenPages.front()->iteration + 12) {
             PDB_COUT << "unwrittenPages.front()->iteration=" << unwrittenPages.front()->iteration
                      << std::endl;
             // in this case, the page did not have any output data written to it... it only had
@@ -159,7 +161,6 @@ public:
                 // create a new one, or this could cause a lot of problems!!
                 if (iteration == 999999999)
                     makeObjectAllocatorBlock(1024, true);
-
                 // make sure he is written
                 writeBackPage(unwrittenPages.front()->location);
 
@@ -202,6 +203,8 @@ public:
             } catch (NotEnoughSpace& n) {
                 myRAM->setIteration(iteration);
                 unwrittenPages.push(myRAM);
+                iteration++;
+                cleanPages(iteration);
                 myRAM = std::make_shared<MemoryHolder>(getNewPage());
                 if (myRAM->location == nullptr) {
                     std::cout << "ERROR: insufficient memory in heap" << std::endl;
@@ -244,6 +247,8 @@ public:
                     // and get a new page
                     myRAM->setIteration(iteration);
                     unwrittenPages.push(myRAM);
+                    iteration++;
+                    cleanPages(iteration);
                     myRAM = std::make_shared<MemoryHolder>(getNewPage());
                     if (myRAM->location == nullptr) {
                         std::cout << "ERROR: insufficient memory in heap" << std::endl;
@@ -278,19 +283,17 @@ public:
 
                 // again, we ran out of RAM here, so write back the page and then create a new
                 // output page
-                std::cout << "pipeline runs out of RAM" << std::endl;
                 myRAM->setIteration(iteration);
                 unwrittenPages.push(myRAM);
+                iteration++;
+                cleanPages(iteration);
                 myRAM = std::make_shared<MemoryHolder>(getNewPage());
-
                 // and again, try to write back the output
                 myRAM->outputSink = dataSink->createNewOutputContainer();
                 dataSink->writeOut(curChunk, myRAM->outputSink);
             }
 
             // lastly, write back all of the output pages
-            iteration++;
-            cleanPages(iteration);
         }
 
         // set the iteration
@@ -298,6 +301,7 @@ public:
 
         // and remember the page
         unwrittenPages.push(myRAM);
+
     }
 };
 

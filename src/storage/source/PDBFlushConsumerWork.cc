@@ -27,6 +27,7 @@ void PDBFlushConsumerWork::execute(PDBBuzzerPtr callerBuzzer) {
         if ((page = flushBuffer->popPageFromHead()) != nullptr) {
             // got a page from flush buffer
             // find the set of the page
+          
             PDB_COUT << "Got a page with PageID " << page->getPageID()
                      << " for partition:" << this->partitionId << "\n";
             PDB_COUT << "page dbId=" << page->getDbID() << "\n";
@@ -76,7 +77,6 @@ void PDBFlushConsumerWork::execute(PDBBuzzerPtr callerBuzzer) {
 #endif
 
                 // remove the page from cache!
-                PDB_COUT << "to free the page!\n";
                 this->server->getSharedMem()->free(page->getRawBytes() - page->getInternalOffset(),
                                                    page->getSize() + 512);
                 PDB_COUT << "internalOffset=" << page->getInternalOffset() << "\n";
