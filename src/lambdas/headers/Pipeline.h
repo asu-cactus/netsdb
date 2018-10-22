@@ -132,7 +132,7 @@ public:
         //std::cout << "to clean page for iteration-" << iteration << std::endl;
         //std::cout << "unwrittenPages.size() =" << unwrittenPages.size() << std::endl;
 
-        while (unwrittenPages.size() > 0 && iteration > unwrittenPages.front()->iteration + 12) {
+        while (unwrittenPages.size() > 0 && iteration > unwrittenPages.front()->iteration + 2) {
             PDB_COUT << "unwrittenPages.front()->iteration=" << unwrittenPages.front()->iteration
                      << std::endl;
             // in this case, the page did not have any output data written to it... it only had
