@@ -665,6 +665,7 @@ void PipelineStage::executePipelineWork(int i,
                 (this->jobStage->isRepartition() == false) &&
                 (sourceContext->getSetType() == UserSetType)) {
                 if (output != nullptr) {
+                    std::cout << "1: to unpin page with id=" << output->getPageID() << ", setId=" << output->getSetID() << std::endl;
                     proxy->unpinUserPage(
                         nodeId, output->getDbID(), output->getTypeID(), output->getSetID(), output);
                 }
@@ -848,9 +849,15 @@ void PipelineStage::executePipelineWork(int i,
 
             } else {
                 if (sourceContext->getSetType() == UserSetType) {
+                    PDBPagePtr pageToUnpin = make_shared<PDBPage>((char*)page -
+                             (sizeof(NodeID) + sizeof(DatabaseID) + sizeof(UserTypeID) +
+                              sizeof(SetID) + sizeof(PageID) + sizeof(int) + sizeof(size_t)), 0, 0);
+                    std::cout << i << ": 2- to unpin page with id=" << pageToUnpin->getPageID() << ", setId=" << pageToUnpin->getSetID() << std::endl;
+                    proxy->unpinUserPage(nodeId, pageToUnpin->getDbID(), pageToUnpin->getTypeID(), pageToUnpin->getSetID(), pageToUnpin);
+                    /*
                     proxy->unpinUserPage(
                         nodeId, output->getDbID(), output->getTypeID(), output->getSetID(), output);
-
+                    */
                 } else {
                     // to handle a vector sink
                     // PDBPagePtr output = nullptr;
@@ -859,6 +866,7 @@ void PipelineStage::executePipelineWork(int i,
                                        outputSet->getSetId(),
                                        output);
                     memcpy(output->getBytes(), page, output->getSize());
+                    std::cout << i << ": 3- to unpin page with id=" << output->getPageID() << ", setId=" << output->getSetID() << std::endl;
                     proxy->unpinUserPage(
                         nodeId, output->getDbID(), output->getTypeID(), output->getSetID(), output);
                     free((char*)page - headerSize);

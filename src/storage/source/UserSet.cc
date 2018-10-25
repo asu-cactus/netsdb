@@ -221,6 +221,7 @@ void UserSet::evictPages() {
         while (this->getNumCachedPages() > 0) {
              PDBPagePtr  pageToEvict = this->selectPageForReplacement();
              if (pageToEvict != nullptr) {
+                  std::cout << "evictPages(): to evict page with id=" << pageToEvict->getPageID() << " from set with id=" << setId << std::endl;
                 this->pageCache->evictionUnlock();
                 bool ret = this->pageCache->evictPageForDBMIN(pageToEvict, this);
                 if (ret == false) {

@@ -107,7 +107,7 @@ PangeaStorageServer::PangeaStorageServer(SharedMemPtr shm,
     this->flushBuffer = make_shared<PageCircularBuffer>(FLUSH_BUFFER_SIZE, logger);
 
     // initialize cache, must be initialized before databases
-    this->cache = make_shared<PageCache>(conf, workers, flushBuffer, logger, shm, UnifiedDBMIN);
+    this->cache = make_shared<PageCache>(conf, workers, flushBuffer, logger, shm);
 
     // initialize and load databases, must be initialized after cache
     this->dbs = new std::map<DatabaseID, DefaultDatabasePtr>();
@@ -1182,7 +1182,7 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                 PageID pageId = request->getPageID();
                 bool wasNewPage = request->getWasNewPage();
 
-                PDB_COUT << "to pin page in set with setId=" << setId << std::endl;
+                std::cout << "to pin page in set with setId=" << setId << std::endl;
                 bool res;
                 string errMsg;
 
@@ -1309,7 +1309,11 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
 
             bool res;
             std::string errMsg;
+            getFunctionality<PangeaStorageServer>().getCache()->evictionMutexLock();
+            getFunctionality<PangeaStorageServer>().getCache()->evictionLock();
             if (getFunctionality<PangeaStorageServer>().getCache()->decPageRefCount(key) == false) {
+                getFunctionality<PangeaStorageServer>().getCache()->evictionUnlock();
+                getFunctionality<PangeaStorageServer>().getCache()->evictionMutexUnlock();
                 res = false;
                 errMsg = "Fatal Error: Page doesn't exist for unpinning page.";
                 std::cout << "dbId=" << dbId << ", typeId=" << typeId << ", setId=" << setId
@@ -1317,6 +1321,10 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                 std::cout << errMsg << std::endl;
                 logger->error(errMsg);
             } else {
+                getFunctionality<PangeaStorageServer>().getCache()->evictionUnlock();
+                getFunctionality<PangeaStorageServer>().getCache()->evictionMutexUnlock();
+                std::cout << "Unpin dbId=" << dbId << ", typeId=" << typeId << ", setId=" << setId
+                          << ", pageId=" << pageId << std::endl;
 #ifdef ENABLE_EVICTION
                 getFunctionality<PangeaStorageServer>().getCache()->evictPage(key);
 #endif

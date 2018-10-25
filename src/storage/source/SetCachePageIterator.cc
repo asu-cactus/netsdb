@@ -35,7 +35,6 @@ PDBPagePtr SetCachePageIterator::end() {
 }
 
 PDBPagePtr SetCachePageIterator::next() {
-    this->cache->evictionLock();
     if (this->iter != this->set->getDirtyPageSet()->end()) {
         if (this->iter->second.inCache == true) {
             CacheKey key;
@@ -43,20 +42,18 @@ PDBPagePtr SetCachePageIterator::next() {
             key.typeId = this->set->getTypeID();
             key.setId = this->set->getSetID();
             key.pageId = this->iter->first;
-            PDB_COUT << "SetCachePageIterator: in cache: curPageId=" << key.pageId << "\n";
+            std::cout << "SetCachePageIterator: in cache: curPageId=" << key.pageId << "\n";
 #ifdef USE_LOCALITY_SET
             PDBPagePtr page = this->cache->getPage(key, this->set);
 #else
             PDBPagePtr page = this->cache->getPage(key, nullptr);
 #endif
-            this->cache->evictionUnlock();
             ++iter;
             return page;
         } else {
-            this->cache->evictionUnlock();
             // the page is already flushed to file, so load from file
             PageID pageId = this->iter->first;
-            PDB_COUT << "SetCachePageIterator: not in cache: curPageId=" << pageId << "\n";
+            std::cout << "SetCachePageIterator: not in cache: curPageId=" << pageId << "\n";
             FileSearchKey searchKey = this->iter->second;
 #ifdef USE_LOCALITY_SET
             PDBPagePtr page = this->cache->getPage(this->set->getFile(),

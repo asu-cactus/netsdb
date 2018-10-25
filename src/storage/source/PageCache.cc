@@ -323,7 +323,7 @@ void PageCache::evictForDBMIN(LocalitySet * set) {
              PDBPagePtr  pageToEvict = set->selectPageForReplacement();
              if (pageToEvict != nullptr) {
                 this->evictionUnlock();
-                //std::cout << "to evict page with Id=" << pageToEvict->getPageID() << std::endl;
+                std::cout << "to evict page with Id=" << pageToEvict->getPageID() << " and set Id=" << pageToEvict->getSetID() << std::endl;
                 bool ret = this->evictPageForDBMIN(pageToEvict, set);
                 if (ret == false) {
                     break;
@@ -351,7 +351,7 @@ PDBPagePtr PageCache::getPage(PartitionedFilePtr file,
     
     if (this->strategy == UnifiedDBMIN) {
         pthread_mutex_lock(&this->evictionMutex);
-        //std::cout << "to run evictForDBMIN for getPage with Id=" << pageId << ", set=" << file->getSetId() << std::endl;
+        std::cout << "to run evictForDBMIN for getPage with Id=" << pageId << ", set=" << file->getSetId() << std::endl;
         evictForDBMIN(set);
         pthread_mutex_unlock(&this->evictionMutex);
     }
@@ -441,7 +441,11 @@ PDBPagePtr PageCache::getPage(CacheKey key, LocalitySet* set) {
             logger->warn("SetCachePageIterator get nullptr in cache.");
             return nullptr;
         }
+        pthread_mutex_lock(&evictionMutex);
+        this->evictionLock();
         page->incRefCount();
+        this->evictionUnlock();
+        pthread_mutex_unlock(&evictionMutex);
         pthread_mutex_lock(&this->countLock);
         page->setAccessSequenceId(this->accessCount);
         this->accessCount++;
@@ -507,7 +511,7 @@ PDBPagePtr PageCache::getNewPage(NodeID nodeId, CacheKey key, LocalitySet* set, 
 
     pthread_mutex_lock(&evictionMutex);
     if (this->strategy == UnifiedDBMIN) {
-        //std::cout << "to run evictForDBMIN for getNewPage with Id=" << key.pageId << ", setId=" << key.setId << std::endl;
+        std::cout << "to run evictForDBMIN for getNewPage with Id=" << key.pageId << ", setId=" << key.setId << std::endl;
         evictForDBMIN(set);
     }
 

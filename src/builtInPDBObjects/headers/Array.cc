@@ -197,6 +197,8 @@ TypeContained& Array<TypeContained>::getObj(uint32_t which) {
 template <class TypeContained>
 void Array<TypeContained>::assign(uint32_t which, const TypeContained& val) {
     if (which > usedSlots) {
+        std::cout << "which: " << which << std::endl;
+        std::cout << "usedSlots: " << usedSlots << std::endl;
         std::cerr << "Bad: you are writing past the end of the vector!\n";
         return;
     }

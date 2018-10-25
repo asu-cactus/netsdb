@@ -101,19 +101,23 @@ public:
         // kill all of the pipeline stages
         while (pipeline.size())
             pipeline.pop_back();
-
+        
         // first, reverse the queue so we go oldest to newest
         // this ensures that everything is deleted in the reverse order that it was created
         std::vector<MemoryHolderPtr> reverser;
+        std::cout << "unwrittenPages.size = " << unwrittenPages.size() << std::endl;
         while (unwrittenPages.size() > 0) {
             reverser.push_back(unwrittenPages.front());
             unwrittenPages.pop();
         }
 
+        std::cout << "reverser.size = " << reverser.size() << std::endl;
         while (reverser.size() > 0) {
             unwrittenPages.push(reverser.back());
             reverser.pop_back();
         }
+        
+        std::cout << "unwrittenPages.size = " << unwrittenPages.size() << std::endl;
 
         // write back all of the pages
         cleanPages(999999999);
@@ -129,11 +133,10 @@ public:
         // take care of getting rid of any pages... but only get rid of those from two iterations
         // ago...
         // pages from the last iteration may still have pointers into them
-        //std::cout << "to clean page for iteration-" << iteration << std::endl;
-        //std::cout << "unwrittenPages.size() =" << unwrittenPages.size() << std::endl;
-
+        std::cout << id << ": to clean page for iteration-" << iteration << std::endl;
+        std::cout << id << ": unwrittenPages.size() =" << unwrittenPages.size() << std::endl;
         while (unwrittenPages.size() > 0 && iteration > unwrittenPages.front()->iteration + 2) {
-            PDB_COUT << "unwrittenPages.front()->iteration=" << unwrittenPages.front()->iteration
+            std::cout << "iteration=" << iteration << " and unwrittenPages.front()->iteration=" << unwrittenPages.front()->iteration
                      << std::endl;
             // in this case, the page did not have any output data written to it... it only had
             // intermediate results, and so we will just discard it
@@ -146,7 +149,7 @@ public:
 
                     std::cout << "This is Strange... how did I find a page with objects??\n";
                 }
-
+                std::cout << id << ": to discard a page in iteration=" << iteration << " and page iteration =" << unwrittenPages.front()->iteration << std::endl;
                 discardPage(unwrittenPages.front()->location);
                 unwrittenPages.pop();
 
@@ -162,8 +165,9 @@ public:
                 if (iteration == 999999999)
                     makeObjectAllocatorBlock(1024, true);
                 // make sure he is written
+                std::cout << id << ": to write back a page in iteration=" << iteration << " and page iteration =" << unwrittenPages.front()->iteration << " and page location =" << unwrittenPages.front()->location << std::endl;
                 writeBackPage(unwrittenPages.front()->location);
-
+                
                 // and get ridda him
                 unwrittenPages.pop();
             }
@@ -172,8 +176,6 @@ public:
 
     // runs the pipeline
     void run() {
-
-        
 
         // this is where we are outputting all of our results to
         MemoryHolderPtr myRAM = std::make_shared<MemoryHolder>(getNewPage());
@@ -203,6 +205,7 @@ public:
             } catch (NotEnoughSpace& n) {
                 myRAM->setIteration(iteration);
                 unwrittenPages.push(myRAM);
+                std::cout << id << ": 1- setIteration=" << iteration << std::endl;
                 iteration++;
                 cleanPages(iteration);
                 myRAM = std::make_shared<MemoryHolder>(getNewPage());
@@ -247,6 +250,7 @@ public:
                     // and get a new page
                     myRAM->setIteration(iteration);
                     unwrittenPages.push(myRAM);
+                    std::cout << id << ": 2- setIteration=" << iteration << std::endl;
                     iteration++;
                     cleanPages(iteration);
                     myRAM = std::make_shared<MemoryHolder>(getNewPage());
@@ -285,6 +289,7 @@ public:
                 // output page
                 myRAM->setIteration(iteration);
                 unwrittenPages.push(myRAM);
+                std::cout << id << ": 3- setIteration=" << iteration << std::endl;
                 iteration++;
                 cleanPages(iteration);
                 myRAM = std::make_shared<MemoryHolder>(getNewPage());
@@ -298,7 +303,7 @@ public:
 
         // set the iteration
         myRAM->setIteration(iteration);
-
+        std::cout << id << ": 4- setIteration=" << iteration << std::endl;
         // and remember the page
         unwrittenPages.push(myRAM);
 
