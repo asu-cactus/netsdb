@@ -435,17 +435,14 @@ PDBPagePtr PageCache::getPage(CacheKey key, LocalitySet* set) {
         return nullptr;
     } else {
         PDBPagePtr page = this->cache->at(key);
-        pthread_mutex_unlock(&this->cacheMutex);
         if (page == nullptr) {
             std::cout << "WARNING: SetCachePageIterator get nullptr in cache.\n" << std::endl;
             logger->warn("SetCachePageIterator get nullptr in cache.");
+            pthread_mutex_unlock(&this->cacheMutex);
             return nullptr;
         }
-        pthread_mutex_lock(&evictionMutex);
-        this->evictionLock();
         page->incRefCount();
-        this->evictionUnlock();
-        pthread_mutex_unlock(&evictionMutex);
+        pthread_mutex_unlock(&this->cacheMutex);
         pthread_mutex_lock(&this->countLock);
         page->setAccessSequenceId(this->accessCount);
         this->accessCount++;

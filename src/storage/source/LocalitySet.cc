@@ -19,6 +19,8 @@ LocalitySet::LocalitySet(LocalityType localityType,
     this->persistenceType = persistenceType;
     this->lifetimeEnded = false;
     this->desiredSize = desiredSize;
+    pthread_mutex_init(&localitySetCacheMutex, nullptr);
+
 }
 
 LocalitySet::~LocalitySet() {

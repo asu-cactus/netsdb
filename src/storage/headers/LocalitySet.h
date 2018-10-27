@@ -108,6 +108,15 @@ public:
         this->numCachedPages = numCachedPages;
     }
 
+    void lockSetCache () {
+        pthread_mutex_lock(&localitySetCacheMutex);
+    }
+
+    void unlockSetCache () {
+        pthread_mutex_unlock(&localitySetCacheMutex);
+    }
+
+
 protected:
     /**
      * Cached pages in the set, ordered by access sequenceId;
@@ -180,6 +189,9 @@ protected:
 
 
     int numCachedPages = 0;
+
+    pthread_mutex_t localitySetCacheMutex;
+
 };
 
 
