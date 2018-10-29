@@ -217,7 +217,15 @@ int main (int argc, char * argv[]) {
         }
 
         // now, create a new set in that database
-        if (!temp.createSet<double[]> ("kmeans_db", "kmeans_input_set", errMsg)) {
+        if (!temp.createSet<double[]> (
+                            "kmeans_db", 
+                            "kmeans_input_set", 
+                             errMsg,
+                             DEFAULT_PAGE_SIZE,
+                             "kmeans_input",
+                             nullptr,
+                             nullptr,
+                             1)) {
             COUT << "Not able to create set: " + errMsg;
             exit (-1);
         } else {
@@ -250,7 +258,14 @@ int main (int argc, char * argv[]) {
         }
 
         // now, create a new set in that database
-        if (!temp.createSet<double[NUM_KMEANS_DIMENSIONS]> ("kmeans_db", "kmeans_input_set", errMsg)) {
+        if (!temp.createSet<double[NUM_KMEANS_DIMENSIONS]> ("kmeans_db", 
+                                                            "kmeans_input_set", 
+                                                            errMsg,
+                                                            DEFAULT_PAGE_SIZE,
+                                                            "kmeans_input",
+                                                            nullptr,
+                                                            nullptr,
+                                                            1)) {
             COUT << "Not able to create set: " + errMsg;
         } else {
             COUT << "Created set.\n";

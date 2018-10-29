@@ -32,6 +32,8 @@ Handle<LambdaIdentifier> getBestLambda() override;
 //to return the best page size
 size_t getBestPageSize() override;
 
+size_t getEstimatedSize() override;
+
 //to return the last reward
 double getLastReward() override;
 

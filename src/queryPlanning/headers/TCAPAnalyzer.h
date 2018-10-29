@@ -156,7 +156,7 @@ public:
   int getBestSource(StatisticsPtr stats);
 
   // to return the cost of the i-th source
-  double getCostOfSource(int index, StatisticsPtr stats);
+  size_t getCostOfSource(int index, StatisticsPtr stats);
 
   // to return the index of next consumer to process for a certain source
   unsigned int getNextConsumerIndex(std::string name);
@@ -180,6 +180,18 @@ public:
                             Handle<SetIdentifier> sourceSetIdentifier,
                             std::string & computationName,
                             std::string & lambdaName);
+
+
+
+  // to set number of nodes
+  void setNumNodes (int numNodes) {
+      this->numNodesInCluster = numNodes;
+  }
+
+  // to return number of nodes
+  int getNumNodes () {
+      return this->numNodesInCluster;
+  }
 
 private:
   //selfLearning db
@@ -242,11 +254,19 @@ private:
   // the size of current source
   double costOfCurSource;
 
+  // the exact size of current source
+  size_t exactSizeOfCurSource;
+
+
   // the name of current chosen source set
   std::string curSourceSetName;
 
   // the names of source sets that are hold on
   std::vector<std::string> penalizedSourceSets;
+
+  // number of nodes in the cluster
+  int numNodesInCluster;
+
 };
 
 

@@ -28,6 +28,9 @@ Handle<LambdaIdentifier> getBestLambda() override;
 //to return the best page size
 size_t getBestPageSize() override;
 
+//to return the estimated size
+size_t getEstimatedSize() override;
+
 
 private:
 

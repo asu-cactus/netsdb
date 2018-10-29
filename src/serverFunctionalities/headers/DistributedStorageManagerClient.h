@@ -37,7 +37,7 @@ public:
                    const std::string& createdJobId = "",
                    Handle<Computation> computationForDispatch = nullptr,
                    Handle<LambdaIdentifier> lambdaForDispatch = nullptr,
-                   size_t desiredSize = 200);
+                   size_t desiredSize = 0);
 
 
 
@@ -50,7 +50,7 @@ public:
                        const std::string& createdJobId = "",
                        Handle<Computation> computationForDispatch = nullptr,
                        Handle<LambdaIdentifier> lambdaForDispatch = nullptr,
-                       size_t desiredSize = 200);
+                       size_t desiredSize = 0);
 
     // templated createSet
     template <class DataType>
@@ -61,7 +61,7 @@ public:
                    const std::string& createdJobId = "",
                    Handle<Computation> computationForDispatch = nullptr,
                    Handle<LambdaIdentifier> lambdaForDispatch = nullptr,
-                   size_t desiredSize = 200);
+                   size_t desiredSize = 0);
 
     // storage cleanup to flush buffered data to disk
     bool flushData(std::string& errMsg);

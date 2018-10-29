@@ -60,6 +60,10 @@ size_t DRLBasedDataPlacementOptimizerForLoadJob :: getBestPageSize() {
      }
 }
 
+size_t DRLBasedDataPlacementOptimizerForLoadJob :: getEstimatedSize() {
+    return this->state.inputSize;
+}
+
 //to return the last reward
 double DRLBasedDataPlacementOptimizerForLoadJob :: getLastReward() {
 

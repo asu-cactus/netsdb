@@ -107,7 +107,7 @@ PangeaStorageServer::PangeaStorageServer(SharedMemPtr shm,
     this->flushBuffer = make_shared<PageCircularBuffer>(FLUSH_BUFFER_SIZE, logger);
 
     // initialize cache, must be initialized before databases
-    this->cache = make_shared<PageCache>(conf, workers, flushBuffer, logger, shm, UnifiedDBMIN);
+    this->cache = make_shared<PageCache>(conf, workers, flushBuffer, logger, shm, UnifiedIntelligent);
 
     // initialize and load databases, must be initialized after cache
     this->dbs = new std::map<DatabaseID, DefaultDatabasePtr>();
@@ -1182,7 +1182,7 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                 PageID pageId = request->getPageID();
                 bool wasNewPage = request->getWasNewPage();
 
-                std::cout << "to pin page in set with setId=" << setId << std::endl;
+                std::cout << "to pin page in set with pageId=" << pageId << ", setId=" << setId << std::endl;
                 bool res;
                 string errMsg;
 

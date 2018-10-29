@@ -20,6 +20,8 @@ virtual Handle<LambdaIdentifier> getBestLambda() = 0;
 //to return the optimal page size for partitioning this set to be generated
 virtual size_t getBestPageSize() = 0;
 
+virtual size_t getEstimatedSize() = 0;
+
 //to return the reward for DRL
 virtual double getLastReward() { return 1.0; }
 

@@ -342,7 +342,16 @@ int main (int argc, char * argv[]) {
 
 
     PDB_COUT << "to create a new set to store the norm vectors" << std :: endl;
-    if (!temp.createSet<KMeansDoubleVector> ("kmeans_db", "kmeans_norm_vector_set", errMsg)) {
+    if (!temp.createSet<KMeansDoubleVector> ("kmeans_db", 
+                                             "kmeans_norm_vector_set", 
+                                             errMsg,
+                                             DEFAULT_PAGE_SIZE,
+                                             "kmeans_norm_vector",
+                                             nullptr,
+                                             nullptr,
+                                             780 
+                                            /*1 */ 
+                                           /*1000*/ )) {
         COUT << "Not able to create set: " + errMsg;
         exit (-1);
     } else { 
@@ -351,7 +360,15 @@ int main (int argc, char * argv[]) {
 
 
     PDB_COUT << "to create a new set to store the data count" << std :: endl;
-    if (!temp.createSet<SumResult> ("kmeans_db", "kmeans_data_count_set", errMsg)) {
+    if (!temp.createSet<SumResult> ("kmeans_db", 
+                                    "kmeans_data_count_set", 
+                                    errMsg,
+                                    DEFAULT_PAGE_SIZE,
+                                    "kmeans_data_count",
+                                    nullptr,
+                                    nullptr,
+                                    1
+                                    /*1000*/)) {
         COUT << "Not able to create set: " + errMsg;
         exit (-1);
     } else {
@@ -360,7 +377,15 @@ int main (int argc, char * argv[]) {
 
 
     PDB_COUT << "to create a new set to store the initial model" << std :: endl;
-    if (!temp.createSet<KMeansDoubleVector> ("kmeans_db", "kmeans_initial_model_set", errMsg)) {
+    if (!temp.createSet<KMeansDoubleVector> ("kmeans_db", 
+                                             "kmeans_initial_model_set", 
+                                             errMsg,
+                                             DEFAULT_PAGE_SIZE,
+                                             "kmeans_initial_model",
+                                             nullptr,
+                                             nullptr,
+                                             1 
+                                             /*1000*/)) {
         COUT << "Not able to create set: " + errMsg;
         exit (-1);
     } else {
@@ -369,7 +394,15 @@ int main (int argc, char * argv[]) {
 
     
     PDB_COUT << "to create a new set for storing output data" << std :: endl;
-    if (!temp.createSet<KMeansAggregateOutputType> ("kmeans_db", "kmeans_output_set", errMsg)) {
+    if (!temp.createSet<KMeansAggregateOutputType> ("kmeans_db", 
+                                                    "kmeans_output_set", 
+                                                    errMsg,
+                                                    DEFAULT_PAGE_SIZE,
+                                                    "kmeans_output",
+                                                    nullptr,
+                                                    nullptr,
+                                                    1
+                                                    /*1000*/)) {
         COUT << "Not able to create set: " + errMsg;
         exit (-1);
     } else {

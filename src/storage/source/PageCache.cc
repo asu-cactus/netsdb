@@ -847,8 +847,8 @@ void PageCache::evict() {
     } else{
         this->evictionLock();
         this->logger->debug("PageCache::evict(): got the lock for evictionLock()...");
-        priority_queue<PDBPagePtr, vector<PDBPagePtr>, CompareCachedPagesMRU>* cachedPages =
-            new priority_queue<PDBPagePtr, vector<PDBPagePtr>, CompareCachedPagesMRU>();
+        priority_queue<PDBPagePtr, vector<PDBPagePtr>, CompareCachedPages>* cachedPages =
+            new priority_queue<PDBPagePtr, vector<PDBPagePtr>, CompareCachedPages>();
         unordered_map<CacheKey, PDBPagePtr, CacheKeyHash, CacheKeyEqual>::iterator cacheIter;
         PDBPagePtr curPage;
         for (cacheIter = this->cache->begin(); cacheIter != this->cache->end(); cacheIter++) {
@@ -906,7 +906,7 @@ void PageCache::evict() {
     }
     this->inEviction = false;
     pthread_mutex_unlock(&this->evictionMutex);
-#ifdef PROFILING
+#ifdef PROFILING_CACHE
     std::cout << "Storage server: finished cache eviction!\n";
 #endif
     logger->debug("Storage server: finished cache eviction!\n");

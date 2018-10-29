@@ -92,7 +92,12 @@ size_t RuleBasedDataPlacementOptimizerForLoadJob :: getBestPageSize() {
 
 }
 
+size_t RuleBasedDataPlacementOptimizerForLoadJob :: getEstimatedSize() {
 
+    size_t outputSize = this->loadJobInfo.getAvgSize();
+    std::cout << "####################Estimated outputSize is " << outputSize << "######################" << std::endl;    return outputSize;
+
+}
 
 }
 

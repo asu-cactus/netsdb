@@ -264,12 +264,16 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                 allNodes.push_back(address + ":" + port);
             }
             nodesToBroadcast = allNodes;
-
+            size_t desiredSize = request->getDesiredSize();
+            if (desiredSize == 0) {
+                desiredSize = 1;
+            }
+            std::cout << "******************** desired size = " << desiredSize << "********************" << std::endl;
             Handle<StorageAddSet> storageCmd = makeObject<StorageAddSet>(request->getDatabaseName(),
                                                                          request->getSetName(),
                                                                          request->getTypeName(),
                                                                          request->getPageSize(),
-                                                                         request->getDesiredSize());
+                                                                         desiredSize);
 
             getFunctionality<DistributedStorageManagerServer>()
                 .broadcast<StorageAddSet, Object, SimpleRequestResult>(
@@ -416,6 +420,7 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                                                                       getFunctionality<SelfLearningWrapperServer>());
 #endif
 #ifdef OPTIMIZE_PAGE_SIZE
+                
                 pageSize = optimizer->getBestPageSize();
                 if ((pageSize == 0) || (pageSize > request->getPageSize()))  {
                     pageSize = request->getPageSize();
@@ -426,12 +431,22 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
 #endif
             }
 
+            size_t desiredSize = request->getDesiredSize();
+            if (desiredSize == 0) {
+                if (optimizer != nullptr) {
+                    desiredSize = optimizer->getEstimatedSize() / pageSize;
+                }
+            }
+            if (desiredSize == 0) {
+                desiredSize = 1000;
+            }
 
+            std::cout << "******************** desired size = " << desiredSize << "********************" << std::endl;
             Handle<StorageAddSet> storageCmd = makeObject<StorageAddSet>(request->getDatabase(),
                                                                          request->getSetName(),
                                                                          request->getTypeName(),
                                                                          pageSize,
-                                                                         request->getDesiredSize());
+                                                                         desiredSize);
             std::cout << "Page size is determined to be " << pageSize << std::endl;
             
 

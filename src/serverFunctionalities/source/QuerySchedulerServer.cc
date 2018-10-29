@@ -1209,7 +1209,12 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                                                                 "IntermediateSet",
                                                                 errMsg,
                                                                 aggregationSet->getPageSize(),
-                                                                this->jobId);
+                                                                this->jobId,
+                                                                nullptr,
+                                                                nullptr,
+                                                                aggregationSet->getDesiredSize()
+                                                                /*1*/ 
+                                                                /*1000*/);
                                     if (res != true) {
                                         std::cout << "can't create temp set: " << errMsg
                                                   << std::endl;
@@ -1271,6 +1276,7 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                         this->tcapAnalyzerPtr = make_shared<TCAPAnalyzer>(
                             jobId, computations, tcapString, this->logger, this->conf, 
                             getFunctionality<SelfLearningServer>().getDB(), true);
+                        this->tcapAnalyzerPtr->setNumNodes(this->standardResources->size());
                         int jobStageId = 0;
                         while (this->tcapAnalyzerPtr->getNumSources() > 0) {
                             std::vector<Handle<AbstractJobStage>> jobStages;
@@ -1335,7 +1341,12 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                                                                    "IntermediateData",
                                                                    errMsg,
                                                                    intermediateSet->getPageSize(),
-                                                                   this->jobId);
+                                                                   this->jobId, 
+                                                                   nullptr, 
+                                                                   nullptr,
+                                                                   intermediateSet->getDesiredSize()
+                                                                   /*1*/
+                                                                   /*1000*/);
                                 if (res != true) {
                                     std::cout << "can't create temp set: " << errMsg << std::endl;
                                 } else {

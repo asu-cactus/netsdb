@@ -118,6 +118,14 @@ public:
         return this->numHashKeys;
     }
 
+    void setDesiredSize (size_t desiredSize) {
+        this->desiredSize = desiredSize;
+    }
+
+    size_t getDesiredSize () {
+        return this->desiredSize;
+    }
+
 private:
     String dataBase;
     String setName;
@@ -131,6 +139,7 @@ private:
     int indexInInputs = 0;
     int numHashKeys = 0;
     String dataType;
+    size_t desiredSize;
 };
 }
 

@@ -518,6 +518,11 @@ bool TCAPAnalyzer::analyze(
       // to create the producing job stage for aggregation
       Handle<SetIdentifier> aggregator = makeObject<SetIdentifier>(
           this->jobId, outputName + "_aggregationData");
+      size_t desiredSize = this->exactSizeOfCurSource/conf->getShufflePageSize()/this->numNodesInCluster;
+      if (desiredSize == 0) {
+          desiredSize = 1;
+      }
+      aggregator->setDesiredSize(desiredSize);
       aggregator->setPageSize(conf->getShufflePageSize());
       Handle<SetIdentifier> combiner = nullptr;
       if (myComputation->isUsingCombiner() == true) {
@@ -594,6 +599,11 @@ bool TCAPAnalyzer::analyze(
     if (curNode->getAtomicComputationType() == "Aggregate") {
       Handle<SetIdentifier> aggregator = makeObject<SetIdentifier>(
           this->jobId, outputName + "_aggregationData");
+      size_t desiredSize = this->exactSizeOfCurSource/conf->getShufflePageSize()/this->numNodesInCluster;
+      if (desiredSize == 0) {
+          desiredSize = 1;
+      }
+      aggregator->setDesiredSize(desiredSize);
       aggregator->setPageSize(conf->getShufflePageSize());
       Handle<SetIdentifier> combiner = nullptr;
       if (myComputation->isUsingCombiner() == true) {
@@ -697,6 +707,11 @@ bool TCAPAnalyzer::analyze(
           sink = makeObject<SetIdentifier>(this->jobId,
                                            outputName + "_repartitionData");
           sink->setPageSize(conf->getBroadcastPageSize());
+          size_t desiredSize = this->exactSizeOfCurSource/conf->getBroadcastPageSize()/this->numNodesInCluster;
+          if (desiredSize == 0) {
+              desiredSize = 1;
+          }
+          sink->setDesiredSize(desiredSize);
           // isBroadcasting = false
           // isRepartitioning = true
           // collect probing information
@@ -782,7 +797,11 @@ bool TCAPAnalyzer::analyze(
           sink = makeObject<SetIdentifier>(this->jobId,
                                            outputName + "_broadcastData");
           sink->setPageSize(conf->getBroadcastPageSize());
-
+          size_t desiredSize = this->exactSizeOfCurSource/conf->getBroadcastPageSize()/this->numNodesInCluster;
+          if (desiredSize == 0) {
+              desiredSize = 1;
+          }
+          sink->setDesiredSize(desiredSize);
           // isBroadcasting = true
           // isRepartitioning = false
           // collect probing information
@@ -850,6 +869,11 @@ bool TCAPAnalyzer::analyze(
           sink = makeObject<SetIdentifier>(this->jobId,
                                            outputName + "_repartitionData");
           sink->setPageSize(conf->getBroadcastPageSize());
+          size_t desiredSize = this->exactSizeOfCurSource/conf->getBroadcastPageSize()/this->numNodesInCluster;
+          if (desiredSize == 0) {
+              desiredSize = 1;
+          }
+          sink->setDesiredSize(desiredSize);
           // isBroadcasting = false
           // isRepartitioning = true
           // collect probing information
@@ -980,6 +1004,11 @@ bool TCAPAnalyzer::analyze(
       myComputation->setOutput(this->jobId, outputName);
       sink = makeObject<SetIdentifier>(this->jobId, outputName);
       sink->setPageSize(conf->getPageSize());
+      size_t desiredSize = this->exactSizeOfCurSource/conf->getPageSize()/this->numNodesInCluster;
+      if (desiredSize == 0) {
+          desiredSize = 1;
+      }
+      sink->setDesiredSize(desiredSize);
       interGlobalSets.push_back(sink);
     } else {
       // to get my output set
@@ -1011,6 +1040,11 @@ bool TCAPAnalyzer::analyze(
       Handle<SetIdentifier> aggregator = makeObject<SetIdentifier>(
           this->jobId, outputName + "_aggregationData");
       aggregator->setPageSize(conf->getShufflePageSize());
+      size_t desiredSize = this->exactSizeOfCurSource/conf->getShufflePageSize()/this->numNodesInCluster;
+      if (desiredSize == 0) {
+          desiredSize = 1;
+      }
+      aggregator->setDesiredSize(desiredSize);
       Handle<SetIdentifier> combiner = nullptr;
       if (myComputation->isUsingCombiner() == true) {
         combiner = makeObject<SetIdentifier>(this->jobId,
@@ -1113,13 +1147,18 @@ int TCAPAnalyzer::getNumSources() { return curSourceSetNames.size(); }
 // to return the index of the best source
 int TCAPAnalyzer::getBestSource(StatisticsPtr stats) {
   // use the cost model to return the index of the best source
+  
   if (stats == 0) {
     return 0;
   } else {
     int bestIndexToReturn = 0;
     double minCost = DBL_MAX;
     for (size_t i = 0; i < curSourceSetNames.size(); i++) {
-      double curCost = getCostOfSource(i, stats);
+      size_t curSize = getCostOfSource(i, stats);
+      double curCost = double(curSize / 1000000);
+      if (curCost < 1) {
+          curCost = 1;
+      }
       for (size_t j = 0; j < penalizedSourceSets.size(); j++) {
         if (curSourceSetNames[i] == penalizedSourceSets[j]) {
           if (stats->getPenalizedCost(curSourceSetNames[i]) > 0) {
@@ -1135,6 +1174,7 @@ int TCAPAnalyzer::getBestSource(StatisticsPtr stats) {
       }
       if (curCost < minCost) {
         minCost = curCost;
+        this->exactSizeOfCurSource = curSize;
         bestIndexToReturn = i;
       }
       // below is optimization for nearest neighbor search
@@ -1155,18 +1195,14 @@ int TCAPAnalyzer::getBestSource(StatisticsPtr stats) {
 }
 
 // to return the cost of the i-th source
-double TCAPAnalyzer::getCostOfSource(int index, StatisticsPtr stats) {
+size_t TCAPAnalyzer::getCostOfSource(int index, StatisticsPtr stats) {
   std::string key = curSourceSetNames[index];
   Handle<SetIdentifier> curSet = this->getSourceSetIdentifier(key);
   if (curSet == nullptr) {
     std::cout << "WARNING: there is no source set for key=" << key << std::endl;
     return 0;
   }
-  double cost = stats->getNumBytes(curSet->getDatabase(), curSet->getSetName());
-  cost = double((size_t)cost / 1000000);
-  if (cost < 1) {
-      cost = 1;
-  }
+  size_t cost = stats->getNumBytes(curSet->getDatabase(), curSet->getSetName());
   return cost;
 }
 
