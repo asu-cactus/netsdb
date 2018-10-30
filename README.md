@@ -1,6 +1,6 @@
-# PDB - A Fast and Large-Scalae Cluster Computing Platform 
+# Pangea - A Monolithic Distributed Storage for Big Data Analytics 
 
-## Building PDB
+## Building
 
 Requirements:  
 Software:
@@ -15,21 +15,21 @@ OS: Ubuntu-16, MacOS
 
 Run: scons 
 
-## Run PDB on local
+## Run Pangea on local
 
 python scripts/startPseudoCluster.py #numThreads #sharedMemPoolSize (MB)
 
 
-## Cleanup PDB Data and Catalog on local
+## Cleanup Pangea Data on local
 
 scripts/cleanupNode.sh
 
 
 
-## Run PDB on a Cluster 
+## Run Pangea on a Cluster 
 
 
-Firstly, we need to setup the test suite by following 4 steps. (Those 4 steps only need to be done only once)
+Firstly, we need to setup the test suite by following five steps. (Those five steps only need to be done only once)
 
 Step (1.1) In rice cloud or AWS, find one ubuntu server as your Master, and log in to that server using the 'ubuntu' account; (In future, we shall not be constrained by OS, and we can use the 'pdb' account)
 
@@ -134,23 +134,6 @@ by default, it is not defined, and it will run in background using nohup, which 
 
 
 
-## Compiling shared libraries
-
-(1) Add your shared library header file and source file like following example:
-https://svn.rice.edu/r/software_0/ObjectQueryModel/src/sharedLibraries/headers/ChrisSelection.h
-https://svn.rice.edu/r/software_0/ObjectQueryModel/src/sharedLibraries/source/ChrisSelection.cc
-
-Note, it MUST be a pdb :: Object instance, and follow all rules of pdb :: Object (Please search Object Model FAQ in the PDB google group). For example, you must include the ENABLE_DEEP_COPY macro in the public statements. You must include the header file "GetVTable.h", and have the GET_V_TABLE macro in the source file.
-
-
-(2) Build your shared library.
-Now you can build it by adding following to SConstruct(https://svn.rice.edu/r/software_0/ObjectQueryModel/SConstruct):
-
-common_env.SharedLibrary('libraries/libChrisSelection.so', ['build/libraries/ChrisSelection.cc'] + all)
-
-Then add 'libraries/libChrisSelection.so' to "main=common_env.Alias(...)"
-
-In future, shared library should be able to be compiled at client side via a PDB client library.
 
 
 
