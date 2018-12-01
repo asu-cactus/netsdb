@@ -501,7 +501,7 @@ common_env.SharedLibrary('libraries/libQ22OrderCountPerCustomer.so', ['build/tpc
 
 
 
-
+common_env.Program('bin/sequentialReadWrite', ['build/tests/SequentialReadWriteTest.cc'] + all + pdb_client)
 common_env.Program('bin/tpchDataLoader', ['build/tpch/tpchDataLoader.cc'] + all + pdb_client)
 common_env.Program('bin/runQuery01', ['build/tpch/Query01/RunQuery01.cc'] + all + pdb_client)
 common_env.Program('bin/runQuery02', ['build/tpch/Query02/RunQuery02.cc'] + all + pdb_client)
