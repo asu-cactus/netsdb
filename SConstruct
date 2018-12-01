@@ -513,7 +513,7 @@ common_env.Program('bin/runQuery13', ['build/tpch/Query13/RunQuery13.cc'] + all 
 common_env.Program('bin/runQuery14', ['build/tpch/Query14/RunQuery14.cc'] + all + pdb_client)
 common_env.Program('bin/runQuery17', ['build/tpch/Query17/RunQuery17.cc'] + all + pdb_client)
 common_env.Program('bin/runQuery22', ['build/tpch/Query22/RunQuery22.cc'] + all + pdb_client)
-
+common_env.Program('bin/sequentialReadWrite', ['build/tests/SequentialReadWriteTest.cc'] + all + pdb_client)
 
 
 common_env.SharedLibrary('libraries/libPart.so', ['build/tpchBench/Part.cc'] + all)

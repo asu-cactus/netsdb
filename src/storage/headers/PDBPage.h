@@ -122,13 +122,48 @@ public:
         return this->numObjects;
     }
 
+
+    /**
+ * Allocate an empty fixed size memory area from the current offset as a special object, that can be used to implement fixed-size small pages.
+ */
+void * addFixedBytes(size_t size) {
+    size_t remainSize = this->size - this->curAppendOffset;
+    if (remainSize < size) {
+        //no room in the current page
+        return nullptr;
+    }
+
+    //write data
+    //get pointer to append position
+    void * retPos = this->rawBytes + this->curAppendOffset;
+
+    this->curAppendOffset += size;
+    this->incEmbeddedNumObjects();
+    return retPos;
+}
+
+void * addRemainBytes(size_t& size) {
+    size = this->size - this->curAppendOffset;
+    if(size == 0) {
+        return nullptr;
+    }
+    void * retPos = this->rawBytes + this->curAppendOffset;
+    this->curAppendOffset += size;
+    this->incEmbeddedNumObjects();
+    return retPos;
+}
+
+
+
+
+
+
     /**
      * Allocate an empty memory area with variable size from the current offset as a special object,
      * that can be used to implement variable-size small pages.
      */
     inline void* addVariableBytes(size_t size) {
         size_t remainSize = this->size - this->curAppendOffset;
-        std::cout << "remainSize = " << remainSize << std::endl;
         if (remainSize < size + sizeof(size_t)) {
             // no room in the current page
             std::cout << "no room in current page for size = " << size << " and sizeof(size_t) = " << sizeof(size_t) << std::endl;
@@ -144,7 +179,6 @@ public:
         cur = (char*)retPos + size;
         this->curAppendOffset = cur - this->rawBytes;
         this->incEmbeddedNumObjects();
-        int myNumObjects = this->getEmbeddedNumObjects();
         return retPos;
     }
 

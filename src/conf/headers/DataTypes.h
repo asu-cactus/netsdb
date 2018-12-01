@@ -41,6 +41,8 @@ typedef enum { Read, RepeatedRead, Write } OperationType;
 
 typedef enum { TryCache, CacheThrough } DurabilityType;
 
+typedef enum { FixedSize, VariableSize } SmallPageType;
+
 typedef enum {
     StraightSequential,
     LoopingSequential,
