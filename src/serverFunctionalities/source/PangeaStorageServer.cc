@@ -1962,7 +1962,7 @@ bool PangeaStorageServer::removeSet(std::string dbName, std::string typeName, st
 }
 
 
-bool PangeaStorageServer::addTempSet(string setName, SetID& setId, size_t pageSize) {
+bool PangeaStorageServer::addTempSet(string setName, SetID& setId, size_t pageSize, size_t desiredSize) {
     this->logger->writeLn("To add temp set with setName=");
     this->logger->writeLn(setName);
     if (this->name2tempSetId->find(setName) != this->name2tempSetId->end()) {
@@ -1980,7 +1980,14 @@ bool PangeaStorageServer::addTempSet(string setName, SetID& setId, size_t pageSi
                                               this->dataTempPaths,
                                               this->shm,
                                               this->cache,
-                                              this->logger);
+                                              this->logger,
+                                              ShuffleData,
+                                              MRU,
+                                              Write,
+                                              TryCache,
+                                              Transient,
+                                              pageSize,
+                                              desiredSize);
     this->getCache()->pin(tempSet, MRU, Write);
     this->logger->writeLn("temp set created!");
     pthread_mutex_lock(&this->tempsetLock);

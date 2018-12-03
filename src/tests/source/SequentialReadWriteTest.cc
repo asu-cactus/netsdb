@@ -78,9 +78,9 @@ int main(int argc, char* argv[]) {
     int sizeVariance = atoi(argv[2]);
     int sizeAvg = atoi(argv[3]);
     int numThreads = atoi(argv[4]);
-    int pageSizeInMB = atoi(argv[5]);
-    DurabilityType durabilityType = CacheThrough;
-    //DurabilityType durabilityType = TryCache;
+    size_t pageSizeInMB = atoi(argv[5]);
+    //DurabilityType durabilityType = CacheThrough;
+    DurabilityType durabilityType = TryCache;
     ConfigurationPtr conf = make_shared<Configuration>();
     PDBLoggerPtr logger = make_shared<PDBLogger>(conf->getLogFile());
     SharedMemPtr shm = make_shared<SharedMem>(conf->getShmSize(), logger);
@@ -88,7 +88,7 @@ int main(int argc, char* argv[]) {
     std::shared_ptr<PangeaStorageServer> storage = make_shared<PangeaStorageServer>(shm, myWorkers, logger, conf, false);
     storage->startFlushConsumerThreads();
     SetID setId;
-    storage->addTempSet("SequentialReadWrite", setId);
+    storage->addTempSet("SequentialReadWrite", setId, pageSizeInMB*(size_t)1024*(size_t)1024, 180);
     TempSetPtr set = storage->getTempSet(setId);
     storage->getCache()->pin(set,MRU,Write);
     set->setDurabilityType(durabilityType);
@@ -131,8 +131,9 @@ int main(int argc, char* argv[]) {
 
     time_t bufferPoolScanEnd = time(0);
     std::cout << "BufferPool scan time: " << bufferPoolScanEnd - bufferPoolScanStart << std::endl;
+    std::cout << "BufferPool allocation time: " << bufferPoolAllocationEnd - bufferPoolAllocationStart << std::endl;
     storage->stopFlushConsumerThreads();
-
+    storage->removeTempSet(setId);
 }
 
 #endif

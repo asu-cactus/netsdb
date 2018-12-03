@@ -316,8 +316,8 @@ bool PageCache::freePage(PDBPagePtr curPage) {
 
 void PageCache::evictForDBMIN(LocalitySet * set) {
 
-        //std::cout << "numCachedPages = " << set->getNumCachedPages() << std::endl;
-        //std::cout << "desiredSize = " << set->getDesiredSize() << std::endl;
+        std::cout << "numCachedPages = " << set->getNumCachedPages() << std::endl;
+        std::cout << "desiredSize = " << set->getDesiredSize() << std::endl;
         this->evictionLock();
         while (set->getNumCachedPages() >= set->getDesiredSize()) {
              PDBPagePtr  pageToEvict = set->selectPageForReplacement();
@@ -683,6 +683,12 @@ bool PageCache::flushPageWithoutEviction(CacheKey key) {
 bool PageCache::evictPage(CacheKey key, bool tryFlushOrNot) {
     if (this->containsPage(key) == true) {
         PDBPagePtr page = this->cache->at(key);
+        if (page->isDirty()==true) {
+            std::cout << "the page is dirty" << std::endl;
+        }
+        if (page->isInFlush()==true) {
+            std::cout << "the page is in flush" << std::endl;
+        }
 #ifndef UNPIN_FOR_NON_ZERO_REF_COUNT
         if (page->getRefCount() > 0) {
             cout << "can't be unpinned due to non-zero reference count " << page->getRefCount()
@@ -712,7 +718,10 @@ bool PageCache::evictPage(CacheKey key, bool tryFlushOrNot) {
                 // first we release the lock so that the flushing thread can run.
                 this->flushBuffer->addPageToTail(page);
 
-            } else if (page->isInFlush() == false) {
+            }  else if (page->isInFlush() == true) {
+                std::cout << "going to evict a page in flush" << std::endl;
+                page->setInEviction(true);
+            }  else if (page->isInFlush() == false) {
 #ifdef PROFILING_CACHE
                 std::cout << "going to unpin a clean page...\n";
 #endif
@@ -775,12 +784,12 @@ bool PageCache::evictPageForDBMIN(PDBPagePtr page, LocalitySet* set) {
     key.pageId = page->getPageID();
     bool ret = evictPage(key);
     if (ret == true) {
-        //std::cout << "Evicted page with pageId=" << page->getPageID() << ", setId="<< page->getSetID() << std::endl;
+        std::cout << "Evicted page with pageId=" << page->getPageID() << ", setId="<< page->getSetID() << std::endl;
         if (set != nullptr) {
             set->removeCachedPage(page);
             if (this->strategy == UnifiedDBMIN) {
                 set->setNumCachedPages(set->getNumCachedPages()-1);
-                //std::cout << "evictPageForDBMIN: set->getNumCachedPages()=" << set->getNumCachedPages() << std::endl;
+                std::cout << "evictPageForDBMIN: set->getNumCachedPages()=" << set->getNumCachedPages() << std::endl;
             }
         }
     } else {
@@ -847,8 +856,8 @@ void PageCache::evict() {
     } else{
         this->evictionLock();
         this->logger->debug("PageCache::evict(): got the lock for evictionLock()...");
-        priority_queue<PDBPagePtr, vector<PDBPagePtr>, CompareCachedPages>* cachedPages =
-            new priority_queue<PDBPagePtr, vector<PDBPagePtr>, CompareCachedPages>();
+        priority_queue<PDBPagePtr, vector<PDBPagePtr>, CompareCachedPagesMRU>* cachedPages =
+            new priority_queue<PDBPagePtr, vector<PDBPagePtr>, CompareCachedPagesMRU>();
         unordered_map<CacheKey, PDBPagePtr, CacheKeyHash, CacheKeyEqual>::iterator cacheIter;
         PDBPagePtr curPage;
         for (cacheIter = this->cache->begin(); cacheIter != this->cache->end(); cacheIter++) {

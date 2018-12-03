@@ -148,14 +148,14 @@ public:
 
             // we unpin the inputBufferPage
             this->inputBufferPage->decRefCount();
-            /*if(this->getDurabilityType() == CacheThrough) {
+            if(this->getDurabilityType() == CacheThrough) {
                CacheKey key;
                key.dbId = this->getDbID();
                key.typeId = this->getTypeID();
                key.setId = this->getSetID();
                key.pageId = this->inputBufferPage->getPageID();
                this->pageCache->flushPageWithoutEviction(key);
-            }*/
+            }
             if (evictWhenUnpin == true) {
                 this->pageCache->evictPage(this->inputBufferPage);
             }

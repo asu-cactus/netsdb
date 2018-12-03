@@ -39,7 +39,8 @@ public:
             OperationType operation = Write,
             DurabilityType durability = TryCache,
             PersistenceType persistence = Transient,
-            size_t pageSize = DEFAULT_PAGE_SIZE);
+            size_t pageSize = DEFAULT_PAGE_SIZE,
+            size_t desiredSize = 1);
     ~TempSet();
 
     // TODO: virtual vector<PageIteratorPtr> * getIterators() override;

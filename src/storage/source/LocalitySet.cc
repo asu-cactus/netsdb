@@ -35,11 +35,15 @@ void LocalitySet::addCachedPage(PDBPagePtr page) {
 void LocalitySet::updateCachedPage(PDBPagePtr page) {
     for (list<PDBPagePtr>::iterator it = cachedPages->begin(); it != cachedPages->end(); ++it) {
         if ((*it) == page) {
+            pthread_mutex_lock(&localitySetCacheMutex);
             cachedPages->erase(it);
+            pthread_mutex_unlock(&localitySetCacheMutex);
             break;
         }
     }
+    pthread_mutex_lock(&localitySetCacheMutex);
     cachedPages->push_back(page);
+    pthread_mutex_unlock(&localitySetCacheMutex);
 }
 
 void LocalitySet::removeCachedPage(PDBPagePtr page) {

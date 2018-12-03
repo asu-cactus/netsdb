@@ -143,8 +143,8 @@ public:
         // temporarily added for unit tests
         this->createDir(rootDir);
         // Example: 
-        dataDirs = "/mnt1/data,/mnt2/data";
-        dataTempDirs = "/mnt1/tmp,/mnt2/tmp";
+        dataDirs = "/mnt1/data";
+        dataTempDirs = "/mnt1/tmp";
         //dataDirs = rootDir + std::string("/data");
         metaDir = rootDir + std::string("/meta");
         metaTempDir = rootDir + std::string("/metaTmp");

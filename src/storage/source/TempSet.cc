@@ -22,7 +22,8 @@ TempSet::TempSet(SetID setId,
                  OperationType operation,
                  DurabilityType durability,
                  PersistenceType persistence,
-                 size_t pageSize)
+                 size_t pageSize,
+                 size_t desiredSize)
     : UserSet(logger,
               shm,
               0,
@@ -36,7 +37,8 @@ TempSet::TempSet(SetID setId,
               operation,
               durability,
               persistence,
-              pageSize) {
+              pageSize,
+              desiredSize) {
     vector<string> dataPaths;
     int numDataPaths = dataTempPaths.size();
     int i;

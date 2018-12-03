@@ -221,7 +221,7 @@ public:
     /**
      * Add a new and empty temporary set
      */
-    bool addTempSet(std::string setName, SetID& setId, size_t pageSize = DEFAULT_PAGE_SIZE);
+    bool addTempSet(std::string setName, SetID& setId, size_t pageSize = DEFAULT_PAGE_SIZE, size_t desiredSize = 1);
 
 
     /**

@@ -28,11 +28,11 @@ void PDBFlushConsumerWork::execute(PDBBuzzerPtr callerBuzzer) {
             // got a page from flush buffer
             // find the set of the page
           
-            PDB_COUT << "Got a page with PageID " << page->getPageID()
+            std::cout << "Got a page with PageID " << page->getPageID()
                      << " for partition:" << this->partitionId << "\n";
-            PDB_COUT << "page dbId=" << page->getDbID() << "\n";
-            PDB_COUT << "page typeId=" << page->getTypeID() << "\n";
-            PDB_COUT << "page setId=" << page->getSetID() << "\n";
+            std::cout << "page dbId=" << page->getDbID() << "\n";
+            std::cout << "page typeId=" << page->getTypeID() << "\n";
+            std::cout << "page setId=" << page->getSetID() << "\n";
             bool isTempSet = false;
             if ((page->getDbID() == 0) && (page->getTypeID() == 0)) {
                 set = this->server->getTempSet(page->getSetID());
@@ -66,7 +66,7 @@ void PDBFlushConsumerWork::execute(PDBBuzzerPtr callerBuzzer) {
                 }
                 set->removePageFromDirtyPageSet(page->getPageID(), this->partitionId, ret);
                 set->unlockDirtyPageSet();
-                PDB_COUT << "page with PageID " << page->getPageID()
+                std::cout << "page with PageID " << page->getPageID()
                          << " appended to partition with PartitionID " << this->partitionId << "\n";
             }
 #ifndef UNPIN_FOR_NON_ZERO_REF_COUNT
@@ -75,7 +75,7 @@ void PDBFlushConsumerWork::execute(PDBBuzzerPtr callerBuzzer) {
 #else
             if ((page->getRawBytes() != nullptr) && (page->isInEviction() == true)) {
 #endif
-
+                
                 // remove the page from cache!
                 this->server->getSharedMem()->free(page->getRawBytes() - page->getInternalOffset(),
                                                    page->getSize() + 512);
@@ -90,11 +90,11 @@ void PDBFlushConsumerWork::execute(PDBBuzzerPtr callerBuzzer) {
             if (page->isInEviction() == true) {
 #endif
                 this->server->getCache()->removePage(key);
-            } else {
-                page->setInFlush(false);
-                page->setDirty(false);
-            }
-            PDB_COUT << "PDBFlushConsumerWork: page freed from cache" << std::endl;
+            }  
+            page->setInFlush(false);
+            page->setDirty(false);
+            
+            std::cout << "PDBFlushConsumerWork: page freed from cache" << std::endl;
             this->server->getCache()->flushUnlock();
             this->server->getLogger()->writeLn(
                 "PDBFlushConsumerWork: unlocked for flushUnlock()...");

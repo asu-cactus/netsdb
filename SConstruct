@@ -1,6 +1,6 @@
 # SConstuct
 # for PDB
-# created on: 12/04/2015
+
 
 import os
 import re
@@ -65,10 +65,11 @@ common_env.Append(CCFLAGS='-DPROFILING')
 common_env.Append(CCFLAGS='-DJOIN_COST_THRESHOLD=15000')
 common_env.Append(CCFLAGS='-DENABLE_COMPRESSION')
 #common_env.Append(CCFLAGS='-DPDB_DEBUG')
-common_env.Append(CCFLAGS='-DEVICT_STOP_THRESHOLD=0.9')
+common_env.Append(CCFLAGS='-DEVICT_STOP_THRESHOLD=0.99')
 #uncomment following for KMeans
 #common_env.Append(CCFLAGS='-DCLEANUP_INACTIVE_BLOCKS')
 common_env.Append(CCFLAGS='-DNUM_KMEANS_DIMENSIONS=10')
+common_env.Append(CCFLAGS='-DUSE_MEMCACHED_SLAB_ALLOCATOR')
 #common_env.Append(CCFLAGS='-DCOLLECT_RESULTS_AS_ONE_PARTITION')
 # Make the build multithreaded
 num_cpu = int(multiprocessing.cpu_count())
