@@ -88,7 +88,7 @@ int main(int argc, char* argv[]) {
     std::shared_ptr<PangeaStorageServer> storage = make_shared<PangeaStorageServer>(shm, myWorkers, logger, conf, false);
     storage->startFlushConsumerThreads();
     SetID setId;
-    storage->addTempSet("SequentialReadWrite", setId, pageSizeInMB*(size_t)1024*(size_t)1024, 180);
+    storage->addTempSet("SequentialReadWrite", setId, pageSizeInMB*(size_t)1024*(size_t)1024, 190);
     TempSetPtr set = storage->getTempSet(setId);
     storage->getCache()->pin(set,MRU,Write);
     set->setDurabilityType(durabilityType);

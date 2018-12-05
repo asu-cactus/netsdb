@@ -95,8 +95,8 @@ vector<PDBPagePtr>* LocalitySet::selectPagesForReplacement() {
                 if (this->operationType == Write) {
                     break;
                 } else {
-
-                    if ((double)numPages / (double)totalPages >= 0.1) {
+                    if (numPages == 1) {
+                    //if ((double)numPages / (double)totalPages >= (1-EVICT_STOP_THRESHOLD)) {
                         break;
                     }
                 }
@@ -110,7 +110,7 @@ vector<PDBPagePtr>* LocalitySet::selectPagesForReplacement() {
                 if (this->operationType == Write) {
                     break;
                 } else {
-                    if ((double)numPages / (double)totalPages >= 0.1) {
+                    if ((double)numPages / (double)totalPages >= (1-EVICT_STOP_THRESHOLD)) {
                         break;
                     }
                 }

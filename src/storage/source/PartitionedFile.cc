@@ -36,7 +36,7 @@ PartitionedFile::PartitionedFile(NodeID nodeId,
     this->dataPartitionPaths = dataPartitionPaths;
     this->logger = logger;
     this->pageSize = pageSize;
-    this->usingDirect = false;
+    this->usingDirect = true;
     this->cleared = false;
     // Initialize meta data;
     this->metaData = make_shared<PartitionedFileMetaData>();
