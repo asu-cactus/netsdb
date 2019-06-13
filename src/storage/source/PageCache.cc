@@ -29,7 +29,7 @@ PageCache::PageCache(ConfigurationPtr conf,
     pthread_mutex_init(&this->cacheMutex, nullptr);
     pthread_mutex_init(&this->evictionMutex, nullptr);
     pthread_rwlock_init(&this->evictionAndFlushLock, nullptr);
-    this->accessCount = 0;
+    accessCount = 0;
     this->inEviction = false;
     this->maxSize = conf->getShmSize();
     this->size = 0;
@@ -849,6 +849,7 @@ void PageCache::evict() {
                 LocalitySetPtr set = (*it);
                 set->setWriteCost(profiledWriteCosts[i]);
                 set->setReadCost(profiledReadCosts[i]);
+                set->setSequenceId(this->accessCount+1);
                 localitySets->push(set);
             }
         }

@@ -300,9 +300,9 @@ public:
 
     CacheStrategy strategy;
     
-    static long accessCount;
 
 private:
+    long accessCount;
     unordered_map<CacheKey, PDBPagePtr, CacheKeyHash, CacheKeyEqual>* cache;
     pdb::PDBLoggerPtr logger;
     ConfigurationPtr conf;
@@ -330,7 +330,6 @@ private:
     vector<list<LocalitySetPtr>*>* priorityList;
 };
 
-long PageCache::accessCount = 0;
 
 
 /**
@@ -344,8 +343,8 @@ struct CompareLocalitySets {
        PDBPagePtr pageToEvictFromRSet = rSet->selectPageForReplacement();
        long rSetAccessSequenceId = pageToEvictFromRSet->getAccessSequenceId();
 
-       double evictCostForLSet = lSet->getWriteCost() + 1/((PageCache::accessCount+1)-lSetAccessSequenceId)*lSet->getReadCost();
-       double evictCostForRSet = rSet->getWriteCost() + 1/((PageCache::accessCount+1)-rSetAccessSequenceId)*rSet->getReadCost();
+       double evictCostForLSet = lSet->getWriteCost() + 1/(lSet->getReferenceDistance(lSetAccessSequenceId))*lSet->getReadCost();
+       double evictCostForRSet = rSet->getWriteCost() + 1/(lSet->getReferenceDistance(rSetAccessSequenceId))*rSet->getReadCost();
 
        if (evictCostForLSet > evictCostForRSet) {
            return false;

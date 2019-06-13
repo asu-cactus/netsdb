@@ -136,6 +136,18 @@ public:
         return this->readCost;
     }
 
+    // set and get sequenceId
+    void setSequenceId(long sequenceId) {
+        this->accessSequenceId = sequenceId;
+    }
+
+    long getSequenceId() {
+        return this->accessSequenceId;
+    }
+
+    long getReferenceDistance(long lastAccessSequenceId){
+        return this->accessSequenceId - lastAccessSequenceId;
+    }
 
 protected:
     /**
@@ -214,7 +226,7 @@ protected:
 
     double writeCost = 0.0;
     double readCost = 0.0;
-
+    long accessSequenceId = 0;
 };
 
 
