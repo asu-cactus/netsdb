@@ -117,6 +117,26 @@ public:
     }
 
 
+    /**
+     * Set read/write costs.
+     */
+    void setWriteCost(double writeCost) {
+        this->writeCost = writeCost;
+    }
+
+    void setReadCost(double readCost) {
+        this->readCost = readCost;
+    }
+
+    double getWriteCost() {
+        return this->writeCost;
+    }
+
+    double getReadCost() {
+        return this->readCost;
+    }
+
+
 protected:
     /**
      * Cached pages in the set, ordered by access sequenceId;
@@ -191,6 +211,9 @@ protected:
     int numCachedPages = 0;
 
     pthread_mutex_t localitySetCacheMutex;
+
+    double writeCost = 0.0;
+    double readCost = 0.0;
 
 };
 

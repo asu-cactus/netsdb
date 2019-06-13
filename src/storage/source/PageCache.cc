@@ -820,7 +820,64 @@ void PageCache::evict() {
 #endif
     pthread_mutex_lock(&this->evictionMutex);
     this->inEviction = true;
-    if (this->strategy == UnifiedIntelligent) {
+    if (this->strategy == UnifiedCost) {
+        this->evictionLock();
+    /*
+     * index = 0, TransientLifetimeEnded, write cost = 0, read cost = 0
+     * index = 1, PersistentLifetimeEnded, write cost = 0, read cost = 0
+     * index = 2, PersistentLifetimeNotEnded, write cost = 0, read cost = 426
+     * index = 3, TransientLifetimeNotEndedPartialData, write cost = 630, read cost = 426
+     * index = 4, TransientLifetimeNotEndedShuffleData, write cost = 630, read cost = 426
+     * index = 5, TransientLifetimeNotEndedHashData, write cost = 1282, read cost = 807
+     */
+
+        double profiledWriteCosts[6] = {0, 0, 0, 630, 630, 1282};
+        double profiledReadCosts[6] = {0, 0, 426, 426, 426, 807};
+ 
+
+        priority_queue<LocalitySetPtr, vector<LocalitySetPtr>, CompareLocalitySets> * localitySets =
+            new priority_queue<LocalitySetPtr, vector<LocalitySetPtr>, CompareLocalitySets>();
+
+        list<LocalitySetPtr>* curList;
+
+        int i, j;
+        for ( i = 0; i < 6; i++) {
+            curList = this->priorityList->at(i);
+            for (list<LocalitySetPtr>::reverse_iterator it = curList->rbegin();
+                 it != curList->rend();
+                 ++it) {
+                LocalitySetPtr set = (*it);
+                set->setWriteCost(profiledWriteCosts[i]);
+                set->setReadCost(profiledReadCosts[i]);
+                localitySets->push(set);
+            }
+        }
+        
+        int numEvicted = 0;
+        while (numEvicted <= 0) {
+             LocalitySetPtr set = localitySets->top();
+             if (set != nullptr) {
+                 vector<PDBPagePtr>* pagesToEvict = nullptr;
+                 pagesToEvict = set->selectPagesForReplacement();
+                 if (pagesToEvict != nullptr) {
+                     this->evictionUnlock();
+                     for (j = 0; j < pagesToEvict->size(); j++) {
+                         if (this->evictPage(pagesToEvict->at(j), set)) {
+                             numEvicted++;
+                         }
+                     }
+                     this->evictionLock();
+                     delete pagesToEvict;
+                     pagesToEvict = nullptr;
+                 }
+             }
+        }
+        delete localitySets;
+        localitySets = nullptr;
+        this->evictionUnlock();
+
+    }
+    else if (this->strategy == UnifiedIntelligent) {
         this->evictionLock();
         vector<PDBPagePtr>* pagesToEvict = nullptr;
         int i, j;

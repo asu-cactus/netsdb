@@ -95,6 +95,7 @@ struct CompareCachedPagesMRU {
     }
 };
 
+
 /**
  * This class wraps a global page cache adopting multiple eviction policy, and by default it uses
  * MRU.
@@ -298,6 +299,8 @@ public:
     void unpin(LocalitySetPtr set);
 
     CacheStrategy strategy;
+    
+    static long accessCount;
 
 private:
     unordered_map<CacheKey, PDBPagePtr, CacheKeyHash, CacheKeyEqual>* cache;
@@ -313,7 +316,6 @@ private:
     bool inEviction;
     pdb::PDBWorkerQueuePtr workers;
     pdb::PDBWorkPtr evictWork;
-    long accessCount;
     pthread_mutex_t countLock;
     SharedMemPtr shm;
     PageCircularBufferPtr flushBuffer;
@@ -327,4 +329,30 @@ private:
      */
     vector<list<LocalitySetPtr>*>* priorityList;
 };
+
+long PageCache::accessCount = 0;
+
+
+/**
+ * Comparator for the cost of two locality sets, used for eviction.
+ */
+struct CompareLocalitySets {
+
+   bool operator()(LocalitySetPtr& lSet, LocalitySetPtr& rSet) {
+       PDBPagePtr pageToEvictFromLSet = lSet->selectPageForReplacement();
+       long lSetAccessSequenceId = pageToEvictFromLSet->getAccessSequenceId();
+       PDBPagePtr pageToEvictFromRSet = rSet->selectPageForReplacement();
+       long rSetAccessSequenceId = pageToEvictFromRSet->getAccessSequenceId();
+
+       double evictCostForLSet = lSet->getWriteCost() + 1/((PageCache::accessCount+1)-lSetAccessSequenceId)*lSet->getReadCost();
+       double evictCostForRSet = rSet->getWriteCost() + 1/((PageCache::accessCount+1)-rSetAccessSequenceId)*rSet->getReadCost();
+
+       if (evictCostForLSet > evictCostForRSet) {
+           return false;
+       } else {
+           return true;
+       }
+   }
+};
+
 #endif /* PAGECACHE_H */
