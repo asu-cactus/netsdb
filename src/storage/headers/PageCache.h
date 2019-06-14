@@ -339,13 +339,25 @@ struct CompareLocalitySets {
 
    bool operator()(LocalitySetPtr& lSet, LocalitySetPtr& rSet) {
        PDBPagePtr pageToEvictFromLSet = lSet->selectPageForReplacement();
+       if (pageToEvictFromLSet == nullptr) {
+           return false;
+       }
        long lSetAccessSequenceId = pageToEvictFromLSet->getAccessSequenceId();
        PDBPagePtr pageToEvictFromRSet = rSet->selectPageForReplacement();
+       if (pageToEvictFromRSet == nullptr) {
+           return false;
+       }
        long rSetAccessSequenceId = pageToEvictFromRSet->getAccessSequenceId();
-
-       double evictCostForLSet = lSet->getWriteCost() + 1/(lSet->getReferenceDistance(lSetAccessSequenceId))*lSet->getReadCost();
-       double evictCostForRSet = rSet->getWriteCost() + 1/(lSet->getReferenceDistance(rSetAccessSequenceId))*rSet->getReadCost();
-
+       double lWriteCost = (lSet->getWriteCost());
+       double lReuseProb = (double)(1)/(double)(lSet->getReferenceDistance(lSetAccessSequenceId));
+       double lReadCost = (lSet->getReadCost());
+       double evictCostForLSet = lWriteCost + lReuseProb*lReadCost;
+       std::cout << "evictCostForLSet=" << evictCostForLSet << std::endl;
+       double rWriteCost = (rSet->getWriteCost());
+       double rReuseProb = (double)(1)/(double)(rSet->getReferenceDistance(rSetAccessSequenceId));
+       double rReadCost = (rSet->getReadCost());
+       double evictCostForRSet = rWriteCost + rReuseProb*rReadCost;
+       std::cout << "evictCostForRSet=" << evictCostForRSet << std::endl;
        if (evictCostForLSet > evictCostForRSet) {
            return false;
        } else {

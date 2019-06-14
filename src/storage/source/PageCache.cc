@@ -830,9 +830,10 @@ void PageCache::evict() {
      * index = 4, TransientLifetimeNotEndedShuffleData, write cost = 630, read cost = 426
      * index = 5, TransientLifetimeNotEndedHashData, write cost = 1282, read cost = 807
      */
+        std::cout << "to evict pages using a cost model" << std::endl;
 
-        double profiledWriteCosts[6] = {0, 0, 0, 630, 630, 1282};
-        double profiledReadCosts[6] = {0, 0, 426, 426, 426, 807};
+        double profiledWriteCosts[6] = {0, 0, 0, 6.30, 6.30, 12.82};
+        double profiledReadCosts[6] = {0, 0, 4.26, 4.26, 4.26, 8.07};
  
 
         priority_queue<LocalitySetPtr, vector<LocalitySetPtr>, CompareLocalitySets> * localitySets =
@@ -847,10 +848,12 @@ void PageCache::evict() {
                  it != curList->rend();
                  ++it) {
                 LocalitySetPtr set = (*it);
-                set->setWriteCost(profiledWriteCosts[i]);
-                set->setReadCost(profiledReadCosts[i]);
-                set->setSequenceId(this->accessCount+1);
-                localitySets->push(set);
+                if (set->selectPageForReplacement() != nullptr) {
+                    set->setWriteCost(profiledWriteCosts[i]);
+                    set->setReadCost(profiledReadCosts[i]);
+                    set->setSequenceId(this->accessCount+1);
+                    localitySets->push(set);
+                }
             }
         }
         
@@ -872,6 +875,7 @@ void PageCache::evict() {
                      pagesToEvict = nullptr;
                  }
              }
+             localitySets->pop();
         }
         delete localitySets;
         localitySets = nullptr;
