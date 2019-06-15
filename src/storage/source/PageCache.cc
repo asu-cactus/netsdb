@@ -906,6 +906,9 @@ void PageCache::evict() {
                     delete pagesToEvict;
                     pagesToEvict = nullptr;
                 }
+                if (numEvicted > 0) {
+                    break;
+                }
             }
             if (numEvicted > 0) {
                 break;

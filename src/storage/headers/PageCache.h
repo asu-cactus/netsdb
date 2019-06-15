@@ -358,7 +358,7 @@ struct CompareLocalitySets {
        double rReadCost = (rSet->getReadCost());
        double evictCostForRSet = rWriteCost + rReuseProb*rReadCost;
        std::cout << "evictCostForRSet=" << evictCostForRSet << std::endl;
-       if (evictCostForLSet > evictCostForRSet) {
+       if (evictCostForLSet < evictCostForRSet) {
            return false;
        } else {
            return true;
