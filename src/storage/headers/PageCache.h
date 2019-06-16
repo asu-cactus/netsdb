@@ -352,12 +352,10 @@ struct CompareLocalitySets {
        double lReuseProb = (double)(1)/(double)(lSet->getReferenceDistance(lSetAccessSequenceId));
        double lReadCost = (lSet->getReadCost());
        double evictCostForLSet = lWriteCost + lReuseProb*lReadCost;
-       std::cout << "evictCostForLSet=" << evictCostForLSet << std::endl;
        double rWriteCost = (rSet->getWriteCost());
        double rReuseProb = (double)(1)/(double)(rSet->getReferenceDistance(rSetAccessSequenceId));
        double rReadCost = (rSet->getReadCost());
        double evictCostForRSet = rWriteCost + rReuseProb*rReadCost;
-       std::cout << "evictCostForRSet=" << evictCostForRSet << std::endl;
        if (evictCostForLSet < evictCostForRSet) {
            return false;
        } else {
