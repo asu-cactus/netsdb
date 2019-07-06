@@ -44,6 +44,7 @@
 
 namespace pdb {
 
+
 void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
 
   forMe.registerHandler(
@@ -484,7 +485,6 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                
         }
         getRecord(myMap);
-
         getAllocator().setPolicy(AllocatorPolicy::defaultAllocator);
 
         if (this->setCurPageScanner(nullptr) == false) {
@@ -1005,8 +1005,6 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                                                                  errMsg = "Error: No job is running!";
                                                                  std::cout << errMsg << std::endl;
                                                                }
-
-
                                                                // return result to frontend
                                                                PDB_COUT << "to send back reply" << std::endl;
                                                                const UseTemporaryAllocationBlock block1{1024};

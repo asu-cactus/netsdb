@@ -8,6 +8,7 @@
 #include "PageScanner.h"
 #include "DataTypes.h"
 #include "HashSetManager.h"
+#include "DataProxy.h"
 #include <string>
 
 namespace pdb {
@@ -48,6 +49,17 @@ public:
         this->workers = workers;
         this->selfLearningOrNot = selfLearningOrNot;
     }
+
+
+    // print cache stats in frontend
+    void printCacheStats () {
+        std::string errMsg;
+        PDBCommunicatorPtr anotherCommunicatorToFrontend = make_shared<PDBCommunicator>();
+        anotherCommunicatorToFrontend->connectToInternetServer(logger, conf->getPort(), conf->getServerAddress(), errMsg);
+        DataProxyPtr proxy = make_shared<DataProxy>(nodeId, anotherCommunicatorToFrontend, shm, logger);
+        proxy->printStats(true);
+    }
+
 
     // set the configuration instance;
     void setConf(ConfigurationPtr conf) {
