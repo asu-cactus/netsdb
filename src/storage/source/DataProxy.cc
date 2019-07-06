@@ -18,8 +18,11 @@
 #include "StoragePagePinned.h"
 #include "StorageBytesPinned.h"
 #include "StorageRemoveTempSet.h"
+#include "StorageGetStats.h"
 #include "CloseConnection.h"
 #include "Configuration.h"
+
+
 
 #ifndef MAX_RETRIES
 #define MAX_RETRIES 5
@@ -666,6 +669,49 @@ PageScannerPtr DataProxy::getScanner(int numThreads) {
     PageScannerPtr scanner = make_shared<PageScanner>(
         this->communicator, this->shm, this->logger, numThreads, scannerBufferSize, this->nodeId);
     return scanner;
+}
+
+bool DataProxy::printStats(bool needMem) {
+    std::string errMsg;
+    if (this->communicator->isSocketClosed() == true) {
+        std::cout << "ERROR in DataProxy.getScanner: connection is closed" << std::endl;
+        if (communicator->reconnect(errMsg)) {
+            std::cout << errMsg << std::endl;
+            return false;
+        }
+    }
+
+    pdb::Handle<pdb::StorageGetStats> msg = nullptr;
+
+    if (needMem) {
+        pdb::UseTemporaryAllocationBlock myBlock{2048};
+        msg = pdb::makeObject<pdb::StorageGetStats>();
+        if (!this->communicator->sendObject<pdb::StorageGetStats>(msg, errMsg)) {
+            std::cout << "Sending StorageGetStats object failure: " << errMsg << "\n";
+        }
+
+        bool success;
+        pdb::Handle<pdb::SimpleRequestResult> ack =
+            this->communicator->getNextObject<pdb::SimpleRequestResult>(success, errMsg);
+        if (ack == nullptr) {
+            cerr << "Receiving ack failure:" << errMsg << "\n";
+        }
+        return success && (ack->getRes().first);
+    } else {
+        msg = pdb::makeObject<pdb::StorageGetStats>();
+        if (!this->communicator->sendObject<pdb::StorageGetStats>(msg, errMsg)) {
+            std::cout << "Sending StorageGetStats object failure: " << errMsg << "\n";
+        }
+
+        bool success;
+        pdb::Handle<pdb::SimpleRequestResult> ack =
+            this->communicator->getNextObject<pdb::SimpleRequestResult>(success, errMsg);
+        if (ack == nullptr) {
+            cerr << "Receiving ack failure:" << errMsg << "\n";
+        }
+        return success && (ack->getRes().first);
+
+    }
 }
 
 

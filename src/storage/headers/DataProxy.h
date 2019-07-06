@@ -130,6 +130,13 @@ public:
     PageScannerPtr getScanner(int numThreads);
 
 
+   /**
+    * Print cache statistics
+    */
+    bool printStats(bool needMem = true);
+
+
+
 private:
     pdb::PDBCommunicatorPtr communicator;
     SharedMemPtr shm;
