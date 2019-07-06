@@ -2,7 +2,7 @@
 #ifndef PAGECACHE_H
 #define PAGECACHE_H
 
-
+#include "CacheStats.h"
 #include "Configuration.h"
 #include "PDBWork.h"
 #include "PDBWorkerQueue.h"
@@ -160,6 +160,9 @@ public:
     // Get a page directly from cache, if it is not in cache return nullptr
     PDBPagePtr getPage(CacheKey key, LocalitySet* set = nullptr);
 
+
+    // This function will call above function AND update hit/miss stats
+    PDBPagePtr getPage1(CacheKey key, LocalitySet* set = nullptr);
 
     // To allocate a new page, blocking until get a page, set it as pinned&dirty, add it to cache,
     // and increment reference count
@@ -328,6 +331,7 @@ private:
      * index = 5, TransientLifetimeNotEndedHashData
      */
     vector<list<LocalitySetPtr>*>* priorityList;
+    CacheStats stats;
 };
 
 

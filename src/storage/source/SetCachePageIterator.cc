@@ -45,9 +45,9 @@ PDBPagePtr SetCachePageIterator::next() {
             key.pageId = this->iter->first;
             std::cout << "SetCachePageIterator: in cache: curPageId=" << key.pageId << "\n";
 #ifdef USE_LOCALITY_SET
-            PDBPagePtr page = this->cache->getPage(key, this->set);
+            PDBPagePtr page = this->cache->getPage1(key, this->set);
 #else
-            PDBPagePtr page = this->cache->getPage(key, nullptr);
+            PDBPagePtr page = this->cache->getPage1(key, nullptr);
 #endif
             ++iter;
             this->cache->evictionUnlock();

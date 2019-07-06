@@ -96,6 +96,7 @@ void PageCache::cachePage(PDBPagePtr page, LocalitySet* set) {
                 //std::cout << "set->getNumCachedPages()=" << set->getNumCachedPages() << std::endl;
             }
         }
+        this->stats.incCached();
     } else {
         logger->writeLn("LRUPageCache: page was there already.");
     }
@@ -373,6 +374,7 @@ PDBPagePtr PageCache::getPage(PartitionedFilePtr file,
     this->evictionLock();
     pthread_mutex_lock(&this->cacheMutex);
     if (this->containsPage(key) != true) {
+        this->stats.incMisses();
         pthread_mutex_unlock(&this->cacheMutex);
         this->evictionUnlock();
         pthread_mutex_unlock(&this->evictionMutex);
@@ -412,6 +414,7 @@ PDBPagePtr PageCache::getPage(PartitionedFilePtr file,
         if (set != nullptr) {
             set->updateCachedPage(page);
         }
+        this->stats.incHits();
     }
 
     return page;
@@ -422,6 +425,14 @@ PDBPagePtr PageCache::getPage(PartitionedFilePtr file,
 // NOT SUPPORTED ANY MORE, TO REMOVE THE METHOD
 PDBPagePtr PageCache::getPage(SequenceFilePtr file, PageID pageId) {
     return nullptr;
+}
+
+PDBPagePtr PageCache::getPage1(CacheKey key, LocalitySet* set) {
+    PDBPagePtr pageToReturn = getPage(key, set);
+    if (pageToReturn) {
+       stats.incHits();
+    }
+    return pageToReturn;
 }
 
 // Below method will cause reference count ++;
@@ -754,7 +765,7 @@ bool PageCache::evictPage(CacheKey key, bool tryFlushOrNot) {
         this->logger->writeLn("LRUPageCache: can not evict page because it is not in cache");
         return false;
     }
-
+    stats.incEvicted();
     return true;
 }
 
@@ -921,8 +932,8 @@ void PageCache::evict() {
     } else{
         this->evictionLock();
         this->logger->debug("PageCache::evict(): got the lock for evictionLock()...");
-        priority_queue<PDBPagePtr, vector<PDBPagePtr>, CompareCachedPagesMRU>* cachedPages =
-            new priority_queue<PDBPagePtr, vector<PDBPagePtr>, CompareCachedPagesMRU>();
+        priority_queue<PDBPagePtr, vector<PDBPagePtr>, CompareCachedPages>* cachedPages =
+            new priority_queue<PDBPagePtr, vector<PDBPagePtr>, CompareCachedPages>();
         unordered_map<CacheKey, PDBPagePtr, CacheKeyHash, CacheKeyEqual>::iterator cacheIter;
         PDBPagePtr curPage;
         for (cacheIter = this->cache->begin(); cacheIter != this->cache->end(); cacheIter++) {

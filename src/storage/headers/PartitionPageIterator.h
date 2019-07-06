@@ -45,8 +45,8 @@ private:
     PartitionedFilePtr partitionedFile;
     SequenceFilePtr sequenceFile;
     FilePartitionID partitionId;
-    unsigned int numPages;
-    unsigned int numIteratedPages;
+    unsigned int numPages = 0;
+    unsigned int numIteratedPages = 0;
     UserSet* set;
 };
 

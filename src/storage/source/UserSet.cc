@@ -162,7 +162,7 @@ vector<PageIteratorPtr>* UserSet::getIterators() {
     vector<PageIteratorPtr>* retVec = new vector<PageIteratorPtr>();
     PageIteratorPtr iterator = nullptr;
     if (dirtyPagesInPageCache->size() > 0) {
-        PDB_COUT << "dirtyPages size=" << dirtyPagesInPageCache->size() << std::endl;
+        std::cout << "dirtyPages size=" << dirtyPagesInPageCache->size() << std::endl;
         iterator = make_shared<SetCachePageIterator>(this->pageCache, this);
         if (iterator != nullptr) {
             retVec->push_back(iterator);
@@ -179,7 +179,7 @@ vector<PageIteratorPtr>* UserSet::getIterators() {
         int i = 0;
         for (i = 0; i < numPartitions; i++) {
             if (partitionedFile->getMetaData()->getPartition(i)->getNumPages() > 0) {
-                PDB_COUT << "numpages in partition:" << i << " ="
+                std::cout << "numpages in partition:" << i << " ="
                          << partitionedFile->getMetaData()->getPartition(i)->getNumPages()
                          << std::endl;
                 iterator = make_shared<PartitionPageIterator>(
