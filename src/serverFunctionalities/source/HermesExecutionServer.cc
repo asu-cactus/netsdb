@@ -492,6 +492,9 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
           errMsg = "Error: No job is running!";
           std::cout << errMsg << std::endl;
         }
+
+        printCacheStats();
+
         // return result to frontend
         PDB_COUT << "to send back reply" << std::endl;
         const UseTemporaryAllocationBlock block1{1024};
@@ -1005,6 +1008,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                                                                  errMsg = "Error: No job is running!";
                                                                  std::cout << errMsg << std::endl;
                                                                }
+                                                               printCacheStats();
                                                                // return result to frontend
                                                                PDB_COUT << "to send back reply" << std::endl;
                                                                const UseTemporaryAllocationBlock block1{1024};
@@ -1311,6 +1315,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
           std::cout << errMsg << std::endl;
         }
 
+        printCacheStats();
 
         // return result to frontend
         PDB_COUT << "to send back reply" << std::endl;
@@ -1418,6 +1423,9 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
           std::cout << errMsg << std::endl;
           // We do not remove the hash table, so that we can try again.
         }
+
+        printCacheStats();
+
         PDB_COUT << "to send back reply" << std::endl;
         const UseTemporaryAllocationBlock block2{1024};
         Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(res, errMsg);
