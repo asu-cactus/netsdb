@@ -13,6 +13,7 @@
 #include "StorageAddSet.h"
 #include "StorageClearSet.h"
 #include "StorageGetData.h"
+#include "StorageGetStats.h"
 #include "StorageGetDataResponse.h"
 #include "StorageGetSetPages.h"
 #include "StoragePinPage.h"
@@ -107,7 +108,7 @@ PangeaStorageServer::PangeaStorageServer(SharedMemPtr shm,
     this->flushBuffer = make_shared<PageCircularBuffer>(FLUSH_BUFFER_SIZE, logger);
 
     // initialize cache, must be initialized before databases
-    this->cache = make_shared<PageCache>(conf, workers, flushBuffer, logger, shm, UnifiedLRU);
+    this->cache = make_shared<PageCache>(conf, workers, flushBuffer, logger, shm, UnifiedIntelligent);
 
     // initialize and load databases, must be initialized after cache
     this->dbs = new std::map<DatabaseID, DefaultDatabasePtr>();
@@ -663,6 +664,20 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
         }
 
                                                                 ));
+    forMe.registerHandler(
+        StorageGetStats_TYPEID,
+        make_shared<SimpleRequestHandler<StorageGetStats>>([&](Handle<StorageGetStats> request,
+                                                               PDBCommunicatorPtr sendUsingMe) {
+             std::string errMsg;
+             bool res;
+             this->cache->printStats();
+             // make the response
+             const UseTemporaryAllocationBlock tempBlock{1024};
+             Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(res, errMsg);
+             res = sendUsingMe->sendObject(response, errMsg);
+             return make_pair(res, errMsg);
+        }
+    ));
 
     forMe.registerHandler(
         StorageClearSet_TYPEID,

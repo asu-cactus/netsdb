@@ -304,6 +304,11 @@ public:
     CacheStrategy strategy;
     
 
+    void printStats() {
+        this->stats.print();
+    }
+
+
 private:
     long accessCount;
     unordered_map<CacheKey, PDBPagePtr, CacheKeyHash, CacheKeyEqual>* cache;
