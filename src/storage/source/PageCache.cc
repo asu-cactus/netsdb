@@ -115,10 +115,10 @@ char* PageCache::allocateBufferFromSharedMemoryBlocking(size_t size, int& alignO
     char* data = (char*)this->shm->mallocAlign(size, 512, alignOffset);
     // Dangerous: dead loop
     while (data == nullptr) {
-        this->logger->info("LRUPageCache: out of memory in off-heap pool, start eviction.");
+        //this->logger->info("LRUPageCache: out of memory in off-heap pool, start eviction.");
 #ifdef PROFILING_CACHE
-        std::cout << "Out of memory in shared memory pool, trying to allocate " << size << " data"
-                  << std::endl;
+        //std::cout << "Out of memory in shared memory pool, trying to allocate " << size << " data"
+          //        << std::endl;
 #endif
         if (this->inEviction == false) {
             this->evict();
