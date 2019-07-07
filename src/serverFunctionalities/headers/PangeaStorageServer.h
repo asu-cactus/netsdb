@@ -179,7 +179,8 @@ public:
                 std::string setName,
                 SetID setId,
                 size_t pageSize = DEFAULT_PAGE_SIZE,
-                size_t desiredSize = 1);
+                size_t desiredSize = 1,
+                bool isMRU = true);
 
 
     /**
@@ -189,7 +190,8 @@ public:
                 std::string typeName,
                 std::string setName,
                 size_t pageSize = DEFAULT_PAGE_SIZE,
-                size_t desiredSize = 1);
+                size_t desiredSize = 1,
+                bool isMRU = true);
 
     /**
      * Add a set using only database name and set name
@@ -197,7 +199,8 @@ public:
     bool addSet(std::string dbName, 
                 std::string setName, 
                 size_t pageSize = DEFAULT_PAGE_SIZE,
-                size_t desiredSize = 1);
+                size_t desiredSize = 1,
+                bool isMRU = true);
 
 
     /**

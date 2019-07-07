@@ -22,8 +22,9 @@ public:
                   std::string setName,
                   std::string typeName,
                   size_t pageSize = DEFAULT_PAGE_SIZE,
-                  size_t desiredSize = 1)
-        : dataBase(dataBase), setName(setName), typeName(typeName), pageSize(pageSize), desiredSize(desiredSize) {}
+                  size_t desiredSize = 1,
+                  bool isMRU = true)
+        : dataBase(dataBase), setName(setName), typeName(typeName), pageSize(pageSize), desiredSize(desiredSize), isMRU(isMRU) {}
 
     std::string getDatabase() {
         return dataBase;
@@ -45,6 +46,10 @@ public:
         return desiredSize;
     }
 
+    bool getMRUorNot() {
+        return isMRU;
+    }
+
 
     ENABLE_DEEP_COPY
 
@@ -54,6 +59,7 @@ private:
     String typeName;
     size_t pageSize;
     size_t desiredSize;
+    bool isMRU;
 };
 }
 

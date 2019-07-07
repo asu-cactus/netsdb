@@ -70,7 +70,7 @@ public:
             PartitionedFilePtr file,
             PageCachePtr pageCache,
             LocalityType localityType = JobData,
-            LocalitySetReplacementPolicy policy = MRU,
+            LocalitySetReplacementPolicy policy = LRU,
             OperationType operation = Read,
             DurabilityType durability = TryCache,
             PersistenceType persistence = Persistent,
