@@ -65,7 +65,8 @@ public:
                SetID setId, 
                size_t pageSize = DEFAULT_PAGE_SIZE,
                size_t desiredSize = 1,
-               bool isMRU = true);
+               bool isMRU = true,
+               bool isTransient = true);
 
     // Remove an existing set, including all the disk files associated with the set.
     // If successful, return 0.

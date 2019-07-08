@@ -72,7 +72,7 @@ string UserType::encodePath(string typePath, SetID setId, string setName) {
 
 // add new set
 // Not thread-safe
-int UserType::addSet(string setName, SetID setId, size_t pageSize, size_t desiredSize, bool isMRU) {
+int UserType::addSet(string setName, SetID setId, size_t pageSize, size_t desiredSize, bool isMRU, bool isTransient) {
     if (this->sets->find(setId) != this->sets->end()) {
         this->logger->writeLn("UserType: set exists.");
         return -1;
@@ -95,13 +95,16 @@ int UserType::addSet(string setName, SetID setId, size_t pageSize, size_t desire
                                         pageSize);
 
     SetPtr set = nullptr;
+    LocalitySetReplacementPolicy policy = LRU;
     if (isMRU) {
-        set = make_shared<UserSet>(
-            pageSize, logger, shm, nodeId, dbId, id, setId, setName, file, this->cache, JobData, MRU, Read, TryCache, Persistent, desiredSize);
-    } else {
-        set = make_shared<UserSet>(
-            pageSize, logger, shm, nodeId, dbId, id, setId, setName, file, this->cache, JobData, LRU, Read, TryCache, Persistent, desiredSize);
+        policy = MRU;
     }
+    PersistenceType persistenceType = Persistent;
+    if (isTransient) {
+        persistenceType = Transient;
+    }
+    set = make_shared<UserSet>(
+          pageSize, logger, shm, nodeId, dbId, id, setId, setName, file, this->cache, JobData, policy, Read, TryCache, persistenceType, desiredSize);
 
     if (set == 0) {
         this->logger->writeLn("UserType: Out of Memory.");
@@ -203,7 +206,7 @@ bool UserType::initializeFromMetaTypeDir(path metaTypeDir) {
                                                       setId,
                                                       name,
                                                       partitionedFile,
-                                                      this->cache);
+                                                      this->cache, JobData, LRU);
                     // add buffer to map
                     if (set == 0) {
                         this->logger->error("Fatal Error: UserType: out of memory.");
