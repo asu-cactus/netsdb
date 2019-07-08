@@ -423,6 +423,14 @@ bool PangeaStorageServer::exportToHDFSFile(std::string dbName,
     return false;
 }
 
+
+//print all set information
+void PangeaStorageServer::printSets() {
+    for (auto set : *userSets) {
+        set.second->print();
+    }
+}
+
 void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
     // this handler accepts a request to write back all buffered records
     forMe.registerHandler(
@@ -675,6 +683,7 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
              std::string errMsg;
              bool res;
              this->cache->printStats();
+             this->printSets();
              // make the response
              const UseTemporaryAllocationBlock tempBlock{1024};
              Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(res, errMsg);
@@ -1395,7 +1404,7 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
             // use frontend iterators: one iterator for in-memory dirty pages, and one iterator for
             // each file partition
             std::vector<PageIteratorPtr>* iterators = set->getIterators();
-            getFunctionality<PangeaStorageServer>().getCache()->pin(set, set->getReplacementPolicy(), Write);
+            getFunctionality<PangeaStorageServer>().getCache()->pin(set, MRU/*set->getReplacementPolicy()*/, Read);
 
             set->setPinned(true);
             int numIterators = iterators->size();

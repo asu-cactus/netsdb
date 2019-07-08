@@ -354,6 +354,88 @@ public:
         this->pageSize = pageSize;
     }
 
+    void print() {
+        std::cout << "################################" << std::endl;
+        std::cout << "setName:" << setName << std::endl;
+        std::cout << "pageSize:" << pageSize << std::endl;
+        switch (localityType) {
+            case JobData:
+                std::cout << "localityType: JobData" << std::endl;
+                break;
+            case ShuffleData:
+                std::cout << "localityType: ShuffleData" << std::endl;
+                break;
+            case HashPartitionData:
+                std::cout << "localityType: HashPartitionData" << std::endl;
+                break;
+            case PartialAggregationData:
+                std::cout << "localityType: PartialAggregationData" << std::endl;
+                break;
+            default:
+                std::cout << "localityType: " << localityType << std::endl;
+                break;           
+        }
+        switch (replacementPolicy) {
+            case LRU: 
+                std::cout << "replacementPolicy: LRU" << std::endl;
+                break;
+            case MRU:
+                std::cout << "replacementPolicy: MRU" << std::endl;
+                break;
+            case Random:
+                std::cout << "replacementPolicy: Random" << std::endl;
+                break;
+            default:
+                std::cout << "replacementPolicy: " << replacementPolicy << std::endl;
+                break;
+        }
+        switch (operationType) {
+            case Read:     
+                std::cout << "operationType: Read" << std::endl;
+                break;
+            case RepeatedRead:
+                std::cout << "operationType: RepeatedRead" << std::endl;
+                break;
+            case Write:
+                std::cout << "operationType: Write" << std::endl;
+                break;
+            default:
+                std::cout << "operationType: " << operationType << std::endl;
+                break;
+        }
+        switch (durabilityType) {
+            case TryCache:     
+                std::cout << "durabilityType: TryCache" << std::endl;
+                break;
+            case CacheThrough:
+                std::cout << "durabilityType: CacheThrough" << std::endl;
+                break;
+            default:
+                std::cout << "durabilityType: " << durabilityType << std::endl;
+                break;
+        }
+        switch (persistenceType) {
+            case Transient:
+                std::cout << "persistenceType: Transient" << std::endl;
+                break;
+            case Persistent:
+                std::cout << "persistenceType: Persistent" << std::endl;
+                break;
+            default:
+                std::cout << "persistenceType: " << persistenceType << std::endl;
+                break;
+        }
+        if (lifetimeEnded) {
+            std::cout << "lifetimeEnded: true" << std::endl;
+        } else {
+            std::cout << "lifetimeEnded: false" << std::endl;
+        }
+        std::cout << "numCachedPages: " << numCachedPages << std::endl;
+        std::cout << "################################" << std::endl;
+
+    }
+
+
 protected:
     PartitionedFilePtr file;
     PageCachePtr pageCache;

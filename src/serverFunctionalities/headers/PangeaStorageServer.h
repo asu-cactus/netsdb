@@ -292,6 +292,10 @@ public:
                           std::string format,
                           std::string& errMsg);
 
+
+   // print all set information
+   void printSets();
+
 protected:
     /**
      * Encode database path
