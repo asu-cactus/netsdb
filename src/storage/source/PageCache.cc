@@ -901,8 +901,11 @@ void PageCache::evict() {
         list<LocalitySetPtr>* curList;
         for (i = 0; i < 6; i++) {
             curList = this->priorityList->at(i);
-            for (list<LocalitySetPtr>::reverse_iterator it = curList->rbegin();
+            /*for (list<LocalitySetPtr>::reverse_iterator it = curList->rbegin();
                  it != curList->rend();
+                 ++it) {*/
+            for (list<LocalitySetPtr>::iterator it = curList->begin();
+                 it != curList->end();
                  ++it) {
                 LocalitySetPtr set = (*it);
                 pagesToEvict = set->selectPagesForReplacement();
