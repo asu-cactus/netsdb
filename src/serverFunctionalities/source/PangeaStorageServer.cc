@@ -108,7 +108,7 @@ PangeaStorageServer::PangeaStorageServer(SharedMemPtr shm,
     this->flushBuffer = make_shared<PageCircularBuffer>(FLUSH_BUFFER_SIZE, logger);
 
     // initialize cache, must be initialized before databases
-    this->cache = make_shared<PageCache>(conf, workers, flushBuffer, logger, shm, UnifiedIntelligent);
+    this->cache = make_shared<PageCache>(conf, workers, flushBuffer, logger, shm, UnifiedCost);
 
     // initialize and load databases, must be initialized after cache
     this->dbs = new std::map<DatabaseID, DefaultDatabasePtr>();
@@ -1404,7 +1404,7 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
             // use frontend iterators: one iterator for in-memory dirty pages, and one iterator for
             // each file partition
             std::vector<PageIteratorPtr>* iterators = set->getIterators();
-            getFunctionality<PangeaStorageServer>().getCache()->pin(set, MRU/*set->getReplacementPolicy()*/, Read);
+            getFunctionality<PangeaStorageServer>().getCache()->pin(set, set->getReplacementPolicy(), Read);
 
             set->setPinned(true);
             int numIterators = iterators->size();

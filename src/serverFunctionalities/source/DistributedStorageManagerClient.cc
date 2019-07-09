@@ -53,7 +53,8 @@ bool DistributedStorageManagerClient::createSet(const std::string& databaseName,
                                                 const std::string& createdJobId,
                                                 Handle<Computation> dispatchComputation,
                                                 Handle<LambdaIdentifier> lambdaIdentifier,
-                                                size_t desiredSize ) {
+                                                size_t desiredSize,
+                                                bool isMRU ) {
     std::cout << "to create set for " << databaseName << ":" << setName << std::endl;
     if (lambdaIdentifier != nullptr) {
          std::cout << "jobName is " << lambdaIdentifier->getJobName() << std::endl;
@@ -74,7 +75,9 @@ bool DistributedStorageManagerClient::createSet(const std::string& databaseName,
         createdJobId,
         dispatchComputation,
         lambdaIdentifier,
-        desiredSize);
+        desiredSize,
+        isMRU
+        );
 }
 
 bool DistributedStorageManagerClient::createTempSet(const std::string& databaseName,
@@ -85,7 +88,8 @@ bool DistributedStorageManagerClient::createTempSet(const std::string& databaseN
                                                     const std::string& createdJobId,
                                                     Handle<Computation> dispatchComputation,
                                                     Handle<LambdaIdentifier> lambdaIdentifier,
-                                                    size_t desiredSize ) {
+                                                    size_t desiredSize,
+                                                    bool isMRU ) {
     return simpleRequest<DistributedStorageAddTempSet, SimpleRequestResult, bool>(
         logger,
         port,
@@ -101,7 +105,9 @@ bool DistributedStorageManagerClient::createTempSet(const std::string& databaseN
         createdJobId,
         dispatchComputation,
         lambdaIdentifier,
-        desiredSize);
+        desiredSize,
+        isMRU
+        );
 }
 
 bool DistributedStorageManagerClient::removeDatabase(const std::string& databaseName,

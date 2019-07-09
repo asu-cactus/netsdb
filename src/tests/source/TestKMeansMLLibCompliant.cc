@@ -351,7 +351,8 @@ int main (int argc, char * argv[]) {
                                              nullptr,
                                              780 
                                             /*1 */ 
-                                           /*1000*/ )) {
+                                           /*1000*/,
+                                             true )) {
         COUT << "Not able to create set: " + errMsg;
         exit (-1);
     } else { 

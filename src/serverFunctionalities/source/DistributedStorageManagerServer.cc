@@ -449,8 +449,8 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                                                                          request->getTypeName(),
                                                                          pageSize,
                                                                          desiredSize,
-                                                                         false,
-                                                                         false);
+                                                                         request->getMRUorNot(),
+                                                                         request->getMRUorNot());
             std::cout << "Page size is determined to be " << pageSize << std::endl;
             
 

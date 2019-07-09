@@ -3,7 +3,7 @@
 
 #include "ServerFunctionality.h"
 #include "PDBLogger.h"
-
+#include "DataTypes.h"
 #include "SimpleRequestResult.h"
 #include "Computation.h"
 #include "LambdaIdentifier.h"
@@ -37,7 +37,8 @@ public:
                    const std::string& createdJobId = "",
                    Handle<Computation> computationForDispatch = nullptr,
                    Handle<LambdaIdentifier> lambdaForDispatch = nullptr,
-                   size_t desiredSize = 0);
+                   size_t desiredSize = 0,
+                   bool isMRU = false);
 
 
 
@@ -50,7 +51,8 @@ public:
                        const std::string& createdJobId = "",
                        Handle<Computation> computationForDispatch = nullptr,
                        Handle<LambdaIdentifier> lambdaForDispatch = nullptr,
-                       size_t desiredSize = 0);
+                       size_t desiredSize = 0,
+                       bool isMRU = false);
 
     // templated createSet
     template <class DataType>
@@ -61,7 +63,8 @@ public:
                    const std::string& createdJobId = "",
                    Handle<Computation> computationForDispatch = nullptr,
                    Handle<LambdaIdentifier> lambdaForDispatch = nullptr,
-                   size_t desiredSize = 0);
+                   size_t desiredSize = 0,
+                   bool isMRU = false);
 
     // storage cleanup to flush buffered data to disk
     bool flushData(std::string& errMsg);

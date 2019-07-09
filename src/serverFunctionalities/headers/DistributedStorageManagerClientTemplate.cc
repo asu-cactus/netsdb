@@ -25,7 +25,8 @@ namespace pdb {
                                                     const std::string& createdJobId, 
                                                     Handle<Computation> computationForDispatch,
                                                     Handle<LambdaIdentifier> lambdaForDispatch,
-                                                    size_t desiredSize) {
+                                                    size_t desiredSize,
+                                                    bool isMRU) {
         std::string typeName = getTypeName<DataType>();
         int16_t typeId = getTypeID<DataType>();
         PDB_COUT << "typeName for set to create =" << typeName << ", typeId=" << typeId << std::endl;
@@ -43,7 +44,8 @@ namespace pdb {
             createdJobId,
             computationForDispatch,
             lambdaForDispatch,
-            desiredSize);
+            desiredSize,
+            isMRU);
     }
 
 }

@@ -27,13 +27,14 @@ public:
                              std::string createdJobId = "",
                              Handle<Computation> dispatchComputation = nullptr,
                              Handle<LambdaIdentifier> lambdaIdentifier = nullptr,
-                             size_t desiredSize = 1)
+                             size_t desiredSize = 1,
+                             bool isMRU = false)
         : dataBase(dataBase), setName(setName), typeName(typeName), pageSize(pageSize), createdJobId(createdJobId) {
 
         this->dispatchComputation = dispatchComputation;
         this->lambdaIdentifier = lambdaIdentifier;
         this->desiredSize = desiredSize;
-
+        this->isMRU = isMRU;
     }
 
 
@@ -85,6 +86,14 @@ public:
         this->desiredSize = desiredSize;
     }
 
+    bool getMRUorNot() {
+        return this->isMRU;
+    }
+
+    void setMRUorNot(bool isMRU) {
+        this->isMRU = isMRU;
+    }
+
     ENABLE_DEEP_COPY
 
 private:
@@ -96,6 +105,7 @@ private:
     Handle<Computation> dispatchComputation;
     Handle<LambdaIdentifier> lambdaIdentifier;
     size_t desiredSize;
+    bool isMRU;
 };
 }
 
