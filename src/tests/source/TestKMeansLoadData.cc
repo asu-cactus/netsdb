@@ -160,13 +160,6 @@ int main (int argc, char * argv[]) {
     }
     COUT << "The number of clusters: " << k << std :: endl;
 
-    /*
-    if (argc > 8) {
-	numData = std::stoi(argv[8]);
-    }
-    COUT << "The number of data points: " << numData << std :: endl;
-    */
-
     if (argc > 8) {
 	dim = std::stoi(argv[8]);
     }
@@ -176,7 +169,6 @@ int main (int argc, char * argv[]) {
     if (argc > 9) {
         fileName = argv[9];
     }
-    COUT << "Input file: " << fileName << std :: endl;
     COUT << std :: endl;
 
 
@@ -279,7 +271,6 @@ int main (int argc, char * argv[]) {
         if (numOfMb >= 0) {
 		if (addDataFromFile) {
 			int blockSize = 256;
-			//std :: ifstream inFile("/mnt/data_generator_kmeans/gaussian_pdb/kmeans_data");
                         std ::ifstream inFile(fileName.c_str());
 			std :: string line;
 			bool rollback = false;
@@ -292,7 +283,6 @@ int main (int argc, char * argv[]) {
 					
 				     while(1){       
 						if (!rollback){
-						//      std::istringstream iss(line);
 							if(!std::getline(inFile, line)){
 								end = true;
 								break;

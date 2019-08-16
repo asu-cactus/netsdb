@@ -2,7 +2,6 @@
 #define TEST_KMEANS_CC
 
 
-// By Shangyu, May 2017
 // K-means clustering;
 
 #include "PDBDebug.h"
@@ -51,14 +50,8 @@ using namespace pdb;
 int main (int argc, char * argv[]) {
     bool printResult = true;
     bool clusterMode = false;
-//    freopen("output.txt","w",stdout);
     freopen("/dev/tty","w",stdout);
 
-//    std::ofstream out("output.txt");
-//    std::streambuf *COUTbuf = COUT.rdbuf(); //save old buf
-//    COUT.rdbuf(out.rdbuf()); //redirect std::COUT to out.txt!
-
-//    std::ofstream term("/dev/tty", std::ios_base::out);
 
     const std::string red("\033[0;31m");
     const std::string green("\033[1;32m");
@@ -142,12 +135,6 @@ int main (int argc, char * argv[]) {
     }
     COUT << "The number of clusters: " << k << std :: endl;
 
-    /*
-    if (argc > 8) {
-	numData = std::stoi(argv[8]);
-    }
-    COUT << "The number of data points: " << numData << std :: endl;
-    */
 
     if (argc > 8) {
 	dim = std::stoi(argv[8]);
@@ -166,16 +153,12 @@ int main (int argc, char * argv[]) {
 
     string errMsg;
 
-    // Some meta data
     pdb :: makeObjectAllocatorBlock(1 * 1024 * 1024, true);
-//    pdb::Handle<pdb::Vector<DoubleVector>> tmpModel = pdb::makeObject<pdb::Vector<DoubleVector>> (k, k);
     std :: vector<double> avgData(dim, 0);
     int dataCount = 0;
     int myk = 0;
     int kk = 0;
     bool ifFirst = true;
-//    srand(time(0));
-    // For the random number generator
     std::random_device rd;
     std::mt19937 randomGen(rd());
 
@@ -223,7 +206,6 @@ int main (int argc, char * argv[]) {
 					
 					while(1){       
 						if (!rollback){
-						//      std::istringstream iss(line);
 							if(!std::getline(inFile, line)){
 								end = true;
 								break;
@@ -242,21 +224,13 @@ int main (int argc, char * argv[]) {
 						else    
 							rollback = false;
 						pdb :: Handle <DoubleVector> myData = pdb::makeObject<DoubleVector>(dim);
-				//		std::vector<double>::iterator it; 
-				//		for(it = lineData.begin() ; it < lineData.end(); it++) {
 						for(int i = 0; i < lineData.size(); ++i) {
 							myData->setDouble(i, lineData[i]);
-						//	myData->data->push_back(*it);
 
 						}
 						storeMe->push_back (myData);
-						//COUT << "first number: " << myData->getDouble(0) << endl;
 					}
 					
-				    /*COUT << "input data: " << std :: endl;
-				    for (int i=0; i<storeMe->size();i++){
-					(*storeMe)[i]->print();
-				    }*/
 				    end = true;
 
 				    if (!dispatcherClient.sendData<DoubleVector>(std::pair<std::string, std::string>("kmeans_input_set", "kmeans_db"), storeMe, errMsg)) {
@@ -276,11 +250,10 @@ int main (int argc, char * argv[]) {
 				PDB_COUT << blockSize << "MB data sent to dispatcher server~~" << std :: endl;
 
 			} // while not end
-		//            }
 			inFile.close();
 
 		    //to write back all buffered records        
-		  //  temp.flushData( errMsg );
+		    temp.flushData( errMsg );
 		}
 	}
 	else {
@@ -297,16 +270,10 @@ int main (int argc, char * argv[]) {
 
                             std::uniform_real_distribution<> unif(0, 1);
                             bias = unif(randomGen) * 0.01;
-                            //bias = ((double) rand() / (RAND_MAX)) * 0.01;
-                            //myData->push_back(tmp);
                             myData->setDouble(j, i%k*3 + bias);
                         }
                         storeMe->push_back (myData);
                     }
-                    /*COUT << "input data: " << std :: endl;
-                    for (int i=0; i<storeMe->size();i++){
-                        (*storeMe)[i]->print();
-                    }*/
 
 			if (!dispatcherClient.sendData<DoubleVector>(std::pair<std::string, std::string>("kmeans_input_set", "kmeans_db"), storeMe, errMsg)) {
                         COUT << "Failed to send data to dispatcher server" << std :: endl;
@@ -371,14 +338,12 @@ int main (int argc, char * argv[]) {
 	// connect to the query client
     QueryClient myClient (8108, "localhost", clientLogger, true);
     
-    // pdb::Handle<pdb::Vector<DoubleVector>> model = pdb::makeObject<pdb::Vector<DoubleVector>> (k, k);
 
     auto iniBegin = std :: chrono :: high_resolution_clock :: now();
 
     std :: vector< std :: vector <double> > model(k, vector<double>(dim));
     for (int i = 0; i < k; i++) {
 	for (int j = 0; j < dim; j++) {
-       //		model[i][j] = (*tmpModel)[i].getDouble(j);
        		model[i][j] = 0;
 	}
     }
@@ -390,8 +355,6 @@ int main (int argc, char * argv[]) {
     Handle<Computation> myInitialScanSet = makeObject<ScanDoubleVectorSet>("kmeans_db", "kmeans_input_set");
     Handle<Computation> myDataCount = makeObject<KMeansDataCountAggregate>();
     myDataCount->setInput(myInitialScanSet);
-//    myDataCount->setAllocatorPolicy(noReuseAllocator);
-//    myDataCount->setOutput("kmeans_db", "kmeans_data_count_set");
     Handle <Computation> myWriter = makeObject<WriteSumResultSet>("kmeans_db", "kmeans_data_count_set");
     myWriter->setInput(myDataCount);
 
@@ -500,13 +463,10 @@ int main (int argc, char * argv[]) {
 				}
 
 				if ((!notNew) || (previous == 0)) {
-					//COUT << "The sample we got is: " << std :: endl;
 					for (int i = 0; i < dim; i++) {
 						model[myk][i] = rawData[i];
-						//COUT << model[myk][i] << ", ";
 					}
 					myk++;
-					//COUT << std :: endl;
 				}
 			}
 			myPos++;
@@ -549,21 +509,6 @@ int main (int argc, char * argv[]) {
 			}
 		}
 
-		/*
-                COUT << "The std model I have is: " << std :: endl;
-                for (int i = 0; i < k; i++) {
-                     for (int j = 0; j < dim; j++) {
-                         COUT << "model[" << i << "][" << j << "]=" << model[i][j] << std :: endl;
-                     }
-                }
-		*/
-		/*
-	    	COUT << "The model I have is: " << std :: endl;
-		for (int i = 0; i < k; i++) {
-			(*my_model)[i]->print();
-	    	}
-		*/		    
-
 		
     		Handle<Computation> myScanSet = makeObject<ScanDoubleVectorSet>("kmeans_db", "kmeans_input_set");
 		Handle<Computation> myQuery = makeObject<KMeansAggregate>(my_model);
@@ -571,9 +516,6 @@ int main (int argc, char * argv[]) {
                 myQuery->setAllocatorPolicy(noReuseAllocator);
                 myQuery->setCollectAsMap(true);
                 myQuery->setOutput("kmeans_db", "kmeans_output_set");
-		//Handle<Computation> myWriteSet = makeObject<WriteKMeansSet>("kmeans_db", "kmeans_output_set");
-		//myWriteSet->setAllocatorPolicy(noReuseAllocator);
-		//myWriteSet->setInput(myQuery);
 
 
 		auto begin = std :: chrono :: high_resolution_clock :: now();
@@ -621,13 +563,6 @@ int main (int argc, char * argv[]) {
 			for (int i = 0; i < dim; i++) {
 				avgData[i] = avgData[i] / dataCount;
 			}
-			/*
-			COUT << "The average of data points is : \n";
-			for (int i = 0; i < dim; i++)
-				COUT << i << ": " << avgData[i] << ' ';
-			COUT << std :: endl;
-			COUT << std :: endl;
-			*/
 			ifFirst = false;
 		}
 		else {
@@ -638,7 +573,6 @@ int main (int argc, char * argv[]) {
 				COUT << "The cluster count sum I got is " << (*a).getValue().getCount() << std :: endl;
 				COUT << "The cluster mean sum I got is " << std :: endl;
 				(*a).getValue().getMean().print();
-		//		(*model)[kk] = (*a).getValue().getMean() / (*a).getValue().getCount();
 				DoubleVector tmpModel = (*a).getValue().getMean() / (*a).getValue().getCount();
                                 //JiaNote: using raw C++ data
                                 double * rawData = tmpModel.getRawData();
@@ -677,32 +611,9 @@ int main (int argc, char * argv[]) {
     auto allEnd = std :: chrono :: high_resolution_clock :: now();
 
     COUT << std::endl;
-/*
-    COUT << "Initialization Time Duration: " <<
-                std::chrono::duration_cast<std::chrono::duration<float>>(iniEnd-iniBegin).count() << " secs." << std::endl;
-    COUT << "Total Processing Time Duration: " <<
-                std::chrono::duration_cast<std::chrono::duration<float>>(allEnd-iniEnd).count() << " secs." << std::endl;
-*/
-    //QueryClient myClient (8108, "localhost", clientLogger, true);
 
 	// print the resuts
     if (printResult == true) {
-//        COUT << "to print result..." << std :: endl;
-
-//	COUT << std :: endl;
-
-	/*
-        SetIterator <DoubleVector> input = myClient.getSetIterator <DoubleVector> ("kmeans_db", "kmeans_input_set");
-        COUT << "Query input: "<< std :: endl;
-        int countIn = 0;
-        for (auto a : input) {
-            countIn ++;
-            COUT << countIn << ":";
-            a->print();
-            COUT << std::endl;
-        }
-	*/
-
         
         SetIterator <KMeansAggregateOutputType> result = myClient.getSetIterator <KMeansAggregateOutputType> ("kmeans_db", "kmeans_output_set");
 
@@ -713,7 +624,6 @@ int main (int argc, char * argv[]) {
 	COUT << blue << "*****************************************" << reset << std :: endl;
 	COUT << std :: endl;
 
-//                COUT << "The std model I have is: " << std :: endl;
 	for (int i = 0; i < k; i++) {
 	     COUT << "Cluster index: " << i << std::endl;
 	     for (int j = 0; j < dim - 1; j++) {
@@ -757,8 +667,6 @@ int main (int argc, char * argv[]) {
     if (code < 0) {
         COUT << "Can't cleanup so files" << std :: endl;
     }
-//    COUT << "Time Duration: " <<
-//    std::chrono::duration_cast<std::chrono::duration<float>>(end-begin).count() << " secs." << std::endl;
 }
 
 #endif
