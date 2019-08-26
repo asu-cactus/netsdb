@@ -33,13 +33,16 @@ Firstly, we need to setup the test suite by following five steps. (Those five st
 
 Step (1.1) In rice cloud or AWS, find one ubuntu server as your Master, and log in to that server using the 'ubuntu' account; (In future, we shall not be constrained by OS, and we can use the 'pdb' account)
 
-Step (1.2) Download PDB code from svn to the Master server, configure PDB_HOME to be the svn repository. For example, you can:
+Step (1.2) Download pangea code from github to the Master server, configure PDB_HOME to be the github repository. For example, you can:
 
-     - edit ~/.bashrc, and add following to that file: export PDB_HOME=~/PDB/ObjectQueryModel
+     - edit ~/.bashrc, and add following to that file: export PDB_HOME=/home/ubuntu/pangea
+     Here /home/ubuntu/pangea should be replaced by the path to the github repository
 
-Step (1.3) Next, configure PDB_INSTALL to be the location that you want PDB to be installed at on the workers.  For example, you might add the following to .basrc:
+Step (1.3) Next, configure PDB_INSTALL to be the location that you want pangea to be installed at on the workers.  For example, you might add the following to .basrc:
 
      export PDB_INSTALL=/disk1/PDB
+     Here /disk1/PDB should be the path to the directory where you want the binary and code to be copied to, and where data will be stored.
+     Make sure that the user that runs the program has authorization to read/write/create in this directory
 
   Then run following command in shell to make sure these variables are set: source ~/.bashrc
 
@@ -49,7 +52,7 @@ Step (1.4) In rice cloud, find at least one different ubuntu servers as your Sla
 
 Step (1.5) On the master server, install the cluster by run:
      
-     scripts/install.sh $pem_file/private_key
+     scripts/install.sh $pem_file
 
 
 
@@ -63,14 +66,14 @@ On the Master server:
 Step (2.1)
 
 cd $PDB_HOME
-scripts/startMaster.sh $pem_file/private_key
+scripts/startMaster.sh $pem_file
 
 wait for the scripts to return (see something like "master is started!" in the end), and move to  step 2.3:
 
 Step (2.2) : run following command:   
  
 cd $PDB_HOME
-scripts/startWorkers.sh $pem_file/private_key $MasterIPAddress $ThreadNumber (optional, default is 4)  $SharedMemSize (optional, unit MB, default is 4096)
+scripts/startWorkers.sh $pem_file $MasterIPAddress $ThreadNumber (optional, default is 4)  $SharedMemSize (optional, unit MB, default is 4096)
 
 wait for the scripts to return (see something like "servers are started!" in the end).
 
@@ -79,37 +82,30 @@ Thirdly, you can run test cases
 
 For example:
 
-
-Ex1. In PDB without Pliny dependency (PLINY_HOME is set to empty)
+In PDB without Pliny dependency (PLINY_HOME is set to empty)
 cd $PDB_HOME
 bin/test52  Y Y YourTestingDataSizeInMB (e.g. 1024 to test 1GB data) YourMasterIP
 
 
-Ex2. In PDB with Pliny dependency (PLINY_HOME is set to pdb-pliny-interface)
-cd $PLINY_HOME
-./bin/pdb-create -d db1 -s set1 -c
-./bin/pliny-add -d db1 -s set1 -c --capacity 0  < ~/maven12-src-edu.json
-./bin/pdb-flush -d db1 -s set1 -c
-./bin/pliny-query -s set1 -d db1 -o set1_out -f foo.jsonl -c < tests/dataset-4.jsonl
 
 ## Stop Cluster
 cd $PDB_HOME
-scripts/stopWorkers.sh $pem_file/private_key
+scripts/stopWorkers.sh $pem_file
 
 
 ## Soft Reboot Cluster (restart cluster with all data kept)
 cd $PDB_HOME
-scripts/stopWorkers.sh $pem_file/private_key
-scripts/startMaster.sh $pem_file/private_key
-scripts/startWorkers.sh $pem_file/private_key $MasterIPAddress $ThreadNum $SharedMemoryPoolSize
+scripts/stopWorkers.sh $pem_filex
+scripts/startMaster.sh $pem_file
+scripts/startWorkers.sh $pem_file $MasterIPAddress $ThreadNum $SharedMemoryPoolSize
 
 
 ## Upgrade Cluster (for developers and testers upgrade binaries and restart cluster with all data kept)
 cd $PDB_HOME
-scripts/stopWorkers.sh $pem_file/private_key
-scripts/upgrade.sh $pem_file/private_key
-scripts/startMaster.sh $pem_file/private_key
-scripts/startWorkers.sh $pem_file/private_key $MasterIPAddress $ThreadNum $SharedMemoryPoolSize
+scripts/stopWorkers.sh $pem_file
+scripts/upgrade.sh $pem_file
+scripts/startMaster.sh $pem_file
+scripts/startWorkers.sh $pem_file $MasterIPAddress $ThreadNum $SharedMemoryPoolSize
 
 
 ## Cleanup Catalog and Storage data
