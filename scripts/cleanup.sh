@@ -2,7 +2,7 @@
 
 pem_file=$1
 pdb_dir=$PDB_INSTALL
-user=ubuntu
+user=`id -u -n`
 ip_len_valid=3
 
 scripts/cleanupNode.sh

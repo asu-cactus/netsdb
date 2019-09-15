@@ -2,7 +2,7 @@
 
 pem_file=$1
 
-user=ubuntu
+user=`id -u -n`
 ip_len_valid=3
 pdb_dir=$PDB_INSTALL
 #echo "To strip shared libraries..."

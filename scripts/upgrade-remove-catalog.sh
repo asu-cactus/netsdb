@@ -2,9 +2,9 @@
 
 pem_file=$1
 
-user=ubuntu
+user=`id -u -n`
 ip_len_valid=3
-pdb_dir=/home/ubuntu/pdb_install
+pdb_dir=/home/user/pdb_install
 echo "To strip shared libraries..."
 strip libraries/*.so
 echo "stripped all shared libraries!"

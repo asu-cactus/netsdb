@@ -2,7 +2,7 @@
 # by Jia
 
 
-user=ubuntu
+user=`id -u -n`
 pemFile=$1
 
 arr=($(awk '{print $0}' $PDB_HOME/conf/serverlist))

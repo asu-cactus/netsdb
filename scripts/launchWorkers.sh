@@ -5,7 +5,7 @@ pem_file=$1
 masterIp=$2
 numThreads=$3
 sharedMem=$4
-user=ubuntu
+user=`id -u -n`
 ip_len_valid=3
 
 if [ -z ${pem_file} ];

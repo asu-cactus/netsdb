@@ -6,7 +6,7 @@ PEM_FILE=$1
 
 
 
-USERNAME=ubuntu
+USERNAME=`id -u -n`
 
 
 #remember to set environment variable: PDB_HOME first
