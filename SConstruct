@@ -62,7 +62,7 @@ common_env.Append(CCFLAGS='-DENABLE_LARGE_GRAPH')
 common_env.Append(CCFLAGS='-DJOIN_HASH_TABLE_SIZE_RATIO=1.5')
 common_env.Append(CCFLAGS='-DHASH_PARTITIONED_JOIN_SIZE_RATIO=0.5')
 common_env.Append(CCFLAGS='-DPROFILING')
-common_env.Append(CCFLAGS='-DJOIN_COST_THRESHOLD=15000')
+common_env.Append(CCFLAGS='-DJOIN_COST_THRESHOLD=2000')
 common_env.Append(CCFLAGS='-DENABLE_COMPRESSION')
 #common_env.Append(CCFLAGS='-DPDB_DEBUG')
 common_env.Append(CCFLAGS='-DEVICT_STOP_THRESHOLD=0.90')
@@ -500,7 +500,9 @@ common_env.SharedLibrary('libraries/libQ22JoinedCntryBal.so', ['build/tpch/Query
 common_env.SharedLibrary('libraries/libQ22CntryBalJoin.so', ['build/tpch/Query22/Q22CntryBalJoin.cc'] + all)
 common_env.SharedLibrary('libraries/libQ22OrderCountPerCustomer.so', ['build/tpch/Query22/Q22OrderCountPerCustomer.cc'] + all)
 
-
+common_env.Program('bin/tpchPrepareTraining', ['build/tpch/tpchPrepareTraining.cc'] + all + pdb_client)
+common_env.Program('bin/tpchTraining1', ['build/tpch/tpchTraining1.cc'] + all + pdb_client)
+common_env.Program('bin/tpchGenTrace', ['build/tpch/tpchGenTrace.cc'] + all + pdb_client)
 
 common_env.Program('bin/sequentialReadWrite', ['build/tests/SequentialReadWriteTest.cc'] + all + pdb_client)
 common_env.Program('bin/tpchDataLoader', ['build/tpch/tpchDataLoader.cc'] + all + pdb_client)
@@ -919,7 +921,10 @@ tpchNormal=common_env.Alias('tpchNormal', [
   'bin/runQuery13',
   'bin/runQuery14',
   'bin/runQuery17',
-  'bin/runQuery22'
+  'bin/runQuery22',
+  'bin/tpchPrepareTraining',
+  'bin/tpchGenTrace',
+  'bin/tpchTraining1'
 ])
 
 tpch=common_env.Alias('tpch', [
