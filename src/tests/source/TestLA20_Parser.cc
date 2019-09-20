@@ -1,5 +1,5 @@
 #include <iostream>
-
+#include "LALexer.h"
 #include "LAParser.h"
 #include "LAStatementsList.h"
 

@@ -16,6 +16,7 @@
 #include "PDBString.h"
 #include "Handle.h"
 #include "ExportableObject.h"
+#include "StringIntPair.h"
 #include <vector>
 
 // LA libraries:

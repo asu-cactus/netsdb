@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cassert>
 
+#include "LALexer.h"
 #include "LAParser.h"
 #include "LAPDBInstance.h"
 #include "LAStatementsList.h"
