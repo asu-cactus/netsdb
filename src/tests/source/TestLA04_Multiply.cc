@@ -28,61 +28,60 @@
 
 using namespace pdb;
 int main(int argc, char* argv[]) {
-    bool printResult = true;
-    bool clusterMode = false;
+    bool printResult = false;
+    bool clusterMode = true;
+    bool createData = false;
+    bool runQuery = true;
+    bool removeData = false;
     std::cout
-        << "Usage: #printResult[Y/N] #clusterMode[Y/N] #dataSize[MB] #masterIp #SubstractData[Y/N]"
+        << "Usage: #createData[Y/N] #runQuery[Y/N] #removeData[Y/N] BlockSize "
         << std::endl;
     if (argc > 1) {
-        if (strcmp(argv[1], "N") == 0) {
-            printResult = false;
-            std::cout << "You successfully disabled printing result." << std::endl;
+        if (strcmp(argv[1], "Y") == 0) {
+            createData = true;
+            std::cout << "You successfully enabled create data" << std::endl;
         } else {
-            printResult = true;
-            std::cout << "Will print result." << std::endl;
+            createData = false;
+            std::cout << "disabled create data" << std::endl;
         }
     } else {
-        std::cout << "Will print result. If you don't want to print result, you can Substract N as "
-                     "the first parameter to disable result printing."
+        std::cout << "createData is set to false"
                   << std::endl;
     }
 
     if (argc > 2) {
-        if (strcmp(argv[2], "Y") == 0) {
-            clusterMode = true;
-            std::cout << "You successfully set the test to run on cluster." << std::endl;
+        if (strcmp(argv[2], "N") == 0) {
+            runQuery =false;
+            std::cout << "You successfully disabled run query" << std::endl;
         } else {
-            clusterMode = false;
+           runQuery  =true;
         }
     } else {
-        std::cout << "Will run on local node. If you want to run on cluster, you can Substract any "
-                     "character as the second parameter to run on the cluster configured by "
-                     "$PDB_HOME/conf/serverlist."
+        std::cout << "run query is set to true"
                   << std::endl;
     }
+    if(argc >3){
+	if(strcmp(argv[3],"N") == 0) {
+	removeData =false;
+            std::cout << "You successfully disabled remove data" << std::endl;
+        } else {
+           removeData  =true;
+        }
+    } else {
+        std::cout << "remove data is set to false"
+                  << std::endl;
+    }             
 
-    int blockSize = 64;  // by default we Substract 64MB data
-    if (argc > 3) {
-        blockSize = atoi(argv[3]);
+
+    int blockSize = 400;  // by default we Substract 64MB data
+    if (argc > 4) {
+        blockSize = atoi(argv[4]);
     }
-    blockSize = 64;  // Force it to be 64 by now.
 
 
     std::cout << "To Substract data with size: " << blockSize << "MB" << std::endl;
 
-    std::string masterIp = "localhost";
-    if (argc > 4) {
-        masterIp = argv[4];
-    }
-    std::cout << "Master IP Substractress is " << masterIp << std::endl;
-
-    bool whetherToSubstractData = true;
-    if (argc > 5) {
-        if (strcmp(argv[5], "N") == 0) {
-            whetherToSubstractData = false;
-        }
-    }
-
+    String masterIp = "localhost";
     pdb::PDBLoggerPtr clientLogger = make_shared<pdb::PDBLogger>("clientLog");
 
     PDBClient pdbClient(
@@ -98,117 +97,115 @@ int main(int argc, char* argv[]) {
 
     string errMsg;
 
-    if (whetherToSubstractData == true) {
         // Step 1. Create Database and Set
         // now, register a type for user data
         // TODO: once sharedLibrary is supported, Substract this line back!!!
         pdbClient.registerType("libraries/libMatrixMeta.so", errMsg);
         pdbClient.registerType("libraries/libMatrixData.so", errMsg);
         pdbClient.registerType("libraries/libMatrixBlock.so", errMsg);
+	if(createData == true){
+          // now, create a new database
+          if (!pdbClient.createDatabase("LA04_db", errMsg)) {
+              cout << "Not able to create database: " + errMsg;
+              exit(-1);
+          } else {
+              cout << "Created database.\n";
+          }
+          // now, create the first matrix set in that database
+          if (!pdbClient.createSet<MatrixBlock>("LA04_db", "LA_input_set1", errMsg)) {
+              cout << "Not able to create set: " + errMsg;
+              exit(-1);
+          } else {
+              cout << "Created set.\n";
+          }
 
-        // now, create a new database
-        if (!pdbClient.createDatabase("LA04_db", errMsg)) {
-            cout << "Not able to create database: " + errMsg;
-            exit(-1);
-        } else {
-            cout << "Created database.\n";
-        }
-
-        // now, create the first matrix set in that database
-        if (!pdbClient.createSet<MatrixBlock>("LA04_db", "LA_input_set1", errMsg)) {
-            cout << "Not able to create set: " + errMsg;
-            exit(-1);
-        } else {
-            cout << "Created set.\n";
-        }
-
-        // now, create the first matrix set in that database
-        if (!pdbClient.createSet<MatrixBlock>("LA04_db", "LA_input_set2", errMsg)) {
-            cout << "Not able to create set: " + errMsg;
-            exit(-1);
-        } else {
-            cout << "Created set.\n";
-        }
+          // now, create the first matrix set in that database
+          if (!pdbClient.createSet<MatrixBlock>("LA04_db", "LA_input_set2", errMsg)) {
+              cout << "Not able to create set: " + errMsg;
+              exit(-1);
+          } else {
+              cout << "Created set.\n";
+          }
 
 
-        // Step 2. Substract data
-        int matrixRowNums = 4;
-        int matrixColNums = 4;
-        int blockRowNums = 10;
-        int blockColNums = 10;
+           // Step 2. Substract data
+          int matrixRowNums = 1;
+          int matrixColNums = 2000;
+          int matrixRColNums = 1;
+          int blockRowNums = 100;
+          int blockColNums = 100;
 
-        int total = 0;
+          int total = 0;
 
-        // Substract Matrix 1
-        pdb::makeObjectAllocatorBlock(blockSize * 1024 * 1024, true);
-        pdb::Handle<pdb::Vector<pdb::Handle<MatrixBlock>>> storeMatrix1 =
-            pdb::makeObject<pdb::Vector<pdb::Handle<MatrixBlock>>>();
+          // Substract Matrix 1
+          pdb::makeObjectAllocatorBlock(blockSize * 1024 * 1024, true);
+          pdb::Handle<pdb::Vector<pdb::Handle<MatrixBlock>>> storeMatrix1 =
+              pdb::makeObject<pdb::Vector<pdb::Handle<MatrixBlock>>>();
 
-        for (int i = 0; i < matrixRowNums; i++) {
-            for (int j = 0; j < matrixColNums; j++) {
-                pdb::Handle<MatrixBlock> myData =
-                    pdb::makeObject<MatrixBlock>(i, j, blockRowNums, blockColNums);
-                // Foo initialization
-                for (int ii = 0; ii < blockRowNums; ii++) {
-                    for (int jj = 0; jj < blockColNums; jj++) {
-                        (*(myData->getRawDataHandle()))[ii * blockColNums + jj] = i + j + ii + jj;
-                    }
-                }
+          for (int i = 0; i < matrixRowNums; i++) {
+              for (int j = 0; j < matrixColNums; j++) {
+                  pdb::Handle<MatrixBlock> myData =
+                      pdb::makeObject<MatrixBlock>(i, j, blockRowNums, blockColNums);
+                  // Foo initialization
+                  for (int ii = 0; ii < blockRowNums; ii++) {
+                      for (int jj = 0; jj < blockColNums; jj++) {
+                          (*(myData->getRawDataHandle()))[ii * blockColNums + jj] = i + j + ii + jj;
+                      }  
+                  }
 
-                std::cout << "New block: " << total << std::endl;
-                myData->print();
-                storeMatrix1->push_back(myData);
-                total++;
-            }
-        }
+                  std::cout << "New block: " << total << std::endl;
+                  storeMatrix1->push_back(myData);
+                  total++;
+              }
+          }
 
-        if (!pdbClient.sendData<MatrixBlock>(
-                std::pair<std::string, std::string>("LA_input_set1", "LA04_db"),
-                storeMatrix1,
-                errMsg)) {
-            std::cout << "Failed to send data to dispatcher server" << std::endl;
-            return -1;
-        }
-        PDB_COUT << total << " MatrixBlock data sent to dispatcher server~~" << std::endl;
-        // to write back all buffered records
-        pdbClient.flushData(errMsg);
+          if (!pdbClient.sendData<MatrixBlock>(
+                  std::pair<std::string, std::string>("LA_input_set1", "LA04_db"),
+                  storeMatrix1,
+                  errMsg)) {
+              std::cout << "Failed to send data to dispatcher server" << std::endl;
+              return -1;
+          }
+          PDB_COUT << total << " MatrixBlock data sent to dispatcher server~~" << std::endl;
+          // to write back all buffered records
+          pdbClient.flushData(errMsg);
 
-        // Substract Matrix 2
-        total = 0;
-        pdb::makeObjectAllocatorBlock(blockSize * 1024 * 1024, true);
-        pdb::Handle<pdb::Vector<pdb::Handle<MatrixBlock>>> storeMatrix2 =
-            pdb::makeObject<pdb::Vector<pdb::Handle<MatrixBlock>>>();
+          // Substract Matrix 2
+          total = 0;
+          pdb::makeObjectAllocatorBlock(blockSize * 1024 * 1024, true);
+          pdb::Handle<pdb::Vector<pdb::Handle<MatrixBlock>>> storeMatrix2 =
+              pdb::makeObject<pdb::Vector<pdb::Handle<MatrixBlock>>>();
 
-        for (int i = 0; i < matrixRowNums; i++) {
-            for (int j = 0; j < matrixColNums; j++) {
-                pdb::Handle<MatrixBlock> myData =
-                    pdb::makeObject<MatrixBlock>(i, j, blockRowNums, blockColNums);
-                // Foo initialization
-                for (int ii = 0; ii < blockRowNums; ii++) {
-                    for (int jj = 0; jj < blockColNums; jj++) {
-                        (*(myData->getRawDataHandle()))[ii * blockColNums + jj] =
-                            (i == j && ii == jj) ? 1.0 : 0.0;
-                    }
-                }
-                std::cout << "New block: " << total << std::endl;
-                myData->print();
-                storeMatrix2->push_back(myData);
-                total++;
-            }
-        }
+          for (int i = 0; i < matrixColNums; i++) {
+              for (int j = 0; j < matrixRColNums; j++) {
+                  pdb::Handle<MatrixBlock> myData =
+                      pdb::makeObject<MatrixBlock>(i, j, blockRowNums, blockColNums);
+                  // Foo initialization
+                  for (int ii = 0; ii < blockRowNums; ii++) {
+                      for (int jj = 0; jj < blockColNums; jj++) {
+                          (*(myData->getRawDataHandle()))[ii * blockColNums + jj] =
+                              (i == j && ii == jj) ? 1.0 : 0.0;
+                      }  
+                  }
+                  std::cout << "New block: " << total << std::endl;
+                  total++;
+              }
+          }
 
-        if (!pdbClient.sendData<MatrixBlock>(
+          if (!pdbClient.sendData<MatrixBlock>(
                 std::pair<std::string, std::string>("LA_input_set2", "LA04_db"),
                 storeMatrix2,
                 errMsg)) {
-            std::cout << "Failed to send data to dispatcher server" << std::endl;
-            return -1;
-        }
-        PDB_COUT << total << " MatrixBlock data sent to dispatcher server~~" << std::endl;
-        // to write back all buffered records
-        pdbClient.flushData(errMsg);
-    }
+              std::cout << "Failed to send data to dispatcher server" << std::endl;
+              return -1;
+          }
+          PDB_COUT << total << " MatrixBlock data sent to dispatcher server~~" << std::endl;
+          // to write back all buffered records
+          pdbClient.flushData(errMsg);
+       }
     // now, create a new set in that database to store output data
+
+    if (runQuery) {
 
     PDB_COUT << "to create a new set for storing output data" << std::endl;
     if (!pdbClient.createSet<MatrixBlock>("LA04_db", "LA_product_set", errMsg)) {
@@ -253,9 +250,11 @@ int main(int argc, char* argv[]) {
     std::cout << std::endl;
 
     auto end = std::chrono::high_resolution_clock::now();
-    // std::cout << "Time Duration: " <<
-    //      std::chrono::duration_cast<std::chrono::nanoseconds>(end-begin).count() << " ns." <<
-    //      std::endl;
+
+
+    std::cout << "Time Duration: "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
+              << " secs." << std::endl;
 
     std::cout << std::endl;
     // print the resuts
@@ -300,25 +299,40 @@ int main(int argc, char* argv[]) {
         }
         std::cout << "Product output count:" << countOut << "\n";
     }
+       if (!pdbClient.removeSet("LA04_db", "LA_product_set", errMsg)) {
+            cout << "Not able to remove output set: " + errMsg;
+            exit(-1);
+        } else { 
+            cout << "Removed output set.\n";
+        }
 
-    if (clusterMode == false) {
-        // and delete the sets
-        pdbClient.deleteSet("LA04_db", "LA_product_set");
-    } else {
-        if (!pdbClient.removeSet("LA04_db", "LA_product_set", errMsg)) {
-            cout << "Not able to remove set: " + errMsg;
+}
+
+if(removeData == true){
+
+        if (!pdbClient.removeSet("LA04_db", "LA_input_set1", errMsg)) {
+            cout << "Not able to remove set 1: " + errMsg;
             exit(-1);
         } else {
-            cout << "Removed set.\n";
+            cout << "Removed set 1.\n";
         }
-    }
+
+       if (!pdbClient.removeSet("LA04_db", "LA_input_set2", errMsg)) {
+            cout << "Not able to remove set 2: " + errMsg;
+            exit(-1);
+        } else { 
+            cout << "Removed set 2.\n";
+        }
+
+
+
+
+
+}
     int code = system("scripts/cleanupSoFiles.sh");
     if (code < 0) {
         std::cout << "Can't cleanup so files" << std::endl;
     }
-    std::cout << "Time Duration: "
-              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
-              << " secs." << std::endl;
 }
 
 #endif
