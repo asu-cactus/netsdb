@@ -29,7 +29,8 @@ using namespace pdb;
 void loadMatrix (PDBClient & pdbClient, String dbName, String setName, int blockSize, int rowNum, int colNum, int blockRowNums, int blockColNums, std::string errMsg) {
 
      int total = 0;
-     int i, j;
+     int i=0; 
+     int j=0;
      while (true) {
 
           pdb::makeObjectAllocatorBlock(blockSize * 1024 * 1024, true);
@@ -38,8 +39,8 @@ void loadMatrix (PDBClient & pdbClient, String dbName, String setName, int block
               pdb::makeObject<pdb::Vector<pdb::Handle<MatrixBlock>>>();
 
           try {
-              for (i = 0; i < rowNum; i++) {
-                  for (j = 0; j < colNum; j++) {
+              for (i=i; i < rowNum; i++) {
+                  for (j=j; j < colNum; j++) {
                       pdb::Handle<MatrixBlock> myData =
                          pdb::makeObject<MatrixBlock>(i, j, blockRowNums, blockColNums);
                       // Foo initialization
@@ -54,6 +55,13 @@ void loadMatrix (PDBClient & pdbClient, String dbName, String setName, int block
                       total++;
                  }
               }
+              if (!pdbClient.sendData<MatrixBlock>(
+                  std::pair<std::string, std::string>(setName, dbName),
+                  storeMatrix1,
+                  errMsg)) {
+                      std::cout << "Failed to send data to dispatcher server" << std::endl;
+                      exit(1);
+              }
               break;
           } catch (NotEnoughSpace& e) {
               if (!pdbClient.sendData<MatrixBlock>(
@@ -62,15 +70,12 @@ void loadMatrix (PDBClient & pdbClient, String dbName, String setName, int block
                   errMsg)) {
                       std::cout << "Failed to send data to dispatcher server" << std::endl;
                       exit(1);
-              } else {
-                  rowNum = rowNum - i;
-                  colNum = colNum - j;
-              }
+              } 
           }
           PDB_COUT << total << " MatrixBlock data sent to dispatcher server~~" << std::endl;
-          // to write back all buffered records
-          pdbClient.flushData(errMsg);
     }
+   // to write back all buffered records
+    pdbClient.flushData(errMsg);
 }
 
 
@@ -160,7 +165,7 @@ int main(int argc, char* argv[]) {
               cout << "Created database.\n";
           }
           // now, create the first matrix set in that database
-          if (!pdbClient.createSet<MatrixBlock>("LA04_db", "LA_input_set1", errMsg, (size_t)16*(size_t)1024*(size_t)1024, "loadLeftMatrixForMultiply")) {
+          if (!pdbClient.createSet<MatrixBlock>("LA04_db", "LA_input_set1", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "loadLeftMatrixForMultiply")) {
               cout << "Not able to create set: " + errMsg;
               exit(-1);
           } else {
@@ -168,7 +173,7 @@ int main(int argc, char* argv[]) {
           }
 
           // now, create the first matrix set in that database
-          if (!pdbClient.createSet<MatrixBlock>("LA04_db", "LA_input_set2", errMsg, (size_t)16*(size_t)1024*(size_t)1024, "loadRightMatrixForMultiply")) {
+          if (!pdbClient.createSet<MatrixBlock>("LA04_db", "LA_input_set2", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "loadRightMatrixForMultiply")) {
               cout << "Not able to create set: " + errMsg;
               exit(-1);
           } else {
