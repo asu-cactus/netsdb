@@ -25,8 +25,56 @@
 #include <chrono>
 #include <fcntl.h>
 
-
 using namespace pdb;
+void loadMatrix (PDBClient & pdbClient, String dbName, String setName, int blockSize, int rowNum, int colNum, int blockRowNums, int blockColNums, std::string errMsg) {
+
+     int total = 0;
+     int i, j;
+     while (true) {
+
+          pdb::makeObjectAllocatorBlock(blockSize * 1024 * 1024, true);
+
+          pdb::Handle<pdb::Vector<pdb::Handle<MatrixBlock>>> storeMatrix1 =
+              pdb::makeObject<pdb::Vector<pdb::Handle<MatrixBlock>>>();
+
+          try {
+              for (i = 0; i < rowNum; i++) {
+                  for (j = 0; j < colNum; j++) {
+                      pdb::Handle<MatrixBlock> myData =
+                         pdb::makeObject<MatrixBlock>(i, j, blockRowNums, blockColNums);
+                      // Foo initialization
+                      for (int ii = 0; ii < blockRowNums; ii++) {
+                          for (int jj = 0; jj < blockColNums; jj++) {
+                              (*(myData->getRawDataHandle()))[ii * blockColNums + jj] = i + j + ii + jj;
+                          }
+                      }
+
+                      std::cout << "New block: " << total << std::endl;
+                      storeMatrix1->push_back(myData);
+                      total++;
+                 }
+              }
+              break;
+          } catch (NotEnoughSpace& e) {
+              if (!pdbClient.sendData<MatrixBlock>(
+                  std::pair<std::string, std::string>(setName, dbName),
+                  storeMatrix1,
+                  errMsg)) {
+                      std::cout << "Failed to send data to dispatcher server" << std::endl;
+                      exit(1);
+              } else {
+                  rowNum = rowNum - i;
+                  colNum = colNum - j;
+              }
+          }
+          PDB_COUT << total << " MatrixBlock data sent to dispatcher server~~" << std::endl;
+          // to write back all buffered records
+          pdbClient.flushData(errMsg);
+    }
+}
+
+
+
 int main(int argc, char* argv[]) {
     bool printResult = false;
     bool clusterMode = true;
@@ -73,7 +121,7 @@ int main(int argc, char* argv[]) {
     }             
 
 
-    int blockSize = 400;  // by default we Substract 64MB data
+    int blockSize = 64;  // by default we Substract 64MB data
     if (argc > 4) {
         blockSize = atoi(argv[4]);
     }
@@ -112,7 +160,7 @@ int main(int argc, char* argv[]) {
               cout << "Created database.\n";
           }
           // now, create the first matrix set in that database
-          if (!pdbClient.createSet<MatrixBlock>("LA04_db", "LA_input_set1", errMsg)) {
+          if (!pdbClient.createSet<MatrixBlock>("LA04_db", "LA_input_set1", errMsg, (size_t)16*(size_t)1024*(size_t)1024, "loadLeftMatrixForMultiply")) {
               cout << "Not able to create set: " + errMsg;
               exit(-1);
           } else {
@@ -120,7 +168,7 @@ int main(int argc, char* argv[]) {
           }
 
           // now, create the first matrix set in that database
-          if (!pdbClient.createSet<MatrixBlock>("LA04_db", "LA_input_set2", errMsg)) {
+          if (!pdbClient.createSet<MatrixBlock>("LA04_db", "LA_input_set2", errMsg, (size_t)16*(size_t)1024*(size_t)1024, "loadRightMatrixForMultiply")) {
               cout << "Not able to create set: " + errMsg;
               exit(-1);
           } else {
@@ -130,78 +178,15 @@ int main(int argc, char* argv[]) {
 
            // Step 2. Substract data
           int matrixRowNums = 1;
-          int matrixColNums = 2000;
+          int matrixColNums = 200;
           int matrixRColNums = 1;
-          int blockRowNums = 100;
-          int blockColNums = 100;
+          int blockRowNums = 1000;
+          int blockColNums = 1000;
 
-          int total = 0;
 
-          // Substract Matrix 1
-          pdb::makeObjectAllocatorBlock(blockSize * 1024 * 1024, true);
-          pdb::Handle<pdb::Vector<pdb::Handle<MatrixBlock>>> storeMatrix1 =
-              pdb::makeObject<pdb::Vector<pdb::Handle<MatrixBlock>>>();
+          loadMatrix(pdbClient, "LA04_db", "LA_input_set1", blockSize, 1, 200, 1000, 1000, errMsg);
+          loadMatrix(pdbClient, "LA04_db", "LA_input_set2", blockSize, 200, 1, 1000, 1000, errMsg); 
 
-          for (int i = 0; i < matrixRowNums; i++) {
-              for (int j = 0; j < matrixColNums; j++) {
-                  pdb::Handle<MatrixBlock> myData =
-                      pdb::makeObject<MatrixBlock>(i, j, blockRowNums, blockColNums);
-                  // Foo initialization
-                  for (int ii = 0; ii < blockRowNums; ii++) {
-                      for (int jj = 0; jj < blockColNums; jj++) {
-                          (*(myData->getRawDataHandle()))[ii * blockColNums + jj] = i + j + ii + jj;
-                      }  
-                  }
-
-                  std::cout << "New block: " << total << std::endl;
-                  storeMatrix1->push_back(myData);
-                  total++;
-              }
-          }
-
-          if (!pdbClient.sendData<MatrixBlock>(
-                  std::pair<std::string, std::string>("LA_input_set1", "LA04_db"),
-                  storeMatrix1,
-                  errMsg)) {
-              std::cout << "Failed to send data to dispatcher server" << std::endl;
-              return -1;
-          }
-          PDB_COUT << total << " MatrixBlock data sent to dispatcher server~~" << std::endl;
-          // to write back all buffered records
-          pdbClient.flushData(errMsg);
-
-          // Substract Matrix 2
-          total = 0;
-          pdb::makeObjectAllocatorBlock(blockSize * 1024 * 1024, true);
-          pdb::Handle<pdb::Vector<pdb::Handle<MatrixBlock>>> storeMatrix2 =
-              pdb::makeObject<pdb::Vector<pdb::Handle<MatrixBlock>>>();
-
-          for (int i = 0; i < matrixColNums; i++) {
-              for (int j = 0; j < matrixRColNums; j++) {
-                  pdb::Handle<MatrixBlock> myData =
-                      pdb::makeObject<MatrixBlock>(i, j, blockRowNums, blockColNums);
-                  // Foo initialization
-                  for (int ii = 0; ii < blockRowNums; ii++) {
-                      for (int jj = 0; jj < blockColNums; jj++) {
-                          (*(myData->getRawDataHandle()))[ii * blockColNums + jj] =
-                              (i == j && ii == jj) ? 1.0 : 0.0;
-                      }  
-                  }
-                  std::cout << "New block: " << total << std::endl;
-                  total++;
-              }
-          }
-
-          if (!pdbClient.sendData<MatrixBlock>(
-                std::pair<std::string, std::string>("LA_input_set2", "LA04_db"),
-                storeMatrix2,
-                errMsg)) {
-              std::cout << "Failed to send data to dispatcher server" << std::endl;
-              return -1;
-          }
-          PDB_COUT << total << " MatrixBlock data sent to dispatcher server~~" << std::endl;
-          // to write back all buffered records
-          pdbClient.flushData(errMsg);
        }
     // now, create a new set in that database to store output data
 
