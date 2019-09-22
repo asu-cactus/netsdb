@@ -56,6 +56,8 @@ public:
     virtual NodePartitionDataPtr handleDeadNode(NodePartitionDataPtr deadNode) = 0;
 
     std::vector<NodePartitionDataPtr> storageNodes;
+
+    String myPolicyName = "";
 };
 }
 

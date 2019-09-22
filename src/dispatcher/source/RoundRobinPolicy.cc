@@ -9,6 +9,7 @@ namespace pdb {
 RoundRobinPolicy::RoundRobinPolicy() {
     this->storageNodes = std::vector<NodePartitionDataPtr>();
     pthread_mutex_init(&idMutex, nullptr);
+    myPolicyName = "roundrobin";
 }
 
 RoundRobinPolicy::~RoundRobinPolicy() {}

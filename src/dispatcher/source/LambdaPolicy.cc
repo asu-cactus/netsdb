@@ -19,7 +19,7 @@ LambdaPolicy::LambdaPolicy(int numNodes,
        this->numPartitions = numPartitions;
        this->lambda = lambda;
        this->storageNodes = std::vector<NodePartitionDataPtr>();
-
+       this->myPolicyName = "Lambda: "+std::to_string(numNodes)+","+std::to_string(numPartitions);
 }
 
 
@@ -93,6 +93,7 @@ LambdaPolicy::partition(Handle<Vector<Handle<Object>>> toPartition) {
     std::cout << "Lambda policy to partition vector of " << toPartition->size() << " elements" << std::endl;
     auto partitionedData =
         std::make_shared<std::unordered_map<NodeID, Handle<Vector<Handle<Object>>>>>();
+    std::cout << numNodes << " nodes" << std::endl;
     for (int i = 0; i < this->numNodes; i++) {
         (*partitionedData)[i] = nullptr;
     }

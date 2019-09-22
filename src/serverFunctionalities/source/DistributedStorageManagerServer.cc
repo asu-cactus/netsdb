@@ -482,7 +482,7 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                      std::string jobName = myLambdaIdentifier->getJobName();
                      std::string computationName = myLambdaIdentifier->getComputationName();
                      std::string lambdaName = myLambdaIdentifier->getLambdaName();
-                     
+                      std::cout << "my best lambda is " << jobName << ", " << computationName << ", " << lambdaName << std::endl;
                      //to get the computation object 
                      Handle<Computation> myComputation = getFunctionality<SelfLearningServer>().getComputation(
                        jobName, computationName);
@@ -505,6 +505,7 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                          }
                      }
                      lambdaId = getFunctionality<SelfLearningServer>().getLambdaId(jobName, computationName, lambdaName);
+                     std::cout << "the lambda id is " << lambdaId << std::endl;
 
             } else {
                  std::cout << "No Computation and Lambda for partitioning" << std::endl;

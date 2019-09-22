@@ -9,6 +9,7 @@ namespace pdb {
 RandomPolicy::RandomPolicy() {
     this->storageNodes = std::vector<NodePartitionDataPtr>();
     srand(SEED);
+    myPolicyName = "random";
 }
 
 RandomPolicy::~RandomPolicy() {}

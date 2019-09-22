@@ -61,11 +61,11 @@ using namespace std;
 
 // unit: KB
 #ifndef DEFAULT_MEM_SIZE
-#define DEFAULT_MEM_SIZE ((size_t)(61) * (size_t)(1024) * (size_t)(1024))
+#define DEFAULT_MEM_SIZE ((size_t)(32) * (size_t)(1024) * (size_t)(1024))
 #endif
 
 #ifndef DEFAULT_NUM_CORES
-#define DEFAULT_NUM_CORES 8
+#define DEFAULT_NUM_CORES 4 
 #endif
 
 // create a smart pointer for Configuration objects

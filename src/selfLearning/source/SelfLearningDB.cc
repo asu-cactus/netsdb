@@ -1303,6 +1303,7 @@ Handle<LambdaIdentifier> SelfLearningDB :: getLambda(long jobId, std::string com
                lambdaName = reinterpret_cast<const char*>(sqlite3_column_text(statement, 2));
                std::cout << "lambdaIdentifier is " << lambdaIdentifier << std::endl;
                std::cout << "lambdaName is " << lambdaName << std::endl;
+               if ((lambdaName == "") || (lambdaIdentifier == "")) continue;
            } else if (res == SQLITE_DONE) {
                break;
            }
@@ -1313,7 +1314,7 @@ Handle<LambdaIdentifier> SelfLearningDB :: getLambda(long jobId, std::string com
         return ret;
     }
     sqlite3_finalize(statement);
-
+    if ((lambdaName == "") || (lambdaIdentifier == "")) return nullptr;
     ret = makeObject<LambdaIdentifier>(lambdaId, lambdaIdentifier, inputType, jobName, computationName, lambdaName);
     return ret;
 }

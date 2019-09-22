@@ -748,6 +748,27 @@ common_env.Program('bin/KMeansDataLoader', ['build/tests/TestKMeansLoadData.cc']
 common_env.Program('bin/TestLDA', ['build/tests/TestLDA.cc'] + all + pdb_client)
 common_env.Program('bin/TestMatrix', ['build/tests/TestMatrix.cc'] + all)
 
+#PageRank
+
+common_env.Program('bin/PageRank', ['build/tests/PageRank.cc'] + all + pdb_client)
+common_env.Program('bin/StoreLinks', ['build/tests/StoreLinks.cc'] + all + pdb_client)
+common_env.SharedLibrary('libraries/libDistinctAggregation.so', ['build/libraries/DistinctAggregation.cc'] + all)
+common_env.SharedLibrary('libraries/libDistinctProjection.so', ['build/libraries/DistinctProjection.cc'] + all)
+common_env.SharedLibrary('libraries/libDistinctUrl.so', ['build/libraries/DistinctUrl.cc'] + all)
+common_env.SharedLibrary('libraries/libJoinRankedUrlWithLink.so', ['build/libraries/JoinRankedUrlWithLink.cc'] + all)
+common_env.SharedLibrary('libraries/libJoinWithCounts.so', ['build/libraries/JoinWithCounts.cc'] + all)
+common_env.SharedLibrary('libraries/libLink.so', ['build/libraries/Link.cc'] + all)
+common_env.SharedLibrary('libraries/libLinkScanner.so', ['build/libraries/LinkScanner.cc'] + all)
+common_env.SharedLibrary('libraries/libLinkWithCountAggregation.so', ['build/libraries/LinkWithCountAggregation.cc'] + all)
+common_env.SharedLibrary('libraries/libLinkWithCountWriter.so', ['build/libraries/LinkWithCountWriter.cc'] + all)
+common_env.SharedLibrary('libraries/libLinkWithValue.so', ['build/libraries/LinkWithValue.cc'] + all)
+common_env.SharedLibrary('libraries/libOutgoingURLsCount.so', ['build/libraries/OutgoingURLsCount.cc'] + all)
+common_env.SharedLibrary('libraries/libOutgoingURLsCountScanner.so', ['build/libraries/OutgoingURLsCountScanner.cc'] + all)
+common_env.SharedLibrary('libraries/libRankedUrl.so', ['build/libraries/RankedUrl.cc'] + all)
+common_env.SharedLibrary('libraries/libRankedUrlScanner.so', ['build/libraries/RankedUrlScanner.cc'] + all)
+common_env.SharedLibrary('libraries/libRankedUrlWriter.so', ['build/libraries/RankedUrlWriter.cc'] + all)
+common_env.SharedLibrary('libraries/libRankUpdateAggregation.so', ['build/libraries/RankUpdateAggregation.cc'] + all)
+
 
 #Testing
 pdbTest=common_env.Command('test', 'scripts/integratedTests.py', 'python $SOURCE -o $TARGET')
@@ -833,6 +854,33 @@ cgmm=common_env.Alias('cgmm', [
   'libraries/libGmmAggregateNewComp.so',
   'libraries/libGmmAggregateDatapoint.so'
 ])
+
+
+#PageRank
+
+cgmm=common_env.Alias('pageRank', [
+        'bin/PageRank',
+        'bin/StoreLinks',
+        'bin/pdb-cluster',
+        'bin/pdb-server',
+        'libraries/libDistinctAggregation.so',
+        'libraries/libDistinctProjection.so',
+        'libraries/libDistinctUrl.so',
+        'libraries/libJoinRankedUrlWithLink.so',
+        'libraries/libJoinWithCounts.so',
+        'libraries/libLink.so',
+        'libraries/libLinkScanner.so',
+        'libraries/libLinkWithCountAggregation.so',
+        'libraries/libLinkWithCountWriter.so',
+        'libraries/libLinkWithValue.so',
+        'libraries/libOutgoingURLsCount.so',
+        'libraries/libOutgoingURLsCountScanner.so',
+        'libraries/libRankedUrl.so',
+        'libraries/libRankedUrlScanner.so',
+        'libraries/libRankedUrlWriter.so',
+        'libraries/libRankUpdateAggregation.so',
+])
+
 
 tpchNormal=common_env.Alias('tpchNormal', [
   'bin/CatalogTests',
