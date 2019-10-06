@@ -183,14 +183,14 @@ int main(int argc, char* argv[]) {
 
            // Step 2. Substract data
           int matrixRowNums = 1;
-          int matrixColNums = 200;
+          int matrixColNums = 5000;
           int matrixRColNums = 1;
           int blockRowNums = 1000;
           int blockColNums = 1000;
 
 
-          loadMatrix(pdbClient, "LA04_db", "LA_input_set1", blockSize, 1, 200, 1000, 1000, errMsg);
-          loadMatrix(pdbClient, "LA04_db", "LA_input_set2", blockSize, 200, 1, 1000, 1000, errMsg); 
+          loadMatrix(pdbClient, "LA04_db", "LA_input_set1", blockSize, matrixRowNums, matrixColNums, 1000, 1000, errMsg);
+          loadMatrix(pdbClient, "LA04_db", "LA_input_set2", blockSize, matrixColNums, matrixRowNums, 1000, 1000, errMsg); 
 
        }
     // now, create a new set in that database to store output data
