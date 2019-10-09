@@ -9,6 +9,8 @@ import multiprocessing
 import glob
 from os import path
 
+MKL_ROOT = '/home/ubuntu/intel/mkl'
+
 common_env = Environment(CXX = 'clang++')
 #to install prerequisites
 if common_env['PLATFORM'] == 'darwin':
@@ -42,21 +44,18 @@ elif  common_env['PLATFORM'] == 'posix':
 
     #for debugging
     #Needs to be turned on for KMeans and TPCH
-    common_env.Append(CXXFLAGS = '-std=c++14 -g -O3 -march=native -Winline -Winline-asm -Wno-deprecated-declarations')
-    #common_env.Append(CXXFLAGS = '-std=c++14 -g  -Oz -ldl -lstdc++ -Wno-deprecated-declarations')
-    common_env.Append(LINKFLAGS = '-pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++')
+    common_env.Append(CXXFLAGS = '-m64 -I%s/include -std=c++14 -g -O3 -march=native -Winline -Winline-asm -Wno-deprecated-declarations' % MKL_ROOT)
+    common_env.Append(LINKFLAGS = '-L%s/lib/intel64 -Wl,--no-as-needed -lmkl_rt -pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++' % MKL_ROOT)
     common_env.Replace(CXX = "clang++")
 
 #common_env.Append(CCFLAGS='-DDEBUG_VTABLE_FIXING')
 common_env.Append(CCFLAGS='-DINITIALIZE_ALLOCATOR_BLOCK')
 common_env.Append(CCFLAGS='-DENABLE_SHALLOW_COPY')
-common_env.Append(CCFLAGS='-DDEFAULT_BATCH_SIZE=1')
+common_env.Append(CCFLAGS='-DDEFAULT_BATCH_SIZE=100')
 common_env.Append(CCFLAGS='-DREMOVE_SET_WITH_EVICTION')
 common_env.Append(CCFLAGS='-DAUTO_TUNING')
 common_env.Append(CCFLAGS='-DPROFILING')
 common_env.Append(CCFLAGS='-DUSE_LOCALITY_SET')
-#we need this for self learning, so that if no partition lambda is found we use random policy
-common_env.Append(CCFLAGS='-DRANDOME_DISPATCHER')
 #common_env.Append(CCFLAGS='-DAPPLY_REINFORCEMENT_LEARNING')
 common_env.Append(CCFLAGS='-DPROFILING_CACHE')
 common_env.Append(CCFLAGS='-DENABLE_LARGE_GRAPH')
@@ -70,12 +69,14 @@ common_env.Append(CCFLAGS='-DENABLE_COMPRESSION')
 common_env.Append(CCFLAGS='-DEVICT_STOP_THRESHOLD=0.90')
 #uncomment following for KMeans
 #common_env.Append(CCFLAGS='-DCLEANUP_INACTIVE_BLOCKS')
+common_env.Append(CCFLAGS='-DRANDOME_DISPATCHER')
 common_env.Append(CCFLAGS='-DNUM_KMEANS_DIMENSIONS=10')
 common_env.Append(CCFLAGS='-DUSE_MEMCACHED_SLAB_ALLOCATOR')
 #common_env.Append(CCFLAGS='-DCOLLECT_RESULTS_AS_ONE_PARTITION')
 # Make the build multithreaded
 num_cpu = int(multiprocessing.cpu_count())
 SetOption('num_jobs', num_cpu)
+
 
 # two code files that will be included by the VTableMap to pre-load all of the
 # built-in object types into the map
@@ -253,9 +254,9 @@ for src_subdir_path in src_root_subdir_paths:
         component_dir_basename_to_cc_file_paths [src_subdir_basename] = ccSources
 
         # maps .c files        
-        cSources = [(abspath(join(join ('build/', src_subdir_basename),'LAParser.c'))), (abspath(join(join ('build/', src_subdir_basename),'LALexer.c')))]
+        #cSources = [(abspath(join(join ('build/', src_subdir_basename),'LAParser.c'))), (abspath(join(join ('build/', src_subdir_basename),'LALexer.c')))]
         
-        component_dir_basename_to_lexer_c_file_paths [src_subdir_basename] = cSources
+        #component_dir_basename_to_lexer_c_file_paths [src_subdir_basename] = cSources
 
     else:
         common_env.VariantDir(join('build/', src_subdir_basename), [source_folder], duplicate = 0)
@@ -320,10 +321,10 @@ all = ['build/sqlite/sqlite3.c',
        component_dir_basename_to_cc_file_paths['storage'],
        component_dir_basename_to_cc_file_paths['lambdas'],
        component_dir_basename_to_cc_file_paths['logicalPlan'],
-       component_dir_basename_to_cc_file_paths['linearAlgebraDSL'],
+       #component_dir_basename_to_cc_file_paths['linearAlgebraDSL'],
        component_dir_basename_to_cc_file_paths['selfLearning'],
        component_dir_basename_to_lexer_file_paths['logicalPlan'],
-       component_dir_basename_to_lexer_file_paths['linearAlgebraDSL'],
+       #component_dir_basename_to_lexer_file_paths['linearAlgebraDSL'],
        boost_component_dir_basename_to_cc_file_paths['filesystem'],
        boost_component_dir_basename_to_cc_file_paths['program_options'],
        boost_component_dir_basename_to_cc_file_paths['system'],
@@ -350,40 +351,22 @@ common_env.SharedLibrary('libraries/libMethodJoin.so', ['build/libraries/MethodJ
 common_env.SharedLibrary('libraries/libOptimizedMethodJoin.so', ['build/libraries/OptimizedMethodJoin.cc'] + all)
 common_env.SharedLibrary('libraries/libKMeansQuery.so', ['build/libraries/KMeansQuery.cc'] + all)
 
-common_env.SharedLibrary('libraries/libLAMaxElementOutputType.so', ['build/libraries/LAMaxElementOutputType.cc'] + all)
-common_env.SharedLibrary('libraries/libLAMaxElementValueType.so', ['build/libraries/LAMaxElementValueType.cc'] + all)
-common_env.SharedLibrary('libraries/libLAMinElementOutputType.so', ['build/libraries/LAMinElementOutputType.cc'] + all)
-common_env.SharedLibrary('libraries/libLAMinElementValueType.so', ['build/libraries/LAMinElementValueType.cc'] + all)
-common_env.SharedLibrary('libraries/libLAScanMatrixBlockSet.so', ['build/libraries/LAScanMatrixBlockSet.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyAddJoin.so', ['build/libraries/LASillyAddJoin.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyColMaxAggregate.so', ['build/libraries/LASillyColMaxAggregate.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyColMinAggregate.so', ['build/libraries/LASillyColMinAggregate.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyColSumAggregate.so', ['build/libraries/LASillyColSumAggregate.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyDuplicateColMultiSelection.so', ['build/libraries/LASillyDuplicateColMultiSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyDuplicateRowMultiSelection.so', ['build/libraries/LASillyDuplicateRowMultiSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyInverse1Aggregate.so', ['build/libraries/LASillyInverse1Aggregate.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyInverse2Selection.so', ['build/libraries/LASillyInverse2Selection.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyInverse3MultiSelection.so', ['build/libraries/LASillyInverse3MultiSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyMaxElementAggregate.so', ['build/libraries/LASillyMaxElementAggregate.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyMinElementAggregate.so', ['build/libraries/LASillyMinElementAggregate.cc'] + all)
+common_env.SharedLibrary('libraries/libMatrixBlock.so', ['build/libraries/MatrixBlock.cc'] + all)
+common_env.SharedLibrary('libraries/libMatrixSparse.so', ['build/libraries/MatrixSparse.cc'] + all)
+
+common_env.SharedLibrary('libraries/libSparseMultiplyAggregate.so', ['build/libraries/SparseMultiplyAggregate.cc'] + all)
+
+#common_env.SharedLibrary('libraries/libMatrixBlockWriter.so', ['build/libraries/MatrixBlockWriter.cc'] + all)
+common_env.SharedLibrary('libraries/libMatrixMultiplyJoin.so', ['build/libraries/MatrixMultiplyJoin.cc'] + all)
+#common_env.SharedLibrary('libraries/libMatrixStrip.so', ['build/libraries/MatrixStrip.cc'] + all)
+#common_env.SharedLibrary('libraries/libMatrixStripReader.so', ['build/libraries/MatrixStripReader.cc'] + all)
+common_env.SharedLibrary('libraries/libSparseMultiplyJoin.so', ['build/libraries/SparseMultiplyJoin.cc'] + all)
 common_env.SharedLibrary('libraries/libLASillyMultiply1Join.so', ['build/libraries/LASillyMultiply1Join.cc'] + all)
 common_env.SharedLibrary('libraries/libLASillyMultiply2Aggregate.so', ['build/libraries/LASillyMultiply2Aggregate.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyRowMaxAggregate.so', ['build/libraries/LASillyRowMaxAggregate.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyRowMinAggregate.so', ['build/libraries/LASillyRowMinAggregate.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyRowSumAggregate.so', ['build/libraries/LASillyRowSumAggregate.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyScaleMultiplyJoin.so', ['build/libraries/LASillyScaleMultiplyJoin.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillySubstractJoin.so', ['build/libraries/LASillySubstractJoin.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyTransposeMultiply1Join.so', ['build/libraries/LASillyTransposeMultiply1Join.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyTransposeSelection.so', ['build/libraries/LASillyTransposeSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libLASingleMatrix.so', ['build/libraries/LASingleMatrix.cc'] + all)
+common_env.SharedLibrary('libraries/libLAScanMatrixBlockSet.so', ['build/libraries/LAScanMatrixBlockSet.cc'] + all)
 common_env.SharedLibrary('libraries/libLAWriteMatrixBlockSet.so', ['build/libraries/LAWriteMatrixBlockSet.cc'] + all)
-common_env.SharedLibrary('libraries/libLAWriteMaxElementSet.so', ['build/libraries/LAWriteMaxElementSet.cc'] + all)
-common_env.SharedLibrary('libraries/libLAWriteMinElementSet.so', ['build/libraries/LAWriteMinElementSet.cc'] + all)
-common_env.SharedLibrary('libraries/libMatrixBlock.so', ['build/libraries/MatrixBlock.cc'] + all)
 common_env.SharedLibrary('libraries/libMatrixData.so', ['build/libraries/MatrixData.cc'] + all)
 common_env.SharedLibrary('libraries/libMatrixMeta.so', ['build/libraries/MatrixMeta.cc'] + all)
-
-
 common_env.SharedLibrary('libraries/libPartialResult.so', ['build/libraries/PartialResult.cc'] + all)
 common_env.SharedLibrary('libraries/libScanBuiltinEmployeeSet.so', ['build/libraries/ScanBuiltinEmployeeSet.cc'] + all)
 common_env.SharedLibrary('libraries/libScanEmployeeSet.so', ['build/libraries/ScanEmployeeSet.cc'] + all)
@@ -502,9 +485,7 @@ common_env.SharedLibrary('libraries/libQ22JoinedCntryBal.so', ['build/tpch/Query
 common_env.SharedLibrary('libraries/libQ22CntryBalJoin.so', ['build/tpch/Query22/Q22CntryBalJoin.cc'] + all)
 common_env.SharedLibrary('libraries/libQ22OrderCountPerCustomer.so', ['build/tpch/Query22/Q22OrderCountPerCustomer.cc'] + all)
 
-common_env.Program('bin/tpchPrepareTraining', ['build/tpch/tpchPrepareTraining.cc'] + all + pdb_client)
-common_env.Program('bin/tpchTraining1', ['build/tpch/tpchTraining1.cc'] + all + pdb_client)
-common_env.Program('bin/tpchGenTrace', ['build/tpch/tpchGenTrace.cc'] + all + pdb_client)
+
 
 common_env.Program('bin/sequentialReadWrite', ['build/tests/SequentialReadWriteTest.cc'] + all + pdb_client)
 common_env.Program('bin/tpchDataLoader', ['build/tpch/tpchDataLoader.cc'] + all + pdb_client)
@@ -748,27 +729,9 @@ common_env.Program('bin/KMeansDataLoader', ['build/tests/TestKMeansLoadData.cc']
 common_env.Program('bin/TestLDA', ['build/tests/TestLDA.cc'] + all + pdb_client)
 common_env.Program('bin/TestMatrix', ['build/tests/TestMatrix.cc'] + all)
 
-#PageRank
-
-common_env.Program('bin/PageRank', ['build/tests/PageRank.cc'] + all + pdb_client)
-common_env.Program('bin/StoreLinks', ['build/tests/StoreLinks.cc'] + all + pdb_client)
-common_env.SharedLibrary('libraries/libDistinctAggregation.so', ['build/libraries/DistinctAggregation.cc'] + all)
-common_env.SharedLibrary('libraries/libDistinctProjection.so', ['build/libraries/DistinctProjection.cc'] + all)
-common_env.SharedLibrary('libraries/libDistinctUrl.so', ['build/libraries/DistinctUrl.cc'] + all)
-common_env.SharedLibrary('libraries/libJoinRankedUrlWithLink.so', ['build/libraries/JoinRankedUrlWithLink.cc'] + all)
-common_env.SharedLibrary('libraries/libJoinWithCounts.so', ['build/libraries/JoinWithCounts.cc'] + all)
-common_env.SharedLibrary('libraries/libLink.so', ['build/libraries/Link.cc'] + all)
-common_env.SharedLibrary('libraries/libLinkScanner.so', ['build/libraries/LinkScanner.cc'] + all)
-common_env.SharedLibrary('libraries/libLinkWithCountAggregation.so', ['build/libraries/LinkWithCountAggregation.cc'] + all)
-common_env.SharedLibrary('libraries/libLinkWithCountWriter.so', ['build/libraries/LinkWithCountWriter.cc'] + all)
-common_env.SharedLibrary('libraries/libLinkWithValue.so', ['build/libraries/LinkWithValue.cc'] + all)
-common_env.SharedLibrary('libraries/libOutgoingURLsCount.so', ['build/libraries/OutgoingURLsCount.cc'] + all)
-common_env.SharedLibrary('libraries/libOutgoingURLsCountScanner.so', ['build/libraries/OutgoingURLsCountScanner.cc'] + all)
-common_env.SharedLibrary('libraries/libRankedUrl.so', ['build/libraries/RankedUrl.cc'] + all)
-common_env.SharedLibrary('libraries/libRankedUrlScanner.so', ['build/libraries/RankedUrlScanner.cc'] + all)
-common_env.SharedLibrary('libraries/libRankedUrlWriter.so', ['build/libraries/RankedUrlWriter.cc'] + all)
-common_env.SharedLibrary('libraries/libRankUpdateAggregation.so', ['build/libraries/RankUpdateAggregation.cc'] + all)
-
+common_env.Program('bin/TestSparseMultiply', ['build/tests/TestSparseMultiply.cc'] + all + pdb_client)
+common_env.Program('bin/LoadSparseMatrices', ['build/tests/LoadSparseMatrices.cc'] + all + pdb_client)
+common_env.Program('bin/sparseload', ['build/tests/sparseload.cc'] + all + pdb_client)
 
 #Testing
 pdbTest=common_env.Command('test', 'scripts/integratedTests.py', 'python $SOURCE -o $TARGET')
@@ -855,32 +818,23 @@ cgmm=common_env.Alias('cgmm', [
   'libraries/libGmmAggregateDatapoint.so'
 ])
 
-
-#PageRank
-
-cgmm=common_env.Alias('pageRank', [
-        'bin/PageRank',
-        'bin/StoreLinks',
-        'bin/pdb-cluster',
-        'bin/pdb-server',
-        'libraries/libDistinctAggregation.so',
-        'libraries/libDistinctProjection.so',
-        'libraries/libDistinctUrl.so',
-        'libraries/libJoinRankedUrlWithLink.so',
-        'libraries/libJoinWithCounts.so',
-        'libraries/libLink.so',
-        'libraries/libLinkScanner.so',
-        'libraries/libLinkWithCountAggregation.so',
-        'libraries/libLinkWithCountWriter.so',
-        'libraries/libLinkWithValue.so',
-        'libraries/libOutgoingURLsCount.so',
-        'libraries/libOutgoingURLsCountScanner.so',
-        'libraries/libRankedUrl.so',
-        'libraries/libRankedUrlScanner.so',
-        'libraries/libRankedUrlWriter.so',
-        'libraries/libRankUpdateAggregation.so',
+tpchNormal=common_env.Alias('sparseMatrix', [
+  'bin/TestSparseMultiply',
+  'bin/LoadSparseMatrices',
+ # 'bin/sparseload',
+  'libraries/libMatrixBlock.so',
+  'libraries/libMatrixSparse.so',
+#  'libraries/libMatrixBlockWriter.so',
+#  'libraries/libMatrixMultiplyJoin.so',
+# 'libraries/libMatrixStrip.so',
+# 'libraries/libMatrixStripReader.so',
+ 'libraries/libSparseMultiplyJoin.so',
+ 'libraries/libSparseMultiplyAggregate.so',
+ 'libraries/libLAWriteMatrixBlockSet.so',
+ 'libraries/libLAScanMatrixBlockSet.so',
+'libraries/libMatrixData.so',
+  'libraries/libMatrixMeta.so',
 ])
-
 
 tpchNormal=common_env.Alias('tpchNormal', [
   'bin/CatalogTests',
@@ -971,10 +925,7 @@ tpchNormal=common_env.Alias('tpchNormal', [
   'bin/runQuery13',
   'bin/runQuery14',
   'bin/runQuery17',
-  'bin/runQuery22',
-  'bin/tpchPrepareTraining',
-  'bin/tpchGenTrace',
-  'bin/tpchTraining1'
+  'bin/runQuery22'
 ])
 
 tpch=common_env.Alias('tpch', [
