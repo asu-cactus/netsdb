@@ -6,6 +6,7 @@
 
 #include "PDBClient.h"
 #include "Link.h"
+#include "RankedUrl.h"
 
 #include <string>
 #include <random>
@@ -68,6 +69,58 @@ void storeLinks(PDBClient &pdbClient, size_t numNodes, size_t maxLinks) {
   pdbClient.flushData(errMsg);
 }
 
+
+
+void storeRanks(PDBClient &pdbClient, size_t numNodes) {
+
+  // the error message is put there
+  string errMsg;
+
+
+  pdb::Handle<pdb::Vector<pdb::Handle<RankedUrl>>> storeMe;
+  for(size_t i = 0; i < numNodes;) {
+
+    // make a block of a size
+    pdb::makeObjectAllocatorBlock(64 * 1024 * 1024, true);
+
+    // the vector we want to store
+    storeMe = pdb::makeObject<pdb::Vector<pdb::Handle<RankedUrl>>>();
+
+    // at the beginning stuff is not sent
+    bool isSent = false;
+
+    try {
+
+      for(; i < numNodes; i++) {
+
+        // generate the link
+        Handle<RankedUrl> me = makeObject<RankedUrl>(i, 1);
+        storeMe->push_back(me);
+      }
+
+    } catch (pdb::NotEnoughSpace &n) {
+
+      // send the data
+      pdbClient.sendData<RankedUrl>(std::pair<std::string, std::string>("rankings_0", "db"), storeMe, errMsg);
+
+      // mark this as setn
+      isSent = true;
+    }
+
+    if(!isSent) {
+
+      // send the data
+      pdbClient.sendData<RankedUrl>(std::pair<std::string, std::string>("rankings_0", "db"), storeMe, errMsg);
+    }
+  }
+
+  // to write back all buffered records
+  pdbClient.flushData(errMsg);
+}
+
+
+
+
 int main(int argc, char* argv[]) {
  
   // we put the error here
@@ -104,7 +157,6 @@ int main(int argc, char* argv[]) {
   pdb::PDBLoggerPtr clientLogger = make_shared<pdb::PDBLogger>("clientLog");
   CatalogClient catalogClient(port, managerIp, clientLogger);
   PDBClient pdbClient(port, managerIp, clientLogger, false, true);
-  if (whetherToRegisterLibraries) {
       pdbClient.registerType("libraries/libLink.so", errMsg);
       pdbClient.registerType("libraries/libURLRankMultiSelection.so", errMsg);
       pdbClient.registerType("libraries/libDistinctProjection.so", errMsg);
@@ -116,10 +168,21 @@ int main(int argc, char* argv[]) {
       pdbClient.registerType("libraries/libRankedUrlScanner.so", errMsg);
       pdbClient.registerType("libraries/libRankedUrlWriter.so", errMsg);
       pdbClient.registerType("libraries/libRankUpdateAggregation.so", errMsg);
-  }
 
   // now, create a new database
   pdbClient.createDatabase("db", errMsg);
+
+
+
+  Handle<LambdaIdentifier> myLambda1 = nullptr;
+  if (whetherToPartitionData) {
+      myLambda1 = makeObject<LambdaIdentifier>("pageRankIteration_1", "JoinComp_2", "attAccess_1");
+  }
+  // now, create the output set
+  pdbClient.removeSet("db", "rankings_0", errMsg);
+  pdbClient.createSet<RankedUrl>("db", "rankings_0", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "rankings_0", nullptr, myLambda1);
+  pdbClient.removeSet("db", "rankings_1", errMsg);
+  pdbClient.createSet<RankedUrl>("db", "rankings_1", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "rankings_1", nullptr, myLambda1);
 
   // now, create the output set
   //
@@ -133,4 +196,5 @@ int main(int argc, char* argv[]) {
 
   // store all the links
   storeLinks(pdbClient, numNodes, maxLinks);
+  storeRanks(pdbClient, numNodes);
 }

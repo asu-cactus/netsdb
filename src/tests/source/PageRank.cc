@@ -116,21 +116,6 @@ int main(int argc, char* argv[]) {
   PDBClient pdbClient(port, ip, clientLogger, false, true);
   
 
-  // now, create a new database
-  pdbClient.createDatabase("db", errMsg);
-
-  Handle<LambdaIdentifier> myLambda = nullptr;
-  if (whetherToPartitionData) {
-      myLambda = makeObject<LambdaIdentifier>("pageRankIteration_1", "JoinComp_2", "attAccess_1");
-  }
-  // now, create the output set
-  pdbClient.createSet<RankedUrl>("db", "rankings_0", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "rankings_0");
-  pdbClient.createSet<RankedUrl>("db", "rankings_1", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "rankings_1");
-
-  // initialize the rankings for the first time
-  initRankings(pdbClient);
-
-
   // run one iteration
   auto begin = std::chrono::high_resolution_clock::now();
   run(pdbClient, numIter);
