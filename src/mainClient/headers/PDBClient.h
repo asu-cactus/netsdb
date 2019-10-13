@@ -192,6 +192,13 @@ public:
   bool executeComputations(std::string &errMsg, Handle<Computation> firstParam,
                            Handle<Types>... args);
 
+
+  template <class... Types>
+  bool executeComputations(std::string &errMsg, std::string jobName, Handle<Computation> firstParam,
+                           Handle<Types>... args);
+
+
+
   /* Deletes a set. */
   bool deleteSet(std::string databaseName, std::string setName);
 

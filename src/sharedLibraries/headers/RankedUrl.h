@@ -10,18 +10,18 @@ public:
 
   RankedUrl() = default;
 
-  RankedUrl(const pdb::String &url, float rank) : url(url), rank(rank) {}
+  RankedUrl(const int url, float rank) : url(url), rank(rank) {}
 
   ENABLE_DEEP_COPY
 
   // the link is from this page
-  pdb::String url;
+  int url;
 
   // the rank
   float rank = 0;
 
   // return the url
-  pdb::String& getKey() {
+  int& getKey() {
     return url;
   }
 

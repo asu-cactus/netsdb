@@ -2,18 +2,16 @@
 #include <cstring>
 
 #include <PDBClient.h>
-#include <DistinctAggregation.h>
+#include <URLRankMultiSelection.h>
 #include <DistinctProjection.h>
 #include <Link.h>
 #include <LinkScanner.h>
 #include <RankedUrlWriter.h>
-#include <LinkWithCountAggregation.h>
-#include <LinkWithCountWriter.h>
-#include <OutgoingURLsCountScanner.h>
 #include <RankedUrlScanner.h>
 #include <JoinRankedUrlWithLink.h>
-#include <JoinWithCounts.h>
 #include <RankUpdateAggregation.h>
+#include <LinkWithValue.h>
+#include <URLURLsRank.h>
 
 using namespace pdb;
 
@@ -28,13 +26,10 @@ void initRankings(PDBClient &pdbClient) {
   // make a scan set
   Handle<Computation> input = makeObject<LinkScanner>("db", "links");
 
-  // make the distinct query
-  Handle<Computation> distinctQuery = makeObject<DistinctAggregation>();
-  distinctQuery->setInput(input);
 
   // make the projection query
   Handle<Computation> projectionQuery = makeObject<DistinctProjection>();
-  projectionQuery->setInput(distinctQuery);
+  projectionQuery->setInput(input);
 
   // writes out the rankings
   Handle<Computation> myWriteSet = makeObject<RankedUrlWriter>("db", "rankings_0");
@@ -42,40 +37,13 @@ void initRankings(PDBClient &pdbClient) {
 
   // execute the computation
   auto begin = std::chrono::high_resolution_clock::now();
-  pdbClient.executeComputations(errMsg, myWriteSet);
+  pdbClient.executeComputations(errMsg, "initRankings", myWriteSet);
   auto end = std::chrono::high_resolution_clock::now();
       std::cout << "Time Duration for initRankings: "
               << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
               << " secs." << std::endl;
 }
 
-void initCounts(PDBClient &pdbClient) {
-  
-  // put the error
-  string errMsg;
-
-  // we put our graph here
-  pdb::makeObjectAllocatorBlock(64 * 1024 * 1024, true);
-
-  // make a scan set
-  Handle<Computation> input = makeObject<LinkScanner>("db", "links");
-
-  // make the distinct query
-  Handle<Computation> countQuery = makeObject<LinkWithCountAggregation>();
-  countQuery->setInput(input);
-
-  // writes out the links with count
-  Handle<Computation> myWriteSet = makeObject<LinkWithCountWriter>("db", "counts");
-  myWriteSet->setInput(countQuery);
-
-  // execute the computation
-  auto begin = std::chrono::high_resolution_clock::now();
-  pdbClient.executeComputations(errMsg, myWriteSet);
-  auto end = std::chrono::high_resolution_clock::now();
-      std::cout << "Time Duration for initCounts: "
-              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
-              << " secs." << std::endl;
-}
 
 void run(PDBClient &pdbClient, uint64_t numIter) {
 
@@ -90,7 +58,6 @@ void run(PDBClient &pdbClient, uint64_t numIter) {
     // make a scan set
     Handle<Computation> input1 = makeObject<LinkScanner>("db", "links");
     Handle<RankedUrlScanner> input2 = makeObject<RankedUrlScanner>("db", "rankings_" + std::to_string(i % 2));
-    Handle<Computation> input3 = makeObject<OutgoingURLsCountScanner>("db", "counts");
 
     // join previous ranks with links
     Handle<Computation> join1 = makeObject<JoinRankedUrlWithLink>();
@@ -98,13 +65,12 @@ void run(PDBClient &pdbClient, uint64_t numIter) {
     join1->setInput(1, input2);
 
     // join the joined result with counts
-    Handle<Computation> join2 = makeObject<JoinWithCounts>();
-    join2->setInput(0, join1);
-    join2->setInput(1, input3);
+    Handle<Computation> multiSelection = makeObject<URLRankMultiSelection>();
+    multiSelection->setInput(0, join1);
 
     // aggregate them
     Handle<RankUpdateAggregation> agg = makeObject<RankUpdateAggregation>();
-    agg->setInput(join2);
+    agg->setInput(multiSelection);
 
     // write it out
     Handle<RankedUrlWriter> myWriteSet = makeObject<RankedUrlWriter>("db", "rankings_" + std::to_string(1 - (i % 2)));
@@ -112,7 +78,7 @@ void run(PDBClient &pdbClient, uint64_t numIter) {
 
     // execute the computation
     auto begin = std::chrono::high_resolution_clock::now();
-    pdbClient.executeComputations(errMsg, myWriteSet);
+    pdbClient.executeComputations(errMsg, "pageRankIteration_"+std::to_string(1 - (i % 2)), myWriteSet);
     auto end = std::chrono::high_resolution_clock::now();
           std::cout << "Time Duration for Run: "
               << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
@@ -127,54 +93,43 @@ int main(int argc, char* argv[]) {
   string errMsg;
 
   // make sure we have the arguments
-  if(argc != 4) {
+  if(argc < 4) {
 
-    std::cout << "Usage : ./TestSparseMultiply managerIP managerPort numIter\n";
+    std::cout << "Usage : ./TestSparseMultiply managerIP managerPort numIter whetherToPartitionData\n";
     std::cout << "managerIP - IP of the manager\n";
     std::cout << "managerPort - Port of the manager\n";
     std::cout << "numIter - The nubmer of iterations to run\n";
+    std::cout << "whetherToPartitionData - Y yes, N no\n";
   }
 
   //  get the manager address
   std::string ip = std::string(argv[1]);
   int32_t port = std::stoi(argv[2]);
   int32_t numIter = std::stoi(argv[3]);
-
+  bool whetherToPartitionData = false;
+  if (strcmp(argv[4], "Y")==0) {
+      whetherToPartitionData = true;
+  }
   // make a client
   pdb::PDBLoggerPtr clientLogger = make_shared<pdb::PDBLogger>("clientLog");
   CatalogClient catalogClient(port, ip, clientLogger);
   PDBClient pdbClient(port, ip, clientLogger, false, true);
   
-  // now, register a type for user data
-  pdbClient.registerType("libraries/libDistinctAggregation.so", errMsg);
-  pdbClient.registerType("libraries/libDistinctProjection.so", errMsg);
-  pdbClient.registerType("libraries/libDistinctUrl.so", errMsg);
-  pdbClient.registerType("libraries/libJoinRankedUrlWithLink.so", errMsg);
-  pdbClient.registerType("libraries/libJoinWithCounts.so", errMsg);
-  pdbClient.registerType("libraries/libLinkScanner.so", errMsg);
-  pdbClient.registerType("libraries/libLinkWithCountAggregation.so", errMsg);
-  pdbClient.registerType("libraries/libLinkWithCountWriter.so", errMsg);
-  pdbClient.registerType("libraries/libLinkWithValue.so", errMsg);
-  pdbClient.registerType("libraries/libOutgoingURLsCount.so", errMsg);
-  pdbClient.registerType("libraries/libOutgoingURLsCountScanner.so", errMsg);
-  pdbClient.registerType("libraries/libRankedUrl.so", errMsg);
-  pdbClient.registerType("libraries/libRankedUrlScanner.so", errMsg);
-  pdbClient.registerType("libraries/libRankedUrlWriter.so", errMsg);
-  pdbClient.registerType("libraries/libRankUpdateAggregation.so", errMsg);
 
   // now, create a new database
   pdbClient.createDatabase("db", errMsg);
 
+  Handle<LambdaIdentifier> myLambda = nullptr;
+  if (whetherToPartitionData) {
+      myLambda = makeObject<LambdaIdentifier>("pageRankIteration_1", "JoinComp_2", "attAccess_1");
+  }
   // now, create the output set
-  pdbClient.createSet<OutgoingURLsCount>("db", "counts", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "outgoingUrlsCount");
   pdbClient.createSet<RankedUrl>("db", "rankings_0", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "rankings_0");
   pdbClient.createSet<RankedUrl>("db", "rankings_1", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "rankings_1");
 
   // initialize the rankings for the first time
   initRankings(pdbClient);
 
-  // initialize the counts
-  initCounts(pdbClient);
 
   // run one iteration
   auto begin = std::chrono::high_resolution_clock::now();
@@ -187,12 +142,11 @@ int main(int argc, char* argv[]) {
   // print the results
   std::cout << "Rankings: \n";
   SetIterator<RankedUrl> result = pdbClient.getSetIterator<RankedUrl>("db", "rankings_1");
-  for (const auto &r : result) {
+  /*for (const auto &r : result) {
     std::cout << r->url << ", " << r->rank << '\n';
     std::cout << "\n";
   }
-
-  pdbClient.removeSet("db", "counts", errMsg);
+  */
   pdbClient.removeSet("db", "rankings_0", errMsg);
   pdbClient.removeSet("db", "rankings_1", errMsg);
 

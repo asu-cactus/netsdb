@@ -1,5 +1,7 @@
 //
 // Created by dimitrije on 9/18/19.
+// Significantly modified by Jia to change FROM->TO (src->dest) representation to URL->NEIGHBORS (src-> dests) representation on 10/12/19.
+//
 //
 
 #include "PDBClient.h"
@@ -37,14 +39,13 @@ void storeLinks(PDBClient &pdbClient, size_t numNodes, size_t maxLinks) {
 
       for(; i < numNodes; i++) {
 
-        // make my identifier
-        std::string me = std::to_string(i);
-
-        // generate the links
-        size_t numLinks = distribution(generator);
-        for(size_t j = 0; j < numLinks; ++j) {
-          storeMe->push_back(pdb::makeObject<Link>(me, std::to_string(linkDistribution(generator))));
+        // generate the link
+	Handle<Link> me = makeObject<Link>(i);
+        size_t numNeighbors = distribution(generator);
+        for(size_t j = 0; j < numNeighbors; ++j) {
+	    me->addNeighbor(linkDistribution(generator));
         }
+        storeMe->push_back(me);
       }
 
     } catch (pdb::NotEnoughSpace &n) {
@@ -73,13 +74,16 @@ int main(int argc, char* argv[]) {
   string errMsg;
 
   // make sure we have the arguments
-  if(argc != 5) {
+  if(argc < 5) {
 
-    std::cout << "Usage : ./TestSparseMultiply managerIP managerPort numNodes maxLinks\n";
+    std::cout << "Usage : ./TestSparseMultiply managerIP managerPort numNodes maxLinks whetherToPartitionData whetherToRegisterLibraries\n";
     std::cout << "managerIP - IP of the manager\n";
     std::cout << "managerPort - Port of the manager\n";
     std::cout << "numNodes - The number of nodes in the system\n";
     std::cout << "maxLinks - The maximum number of links per node\n";
+    std::cout << "whetherToPrepartitionData - Y yes, N no\n";
+    std::cout << "whetherToRegisterLibraries - Y yes, N no\n";
+
   }
 
   //  get the manager address
@@ -87,20 +91,45 @@ int main(int argc, char* argv[]) {
   int32_t port = std::stoi(argv[2]);
   int32_t numNodes = std::stoi(argv[3]);
   int32_t maxLinks = std::stoi(argv[4]);
+  bool whetherToPartitionData = true;
+  if (strcmp(argv[5], "N")) {
+      whetherToPartitionData = false;
+  }
+  bool whetherToRegisterLibraries = true;
+  if (strcmp(argv[6], "N")) {
+      whetherToRegisterLibraries = false;
+  }
 
   // make a client
   pdb::PDBLoggerPtr clientLogger = make_shared<pdb::PDBLogger>("clientLog");
   CatalogClient catalogClient(port, managerIp, clientLogger);
   PDBClient pdbClient(port, managerIp, clientLogger, false, true);
-
-  pdbClient.registerType("libraries/libLink.so", errMsg);
+  if (whetherToRegisterLibraries) {
+      pdbClient.registerType("libraries/libLink.so", errMsg);
+      pdbClient.registerType("libraries/libURLRankMultiSelection.so", errMsg);
+      pdbClient.registerType("libraries/libDistinctProjection.so", errMsg);
+      pdbClient.registerType("libraries/libURLURLsRank.so", errMsg);
+      pdbClient.registerType("libraries/libJoinRankedUrlWithLink.so", errMsg);
+      pdbClient.registerType("libraries/libLinkScanner.so", errMsg);
+      pdbClient.registerType("libraries/libLinkWithValue.so", errMsg);
+      pdbClient.registerType("libraries/libRankedUrl.so", errMsg);
+      pdbClient.registerType("libraries/libRankedUrlScanner.so", errMsg);
+      pdbClient.registerType("libraries/libRankedUrlWriter.so", errMsg);
+      pdbClient.registerType("libraries/libRankUpdateAggregation.so", errMsg);
+  }
 
   // now, create a new database
   pdbClient.createDatabase("db", errMsg);
 
   // now, create the output set
+  //
   pdbClient.removeSet("db", "links", errMsg);
-  pdbClient.createSet<Link>("db", "links", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "loadLinks");
+  Handle<LambdaIdentifier> myLambda = nullptr;
+  if (whetherToPartitionData) {
+      myLambda = makeObject<LambdaIdentifier>("pageRankIteration_1", "JoinComp_2", "attAccess_0");
+  }
+
+  pdbClient.createSet<Link>("db", "links", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "loadLinks", nullptr, myLambda);
 
   // store all the links
   storeLinks(pdbClient, numNodes, maxLinks);

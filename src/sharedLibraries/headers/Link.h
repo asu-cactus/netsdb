@@ -1,8 +1,9 @@
 #pragma once
 
 #include <Object.h>
+#include <Handle.h>
 #include <PDBString.h>
-
+#include <PDBVector.h>
 namespace pdb {
 
 class Link : public pdb::Object {
@@ -10,15 +11,25 @@ public:
 
   Link() = default;
 
-  Link(const std::string &from, const std::string &to) : from(from), to(to) {}
+  Link(const int url) : url(url) {
+  
+       neighbors = makeObject<Vector<int>>();
+
+  }
+
+  void addNeighbor(const int neighbor) {
+  
+       neighbors->push_back(neighbor);
+
+  }
 
   ENABLE_DEEP_COPY
 
-  // the link is from this page
-  pdb::String from;
+  // the url
+  int url;
 
-  // to this page
-  pdb::String to;
+  // the neighbors of the url
+  Handle<Vector<int>> neighbors;
 };
 
 }

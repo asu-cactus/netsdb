@@ -2,13 +2,13 @@
 
 #include <JoinComp.h>
 #include <LambdaCreationFunctions.h>
-#include "LinkWithValue.h"
+#include "URLURLsRank.h"
 #include "Link.h"
 #include "RankedUrl.h"
 
 namespace pdb {
 
-class JoinRankedUrlWithLink : public JoinComp<LinkWithValue, Link, RankedUrl> {
+class JoinRankedUrlWithLink : public JoinComp<URLURLsRank, Link, RankedUrl> {
 
  public:
 
@@ -17,12 +17,12 @@ class JoinRankedUrlWithLink : public JoinComp<LinkWithValue, Link, RankedUrl> {
   JoinRankedUrlWithLink() = default;
 
   Lambda<bool> getSelection(Handle<Link> in1, Handle<RankedUrl> in2) override {
-    return (makeLambdaFromMember(in1, from) == makeLambdaFromMember(in2, url));
+    return (makeLambdaFromMember(in1, url) == makeLambdaFromMember(in2, url));
   }
 
-  Lambda<Handle<LinkWithValue>> getProjection(Handle<Link> in1, Handle<RankedUrl> in2) override {
+  Lambda<Handle<URLURLsRank>> getProjection(Handle<Link> in1, Handle<RankedUrl> in2) override {
     return makeLambda(in1, in2, [](Handle<Link>& in1, Handle<RankedUrl>& in2) {
-      Handle<LinkWithValue> tmp = makeObject<LinkWithValue>(in1->from, in1->to, in2->rank);
+      Handle<URLURLsRank> tmp = makeObject<URLURLsRank>(in1->url, in1->neighbors, in2->rank);
       return tmp;
     });
   }

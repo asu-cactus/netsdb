@@ -2,28 +2,28 @@
 
 #include "Lambda.h"
 #include "LambdaCreationFunctions.h"
-#include "DistinctUrl.h"
+#include "Link.h"
 #include "RankedUrl.h"
 #include "SelectionComp.h"
 
 namespace pdb {
 
-class DistinctProjection : public SelectionComp<RankedUrl, DistinctUrl> {
+class DistinctProjection : public SelectionComp<RankedUrl, Link> {
 public:
 
   ENABLE_DEEP_COPY
 
   DistinctProjection() = default;
 
-  Lambda<bool> getSelection(Handle<DistinctUrl> checkMe) override {
-    return makeLambda(checkMe, [](Handle<DistinctUrl>& checkMe) {
+  Lambda<bool> getSelection(Handle<Link> checkMe) override {
+    return makeLambda(checkMe, [](Handle<Link>& checkMe) {
       return true;
     });
   }
 
-  Lambda<Handle<RankedUrl>> getProjection(Handle<DistinctUrl> checkMe) override {
-    return makeLambda(checkMe, [](Handle<DistinctUrl>& checkMe) {
-      Handle<RankedUrl> tmp = makeObject<RankedUrl>(checkMe->getKey(), 0.25f);
+  Lambda<Handle<RankedUrl>> getProjection(Handle<Link> checkMe) override {
+    return makeLambda(checkMe, [](Handle<Link>& checkMe) {
+      Handle<RankedUrl> tmp = makeObject<RankedUrl>(checkMe->url, 0.25f);
       return tmp;
     });
   }

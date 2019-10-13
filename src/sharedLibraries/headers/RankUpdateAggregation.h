@@ -2,7 +2,6 @@
 
 #include <Object.h>
 #include <LambdaCreationFunctions.h>
-#include "DistinctUrl.h"
 #include "ClusterAggregateComp.h"
 #include "Link.h"
 #include "RankedUrl.h"
@@ -10,7 +9,7 @@
 
 namespace pdb {
 
-class RankUpdateAggregation : public ClusterAggregateComp<RankedUrl, LinkWithValue, pdb::String, float> {
+class RankUpdateAggregation : public ClusterAggregateComp<RankedUrl, LinkWithValue, int, float> {
 
  public:
 
@@ -24,14 +23,14 @@ class RankUpdateAggregation : public ClusterAggregateComp<RankedUrl, LinkWithVal
   }
 
   // the key type must have == and size_t hash () defined
-  Lambda<pdb::String> getKeyProjection(Handle<LinkWithValue> aggMe) override {
-    return makeLambdaFromMember(aggMe, to);
+  Lambda<int> getKeyProjection(Handle<LinkWithValue> aggMe) override {
+    return makeLambdaFromMember(aggMe, url);
   }
 
   // the value type must have + defined
   Lambda<float> getValueProjection(Handle<LinkWithValue> aggMe) override {
     return makeLambda(aggMe, [](Handle<LinkWithValue>& aggMe) {
-      return aggMe->value;
+      return aggMe->rank;
     });
   }
 };

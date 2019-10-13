@@ -31,6 +31,19 @@ bool PDBClient::executeComputations(std::string &errMsg,
   return queryClient.executeComputations(errMsg, firstParam, args...);
 }
 
+
+template <class... Types>
+bool PDBClient::executeComputations(std::string &errMsg,
+		                    std::string jobName,
+                                    Handle<Computation> firstParam,
+                                    Handle<Types>... args) {
+  return queryClient.executeComputations(errMsg, jobName, firstParam, args...);
+}
+
+
+
+
+
 template <class Type>
 SetIterator<Type> PDBClient::getSetIterator(std::string databaseName,
                                             std::string setName) {

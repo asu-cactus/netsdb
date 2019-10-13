@@ -10,18 +10,16 @@ class LinkWithValue : public pdb::Object {
 
   LinkWithValue() = default;
 
-  LinkWithValue(const std::string &from, const std::string &to, float value) : from(from), to(to), value(value) {}
+  LinkWithValue(int url, float rank) : url(url), rank(rank) {}
 
   ENABLE_DEEP_COPY
 
-  // from this url
-  pdb::String from;
+  // this url
+  int url;
 
-  // to this url
-  pdb::String to;
 
   // the value
-  float value = 0.0f;
+  float rank = 0.0f;
 };
 
 }
