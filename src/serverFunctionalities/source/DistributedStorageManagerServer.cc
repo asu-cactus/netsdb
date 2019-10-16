@@ -501,7 +501,9 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                              PartitionPolicyPtr myLambdaPolicy = std::make_shared<LambdaPolicy>(numNodes, numPartitions, myLambda);
                              //to set the LambdaPolicy
                              std::cout << "to register policy" << std::endl;
+#ifdef TEST_LACHESIS_OVERHEAD
                              getFunctionality<DispatcherServer>().registerSet(std::pair<std::string, std::string>(request->getSetName(), request->getDatabase()), myLambdaPolicy);
+#endif
                          }
                      }
                      lambdaId = getFunctionality<SelfLearningServer>().getLambdaId(jobName, computationName, lambdaName);
@@ -867,9 +869,10 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
 
             }
             //to deregister the partition policy for this set
+#ifdef TEST_LACHESIS_OVERHEAD
             getFunctionality<DispatcherServer>().deregisterSet(std::pair<std::string, std::string>(
                      request->getSetName(), request->getDatabase()));
-
+#endif
 
             if (failureNodes.size() == 0) {
                 // If all the nodes succeeded in removing the set then we can simply delete the set
