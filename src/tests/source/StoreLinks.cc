@@ -145,11 +145,11 @@ int main(int argc, char* argv[]) {
   int32_t numNodes = std::stoi(argv[3]);
   int32_t maxLinks = std::stoi(argv[4]);
   bool whetherToPartitionData = true;
-  if (strcmp(argv[5], "N")) {
+  if (strcmp(argv[5], "N")==0) {
       whetherToPartitionData = false;
   }
   bool whetherToRegisterLibraries = true;
-  if (strcmp(argv[6], "N")) {
+  if (strcmp(argv[6], "N")==0) {
       whetherToRegisterLibraries = false;
   }
 
