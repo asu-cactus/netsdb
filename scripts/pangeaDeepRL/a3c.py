@@ -13,13 +13,13 @@ GAMMA = 0.99
 A_DIM = K + 1
 
 #??
-ENTROPY_WEIGHT = 10
+ENTROPY_WEIGHT = 0.1
 
 #??
 ENTROPY_EPS = 1e-6
 
 #state space dimension
-S_DIM = 6 * K + 4
+S_DIM = 4 * K + 7
 
 
 class ActorNetwork(object):
@@ -86,10 +86,8 @@ class ActorNetwork(object):
         with tf.variable_scope('actor'):
             print ("inputs:")
             print (self.inputs)
-            hid_1 = tl.fully_connected(self.inputs, 64, activation_fn=tf.nn.leaky_relu)
-            hid_2 = tl.fully_connected(hid_1, 128, activation_fn=tf.nn.leaky_relu)
-
-            #hid_3 = tl.fully_connected(hid_2, 32, activation_fn=tf.nn.relu)
+            hid_1 = tl.fully_connected(self.inputs, 16, activation_fn=tf.nn.leaky_relu)
+            hid_2 = tl.fully_connected(hid_1, 8, activation_fn=tf.nn.leaky_relu)
             out = tl.fully_connected(hid_2, self.a_dim, activation_fn=tf.nn.softmax)
             print ("out:")
             print (out)
@@ -111,11 +109,14 @@ class ActorNetwork(object):
         })
 
     def get_gradients(self, inputs, acts, act_grad_weights):
-        print ("rhs shape: ")
-        print (act_grad_weights.shape)
+        print ("input: ")
+        print (inputs)
        
-        print ("lhs shape: ")
-        print (self.act_grad_weights.shape)
+        print ("acts: ")
+        print (acts)
+
+        print ("act_grad_weights: ")
+        print (act_grad_weights)
 
         return self.sess.run(self.actor_gradients, feed_dict={
             self.inputs: inputs,
@@ -183,10 +184,9 @@ class CriticNetwork(object):
     def create_critic_network(self):
         with tf.variable_scope('critic'):
             
-            hid_1 = tflearn.fully_connected(self.inputs, 10, activation='relu')
-            #hid_2 = tl.fully_connected(hid_1, 128, activation_fn=tf.nn.leaky_relu)
-            #hid_3 = tl.fully_connected(hid_2, 32, activation_fn=tf.nn.sigmoid)
-            out = tflearn.fully_connected(hid_1, 1, activation='linear')
+            hid_1 = tflearn.fully_connected(self.inputs, 16, activation='LeakyReLU')
+            hid_2 = tflearn.fully_connected(hid_1, 8, activation='LeakyReLU')
+            out = tflearn.fully_connected(hid_2, 1, activation='linear')
             return out
 
     def train(self, inputs, td_target):
@@ -233,11 +233,8 @@ def compute_gradients(s_batch, a_batch, r_batch, terminal, actor, critic):
     #batch of s, a, r is from samples in a sequence
     #the format is in np.array([batch_size, s/a/r_dim])
     #terminal is True when sequence ends as a terminal state
-    print "s_batch.shape[0]:"
     print s_batch.shape[0]
-    print "a_batch.shape[0]:"
     print a_batch.shape[0]
-    print "r_batch.shape[0]:"
     print r_batch.shape[0]
 
     assert s_batch.shape[0] == a_batch.shape[0]
@@ -253,7 +250,11 @@ def compute_gradients(s_batch, a_batch, r_batch, terminal, actor, critic):
         R_batch[-1, 0] = v_batch[-1, 0]  # boot strap from last state
 
     for t in reversed(xrange(ba_size - 1)):
-        R_batch[t, 0] = r_batch[t] + GAMMA * R_batch[t + 1, 0]
+         index = t+3
+         if index > 94:
+            index = t
+         R_batch[t, 0] = r_batch[index] + GAMMA * R_batch[t + 1, 0]#8 is hardcoded for TPCH
+         #R_batch[t, 0] = r_batch[t] + GAMMA * R_batch[t + 1, 0]
 
     td_batch = R_batch - v_batch
 
@@ -266,14 +267,13 @@ def compute_gradients(s_batch, a_batch, r_batch, terminal, actor, critic):
     print ("td_batch: ")
     print td_batch
 
-    print ("td_batch.shape: ")
-    print td_batch.shape
 
-    #print ("self.act_grad_weights: ")
-    #print self.act_grad_weights
+    print ("s_batch: ")
+    print s_batch
 
-    #print ("self.act_grad_weights.shape: ")
-    #print self.act_grad_weights.shape
+    print ("a_batch: ")
+    print a_batch
+
    
 
     actor_gradients = actor.get_gradients(s_batch, a_batch, td_batch)

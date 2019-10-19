@@ -24,7 +24,7 @@ K = 2
 A_DIM = K + 1
 
 #state space dimension
-S_DIM = 6 * K + 4
+S_DIM = 4 * K + 7
 
 #actor network learning rate
 ACTOR_LR_RATE = 0.0001
@@ -40,23 +40,23 @@ MODEL_DIR = "."
 DEFAULT_LAMBDA = 0
 
 #size of a training batch
-TRAIN_SEQ_LEN = 16
+TRAIN_SEQ_LEN = 96
 
 #size of gradient batch
-GRADIENT_BATCH_SIZE = 1
+GRADIENT_BATCH_SIZE = 16
 
 #number of epochs
-MODEL_SAVE_INTERVAL = 8
+MODEL_SAVE_INTERVAL = 96
 
 #saved model for restoring
-NN_MODEL = './nn_model_ep_16.ckpt'
 #NN_MODEL = None
+NN_MODEL = './nn_model_ep_864.ckpt'
 
 #random seed
 RANDOM_SEED = 42
 RAND_RANGE = 1000
 
-MAX_EPOCH = 128
+MAX_EPOCH = 65535
 
 
 def run(port=8333, log_file_path=LOG_FILE):
@@ -149,7 +149,8 @@ def run(port=8333, log_file_path=LOG_FILE):
             print (action_cumsum)
             print ("comparison: ")
             print (action_cumsum > np.random.randint(1, RAND_RANGE) / float(RAND_RANGE)) 
-            selectedLambda = (action_cumsum > np.random.randint(1, RAND_RANGE) / float(RAND_RANGE)).argmax()
+            selectedLambda = action_prob.argmax()
+            #selectedLambda = (action_cumsum > np.random.randint(1, RAND_RANGE) / float(RAND_RANGE)).argmax()
             print >>sys.stderr, 'selectedLambda "%s"' % selectedLambda
             #to update entropy
             entropy_record.append(a3c.compute_entropy(action_prob[0])) #TODO
