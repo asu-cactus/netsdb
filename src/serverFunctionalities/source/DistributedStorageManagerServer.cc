@@ -501,7 +501,7 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                              PartitionPolicyPtr myLambdaPolicy = std::make_shared<LambdaPolicy>(numNodes, numPartitions, myLambda);
                              //to set the LambdaPolicy
                              std::cout << "to register policy" << std::endl;
-#ifdef TEST_LACHESIS_OVERHEAD
+#ifndef TEST_LACHESIS_OVERHEAD
                              getFunctionality<DispatcherServer>().registerSet(std::pair<std::string, std::string>(request->getSetName(), request->getDatabase()), myLambdaPolicy);
 #endif
                          }
@@ -869,7 +869,7 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
 
             }
             //to deregister the partition policy for this set
-#ifdef TEST_LACHESIS_OVERHEAD
+#ifndef TEST_LACHESIS_OVERHEAD
             getFunctionality<DispatcherServer>().deregisterSet(std::pair<std::string, std::string>(
                      request->getSetName(), request->getDatabase()));
 #endif
