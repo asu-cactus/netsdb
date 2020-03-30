@@ -6,11 +6,17 @@ Requirements:
 Software:
 
 scons http://scons.org/
+
 bison
+
 flex
+
 LLVM/clang++3.8
+
 Snappy	libsnappy1v5, libsnappy-dev
+
 GSL	     libgsl-dev
+
 Boost	libboost-dev, libboost-program-options-dev, libboost-filesystem-dev, libboost-system-dev
 
 
