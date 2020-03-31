@@ -19,6 +19,7 @@ GSL	     libgsl-dev
 
 Boost	libboost-dev, libboost-program-options-dev, libboost-filesystem-dev, libboost-system-dev
 
+UUID      sudo apt-get install libuuid1 uuid-dev
 
 
 
