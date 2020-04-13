@@ -188,7 +188,7 @@ python rlServer.py
 
 ### For testing mode:
 
-make sure:
+make sure in ./src/mainServer/source/MasterMain.cc:
 
 bool isSelfLearning = true;
 
@@ -204,7 +204,7 @@ Make sure you rebuild the repository after making these changes.
 
 ### For training mode:
 
-make sure:
+make sure in ./src/mainServer/source/MasterMain.cc:
 
 bool isSelfLearning = true;
 
