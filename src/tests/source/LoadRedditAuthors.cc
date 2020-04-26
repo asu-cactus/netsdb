@@ -3,7 +3,7 @@
 //
 
 #include "PDBClient.h"
-#include "RedditComment.h"
+#include "RedditAuthor.h"
 
 #include <string>
 #include <random>
@@ -11,7 +11,7 @@
 
 using namespace pdb;
 
-void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSizeInMB) {
+void parseInputCSVFile(PDBClient &pdbClient, std::string fileName, int blockSizeInMB) {
 
   // the error message is put there
   string errMsg;
@@ -22,31 +22,31 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
 
   while (!end) {
       pdb::makeObjectAllocatorBlock((size_t)blockSizeInMB * (size_t)1024 * (size_t)1024, true);
-      pdb::Handle<pdb::Vector<pdb::Handle<reddit::Comment>>> storeMe = pdb::makeObject<pdb::Vector<pdb::Handle<reddit::Comment>>> ();
+      pdb::Handle<pdb::Vector<pdb::Handle<reddit::Author>>> storeMe = pdb::makeObject<pdb::Vector<pdb::Handle<reddit::Author>>> ();
       if (!rollback) {
           if(!std::getline(inFile, line)){
              end = true;
-             if (! pdbClient.sendData<reddit::Comment> (std::pair<std::string, std::string>("redditDB", "comments"), storeMe, errMsg)) {
+             if (! pdbClient.sendData<reddit::Author> (std::pair<std::string, std::string>("redditDB", "authors"), storeMe, errMsg)) {
                  std::cout << "Failed to send data to dispatcher server" << std::endl;
                  return;
              }
              pdbClient.flushData (errMsg);
-             std::cout << "Dispatched " << storeMe->size() << " comments." << std::endl;
+             std::cout << "Dispatched " << storeMe->size() << " authors." << std::endl;
              break;
           }
           rollback = false;
       } 
       try {
-          pdb::Handle<reddit::Comment> comment = pdb::makeObject<reddit::Comment>(line);
-          storeMe->push_back(comment);
+          pdb::Handle<reddit::Author> author = pdb::makeObject<reddit::Author>(line);
+          storeMe->push_back(author);
       }
       catch (pdb::NotEnoughSpace &n) {
-          if (! pdbClient.sendData<reddit::Comment> (std::pair<std::string, std::string>("redditDB", "comments"), storeMe, errMsg)) {
+          if (! pdbClient.sendData<reddit::Author> (std::pair<std::string, std::string>("redditDB", "authors"), storeMe, errMsg)) {
              std::cout << "Failed to send data to dispatcher server" << std::endl;
              return;
           }
           pdbClient.flushData (errMsg);
-          std::cout << "Dispatched " << storeMe->size() << " comments." << std::endl;
+          std::cout << "Dispatched " << storeMe->size() << " authors." << std::endl;
           rollback = true; 
       }
    }
@@ -88,7 +88,7 @@ int main(int argc, char* argv[]) {
   pdb::PDBLoggerPtr clientLogger = make_shared<pdb::PDBLogger>("clientLog");
   CatalogClient catalogClient(port, managerIp, clientLogger);
   PDBClient pdbClient(port, managerIp, clientLogger, false, true);
-  pdbClient.registerType("libraries/libRedditComment.so", errMsg);
+  pdbClient.registerType("libraries/libRedditAuthor.so", errMsg);
 
   // now, create a new database
   pdbClient.createDatabase("redditDB", errMsg);
@@ -101,8 +101,9 @@ int main(int argc, char* argv[]) {
   */
 
   // now, create the output set
-  pdbClient.removeSet("redditDB", "comments", errMsg);
-  pdbClient.createSet<reddit::Comment>("redditDB", "comments", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "comments", nullptr, myLambda1);
+  pdbClient.removeSet("redditDB", "authors", errMsg);
+  pdbClient.createSet<reddit::Author>("redditDB", "authors", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "authors", nullptr, myLambda1);
 
   // parse the input file 
-  parseInputJSONFile(pdbClient, inputFileName, 64); }
+  parseInputCSVFile(pdbClient, inputFileName, 64);
+}

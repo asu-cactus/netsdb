@@ -565,6 +565,7 @@ common_env.Program('bin/pipelineBench', ['build/tpchBench/PipelineBench.cc'] + a
 common_env.SharedLibrary('libraries/libRedditComment.so', ['build/reddit/RedditComment.cc'] + all)
 common_env.SharedLibrary('libraries/libRedditAuthor.so', ['build/reddit/RedditAuthor.cc'] + all)
 common_env.Program('bin/loadRedditComments.so', ['build/tests/LoadRedditComments.cc'] + all + pdb_client)
+common_env.Program('bin/loadRedditAuthors.so', ['build/tests/LoadRedditAuthors.cc'] + all + pdb_client)
 
 # K-means
 common_env.SharedLibrary('libraries/libScanDoubleArraySet.so', ['build/libraries/ScanDoubleArraySet.cc'] + all)
@@ -975,7 +976,8 @@ tpchNormal=common_env.Alias('tpchNormal', [
 reddit=common_env.Alias('reddit', [
   'libraries/libRedditComment.so',
   'libraries/libRedditAuthor.so',
-  'bin/loadRedditComments.so'
+  'bin/loadRedditComments.so',
+  'bin/loadRedditAuthors.so'
 ])
 
 tpch=common_env.Alias('tpch', [
