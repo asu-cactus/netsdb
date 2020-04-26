@@ -5,6 +5,7 @@
 
 #include "json.hpp"
 #include "PDBVector.h"
+#include "PDBString.h"
 
 using namespace pdb;
 
