@@ -568,6 +568,7 @@ common_env.SharedLibrary('libraries/libRedditFeatures.so', ['build/reddit/Reddit
 common_env.SharedLibrary('libraries/libRedditJoin.so', ['build/reddit/RedditJoin.cc'] + all)
 common_env.Program('bin/loadRedditComments.so', ['build/tests/LoadRedditComments.cc'] + all + pdb_client)
 common_env.Program('bin/loadRedditAuthors.so', ['build/tests/LoadRedditAuthors.cc'] + all + pdb_client)
+common_env.Program('bin/testRedditJoin.so', ['build/tests/TestRedditJoin.cc'] + all + pdb_client)
 
 # K-means
 common_env.SharedLibrary('libraries/libScanDoubleArraySet.so', ['build/libraries/ScanDoubleArraySet.cc'] + all)
@@ -981,7 +982,8 @@ reddit=common_env.Alias('reddit', [
   'libraries/libRedditFeatures.so',
   'libraries/libRedditJoin.so',
   'bin/loadRedditComments.so',
-  'bin/loadRedditAuthors.so'
+  'bin/loadRedditAuthors.so',
+  'bin/testRedditJoin.so'
 ])
 
 tpch=common_env.Alias('tpch', [
