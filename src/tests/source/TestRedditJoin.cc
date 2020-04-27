@@ -66,10 +66,22 @@ int main(int argc, char* argv[]) {
   if (strcmp(argv[3], "Y")==0) {
       whetherToPartitionData = true;
   }
+  bool whetherToRegisterLibraries = true;
+  if (strcmp(argv[4], "N")==0) {
+     whetherToRegisterLibraries = false;
+  }
+
   // make a client
   pdb::PDBLoggerPtr clientLogger = make_shared<pdb::PDBLogger>("clientLog");
   CatalogClient catalogClient(port, ip, clientLogger);
   PDBClient pdbClient(port, ip, clientLogger, false, true);
+
+  if (whetherToRegisterLibraries) {
+      pdbClient.registerType("libraries/libRedditComment.so", errMsg);
+      pdbClient.registerType("libraries/libRedditAuthor.so", errMsg);
+      pdbClient.registerType("libraries/libRedditFeatures.so", errMsg);
+      pdbClient.registerType("libraries/libRedditJoin.so", errMsg);
+  }
   
 
   // run one iteration

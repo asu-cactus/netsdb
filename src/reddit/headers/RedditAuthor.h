@@ -20,7 +20,7 @@ public:
     ENABLE_DEEP_COPY
 
     int author_id;
-    String author;
+    String author = "";
     long field02;
     long field03;
     int field04;
@@ -32,14 +32,15 @@ public:
 
     //constructor from a JSON string
     Author ( std::string csvString ) {
-
+         std::cout << csvString << std::endl;
          std::stringstream s_stream(csvString);
          std::vector<std::string> result;
          while(s_stream.good()) {
              std::string substr;
-             getline(s_stream, substr, ',');
+             getline(s_stream, substr, ' ');
              result.push_back(substr);
          }
+         std::cout << result[0] << std::endl;
          author_id = atoi(result[0].c_str());
          author = result[1];
          field02 = atol(result[2].c_str());

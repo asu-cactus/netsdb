@@ -20,13 +20,13 @@ void parseInputCSVFile(PDBClient &pdbClient, std::string fileName, int blockSize
   bool end = false;
   bool rollback = false;
 
+  pdb::makeObjectAllocatorBlock((size_t)blockSizeInMB * (size_t)1024 * (size_t)1024, true);
+  pdb::Handle<pdb::Vector<pdb::Handle<reddit::Author>>> storeMe = pdb::makeObject<pdb::Vector<pdb::Handle<reddit::Author>>> ();
   while (!end) {
-      pdb::makeObjectAllocatorBlock((size_t)blockSizeInMB * (size_t)1024 * (size_t)1024, true);
-      pdb::Handle<pdb::Vector<pdb::Handle<reddit::Author>>> storeMe = pdb::makeObject<pdb::Vector<pdb::Handle<reddit::Author>>> ();
       if (!rollback) {
           if(!std::getline(inFile, line)){
              end = true;
-             if (! pdbClient.sendData<reddit::Author> (std::pair<std::string, std::string>("redditDB", "authors"), storeMe, errMsg)) {
+             if (! pdbClient.sendData<reddit::Author> (std::pair<std::string, std::string>("authors", "redditDB"), storeMe, errMsg)) {
                  std::cout << "Failed to send data to dispatcher server" << std::endl;
                  return;
              }
@@ -34,20 +34,23 @@ void parseInputCSVFile(PDBClient &pdbClient, std::string fileName, int blockSize
              std::cout << "Dispatched " << storeMe->size() << " authors." << std::endl;
              break;
           }
-          rollback = false;
       } 
+      rollback = false;
       try {
           pdb::Handle<reddit::Author> author = pdb::makeObject<reddit::Author>(line);
           storeMe->push_back(author);
       }
       catch (pdb::NotEnoughSpace &n) {
-          if (! pdbClient.sendData<reddit::Author> (std::pair<std::string, std::string>("redditDB", "authors"), storeMe, errMsg)) {
+          if (! pdbClient.sendData<reddit::Author> (std::pair<std::string, std::string>("authors", "redditDB"), storeMe, errMsg)) {
              std::cout << "Failed to send data to dispatcher server" << std::endl;
              return;
           }
           pdbClient.flushData (errMsg);
           std::cout << "Dispatched " << storeMe->size() << " authors." << std::endl;
           rollback = true; 
+          pdb::makeObjectAllocatorBlock((size_t)blockSizeInMB * (size_t)1024 * (size_t)1024, true);
+          storeMe = pdb::makeObject<pdb::Vector<pdb::Handle<reddit::Author>>> ();
+
       }
    }
 

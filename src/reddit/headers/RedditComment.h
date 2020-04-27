@@ -8,6 +8,7 @@
 #include "PDBString.h"
 
 using namespace pdb;
+using json = nlohmann::json;
 
 namespace reddit {
 
@@ -58,34 +59,64 @@ public:
 
     //constructor from a JSON string
     Comment ( std::string jsonStr ) {
-        nlohmann::json j = jsonStr;
+        std::cout << "JSON to parse" << std::endl;
+        std::cout << jsonStr << std::endl;
+
+        json j = json::parse(jsonStr);
+        
         archived = j["archived"].get<bool>();
         author = j["author"].get<std::string>();
-        author_created_utc = j["author_created_utc"].get<long>();
-        author_flair_background_color = j["author_flair_background_color"].get<std::string>();
-        author_flair_css_class = j["author_flair_css_class"].get<std::string>();
+        if (!j.at("author_created_utc").is_null()) {
+            author_created_utc = j["author_created_utc"].get<long>();
+        }
+        if (!j.at("author_flair_background_color").is_null()) {
+            author_flair_background_color = j["author_flair_background_color"].get<std::string>();
+        }
+        if (!j.at("author_flair_css_class").is_null()) {
+            author_flair_css_class = j["author_flair_css_class"].get<std::string>();
+        }
         //author_flair_richtext = j["author_flair_richtext"].get<std::vector<std::string>>();
-        author_flair_type = j["author_flair_type"].get<std::string>();
-        author_fullname = j["author_fullname"].get<std::string>();
-        author_patreon_flair = j["author_patreon_flair"].get<bool>();
+        if (j.find("author_flair_type")!=j.end()) {
+            if (!j.at("author_flair_type").is_null()) {
+                author_flair_type = j["author_flair_type"].get<std::string>();
+            }
+        }
+        if (!j.at("author_fullname").is_null()) {
+            author_fullname = j["author_fullname"].get<std::string>();
+        }
+        if (j.find("author_patreon_flair")!=j.end()) {
+            if (!j.at("author_patreon_flair").is_null()) {
+                author_patreon_flair = j["author_patreon_flair"].get<bool>();
+            }
+        }
         body = j["body"].get<std::string>();
         can_gild = j["can_gild"].get<bool>();
         can_mod_post = j["can_mod_post"].get<bool>();
         collapsed = j["collapsed"].get<bool>();
-        collapsed_reason = j["collapsed_reason"].get<std::string>();
+        if (!j.at("collapsed_reason").is_null()) {
+            collapsed_reason = j["collapsed_reason"].get<std::string>();
+        }
         controversiality = j["controversiality"].get<int>();
         created_utc = j["created_utc"].get<long>();
-        distinguished = j["distinguished"].get<std::string>();
+        if (!j.at("distinguished").is_null()) {
+            distinguished = j["distinguished"].get<std::string>();
+        }
         edited = j["edited"].get<bool>();
-        gilded = j["gilded"].get<bool>();
+        gilded = j["gilded"].get<int>();
         //gildings = j["gildings"].get<std::map<std::string, int>>();
         id = j["id"].get<std::string>();
         is_submitter = j["is_submitter"].get<bool>();
         link_id = j["link_id"].get<std::string>();
-        no_follows = j["no_follows"].get<bool>();
+        if (j.find("no_follows")!=j.end()) {
+            if (!j.at("no_follows").is_null()) {
+                no_follows = j["no_follows"].get<bool>();
+            }
+        }
         parent_id = j["parent_id"].get<std::string>();
         permalink = j["permalink"].get<std::string>();
-        removal_reason = j["removal_reason"].get<std::string>();
+        if (!j.at("removal_reason").is_null()) {
+            removal_reason = j["removal_reason"].get<std::string>();
+        }
         retrieved_on = j["retrieved_on"].get<long>();
         score = j["score"].get<int>();
         send_replies = j["send_replies"].get<bool>();

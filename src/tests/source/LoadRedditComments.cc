@@ -20,13 +20,13 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
   bool end = false;
   bool rollback = false;
 
+  pdb::makeObjectAllocatorBlock((size_t)blockSizeInMB * (size_t)1024 * (size_t)1024, true);
+  pdb::Handle<pdb::Vector<pdb::Handle<reddit::Comment>>> storeMe = pdb::makeObject<pdb::Vector<pdb::Handle<reddit::Comment>>> ();
   while (!end) {
-      pdb::makeObjectAllocatorBlock((size_t)blockSizeInMB * (size_t)1024 * (size_t)1024, true);
-      pdb::Handle<pdb::Vector<pdb::Handle<reddit::Comment>>> storeMe = pdb::makeObject<pdb::Vector<pdb::Handle<reddit::Comment>>> ();
       if (!rollback) {
           if(!std::getline(inFile, line)){
              end = true;
-             if (! pdbClient.sendData<reddit::Comment> (std::pair<std::string, std::string>("redditDB", "comments"), storeMe, errMsg)) {
+             if (! pdbClient.sendData<reddit::Comment> (std::pair<std::string, std::string>("comments", "redditDB"), storeMe, errMsg)) {
                  std::cout << "Failed to send data to dispatcher server" << std::endl;
                  return;
              }
@@ -34,20 +34,23 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
              std::cout << "Dispatched " << storeMe->size() << " comments." << std::endl;
              break;
           }
-          rollback = false;
-      } 
+      }
+      rollback = false; 
       try {
           pdb::Handle<reddit::Comment> comment = pdb::makeObject<reddit::Comment>(line);
           storeMe->push_back(comment);
       }
       catch (pdb::NotEnoughSpace &n) {
-          if (! pdbClient.sendData<reddit::Comment> (std::pair<std::string, std::string>("redditDB", "comments"), storeMe, errMsg)) {
+          if (! pdbClient.sendData<reddit::Comment> (std::pair<std::string, std::string>("comments", "redditDB"), storeMe, errMsg)) {
              std::cout << "Failed to send data to dispatcher server" << std::endl;
              return;
           }
           pdbClient.flushData (errMsg);
           std::cout << "Dispatched " << storeMe->size() << " comments." << std::endl;
           rollback = true; 
+          pdb::makeObjectAllocatorBlock((size_t)blockSizeInMB * (size_t)1024 * (size_t)1024, true);
+          storeMe = pdb::makeObject<pdb::Vector<pdb::Handle<reddit::Comment>>> ();
+
       }
    }
 
