@@ -1267,6 +1267,7 @@ public:
                     myMap.setUnused(keyColumn[i]);
                     truncate<RHSType>(i, 0, columns);
                     keyColumn.erase(keyColumn.begin(), keyColumn.begin() + i);
+                    std::cout << "remove " << i << " from " << length << std::endl;
                     throw n;
                 }
 
@@ -1284,6 +1285,7 @@ public:
 
                     truncate<RHSType>(i, 0, columns);
                     keyColumn.erase(keyColumn.begin(), keyColumn.begin() + i);
+                    std::cout << "remove " << i << " from " << length << std::endl;
                     throw n;
                 }
 
@@ -1297,6 +1299,7 @@ public:
                     myMap.setUnused(keyColumn[i]);
                     truncate<RHSType>(i, 0, columns);
                     keyColumn.erase(keyColumn.begin(), keyColumn.begin() + i);
+                    std::cout << "remove " << i << " from " << length << std::endl;
                     throw n;
                 }
             }

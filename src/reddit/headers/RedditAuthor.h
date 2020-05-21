@@ -30,9 +30,8 @@ public:
     //default constructor
     Author () {}
 
-    //constructor from a JSON string
+    //constructor from a CSV string
     Author ( std::string csvString ) {
-         std::cout << csvString << std::endl;
          std::stringstream s_stream(csvString);
          std::vector<std::string> result;
          while(s_stream.good()) {
@@ -40,7 +39,6 @@ public:
              getline(s_stream, substr, ' ');
              result.push_back(substr);
          }
-         std::cout << result[0] << std::endl;
          author_id = atoi(result[0].c_str());
          author = result[1];
          field02 = atol(result[2].c_str());
@@ -51,7 +49,9 @@ public:
 
     }
 
-
+    size_t hash() const {
+        return author.hash();
+    }
 };
 
 

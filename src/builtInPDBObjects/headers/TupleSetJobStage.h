@@ -299,6 +299,10 @@ public:
         std::cout << "[TARGET COMPUTATION] targetComputationSpecifier="
                   << this->targetComputationSpecifier << std::endl;
         std::cout << "[ALLOCATOR POLICY] allocatorPolicy=" << this->allocatorPolicy << std::endl;
+        std::cout << "[PARTITION COMPUTATION] partitionComputationSpecifier="
+                  << this->partitionComputationSpecifier << std::endl;
+        std::cout << "[PARTITION LAMBDA] partitionLambdaName="
+                  << this->partitionLambdaName << std::endl;
         if (buildTheseTupleSets != nullptr) {
             std::cout << "[PIPELINE]" << std::endl;
             size_t mySize = buildTheseTupleSets->size();

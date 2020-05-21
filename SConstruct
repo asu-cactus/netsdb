@@ -49,7 +49,7 @@ elif  common_env['PLATFORM'] == 'posix':
 
 #common_env.Append(CCFLAGS='-DDEBUG_VTABLE_FIXING')
 common_env.Append(CCFLAGS='-DINITIALIZE_ALLOCATOR_BLOCK')
-common_env.Append(CCFLAGS='-DENABLE_SHALLOW_COPY')
+#common_env.Append(CCFLAGS='-DENABLE_SHALLOW_COPY')
 common_env.Append(CCFLAGS='-DDEFAULT_BATCH_SIZE=1')
 common_env.Append(CCFLAGS='-DREMOVE_SET_WITH_EVICTION')
 common_env.Append(CCFLAGS='-DAUTO_TUNING')
@@ -569,7 +569,8 @@ common_env.SharedLibrary('libraries/libRedditJoin.so', ['build/reddit/RedditJoin
 common_env.Program('bin/loadRedditComments', ['build/tests/LoadRedditComments.cc'] + all + pdb_client)
 common_env.Program('bin/loadRedditAuthors', ['build/tests/LoadRedditAuthors.cc'] + all + pdb_client)
 common_env.Program('bin/testRedditJoin', ['build/tests/TestRedditJoin.cc'] + all + pdb_client)
-
+common_env.Program('bin/testRedditAuthors', ['build/tests/TestRedditAuthors.cc'] + all + pdb_client)
+common_env.Program('bin/testScanAuthors', ['build/tests/TestScanAuthors.cc'] + all + pdb_client)
 # K-means
 common_env.SharedLibrary('libraries/libScanDoubleArraySet.so', ['build/libraries/ScanDoubleArraySet.cc'] + all)
 common_env.SharedLibrary('libraries/libKMeansAggregate.so', ['build/libraries/KMeansAggregate.cc'] + all)
@@ -983,6 +984,8 @@ reddit=common_env.Alias('reddit', [
   'libraries/libRedditJoin.so',
   'bin/loadRedditComments',
   'bin/loadRedditAuthors',
+  'bin/testRedditAuthors',
+  'bin/testScanAuthors',
   'bin/testRedditJoin'
 ])
 

@@ -991,7 +991,7 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                 readToHere = (char*)malloc(numBytes);
                 objectsToStore = sendUsingMe->getNextObject<Vector<Handle<Object>>>(
                     readToHere, everythingOK, errMsg);
-                std::cout << "received " << objectsToStore->size() << " objects to store" << std::endl;
+                std::cout << "received " << objectsToStore->size() << " objects to store " << numBytes << " bytes" << std::endl;
             } else {
                 char* temp = new char[numBytes];
                 std::cout << "received " << numBytes << " bytes" << std::endl;
@@ -1034,6 +1034,7 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                 std::cout << "to store data to " << request->getDatabase() <<
                         ":" << request->getSetName() << std::endl;
                 SetPtr mySet = getFunctionality<PangeaStorageServer>().getSet(databaseAndSet);
+               
                 size_t myPageSize = mySet->getPageSize();
                 if (request->isDirectPut() == false) {
 
@@ -1044,7 +1045,7 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                     size_t numBytesToProcess = sizes[databaseAndSet];
                     size_t rawPageSize = myPageSize;
                     
-                    if (numBytesToProcess < rawPageSize * (this->inflationFactor)) {
+                    if (numBytesToProcess < (size_t)rawPageSize * (size_t)(this->inflationFactor)) {
                         std::cout << "data is buffered, all buffered data size=" << numBytesToProcess
                                  << std::endl;
                     } else {

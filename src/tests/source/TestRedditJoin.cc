@@ -75,7 +75,7 @@ int main(int argc, char* argv[]) {
   pdb::PDBLoggerPtr clientLogger = make_shared<pdb::PDBLogger>("clientLog");
   CatalogClient catalogClient(port, ip, clientLogger);
   PDBClient pdbClient(port, ip, clientLogger, false, true);
-
+  
   if (whetherToRegisterLibraries) {
       pdbClient.registerType("libraries/libRedditComment.so", errMsg);
       pdbClient.registerType("libraries/libRedditAuthor.so", errMsg);
@@ -83,7 +83,8 @@ int main(int argc, char* argv[]) {
       pdbClient.registerType("libraries/libRedditJoin.so", errMsg);
   }
   
-
+  pdbClient.removeSet("redditDB", "features", errMsg);
+  pdbClient.createSet<reddit::Features>("redditDB", "features", errMsg);
   // run one iteration
   auto begin = std::chrono::high_resolution_clock::now();
   run(pdbClient);

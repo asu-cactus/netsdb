@@ -19,7 +19,8 @@ void parseInputCSVFile(PDBClient &pdbClient, std::string fileName, int blockSize
   std :: string line;
   bool end = false;
   bool rollback = false;
-
+  long total = 15000000;
+  long sent = 0;
   pdb::makeObjectAllocatorBlock((size_t)blockSizeInMB * (size_t)1024 * (size_t)1024, true);
   pdb::Handle<pdb::Vector<pdb::Handle<reddit::Author>>> storeMe = pdb::makeObject<pdb::Vector<pdb::Handle<reddit::Author>>> ();
   while (!end) {
@@ -30,8 +31,8 @@ void parseInputCSVFile(PDBClient &pdbClient, std::string fileName, int blockSize
                  std::cout << "Failed to send data to dispatcher server" << std::endl;
                  return;
              }
-             pdbClient.flushData (errMsg);
              std::cout << "Dispatched " << storeMe->size() << " authors." << std::endl;
+             pdbClient.flushData (errMsg);
              break;
           }
       } 
@@ -45,15 +46,18 @@ void parseInputCSVFile(PDBClient &pdbClient, std::string fileName, int blockSize
              std::cout << "Failed to send data to dispatcher server" << std::endl;
              return;
           }
-          pdbClient.flushData (errMsg);
           std::cout << "Dispatched " << storeMe->size() << " authors." << std::endl;
+          sent += storeMe->size();
+          if (sent >= total) {
+              end = true;
+          }
           rollback = true; 
           pdb::makeObjectAllocatorBlock((size_t)blockSizeInMB * (size_t)1024 * (size_t)1024, true);
           storeMe = pdb::makeObject<pdb::Vector<pdb::Handle<reddit::Author>>> ();
 
       }
    }
-
+   pdbClient.flushData (errMsg);
 }
 
 

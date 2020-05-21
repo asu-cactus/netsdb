@@ -35,7 +35,7 @@ public:
     int controversiality;
     long created_utc;
     String distinguished;
-    bool edited;
+    String edited;
     int gilded;
     Handle<Map<String, int>> gildings;
     String id;
@@ -59,8 +59,6 @@ public:
 
     //constructor from a JSON string
     Comment ( std::string jsonStr ) {
-        std::cout << "JSON to parse" << std::endl;
-        std::cout << jsonStr << std::endl;
 
         json j = json::parse(jsonStr);
         
@@ -101,7 +99,7 @@ public:
         if (!j.at("distinguished").is_null()) {
             distinguished = j["distinguished"].get<std::string>();
         }
-        edited = j["edited"].get<bool>();
+        //edited = j["edited"].get<std::string>();
         gilded = j["gilded"].get<int>();
         //gildings = j["gildings"].get<std::map<std::string, int>>();
         id = j["id"].get<std::string>();
@@ -127,6 +125,10 @@ public:
         subreddit_type = j["subreddit_type"].get<std::string>();
     }
 
+
+    size_t hash() const {
+        return author.hash();
+    }
 
 };
 

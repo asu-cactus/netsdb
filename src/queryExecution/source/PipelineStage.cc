@@ -420,10 +420,11 @@ void PipelineStage::executePipelineWork(int i,
         }
         std::string partitionComputationName = this->jobStage->getPartitionComputationSpecifier();
         std::string partitionLambdaName = this->jobStage->getPartitionLambdaName();
+        std::cout << "partitionComputationName:" << partitionComputationName << std::endl;
+        std::cout << "partitionLambdaName:" << partitionLambdaName<<std::endl;
         GenericLambdaObjectPtr myPartitionLambda = newPlan->getPlan()->getNode(
             partitionComputationName).getLambda(
             partitionLambdaName);
-
         scanner->setPartitionLambda(myPartitionLambda);
         scanner->setFollowedByLocalJoin(true);
         scanner->setPartitionId(i);

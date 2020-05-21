@@ -89,7 +89,7 @@ public:
       bool isBroadcasting, bool isRepartitioning, bool needsRemoveInputSet,
       bool isProbing = false, AllocatorPolicy policy = defaultAllocator,
       bool isRepartitionJoin = false, bool isCollectAsMap = false,
-      int numNodesToCollect = 0, bool hasLocalJoinSink = false, bool hasLocalJoinProbe = false);
+      int numNodesToCollect = 0, bool hasLocalJoinSink = false, bool hasLocalJoinProbe = false, std::string partitionComputationName = "", std::string partitionLambdaName = "");
 
   // to create broadcast join stage
   Handle<BroadcastJoinBuildHTJobStage> createBroadcastJoinBuildHTJobStage(
@@ -127,7 +127,9 @@ public:
                AllocatorPolicy policy = defaultAllocator,
                std::string joinSource = "",
                std::string prevComputationName = "",
-               bool hasLocalJoinProbe = false);
+               bool hasLocalJoinProbe = false,
+               std::string partitionComputationSpecifier = "",
+               std::string partitionLambdaName = "");
 
   // to get current source sets;
   std::vector<std::string> &getCurSourceSetNames();

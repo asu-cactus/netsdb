@@ -20,6 +20,8 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
   bool end = false;
   bool rollback = false;
 
+  long total = 20000000;
+  long sent = 0;
   pdb::makeObjectAllocatorBlock((size_t)blockSizeInMB * (size_t)1024 * (size_t)1024, true);
   pdb::Handle<pdb::Vector<pdb::Handle<reddit::Comment>>> storeMe = pdb::makeObject<pdb::Vector<pdb::Handle<reddit::Comment>>> ();
   while (!end) {
@@ -45,15 +47,20 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
              std::cout << "Failed to send data to dispatcher server" << std::endl;
              return;
           }
-          pdbClient.flushData (errMsg);
           std::cout << "Dispatched " << storeMe->size() << " comments." << std::endl;
+          sent = sent+storeMe->size();
+          std::cout << "sent " << sent << " objects in total" << std::endl;
+          if (sent >= total) { 
+              end = true;
+//              return;
+          }
           rollback = true; 
           pdb::makeObjectAllocatorBlock((size_t)blockSizeInMB * (size_t)1024 * (size_t)1024, true);
           storeMe = pdb::makeObject<pdb::Vector<pdb::Handle<reddit::Comment>>> ();
 
       }
    }
-
+   pdbClient.flushData (errMsg);
 }
 
 

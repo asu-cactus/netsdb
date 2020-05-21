@@ -100,7 +100,7 @@ bool StorageClient::storeData(Handle<Vector<Handle<Object>>> data,
         databaseName,
         setName,
         typeName,
-        true);
+        false);
 }
 
 

@@ -275,29 +275,29 @@ public:
                     }
                 }
             }
+            bool end = false;
+            while (!end) {
+                try {
 
-            try {
+                    if (myRAM->outputSink == nullptr) {
+                        myRAM->outputSink = dataSink->createNewOutputContainer();
+                    }
+                    dataSink->writeOut(curChunk, myRAM->outputSink);
+                    end = true;
 
-                if (myRAM->outputSink == nullptr) {
-                    myRAM->outputSink = dataSink->createNewOutputContainer();
+                } catch (NotEnoughSpace& n) {
+
+                    // again, we ran out of RAM here, so write back the page and then create a new
+                    // output page
+                    myRAM->setIteration(iteration);
+                    unwrittenPages.push(myRAM);
+                    std::cout << id << ": 3- setIteration=" << iteration << std::endl;
+                    iteration++;
+                    cleanPages(iteration);
+                    myRAM = std::make_shared<MemoryHolder>(getNewPage());
+                    myRAM->outputSink = nullptr;
                 }
-                dataSink->writeOut(curChunk, myRAM->outputSink);
-
-            } catch (NotEnoughSpace& n) {
-
-                // again, we ran out of RAM here, so write back the page and then create a new
-                // output page
-                myRAM->setIteration(iteration);
-                unwrittenPages.push(myRAM);
-                std::cout << id << ": 3- setIteration=" << iteration << std::endl;
-                iteration++;
-                cleanPages(iteration);
-                myRAM = std::make_shared<MemoryHolder>(getNewPage());
-                // and again, try to write back the output
-                myRAM->outputSink = dataSink->createNewOutputContainer();
-                dataSink->writeOut(curChunk, myRAM->outputSink);
             }
-
             // lastly, write back all of the output pages
         }
 

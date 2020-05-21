@@ -57,6 +57,7 @@ void DispatcherServer::registerHandlers(PDBServer& forMe) {
             char* tempPage = nullptr;
             char* readToHere = nullptr;
             if (request->isShallowCopy() == false) {
+                std::cout << "Not shallow copy" << std::endl;
                 const UseTemporaryAllocationBlock tempBlock{numBytes + 65535};
                 dataToSend = sendUsingMe->getNextObject<Vector<Handle<Object>>>(res, errMsg);
             } else {
