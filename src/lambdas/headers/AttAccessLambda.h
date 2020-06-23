@@ -279,7 +279,6 @@ public:
         return std::make_shared<SimpleComputeExecutor>(
             output,
             [=](TupleSetPtr input) {
-
                 // set up the output tuple set
                 myMachine->setup(input, output);
 

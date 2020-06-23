@@ -39,7 +39,7 @@ PDBPagePtr PartitionPageIterator::next() {
         } else {
             PageID curPageId =
                 this->partitionedFile->loadPageId(this->partitionId, this->numIteratedPages);
-            std::cout << "PartitionedPageIterator: curTypeId=" << this->partitionedFile->getTypeId()
+            std::cout << this->partitionId << ": PartitionedPageIterator: curTypeId=" << this->partitionedFile->getTypeId()
                      << ",curSetId=" << this->partitionedFile->getSetId()
                      << ",curPageId=" << curPageId << "\n";
 // page is pinned (ref count ++)

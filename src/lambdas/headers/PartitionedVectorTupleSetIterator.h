@@ -40,10 +40,14 @@ private:
     size_t chunkSize = DEFAULT_BATCH_SIZE;
 
     // where we are in the chunk
-    size_t pos;
+    size_t pos = 0;
 
     // and the tuple set we return
     TupleSetPtr output;
+
+    // size of vector
+    size_t mySize = 0;
+
 
 public:
     // the first param is a callback function that the iterator will call in order to obtain the
@@ -84,7 +88,8 @@ public:
         if (myRec != nullptr) {
 
             iterateOverMe = myRec->getRootObject();
-            PDB_COUT << "Got iterateOverMe" << std::endl;
+            this->mySize = iterateOverMe->size();
+            std::cout << myPartitionId << ": Got iterateOverMe with " << mySize << " objects" << std::endl;
             // create the output vector and put it into the tuple set
             std::vector<Handle<ValueType>>* inputColumn = new std::vector<Handle<ValueType>>;
             output->addColumn(0, inputColumn, true);
@@ -102,6 +107,36 @@ public:
         lastPage = nullptr;
     }
 
+    void updatePage () {
+
+        std::cout << myPartitionId << ": to update the page" << std::endl;
+        // this means that we got to the end of the vector
+        lastPage = myPage;
+        if (lastPage != nullptr) {
+            doneWithVector(lastPage);
+            lastPage = nullptr;
+            myRec = nullptr;
+        }
+        // try to get another vector
+        myPage = getAnotherVector();
+        if(myPage != nullptr) {
+            myRec = (Record<Vector<Handle<ValueType>>>*)(myPage->getBytes());
+        }
+        // if we could not, then we are outta here
+        if (myRec != nullptr) {
+            // and reset everything
+            iterateOverMe = myRec->getRootObject();
+            // JiaNote: we also need to reset mySize
+            this->mySize = iterateOverMe->size();
+            std::cout << myPartitionId << ": Got iterateOverMe with " << mySize << " objects" << std::endl;
+            pos = 0;
+        } else {
+
+            iterateOverMe = nullptr;
+            mySize = 0;
+        }
+    }
+
     void setChunkSize(size_t chunkSize) override {
         this->chunkSize = chunkSize;
     }
@@ -109,55 +144,19 @@ public:
 
     // returns the next tuple set to process, or nullptr if there is not one to process
     TupleSetPtr getNextTupleSet() override {
-
         // JiaNote: below two lines are necessary to fix a bug that iterateOverMe may be nullptr
         // when first time get to here
         if (iterateOverMe == nullptr) {
             return nullptr;
         }
 
-        // if we made it here with lastRec being a valid pointer, then it means
-        // that we have gone through an entire cycle, and so all of the data that
-        // we will ever reference stored in lastRec has been fluhhed through the
-        // pipeline; hence, we can kill it
-
-        if (lastRec != nullptr) {
-            doneWithVector(lastPage);
-            lastRec = nullptr;
-            lastPage = nullptr;
-        }
-
-        size_t mySize = iterateOverMe->size();
         if (mySize == 0) {
             return nullptr;
         }
 
         // see if there are no more items in the vector to iterate over
         if (pos == mySize) {
-            // this means that we got to the end of the vector
-            lastPage = myPage;
-            lastRec = myRec;
-            myPage = nullptr;
-            myRec = nullptr;
-            // try to get another vector
-            myPage = getAnotherVector();
-            if(myPage != nullptr) {
-                myRec = (Record<Vector<Handle<ValueType>>>*)(myPage->getBytes());
-            }
-            // if we could not, then we are outta here
-            if (myRec == nullptr)
-                return nullptr;
-
-            // and reset everything
-            iterateOverMe = myRec->getRootObject();
-            // JiaNote: we also need to reset mySize
-            mySize = iterateOverMe->size();
-
-            if (mySize == 0) {
-                return nullptr;
-            }
-
-            pos = 0;
+            updatePage();
         }
 
 
@@ -175,6 +174,9 @@ public:
                 hashVal = Hasher<Handle<ValueType>>::hash(myVec[pos]);
                 index = hashVal % (numPartitionsPerNode * numNodes) % numPartitionsPerNode;
                 if (index == myPartitionId) {
+                    if (myPartitionId == 0) {
+//                        std::cout << "hashVal: "<< hashVal << ", mySize: "<< mySize <<", index: " << index << ", myPartitionId: " << myPartitionId << ", pos: " << pos <<", count: "<< count <<", chunkSize: "<< chunkSize << std::endl;
+                    }
                     inputColumn[count] = myVec[pos];
                     count++;
                     if (count == chunkSize) {
@@ -187,27 +189,9 @@ public:
                 
             } else {
 
-                // this means that we got to the end of the vector
-                lastRec = myRec;
-                lastPage = myPage;
-                myPage = nullptr;
-                myRec = nullptr;
-                // try to get another vector
-                myPage = getAnotherVector();
-                if (myPage != nullptr) {
-                    myRec = (Record<Vector<Handle<ValueType>>>*)(myPage->getBytes());
-                }
-                // if we could not, then we are outta here
-                if (myRec == nullptr) {
-                    inputColumn.resize(count);
-                    return output;
-                }
-                // and reset everything
-                iterateOverMe = myRec->getRootObject();
-                // JiaNote: we also need to reset mySize
-                mySize = iterateOverMe->size();
-
+                updatePage();                
                 if (mySize == 0) {
+                    if (count == 0) return nullptr;
                     inputColumn.resize(count);
                     return output;
                 }

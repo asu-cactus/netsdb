@@ -484,9 +484,9 @@ void PipelineStage::executePipelineWork(int i,
         Handle<ClusterAggregateComp<Object, Object, Object, Object>> aggregator =
             unsafeCast<ClusterAggregateComp<Object, Object, Object, Object>, Computation>(
                 computation);
-        void* pagePointer = hashSet->getPage(i);
+        void* pagePointer = hashSet->getPage(i, true);
         if (pagePointer != nullptr) {
-            aggregator->setHashTablePointer(hashSet->getPage(i));
+            aggregator->setHashTablePointer(hashSet->getPage(i, true));
         } else {
             std::cout << "There is no more hash partition for this thread, we simply return"
                       << std::endl;
@@ -522,7 +522,7 @@ void PipelineStage::executePipelineWork(int i,
                 PartitionedHashSetPtr partitionedHashSet =
                         std::dynamic_pointer_cast<PartitionedHashSet>(hashSet);
                 if (!probePartitionedHashMap) {
-                    info[key] = std::make_shared<JoinArg>(*newPlan, partitionedHashSet->getPage(i), nullptr);
+                    info[key] = std::make_shared<JoinArg>(*newPlan, partitionedHashSet->getPage(i, true), nullptr);
                 } else {
                     std::string joinComputationName =
                          newPlan->getProducingComputationName(key);
@@ -795,7 +795,9 @@ void PipelineStage::executePipelineWork(int i,
                 }
                 for (k = 0; k < numNodes; k++) {
                     PageCircularBufferPtr buffer = sinkBuffers[k];
+                    std::cout << "to add page to tail of sinkBuffers[" << k << "]" << std::endl;
                     buffer->addPageToTail(output);
+                    std::cout << "added page to tail of sinkBuffers[" << k << "]" << std::endl;
                 }
 
             } else if ((this->jobStage->isRepartition() == true) &&
@@ -966,7 +968,7 @@ void PipelineStage::runPipeline(HermesExecutionServer* server,
        || ((sourceContext->getSetType() == UserSetType) 
        && (computation->getComputationType() == "JoinComp"))) {
         std::cout << "to prepare for partitioned source" << std::endl;
-        int sourceBufferSize = 2;
+        int sourceBufferSize = 2; //efficient use of memory
         int numPartitionsInCluster = this->jobStage->getNumTotalPartitions();
         int numNodes = this->jobStage->getNumNodes();
         numPartitions = numPartitionsInCluster / numNodes;
@@ -982,8 +984,10 @@ void PipelineStage::runPipeline(HermesExecutionServer* server,
         }
     } else if ((sourceContext->getSetType() == UserSetType) &&
         (computation->getComputationType() != "JoinComp")) {
+        std::cout << "to prepare for vectorized source" << std::endl;
         iterators = getUserSetIterators(server, numThreads, success, errMsg);
     } else {
+        std::cout << "to prepare for hash source" << std::endl;
         std::string hashSetName = sourceContext->getDatabase() + ":" + sourceContext->getSetName();
         AbstractHashSetPtr abstractHashSet = server->getHashSet(hashSetName);
         hashSet = std::dynamic_pointer_cast<PartitionedHashSet>(abstractHashSet);
@@ -1001,9 +1005,9 @@ void PipelineStage::runPipeline(HermesExecutionServer* server,
     if (this->jobStage->isLocalJoinSink()) {
 
         std::string hashSetName = this->jobStage->getSinkContext()->getDatabase()+":"+this->jobStage->getSinkContext()->getSetName();
-        size_t hashSetSize = ((size_t)(this->jobStage->getSourceContext()->getNumPages())) * this->jobStage->getSourceContext()->getPageSize() * 2;
-        if (hashSetSize > (size_t)(256)*(size_t)(1024)*(size_t)(1024)) {
-            hashSetSize = (size_t)(256)*(size_t)(1024)*(size_t)(1024);
+        size_t hashSetSize = ((size_t)(this->jobStage->getSourceContext()->getNumPages())) * this->jobStage->getSourceContext()->getPageSize() * 3;
+        if (hashSetSize > (size_t)(1024)*(size_t)(1024)*(size_t)(1024)) {
+            hashSetSize = (size_t)(1024)*(size_t)(1024)*(size_t)(1024);
         }
         std::cout << "hashSetSize for local join sink is " << hashSetSize << std::endl; 
         partitionedSetForSink = make_shared<PartitionedHashSet>(hashSetName, hashSetSize);
@@ -1100,15 +1104,20 @@ void PipelineStage::runPipeline(HermesExecutionServer* server,
                 while (iter->hasNext()) {
                     page = iter->next();
                     if (page != nullptr) {
-                        std::cout << "Scanner got a non-null page" << std::endl;
+                        std::cout << "Scanner got a non-null page with ID="<< page->getPageID() << std::endl;
                         for (int j = 0; j < numPartitions; j++) {
                             page->incRefCount();
                         }
                         std::cout << "Initialize join source page reference count to "
                                   << page->getRefCount() << std::endl;
                         for (int j = 0; j < numPartitions; j++) {
+                            std::cout << "to add page with ID="<< page->getPageID() << " to source buffer" << std::endl;
                             sourceBuffers[j]->addPageToTail(page);
+                            std::cout << "added page with ID="<< page->getPageID() << " to source buffer" << std::endl;
                         }
+                    } else {
+                        std::cout << "Scanner got a null page" << std::endl;
+                        sched_yield();
                     }
                 }
                 callerBuzzer->buzz(PDBAlarm::WorkAllDone, sourceCounter);
@@ -1297,16 +1306,20 @@ void PipelineStage::runPipelineWithShuffleSink(HermesExecutionServer* server) {
             PageCircularBufferIteratorPtr myIter = combinerIters[i];
             int numPages = 0;
             while (myIter->hasNext()) {
+                std::cout << "Got a page from iterator." << std::endl;
                 PDBPagePtr page = myIter->next();
                 if (page != nullptr) {
                     // to load input page
                     numPages++;
+                    std::cout << "to load a page to combiner processor" << std::endl;
                     combinerProcessor->loadInputPage(page->getBytes());
+                    std::cout << "loaded a page to combiner processor" << std::endl;
                     while (combinerProcessor->fillNextOutputPage()) {
                         // send out the output page
                         Record<Vector<Handle<Object>>>* record =
                             (Record<Vector<Handle<Object>>>*)combinerPage;
 #ifndef ENABLE_COMPRESSION
+                        std::cout << "to store shuffle data" << std::endl;
                         this->storeShuffleData(record->getRootObject(),
                                                this->jobStage->getSinkContext()->getDatabase(),
                                                this->jobStage->getSinkContext()->getSetName(),
@@ -1359,10 +1372,11 @@ void PipelineStage::runPipelineWithShuffleSink(HermesExecutionServer* server) {
                     }
                 }
             }
+            std::cout << "Got an null page" << std::endl;
             combinerProcessor->finalize();
             combinerProcessor->fillNextOutputPage();
             // send the output page
-            PDB_COUT << "processed " << numPages << " pages" << std::endl;
+            std::cout << "processed " << numPages << " pages" << std::endl;
             Record<Vector<Handle<Object>>>* record = (Record<Vector<Handle<Object>>>*)combinerPage;
 #ifndef ENABLE_COMPRESSION
             this->storeShuffleData(record->getRootObject(),
@@ -1594,7 +1608,7 @@ void PipelineStage::runPipelineWithHashPartitionSink(HermesExecutionServer* serv
     NodeID myNodeId = jobStage->getNodeId();
     int numNodes = jobStage->getNumNodes();
     PDB_COUT << "to run shuffle with " << numNodes << " threads." << std::endl;
-    int numThreadsForLocalStore = numThreads*2;
+    int numThreadsForLocalStore = numThreads/2;
     if (numThreadsForLocalStore == 0) {
         numThreadsForLocalStore = 1;
     }

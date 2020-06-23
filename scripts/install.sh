@@ -7,8 +7,8 @@ ip_len_valid=3
 pdb_dir=$PDB_INSTALL
 
 scripts/cleanupNode.sh
-echo "To strip shared libraries..."
-strip libraries/*.so
+#echo "To strip shared libraries..."
+#strip libraries/*.so
 echo "stripped all shared libraries!"
 # By default disable strict host key checking
 if [ "$PDB_SSH_OPTS" = "" ]; then

@@ -36,14 +36,15 @@ class HermesExecutionServer : public ServerFunctionality {
 
 public:
     // creates an execution server...
-    HermesExecutionServer(SharedMemPtr shm,
+    HermesExecutionServer(int nodeId, 
+                          SharedMemPtr shm,
                           PDBWorkerQueuePtr workers,
                           PDBLoggerPtr logger,
                           ConfigurationPtr conf,
                           bool selfLearningOrNot = false) {
         this->shm = shm;
         this->conf = conf;
-        this->nodeId = conf->getNodeID();
+        this->nodeId = nodeId;
         this->curScanner = nullptr;
         this->logger = logger;
         this->workers = workers;

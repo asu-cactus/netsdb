@@ -11,6 +11,7 @@ rm -rf /mnt1/data/*
 rm -rf /mnt2/data/*
 rm -rf /mnt1/tmp/*
 rm -rf /mnt2/tmp/*
+rm -rf selfLearningDB
 pkill -9 pdb-server
 pkill -9 pdb-cluster
 pkill -9 test603

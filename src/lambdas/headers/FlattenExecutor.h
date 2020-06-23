@@ -58,6 +58,7 @@ public:
 
     TupleSetPtr process(TupleSetPtr input) override {
 
+        if (input == nullptr) return nullptr;
         // std :: cout << "FlattenExecutor: to process a tuple set" << std :: endl;
 
         std::vector<Vector<Handle<Object>>> inputVecData =

@@ -80,6 +80,8 @@ public:
                     PDBPagePtr page = this->iterator->next();
                     if (page != nullptr) {
                         return page->getBytes();
+                    } else {
+                        sched_yield();
                     }
                 }
 
@@ -130,10 +132,14 @@ public:
                     return nullptr;
                 }
                 while (this->iterator->hasNext() == true) {
-
+                    std::cout << myPartitionId << ": to get a page" << std::endl;
                     PDBPagePtr page = this->iterator->next();
                     if (page != nullptr) {
+                        std::cout << "PartitionedVectorTupleSetIterator got a page with ID=" << page->getPageID() << std::endl;
                         return page;
+                    } else {
+                        std::cout <<"PartitionedVectorTupleSetIterator got a null page" << std::endl;
+                        sched_yield();
                     }
                 }
 
@@ -160,11 +166,13 @@ public:
 #endif
                         try {
                             this->proxy->unpinUserPage(nodeId, dbId, typeId, setId, freeMe, false);
+                            std::cout << "Unpinned page: "<< freeMe->getPageID() << std::endl;
                         } catch (NotEnoughSpace& n) {
                             makeObjectAllocatorBlock(4096, true);
                             this->proxy->unpinUserPage(nodeId, dbId, typeId, setId, freeMe, false);
-                            throw n;
+                            std::cout << "Unpinned page: "<< freeMe->getPageID() << std::endl;
                         }
+                      
                     }
 #ifdef PROFILING_CACHE
                     else {
@@ -352,7 +360,7 @@ protected:
 
     String setName;
 
-    int batchSize = DEFAULT_PAGE_SIZE;
+    int batchSize = DEFAULT_BATCH_SIZE;
 
     String outputType = "";    
 

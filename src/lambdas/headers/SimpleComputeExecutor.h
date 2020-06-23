@@ -36,6 +36,9 @@ public:
 
 
     TupleSetPtr process(TupleSetPtr input) override {
+        if (input == nullptr) {
+             return nullptr;
+        }
         return processInput(input);
     }
 

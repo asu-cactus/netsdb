@@ -48,12 +48,14 @@ elif  common_env['PLATFORM'] == 'posix':
     common_env.Replace(CXX = "clang++")
 
 #common_env.Append(CCFLAGS='-DDEBUG_VTABLE_FIXING')
+common_env.Append(CCFLAGS='-DUSE_VALGRIND')
 common_env.Append(CCFLAGS='-DINITIALIZE_ALLOCATOR_BLOCK')
 #common_env.Append(CCFLAGS='-DENABLE_SHALLOW_COPY')
-common_env.Append(CCFLAGS='-DDEFAULT_BATCH_SIZE=1')
+common_env.Append(CCFLAGS='-DDEFAULT_BATCH_SIZE=8')
 common_env.Append(CCFLAGS='-DREMOVE_SET_WITH_EVICTION')
 common_env.Append(CCFLAGS='-DAUTO_TUNING')
 common_env.Append(CCFLAGS='-DPROFILING')
+common_env.Append(CCFLAGS='-DPROFILING_CACHE')
 common_env.Append(CCFLAGS='-DUSE_LOCALITY_SET')
 #we need this for self learning, so that if no partition lambda is found we use random policy
 common_env.Append(CCFLAGS='-DRANDOME_DISPATCHER')
@@ -564,13 +566,24 @@ common_env.Program('bin/pipelineBench', ['build/tpchBench/PipelineBench.cc'] + a
 #reddit
 common_env.SharedLibrary('libraries/libRedditComment.so', ['build/reddit/RedditComment.cc'] + all)
 common_env.SharedLibrary('libraries/libRedditAuthor.so', ['build/reddit/RedditAuthor.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditSub.so', ['build/reddit/RedditSub.cc'] + all)
 common_env.SharedLibrary('libraries/libRedditFeatures.so', ['build/reddit/RedditFeatures.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditFullFeatures.so', ['build/reddit/RedditFullFeatures.cc'] + all)
 common_env.SharedLibrary('libraries/libRedditJoin.so', ['build/reddit/RedditJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditThreeWayJoin.so', ['build/reddit/RedditThreeWayJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditJoinSubsAndComments.so', ['build/reddit/RedditJoinSubsAndComments.cc']+all)
+common_env.SharedLibrary('libraries/libRedditSubsAndComments.so', ['build/reddit/RedditSubsAndComments.cc']+all)
+
 common_env.Program('bin/loadRedditComments', ['build/tests/LoadRedditComments.cc'] + all + pdb_client)
 common_env.Program('bin/loadRedditAuthors', ['build/tests/LoadRedditAuthors.cc'] + all + pdb_client)
+common_env.Program('bin/loadRedditSubs', ['build/tests/LoadRedditSubs.cc'] + all + pdb_client)
 common_env.Program('bin/testRedditJoin', ['build/tests/TestRedditJoin.cc'] + all + pdb_client)
+common_env.Program('bin/testRedditThreeWayJoin', ['build/tests/TestRedditThreeWayJoin.cc'] + all + pdb_client)
+common_env.Program('bin/testRedditJoinSubsAndComments', ['build/tests/TestRedditJoinSubsWithComments.cc']+all+pdb_client)
 common_env.Program('bin/testRedditAuthors', ['build/tests/TestRedditAuthors.cc'] + all + pdb_client)
 common_env.Program('bin/testScanAuthors', ['build/tests/TestScanAuthors.cc'] + all + pdb_client)
+common_env.Program('bin/testScanSubs', ['build/tests/TestScanSubs.cc'] + all + pdb_client)
+
 # K-means
 common_env.SharedLibrary('libraries/libScanDoubleArraySet.so', ['build/libraries/ScanDoubleArraySet.cc'] + all)
 common_env.SharedLibrary('libraries/libKMeansAggregate.so', ['build/libraries/KMeansAggregate.cc'] + all)
@@ -980,13 +993,22 @@ tpchNormal=common_env.Alias('tpchNormal', [
 reddit=common_env.Alias('reddit', [
   'libraries/libRedditComment.so',
   'libraries/libRedditAuthor.so',
+  'libraries/libRedditSub.so',
   'libraries/libRedditFeatures.so',
+  'libraries/libRedditFullFeatures.so',
   'libraries/libRedditJoin.so',
+  'libraries/libRedditThreeWayJoin.so',
+  'libraries/libRedditSubsAndComments.so',
+  'libraries/libRedditJoinSubsAndComments.so',
   'bin/loadRedditComments',
   'bin/loadRedditAuthors',
+  'bin/loadRedditSubs',
   'bin/testRedditAuthors',
   'bin/testScanAuthors',
-  'bin/testRedditJoin'
+  'bin/testScanSubs',
+  'bin/testRedditJoin',
+  'bin/testRedditThreeWayJoin',
+  'bin/testRedditJoinSubsAndComments'
 ])
 
 tpch=common_env.Alias('tpch', [

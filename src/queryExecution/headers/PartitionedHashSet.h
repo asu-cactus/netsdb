@@ -26,6 +26,11 @@ private:
     // the set of partition pages
     std::vector<void*> partitionPages;
 
+    // the status of partition pages
+    // false: the page of the partition hasn't been returned to application by getPage()
+    // true: the page of the partition has been returned to application through invoking getPage()
+    std::vector<bool> partitionStatus; 
+
     // the size of each partition page
     size_t pageSize;
 
@@ -38,6 +43,7 @@ private:
 public:
     // constructor
     PartitionedHashSet(std::string myName, size_t pageSize) {
+        std::cout << "PartitionedHashSet initialized to have pageSize=" << pageSize << std::endl;
         this->setName = myName;
         this->pageSize = pageSize;
         this->isCleaned = false;
@@ -68,15 +74,24 @@ public:
     }
 
     // get page for a particular partition
-    void* getPage(unsigned int partitionId) {
+    void* getPage(unsigned int partitionId, bool anyway=false) {
         void* retPtr = nullptr;
         pthread_mutex_lock(&myMutex);
         if (partitionId < partitionPages.size()) {
-            retPtr = partitionPages[partitionId];
+            if ((partitionStatus[partitionId] == true)&&(anyway == false)) {
+                std::cerr << "Attempting to request for a new partition-"<< partitionId << 
+                        " page, which indicates that the hash page size is not big enough" << std::endl;
+                return nullptr;
+            } else {
+                retPtr = partitionPages[partitionId];
+                partitionStatus[partitionId] = true;
+            }
         }
         pthread_mutex_unlock(&myMutex);
         return retPtr;
     }
+
+
 
     // get number of pages
     size_t getNumPages() {
@@ -93,6 +108,7 @@ public:
         if (block != nullptr) {
             pthread_mutex_lock(&myMutex);
             partitionPages.push_back(block);
+            partitionStatus.push_back(false);
             pthread_mutex_unlock(&myMutex);
         }
         return block;

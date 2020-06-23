@@ -276,6 +276,9 @@ public:
     // copies a column from another TupleSet, deleting the target, if necessary
     void copyColumn(TupleSetPtr fromMe, int whichColInFromMe, int whichColToCopyTo) {
 
+        if (fromMe == nullptr)
+             return;
+
         // kill the old one so we don't have a memory leak
         if (hasColumn(whichColToCopyTo)) {
 

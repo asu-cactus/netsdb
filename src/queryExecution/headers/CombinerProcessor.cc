@@ -15,7 +15,7 @@ CombinerProcessor<KeyType, ValueType>::CombinerProcessor(std::vector<HashPartiti
 
     int i;
     for (i = 0; i < partitions.size(); i++) {
-        PDB_COUT << i << ":" << partitions[i] << std::endl;
+        std::cout << i << ":" << partitions[i] << std::endl;
         nodePartitionIds.push_back(partitions[i]);
     }
     count = 0;
@@ -47,7 +47,7 @@ void CombinerProcessor<KeyType, ValueType>::loadInputPage(void* pageToProcess) {
     if (end != nullptr) {
         delete end;
     }
-    PDB_COUT << "CombinerProcessor: loaded a page with first partition id=" << curPartId
+    std::cout << "CombinerProcessor: loaded a page with first partition id=" << curPartId
              << " and size=" << curMap->size() << std::endl;
     begin = new PDBMapIterator<KeyType, ValueType>(curMap->getArray(), true);
     end = new PDBMapIterator<KeyType, ValueType>(curMap->getArray());
@@ -64,11 +64,11 @@ void CombinerProcessor<KeyType, ValueType>::loadOutputPage(void* pageToWriteTo,
         makeObject<Vector<Handle<AggregationMap<KeyType, ValueType>>>>(this->numNodePartitions);
     int i;
     for (i = 0; i < numNodePartitions; i++) {
-        PDB_COUT << "to create the " << i << "-th partition on this node" << std::endl;
+        std::cout << "to create the " << i << "-th partition on this node" << std::endl;
         Handle<AggregationMap<KeyType, ValueType>> currentMap =
             makeObject<AggregationMap<KeyType, ValueType>>();
         HashPartitionID currentPartitionId = nodePartitionIds[i];
-        PDB_COUT << "currentPartitionId=" << currentPartitionId << std::endl;
+        std::cout << "currentPartitionId=" << currentPartitionId << std::endl;
         // however we only use the relative/local hash partition id
         currentMap->setHashPartitionId(i);
         outputData->push_back(currentMap);
@@ -82,8 +82,8 @@ bool CombinerProcessor<KeyType, ValueType>::fillNextOutputPage() {
     // if we are finalized, see if there are some left over records
     if (finalized) {
         for (int i = 0; i < numNodePartitions; i++) {
-            PDB_COUT << "outputData[" << i << "].size()=" << (*outputData)[i]->size() << std::endl;
-            PDB_COUT << "count=" << count << std::endl;
+            std::cout << "outputData[" << i << "].size()=" << (*outputData)[i]->size() << std::endl;
+            std::cout << "count=" << count << std::endl;
         }
 
         getRecord(outputData);
@@ -99,11 +99,11 @@ bool CombinerProcessor<KeyType, ValueType>::fillNextOutputPage() {
             if (!((*begin) != (*end))) {
                 if (curPartPos < numNodePartitions - 1) {
                     curPartPos++;
-                    PDB_COUT << "curPartPos=" << curPartPos << std::endl;
+                    std::cout << "curPartPos=" << curPartPos << std::endl;
                     curPartId = nodePartitionIds[curPartPos];
-                    PDB_COUT << "curPartId=" << curPartId << std::endl;
+                    std::cout << "curPartId=" << curPartId << std::endl;
                     curMap = (*inputData)[curPartId];
-                    PDB_COUT << "(*inputData)[" << curPartId << "].size()=" << curMap->size()
+                    std::cout << "(*inputData)[" << curPartId << "].size()=" << curMap->size()
                              << std::endl;
                     if (curMap->size() > 0) {
                         begin = new PDBMapIterator<KeyType, ValueType>(curMap->getArray(), true);
@@ -112,7 +112,7 @@ bool CombinerProcessor<KeyType, ValueType>::fillNextOutputPage() {
                         if ((*begin) != (*end)) {
                             curOutputMap = (*outputData)[curPartPos];
                         } else {
-                            PDB_COUT << "this is strage: map size > 0 but begin == end"
+                            std::cout << "this is strage: map size > 0 but begin == end"
                                      << std::endl;
                             continue;
                         }
@@ -176,7 +176,7 @@ bool CombinerProcessor<KeyType, ValueType>::fillNextOutputPage() {
 
     } catch (NotEnoughSpace& n) {
         for (int i = 0; i < numNodePartitions; i++) {
-            PDB_COUT << "outputData[" << i << "].size()=" << (*outputData)[i]->size() << std::endl;
+            std::cout << "outputData[" << i << "].size()=" << (*outputData)[i]->size() << std::endl;
         }
         getRecord(outputData);
         return true;

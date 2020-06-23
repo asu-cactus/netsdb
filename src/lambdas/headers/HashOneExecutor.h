@@ -59,7 +59,7 @@ public:
 
     TupleSetPtr process(TupleSetPtr input) override {
 
-
+        if (input == nullptr) return nullptr;
         // set up the output tuple set
         myMachine.setup(input, output);
 

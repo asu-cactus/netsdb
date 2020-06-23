@@ -371,7 +371,7 @@ private:
     /**
      * Using direct I/O or not
      */
-    bool usingDirect;
+    bool usingDirect = false;
 
     /**
      * whether the file is cleared

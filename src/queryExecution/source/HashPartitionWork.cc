@@ -98,8 +98,12 @@ void HashPartitionWork :: execute(PDBBuzzerPtr callerBuzzer) {
             if (record != nullptr) {
                 Handle<Vector<Handle<Vector<Handle<Object>>>>> objectsToShuffle =
                     record->getRootObject();
+                if (objectsToShuffle != nullptr) {
+                     std::cout << "number of vectors for " << id << ": " << objectsToShuffle->size() << std::endl;
+                }
                 Handle<Vector<Handle<Object>>>& objectToShuffle = (*objectsToShuffle)[id];
                 Vector<Handle<Object>>& theOtherMaps = *objectToShuffle;
+                std::cout << "number of sub vectors: " << theOtherMaps.size() << std::endl; 
                 for (unsigned int i = 0; i < theOtherMaps.size(); i++) {
                     if (theOtherMaps[i] != nullptr) {
                         bool success = shuffler->writeOut(theOtherMaps[i], myMaps);
@@ -162,6 +166,7 @@ void HashPartitionWork :: execute(PDBBuzzerPtr callerBuzzer) {
         }  // if
     }      // while
     // send out the page
+    numPages++;
     if (myMaps != nullptr) {
         getRecord(myMaps);
         Record<Object>* myRecord = (Record<Object>*)output;

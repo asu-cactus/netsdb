@@ -597,6 +597,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                                                                  std::string dbName = sinkSetIdentifier->getDatabase();
                                                                  std::string setName = sinkSetIdentifier->getSetName();
                                                                  hashSetName = dbName + ":" + setName;
+                                                                 std::cout << "hashSetSize is tuned to" << this->conf->getHashPageSize() << std::endl;
                                                                  aggregationSet =
                                                                      make_shared<PartitionedHashSet>(hashSetName, this->conf->getHashPageSize());
                                                                  this->addHashSet(hashSetName, aggregationSet);
@@ -1054,6 +1055,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
         size_t hashSetSize = (double) (conf->getShufflePageSize()) *
             (double) (numPages) * sizeRatio / (double) (numPartitions);
         // create hash set
+        std::cout << "hashSetSize is tuned to" << hashSetSize << std::endl;
         std::string hashSetName = request->getHashSetName();
         PartitionedHashSetPtr partitionedSet = make_shared<PartitionedHashSet>(hashSetName, hashSetSize);
         this->addHashSet(hashSetName, partitionedSet);
@@ -1116,7 +1118,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
             // start threads
             PDBWorkPtr myWork = make_shared<GenericWork>([&, i](PDBBuzzerPtr callerBuzzer) {
             pthread_mutex_lock(&connection_mutex);
-            SinkMergerPtr merger = myComputePlan->getPartitionedMerger(i,
+            SinkMergerPtr merger = myComputePlan->getPartitionedMerger((this->nodeId*numPartitions)+i,
                                                         sourceTupleSetSpecifier,
                                                         targetTupleSetSpecifier,
                                                         targetComputationSpecifier);
@@ -1131,7 +1133,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
             std::string errMsg;
 
             // make allocator block and allocate the JoinMap
-            const UseTemporaryAllocationBlock tempBlock(partitionedSet->getPage(i),
+            const UseTemporaryAllocationBlock tempBlock(partitionedSet->getPage(i, true),
                                                         hashSetSize);
 #ifdef PROFILING
             std::string out = getAllocator().printInactiveBlocks();
@@ -1141,7 +1143,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                 << std::endl;
             std::cout << out << std::endl;
 #endif
-            PDB_COUT << "hashSetSize = " << hashSetSize << std::endl;
+            std::cout << "hashSetSize = " << hashSetSize << std::endl;
             getAllocator().setPolicy(AllocatorPolicy::noReuseAllocator);
             Handle<Object> myMap = merger->createNewOutputContainer();
 
@@ -1172,11 +1174,11 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                   }
 
                 } else {
-                  PDB_COUT << "####Scanner got a null page" << std::endl;
+                    std::cout << "####Scanner got a null page" << std::endl;
                 }
               }
             }
-            PDB_COUT << "To get record" << std::endl;
+            std::cout << "To get record" << std::endl;
             getRecord(myMap);
             int numHashKeysInCurPartition = merger->getNumHashKeys();
             pthread_mutex_lock(&connection_mutex);
@@ -1197,7 +1199,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
           worker->execute(myWork, hashBuzzer);
 
         }  // for
-
+        std::cout << "numHashKeys in total is " << numHashKeys << std::endl;
         // get input set and start a one thread scanner to scan that input set, and put the
         // pointer to pages to each of the queues
         // start single-thread scanner

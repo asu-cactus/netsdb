@@ -41,6 +41,7 @@ public:
         // we create a node-partitioned map to store the output
         Handle<Vector<Handle<Map<KeyType, ValueType>>>> returnVal =
             makeObject<Vector<Handle<Map<KeyType, ValueType>>>>(numPartitions);
+        std::cout << "ShuffleSink initialized with " << numPartitions << " partitions" << std::endl;
         int i;
         for (i = 0; i < numPartitions; i++) {
             Handle<Map<KeyType, ValueType>> curMap = makeObject<Map<KeyType, ValueType>>();
@@ -50,6 +51,9 @@ public:
     }
 
     void writeOut(TupleSetPtr input, Handle<Object>& writeToMe) override {
+
+
+        if (input == nullptr) return;
 
         // get the map we are adding to
         Handle<Vector<Handle<Map<KeyType, ValueType>>>> writeMe =
@@ -72,6 +76,7 @@ public:
             Map<KeyType, ValueType>& myMap =
                 *((*writeMe)[(hashVal / numPartitions) % numPartitions]);
 #endif
+            //std::cout << "hashVal=" << hashVal << ", index=" << (hashVal / numPartitions) % numPartitions << "myMap.size=" << myMap.size()<< std::endl;
             // if this key is not already there...
             if (myMap.count(keyColumn[i]) == 0) {
 

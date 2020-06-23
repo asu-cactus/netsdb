@@ -29,6 +29,11 @@ public:
   float& getValue() {
     return rank;
   }
+
+  size_t hash() const {
+    return url;
+  }
+
 };
 
 }

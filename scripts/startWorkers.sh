@@ -39,6 +39,7 @@ length=${#arr[@]}
 echo "There are $length servers"
 for (( i=0 ; i<=$length ; i++ ))
 do
+        
         ip_addr=${arr[i]}
         if [ ${#ip_addr} -gt "$ip_len_valid" ]
         then
@@ -46,7 +47,7 @@ do
                 ssh -i $pem_file $user@$ip_addr "sudo apt-get update"
                 ssh -i $pem_file $user@$ip_addr "sudo apt-get install libsnappy1v5 libsnappy-dev libeigen3-dev libgsl-dev"
                 echo -e "\n+++++++++++ start server: $ip_addr"
-                ssh -i $pem_file $PDB_SSH_OPTS $user@$ip_addr "cd $pdb_dir;  scripts/startWorker.sh $numThreads $sharedMem $masterIp $ip_addr &" &
+                ssh -i $pem_file $PDB_SSH_OPTS $user@$ip_addr "cd $pdb_dir;  scripts/startWorker.sh $i  $numThreads $sharedMem $masterIp $ip_addr &" &
                 sleep $PDB_SSH_SLEEP
                 ssh -i $pem_file $user@$ip_addr $pdb_dir/scripts/checkProcess.sh pdb-server
                 

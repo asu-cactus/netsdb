@@ -30,6 +30,11 @@ public:
 
   // the neighbors of the url
   Handle<Vector<int>> neighbors;
+
+  size_t hash() const {
+        return url;
+  }
+
 };
 
 }

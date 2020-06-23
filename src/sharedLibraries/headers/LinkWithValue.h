@@ -20,6 +20,12 @@ class LinkWithValue : public pdb::Object {
 
   // the value
   float rank = 0.0f;
+
+
+  size_t hash() const {
+     return url;
+  }
+
 };
 
 }

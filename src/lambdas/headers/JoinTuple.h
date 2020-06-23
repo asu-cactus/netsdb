@@ -324,7 +324,7 @@ public:
 
         // extract the hash table we've been given
         for (int i = 0; i < partitionedHashTable->getNumPages(); i++) {
-           void * hashTable = partitionedHashTable->getPage(i);
+           void * hashTable = partitionedHashTable->getPage(i, true);
            Record<JoinMap<RHSType>> * input = (Record<JoinMap<RHSType>>*)hashTable;
            Handle<JoinMap<RHSType>> inputTable = input->getRootObject();
            inputTables.push_back(inputTable);
@@ -449,11 +449,19 @@ public:
 
         // extract the hash table we've been given
         Record<JoinMap<RHSType>>* input = (Record<JoinMap<RHSType>>*)hashTable;
-        inputTable = input->getRootObject();
+        if (input == nullptr) {
+            inputTable = nullptr;
+        } else {
+            inputTable = input->getRootObject();
+        }
         //std::cout << "inputTable->size()=" << inputTable->size() << std::endl;
         // set up the output tuple
         output = std::make_shared<TupleSet>();
         columns = new void*[positions.size()];
+        if (columns == nullptr) { 
+            std::cout << "Error: No memory on heap, thrown from JoinProbe constructor" << std::endl;
+            exit(1);
+        }
         if (needToSwapLHSAndRhs) {
             offset = positions.size();
             createCols<RHSType>(columns, *output, 0, 0, positions);
@@ -473,7 +481,9 @@ public:
     }
 
     TupleSetPtr process(TupleSetPtr input) override {
-
+        if (inputTable == nullptr) {
+            return nullptr;
+        }
         //std::cout << "whichAtt = " << whichAtt << std::endl;
         std::vector<size_t> inputHash = input->getColumn<size_t>(whichAtt);
         //std::cout << "inputHash.size()=" << inputHash.size() << std::endl;
@@ -556,7 +566,7 @@ public:
             JoinRecordList<RHSType>* myList = *iter;
             size_t mySize = myList->size();
             size_t myHash = myList->getHash();
-            
+                  
             if (mySize > 0) {
                 this->numHashKeys = this->numHashKeys + 1;
                 for (size_t i = 0; i < mySize; i++) {
@@ -588,12 +598,14 @@ public:
         for (int i = 0; i < theOtherMaps.size(); i++) {
             JoinMap<RHSType>& theOtherMap = *(theOtherMaps[i]);
             if (theOtherMap.getPartitionId() != partitionId) {
+                //std::cout << "my Id is "<<partitionId <<", theOtherMap.getPartitionId()=" << theOtherMap.getPartitionId() << std::endl;
                 continue;
             }
             for (JoinMapIterator<RHSType> iter = theOtherMap.begin(); iter != theOtherMap.end();
                  ++iter) {
                 JoinRecordList<RHSType>* myList = *iter;
                 size_t mySize = myList->size();
+                //std::cout << partitionId << ": " << mySize << std::endl;
                 size_t myHash = myList->getHash();
                 if (mySize > 0) {
                     this->numHashKeys = this->numHashKeys + 1;
@@ -1092,7 +1104,7 @@ public:
     }
 
     void writeOut(TupleSetPtr input, Handle<Object>& writeToMe) override {
-        PDB_COUT << "PartitionedJoinSink: write out tuples in this tuple set" << std::endl;
+        //std::cout << "PartitionedJoinSink: write out tuples in this tuple set" << std::endl;
         // get the map we are adding to
         Handle<Vector<Handle<Vector<Handle<JoinMap<RHSType>>>>>> writeMe =
             unsafeCast<Vector<Handle<Vector<Handle<JoinMap<RHSType>>>>>>(writeToMe);
@@ -1123,6 +1135,8 @@ public:
             size_t nodeIndex = index / this->numPartitionsPerNode;
             size_t partitionIndex = index % this->numPartitionsPerNode;
             JoinMap<RHSType>& myMap = *((*((*writeMe)[nodeIndex]))[partitionIndex]);
+            //std::cout << "nodeIndex=" << nodeIndex << ", partitionIndex=" <<partitionIndex 
+                   //   << ", myMap.size="<<myMap.size()<<std::endl;
             // try to add the key... this will cause an allocation for a new key/val pair
             if (myMap.count(keyColumn[i]) == 0) {
                 try {
@@ -1138,6 +1152,7 @@ public:
                     myMap.setUnused(keyColumn[i]);
                     truncate<RHSType>(i, 0, columns);
                     keyColumn.erase(keyColumn.begin(), keyColumn.begin() + i);
+                    std::cout << "remove " << i << " from " << length << std::endl;
                     throw n;
                 }
 
@@ -1153,8 +1168,10 @@ public:
                 } catch (NotEnoughSpace& n) {
 
                     std::cout << "2: we are running out of space in writing join sink with nodeIndex=" << nodeIndex << ", hash=" << keyColumn[i] << ", partitionIndex=" << partitionIndex << std::endl;
+                    myMap.setUnused(keyColumn[i]);
                     truncate<RHSType>(i, 0, columns);
                     keyColumn.erase(keyColumn.begin(), keyColumn.begin() + i);
+                    std::cout << "remove " << i << " from " << length << std::endl;
                     throw n;
                 }
 
@@ -1169,6 +1186,7 @@ public:
                     myMap.setUnused(keyColumn[i]);
                     truncate<RHSType>(i, 0, columns);
                     keyColumn.erase(keyColumn.begin(), keyColumn.begin() + i);
+                    std::cout << "remove " << i << " from " << length << std::endl;
                     throw n;
                 }
             }
@@ -1268,6 +1286,7 @@ public:
                     truncate<RHSType>(i, 0, columns);
                     keyColumn.erase(keyColumn.begin(), keyColumn.begin() + i);
                     std::cout << "remove " << i << " from " << length << std::endl;
+                    std::cout << "JoinMap overflows the page with " << myMap.size() << " elements" << std::endl;
                     throw n;
                 }
 
@@ -1282,10 +1301,11 @@ public:
 
                     // an exception means that we couldn't complete the addition
                 } catch (NotEnoughSpace& n) {
-
+                    myMap.setUnused(keyColumn[i]);
                     truncate<RHSType>(i, 0, columns);
                     keyColumn.erase(keyColumn.begin(), keyColumn.begin() + i);
                     std::cout << "remove " << i << " from " << length << std::endl;
+                    std::cout << "JoinMap overflows the page with " << myMap.size() << " elements" << std::endl;
                     throw n;
                 }
 
@@ -1300,6 +1320,7 @@ public:
                     truncate<RHSType>(i, 0, columns);
                     keyColumn.erase(keyColumn.begin(), keyColumn.begin() + i);
                     std::cout << "remove " << i << " from " << length << std::endl;
+                    std::cout << "JoinMap overflows the page with " << myMap.size() << " elements" << std::endl;
                     throw n;
                 }
             }
@@ -1449,7 +1470,7 @@ typedef std::shared_ptr<JoinTupleSingleton> JoinTuplePtr;
 
 inline int findType(std::string& findMe, std::vector<std::string>& typeList) {
     for (int i = 0; i < typeList.size(); i++) {
-        std::cout << "typeList[" << i << "]=" << typeList[i] << std::endl;
+        //std::cout << "typeList[" << i << "]=" << typeList[i] << std::endl;
         if (typeList[i] == findMe) {
             typeList[i] = std::string("");
             return i;
@@ -1480,17 +1501,17 @@ typename std::enable_if<!std::is_base_of<JoinTupleBase, In1>::value, JoinTuplePt
 findCorrectJoinTuple(std::vector<std::string>& typeList, std::vector<int>& whereEveryoneGoes) {
 
     // we must always have one type...
-    std::cout << "to find correct join tuple" << std::endl;
+    //std::cout << "to find correct join tuple" << std::endl;
     JoinTuplePtr returnVal;
     std::string in1Name = getTypeName<Handle<In1>>();
-    std::cout << "in1Name is " << in1Name << std::endl;
-    std::cout << "to find type for " << in1Name << std::endl; 
+    //std::cout << "in1Name is " << in1Name << std::endl;
+    //std::cout << "to find type for " << in1Name << std::endl; 
     int in1Pos = findType(in1Name, typeList);
-    std::cout << "in1Pos is " << in1Pos << std::endl;
+    //std::cout << "in1Pos is " << in1Pos << std::endl;
     if (in1Pos != -1) {
         whereEveryoneGoes.push_back(in1Pos);
         typeList[in1Pos] = in1Name;
-        std::cout << "typeList[" << in1Pos << "]=" << in1Name << std::endl;
+        //std::cout << "typeList[" << in1Pos << "]=" << in1Name << std::endl;
         return std::make_shared<JoinSingleton<JoinTuple<In1, char[0]>>>();
     } else {
         std::cout << "Why did we not find a type?\n";
