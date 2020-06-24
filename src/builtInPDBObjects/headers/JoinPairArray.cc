@@ -200,7 +200,8 @@ void JoinPairArray<ValueType>::setUnused(const size_t& me) {
 
     // we should never reach here
     std::cout << "Fatal Error: Ran off the end of the hash table!!\n";
-    exit(1);
+    //exit(1);
+    return;
 }
 
 template <class ValueType>
@@ -232,7 +233,7 @@ JoinRecordList<ValueType> JoinPairArray<ValueType>::lookup(const size_t& me) {
     }
 
     // we should never reach here
-    std::cout << "Fatal Error: Ran off the end of the hash table!!\n";
+    std::cout << "Fatal Error: Ran off the end of the hash table!! "<< me << "hashVal="<< hashVal <<"\n";
     exit(1);
 }
 
@@ -438,6 +439,8 @@ size_t JoinRecordList<ValueType>::getHash() {
 
 template <class ValueType>
 size_t JoinRecordList<ValueType>::size() {
+
+    if (whichOne == 0) return 0;
 
     // in the case where this guy is not in the list, we return a zero
     uint32_t objSize = parent.objSize;

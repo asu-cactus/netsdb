@@ -672,8 +672,10 @@ void PipelineStage::executePipelineWork(int i,
                 }
 
             } else {
-                free((char*)page - (sizeof(NodeID) + sizeof(DatabaseID) + sizeof(UserTypeID) +
+                if (!this->jobStage->isLocalJoinSink()) {
+                    free((char*)page - (sizeof(NodeID) + sizeof(DatabaseID) + sizeof(UserTypeID) +
                                     sizeof(SetID) + sizeof(PageID) + sizeof(int) + sizeof(size_t)));
+                }
             }
         },
 
@@ -1012,6 +1014,7 @@ void PipelineStage::runPipeline(HermesExecutionServer* server,
         std::cout << "hashSetSize for local join sink is " << hashSetSize << std::endl; 
         partitionedSetForSink = make_shared<PartitionedHashSet>(hashSetName, hashSetSize);
         server->addHashSet(hashSetName, partitionedSetForSink);
+        std::cout << "add hashSet for local join sink " << hashSetName << std::endl;
         for (int i = 0; i < numSourceThreads; i++) {
             if (partitionedSetForSink->addPage() == nullptr) {
                 std::cout << "insufficient memory when allocating the " << i << "-th map" << std::endl;
@@ -1182,6 +1185,9 @@ void PipelineStage::runPipelineWithShuffleSink(HermesExecutionServer* server) {
                   << std::endl;
         tunedHashPageSize = conf->getHashPageSize();
     }
+    if (tunedHashPageSize > (size_t)(1024)*(size_t)(1024)*(size_t)(1024)) {
+            tunedHashPageSize = (size_t)(1024)*(size_t)(1024)*(size_t)(1024);
+        }
 
     std::cout << "Tuned combiner page size is " << tunedHashPageSize << std::endl;
     conf->setHashPageSize(tunedHashPageSize);

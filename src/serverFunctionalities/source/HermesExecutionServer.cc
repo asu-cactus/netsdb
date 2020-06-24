@@ -354,6 +354,10 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                 "we reduce hash set size."
                       << std::endl;
           }
+          if (hashSetSize > (size_t)(1024)*(size_t)(1024)*(size_t)(1024)) {
+              hashSetSize = (size_t)(1024)*(size_t)(1024)*(size_t)(1024);
+          }
+
 #endif
           std::cout << "BroadcastJoinBuildHTJobStage: tuned hashSetSize to be " << hashSetSize
                     << std::endl;
@@ -373,6 +377,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
           return make_pair(success, errMsg);
         }
         this->addHashSet(request->getHashSetName(), sharedHashSet);
+        std::cout << "added shared hash set " << request->getHashSetName() << std::endl;
         std::cout << "BroadcastJoinBuildHTJobStage: hashSetName=" << request->getHashSetName()
                   << std::endl;
         // tune backend circular buffer size
@@ -601,6 +606,8 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                                                                  aggregationSet =
                                                                      make_shared<PartitionedHashSet>(hashSetName, this->conf->getHashPageSize());
                                                                  this->addHashSet(hashSetName, aggregationSet);
+                                                                 std::cout << "Added hash set for aggregation"<< hashSetName << std::endl;
+                                                                 
                                                                }
 
                                                                int numHashKeys = 0;
@@ -1059,7 +1066,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
         std::string hashSetName = request->getHashSetName();
         PartitionedHashSetPtr partitionedSet = make_shared<PartitionedHashSet>(hashSetName, hashSetSize);
         this->addHashSet(hashSetName, partitionedSet);
-        std::cout << "Added hash set for HashPartitionedJoin to probe" << std::endl;
+        std::cout << "Added hash set for HashPartitionedJoin to probe " << hashSetName << std::endl;
         for (int i = 0; i < numPartitions; i++) {
           void *bytes = partitionedSet->addPage();
           if (bytes == nullptr) {
@@ -1391,6 +1398,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
             if (hashSet != nullptr) {
               hashSet->cleanup();
               this->removeHashSet(hashSetName);
+              std::cout << "removed hash set " << hashSetName << std::endl;
             } else {
               std::cout << "Can't remove hash set " << hashSetName
                         << ": set doesn't exist" << std::endl;
@@ -1411,6 +1419,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                 if (hashSet != nullptr) {
                   hashSet->cleanup();
                   this->removeHashSet(hashSetName);
+                  std::cout << "removed hash set " << hashSetName << std::endl;
                 } else {
                   std::cout << "Can't remove hash set " << hashSetName
                             << ": set doesn't exist" << std::endl;
@@ -1447,6 +1456,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
         if (hashSet != nullptr) {
           hashSet->cleanup();
           this->removeHashSet(hashSetName);
+          std::cout << "removed hash set " << hashSetName << std::endl;
         } else {
           errMsg = std::string("Can't remove hash set ") + hashSetName +
               std::string(": set doesn't exist");
