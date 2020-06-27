@@ -963,7 +963,7 @@ bool TCAPAnalyzer::analyze(
 
               std::string outputName = joinNode->getOutputName();
               std::string partitionedHashSetToProbe = (*hashSetsToProbe)[outputName];
-              (*hashSetsToProbe)[outputName] = ":"+partitionedHashSetToProbe;
+              (*hashSetsToProbe)[outputName] = partitionedHashSetToProbe;
 
               buildTheseTupleSets.push_back(curNode->getOutputName());
               outputForJoinSets.push_back(outputName);

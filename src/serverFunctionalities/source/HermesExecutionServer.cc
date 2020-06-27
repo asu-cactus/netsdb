@@ -563,8 +563,12 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                                                                if (memSize * ((size_t) (1024)) <
                                                                    sharedMemPoolSize + (size_t) 512 * (size_t) 1024 * (size_t) 1024) {
                                                                  std::cout << "WARNING: Auto tuning can not work, use default values" << std::endl;
-                                                                 tunedHashPageSize = conf->getHashPageSize();
+                                                                 tunedHashPageSize = (size_t) 1024 * (size_t) 1024 * (size_t) 1024;
                                                                }
+
+                                                               if (tunedHashPageSize > (size_t) 1024 * (size_t) 1024 * (size_t) 1024){
+                                                                  tunedHashPageSize = (size_t) 1024 * (size_t) 1024 * (size_t) 1024;
+                                                               }  
                                                                std::cout << "Tuned hash page size is " << tunedHashPageSize << std::endl;
                                                                conf->setHashPageSize(tunedHashPageSize);
 #endif
@@ -1062,6 +1066,9 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
         size_t hashSetSize = (double) (conf->getShufflePageSize()) *
             (double) (numPages) * sizeRatio / (double) (numPartitions);
         // create hash set
+        if (hashSetSize > (size_t)(1024)*(size_t)(1024)*(size_t)(1024)) {
+            hashSetSize = (size_t)(1024)*(size_t)(1024)*(size_t)(1024);
+        }
         std::cout << "hashSetSize is tuned to" << hashSetSize << std::endl;
         std::string hashSetName = request->getHashSetName();
         PartitionedHashSetPtr partitionedSet = make_shared<PartitionedHashSet>(hashSetName, hashSetSize);
@@ -1392,6 +1399,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
           }
           if ((sourceContext->isAggregationResult() == true) &&
               (sourceContext->getSetType() == PartitionedHashSetType)) {
+              std::cout << "to remove hash set for aggregation result" << std::endl;
             std::string hashSetName =
                 sourceContext->getDatabase() + ":" + sourceContext->getSetName();
             AbstractHashSetPtr hashSet = this->getHashSet(hashSetName);
@@ -1407,6 +1415,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
 
           // if this stage scans hash tables we need remove those hash tables
           if (request->isProbing() == true) {
+            std::cout << "to remove hash set for probing stage" << std::endl;
             Handle<Map<String, String>> hashTables = request->getHashSets();
             if (hashTables != nullptr) {
               for (PDBMapIterator<String, String> mapIter = hashTables->begin();

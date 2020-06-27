@@ -48,7 +48,7 @@ elif  common_env['PLATFORM'] == 'posix':
     common_env.Replace(CXX = "clang++")
 
 #common_env.Append(CCFLAGS='-DDEBUG_VTABLE_FIXING')
-common_env.Append(CCFLAGS='-DUSE_VALGRIND')
+#common_env.Append(CCFLAGS='-DUSE_VALGRIND')
 common_env.Append(CCFLAGS='-DINITIALIZE_ALLOCATOR_BLOCK')
 #common_env.Append(CCFLAGS='-DENABLE_SHALLOW_COPY')
 common_env.Append(CCFLAGS='-DDEFAULT_BATCH_SIZE=8')

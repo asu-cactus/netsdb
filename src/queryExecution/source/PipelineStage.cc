@@ -1007,6 +1007,8 @@ void PipelineStage::runPipeline(HermesExecutionServer* server,
     if (this->jobStage->isLocalJoinSink()) {
 
         std::string hashSetName = this->jobStage->getSinkContext()->getDatabase()+":"+this->jobStage->getSinkContext()->getSetName();
+        std::cout << "num input pages: " << this->jobStage->getSourceContext()->getNumPages() << std::endl;
+        std::cout << "page size: "<< this->jobStage->getSourceContext()->getPageSize() << std::endl;
         size_t hashSetSize = ((size_t)(this->jobStage->getSourceContext()->getNumPages())) * this->jobStage->getSourceContext()->getPageSize() * 3;
         if (hashSetSize > (size_t)(1024)*(size_t)(1024)*(size_t)(1024)) {
             hashSetSize = (size_t)(1024)*(size_t)(1024)*(size_t)(1024);
@@ -1170,15 +1172,20 @@ void PipelineStage::runPipelineWithShuffleSink(HermesExecutionServer* server) {
 #ifdef AUTO_TUNING
     size_t memSize = jobStage->getTotalMemoryOnThisNode();
     size_t sharedMemPoolSize = conf->getShmSize();
+    size_t hashSetSize = server->getHashSetsSize();
+    std::cout << std::dec << "memSize is " << memSize << std::endl;
+    std::cout << std::dec << "sharedMemPoolSize is " << sharedMemPoolSize << std::endl;
+    std::cout << std::dec << "hashSetSize is " << hashSetSize << std::endl;
 #ifndef USE_VALGRIND
     size_t tunedHashPageSize =
-        (double)(memSize * ((size_t)(1024)) - sharedMemPoolSize - server->getHashSetsSize()) *
-        (0.8) / (double)(numNodes);
+        (double)((memSize * ((size_t)(1024)) - sharedMemPoolSize - server->getHashSetsSize())/(size_t)(numNodes)) *
+        (0.8);
 #else
     size_t tunedHashPageSize =
-        (double)(memSize * ((size_t)(1024)) - sharedMemPoolSize - server->getHashSetsSize()) *
-        (0.5) / (double)(numNodes);
+        (double)((memSize * ((size_t)(1024)) - sharedMemPoolSize - server->getHashSetsSize())/(size_t)(numNodes)) *
+        (0.5);
 #endif
+    std::cout << std::dec << "Initially tuned combiner page size is " << tunedHashPageSize << std::endl;
     if (memSize * ((size_t)(1024)) <
         sharedMemPoolSize + (size_t)512 * (size_t)1024 * (size_t)1024) {
         std::cout << "WARNING: Auto tuning can not work for this case, we use default value"
@@ -1186,15 +1193,15 @@ void PipelineStage::runPipelineWithShuffleSink(HermesExecutionServer* server) {
         tunedHashPageSize = conf->getHashPageSize();
     }
     if (tunedHashPageSize > (size_t)(1024)*(size_t)(1024)*(size_t)(1024)) {
+            std::cout << "The auto tuned hash page size is bigger than 1G: " << tunedHashPageSize << std::endl;
             tunedHashPageSize = (size_t)(1024)*(size_t)(1024)*(size_t)(1024);
         }
 
     std::cout << "Tuned combiner page size is " << tunedHashPageSize << std::endl;
-    conf->setHashPageSize(tunedHashPageSize);
 #endif
 
 
-    size_t combinerPageSize = conf->getHashPageSize();
+    size_t combinerPageSize = tunedHashPageSize;
     // each queue has multiple producers and one consumer
     int combinerBufferSize = numThreads;
     if (combinerBufferSize > 12) {
@@ -1299,6 +1306,7 @@ void PipelineStage::runPipelineWithShuffleSink(HermesExecutionServer* server) {
             if (myCombinerPageSize > conf->getShufflePageSize() - 64) {
                 myCombinerPageSize = conf->getShufflePageSize() - 64;
             }
+            std::cout << "myCombinerPageSize is finally tuned into " << myCombinerPageSize << std::endl;
             void* combinerPage = (void*)calloc(myCombinerPageSize, sizeof(char));
             if (combinerPage == nullptr) {
                 std::cout << "Fatal Error: insufficient memory can be allocated from memory"

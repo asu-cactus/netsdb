@@ -57,12 +57,13 @@ public:
     // get total size
     size_t getTotalSize() {
         auto a = hashSets.begin();
-        size_t totalSize = 0;
+        size_t curSetSize = 0;
         while (a != hashSets.end()) {
-            totalSize += a->second->getSize();
+            curSetSize += a->second->getSize();
+            std::cout << "current hash set name: " << a->first << " and size: " << a->second->getSize() << std::endl;
             ++a;
         }
-        return totalSize;
+        return curSetSize;
     }
 };
 }

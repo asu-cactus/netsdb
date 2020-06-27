@@ -129,7 +129,7 @@ public:
 
     // get size
     size_t getSize() override {
-        return pageSize * partitionPages.size();
+        return pageSize * (size_t)(partitionPages.size());
     }
 };
 }

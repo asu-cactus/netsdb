@@ -69,16 +69,16 @@ void run(PDBClient &pdbClient, uint64_t numIter) {
     multiSelection->setInput(0, join1);
 
     // aggregate them
-    Handle<RankUpdateAggregation> agg = makeObject<RankUpdateAggregation>();
+    Handle<RankUpdateAggregation> agg = makeObject<RankUpdateAggregation>("db", "rankings_" + std::to_string(1 - (i % 2)));
     agg->setInput(multiSelection);
 
     // write it out
-    Handle<RankedUrlWriter> myWriteSet = makeObject<RankedUrlWriter>("db", "rankings_" + std::to_string(1 - (i % 2)));
-    myWriteSet->setInput(agg);
+    //Handle<RankedUrlWriter> myWriteSet = makeObject<RankedUrlWriter>("db", "rankings_" + std::to_string(1 - (i % 2)));
+    //myWriteSet->setInput(agg);
 
     // execute the computation
     auto begin = std::chrono::high_resolution_clock::now();
-    pdbClient.executeComputations(errMsg, "pageRankIteration_"+std::to_string(1 - (i % 2)), myWriteSet);
+    pdbClient.executeComputations(errMsg, "pageRankIteration_"+std::to_string(1 - (i % 2)), agg);
     auto end = std::chrono::high_resolution_clock::now();
           std::cout << "Time Duration for Run: "
               << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
