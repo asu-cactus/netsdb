@@ -146,7 +146,7 @@ by default, it is not defined, and it will run in background using nohup, which 
 
 
 
-# Self Learning
+# Run Lachesis to Automatically Partition Data Using Self-Learning
 
 ## Rule-based
 In SConstruct:
