@@ -1,5 +1,9 @@
 # Pangea - A Monolithic Distributed Storage for Big Data Analytics 
 
+## Credits
+
+Pangea is built on top of an earlier version of the open source project PlinyCompute (https://github.com/riceplinygroup/plinycompute).
+
 ## Building
 
 Requirements:  
