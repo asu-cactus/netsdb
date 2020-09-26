@@ -7,11 +7,17 @@ Lachesis++ is built on top of an earlier version of the open source project Plin
 ## Current Status
 
 Unstable components that needs to be replaced and re-integrated:
+
 -- Intermediate Representation (Oct 30th)
+
 -- Frontend Scheduler (Oct 23th)
+
 -- Backend Scheduler (Oct 16th)
+
 -- Pipeline (Oct 9th)
+
 -- Lambda Templates (Oct 2nd) 
+
 -- Catalog (Sept 27th)
 
 
@@ -21,15 +27,22 @@ Bugs:
 Current LIBRARY_SIZE is set to 200MB.
 
 Solution 1. increase LIBRARY_SIZE in the file src/serverFunctionalities/source/CatalogServer.cc
+
 Solution 2. strip libraries
 
 
 Stable components:
+
 -- Programming Interface
+
 -- Compiler
+
 -- SelfLearning
+
 -- Pangea Storage
+
 -- Communication
+
 -- Object Model
 
 
