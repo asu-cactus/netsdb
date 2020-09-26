@@ -1,12 +1,14 @@
 # Lachesis++ - An AI-assisted Data Integration and UDF-Centric Analytics System
 
+(Under development)
+
 ## Credits
 
 Lachesis++ is built on top of an earlier version of the open source project PlinyCompute (https://github.com/riceplinygroup/plinycompute).
 
 ## Current Status
 
-Unstable components that needs to be replaced and re-integrated:
+### Unstable components that needs to be replaced and re-integrated:
 
 -- Intermediate Representation (Oct 30th)
 
@@ -21,7 +23,7 @@ Unstable components that needs to be replaced and re-integrated:
 -- Catalog (Sept 27th)
 
 
-Bugs:
+### Known Bugs:
 -- shared library size is too large, and throw errors such as: terminate called after throwing an instance of 'pdb::NotEnoughSpace'
   what():  Not enough free memory in current allocation block.
 Current LIBRARY_SIZE is set to 200MB.
@@ -31,7 +33,7 @@ Solution 1. increase LIBRARY_SIZE in the file src/serverFunctionalities/source/C
 Solution 2. strip libraries
 
 
-Stable components:
+### Stable components:
 
 -- Programming Interface
 
