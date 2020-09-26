@@ -1,8 +1,26 @@
-# Pangea - A Monolithic Distributed Storage for Big Data Analytics 
+# Lachesis++ - An AI-assisted Data Integration and UDF-Centric Analytics System
 
 ## Credits
 
-Pangea is built on top of an earlier version of the open source project PlinyCompute (https://github.com/riceplinygroup/plinycompute).
+Lachesis++ is built on top of an earlier version of the open source project PlinyCompute (https://github.com/riceplinygroup/plinycompute).
+
+## Current Status
+
+Unstable components that needs to be replaced and re-integrated:
+-- Intermediate Representation (Oct 30th)
+-- Frontend Scheduler (Oct 23th)
+-- Backend Scheduler (Oct 16th)
+-- Pipeline (Oct 9th)
+-- Lambda Templates (Oct 2nd) 
+
+Stable components:
+-- Programming Interface
+-- Compiler
+-- SelfLearning
+-- Pangea Storage
+-- Communication
+-- Object Model
+
 
 ## Building
 
