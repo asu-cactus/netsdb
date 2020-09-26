@@ -1,3 +1,4 @@
+#define LIBRARY_SIZE size_t(200)*size_t(1024)*size_t(1024)
 #include <chrono>
 #include <cstddef>
 #include <cstring>
@@ -329,7 +330,7 @@ void CatalogServer::registerHandlers(PDBServer &forMe) {
             res = sendUsingMe->sendObject(notFoundResponse, errMsg);
 
           } else {
-            const UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 150};
+            const UseTemporaryAllocationBlock tempBlock{LIBRARY_SIZE};
             // resolves typeName given the typeId
             typeName = allTypeCodes[typeId];
             PDB_COUT << "Resolved typeName " << typeName

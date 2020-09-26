@@ -46,7 +46,7 @@ try:
         for each_line in f:
             print bcolors.OKBLUE + "start a pdbServer at " + each_line + "as " + str(num) + "-th worker" + bcolors.ENDC
             num = num + 1
-            serverProcess = subprocess.Popen(['bin/pdb-server', threadNum, sharedMemorySize, 'localhost:8108', each_line])
+            serverProcess = subprocess.Popen(['bin/pdb-server', str(num), threadNum, sharedMemorySize, 'localhost:8108', each_line])
             print bcolors.OKBLUE + "waiting for 9 seconds for server to be fully started..." + bcolors.ENDC
             time.sleep(9)
 

@@ -12,6 +12,17 @@ Unstable components that needs to be replaced and re-integrated:
 -- Backend Scheduler (Oct 16th)
 -- Pipeline (Oct 9th)
 -- Lambda Templates (Oct 2nd) 
+-- Catalog (Sept 27th)
+
+
+Bugs:
+-- shared library size is too large, and throw errors such as: terminate called after throwing an instance of 'pdb::NotEnoughSpace'
+  what():  Not enough free memory in current allocation block.
+Current LIBRARY_SIZE is set to 200MB.
+
+Solution 1. increase LIBRARY_SIZE in the file src/serverFunctionalities/source/CatalogServer.cc
+Solution 2. strip libraries
+
 
 Stable components:
 -- Programming Interface
