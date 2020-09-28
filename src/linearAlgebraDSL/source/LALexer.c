@@ -934,7 +934,7 @@ YY_RULE_SETUP
 { 
                             yylval->doubleVal = atof(yytext);
                             if(LALEXPRINTFLAG){printf("double token! <%lf>\n", yylval->doubleVal);}
-                            return (DOUBLE);
+                            return (TOKEN_DOUBLE);
                           }
 	YY_BREAK
 case 18:
@@ -943,7 +943,7 @@ YY_RULE_SETUP
 { 
                             yylval->intVal = atoi( yytext );
                             if(LALEXPRINTFLAG){printf("integer token! <%d>\n",yylval->intVal);}
-                            return (INTEGER);
+                            return (TOKEN_INTEGER);
                           }
 	YY_BREAK
 case 19:
@@ -953,7 +953,7 @@ YY_RULE_SETUP
                             if(LALEXPRINTFLAG){printf("yytext: <%s>\n",yytext);}
                             yylval->stringVal = strdup (yytext);
                             if(LALEXPRINTFLAG){printf("identifier token! <%s>\n",yylval->stringVal);}
-                            return (IDENTIFIERLITERAL);
+                            return (TOKEN_IDENTIFIERLITERAL);
                           }
 	YY_BREAK
 case 20:
@@ -1014,7 +1014,7 @@ YY_RULE_SETUP
                             if(LALEXPRINTFLAG){printf("yytext: <%s>\n",yytext);}
                             yylval->stringVal = strdup (yytext);
                             if(LALEXPRINTFLAG){printf("stringLiteral token! <%s>\n",yylval->stringVal);}
-                            return (STRINGLITERAL);
+                            return (TOKEN_STRINGLITERAL);
                           }
 	YY_BREAK
 case 31:
