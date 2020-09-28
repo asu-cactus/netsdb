@@ -83,7 +83,6 @@ int main(int argc, char* argv[]) {
     string hostName = "";
     int portValue = 8108;
 
-    frontEnd.addFunctionality<pdb::SelfLearningServer>(conf, port);
     pdb::PDBLoggerPtr rlLogger = std::make_shared<pdb::PDBLogger>("rlClient.log");
     frontEnd.addFunctionality<pdb::ResourceManagerServer>(
         serverListFile, port, pseudoClusterMode, pemFile);
@@ -93,6 +92,7 @@ int main(int argc, char* argv[]) {
     frontEnd.getFunctionality<pdb::DispatcherServer>().registerStorageNodes(allNodes);
     frontEnd.addFunctionality<pdb::QuerySchedulerServer>(
         port, myLogger, conf, pseudoClusterMode, partitionToCoreRatio, true, false, isSelfLearning);
+    frontEnd.addFunctionality<pdb::SelfLearningServer>(conf, port);
     frontEnd.startServer(nullptr);
 }
 

@@ -45,9 +45,9 @@ protected:
     void analyzeNodes(std::string serverList);
 
 private:
-    Handle<Vector<Handle<ResourceInfo>>> resources;
+    Handle<Vector<Handle<ResourceInfo>>> resources = nullptr;
 
-    Handle<Vector<Handle<NodeDispatcherData>>> nodes;
+    Handle<Vector<Handle<NodeDispatcherData>>> nodes = nullptr;
 
     int port;
 

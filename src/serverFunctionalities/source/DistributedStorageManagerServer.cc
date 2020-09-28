@@ -279,7 +279,7 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
             stats->setNumBytes("temp", request->getSetName(), 0);
             if (this->selfLearningOrNot == true) {
                 long id;
-                int typeId = VTableMap::getIDByName(request->getTypeName());
+                int typeId = VTableMap::getIDByName(VTableMap::getInternalTypeName(request->getTypeName()));
                 std::string createdJobId = request->getCreatedJobId();
                 if (createdJobId == "") {
                     createdJobId = this->getNextClientId();
@@ -332,7 +332,7 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                 // complex type like Vector<Handle<Foo>>
                 // int16_t typeId =
                 // getFunctionality<CatalogClient>().searchForObjectTypeName(request->getTypeName());
-                int16_t typeId = VTableMap::getIDByName(request->getTypeName(), false);
+                int16_t typeId = VTableMap::getIDByName(VTableMap::getInternalTypeName(request->getTypeName()), false);
                 if (typeId == 0) {
                     return make_pair(false, "Could not identify type=" + request->getTypeName());
                 }

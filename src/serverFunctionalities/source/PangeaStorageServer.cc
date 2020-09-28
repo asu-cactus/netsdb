@@ -548,7 +548,7 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                         cout << errMsg << endl;
                     } else {
 #ifdef CHECK_TYPE
-                        int16_t typeID = VTableMap::getIDByName(request->getTypeName(), false);
+                        int16_t typeID = VTableMap::getIDByName(VTableMap::getInternalTypeName(request->getTypeName()), false);
                         PDB_COUT << "TypeID =" << typeID << std::endl;
                         // make sure the type is registered in the catalog
                         if (typeID == -1) {
@@ -865,7 +865,7 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                         everythingOK = false;
                     }
                     // if we made it here, the type is correct, as is the database and the set
-                    else if (typeID != VTableMap::getIDByName(request->getType(), false)) {
+                    else if (typeID != VTableMap::getIDByName(VTableMap::getInternalTypeName(request->getType()), false)) {
                         everythingOK = false;
                     }
 #endif
