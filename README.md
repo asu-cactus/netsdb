@@ -20,11 +20,13 @@ Lachesis++ is built on top of an earlier version of the open source project Plin
 
 -- Lambda Templates (Oct 2nd) 
 
--- Catalog (Sept 27th)
 
 
 ### Known Bugs:
--- shared library size is too large, and throw errors such as: terminate called after throwing an instance of 'pdb::NotEnoughSpace'
+
+#### History
+
+(Fixed) shared library size is too large, and throw errors such as: terminate called after throwing an instance of 'pdb::NotEnoughSpace'
   what():  Not enough free memory in current allocation block.
 Current LIBRARY_SIZE is set to 200MB.
 
@@ -34,6 +36,8 @@ Solution 2. strip libraries
 
 
 ### Stable components:
+
+-- Catalog (Sept 27th)
 
 -- Programming Interface
 
