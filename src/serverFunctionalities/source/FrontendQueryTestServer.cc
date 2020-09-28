@@ -827,7 +827,7 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
                         int16_t outType =
                             VTableMap::getIDByName(request->getOutputTypeName(), false);
                         // create the output set in the storage manager and in the catalog
-                        if (!getFunctionality<CatalogServer>().addSet(outType,
+                        if (!getFunctionality<CatalogClient>().createSet(request->getOutputTypeName(), outType,
                                                                       outDatabaseAndSet.first,
                                                                       outDatabaseAndSet.second,
                                                                       errMsg)) {
@@ -928,77 +928,6 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
         }));
 
 
-    // handle a request to execute a query
-    forMe.registerHandler(
-        ExecuteQuery_TYPEID,
-        make_shared<SimpleRequestHandler<ExecuteQuery>>(
-            [&](Handle<ExecuteQuery> request, PDBCommunicatorPtr sendUsingMe) {
-
-                // this will allow us to have some extra RAM for local allocations; in particular,
-                // we will want to store all of the names of the output sets
-
-                const UseTemporaryAllocationBlock tempBlock{1024 * 128};
-                {
-
-                    // this lists all of the temporary sets created
-                    std::vector<std::string> setsCreated;
-
-                    // get the list of queries to execute
-                    std::string errMsg;
-                    bool success;
-                    Handle<Vector<Handle<QueryBase>>> runUs =
-                        sendUsingMe->getNextObject<Vector<Handle<QueryBase>>>(success, errMsg);
-                    if (!success) {
-                        return std::make_pair(false, errMsg);
-                    }
-
-                    // this is the name of the set that we are going to write temporary data to
-                    std::string tempSetPrefix = "tempSet" + std::to_string(tempSetName);
-                    tempSetName++;
-
-                    // this keeps track of which node in the query plan we computed
-                    int whichNode = 0;
-
-                    // first, loop through all of the outputs and compute them
-                    for (int i = 0; i < runUs->size(); i++) {
-                        computeQuery("", tempSetPrefix, whichNode, (*runUs)[i], setsCreated);
-                    }
-
-                    // delete all of the temporary sets created
-                    if (runUs->size() > 0) {
-                        std::string whichDatabase = (*runUs)[0]->getDBName();
-                        for (auto& s : setsCreated) {
-                            std::string errMsg;
-                            if (!getFunctionality<CatalogServer>().deleteSet(
-                                    whichDatabase, s, errMsg)) {
-                                std::cout << "Error deleting set " << s << ": " << errMsg << "\n";
-                            } else {
-                                PDB_COUT << "Successfully deleted set " << s << "\n";
-                            }
-                        }
-                    }
-
-                    // now, we send back the result
-                    const UseTemporaryAllocationBlock tempBlock{1024};
-                    Handle<Vector<String>> result = makeObject<Vector<String>>();
-                    for (int i = 0; i < runUs->size(); i++) {
-                        if ((*runUs)[i]->getQueryType() == "localoutput") {
-                            result->push_back((*runUs)[i]->getSetName());
-                        } else {
-                            std::cout << "We only support set: outputs for queries.\n";
-                        }
-                    }
-                    std::cout << "Query is done. " << std::endl;
-                    // return the results
-                    if (!sendUsingMe->sendObject(result, errMsg)) {
-                        return std::make_pair(false, errMsg);
-                    }
-                }
-
-                return std::make_pair(true, std::string("execution complete"));
-
-            }));
-
     // handle a request to delete a file
     forMe.registerHandler(
         DeleteSet_TYPEID,
@@ -1008,7 +937,7 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
             const UseTemporaryAllocationBlock tempBlock{1024 * 128};
             {
                 std::string errMsg;
-                if ((!getFunctionality<CatalogServer>().deleteSet(
+                if ((!getFunctionality<CatalogClient>().deleteSet(
                         request->whichDatabase(), request->whichSet(), errMsg)) ||
                     (!getFunctionality<PangeaStorageServer>().removeSet(request->whichDatabase(),
                                                                         request->whichSet()))) {
@@ -1159,124 +1088,7 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
 }
 
 
-// this recursively traverses a simple query graph, where each node can only have one input,
-// makes sure that each node has been computed... the return value is the (DB, set) pair holding
-// the result of the query
-void FrontendQueryTestServer::computeQuery(std::string setNameToUse,
-                                           std::string setPrefix,
-                                           int& whichNode,
-                                           Handle<QueryBase>& computeMe,
-                                           std::vector<std::string>& setsCreated) {
 
-    // base case: this node has been computed, so we are done
-    if (computeMe->getSetName() != "" && computeMe->getQueryType() != "localoutput") {
-        // std :: cout << "the node is saying I can return" << std :: endl;
-        return;
-    }
-
-    // recursive case: compute the parent of this node... we assume only one input in this simple
-    // case
-    whichNode++;
-
-    // now, execute this node
-    if (computeMe->getQueryType() == "selection") {
-
-        // run the rest of the query plan
-        computeQuery("", setPrefix, whichNode, computeMe->getIthInput(0), setsCreated);
-
-        // now run this guy
-        if (setNameToUse == "") {
-            std::string tempFileName = setPrefix + "." + std::to_string(++whichNode);
-            setsCreated.push_back(tempFileName);
-            doSelection(tempFileName, computeMe);
-        } else {
-            doSelection(setNameToUse, computeMe);
-        }
-
-    } else if (computeMe->getQueryType() == "localoutput") {
-
-        // run the rest of the query plan
-        computeQuery(
-            computeMe->getSetName(), setPrefix, whichNode, computeMe->getIthInput(0), setsCreated);
-
-    } else {
-
-        // other node types go here!
-        std::cout << "I didn't recognize the query node type!!\n";
-    }
-}
-
-void FrontendQueryTestServer::doSelection(std::string setNameToUse, Handle<QueryBase>& computeMe) {
-
-    Handle<Selection<Object, Object>> myQuery = unsafeCast<Selection<Object, Object>>(computeMe);
-    // forward execute query request to backend.
-    const UseTemporaryAllocationBlock tempBlock{1024 * 128};
-    {
-        std::string errMsg;
-        bool success;
-        // get the input information from the query node
-        std::string inputSet = computeMe->getIthInput(0)->getSetName();
-        std::string inputDatabase = computeMe->getIthInput(0)->getDBName();
-        std::pair<std::string, std::string> databaseAndSet =
-            std::make_pair(inputDatabase, inputSet);
-        SetPtr inputSet_sp = getFunctionality<PangeaStorageServer>().getSet(databaseAndSet);
-
-        // add the output set
-        std::pair<std::string, std::string> outDatabaseAndSet =
-            std::make_pair(inputDatabase, setNameToUse);
-        getFunctionality<PangeaStorageServer>().addSet(inputDatabase, setNameToUse);
-        SetPtr set = getFunctionality<PangeaStorageServer>().getSet(outDatabaseAndSet);
-
-        // create the output set in the storage manager and in the catalog
-        int16_t outType =
-            getFunctionality<CatalogServer>().searchForObjectTypeName(myQuery->getOutputType());
-        if (!getFunctionality<CatalogServer>().addSet(
-                outType, outDatabaseAndSet.first, outDatabaseAndSet.second, errMsg)) {
-            std::cout << "Could not create the query output set " << outDatabaseAndSet.second
-                      << ": " << errMsg << "\n";
-            exit(1);
-        }
-
-        // annotate this guy with his output name
-        computeMe->setSetName(outDatabaseAndSet.second);
-
-        DatabaseID dbIdIn = inputSet_sp->getDbID();
-        UserTypeID typeIdIn = inputSet_sp->getTypeID();
-        SetID setIdIn = inputSet_sp->getSetID();
-        DatabaseID dbIdOut = set->getDbID();
-        UserTypeID typeIdOut = set->getTypeID();
-        SetID setIdOut = set->getSetID();
-
-        Handle<BackendExecuteSelection> executeQuery = makeObject<BackendExecuteSelection>(
-            dbIdIn, typeIdIn, setIdIn, dbIdOut, typeIdOut, setIdOut);
-        PDBCommunicatorPtr communicatorToBackend = make_shared<PDBCommunicator>();
-        if (communicatorToBackend->connectToLocalServer(
-                getFunctionality<PangeaStorageServer>().getLogger(),
-                getFunctionality<PangeaStorageServer>().getPathToBackEndServer(),
-                errMsg)) {
-            std::cout << errMsg << std::endl;
-            exit(1);
-        }
-        if (!communicatorToBackend->sendObject(executeQuery, errMsg)) {
-            std::cout << errMsg << std::endl;
-            exit(1);
-        }
-
-        Handle<Vector<Handle<QueryBase>>> runUs = makeObject<Vector<Handle<QueryBase>>>();
-        runUs->push_back(myQuery);
-        if (!communicatorToBackend->sendObject(runUs, errMsg)) {
-            std::cout << errMsg << std::endl;
-            exit(1);
-        }
-        // wait for backend to finish.
-        communicatorToBackend->getNextObject<SimpleRequestResult>(success, errMsg);
-        if (!success) {
-            std::cout << "Error waiting for backend to finish selection query execution. " << errMsg
-                      << std::endl;
-            exit(1);
-        }
-    }
-}
 }
 
 #endif

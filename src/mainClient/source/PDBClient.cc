@@ -142,15 +142,17 @@ PDBClient::generateResponseHandler(std::string description,
 bool PDBClient::registerNode(string &localIP, int localPort, string &nodeName,
                              string &nodeType, int nodeStatus,
                              std::string &errMsg) {
-
-  makeObjectAllocatorBlock(1024 * 1024 * 1, true);
-
-  pdb::Handle<pdb::CatalogNodeMetadata> nodeInfo =
-      pdb::makeObject<pdb::CatalogNodeMetadata>(
-          String(localIP + ":" + std::to_string(localPort)), String(localIP),
-          localPort, String(nodeName), String(nodeType), 1);
-
-  return catalogClient.registerNodeMetadata(nodeInfo, errMsg);
+      makeObjectAllocatorBlock(1024 * 1024 * 1, true);
+      pdb::Handle<pdb::CatSyncRequest> nodeInfo = pdb::makeObject<pdb::CatSyncRequest>(localIP, localPort, nodeType);
+      std::string returnedMsg="";
+      bool result = catalogClient.registerNodeMetadata(nodeInfo, returnedMsg);
+      if (!result) {
+          errMsg = "Not able to register node: " + returnedMsg;
+          exit(-1);
+      } else {
+          cout << "Node has been registered.\n";
+      }
+      return result;
 }
 
 bool PDBClient::registerType(std::string fileContainingSharedLib,
@@ -160,7 +162,7 @@ bool PDBClient::registerType(std::string fileContainingSharedLib,
 }
 
 string PDBClient::printCatalogMetadata(
-    pdb::Handle<pdb::CatalogPrintMetadata> itemToSearch, std::string &errMsg) {
+    pdb::Handle<pdb::CatPrintCatalogRequest> itemToSearch, std::string &errMsg) {
 
    return catalogClient.printCatalogMetadata (
       itemToSearch,

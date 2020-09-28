@@ -141,7 +141,7 @@ public:
 
   /* Prints the content of the catalog. */
   string
-  printCatalogMetadata(pdb::Handle<pdb::CatalogPrintMetadata> itemToSearch,
+  printCatalogMetadata(pdb::Handle<pdb::CatPrintCatalogRequest> itemToSearch,
                        std::string &errMsg);
 
   /* Lists all metadata registered in the catalog. */

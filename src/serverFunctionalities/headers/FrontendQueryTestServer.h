@@ -26,14 +26,6 @@ public:
     ~FrontendQueryTestServer();
 
 private:
-    void computeQuery(std::string setOutputName,
-                      std::string setPrefix,
-                      int& whichNode,
-                      Handle<QueryBase>& computeMe,
-                      std::vector<std::string>& tempSetsCreated);
-
-    // this actually computes a selection query
-    void doSelection(std::string setOutputName, Handle<QueryBase>& computeMe);
 
     int tempSetName;
 
