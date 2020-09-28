@@ -641,8 +641,6 @@ common_env.SharedLibrary('libraries/libGmmAggregateNewComp.so', ['build/librarie
 common_env.Program('bin/TestGmmLoadData', ['build/tests/TestGmmLoadData.cc'] + all + pdb_client)
 common_env.Program('bin/TestGmmLazy', ['build/tests/TestGmmLazy.cc'] + all + pdb_client)
 
-common_env.Program('bin/CatalogServerTests', ['build/tests/CatalogServerTests.cc'] + all + pdb_client)
-common_env.Program('bin/CatalogTests', ['build/tests/CatalogTests.cc'] + all + pdb_client)
 common_env.Program('bin/getListNodesTest', ['build/tests/GetListNodesTest.cc'] + all)
 common_env.Program('bin/MasterServerTest', ['build/tests/MasterServerTest.cc'] + all)
 common_env.Program('bin/objectModelTest1', ['build/tests/ObjectModelTest1.cc'] + all)
@@ -791,7 +789,6 @@ common_env.SharedLibrary('libraries/libRankUpdateAggregation.so', ['build/librar
 #Testing
 pdbTest=common_env.Command('test', 'scripts/integratedTests.py', 'python $SOURCE -o $TARGET')
 common_env.Depends(pdbTest, [
-  'bin/CatalogTests',
   'bin/pdb-cluster',
   'bin/pdb-server', 
   'bin/test46', 
@@ -858,7 +855,6 @@ common_env.Depends(pdbTest, [
 #GMM
 
 cgmm=common_env.Alias('cgmm', [
-  'bin/CatalogTests',
   'bin/pdb-cluster',
   'bin/pdb-server',  
   'bin/TestGmmLoadData',
@@ -896,7 +892,6 @@ cgmm=common_env.Alias('pageRank', [
 
 
 tpchNormal=common_env.Alias('tpchNormal', [
-  'bin/CatalogTests',
   'bin/pdb-cluster',
   'bin/pdb-server',
   'libraries/libTpchPart.so',
@@ -1012,7 +1007,6 @@ reddit=common_env.Alias('reddit', [
 ])
 
 tpch=common_env.Alias('tpch', [
-  'bin/CatalogTests',
   'bin/pdb-cluster',
   'bin/pdb-server',
   # TPCH Benchamrk 
@@ -1058,7 +1052,6 @@ tpch=common_env.Alias('tpch', [
 common_env.Alias('tests', pdbTest)
 
 mainTests=common_env.Alias('mainTests', [
-  'bin/CatalogTests',
   'bin/pdb-cluster',
   'bin/pdb-server',
   'bin/test47',
@@ -1156,16 +1149,12 @@ mainTests=common_env.Alias('mainTests', [
 
 
 main=common_env.Alias('main', [
-  'bin/CatalogServerTests',
-  'bin/CatalogTests', 
   'bin/pdb-cluster', 
   'bin/pdb-server'
 ])
 
 KMeans=common_env.Alias('KMeans', [
 # K-means
-  'bin/CatalogServerTests',
-  'bin/CatalogTests',
   'bin/pdb-cluster',
   'bin/pdb-server',
   'bin/TestKMeans1',
@@ -1189,8 +1178,6 @@ KMeans=common_env.Alias('KMeans', [
 ])
 
 libLATest=common_env.Alias('libLATest', [
-  'bin/CatalogServerTests',
-  'bin/CatalogTests',
   'bin/pdb-cluster',
   'bin/pdb-server', 
 
@@ -1252,7 +1239,7 @@ libLATest=common_env.Alias('libLATest', [
 jaccard=common_env.Alias('jaccard', [
   'libraries/libCustomer.so', 'libraries/libLineItem.so', 'libraries/libOrder.so', 'libraries/libPart.so', 'libraries/libSupplier.so', 'libraries/libScanCustomerSet.so', 'libraries/libTopJaccard.so', 'libraries/libAllParts.so', 'libraries/libJaccardResultWriter.so', 'bin/tpchJaccard'])
 
-test76=common_env.Alias('test76', [  'bin/CatalogTests',
+test76=common_env.Alias('test76', [  
   'bin/pdb-cluster',
   'bin/pdb-server',
   'bin/test76',
@@ -1264,7 +1251,6 @@ test76=common_env.Alias('test76', [  'bin/CatalogTests',
 
 
 lda=common_env.Alias('lda', [
-  'bin/CatalogTests',
   'bin/pdb-cluster',
   'bin/pdb-server',
   'bin/TestLDA', 
@@ -1298,8 +1284,6 @@ lda=common_env.Alias('lda', [
 matrixBench=common_env.Alias('matrixBench', ['bin/TestMatrix'])
 
 mlBench=common_env.Alias('mlBench', [
-  'bin/CatalogServerTests',
-  'bin/CatalogTests',
   'bin/pdb-cluster',
   'bin/pdb-server',
   'bin/TestKMeans',
