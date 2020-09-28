@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*****************************************************************************
  *                                                                           *
  *  Copyright 2018 Rice University                                           *
@@ -368,7 +369,16 @@ void CatalogServer::registerHandlers(PDBServer &forMe) {
             res = loadAndRegisterType(typeId, bytesPointer, bytes.size(), errMsg) && res;
           }
 
+<<<<<<< HEAD
           if (!res) {
+=======
+          } else {
+            const UseTemporaryAllocationBlock tempBlock{LIBRARY_SIZE};
+            // resolves typeName given the typeId
+            typeName = allTypeCodes[typeId];
+            PDB_COUT << "Resolved typeName " << typeName
+                     << "  for typeId=" + std::to_string(typeId) << endl;
+>>>>>>> a95a20a64082b4a59b968ff0c1b74fc22f8d49d3
 
             // Ok we had an error either we could not grab the .so or we could not fix the vtable log that
             PDB_COUT << res  << "\n";
