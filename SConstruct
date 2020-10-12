@@ -562,6 +562,9 @@ common_env.Program('bin/tpchDataGeneratorAll', ['build/tpchBench/tpchDataGenerat
 common_env.Program('bin/tpchFlushToDisk', ['build/tpchBench/tpchFlushToDisk.cc'] + all + pdb_client)
 common_env.Program('bin/pipelineBench', ['build/tpchBench/PipelineBench.cc'] + all + pdb_client)
 
+# FF
+
+# common_env.SharedLibrary('libraries/.so', ['build/FF/.cc'] + all)
 
 #reddit
 common_env.SharedLibrary('libraries/libRedditComment.so', ['build/reddit/RedditComment.cc'] + all)
@@ -768,6 +771,8 @@ common_env.Program('bin/TestKMeans1', ['build/tests/TestKMeansMLLibCompliant.cc'
 common_env.Program('bin/KMeansDataLoader', ['build/tests/TestKMeansLoadData.cc'] + all + pdb_client)
 common_env.Program('bin/TestLDA', ['build/tests/TestLDA.cc'] + all + pdb_client)
 common_env.Program('bin/TestMatrix', ['build/tests/TestMatrix.cc'] + all)
+
+common_env.Program('bin/FFTest', ['build/tests/FFTest.cc'] + all + pdb_client)
 
 #PageRank
 
@@ -1175,6 +1180,16 @@ KMeans=common_env.Alias('KMeans', [
   'libraries/libWriteSumResultSet.so'
   
 
+])
+
+libFFTest=common_env.Alias('libFFTest', [
+  'bin/pdb-cluster',
+  'bin/pdb-server', 
+
+  'bin/FFTest',
+  
+  # Other libraries from src/FF
+  # 'libraries/libLAMaxElementOutputType.so',
 ])
 
 libLATest=common_env.Alias('libLATest', [
