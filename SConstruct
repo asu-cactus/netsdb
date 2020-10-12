@@ -565,8 +565,8 @@ common_env.Program('bin/pipelineBench', ['build/tpchBench/PipelineBench.cc'] + a
 # FF
 
 # common_env.SharedLibrary('libraries/.so', ['build/FF/.cc'] + all)
-# common_env.SharedLibrary('libraries/libFFMatrixBlock.so', ['build/FF/FFMatrixBlock.cc'] + all)
-# common_env.SharedLibrary('libraries/libFFMatrixData.so', ['build/FF/FFMatrixData.cc'] + all)
+common_env.SharedLibrary('libraries/libFFMatrixBlock.so', ['build/FF/FFMatrixBlock.cc'] + all)
+common_env.SharedLibrary('libraries/libFFMatrixData.so', ['build/FF/FFMatrixData.cc'] + all)
 
 #reddit
 common_env.SharedLibrary('libraries/libRedditComment.so', ['build/reddit/RedditComment.cc'] + all)
@@ -1194,8 +1194,8 @@ libFFTest=common_env.Alias('libFFTest', [
   'libraries/libMatrixBlock.so',
   'libraries/libMatrixData.so',
   'libraries/libMatrixMeta.so',
-  # 'libraries/libFFMatrixBlock.so',
-  # 'libraries/libFFMatrixData.so',
+  'libraries/libFFMatrixBlock.so',
+  'libraries/libFFMatrixData.so',
 ])
 
 libLATest=common_env.Alias('libLATest', [

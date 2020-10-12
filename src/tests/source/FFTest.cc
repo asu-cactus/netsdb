@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "PDBClient.h"
-#include "MatrixBlock.h"
+#include "FFMatrixBlock.h"
 
 using namespace std;
 
@@ -159,7 +159,7 @@ void send_features(pdb::PDBClient &pdbClient, vector<pair<int32_t, int32_t>> &tu
     const pdb::UseTemporaryAllocationBlock tempBlock{64 * 1024 * 1024};
 
     // put the chunks here
-    pdb::Handle<pdb::Vector<pdb::Handle<MatrixBlock>>> vec = pdb::makeObject<pdb::Vector<pdb::Handle<MatrixBlock>>>();
+    pdb::Handle<pdb::Vector<pdb::Handle<FFMatrixBlock>>> vec = pdb::makeObject<pdb::Vector<pdb::Handle<FFMatrixBlock>>>();
 
     try
     {
@@ -169,7 +169,7 @@ void send_features(pdb::PDBClient &pdbClient, vector<pair<int32_t, int32_t>> &tu
       {
 
         // allocate a matrix
-        pdb::Handle<MatrixBlock> myInt = pdb::makeObject<MatrixBlock>(tuples_to_send[idx].first,
+        pdb::Handle<FFMatrixBlock> myInt = pdb::makeObject<FFMatrixBlock>(tuples_to_send[idx].first,
                                                                       tuples_to_send[idx].second,
                                                                       batch_block,
                                                                       features_block);
@@ -200,7 +200,7 @@ void send_features(pdb::PDBClient &pdbClient, vector<pair<int32_t, int32_t>> &tu
     pdb::getRecord(vec);
 
     // send the data a bunch of times
-    if (!pdbClient.sendData<MatrixBlock>(pair<string, string>(setName, dbName), vec, errMsg)) {
+    if (!pdbClient.sendData<FFMatrixBlock>(pair<string, string>(setName, dbName), vec, errMsg)) {
       cout << "Failed to send data to dispatcher server: " << errMsg << endl;
       exit(1);
     }
@@ -337,7 +337,7 @@ auto init_weights(pdb::PDBClient &pdbClient) {
     const pdb::UseTemporaryAllocationBlock tempBlock{page_size * 1024 * 1024};
 
     // put the chunks here
-    pdb::Handle<pdb::Vector<pdb::Handle<MatrixBlock>>> data = pdb::makeObject<pdb::Vector<pdb::Handle<MatrixBlock>>>();
+    pdb::Handle<pdb::Vector<pdb::Handle<FFMatrixBlock>>> data = pdb::makeObject<pdb::Vector<pdb::Handle<FFMatrixBlock>>>();
 
     try {
 
@@ -345,7 +345,7 @@ auto init_weights(pdb::PDBClient &pdbClient) {
       for (; idx < tuples_to_send.size();) {
 
         // allocate a matrix
-        pdb::Handle<MatrixBlock> myInt = pdb::makeObject<MatrixBlock>(tuples_to_send[idx].first,
+        pdb::Handle<FFMatrixBlock> myInt = pdb::makeObject<FFMatrixBlock>(tuples_to_send[idx].first,
                                                                         tuples_to_send[idx].second,
                                                                         features_block,
                                                                         embedding_block);
@@ -360,11 +360,11 @@ auto init_weights(pdb::PDBClient &pdbClient) {
         if(tuples_to_send[idx].first == (block_f - 1)) {
 
           // allocate the bias if necessary
-          myInt->getValue().rawData = pdb::makeObject<pdb::Vector<double>>(embedding_block, embedding_block);
+          myInt->getValue().bias = pdb::makeObject<pdb::Vector<double>>(embedding_block, embedding_block);
 
           // init the bias
           for(int i = 0; i < embedding_block; ++i) {
-            myInt->getValue().rawData->c_ptr()[i] = (double) drand48() * 0.1;
+            myInt->getValue().bias->c_ptr()[i] = (double) drand48() * 0.1;
           }
         }
 
@@ -385,8 +385,8 @@ auto init_weights(pdb::PDBClient &pdbClient) {
     pdb::getRecord(data);
 
     // send the data a bunch of times
-    // pdbClient.sendData<MatrixBlock>("ff", "w1", data);
-    if (!pdbClient.sendData<MatrixBlock>(pair<string, string>("w1", "ff"), data, errMsg)) {
+    // pdbClient.sendData<FFMatrixBlock>("ff", "w1", data);
+    if (!pdbClient.sendData<FFMatrixBlock>(pair<string, string>("w1", "ff"), data, errMsg)) {
       cout << "Failed to send data to dispatcher server: " << errMsg << endl;
       exit(1);
     }
@@ -414,7 +414,7 @@ auto init_weights(pdb::PDBClient &pdbClient) {
     const pdb::UseTemporaryAllocationBlock tempBlock{page_size * 1024 * 1024};
 
     // put the chunks here
-    pdb::Handle<pdb::Vector<pdb::Handle<MatrixBlock>>> data = pdb::makeObject<pdb::Vector<pdb::Handle<MatrixBlock>>>();
+    pdb::Handle<pdb::Vector<pdb::Handle<FFMatrixBlock>>> data = pdb::makeObject<pdb::Vector<pdb::Handle<FFMatrixBlock>>>();
 
     try {
 
@@ -422,7 +422,7 @@ auto init_weights(pdb::PDBClient &pdbClient) {
       for (; idx < tuples_to_send.size();) {
 
         // allocate a matrix
-        pdb::Handle<MatrixBlock> myInt = pdb::makeObject<MatrixBlock>(tuples_to_send[idx].first,
+        pdb::Handle<FFMatrixBlock> myInt = pdb::makeObject<FFMatrixBlock>(tuples_to_send[idx].first,
                                                                         tuples_to_send[idx].second,
                                                                         embedding_block,
                                                                         labels_block);
@@ -436,11 +436,11 @@ auto init_weights(pdb::PDBClient &pdbClient) {
         if(tuples_to_send[idx].first == (block_e - 1)) {
 
           // init the bias if necessary
-          myInt->getValue().rawData = makeObject<pdb::Vector<double>>(labels_block, labels_block);
+          myInt->getValue().bias = makeObject<pdb::Vector<double>>(labels_block, labels_block);
 
                     // init the bias
           for(int i = 0; i < labels_block; ++i) {
-            myInt->getValue().rawData->c_ptr()[i] = (double) drand48() * 0.1;
+            myInt->getValue().bias->c_ptr()[i] = (double) drand48() * 0.1;
           }
         }
 
@@ -462,7 +462,7 @@ auto init_weights(pdb::PDBClient &pdbClient) {
 
     // send the data a bunch of times
     // pdbClient.sendData<ff::MatrixBlock>("ff", "w2", data);
-    if (!pdbClient.sendData<MatrixBlock>(pair<string, string>("w2", "ff"), data, errMsg)) {
+    if (!pdbClient.sendData<FFMatrixBlock>(pair<string, string>("w2", "ff"), data, errMsg)) {
       cout << "Failed to send data to dispatcher server: " << errMsg << endl;
       exit(1);
     }
@@ -506,8 +506,8 @@ int main(int argc, char *argv[])
   pdbClient.registerType("libraries/libMatrixMeta.so", errMsg);
   pdbClient.registerType("libraries/libMatrixData.so", errMsg);
   pdbClient.registerType("libraries/libMatrixBlock.so", errMsg);
-  // pdbClient.registerType("libraries/libFFMatrixData.so", errMsg);
-  // pdbClient.registerType("libraries/libFFMatrixBlock.so", errMsg);
+  pdbClient.registerType("libraries/libFFMatrixData.so", errMsg);
+  pdbClient.registerType("libraries/libFFMatrixBlock.so", errMsg);
 
   if (!pdbClient.createDatabase("ff", errMsg)) {
       cout << "Not able to create database: " << errMsg << endl;
@@ -517,21 +517,21 @@ int main(int argc, char *argv[])
   }
 
   // now, create the first matrix set in that database
-  if (!pdbClient.createSet<MatrixBlock>("ff", "input_batch", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "inputBatch")) {
+  if (!pdbClient.createSet<FFMatrixBlock>("ff", "input_batch", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "inputBatch")) {
       cout << "Not able to create set: " + errMsg;
       exit(-1);
   } else {
       cout << "Created set.\n";
   }
   // now, create the first matrix set in that database
-  if (!pdbClient.createSet<MatrixBlock>("ff", "w1", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "W1")) {
+  if (!pdbClient.createSet<FFMatrixBlock>("ff", "w1", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "W1")) {
       cout << "Not able to create set: " + errMsg;
       exit(-1);
   } else {
       cout << "Created set.\n";
   }
   // now, create the first matrix set in that database
-  if (!pdbClient.createSet<MatrixBlock>("ff", "w2", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "W2")) {
+  if (!pdbClient.createSet<FFMatrixBlock>("ff", "w2", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "W2")) {
       cout << "Not able to create set: " + errMsg;
       exit(-1);
   } else {
