@@ -311,6 +311,167 @@ void load_input_data(pdb::PDBClient &pdbClient, string path, string dbName, stri
   }
 }
 
+auto init_weights(pdb::PDBClient &pdbClient) {
+  string errMsg;
+
+  /// 1. Init the word embedding a matrix of size (num_features x embedding_block)
+
+  auto block_f = num_features / features_block;
+  auto block_e = embedding_size / embedding_block;
+
+  // the page size
+  const int32_t page_size = 64;
+
+  // all the block we need to send
+  std::vector<std::pair<int32_t, int32_t>> tuples_to_send(block_f * block_e);
+  for (int i = 0; i < block_f; ++i) {
+    for (int j = 0; j < block_e; ++j) {
+      tuples_to_send[i * block_e + j] = {i, j};
+    }
+  }
+
+  size_t idx = 0;
+  while (idx != tuples_to_send.size()) {
+
+    // use temporary allocation block
+    const pdb::UseTemporaryAllocationBlock tempBlock{page_size * 1024 * 1024};
+
+    // put the chunks here
+    pdb::Handle<pdb::Vector<pdb::Handle<MatrixBlock>>> data = pdb::makeObject<pdb::Vector<pdb::Handle<MatrixBlock>>>();
+
+    try {
+
+      // put stuff into the vector
+      for (; idx < tuples_to_send.size();) {
+
+        // allocate a matrix
+        pdb::Handle<MatrixBlock> myInt = pdb::makeObject<MatrixBlock>(tuples_to_send[idx].first,
+                                                                        tuples_to_send[idx].second,
+                                                                        features_block,
+                                                                        embedding_block);
+
+        // init the values
+        double *vals = myInt->getValue().rawData->c_ptr();
+        for (int v = 0; v < features_block * embedding_block; ++v) {
+          vals[v] = (double) drand48() * 0.1;
+        }
+
+        // check if we need to init the bias here if so do it...
+        if(tuples_to_send[idx].first == (block_f - 1)) {
+
+          // allocate the bias if necessary
+          myInt->getValue().rawData = pdb::makeObject<pdb::Vector<double>>(embedding_block, embedding_block);
+
+          // init the bias
+          for(int i = 0; i < embedding_block; ++i) {
+            myInt->getValue().rawData->c_ptr()[i] = (double) drand48() * 0.1;
+          }
+        }
+
+        // we add the matrix to the block
+        data->push_back(myInt);
+
+        // go to the next one
+        ++idx;
+
+        if (data->size() == 50) {
+          break;
+        }
+      }
+    }
+    catch (pdb::NotEnoughSpace &n) {}
+
+    // init the records
+    pdb::getRecord(data);
+
+    // send the data a bunch of times
+    // pdbClient.sendData<MatrixBlock>("ff", "w1", data);
+    if (!pdbClient.sendData<MatrixBlock>(pair<string, string>("w1", "ff"), data, errMsg)) {
+      cout << "Failed to send data to dispatcher server: " << errMsg << endl;
+      exit(1);
+    }
+
+    // log that we stored stuff
+    std::cout << "stored in embedding " << data->size() << " !\n";
+  }
+
+  /// 2. Init the dense layer (embedding_block x block_l)
+
+  // how many blocks we split the labels
+  auto block_l = num_labels / labels_block;
+
+  tuples_to_send.resize(block_e * block_l);
+  for (int i = 0; i < block_e; ++i) {
+    for (int j = 0; j < block_l; ++j) {
+      tuples_to_send[i * block_l + j] = {i, j};
+    }
+  }
+
+  idx = 0;
+  while (idx != tuples_to_send.size()) {
+
+    // use temporary allocation block
+    const pdb::UseTemporaryAllocationBlock tempBlock{page_size * 1024 * 1024};
+
+    // put the chunks here
+    pdb::Handle<pdb::Vector<pdb::Handle<MatrixBlock>>> data = pdb::makeObject<pdb::Vector<pdb::Handle<MatrixBlock>>>();
+
+    try {
+
+      // put stuff into the vector
+      for (; idx < tuples_to_send.size();) {
+
+        // allocate a matrix
+        pdb::Handle<MatrixBlock> myInt = pdb::makeObject<MatrixBlock>(tuples_to_send[idx].first,
+                                                                        tuples_to_send[idx].second,
+                                                                        embedding_block,
+                                                                        labels_block);
+
+        // init the values
+        double *vals = myInt->getValue().rawData->c_ptr();
+        for (int v = 0; v < embedding_block * labels_block; ++v) {
+          vals[v] = (double) drand48() * 0.1;
+        }
+
+        if(tuples_to_send[idx].first == (block_e - 1)) {
+
+          // init the bias if necessary
+          myInt->getValue().rawData = makeObject<pdb::Vector<double>>(labels_block, labels_block);
+
+                    // init the bias
+          for(int i = 0; i < labels_block; ++i) {
+            myInt->getValue().rawData->c_ptr()[i] = (double) drand48() * 0.1;
+          }
+        }
+
+        // we add the matrix to the block
+        data->push_back(myInt);
+
+        // go to the next one
+        ++idx;
+
+        if (data->size() == 50) {
+          break;
+        }
+      }
+    }
+    catch (pdb::NotEnoughSpace &n) {}
+
+    // init the records
+    pdb::getRecord(data);
+
+    // send the data a bunch of times
+    // pdbClient.sendData<ff::MatrixBlock>("ff", "w2", data);
+    if (!pdbClient.sendData<MatrixBlock>(pair<string, string>("w2", "ff"), data, errMsg)) {
+      cout << "Failed to send data to dispatcher server: " << errMsg << endl;
+      exit(1);
+    }
+
+    // log that we stored stuff
+    std::cout << "stored in dense " << data->size() << " !\n";
+  }
+}
+
 int main(int argc, char *argv[])
 {
   string errMsg;
@@ -345,6 +506,8 @@ int main(int argc, char *argv[])
   pdbClient.registerType("libraries/libMatrixMeta.so", errMsg);
   pdbClient.registerType("libraries/libMatrixData.so", errMsg);
   pdbClient.registerType("libraries/libMatrixBlock.so", errMsg);
+  // pdbClient.registerType("libraries/libFFMatrixData.so", errMsg);
+  // pdbClient.registerType("libraries/libFFMatrixBlock.so", errMsg);
 
   if (!pdbClient.createDatabase("ff", errMsg)) {
       cout << "Not able to create database: " << errMsg << endl;
@@ -360,9 +523,24 @@ int main(int argc, char *argv[])
   } else {
       cout << "Created set.\n";
   }
+  // now, create the first matrix set in that database
+  if (!pdbClient.createSet<MatrixBlock>("ff", "w1", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "W1")) {
+      cout << "Not able to create set: " + errMsg;
+      exit(-1);
+  } else {
+      cout << "Created set.\n";
+  }
+  // now, create the first matrix set in that database
+  if (!pdbClient.createSet<MatrixBlock>("ff", "w2", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "W2")) {
+      cout << "Not able to create set: " + errMsg;
+      exit(-1);
+  } else {
+      cout << "Created set.\n";
+  }
 
   // load the input data
   load_input_data(pdbClient, path, "ff", "input_batch");
+  init_weights(pdbClient);
 
   return 0;
 }
