@@ -2,10 +2,10 @@
 
 class FFMatrixData : public MatrixData {
 public:
-    ENABLE_DEEP_COPY
+  ENABLE_DEEP_COPY
 
-    ~FFMatrixData() {}
-    FFMatrixData() {}
+  ~FFMatrixData() {}
+  FFMatrixData() {}
 
-    pdb::Handle<pdb::Vector<double>> bias;
+  pdb::Handle<pdb::Vector<double>> bias;
 };
