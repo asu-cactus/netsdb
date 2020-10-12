@@ -1189,7 +1189,9 @@ libFFTest=common_env.Alias('libFFTest', [
   'bin/FFTest',
   
   # Other libraries from src/FF
-  # 'libraries/libLAMaxElementOutputType.so',
+  'libraries/libMatrixBlock.so',
+  'libraries/libMatrixData.so',
+  'libraries/libMatrixMeta.so',
 ])
 
 libLATest=common_env.Alias('libLATest', [
