@@ -12,6 +12,7 @@
 #include "FFSelectionGradient.h"
 #include "FFJoinBackTransposeMult.h"
 #include "FFGradientJoin.h"
+#include "FFUpdateJoin.h"
 #include "PDBClient.h"
 
 using namespace std;
@@ -505,6 +506,7 @@ int main(int argc, char *argv[]) {
   pdbClient.registerType("libraries/libFFSelectionGradient.so", errMsg);
   pdbClient.registerType("libraries/libFFJoinBackTransposeMult.so", errMsg);
   pdbClient.registerType("libraries/libFFGradientJoin.so", errMsg);
+  pdbClient.registerType("libraries/libFFUpdateJoin.so", errMsg);
 
   if (!pdbClient.createDatabase("ff", errMsg)) {
     cout << "Not able to create database: " << errMsg << endl;
@@ -581,6 +583,14 @@ int main(int argc, char *argv[]) {
   // now, create the first matrix set in that database
   if (!pdbClient.createSet<FFMatrixBlock>(
           "ff", "d_w1", errMsg, (size_t)64 * (size_t)1024 * (size_t)1024, "dW1")) {
+    cout << "Not able to create set: " + errMsg;
+    exit(-1);
+  } else {
+    cout << "Created set.\n";
+  }
+  // now, create the first matrix set in that database
+  if (!pdbClient.createSet<FFMatrixBlock>(
+          "ff", "w1_updated", errMsg, (size_t)64 * (size_t)1024 * (size_t)1024, "w1Updated")) {
     cout << "Not able to create set: " + errMsg;
     exit(-1);
   } else {
@@ -793,6 +803,38 @@ int main(int argc, char *argv[]) {
 
     // make the writer
     pdb::Handle<pdb::Computation> myWriter = makeObject<FFMatrixWriter>("ff", "d_w1");
+    myWriter->setInput(myAggregation);
+
+    // run the computation
+    if (!pdbClient.executeComputations(errMsg, myWriter)) {
+      std::cout << "Computation failed. Message was: " << errMsg << "\n";
+      return 1;
+    }
+  }
+
+  pdbClient.removeSet("ff", "gradient_1", errMsg);
+
+  {
+    // do the activation of the first layer
+    const UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+    // make the computation
+    pdb::Handle<pdb::Computation> readA =
+        pdb::makeObject<FFMatrixBlockScanner>("ff", "w1");
+    pdb::Handle<pdb::Computation> readB =
+        pdb::makeObject<FFMatrixBlockScanner>("ff", "d_w1");
+
+    // make the join
+    pdb::Handle<pdb::Computation> join = pdb::makeObject<FFUpdateJoin>();
+    join->setInput(0, readA);
+    join->setInput(1, readB);
+
+    // make the aggregation
+    pdb::Handle<pdb::Computation> myAggregation = pdb::makeObject<FFAggMatrix>();
+    myAggregation->setInput(join);
+
+    // make the writer
+    pdb::Handle<pdb::Computation> myWriter = pdb::makeObject<FFMatrixWriter>("ff", "w1_updated");
     myWriter->setInput(myAggregation);
 
     // run the computation

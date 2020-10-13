@@ -1,5 +1,5 @@
-#ifndef FF_GRADIENT_JOIN_H
-#define FF_GRADIENT_JOIN_H
+#ifndef FF_UPDATE_JOIN_H
+#define FF_UPDATE_JOIN_H
 
 #include "FFMatrixBlock.h"
 #include "JoinComp.h"
@@ -8,13 +8,13 @@
 
 using namespace pdb;
 
-class FFGradientJoin
+class FFUpdateJoin
     : public JoinComp<FFMatrixBlock, FFMatrixBlock, FFMatrixBlock> {
 
 public:
   ENABLE_DEEP_COPY
 
-  FFGradientJoin() {}
+  FFUpdateJoin() {}
 
   Lambda<bool> getSelection(Handle<FFMatrixBlock> in1,
                             Handle<FFMatrixBlock> in2) override {
@@ -46,7 +46,22 @@ public:
 
           // do the multiply
           for (int32_t i = 0; i < in1->getRowNums() * in1->getColNums(); i++) {
-            data[i] = lhs[i] * (rhs[i] > 0) * 1.0;
+            data[i] = lhs[i] + rhs[i];
+          }
+
+          if (in1->getValue().bias != nullptr &&
+              in2->getValue().bias != nullptr) {
+            resultFFMatrixBlock->getValue().bias =
+                pdb::makeObject<Vector<double>>(in1->getValue().bias->size(),
+                                                in1->getValue().bias->size());
+            double *o = resultFFMatrixBlock->getValue().bias->c_ptr();
+            double *b1 = in1->getValue().bias->c_ptr();
+            double *b2 = in2->getValue().bias->c_ptr();
+
+            // sum update the bias
+            for (int i = 0; i < in1->getValue().bias->size(); i++) {
+              o[i] = b1[i] + b2[i];
+            }
           }
 
           return resultFFMatrixBlock;
