@@ -9,6 +9,7 @@
 #include "FFMatrixWriter.h"
 #include "FFAggMatrix.h"
 #include "FFHiddenLayerJoin.h"
+#include "FFSelectionGradient.h"
 #include "PDBClient.h"
 
 using namespace std;
@@ -499,6 +500,7 @@ int main(int argc, char *argv[]) {
   pdbClient.registerType("libraries/libFFMatrixWriter.so", errMsg);
   pdbClient.registerType("libraries/libFFAggMatrix.so", errMsg);
   pdbClient.registerType("libraries/libFFHiddenLayerJoin.so", errMsg);
+  pdbClient.registerType("libraries/libFFSelectionGradient.so", errMsg);
 
   if (!pdbClient.createDatabase("ff", errMsg)) {
     cout << "Not able to create database: " << errMsg << endl;
@@ -535,6 +537,14 @@ int main(int argc, char *argv[]) {
   // now, create the first matrix set in that database
   if (!pdbClient.createSet<FFMatrixBlock>(
           "ff", "activation_1", errMsg, (size_t)64 * (size_t)1024 * (size_t)1024, "activation1")) {
+    cout << "Not able to create set: " + errMsg;
+    exit(-1);
+  } else {
+    cout << "Created set.\n";
+  }
+  // now, create the first matrix set in that database
+  if (!pdbClient.createSet<FFMatrixBlock>(
+          "ff", "gradient_2", errMsg, (size_t)64 * (size_t)1024 * (size_t)1024, "gradient2")) {
     cout << "Not able to create set: " + errMsg;
     exit(-1);
   } else {
@@ -598,6 +608,32 @@ int main(int argc, char *argv[]) {
 
     // run the computation
     if (!pdbClient.executeComputations(errMsg, myWriter)) {
+      std::cout << "Computation failed. Message was: " << errMsg << "\n";
+      return 1;
+    }
+  }
+
+  {
+    // do the activation of the first layer
+    const UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+    // make the computation
+    pdb::Handle<pdb::Computation> lhs =
+        pdb::makeObject<FFMatrixBlockScanner>("ff", "activation_2");
+
+    // make the join
+    pdb::Handle<pdb::Computation> selection = pdb::makeObject<FFSelectionGradient>(num_batch / batch_block,
+                                                                         num_labels / labels_block,
+                                                                         labels_meta,
+                                                                         labels_data);
+    selection->setInput(lhs);
+
+    // make the writer
+    pdb::Handle<pdb::Computation> writer = pdb::makeObject<FFMatrixWriter>("ff", "gradient_2");
+    writer->setInput(selection);
+
+    // run the computation
+    if (!pdbClient.executeComputations(errMsg, writer)) {
       std::cout << "Computation failed. Message was: " << errMsg << "\n";
       return 1;
     }
