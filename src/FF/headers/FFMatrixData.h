@@ -14,6 +14,7 @@ public:
 
   FFMatrixData &operator+(FFMatrixData &other) {
     double *myData, *otherData;
+    setSumFlag();
 
     MatrixData::operator+(static_cast<MatrixData &>(other));
 

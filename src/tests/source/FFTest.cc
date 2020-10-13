@@ -7,6 +7,7 @@
 #include "FFMatrixBlock.h"
 #include "FFMatrixBlockScanner.h"
 #include "FFMatrixWriter.h"
+#include "FFAggMatrix.h"
 #include "PDBClient.h"
 
 using namespace std;
@@ -495,6 +496,7 @@ int main(int argc, char *argv[]) {
   pdbClient.registerType("libraries/libFFMatrixBlockScanner.so", errMsg);
   pdbClient.registerType("libraries/libFFInputLayerJoin.so", errMsg);
   pdbClient.registerType("libraries/libFFMatrixWriter.so", errMsg);
+  pdbClient.registerType("libraries/libFFAggMatrix.so", errMsg);
 
   if (!pdbClient.createDatabase("ff", errMsg)) {
     cout << "Not able to create database: " << errMsg << endl;
@@ -554,9 +556,13 @@ int main(int argc, char *argv[]) {
     join->setInput(0, readA);
     join->setInput(1, readB);
 
+    // make the aggregation
+    pdb::Handle<pdb::Computation> myAggregation = pdb::makeObject<FFAggMatrix>();
+    myAggregation->setInput(join);
+
     // make the writer
     pdb::Handle<pdb::Computation> myWriter = pdb::makeObject<FFMatrixWriter>("ff", "activation_1");
-    myWriter->setInput(join);
+    myWriter->setInput(myAggregation);
 
     // run the computation
     if (!pdbClient.executeComputations(errMsg, myWriter)) {
