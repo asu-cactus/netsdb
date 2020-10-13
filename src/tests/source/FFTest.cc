@@ -3,8 +3,10 @@
 #include <iostream>
 #include <vector>
 
+#include "FFInputLayerJoin.h"
 #include "FFMatrixBlock.h"
 #include "FFMatrixBlockScanner.h"
+#include "FFMatrixWriter.h"
 #include "PDBClient.h"
 
 using namespace std;
@@ -490,7 +492,10 @@ int main(int argc, char *argv[]) {
   pdbClient.registerType("libraries/libMatrixBlock.so", errMsg);
   pdbClient.registerType("libraries/libFFMatrixData.so", errMsg);
   pdbClient.registerType("libraries/libFFMatrixBlock.so", errMsg);
-pdbClient.registerType("libraries/libFFMatrixBlockScanner.so", errMsg);
+  pdbClient.registerType("libraries/libFFMatrixBlockScanner.so", errMsg);
+  pdbClient.registerType("libraries/libFFInputLayerJoin.so", errMsg);
+  pdbClient.registerType("libraries/libFFMatrixWriter.so", errMsg);
+
   if (!pdbClient.createDatabase("ff", errMsg)) {
     cout << "Not able to create database: " << errMsg << endl;
     exit(-1);
@@ -523,25 +528,44 @@ pdbClient.registerType("libraries/libFFMatrixBlockScanner.so", errMsg);
   } else {
     cout << "Created set.\n";
   }
+  // now, create the first matrix set in that database
+  if (!pdbClient.createSet<FFMatrixBlock>(
+          "ff", "activation_1", errMsg, (size_t)64 * (size_t)1024 * (size_t)1024, "activation1")) {
+    cout << "Not able to create set: " + errMsg;
+    exit(-1);
+  } else {
+    cout << "Created set.\n";
+  }
 
   // load the input data
   load_input_data(pdbClient, path, "ff", "input_batch");
   init_weights(pdbClient);
 
-
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
     // make the computation
-    pdb::Handle<pdb::Computation> readA = makeObject<FFMatrixBlockScanner>("ff", "input_batch");
-    // pdb::Handle<pdb::Computation> readB = makeObject<FFMatrixBlockScanner>("ff", "w1");
+    pdb::Handle<pdb::Computation> readA =
+        makeObject<FFMatrixBlockScanner>("ff", "input_batch");
+    pdb::Handle<pdb::Computation> readB =
+        makeObject<FFMatrixBlockScanner>("ff", "w1");
+
+    pdb::Handle<pdb::Computation> join = pdb::makeObject<FFInputLayerJoin>();
+    join->setInput(0, readA);
+    join->setInput(1, readB);
+
+    // make the writer
+    pdb::Handle<pdb::Computation> myWriter = pdb::makeObject<FFMatrixWriter>("ff", "activation_1");
+    myWriter->setInput(join);
 
     // run the computation
-    if (!pdbClient.executeComputations(errMsg, readA)) {
-        std::cout << "Computation failed. Message was: " << errMsg << "\n";
-        return 1;
+    if (!pdbClient.executeComputations(errMsg, myWriter)) {
+      std::cout << "Computation failed. Message was: " << errMsg << "\n";
+      return 1;
     }
   }
+
+  sleep(20);
 
   return 0;
 }

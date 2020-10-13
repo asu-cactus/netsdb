@@ -568,6 +568,8 @@ common_env.Program('bin/pipelineBench', ['build/tpchBench/PipelineBench.cc'] + a
 common_env.SharedLibrary('libraries/libFFMatrixBlock.so', ['build/FF/FFMatrixBlock.cc'] + all)
 common_env.SharedLibrary('libraries/libFFMatrixData.so', ['build/FF/FFMatrixData.cc'] + all)
 common_env.SharedLibrary('libraries/libFFMatrixBlockScanner.so', ['build/FF/FFMatrixBlockScanner.cc'] + all)
+common_env.SharedLibrary('libraries/libFFInputLayerJoin.so', ['build/FF/FFInputLayerJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libFFMatrixWriter.so', ['build/FF/FFMatrixWriter.cc'] + all)
 
 #reddit
 common_env.SharedLibrary('libraries/libRedditComment.so', ['build/reddit/RedditComment.cc'] + all)
@@ -1198,6 +1200,8 @@ libFFTest=common_env.Alias('libFFTest', [
   'libraries/libFFMatrixBlock.so',
   'libraries/libFFMatrixData.so',
   'libraries/libFFMatrixBlockScanner.so',
+  'libraries/libFFInputLayerJoin.so',
+  'libraries/libFFMatrixWriter.so',
 ])
 
 libLATest=common_env.Alias('libLATest', [
