@@ -573,6 +573,7 @@ common_env.SharedLibrary('libraries/libFFMatrixWriter.so', ['build/FF/FFMatrixWr
 common_env.SharedLibrary('libraries/libFFAggMatrix.so', ['build/FF/FFAggMatrix.cc'] + all)
 common_env.SharedLibrary('libraries/libFFHiddenLayerJoin.so', ['build/FF/FFHiddenLayerJoin.cc'] + all)
 common_env.SharedLibrary('libraries/libFFSelectionGradient.so', ['build/FF/FFSelectionGradient.cc'] + all)
+common_env.SharedLibrary('libraries/libFFJoinBackTransposeMult.so', ['build/FF/FFJoinBackTransposeMult.cc'] + all)
 
 #reddit
 common_env.SharedLibrary('libraries/libRedditComment.so', ['build/reddit/RedditComment.cc'] + all)
@@ -1208,6 +1209,7 @@ libFFTest=common_env.Alias('libFFTest', [
   'libraries/libFFAggMatrix.so',
   'libraries/libFFHiddenLayerJoin.so',
   'libraries/libFFSelectionGradient.so',
+  'libraries/libFFJoinBackTransposeMult.so',
 ])
 
 libLATest=common_env.Alias('libLATest', [
