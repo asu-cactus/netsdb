@@ -596,6 +596,14 @@ int main(int argc, char *argv[]) {
   } else {
     cout << "Created set.\n";
   }
+  // now, create the first matrix set in that database
+  if (!pdbClient.createSet<FFMatrixBlock>(
+          "ff", "w2_updated", errMsg, (size_t)64 * (size_t)1024 * (size_t)1024, "w2Updated")) {
+    cout << "Not able to create set: " + errMsg;
+    exit(-1);
+  } else {
+    cout << "Created set.\n";
+  }
 
   // load the input data
   load_input_data(pdbClient, path, "ff", "input_batch");
@@ -835,6 +843,39 @@ int main(int argc, char *argv[]) {
 
     // make the writer
     pdb::Handle<pdb::Computation> myWriter = pdb::makeObject<FFMatrixWriter>("ff", "w1_updated");
+    myWriter->setInput(myAggregation);
+
+    // run the computation
+    if (!pdbClient.executeComputations(errMsg, myWriter)) {
+      std::cout << "Computation failed. Message was: " << errMsg << "\n";
+      return 1;
+    }
+  }
+
+  pdbClient.removeSet("ff", "w1", errMsg);
+  pdbClient.removeSet("ff", "d_w1", errMsg);
+
+  {
+    // do the activation of the first layer
+    const UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+    // make the computation
+    pdb::Handle<pdb::Computation> readA =
+        pdb::makeObject<FFMatrixBlockScanner>("ff", "w2");
+    pdb::Handle<pdb::Computation> readB =
+        pdb::makeObject<FFMatrixBlockScanner>("ff", "d_w2");
+
+    // make the join
+    pdb::Handle<pdb::Computation> join = pdb::makeObject<FFUpdateJoin>();
+    join->setInput(0, readA);
+    join->setInput(1, readB);
+
+    // make the aggregation
+    pdb::Handle<pdb::Computation> myAggregation = pdb::makeObject<FFAggMatrix>();
+    myAggregation->setInput(join);
+
+    // make the writer
+    pdb::Handle<pdb::Computation> myWriter = pdb::makeObject<FFMatrixWriter>("ff", "w2_updated");
     myWriter->setInput(myAggregation);
 
     // run the computation
