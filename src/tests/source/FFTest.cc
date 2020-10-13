@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "FFMatrixBlock.h"
+#include "FFMatrixBlockScanner.h"
 #include "PDBClient.h"
 
 using namespace std;
@@ -489,7 +490,7 @@ int main(int argc, char *argv[]) {
   pdbClient.registerType("libraries/libMatrixBlock.so", errMsg);
   pdbClient.registerType("libraries/libFFMatrixData.so", errMsg);
   pdbClient.registerType("libraries/libFFMatrixBlock.so", errMsg);
-
+pdbClient.registerType("libraries/libFFMatrixBlockScanner.so", errMsg);
   if (!pdbClient.createDatabase("ff", errMsg)) {
     cout << "Not able to create database: " << errMsg << endl;
     exit(-1);
@@ -526,6 +527,21 @@ int main(int argc, char *argv[]) {
   // load the input data
   load_input_data(pdbClient, path, "ff", "input_batch");
   init_weights(pdbClient);
+
+
+  {
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+    // make the computation
+    pdb::Handle<pdb::Computation> readA = makeObject<FFMatrixBlockScanner>("ff", "input_batch");
+    // pdb::Handle<pdb::Computation> readB = makeObject<FFMatrixBlockScanner>("ff", "w1");
+
+    // run the computation
+    if (!pdbClient.executeComputations(errMsg, readA)) {
+        std::cout << "Computation failed. Message was: " << errMsg << "\n";
+        return 1;
+    }
+  }
 
   return 0;
 }

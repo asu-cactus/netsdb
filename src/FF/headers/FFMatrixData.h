@@ -1,3 +1,6 @@
+#ifndef FF_MATRIXDATA_H
+#define FF_MATRIXDATA_H
+
 #include "MatrixData.h"
 
 class FFMatrixData : public MatrixData {
@@ -25,3 +28,5 @@ public:
     return *this;
   }
 };
+
+#endif

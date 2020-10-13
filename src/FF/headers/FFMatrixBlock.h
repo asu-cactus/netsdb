@@ -1,3 +1,6 @@
+#ifndef FF_MATRIXBLOCK_H
+#define FF_MATRIXBLOCK_H
+
 #include "FFMatrixData.h"
 #include "MatrixBlock.h"
 
@@ -70,3 +73,5 @@ public:
 
   FFMatrixData &getValue() { return data; }
 };
+
+#endif
