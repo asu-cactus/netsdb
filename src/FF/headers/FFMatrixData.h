@@ -8,4 +8,20 @@ public:
   FFMatrixData() {}
 
   pdb::Handle<pdb::Vector<double>> bias;
+
+  FFMatrixData &operator+(FFMatrixData &other) {
+    double *myData, *otherData;
+
+    MatrixData::operator+(static_cast<MatrixData &>(other));
+
+    if (bias != nullptr && other.bias != nullptr) {
+      myData = bias->c_ptr();
+      otherData = other.bias->c_ptr();
+      for (int i = 0; i < other.bias->size(); i++) {
+        (myData)[i] += (otherData)[i];
+      }
+    }
+
+    return *this;
+  }
 };
