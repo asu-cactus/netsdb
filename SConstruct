@@ -571,6 +571,7 @@ common_env.SharedLibrary('libraries/libFFMatrixBlockScanner.so', ['build/FF/FFMa
 common_env.SharedLibrary('libraries/libFFInputLayerJoin.so', ['build/FF/FFInputLayerJoin.cc'] + all)
 common_env.SharedLibrary('libraries/libFFMatrixWriter.so', ['build/FF/FFMatrixWriter.cc'] + all)
 common_env.SharedLibrary('libraries/libFFAggMatrix.so', ['build/FF/FFAggMatrix.cc'] + all)
+common_env.SharedLibrary('libraries/libFFHiddenLayerJoin.so', ['build/FF/FFHiddenLayerJoin.cc'] + all)
 
 #reddit
 common_env.SharedLibrary('libraries/libRedditComment.so', ['build/reddit/RedditComment.cc'] + all)
@@ -1204,6 +1205,7 @@ libFFTest=common_env.Alias('libFFTest', [
   'libraries/libFFInputLayerJoin.so',
   'libraries/libFFMatrixWriter.so',
   'libraries/libFFAggMatrix.so',
+  'libraries/libFFHiddenLayerJoin.so',
 ])
 
 libLATest=common_env.Alias('libLATest', [

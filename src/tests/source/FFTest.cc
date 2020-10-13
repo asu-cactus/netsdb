@@ -8,6 +8,7 @@
 #include "FFMatrixBlockScanner.h"
 #include "FFMatrixWriter.h"
 #include "FFAggMatrix.h"
+#include "FFHiddenLayerJoin.h"
 #include "PDBClient.h"
 
 using namespace std;
@@ -497,6 +498,7 @@ int main(int argc, char *argv[]) {
   pdbClient.registerType("libraries/libFFInputLayerJoin.so", errMsg);
   pdbClient.registerType("libraries/libFFMatrixWriter.so", errMsg);
   pdbClient.registerType("libraries/libFFAggMatrix.so", errMsg);
+  pdbClient.registerType("libraries/libFFHiddenLayerJoin.so", errMsg);
 
   if (!pdbClient.createDatabase("ff", errMsg)) {
     cout << "Not able to create database: " << errMsg << endl;
@@ -562,6 +564,36 @@ int main(int argc, char *argv[]) {
 
     // make the writer
     pdb::Handle<pdb::Computation> myWriter = pdb::makeObject<FFMatrixWriter>("ff", "activation_1");
+    myWriter->setInput(myAggregation);
+
+    // run the computation
+    if (!pdbClient.executeComputations(errMsg, myWriter)) {
+      std::cout << "Computation failed. Message was: " << errMsg << "\n";
+      return 1;
+    }
+  }
+
+  {
+    // do the activation of the first layer
+    const UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+    // make the computation
+    pdb::Handle<pdb::Computation> readA =
+        makeObject<FFMatrixBlockScanner>("ff", "activation_1");
+    pdb::Handle<pdb::Computation> readB =
+        makeObject<FFMatrixBlockScanner>("ff", "w2");
+
+    // make the join
+    pdb::Handle<pdb::Computation> join = pdb::makeObject<FFHiddenLayerJoin>();
+    join->setInput(0, readA);
+    join->setInput(1, readB);
+
+    // make the aggregation
+    pdb::Handle<pdb::Computation> myAggregation = pdb::makeObject<FFAggMatrix>();
+    myAggregation->setInput(join);
+
+    // make the writer
+    pdb::Handle<pdb::Computation> myWriter = pdb::makeObject<FFMatrixWriter>("ff", "activation_2");
     myWriter->setInput(myAggregation);
 
     // run the computation
