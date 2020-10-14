@@ -71,7 +71,30 @@ public:
     // (data.rawData)->size() << std::endl;
   }
 
-  FFMatrixData &getValue() { return data; }
+    int getRowNums() {
+        return data.rowNums;
+    }
+
+    int getColNums() {
+        return data.colNums;
+    }
+
+    pdb::Handle<pdb::Vector<double>>& getRawDataHandle() {
+        return data.rawData;
+    }
+
+    MatrixMeta& getKey() {
+        return MatrixBlock::getKey();
+    }
+
+    FFMatrixData& getValue() {
+        return data;
+    }
+
+    FFMatrixData& getMultiplyValue() {
+        data.setSumFlag();
+        return data;
+    }
 };
 
 #endif

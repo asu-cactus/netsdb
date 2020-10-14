@@ -150,6 +150,7 @@ void send_features(pdb::PDBClient &pdbClient,
                    string setName, string dbName) {
   string errMsg;
   size_t idx = 0;
+  int sent = 0;
   while (idx != tuples_to_send.size()) {
 
     // use temporary allocation block
@@ -200,9 +201,12 @@ void send_features(pdb::PDBClient &pdbClient,
       exit(1);
     }
 
+    sent += vec->size();
     // log that we stored stuff
     cout << "stored in input batch " << vec->size() << " !" << endl;
   }
+
+  cout << "Sent " << sent << " blocks of input_batch of size " << batch_block << " x " << features_block << endl;
 }
 
 void load_input_data(pdb::PDBClient &pdbClient, string path, string dbName,
@@ -227,11 +231,13 @@ void load_input_data(pdb::PDBClient &pdbClient, string path, string dbName,
   if ((num_features % features_block) != 0) {
     num_features += features_block - (num_features % features_block);
   }
+  cout << "New num features: " << num_features << endl;
 
   // round labels so we can pad them
   if ((num_labels % labels_block) != 0) {
     num_labels += labels_block - (num_labels % labels_block);
   }
+  cout << "New num labels: " << num_labels << endl;
 
   // check that we have enough data points
   if (total_points < num_batch) {
@@ -270,6 +276,8 @@ void load_input_data(pdb::PDBClient &pdbClient, string path, string dbName,
   int32_t batch_s = num_batch / batch_block;
   int32_t batch_f = num_features / features_block;
 
+  cout << "input_batch Blocks to generate : " << batch_s << " * " << batch_f << " = " << (batch_f * batch_s) << endl;
+
   // figure out all the blocks we need to send
   vector<pair<int32_t, int32_t>> tuples_to_send(batch_s * batch_f);
   for (int i = 0; i < batch_s; ++i) {
@@ -282,6 +290,8 @@ void load_input_data(pdb::PDBClient &pdbClient, string path, string dbName,
 
   int32_t batch_l = num_labels / labels_block;
   labels_meta.resize(batch_s * batch_l);
+  cout << "labels Blocks to generate : " << batch_s << " * " << batch_l << " = " << (batch_l * batch_s) << endl;
+
   // figure out all the blocks we need to send
   for (int i = 0; i < batch_s; ++i) {
     for (int j = 0; j < batch_l; ++j) {
@@ -309,6 +319,8 @@ auto init_weights(pdb::PDBClient &pdbClient) {
   // the page size
   const int32_t page_size = 64;
 
+  cout << "W1 Blocks to generate : " << block_f << " * " << block_e << " = " << (block_f * block_e) << endl;
+
   // all the block we need to send
   std::vector<std::pair<int32_t, int32_t>> tuples_to_send(block_f * block_e);
   for (int i = 0; i < block_f; ++i) {
@@ -318,6 +330,7 @@ auto init_weights(pdb::PDBClient &pdbClient) {
   }
 
   size_t idx = 0;
+  int sent = 0;
   while (idx != tuples_to_send.size()) {
 
     // use temporary allocation block
@@ -380,9 +393,14 @@ auto init_weights(pdb::PDBClient &pdbClient) {
       exit(1);
     }
 
+    sent += data->size();
     // log that we stored stuff
     std::cout << "stored in embedding " << data->size() << " !\n";
   }
+
+  cout << "Sent " << sent << " blocks of W1 with size " << features_block << " * " << embedding_block << " each" << endl;
+
+  sent = 0;
 
   /// 2. Init the dense layer (embedding_block x block_l)
 
@@ -395,6 +413,7 @@ auto init_weights(pdb::PDBClient &pdbClient) {
       tuples_to_send[i * block_l + j] = {i, j};
     }
   }
+  cout << "W2 Blocks to generate : " << block_e << " * " << block_l << " = " << (block_e * block_l) << endl;
 
   idx = 0;
   while (idx != tuples_to_send.size()) {
@@ -458,9 +477,13 @@ auto init_weights(pdb::PDBClient &pdbClient) {
       exit(1);
     }
 
+    sent += data->size();
     // log that we stored stuff
     std::cout << "stored in dense " << data->size() << " !\n";
   }
+
+  cout << "Sent " << sent << " blocks of W2 with size " << embedding_block << " * " << labels_block << " each" << endl;
+
 }
 
 int main(int argc, char *argv[]) {
@@ -493,20 +516,61 @@ int main(int argc, char *argv[]) {
   pdb::PDBClient pdbClient(8108, masterIp, clientLogger, false, true);
   pdb::CatalogClient catalogClient(8108, masterIp, clientLogger);
 
-  pdbClient.registerType("libraries/libMatrixMeta.so", errMsg);
-  pdbClient.registerType("libraries/libMatrixData.so", errMsg);
-  pdbClient.registerType("libraries/libMatrixBlock.so", errMsg);
-  pdbClient.registerType("libraries/libFFMatrixData.so", errMsg);
-  pdbClient.registerType("libraries/libFFMatrixBlock.so", errMsg);
-  pdbClient.registerType("libraries/libFFMatrixBlockScanner.so", errMsg);
-  pdbClient.registerType("libraries/libFFInputLayerJoin.so", errMsg);
-  pdbClient.registerType("libraries/libFFMatrixWriter.so", errMsg);
-  pdbClient.registerType("libraries/libFFAggMatrix.so", errMsg);
-  pdbClient.registerType("libraries/libFFHiddenLayerJoin.so", errMsg);
-  pdbClient.registerType("libraries/libFFSelectionGradient.so", errMsg);
-  pdbClient.registerType("libraries/libFFJoinBackTransposeMult.so", errMsg);
-  pdbClient.registerType("libraries/libFFGradientJoin.so", errMsg);
-  pdbClient.registerType("libraries/libFFUpdateJoin.so", errMsg);
+  if (!pdbClient.registerType("libraries/libMatrixMeta.so", errMsg)) {
+    cout << "Couldnt include libMatrixMeta: " << errMsg << endl;
+  }
+
+  if (!pdbClient.registerType("libraries/libMatrixData.so", errMsg)) {
+    cout << "Couldnt include libMatrixData: " << errMsg << endl;
+  }
+
+  if (!pdbClient.registerType("libraries/libMatrixBlock.so", errMsg)) {
+    cout << "Couldnt include libMatrixBlock: " << errMsg << endl;
+  }
+
+  if (!pdbClient.registerType("libraries/libFFMatrixData.so", errMsg)) {
+    cout << "Couldnt include libFFMatrixData: " << errMsg << endl;
+  }
+
+  if (!pdbClient.registerType("libraries/libFFMatrixBlock.so", errMsg)) {
+    cout << "Couldnt include libFFMatrixBlock: " << errMsg << endl;
+  }
+
+  if (!pdbClient.registerType("libraries/libFFMatrixBlockScanner.so", errMsg)) {
+    cout << "Couldnt include libFFMatrixBlockScanner: " << errMsg << endl;
+  }
+
+  if (!pdbClient.registerType("libraries/libFFInputLayerJoin.so", errMsg)) {
+    cout << "Couldnt include libFFInputLayerJoin: " << errMsg << endl;
+  }
+
+  if (!pdbClient.registerType("libraries/libFFMatrixWriter.so", errMsg)) {
+    cout << "Couldnt include libFFMatrixWriter: " << errMsg << endl;
+  }
+
+  if (!pdbClient.registerType("libraries/libFFAggMatrix.so", errMsg)) {
+    cout << "Couldnt include libFFAggMatrix: " << errMsg << endl;
+  }
+
+  if (!pdbClient.registerType("libraries/libFFHiddenLayerJoin.so", errMsg)) {
+    cout << "Couldnt include libFFHiddenLayerJoin: " << errMsg << endl;
+  }
+
+  if (!pdbClient.registerType("libraries/libFFSelectionGradient.so", errMsg)) {
+    cout << "Couldnt include libFFSelectionGradient: " << errMsg << endl;
+  }
+
+  if (!pdbClient.registerType("libraries/libFFJoinBackTransposeMult.so", errMsg)) {
+    cout << "Couldnt include libFFJoinBackTransposeMult: " << errMsg << endl;
+  }
+
+  if (!pdbClient.registerType("libraries/libFFGradientJoin.so", errMsg)) {
+    cout << "Couldnt include libFFGradientJoin: " << errMsg << endl;
+  }
+
+  if (!pdbClient.registerType("libraries/libFFUpdateJoin.so", errMsg)) {
+    cout << "Couldnt include libFFUpdateJoin: " << errMsg << endl;
+  }
 
   if (!pdbClient.createDatabase("ff", errMsg)) {
     cout << "Not able to create database: " << errMsg << endl;
@@ -667,6 +731,51 @@ int main(int argc, char *argv[]) {
     }
   }
 
+  int rows = 0, cols = 0, blocks = 0;
+  auto it = pdbClient.getSetIterator<FFMatrixBlock>("ff", "input_batch");
+  for (auto r : it) {
+    rows = r->getRowNums();
+    cols = r->getColNums();
+    blocks++;
+  }
+  std::cout << "input_batch (" << blocks << ") : " << rows << " x " << cols << std::endl;
+
+  rows = 0; cols = 0; blocks = 0;
+  it = pdbClient.getSetIterator<FFMatrixBlock>("ff", "w1");
+  for (auto r : it) {
+    rows = r->getRowNums();
+    cols = r->getColNums();
+    blocks++;
+  }
+  std::cout << "w1 (" << blocks << ") : " << rows << " x " << cols << std::endl;
+
+  rows = 0; cols = 0; blocks = 0;
+  it = pdbClient.getSetIterator<FFMatrixBlock>("ff", "activation_1");
+  for (auto r : it) {
+    rows = r->getRowNums();
+    cols = r->getColNums();
+    blocks++;
+  }
+  std::cout << "activation_1 (" << blocks << ") : " << rows << " x " << cols << std::endl;
+
+  rows = 0; cols = 0; blocks = 0;
+  it = pdbClient.getSetIterator<FFMatrixBlock>("ff", "w2");
+  for (auto r : it) {
+    rows = r->getRowNums();
+    cols = r->getColNums();
+    blocks++;
+  }
+  std::cout << "w2 (" << blocks << ") : " << rows << " x " << cols << std::endl;
+
+  rows = 0; cols = 0; blocks = 0;
+  it = pdbClient.getSetIterator<FFMatrixBlock>("ff", "activation_2");
+  for (auto r : it) {
+    rows = r->getRowNums();
+    cols = r->getColNums();
+    blocks++;
+  }
+  std::cout << "activation_2 (" << blocks << ") : " << rows << " x " << cols << std::endl;
+
   {
     // do the activation of the first layer
     const UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
@@ -692,6 +801,15 @@ int main(int argc, char *argv[]) {
       return 1;
     }
   }
+
+  rows = 0; cols = 0; blocks = 0;
+  it = pdbClient.getSetIterator<FFMatrixBlock>("ff", "gradient_2");
+  for (auto r : it) {
+    rows = r->getRowNums();
+    cols = r->getColNums();
+    blocks++;
+  }
+  std::cout << "gradient_2 (" << blocks << ") : " << rows << " x " << cols << std::endl;
 
   pdbClient.removeSet("ff", "activation_2", errMsg);
 
@@ -725,6 +843,15 @@ int main(int argc, char *argv[]) {
     }
   }
 
+  rows = 0; cols = 0; blocks = 0;
+  it = pdbClient.getSetIterator<FFMatrixBlock>("ff", "d_w2");
+  for (auto r : it) {
+    rows = r->getRowNums();
+    cols = r->getColNums();
+    blocks++;
+  }
+  std::cout << "d_w2 (" << blocks << ") : " << rows << " x " << cols << std::endl;
+
   {
     // do the activation of the first layer
     const UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
@@ -755,135 +882,144 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  pdbClient.removeSet("ff", "gradient_2", errMsg);
-
-  {
-    // do the activation of the first layer
-    const UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
-
-    // make the computation
-    pdb::Handle<pdb::Computation> readA =
-        pdb::makeObject<FFMatrixBlockScanner>("ff", "gradient_1_tmp");
-    pdb::Handle<pdb::Computation> readB =
-        pdb::makeObject<FFMatrixBlockScanner>("ff", "activation_1");
-
-    // make the join
-    pdb::Handle<pdb::Computation> join = pdb::makeObject<FFGradientJoin>();
-    join->setInput(0, readA);
-    join->setInput(1, readB);
-
-    // make the aggregation
-    pdb::Handle<pdb::Computation> myAggregation = pdb::makeObject<FFAggMatrix>();
-    myAggregation->setInput(join);
-
-    // make the writer
-    pdb::Handle<pdb::Computation> myWriter = pdb::makeObject<FFMatrixWriter>("ff", "gradient_1");
-    myWriter->setInput(myAggregation);
-
-    // run the computation
-    if (!pdbClient.executeComputations(errMsg, myWriter)) {
-      std::cout << "Computation failed. Message was: " << errMsg << "\n";
-      return 1;
-    }
+  rows = 0; cols = 0; blocks = 0;
+  it = pdbClient.getSetIterator<FFMatrixBlock>("ff", "gradient_1_tmp");
+  for (auto r : it) {
+    rows = r->getRowNums();
+    cols = r->getColNums();
+    blocks++;
   }
+  std::cout << "gradient_1_tmp (" << blocks << ") : " << rows << " x " << cols << std::endl;
 
-  pdbClient.removeSet("ff", "activation_1", errMsg);
-  pdbClient.removeSet("ff", "gradient_1_tmp", errMsg);
+  // pdbClient.removeSet("ff", "gradient_2", errMsg);
 
-  {
-    // do the activation of the first layer
-    const UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+  // {
+  //   // do the activation of the first layer
+  //   const UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
-    // make the computation
-    pdb::Handle<pdb::Computation> readA =
-        pdb::makeObject<FFMatrixBlockScanner>("ff", "input_batch");
-    pdb::Handle<pdb::Computation> readB =
-        pdb::makeObject<FFMatrixBlockScanner>("ff", "gradient_1");
+  //   // make the computation
+  //   pdb::Handle<pdb::Computation> readA =
+  //       pdb::makeObject<FFMatrixBlockScanner>("ff", "gradient_1_tmp");
+  //   pdb::Handle<pdb::Computation> readB =
+  //       pdb::makeObject<FFMatrixBlockScanner>("ff", "activation_1");
 
-    // make the join
-    pdb::Handle<pdb::Computation> join = pdb::makeObject<FFJoinBackTransposeMult>(num_features / features_block);
-    join->setInput(0, readA);
-    join->setInput(1, readB);
+  //   // make the join
+  //   pdb::Handle<pdb::Computation> join = pdb::makeObject<FFGradientJoin>();
+  //   join->setInput(0, readA);
+  //   join->setInput(1, readB);
 
-    // make the aggregation
-    pdb::Handle<pdb::Computation> myAggregation = pdb::makeObject<FFAggMatrix>();
-    myAggregation->setInput(join);
+  //   // make the aggregation
+  //   pdb::Handle<pdb::Computation> myAggregation = pdb::makeObject<FFAggMatrix>();
+  //   myAggregation->setInput(join);
 
-    // make the writer
-    pdb::Handle<pdb::Computation> myWriter = makeObject<FFMatrixWriter>("ff", "d_w1");
-    myWriter->setInput(myAggregation);
+  //   // make the writer
+  //   pdb::Handle<pdb::Computation> myWriter = pdb::makeObject<FFMatrixWriter>("ff", "gradient_1");
+  //   myWriter->setInput(myAggregation);
 
-    // run the computation
-    if (!pdbClient.executeComputations(errMsg, myWriter)) {
-      std::cout << "Computation failed. Message was: " << errMsg << "\n";
-      return 1;
-    }
-  }
+  //   // run the computation
+  //   if (!pdbClient.executeComputations(errMsg, myWriter)) {
+  //     std::cout << "Computation failed. Message was: " << errMsg << "\n";
+  //     return 1;
+  //   }
+  // }
 
-  pdbClient.removeSet("ff", "gradient_1", errMsg);
+  // pdbClient.removeSet("ff", "activation_1", errMsg);
+  // pdbClient.removeSet("ff", "gradient_1_tmp", errMsg);
 
-  {
-    // do the activation of the first layer
-    const UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+  // {
+  //   // do the activation of the first layer
+  //   const UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
-    // make the computation
-    pdb::Handle<pdb::Computation> readA =
-        pdb::makeObject<FFMatrixBlockScanner>("ff", "w1");
-    pdb::Handle<pdb::Computation> readB =
-        pdb::makeObject<FFMatrixBlockScanner>("ff", "d_w1");
+  //   // make the computation
+  //   pdb::Handle<pdb::Computation> readA =
+  //       pdb::makeObject<FFMatrixBlockScanner>("ff", "input_batch");
+  //   pdb::Handle<pdb::Computation> readB =
+  //       pdb::makeObject<FFMatrixBlockScanner>("ff", "gradient_1");
 
-    // make the join
-    pdb::Handle<pdb::Computation> join = pdb::makeObject<FFUpdateJoin>();
-    join->setInput(0, readA);
-    join->setInput(1, readB);
+  //   // make the join
+  //   pdb::Handle<pdb::Computation> join = pdb::makeObject<FFJoinBackTransposeMult>(num_features / features_block);
+  //   join->setInput(0, readA);
+  //   join->setInput(1, readB);
 
-    // make the aggregation
-    pdb::Handle<pdb::Computation> myAggregation = pdb::makeObject<FFAggMatrix>();
-    myAggregation->setInput(join);
+  //   // make the aggregation
+  //   pdb::Handle<pdb::Computation> myAggregation = pdb::makeObject<FFAggMatrix>();
+  //   myAggregation->setInput(join);
 
-    // make the writer
-    pdb::Handle<pdb::Computation> myWriter = pdb::makeObject<FFMatrixWriter>("ff", "w1_updated");
-    myWriter->setInput(myAggregation);
+  //   // make the writer
+  //   pdb::Handle<pdb::Computation> myWriter = makeObject<FFMatrixWriter>("ff", "d_w1");
+  //   myWriter->setInput(myAggregation);
 
-    // run the computation
-    if (!pdbClient.executeComputations(errMsg, myWriter)) {
-      std::cout << "Computation failed. Message was: " << errMsg << "\n";
-      return 1;
-    }
-  }
+  //   // run the computation
+  //   if (!pdbClient.executeComputations(errMsg, myWriter)) {
+  //     std::cout << "Computation failed. Message was: " << errMsg << "\n";
+  //     return 1;
+  //   }
+  // }
 
-  pdbClient.removeSet("ff", "w1", errMsg);
-  pdbClient.removeSet("ff", "d_w1", errMsg);
+  // pdbClient.removeSet("ff", "gradient_1", errMsg);
 
-  {
-    // do the activation of the first layer
-    const UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+  // {
+  //   // do the activation of the first layer
+  //   const UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
-    // make the computation
-    pdb::Handle<pdb::Computation> readA =
-        pdb::makeObject<FFMatrixBlockScanner>("ff", "w2");
-    pdb::Handle<pdb::Computation> readB =
-        pdb::makeObject<FFMatrixBlockScanner>("ff", "d_w2");
+  //   // make the computation
+  //   pdb::Handle<pdb::Computation> readA =
+  //       pdb::makeObject<FFMatrixBlockScanner>("ff", "w1");
+  //   pdb::Handle<pdb::Computation> readB =
+  //       pdb::makeObject<FFMatrixBlockScanner>("ff", "d_w1");
 
-    // make the join
-    pdb::Handle<pdb::Computation> join = pdb::makeObject<FFUpdateJoin>();
-    join->setInput(0, readA);
-    join->setInput(1, readB);
+  //   // make the join
+  //   pdb::Handle<pdb::Computation> join = pdb::makeObject<FFUpdateJoin>();
+  //   join->setInput(0, readA);
+  //   join->setInput(1, readB);
 
-    // make the aggregation
-    pdb::Handle<pdb::Computation> myAggregation = pdb::makeObject<FFAggMatrix>();
-    myAggregation->setInput(join);
+  //   // make the aggregation
+  //   pdb::Handle<pdb::Computation> myAggregation = pdb::makeObject<FFAggMatrix>();
+  //   myAggregation->setInput(join);
 
-    // make the writer
-    pdb::Handle<pdb::Computation> myWriter = pdb::makeObject<FFMatrixWriter>("ff", "w2_updated");
-    myWriter->setInput(myAggregation);
+  //   // make the writer
+  //   pdb::Handle<pdb::Computation> myWriter = pdb::makeObject<FFMatrixWriter>("ff", "w1_updated");
+  //   myWriter->setInput(myAggregation);
 
-    // run the computation
-    if (!pdbClient.executeComputations(errMsg, myWriter)) {
-      std::cout << "Computation failed. Message was: " << errMsg << "\n";
-      return 1;
-    }
-  }
+  //   // run the computation
+  //   if (!pdbClient.executeComputations(errMsg, myWriter)) {
+  //     std::cout << "Computation failed. Message was: " << errMsg << "\n";
+  //     return 1;
+  //   }
+  // }
+
+  // pdbClient.removeSet("ff", "w1", errMsg);
+  // pdbClient.removeSet("ff", "d_w1", errMsg);
+
+  // {
+  //   // do the activation of the first layer
+  //   const UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+  //   // make the computation
+  //   pdb::Handle<pdb::Computation> readA =
+  //       pdb::makeObject<FFMatrixBlockScanner>("ff", "w2");
+  //   pdb::Handle<pdb::Computation> readB =
+  //       pdb::makeObject<FFMatrixBlockScanner>("ff", "d_w2");
+
+  //   // make the join
+  //   pdb::Handle<pdb::Computation> join = pdb::makeObject<FFUpdateJoin>();
+  //   join->setInput(0, readA);
+  //   join->setInput(1, readB);
+
+  //   // make the aggregation
+  //   pdb::Handle<pdb::Computation> myAggregation = pdb::makeObject<FFAggMatrix>();
+  //   myAggregation->setInput(join);
+
+  //   // make the writer
+  //   pdb::Handle<pdb::Computation> myWriter = pdb::makeObject<FFMatrixWriter>("ff", "w2_updated");
+  //   myWriter->setInput(myAggregation);
+
+  //   // run the computation
+  //   if (!pdbClient.executeComputations(errMsg, myWriter)) {
+  //     std::cout << "Computation failed. Message was: " << errMsg << "\n";
+  //     return 1;
+  //   }
+  // }
 
   sleep(20);
 

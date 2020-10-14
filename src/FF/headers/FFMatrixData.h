@@ -14,9 +14,14 @@ public:
 
   FFMatrixData &operator+(FFMatrixData &other) {
     double *myData, *otherData;
-    setSumFlag();
+    // setSumFlag();
 
-    MatrixData::operator+(static_cast<MatrixData &>(other));
+    myData = rawData->c_ptr();
+    otherData = rawData->c_ptr();
+    // MatrixData::operator+(static_cast<MatrixData &>(other));
+    for (int i = 0; i < rowNums * colNums; i++) {
+      (myData)[i] += (otherData)[i];
+    }
 
     if (bias != nullptr && other.bias != nullptr) {
       myData = bias->c_ptr();

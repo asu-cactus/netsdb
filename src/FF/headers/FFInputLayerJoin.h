@@ -75,6 +75,9 @@ public:
             // process the bias if necessary
             if (in2->getValue().bias != nullptr) {
               auto bias = in2->getValue().bias->c_ptr();
+              resultFFMatrixBlock->getValue().bias =
+                  makeObject<pdb::Vector<double>>(rowNums, colNums);
+
               for (uint32_t r = 0; r < rowNums; r++) {
                 for (uint32_t c = 0; c < colNums; c++) {
 
