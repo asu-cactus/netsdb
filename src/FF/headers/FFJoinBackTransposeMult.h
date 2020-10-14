@@ -70,7 +70,6 @@ public:
                 productMatrix(resultFFMatrixBlock->getValue().rawData->c_ptr(),
                               rowNums, colNums);
 
-            productMatrix = currentMatrix1 * currentMatrix2;
 
             // std::cout <<"Result Matrix :"<< std::endl;
             // resultFFMatrixBlock->print();
@@ -94,6 +93,8 @@ public:
                 }
               }
             }
+
+            productMatrix = currentMatrix1 * currentMatrix2;
 
             return resultFFMatrixBlock;
           } else {
