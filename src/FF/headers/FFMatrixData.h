@@ -1,24 +1,45 @@
 #ifndef FF_MATRIXDATA_H
 #define FF_MATRIXDATA_H
 
-#include "MatrixData.h"
+#include "Handle.h"
+#include "Object.h"
+#include "PDBString.h"
+#include "PDBVector.h"
+#include "StringIntPair.h"
 
-class FFMatrixData : public MatrixData {
+class FFMatrixData : public pdb::Object {
 public:
+  int rowNums = 0;
+  int colNums = 0;
+
   ENABLE_DEEP_COPY
 
   ~FFMatrixData() {}
+
+  FFMatrixData(int rowNumsIn, int colNumsIn)
+      : rowNums(rowNumsIn), colNums(colNumsIn) {
+    rawData = pdb::makeObject<pdb::Vector<double>>(rowNumsIn * colNumsIn,
+                                                   rowNumsIn * colNumsIn);
+  }
+
+  FFMatrixData(int rowNumsIn, int colNumsIn,
+               pdb::Handle<pdb::Vector<double>> rawDataIn)
+      : rowNums(rowNumsIn), colNums(colNumsIn), rawData(rawDataIn) {
+    rawData = pdb::makeObject<pdb::Vector<double>>(rowNumsIn * colNumsIn,
+                                                   rowNumsIn * colNumsIn);
+  }
+
   FFMatrixData() {}
 
+  pdb::Handle<pdb::Vector<double>> rawData;
   pdb::Handle<pdb::Vector<double>> bias;
 
   FFMatrixData &operator+(FFMatrixData &other) {
     double *myData, *otherData;
-    // setSumFlag();
 
     myData = rawData->c_ptr();
-    otherData = rawData->c_ptr();
-    // MatrixData::operator+(static_cast<MatrixData &>(other));
+    otherData = other.rawData->c_ptr();
+
     for (int i = 0; i < rowNums * colNums; i++) {
       (myData)[i] += (otherData)[i];
     }

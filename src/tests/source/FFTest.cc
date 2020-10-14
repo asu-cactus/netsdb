@@ -5,6 +5,8 @@
 
 #include "FFInputLayerJoin.h"
 #include "FFMatrixBlock.h"
+#include "FFMatrixMeta.h"
+#include "FFMatrixData.h"
 #include "FFMatrixBlockScanner.h"
 #include "FFMatrixWriter.h"
 #include "FFAggMatrix.h"
@@ -13,6 +15,7 @@
 #include "FFJoinBackTransposeMult.h"
 #include "FFGradientJoin.h"
 #include "FFUpdateJoin.h"
+
 #include "PDBClient.h"
 
 using namespace std;
@@ -516,16 +519,8 @@ int main(int argc, char *argv[]) {
   pdb::PDBClient pdbClient(8108, masterIp, clientLogger, false, true);
   pdb::CatalogClient catalogClient(8108, masterIp, clientLogger);
 
-  if (!pdbClient.registerType("libraries/libMatrixMeta.so", errMsg)) {
-    cout << "Couldnt include libMatrixMeta: " << errMsg << endl;
-  }
-
-  if (!pdbClient.registerType("libraries/libMatrixData.so", errMsg)) {
-    cout << "Couldnt include libMatrixData: " << errMsg << endl;
-  }
-
-  if (!pdbClient.registerType("libraries/libMatrixBlock.so", errMsg)) {
-    cout << "Couldnt include libMatrixBlock: " << errMsg << endl;
+  if (!pdbClient.registerType("libraries/libFFMatrixMeta.so", errMsg)) {
+    cout << "Couldnt include libFFMatrixMeta: " << errMsg << endl;
   }
 
   if (!pdbClient.registerType("libraries/libFFMatrixData.so", errMsg)) {

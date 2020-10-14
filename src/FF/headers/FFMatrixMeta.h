@@ -1,0 +1,32 @@
+#ifndef FF_MATRIXMETA_H
+#define FF_MATRIXMETA_H
+
+#include "Object.h"
+
+class FFMatrixMeta : public pdb::Object {
+public:
+  int blockRowIndex;
+  int blockColIndex;
+  int totalRows;
+  int totalCols;
+
+  ENABLE_DEEP_COPY
+
+  ~FFMatrixMeta() {}
+
+  FFMatrixMeta() {}
+  FFMatrixMeta(int rowIndex, int colIndex)
+      : blockRowIndex(rowIndex), blockColIndex(colIndex) {}
+  FFMatrixMeta(int rowIndex, int colIndex, int rows, int cols)
+      : blockRowIndex(rowIndex), blockColIndex(colIndex), totalRows(rows),
+        totalCols(cols) {}
+
+  bool operator==(const FFMatrixMeta &other) const {
+    return blockColIndex == other.blockColIndex &&
+           blockRowIndex == other.blockRowIndex;
+  }
+
+  size_t hash() const { return 10000 * blockRowIndex + blockColIndex; }
+};
+
+#endif

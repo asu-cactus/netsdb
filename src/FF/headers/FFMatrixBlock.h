@@ -1,100 +1,68 @@
 #ifndef FF_MATRIXBLOCK_H
 #define FF_MATRIXBLOCK_H
 
-#include "FFMatrixData.h"
-#include "MatrixBlock.h"
+#ifndef EIGEN_CODE
+#define EIGEN_CODE 0
+#endif
 
-class FFMatrixBlock : public MatrixBlock {
+#include "FFMatrixData.h"
+#include "FFMatrixMeta.h"
+#include "Handle.h"
+#include "PDBString.h"
+#include "PDBVector.h"
+#include "StringIntPair.h"
+
+class FFMatrixBlock : public pdb::Object {
 private:
   FFMatrixData data;
+  FFMatrixMeta meta;
 
 public:
+  const static int librayCode = EIGEN_CODE;
+
   ENABLE_DEEP_COPY
 
   ~FFMatrixBlock() {}
+
   FFMatrixBlock() {}
 
   FFMatrixBlock(int blockRowIndexIn, int blockColIndexIn, int rowNumsIn,
-                int colNumsIn) {
-    getKey().blockRowIndex = blockRowIndexIn;
-    getKey().blockColIndex = blockColIndexIn;
-    // getKey().rowNums = rowNumsIn;
-    // getKey().colNums = colNumsIn;
-    data.rowNums = rowNumsIn;
-    data.colNums = colNumsIn;
-    data.rawData = pdb::makeObject<pdb::Vector<double>>(rowNumsIn * colNumsIn,
-                                                        rowNumsIn * colNumsIn);
-    // std::cout << "This is risky, please call the other constructor.
-    // FFMatrixBlock constructor RawData size:" << (data.rawData)->size() <<
-    // std::endl;
-  }
+                int colNumsIn)
+      : data(rowNumsIn, colNumsIn), meta(blockRowIndexIn, blockColIndexIn) {}
 
   FFMatrixBlock(int blockRowIndexIn, int blockColIndexIn, int rowNumsIn,
-                int colNumsIn, int totalRows, int totalCols) {
-    getKey().blockRowIndex = blockRowIndexIn;
-    getKey().blockColIndex = blockColIndexIn;
-    getKey().totalRows = totalRows;
-    getKey().totalCols = totalCols;
-    data.rowNums = rowNumsIn;
-    data.colNums = colNumsIn;
-    data.rawData = pdb::makeObject<pdb::Vector<double>>(rowNumsIn * colNumsIn,
-                                                        rowNumsIn * colNumsIn);
-    // std::cout << "FFMatrixBlock constructor RawData size:" <<
-    // (data.rawData)->size() << std::endl;
-  }
+                int colNumsIn, int totalRows, int totalCols)
+      : data(rowNumsIn, colNumsIn),
+        meta(blockRowIndexIn, blockColIndexIn, rowNumsIn, colNumsIn) {}
 
   FFMatrixBlock(int blockRowIndexIn, int blockColIndexIn, int rowNumsIn,
-                int colNumsIn, pdb::Handle<pdb::Vector<double>> rawDataIn) {
-    getKey().blockRowIndex = blockRowIndexIn;
-    getKey().blockColIndex = blockColIndexIn;
-    // getKey().rowNums = rowNumsIn;
-    // getKey().colNums = colNumsIn;
-    data.rowNums = rowNumsIn;
-    data.colNums = colNumsIn;
-    data.rawData = rawDataIn;
-    // std::cout << "This is risky, please call the other constructor.
-    // FFMatrixBlock constructor RawData size:" << (data.rawData)->size() <<
-    // std::endl;
-  }
+                int colNumsIn, pdb::Handle<pdb::Vector<double>> rawDataIn)
+      : data(rowNumsIn, colNumsIn, rawDataIn),
+        meta(blockRowIndexIn, blockColIndexIn) {}
 
   FFMatrixBlock(int blockRowIndexIn, int blockColIndexIn, int rowNumsIn,
                 int colNumsIn, int totalRows, int totalCols,
-                pdb::Handle<pdb::Vector<double>> rawDataIn) {
-    getKey().blockRowIndex = blockRowIndexIn;
-    getKey().blockColIndex = blockColIndexIn;
-    getKey().totalRows = totalRows;
-    getKey().totalCols = totalCols;
-    data.rowNums = rowNumsIn;
-    data.colNums = colNumsIn;
-    data.rawData = rawDataIn;
-    // std::cout << "FFMatrixBlock constructor RawData size:" <<
-    // (data.rawData)->size() << std::endl;
-  }
+                pdb::Handle<pdb::Vector<double>> rawDataIn)
+      : data(rowNumsIn, colNumsIn, rawDataIn),
+        meta(blockRowIndexIn, blockColIndexIn, rowNumsIn, colNumsIn) {}
 
-    int getRowNums() {
-        return data.rowNums;
-    }
+  int getRowNums() { return data.rowNums; }
 
-    int getColNums() {
-        return data.colNums;
-    }
+  int getColNums() { return data.colNums; }
 
-    pdb::Handle<pdb::Vector<double>>& getRawDataHandle() {
-        return data.rawData;
-    }
+  pdb::Handle<pdb::Vector<double>> &getRawDataHandle() { return data.rawData; }
 
-    MatrixMeta& getKey() {
-        return MatrixBlock::getKey();
-    }
+  FFMatrixMeta &getKey() { return meta; }
 
-    FFMatrixData& getValue() {
-        return data;
-    }
+  FFMatrixData &getValue() { return data; }
 
-    FFMatrixData& getMultiplyValue() {
-        data.setSumFlag();
-        return data;
-    }
+  int getBlockRowIndex() { return meta.blockRowIndex; }
+
+  int getBlockColIndex() { return meta.blockColIndex; }
+
+  int getTotalRowNums() { return meta.totalRows; }
+
+  int getTotalColNums() { return meta.totalCols; }
 };
 
 #endif
