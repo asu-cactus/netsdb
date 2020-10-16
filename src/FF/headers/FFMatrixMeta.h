@@ -20,6 +20,13 @@ public:
   FFMatrixMeta(int rowIndex, int colIndex, int rows, int cols)
       : blockRowIndex(rowIndex), blockColIndex(colIndex), totalRows(rows),
         totalCols(cols) {}
+  
+  FFMatrixMeta(const FFMatrixMeta &rhs) {
+    blockColIndex = rhs.blockColIndex;
+    blockRowIndex = rhs.blockRowIndex;
+    totalCols = rhs.totalCols;
+    totalRows = rhs.totalRows;
+  }
 
   bool operator==(const FFMatrixMeta &other) const {
     return blockColIndex == other.blockColIndex &&
@@ -27,6 +34,16 @@ public:
   }
 
   size_t hash() const { return 10000 * blockRowIndex + blockColIndex; }
+
+  FFMatrixMeta &operator=(const FFMatrixMeta &rhs) {
+    blockColIndex = rhs.blockColIndex;
+    blockRowIndex = rhs.blockRowIndex;
+    totalCols = rhs.totalCols;
+    totalRows = rhs.totalRows;
+
+    return *this;
+  }
+
 };
 
 #endif

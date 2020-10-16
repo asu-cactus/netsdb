@@ -32,23 +32,24 @@ public:
     return makeLambda(
         in1, in2, [](Handle<FFMatrixBlock> &in1, Handle<FFMatrixBlock> &in2) {
           if (FFMatrixBlock::librayCode == EIGEN_CODE) {
-            // std::cout <<"Test Eigen" << std::endl;
-            // std::cout <<"Current Matrix1 :"<< std::endl;
-            // in1->print();
-            // std::cout <<"Current Matrix2 :"<< std::endl;
-            // in2->print();
-            if (in1->getColNums() != in2->getRowNums()) {
-              std::cerr << "Block dimemsions mismatch!" << std::endl;
-              exit(1);
-            }
+            // get the sizes
+            uint32_t I = in1->getRowNums();
+            uint32_t J = in2->getColNums();
+            uint32_t K = in1->getColNums();
+            // std::cout << "[FFInputLayerJoin] " << in1->getBlockRowIndex() << ", " << in1->getBlockColIndex() << " X " << in2->getBlockRowIndex() << ", " << in2->getBlockColIndex() << " = " << in1->getBlockRowIndex() << ", " << in2->getBlockColIndex() << std::endl;
 
-            int rowNums = in1->getRowNums();
-            int colNums = in2->getColNums();
-            int blockRowIndex = in1->getBlockRowIndex();
-            int blockColIndex = in2->getBlockColIndex();
-            int totalRows = in1->getTotalRowNums();
-            int totalCols = in2->getTotalColNums();
+            // make an output
+            pdb::Handle<FFMatrixBlock> resultFFMatrixBlock =
+                pdb::makeObject<FFMatrixBlock>(
+                    in1->getBlockRowIndex(), in2->getBlockColIndex(), I, J,
+                    in1->getTotalRowNums(), in2->getTotalColNums());
 
+            // get the ptrs
+            double *outData = resultFFMatrixBlock->getValue().rawData->c_ptr();
+            double *in1Data = in1->getValue().rawData->c_ptr();
+            double *in2Data = in2->getValue().rawData->c_ptr();
+
+            // do the multiply
             Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
                                      Eigen::RowMajor>>
                 currentMatrix1(in1->getValue().rawData->c_ptr(),
@@ -58,32 +59,21 @@ public:
                 currentMatrix2(in2->getValue().rawData->c_ptr(),
                                in2->getRowNums(), in2->getColNums());
 
-            pdb::Handle<FFMatrixBlock> resultFFMatrixBlock =
-                pdb::makeObject<FFMatrixBlock>(blockRowIndex, blockColIndex,
-                                               rowNums, colNums, totalRows,
-                                               totalCols);
             Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
                                      Eigen::RowMajor>>
                 productMatrix(resultFFMatrixBlock->getValue().rawData->c_ptr(),
-                              rowNums, colNums);
+                              I, J);
 
             productMatrix = currentMatrix1 * currentMatrix2;
-
-            // std::cout <<"Result Matrix :"<< std::endl;
-            // resultFFMatrixBlock->print();
 
             // process the bias if necessary
             if (in2->getValue().bias != nullptr) {
               auto bias = in2->getValue().bias->c_ptr();
-              // resultFFMatrixBlock->getValue().bias =
-              //     makeObject<pdb::Vector<double>>(rowNums, colNums);
-
-              for (uint32_t r = 0; r < rowNums; r++) {
-                for (uint32_t c = 0; c < colNums; c++) {
+              for (uint32_t r = 0; r < I; r++) {
+                for (uint32_t c = 0; c < J; c++) {
 
                   // add the bias
-                  resultFFMatrixBlock->getValue()
-                      .rawData->c_ptr()[r * colNums + c] += bias[c];
+                  outData[r * J + c] += bias[c];
                 }
               }
             }
