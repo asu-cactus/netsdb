@@ -59,6 +59,8 @@ public:
                 if (i >= limit) {
                     Handle<OutputType> temp = (makeObject<OutputType>());
                     inputColumn.push_back(temp);
+                } else {
+                    inputColumn[i] = (makeObject<OutputType>());
                 }
                 // key the key/value pair
                 inputColumn[i]->getKey() = (*begin).key;
