@@ -139,34 +139,16 @@ int main(int argc, char* argv[]) {
                 string nodeType = "master";
 
                 pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024};
-                pdb::Handle<pdb::CatalogNodeMetadata> nodeData =
-                    pdb::makeObject<pdb::CatalogNodeMetadata>(
-                        String("localhost:" + std::to_string(localPort)),
-                        String("localhost"),
-                        localPort,
-                        String(nodeName),
-                        String(nodeType),
-                        1);
                 frontEnd.addFunctionality<pdb::CatalogServer>(
-                    "CatalogDir", true, "localhost", localPort);
+                    "CatalogDir", true, "localhost", localPort, "localhost", localPort);
                 frontEnd.addFunctionality<pdb::CatalogClient>(localPort, "localhost", logger);
-                std::cout << "to register node metadata in catalog..." << std::endl;
-                if (!frontEnd.getFunctionality<pdb::CatalogServer>().addNodeMetadata(nodeData,
-                                                                                     errMsg)) {
-                    std::cout << "Not able to register node metadata: " + errMsg << std::endl;
-                    std::cout
-                        << "Please change the parameters: nodeIP, port, nodeName, nodeType, status."
-                        << std::endl;
-                } else {
-                    std::cout << "Node metadata successfully added.\n";
-                }
 
             } else {
 
                 std::string catalogFile = std::string("CatalogDir_") + localIp + std::string("_") +
                     std::to_string(localPort);
                 frontEnd.addFunctionality<pdb::CatalogServer>(
-                    catalogFile, false, masterIp, masterPort);
+                    catalogFile, false, masterIp, masterPort, localIp, localPort);
                 frontEnd.addFunctionality<pdb::CatalogClient>(localPort, "localhost", logger);
             }
 

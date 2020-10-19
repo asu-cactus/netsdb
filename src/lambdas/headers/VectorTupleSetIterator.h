@@ -91,9 +91,23 @@ public:
             lastRec = nullptr;
         }
 
+        // iterate until we find a non-empty page or no page left
         size_t mySize = iterateOverMe->size();
-        if (mySize == 0) {
-            return nullptr;
+        while (mySize == 0) {
+            // maybe next page is not empty
+            std::cout << "VectorTupleSetIterator: We met an empty page, and we go to the next" << std::endl;
+            if (lastRec != nullptr){
+                doneWithVector(lastRec);
+            }
+            lastRec = myRec;
+            myRec = (Record<Vector<Handle<Object>>>*)getAnotherVector();
+            if (myRec == nullptr){
+                return nullptr;
+            }
+
+            iterateOverMe = myRec->getRootObject();
+            mySize = iterateOverMe->size();
+         
         }
         // see if there are no more items in the vector to iterate over
         if (pos == mySize) {

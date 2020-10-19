@@ -41,6 +41,17 @@ public:
     VTableMap();
     ~VTableMap();
 
+    /**
+     * Returns the name of the internal type that is going to be handling the input type.
+     * For example if we have something like pdb::PairArray<pdb::Handle<pdb::String>,pdb::Handle<pdb::Employee>>
+     * the internal type that is going to take care of this type is pdb::PairArray<<pdb::Nothing>,<pdb::Nothing>
+     * @param realName - the real name of the type
+     * @return - the internal name of the type
+     */
+    static std::string getInternalTypeName(const std::string &realName);
+
+
+
     static void setLogger(PDBLoggerPtr myLoggerIn);
 
     // Returns the type ID of a user-defined object, given the object name
@@ -68,6 +79,11 @@ public:
 
     // returns the number of built-in objects
     static int totalBuiltInObjects();
+
+    // returns all the built-in types
+    static std::vector<std::pair<std::string, int16_t>> getBuiltInTypes();
+
+
 
     // sets the catalog client for the vtable
     static void setCatalogClient(CatalogClient* catalog);

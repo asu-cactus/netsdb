@@ -1,34 +1,57 @@
+/*****************************************************************************
+ *                                                                           *
+ *  Copyright 2018 Rice University                                           *
+ *                                                                           *
+ *  Licensed under the Apache License, Version 2.0 (the "License");          *
+ *  you may not use this file except in compliance with the License.         *
+ *  You may obtain a copy of the License at                                  *
+ *                                                                           *
+ *      http://www.apache.org/licenses/LICENSE-2.0                           *
+ *                                                                           *
+ *  Unless required by applicable law or agreed to in writing, software      *
+ *  distributed under the License is distributed on an "AS IS" BASIS,        *
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. *
+ *  See the License for the specific language governing permissions and      *
+ *  limitations under the License.                                           *
+ *                                                                           *
+ *****************************************************************************/
 #ifndef CATALOG_SERVER_H
 #define CATALOG_SERVER_H
+
+#include <mutex>
+#include <CatDeleteDatabaseRequest.h>
 
 #include "CatalogClient.h"
 #include "PDBCatalog.h"
 #include "PDBDebug.h"
 #include "PDBServer.h"
+#include "CatCreateDatabaseRequest.h"
+#include "CatDeleteSetRequest.h"
+#include "CatRegisterType.h"
 #include "ServerFunctionality.h"
 
 /**
  * Class for handling requests regarding the Catalog Server functionality.
- * This can be used either by the Catalog Master Server or a Catalog in any
+ * This can be used either by the Catalog Manager Server or a Catalog in any
  * Worker Node in the cluster. All metadata is stored and retrieved via
  * the pdbCatalog class, which has an SQLite database as the underlying
  * persistent storage.
  *
- * If this is the master catalog server, it will receive a metadata
+ * If this is the manager catalog server, it will receive a metadata
  * registration request and perform the following operations:
  *
- *    1) update metadata in the local master catalog SQLite database
+ *    1) update metadata in the local manager catalog SQLite database
  *    2) iterate over all registered nodes in the cluster and send the metadata
  * object
  *    3) update catalog version
  *
  *  if this is the catalog instance of a worker node, it will receive a metadata
  * registration
- *  request from the master catalog server and perform the following operations:
+ *  request from the manager catalog server and perform the following operations:
  *
  *    1) update metadata in the local catalog SQLite database
  *    2) update catalog version
- *    3) send acknowledgement to master catalog server
+ *    3) send acknowledgement to manager catalog server
  */
 
 namespace pdb {
@@ -36,199 +59,245 @@ namespace pdb {
 class CatalogServer : public ServerFunctionality {
 
 public:
-  /* Destructor */
-  ~CatalogServer();
 
-  /* Creates a Catalog Server
-   *        catalogDirectory: the path of the location of the catalog
-   *   isMasterCatalogServer: true if this is the Master Catalog Server
-   *                          workers nodes have this parameter set to false
-   *                masterIP: the IP address of the Master Catalog
-   *              masterPort: the port number of the Master Catalog
+  /**
+   * Creates a Catalog Server
+   * @param catalogDirectory : the path of the location of the catalog
+   * @param isManagerCatalogServer : true if this is the Manager Catalog Server, workers nodes have this parameter set to false
+   * @param managerIP : the IP address of the Manager Catalog
+   * @param managerPort : the port number of the Manager Catalog
    */
-  CatalogServer(std::string catalogDirectory, bool isMasterCatalogServer,
-                std::string masterIP, int masterPort);
+  CatalogServer(const string &catalogDirectory,
+                bool isManagerCatalogServer,
+                const string &managerIP,
+                int managerPort,
+                const string &nodeIPValue,
+                int nodePortValue);
 
-  /* From the ServerFunctionality interface */
+  /**
+   * Default destructor
+   */
+  ~CatalogServer() = default;
+
+  /**
+   * From the ServerFunctionality interface
+   * @param forMe
+   */
   void registerHandlers(PDBServer &forMe) override;
 
-  /* Returns the type Id of a type given its name */
-  int16_t searchForObjectTypeName(string objectTypeName);
+ private:
 
-  /* Returns the name of a type given it's type Id */
-  string searchForObjectTypeName(int16_t typeIdentifier);
-
-  /* Retrieves the content of a Shared Library given it's Type Id
-   * putting it at the specified location
-   */
-  bool getSharedLibrary(int16_t identifier, vector<char> &putResultHere,
-                        std::string &errMsg);
-
-  /* Retrieves the content of a Shared Library along with its registered
-   * metadata,
-   * given it's typeName. Typically this method is invoked by a remote machine
-   * that
-   * has no knowledge of the typeID
-   */
-  bool getSharedLibraryByTypeName(std::string typeName,
-                                  Handle<CatalogUserTypeMetadata> &typeMetadata,
-                                  string &sharedLibraryBytes,
-                                  std::string &errMsg);
-
-  /* Returns the type of an object in the specified set, as a type name */
-  int16_t getObjectType(string databaseName, string setName);
-
-  /* Creates a new database... returns true on success */
-  bool addDatabase(string databaseName, string &errMsg);
-
-  /* Deletes a database... returns true on success */
-  bool deleteDatabase(string databaseName, string &errMsg);
-
-  /* Deletes a set from the database */
-  bool deleteSet(std::string databaseName, std::string setName,
-                 std::string &errMsg);
-
-  /* Creates a new set in a given database... returns true on success */
-  bool addSet(int16_t typeIdentifier, string databaseName, string setName,
-              string &errMsg);
-
-  /* Adds information about a node to a set for a given database
-   * returns true on success, false on fail
-   */
-  bool addNodeToSet(std::string nodeIP, std::string databaseName,
-                    std::string setName, std::string &errMsg);
-
-  /* Adds information about a node to a database
-   * returns true on success, false on fail
-   */
-  bool addNodeToDB(std::string nodeIP, std::string databaseName,
-                   std::string &errMsg);
-
-  /* Removes information about a node from a set, this is invoked when storage
-   * removes a set for a database in a node in the cluster returns true on
-   * success
-   */
-  bool removeNodeFromSet(std::string nodeIP, std::string databaseName,
-                         std::string setName, std::string &errMsg);
-
-  /* Removes information about a node from a database, this is invoked when
-   * storage
-   * removes a database in a node in the cluster returns true on success
-   */
-  bool removeNodeFromDB(std::string nodeIP, std::string databaseName,
-                        std::string &errMsg);
-
-  /* Adds a new object type... return -1 on failure, this is done on a worker
-   * node catalog
-   * the typeID is given by the master catalog
-   */
-  int16_t addObjectType(int16_t typeID, string &soFile, string &errMsg);
-
-  /* Print the content of the catalog metadata that have changed since a given
-   * timestamp */
-  void printCatalog(Handle<CatalogPrintMetadata> &metadataToPrint);
-
-  /* Print the contents of the catalog metadata */
-  bool printCatalog();
-
-  /* Adds metadata about a new node in the cluster */
-  bool addNodeMetadata(Handle<CatalogNodeMetadata> &nodeMetadata,
-                       std::string &errMsg);
-
-  /* Adds metadata about a new database in the cluster */
-  bool addDatabaseMetadata(Handle<CatalogDatabaseMetadata> &dbMetadata,
-                           std::string &errMsg);
-
-  /* Adds metadata about a new set in the cluster */
-  bool addSetMetadata(Handle<CatalogSetMetadata> &setMetadata,
-                      std::string &errMsg);
-
-  /* Updates metadata changes about a database in the cluster */
-  bool updateDatabaseMetadata(Handle<CatalogDatabaseMetadata> &dbMetadata,
-                              std::string &errMsg);
-
-  /* Returns true if this is the master catalog server */
-  bool getIsMasterCatalogServer();
-
-  /* Sets if this is the Master Catalog Server (true) or not (false) */
-  void setIsMasterCatalogServer(bool isMasterCatalogServerIn);
-
-  /* Broadcasts a metadata item to all available nodes in a cluster, when an
-   * update has occurred
-   * returns a map with the results from updating each node in the cluster
-   */
-  template <class Type>
-  bool broadcastCatalogUpdate(Handle<Type> metadataToSend,
-                              map<string, pair<bool, string>> &broadcastResults,
-                              string &errMsg);
-
-  /* Broadcasts a metadata item to all available nodes in a cluster, when an
-   * delete has occurred returns a map with the results from updating each
-   * node in the cluster
-   */
-  template <class Type>
-  bool broadcastCatalogDelete(Handle<Type> metadataToSend,
-                              map<string, pair<bool, string>> &broadcastResults,
-                              string &errMsg);
-
-  /* Returns true if a node is already registered in the Catalog */
-  bool isNodeRegistered(string nodeIP);
-
-  /* Returns true if a database is already registered in the Catalog */
-  bool isDatabaseRegistered(string dbName);
-
-  /* Returns true if a set for a given database is already registered in the
-   * Catalog */
-  bool isSetRegistered(string dbName, string setName);
-
-  /* Returns a reference to the underlying class that manages catalog metadata
-   * the metadata is stored in a SQLite database
-   */
-  PDBCatalogPtr getCatalog();
-
-private:
-  /* Containers for storing metadata retrieved from the catalog */
-  Handle<Vector<CatalogNodeMetadata>> _allNodesInCluster;
-  Handle<Vector<CatalogSetMetadata>> _setTypes;
-  Handle<Vector<CatalogDatabaseMetadata>> _allDatabases;
-  Handle<Vector<CatalogUserTypeMetadata>> _udfsValues;
-
-  /* Maps from type name string to typeID, and vice-versa */
-  map<string, int16_t> allTypeNames;
-  map<int16_t, string> allTypeCodes;
-
-  /* Vector of nodes in the cluster */
-  vector<string> allNodesInCluster;
-
-  /* Maps from database/set pair to the typeID that set stores */
-  map<pair<string, string>, int16_t> setTypes;
-
-  /* Interface to a persistent catalog storage for storing and retrieving PDB
+  /**
+   * Interface to a persistent catalog storage for storing and retrieving PDB
    * metadata.
    * All metadata is stored in an SQLite database.
    */
   PDBCatalogPtr pdbCatalog;
 
-  /* Catalog client helper to connect to the Master Catalog Server */
-  CatalogClient catalogClientConnectionToMasterCatalogServer;
-
-  /* Path where the catalog file is located */
+  /**
+   * Path where the catalog file is located
+   */
   std::string catalogDirectory;
 
-  /* To ensure serialized access */
-  pthread_mutex_t workingMutex;
+  /**
+   * Path where we store the .so files
+   */
+  std::string tempPath;
 
-  /* True if this is the Master Catalog Server */
-  bool isMasterCatalogServer;
+  /**
+   * True if this is the Manager Catalog Server
+   */
+  bool isManagerCatalogServer;
 
-  /* Default IP of the Catalog Server, can be changed in the constructor */
-  string masterIP = "localhost";
+  /**
+   * The ip address of the manager
+   */
+  string managerIP;
 
-  /* Default port of the Catalog Server, can be changed in the constructor */
-  int masterPort = 8108;
+  /**
+   * Default port of the Catalog Server, can be changed in the constructor
+   */
+  int managerPort;
 
-  /* Logger to capture debug information for the Catalog Server */
-  PDBLoggerPtr catServerLogger;
+  /**
+ * The ip address of the node this catalog server is running
+ */
+  string nodeIP;
+
+  /**
+   * Default port of the node this catalog server is running
+   */
+  int nodePort;
+
+  /**
+   * Logger to capture debug information for the Catalog Server
+   */
+  PDBLoggerPtr logger;
+
+  /**
+   * To ensure serialized access
+   */
+  std::mutex serverMutex;
+
+  /**
+   * Makes the directories of the catalog if needed
+   */
+  void initDirectories() const;
+
+  /**
+   * Initializes the catalog with the built in types if needed
+   */
+  void initBuiltInTypes();
+
+  /**
+   * register the manager node in this catalog
+   * If we are the manager we simply add ourselves into the catalog
+   */
+  void registerManager();
+
+  /**
+   * sync the worker catalog with the manager.
+   */
+  void syncWithManager();
+
+  /**
+   * Adds a new object type... return -1 on failure, this is done on a worker node catalog
+   * the typeID is given by the manager catalog
+   * @param typeID
+   * @param soFile
+   * @param errMsg
+   * @return
+   */
+  bool loadAndRegisterType(int16_t typeID, const char *&soFile, size_t soFileSize, string &errMsg);
+
+  /**
+   * Broadcasts a request to all available nodes in a cluster, when an update has occurred
+   * returns a map with the results from updating each node in the cluster
+   * @tparam Type - The type of the request we are broadcasting
+   * @param request - the request we are broadcasting
+   * @param broadcastResults - the results of the broadcast
+   * @param errMsg - the error message generated if any
+   * @return - true if we succeed false otherwise
+   */
+  template <class Type>
+  bool broadcastRequest(Handle<Type> &request, map<string, pair<bool, string>> &broadcastResults, string &errMsg){
+
+    // go through each node
+    for (auto &node : pdbCatalog->getNodes()) {
+
+      // grab the address and the port of the node
+      std::string ip = node.address;
+      int port = node.port;
+
+      // is this node the manager if so skip it
+      if (node.nodeType != "manager") {
+
+        // sends the request to a node in the cluster
+        bool res = forwardRequest(request, ip, port, errMsg);
+
+        // adds the result of the update
+        broadcastResults.insert(make_pair(ip, make_pair(res, errMsg)));
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Templated method to forward a request to the Catalog Server on another node
+   * @tparam Type - is the type of the request we want to forward
+   * @param request - is the request we want to forward
+   * @param address - is the address of the node with the catalog server
+   * @param port - is the port of the node with the catalog server
+   * @param errMsg - the generated error message if any
+   * @return - true if we succeed, false otherwise
+   */
+  template <class Type>
+  bool forwardRequest(pdb::Handle<Type> &request, const std::string &address, int port, std::string &errMsg) {
+
+    // make an allocation block
+    const UseTemporaryAllocationBlock tempBlock{1024};
+
+    // copy the request we want to forward
+    Handle<Type> requestCopy = makeObject<Type>(request);
+
+    return simpleRequest<Type, SimpleRequestResult, bool>(
+        this->logger, port, address, false, 1024 * 1024,
+        [&](Handle<SimpleRequestResult> result) {
+
+          // if the result is something else null we got a response
+          if (result != nullptr) {
+
+            // check if we failed
+            if (!result->getRes().first) {
+
+              // we failed set the error and return false
+              errMsg = "Error failed request to node : " + address + ":" + std::to_string(port) + ". Error is :" + result->getRes().second;
+
+              // log the error
+              this->logger->error("Error registering node metadata: " + result->getRes().second);
+
+              // return false
+              return false;
+            }
+
+            // we are good return true
+            return true;
+          }
+
+          // set an error and return false
+          errMsg = "Error failed request to node : " + address + ":" + std::to_string(port) + ". Error is :" + result->getRes().second;
+
+          return false;
+        },
+        requestCopy);
+  }
+
+  /**
+   * Method to forward a request of CatRegisterType to the Catalog Server on another node
+   * @tparam Type - is the type of the request we want to forward
+   * @param request - is the request we want to forward
+   * @param address - is the address of the node with the catalog server
+   * @param port - is the port of the node with the catalog server
+   * @param errMsg - the generated error message if any
+   * @return - true if we succeed, false otherwise
+   */
+  bool forwardRequest(pdb::Handle<CatRegisterType> &request, const std::string &address, int port, std::string &errMsg) {
+
+    char* libraryBytes = request->getLibraryBytes();
+    size_t librarySize = request->getLibrarySize();
+
+    return simpleRequest<CatRegisterType, SimpleRequestResult, bool>(
+        this->logger, port, address, false, 1024 * 1024 + request->getLibrarySize(),
+        [&](Handle<SimpleRequestResult> result) {
+
+          // if the result is something else null we got a response
+          if (result != nullptr) {
+
+            // check if we failed
+            if (!result->getRes().first) {
+
+              // we failed set the error and return false
+              errMsg = "Error failed request to node : " + address + ":" + std::to_string(port) + ". Error is :" + result->getRes().second;
+
+              // log the error
+              this->logger->error("Error registering node metadata: " + result->getRes().second);
+
+              // return false
+              return false;
+            }
+
+            // we are good return true
+            return true;
+          }
+
+          // we failed set the error and return false
+          errMsg = "Error failed request to node : " + address + ":" + std::to_string(port) + ". Error is :" + result->getRes().second;
+
+          return false;
+        },
+        libraryBytes, librarySize);
+  }
 };
 }
 

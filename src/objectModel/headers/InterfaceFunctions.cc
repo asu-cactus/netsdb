@@ -36,7 +36,7 @@ int16_t getTypeID(bool withLock) {
         // we have some other type name
     } else {
         std::string name = getTypeName<ObjType>();
-        typeID = VTableMap::getIDByName(getTypeName<ObjType>(), withLock);
+        typeID = VTableMap::getIDByName(VTableMap::getInternalTypeName(getTypeName<ObjType>()), withLock);
         return typeID;
     }
 }
