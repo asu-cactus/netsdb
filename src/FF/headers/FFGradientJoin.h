@@ -46,7 +46,7 @@ public:
 
           // do the multiply
           for (int32_t i = 0; i < I * K; i++) {
-            data[i] = lhs[i] * (rhs[i] > 0) * 1.0f;
+            data[i] = lhs[i] * (rhs[i] > 0) * 1.0;
           }
 
           // return the output

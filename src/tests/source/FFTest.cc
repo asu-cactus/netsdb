@@ -508,19 +508,67 @@ auto init_weights(pdb::PDBClient &pdbClient) {
 void print_stats(pdb::PDBClient &pdbClient, string dbName, string setName) {
   int rows = 0, cols = 0, blocks = 0;
   int totalRows = 0, totalCols = 0;
+  int blockRows = 0, blockCols = 0;
   auto it = pdbClient.getSetIterator<FFMatrixBlock>(dbName, setName);
 
   for (auto r : it) {
     std::cout << r->getBlockRowIndex() << "," << r->getBlockColIndex() << ";";
     rows = r->getRowNums();
     cols = r->getColNums();
-    if (r->getBlockRowIndex() == 0)
+    if (r->getBlockRowIndex() == 0) {
       totalRows += r->getRowNums();
-    if (r->getBlockColIndex() == 0)
+      blockRows += 1;
+    }
+    if (r->getBlockColIndex() == 0) {
       totalCols += r->getColNums();
+      blockCols += 1;
+    }
     blocks++;
   }
-  std::cout << "\n" << setName << " (" << totalRows << " X " << totalCols << ") (" << blocks << ") : " << rows << " x " << cols << std::endl;
+
+  std::cout << "\n" << setName << " (" << blockRows << " X " << blockCols << ") (" << blocks << ") : (" << totalRows << " x " << totalCols << "), Each block size: " << rows << " x " << cols << std::endl;
+}
+
+void loadMatrix (pdb::PDBClient & pdbClient, String dbName, String setName, int blockSize, int rowNum, int colNum, int blockRowNums, int blockColNums, std::string errMsg) {
+
+    int total = 0;
+    pdb::makeObjectAllocatorBlock(128 * 1024 * 1024, true);
+
+    pdb::Handle<pdb::Vector<pdb::Handle<FFMatrixBlock>>> storeMatrix1 =
+        pdb::makeObject<pdb::Vector<pdb::Handle<FFMatrixBlock>>>();
+
+    try {
+        for (int i=0; i < rowNum; i++) {
+            for (int j=0; j < colNum; j++) {
+                pdb::Handle<FFMatrixBlock> myData =
+                    pdb::makeObject<FFMatrixBlock>(i, j, blockRowNums, blockColNums);
+                // Foo initialization
+                for (int ii = 0; ii < blockRowNums; ii++) {
+                    for (int jj = 0; jj < blockColNums; jj++) {
+                        (*(myData->getRawDataHandle()))[ii * blockColNums + jj] = i + j + ii + jj;
+                    }
+                }
+
+                std::cout << "New block: " << total << std::endl;
+                storeMatrix1->push_back(myData);
+                total++;
+            }
+        }
+        if (!pdbClient.sendData<FFMatrixBlock>(
+            std::pair<std::string, std::string>(setName, dbName),
+            storeMatrix1,
+            errMsg)) {
+                std::cout << "Failed to send data to dispatcher server" << std::endl;
+                exit(1);
+        }
+    } catch (NotEnoughSpace& e) {
+        std::cout << "Failed to send data to dispatcher server" << std::endl;
+        exit(1);
+    }
+    PDB_COUT << total << " MatrixBlock data sent to dispatcher server~~" << std::endl;
+
+   // to write back all buffered records
+    pdbClient.flushData(errMsg);
 }
 
 void loadLibrary(pdb::PDBClient &pdbClient, string path) {
@@ -556,27 +604,27 @@ void createDatabase(pdb::PDBClient &pdbClient, string dbName) {
 int main(int argc, char *argv[]) {
   string errMsg;
 
-  cout << "num_batch : " << endl;
-  cin >> num_batch;
+  // cout << "num_batch (number of features to be picked from input file) : " << endl;
+  // cin >> num_batch;
 
-  cout << "batch_block : " << endl;
-  cin >> batch_block;
+  // cout << "batch_block : " << endl;
+  // cin >> batch_block;
 
-  cout << "features_block : " << endl;
-  cin >> features_block;
+  // cout << "features_block : " << endl;
+  // cin >> features_block;
 
-  cout << "labels_block : " << endl;
-  cin >> labels_block;
+  // cout << "labels_block : " << endl;
+  // cin >> labels_block;
 
-  cout << "embedding_size : " << endl;
-  cin >> embedding_size;
+  // cout << "embedding_size : " << endl;
+  // cin >> embedding_size;
 
-  cout << "embedding_block : " << endl;
-  cin >> embedding_block;
+  // cout << "embedding_block : " << endl;
+  // cin >> embedding_block;
 
-  string path;
-  cout << "Path to input: " << endl;
-  cin >> path;
+  // string path;
+  // cout << "Path to input: " << endl;
+  // cin >> path;
 
   string masterIp = "localhost";
   pdb::PDBLoggerPtr clientLogger = make_shared<pdb::PDBLogger>("FFclientLog");
@@ -611,8 +659,11 @@ int main(int argc, char *argv[]) {
   createSet(pdbClient, "ff", "w2_updated", "w2Updated");
 
   // load the input data
-  load_input_data(pdbClient, path, "ff", "input_batch");
-  init_weights(pdbClient);
+  // load_input_data(pdbClient, path, "ff", "input_batch");
+  // init_weights(pdbClient);
+
+  loadMatrix(pdbClient, "ff", "input_batch", 64, 17, 50, 100, 100, errMsg);
+  loadMatrix(pdbClient, "ff", "w1", 64, 50, 17, 100, 100, errMsg);
 
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
@@ -681,9 +732,13 @@ int main(int argc, char *argv[]) {
   //   }
   // }
 
-  // print_stats(pdbClient, "ff", "activation_1");
-  // print_stats(pdbClient, "ff", "w2");
-  // print_stats(pdbClient, "ff", "activation_2");
+  // {
+  //   const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+  //   print_stats(pdbClient, "ff", "activation_1");
+  //   print_stats(pdbClient, "ff", "w2");
+  //   print_stats(pdbClient, "ff", "activation_2");
+  // }
 
   // {
   //   // do the activation of the first layer
@@ -711,14 +766,12 @@ int main(int argc, char *argv[]) {
   //   }
   // }
 
-  // rows = 0; cols = 0; blocks = 0;
-  // it = pdbClient.getSetIterator<FFMatrixBlock>("ff", "gradient_2");
-  // for (auto r : it) {
-  //   rows = r->getRowNums();
-  //   cols = r->getColNums();
-  //   blocks++;
+  // {
+  //   const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+  //   print_stats(pdbClient, "ff", "activation_2");
+  //   print_stats(pdbClient, "ff", "gradient_2");
   // }
-  // std::cout << "gradient_2 (" << blocks << ") : " << rows << " x " << cols << std::endl;
 
   // pdbClient.removeSet("ff", "activation_2", errMsg);
 
@@ -752,14 +805,13 @@ int main(int argc, char *argv[]) {
   //   }
   // }
 
-  // rows = 0; cols = 0; blocks = 0;
-  // it = pdbClient.getSetIterator<FFMatrixBlock>("ff", "d_w2");
-  // for (auto r : it) {
-  //   rows = r->getRowNums();
-  //   cols = r->getColNums();
-  //   blocks++;
+  // {
+  //   const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+  //   print_stats(pdbClient, "ff", "activation_1");
+  //   print_stats(pdbClient, "ff", "gradient_2");
+  //   print_stats(pdbClient, "ff", "d_w2");
   // }
-  // std::cout << "d_w2 (" << blocks << ") : " << rows << " x " << cols << std::endl;
 
   // {
   //   // do the activation of the first layer
@@ -791,14 +843,13 @@ int main(int argc, char *argv[]) {
   //   }
   // }
 
-  // rows = 0; cols = 0; blocks = 0;
-  // it = pdbClient.getSetIterator<FFMatrixBlock>("ff", "gradient_1_tmp");
-  // for (auto r : it) {
-  //   rows = r->getRowNums();
-  //   cols = r->getColNums();
-  //   blocks++;
+  // {
+  //   const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+  //   print_stats(pdbClient, "ff", "gradient_2");
+  //   print_stats(pdbClient, "ff", "w2");
+  //   print_stats(pdbClient, "ff", "gradient_1_tmp");
   // }
-  // std::cout << "gradient_1_tmp (" << blocks << ") : " << rows << " x " << cols << std::endl;
 
   // pdbClient.removeSet("ff", "gradient_2", errMsg);
 
@@ -832,14 +883,13 @@ int main(int argc, char *argv[]) {
   //   }
   // }
 
-  // rows = 0; cols = 0; blocks = 0;
-  // it = pdbClient.getSetIterator<FFMatrixBlock>("ff", "gradient_1");
-  // for (auto r : it) {
-  //   rows = r->getRowNums();
-  //   cols = r->getColNums();
-  //   blocks++;
+  // {
+  //   const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+  //   print_stats(pdbClient, "ff", "gradient_1_tmp");
+  //   print_stats(pdbClient, "ff", "activation_1");
+  //   print_stats(pdbClient, "ff", "gradient_1");
   // }
-  // std::cout << "gradient_1 (" << blocks << ") : " << rows << " x " << cols << std::endl;
 
   // pdbClient.removeSet("ff", "activation_1", errMsg);
   // pdbClient.removeSet("ff", "gradient_1_tmp", errMsg);
