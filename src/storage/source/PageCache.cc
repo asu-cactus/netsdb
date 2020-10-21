@@ -869,7 +869,8 @@ void PageCache::evict() {
         }
         
         int numEvicted = 0;
-        while (numEvicted <= 0) {
+        while (numEvicted <= 0 && localitySets->size() >0) {
+             std::cout << "numEvicted=" << numEvicted <<", localitySets->size()=" << localitySets->size()<<std::endl;
              LocalitySetPtr set = localitySets->top();
              if (set != nullptr) {
                  vector<PDBPagePtr>* pagesToEvict = nullptr;
@@ -886,10 +887,18 @@ void PageCache::evict() {
                      pagesToEvict = nullptr;
                  }
              }
-             localitySets->pop();
+             if (localitySets->size()>0) {
+                 if (set != nullptr) {
+                     localitySets->pop();
+                 } else {
+                     std::cout << "top is empty in the localitySets." << std::endl;
+                 }
+             } 
         }
-        delete localitySets;
-        localitySets = nullptr;
+        if (localitySets != nullptr) {
+            delete localitySets;
+            localitySets = nullptr;
+        }
         this->evictionUnlock();
 
     }

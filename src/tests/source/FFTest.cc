@@ -662,8 +662,8 @@ int main(int argc, char *argv[]) {
   // load_input_data(pdbClient, path, "ff", "input_batch");
   // init_weights(pdbClient);
 
-  loadMatrix(pdbClient, "ff", "input_batch", 64, 17, 50, 100, 100, errMsg);
-  loadMatrix(pdbClient, "ff", "w1", 64, 50, 17, 100, 100, errMsg);
+  loadMatrix(pdbClient, "ff", "input_batch", 64, 17, 50, 10, 10, errMsg);
+  loadMatrix(pdbClient, "ff", "w1", 64, 50, 17, 10, 10, errMsg);
 
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
