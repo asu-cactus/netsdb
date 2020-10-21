@@ -42,7 +42,7 @@ elif  common_env['PLATFORM'] == 'posix':
 
     #for debugging
     #Needs to be turned on for KMeans and TPCH
-    common_env.Append(CXXFLAGS = '-std=c++14 -g -O3 -march=native -Winline -Winline-asm -Wno-deprecated-declarations')
+    common_env.Append(CXXFLAGS = '-std=c++14 -g -O0 -march=native -Winline -Winline-asm -Wno-deprecated-declarations')
     #common_env.Append(CXXFLAGS = '-std=c++14 -g  -Oz -ldl -lstdc++ -Wno-deprecated-declarations')
     common_env.Append(LINKFLAGS = '-pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++')
     common_env.Replace(CXX = "clang++")
