@@ -51,12 +51,12 @@ int main(int argc, char* argv[]) {
   string errMsg;
 
   // make sure we have the arguments
-  if(argc < 3) {
-
+  if(argc < 4) {
     std::cout << "Usage : ./TestRedditJoin managerIP managerPort whetherToPartitionData\n";
     std::cout << "managerIP - IP of the manager\n";
     std::cout << "managerPort - Port of the manager\n";
     std::cout << "whetherToPartitionData - Y yes, N no\n";
+    std::cout << "whetherToRegisterLibraries - Y yes, N no\n";
   }
 
   //  get the manager address
