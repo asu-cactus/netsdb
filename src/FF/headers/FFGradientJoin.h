@@ -32,8 +32,6 @@ public:
           uint32_t I = in1->getRowNums();
           uint32_t K = in1->getColNums();
 
-          std::cout << "Input matrices of size : " << I << " x " << K << " and " << in2->getRowNums() << " x " << in2->getColNums() << " --<GradientJoin>---> " << I << " x " << K << std::endl;
-
           // make an output
           pdb::Handle<FFMatrixBlock> resultFFMatrixBlock =
               pdb::makeObject<FFMatrixBlock>(

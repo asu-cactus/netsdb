@@ -43,8 +43,6 @@ public:
                     in1->getBlockRowIndex(), in2->getBlockColIndex(), I, J,
                     in1->getTotalRowNums(), in2->getTotalColNums());
 
-            std::cout << "[FFHiddenLayerJoin] " << in1->getBlockRowIndex() << ", " << in1->getBlockColIndex() << " X " << in2->getBlockRowIndex() << ", " << in2->getBlockColIndex() << " = " << in1->getBlockRowIndex() << ", " << in2->getBlockColIndex() << std::endl;
-
             // get the ptrs
             double *outData = resultFFMatrixBlock->getValue().rawData->c_ptr();
             double *in1Data = in1->getValue().rawData->c_ptr();
