@@ -29,7 +29,7 @@ SRC_ROOT = os.path.join(Dir('.').abspath, "src") # assume the root source dir is
 # OSX settings
 if common_env['PLATFORM'] == 'darwin':
     print 'Compiling on OSX'
-    common_env.Append(CXXFLAGS = '-std=c++1y -Wall -O0 -g')
+    common_env.Append(CXXFLAGS = '-std=c++1y -Wall -O3 -g')
     common_env.Replace(CXX = "clang++")
 
 # Linux settings
@@ -73,7 +73,7 @@ common_env.Append(CCFLAGS='-DEVICT_STOP_THRESHOLD=0.90')
 #uncomment following for KMeans
 #common_env.Append(CCFLAGS='-DCLEANUP_INACTIVE_BLOCKS')
 common_env.Append(CCFLAGS='-DNUM_KMEANS_DIMENSIONS=10')
-common_env.Append(CCFLAGS='-DUSE_MEMCACHED_SLAB_ALLOCATOR')
+#common_env.Append(CCFLAGS='-DUSE_MEMCACHED_SLAB_ALLOCATOR')
 #common_env.Append(CCFLAGS='-DCOLLECT_RESULTS_AS_ONE_PARTITION')
 # Make the build multithreaded
 num_cpu = int(multiprocessing.cpu_count())
@@ -562,6 +562,21 @@ common_env.Program('bin/tpchDataGeneratorAll', ['build/tpchBench/tpchDataGenerat
 common_env.Program('bin/tpchFlushToDisk', ['build/tpchBench/tpchFlushToDisk.cc'] + all + pdb_client)
 common_env.Program('bin/pipelineBench', ['build/tpchBench/PipelineBench.cc'] + all + pdb_client)
 
+# FF
+
+# common_env.SharedLibrary('libraries/.so', ['build/FF/.cc'] + all)
+common_env.SharedLibrary('libraries/libFFMatrixBlock.so', ['build/FF/FFMatrixBlock.cc'] + all)
+common_env.SharedLibrary('libraries/libFFMatrixData.so', ['build/FF/FFMatrixData.cc'] + all)
+common_env.SharedLibrary('libraries/libFFMatrixMeta.so', ['build/FF/FFMatrixMeta.cc'] + all)
+common_env.SharedLibrary('libraries/libFFMatrixBlockScanner.so', ['build/FF/FFMatrixBlockScanner.cc'] + all)
+common_env.SharedLibrary('libraries/libFFInputLayerJoin.so', ['build/FF/FFInputLayerJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libFFMatrixWriter.so', ['build/FF/FFMatrixWriter.cc'] + all)
+common_env.SharedLibrary('libraries/libFFAggMatrix.so', ['build/FF/FFAggMatrix.cc'] + all)
+common_env.SharedLibrary('libraries/libFFHiddenLayerJoin.so', ['build/FF/FFHiddenLayerJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libFFSelectionGradient.so', ['build/FF/FFSelectionGradient.cc'] + all)
+common_env.SharedLibrary('libraries/libFFJoinBackTransposeMult.so', ['build/FF/FFJoinBackTransposeMult.cc'] + all)
+common_env.SharedLibrary('libraries/libFFGradientJoin.so', ['build/FF/FFGradientJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libFFUpdateJoin.so', ['build/FF/FFUpdateJoin.cc'] + all)
 
 #reddit
 common_env.SharedLibrary('libraries/libRedditComment.so', ['build/reddit/RedditComment.cc'] + all)
@@ -768,6 +783,8 @@ common_env.Program('bin/TestKMeans1', ['build/tests/TestKMeansMLLibCompliant.cc'
 common_env.Program('bin/KMeansDataLoader', ['build/tests/TestKMeansLoadData.cc'] + all + pdb_client)
 common_env.Program('bin/TestLDA', ['build/tests/TestLDA.cc'] + all + pdb_client)
 common_env.Program('bin/TestMatrix', ['build/tests/TestMatrix.cc'] + all)
+
+common_env.Program('bin/FFTest', ['build/tests/FFTest.cc'] + all + pdb_client)
 
 #PageRank
 
@@ -1175,6 +1192,27 @@ KMeans=common_env.Alias('KMeans', [
   'libraries/libWriteSumResultSet.so'
   
 
+])
+
+libFFTest=common_env.Alias('libFFTest', [
+  'bin/pdb-cluster',
+  'bin/pdb-server', 
+
+  'bin/FFTest',
+  
+  # Other libraries from src/FF
+  'libraries/libFFMatrixBlock.so',
+  'libraries/libFFMatrixMeta.so',
+  'libraries/libFFMatrixData.so',
+  'libraries/libFFMatrixBlockScanner.so',
+  'libraries/libFFInputLayerJoin.so',
+  'libraries/libFFMatrixWriter.so',
+  'libraries/libFFAggMatrix.so',
+  'libraries/libFFHiddenLayerJoin.so',
+  'libraries/libFFSelectionGradient.so',
+  'libraries/libFFJoinBackTransposeMult.so',
+  'libraries/libFFGradientJoin.so',
+  'libraries/libFFUpdateJoin.so'
 ])
 
 libLATest=common_env.Alias('libLATest', [
