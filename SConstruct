@@ -29,7 +29,7 @@ SRC_ROOT = os.path.join(Dir('.').abspath, "src") # assume the root source dir is
 # OSX settings
 if common_env['PLATFORM'] == 'darwin':
     print 'Compiling on OSX'
-    common_env.Append(CXXFLAGS = '-std=c++1y -Wall -O0 -g')
+    common_env.Append(CXXFLAGS = '-std=c++1y -Wall -O3 -g')
     common_env.Replace(CXX = "clang++")
 
 # Linux settings
@@ -42,7 +42,7 @@ elif  common_env['PLATFORM'] == 'posix':
 
     #for debugging
     #Needs to be turned on for KMeans and TPCH
-    common_env.Append(CXXFLAGS = '-std=c++14 -g -O0 -march=native -Winline -Winline-asm -Wno-deprecated-declarations')
+    common_env.Append(CXXFLAGS = '-std=c++14 -g -O3 -march=native -Winline -Winline-asm -Wno-deprecated-declarations')
     #common_env.Append(CXXFLAGS = '-std=c++14 -g  -Oz -ldl -lstdc++ -Wno-deprecated-declarations')
     common_env.Append(LINKFLAGS = '-pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++')
     common_env.Replace(CXX = "clang++")
@@ -73,7 +73,7 @@ common_env.Append(CCFLAGS='-DEVICT_STOP_THRESHOLD=0.90')
 #uncomment following for KMeans
 #common_env.Append(CCFLAGS='-DCLEANUP_INACTIVE_BLOCKS')
 common_env.Append(CCFLAGS='-DNUM_KMEANS_DIMENSIONS=10')
-common_env.Append(CCFLAGS='-DUSE_MEMCACHED_SLAB_ALLOCATOR')
+#common_env.Append(CCFLAGS='-DUSE_MEMCACHED_SLAB_ALLOCATOR')
 #common_env.Append(CCFLAGS='-DCOLLECT_RESULTS_AS_ONE_PARTITION')
 # Make the build multithreaded
 num_cpu = int(multiprocessing.cpu_count())

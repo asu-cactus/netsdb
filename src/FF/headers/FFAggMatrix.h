@@ -28,7 +28,7 @@ public:
   Lambda<FFMatrixData>
   getValueProjection(Handle<FFMatrixBlock> aggMe) override {
       return makeLambda(aggMe, [](Handle<FFMatrixBlock>& aggMe) {
-          std::cout << "[FFAggMatrix] " << &aggMe << ", " << &(aggMe->getValue()) << std::endl;
+          //std::cout << "[FFAggMatrix] " << &aggMe << ", " << &(aggMe->getValue()) << std::endl;
           return aggMe->getValue();
       });
     // return makeLambdaFromMethod(aggMe, getValue);
