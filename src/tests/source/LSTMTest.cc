@@ -203,83 +203,9 @@ int main(int argc, char *argv[]) {
   int block_x = 100;
   int block_y = 100;
 
-  loadMatrix(pdbClient, "lstm", "w_forget", L, D, block_x, block_y, 0, errMsg);
-  loadMatrix(pdbClient, "lstm", "input", D, B, block_x, block_y, -1, errMsg);
-  loadMatrix(pdbClient, "lstm", "u_forget", L, L, block_x, block_y, 0, errMsg);
-  loadMatrix(pdbClient, "lstm", "b_forget", L, B, block_x, block_y, 0, errMsg);
-  loadMatrix(pdbClient, "lstm", "hidden_state", L, B, block_x, block_y, 0, errMsg);
-
-  {
-    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
-
-    // make the computation
-    pdb::Handle<pdb::Computation> readA =
-        pdb::makeObject<FFMatrixBlockScanner>("lstm", "w_forget");
-    pdb::Handle<pdb::Computation> readB =
-        pdb::makeObject<FFMatrixBlockScanner>("lstm", "input");
-
-    // multiply
-    Handle<Computation> myMultiply1Join = makeObject<FFInputLayerJoin>();
-    myMultiply1Join->setInput(0, readA);
-    myMultiply1Join->setInput(1, readB);
-
-    Handle<Computation> myMultiply2Aggregate = makeObject<FFAggMatrix>();
-    myMultiply2Aggregate->setInput(myMultiply1Join);
-
-    // make the writer
-    pdb::Handle<pdb::Computation> myWriter = pdb::makeObject<FFMatrixWriter>("lstm", "w_forget_x");
-    myWriter->setInput(myMultiply2Aggregate);
-
-    // run the computation
-    if (!pdbClient.executeComputations(errMsg, myWriter)) {
-      std::cout << "Computation failed. Message was: " << errMsg << "\n";
-      return 1;
-    }
-  }
-
-  {
-    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
-
-    print_stats(pdbClient, "lstm", "w_forget");
-    print_stats(pdbClient, "lstm", "input");
-    print_stats(pdbClient, "lstm", "w_forget_x");
-  }
-
-  {
-    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
-
-    // make the computation
-    pdb::Handle<pdb::Computation> readA =
-        pdb::makeObject<FFMatrixBlockScanner>("lstm", "u_forget");
-    pdb::Handle<pdb::Computation> readB =
-        pdb::makeObject<FFMatrixBlockScanner>("lstm", "hidden_state");
-
-    // multiply
-    Handle<Computation> myMultiply1Join = makeObject<FFInputLayerJoin>();
-    myMultiply1Join->setInput(0, readA);
-    myMultiply1Join->setInput(1, readB);
-
-    Handle<Computation> myMultiply2Aggregate = makeObject<FFAggMatrix>();
-    myMultiply2Aggregate->setInput(myMultiply1Join);
-
-    // make the writer
-    pdb::Handle<pdb::Computation> myWriter = pdb::makeObject<FFMatrixWriter>("lstm", "u_forget_h");
-    myWriter->setInput(myMultiply2Aggregate);
-
-    // run the computation
-    if (!pdbClient.executeComputations(errMsg, myWriter)) {
-      std::cout << "Computation failed. Message was: " << errMsg << "\n";
-      return 1;
-    }
-  }
-
-  {
-    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
-
-    print_stats(pdbClient, "lstm", "u_forget");
-    print_stats(pdbClient, "lstm", "hidden_state");
-    print_stats(pdbClient, "lstm", "u_forget_h");
-  }
+  loadMatrix(pdbClient, "lstm", "w_forget_x", L, D, block_x, block_y, 0, errMsg);
+  loadMatrix(pdbClient, "lstm", "u_forget_h", L, D, block_x, block_y, 0, errMsg);
+  loadMatrix(pdbClient, "lstm", "b_forget", L, D, block_x, block_y, 0, errMsg);
 
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
