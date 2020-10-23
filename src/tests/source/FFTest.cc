@@ -11,12 +11,6 @@
 #include "FFMatrixBlockScanner.h"
 #include "FFMatrixWriter.h"
 #include "FFAggMatrix.h"
-#include "FFHiddenLayerJoin.h"
-#include "FFSelectionGradient.h"
-#include "FFJoinBackTransposeMult.h"
-#include "FFGradientJoin.h"
-#include "FFUpdateJoin.h"
-
 #include "FFReluBiasSum.h"
 #include "FFTransposeBiasSum.h"
 #include "FFTransposeMult.h"
@@ -659,12 +653,6 @@ int main(int argc, char *argv[]) {
   loadLibrary(pdbClient, "libraries/libFFInputLayerJoin.so");
   loadLibrary(pdbClient, "libraries/libFFMatrixWriter.so");
   loadLibrary(pdbClient, "libraries/libFFAggMatrix.so");
-  // loadLibrary(pdbClient, "libraries/libFFHiddenLayerJoin.so");
-  // loadLibrary(pdbClient, "libraries/libFFSelectionGradient.so");
-  // loadLibrary(pdbClient, "libraries/libFFJoinBackTransposeMult.so");
-  // loadLibrary(pdbClient, "libraries/libFFGradientJoin.so");
-  // loadLibrary(pdbClient, "libraries/libFFUpdateJoin.so");
-
   loadLibrary(pdbClient, "libraries/libFFReluBiasSum.so");
   loadLibrary(pdbClient, "libraries/libFFTransposeMult.so");
   loadLibrary(pdbClient, "libraries/libFFTransposeBiasSum.so");
