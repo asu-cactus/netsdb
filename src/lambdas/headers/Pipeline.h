@@ -184,9 +184,9 @@ public:
     void run() {
 
         // this is where we are outputting all of our results to
-        std::cout << "to get a new page" << std::endl;
+        //std::cout << "to get a new page" << std::endl;
         MemoryHolderPtr myRAM = std::make_shared<MemoryHolder>(getNewPage());
-        std::cout << "got a new page" << std::endl;
+        //std::cout << "got a new page" << std::endl;
         // Jia Note: this is not perfect to always create a container in every new page, but 
         // doing this can avoid a memory copy
         /*if (myRAM->outputSink == nullptr) {
@@ -223,9 +223,9 @@ public:
                      depth++;
                      if (depth > delay) delay = depth;
                      cleanPages(iteration);
-                     std::cout << "to get a new page" << std::endl;
+                     //std::cout << "to get a new page" << std::endl;
                      myRAM = std::make_shared<MemoryHolder>(getNewPage());
-                     std::cout << "got a new page" << std::endl;
+                     //std::cout << "got a new page" << std::endl;
                      if (myRAM->location == nullptr) {
                          std::cout << "ERROR: insufficient memory in heap" << std::endl;
                          return;

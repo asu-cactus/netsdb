@@ -84,8 +84,7 @@ JoinMapIterator<ValueType> JoinMap<ValueType>::begin() {
 
 template <class ValueType>
 JoinMapIterator<ValueType> JoinMap<ValueType>::end() {
-    JoinMapIterator<ValueType> returnVal(myArray);
-    return returnVal;
+    return JoinMapIterator<ValueType> ();
 }
 
 template <class ValueType>

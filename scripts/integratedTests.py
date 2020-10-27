@@ -16,7 +16,7 @@ class bcolors:
 
 #Parameters to tune for performance
 threadNum = "2"
-sharedMemorySize = "2048"
+sharedMemorySize = "4096"
 
 def startPseudoCluster():
     try:
@@ -169,7 +169,7 @@ else:
 subprocess.call(['bash', './scripts/cleanupNode.sh'])
 
 print (bcolors.OKBLUE + "waiting for 5 seconds for server to be fully cleaned up...")
-time.sleep(5)
+time.sleep(10)
 
 
 print("#################################")

@@ -563,7 +563,7 @@ public:
 
         for (JoinMapIterator<RHSType> iter = theOtherMap.begin(); iter != theOtherMap.end();
              ++iter) {
-            JoinRecordList<RHSType>* myList = *iter;
+            std::shared_ptr<JoinRecordList<RHSType>> myList = *iter;
             size_t mySize = myList->size();
             size_t myHash = myList->getHash();
                   
@@ -577,12 +577,12 @@ public:
                         std::cout << "ERROR: join data is too large to be built in one map, "
                                      "results are truncated!"
                                   << std::endl;
-                        delete (myList);
+                        //delete (myList);
                         return;
                     }
                 }
             }
-            delete (myList);
+            //delete (myList);
         }
     }
 
@@ -603,7 +603,7 @@ public:
             }
             for (JoinMapIterator<RHSType> iter = theOtherMap.begin(); iter != theOtherMap.end();
                  ++iter) {
-                JoinRecordList<RHSType>* myList = *iter;
+                std::shared_ptr<JoinRecordList<RHSType>> myList = *iter;
                 size_t mySize = myList->size();
                 //std::cout << partitionId << ": " << mySize << std::endl;
                 size_t myHash = myList->getHash();
@@ -617,12 +617,12 @@ public:
                             std::cout << "ERROR: join data is too large to be built in one map, "
                                          "results are truncated!"
                                       << std::endl;
-                            delete (myList);
+                            //delete (myList);
                             return;
                         }
                     }
                 }
-                delete (myList);
+                //delete (myList);
             }
         }
     }
@@ -686,7 +686,7 @@ private:
     // whether we have processed all pages
     bool isDone;
 
-    JoinRecordList<RHSType>* myList = nullptr;
+    std::shared_ptr<JoinRecordList<RHSType>> myList = nullptr;
     size_t myListSize = 0;
     size_t myHash = 0;
 
@@ -771,7 +771,7 @@ public:
         JoinMapIterator<RHSType> curJoinMapIterToRecover = curJoinMapIter;
         JoinMapIterator<RHSType> joinMapEndIterToRecover = joinMapEndIter;
         size_t posInRecordListToRecover = posInRecordList;
-        JoinRecordList<RHSType>* myListToRecover = myList;
+        std::shared_ptr<JoinRecordList<RHSType>> myListToRecover = myList;
         size_t myListSizeToRecover = myListSize;
         size_t myHashToRecover = myHash;
 
@@ -976,7 +976,7 @@ public:
         for (JoinMapIterator<RHSType> iter = mapToShuffle.begin(); iter != mapToShuffle.end();
              ++iter) {
             //std::cout << "iterator-" << counter << ":" << std::endl;
-            JoinRecordList<RHSType>* myList = *iter;
+            std::shared_ptr<JoinRecordList<RHSType>> myList = *iter;
             if (myList == nullptr) {
                 std::cout << "meet a null list in JoinRecordList" << std::endl;
                 continue;
@@ -984,7 +984,7 @@ public:
 
             size_t mySize = myList->size();
             size_t myHash = myList->getHash();
-
+            //std::cout << "mySize=" << mySize <<", myHash=" << myHash << std::endl;
             counter++;
             if (mySize > 0) {
                 for (size_t i = 0; i < mySize; i++) {
@@ -997,7 +997,7 @@ public:
                             myMap.setUnused(myHash);
                             std::cout << "Run out of space in shuffling, to allocate a new page"
                                       << std::endl;
-                            delete (myList);
+                            //delete (myList);
                             return false;
                         }
                     } else {
@@ -1007,7 +1007,7 @@ public:
                         } catch (NotEnoughSpace& n) {
                             std::cout << "Run out of space in shuffling, to allocate a new page!"
                                       << std::endl;
-                            delete (myList);
+                            //delete (myList);
                             return false;
                         }
                         try {
@@ -1016,13 +1016,13 @@ public:
                             myMap.setUnused(myHash);
                             std::cout << "Run out of space in shuffling, to allocate a new page"
                                       << std::endl;
-                            delete (myList);
+                            //delete (myList);
                             return false;
                         }
                     }
                 }
             }
-            delete (myList);
+            //delete (myList);
         }
         // We push back only when the whole map has been copied. If it throws exception earlier than
         // this point, the whole map will be discarded and will not add to the vector of maps.
@@ -1125,6 +1125,7 @@ public:
         std::vector<size_t>& keyColumn = input->getColumn<size_t>(keyAtt);
 
         size_t length = keyColumn.size();
+        //std::cout << "length is " << length << std::endl;
         for (size_t i = 0; i < length; i++) {
 #ifndef NO_MOD_PARTITION
             size_t index = keyColumn[i] % (this->numPartitionsPerNode * this->numNodes);
@@ -1132,11 +1133,12 @@ public:
             size_t index = (keyColumn[i] / (this->numPartitionsPerNode * this->numNodes)) %
                 (this->numPartitionsPerNode * this->numNodes);
 #endif
+            //std::cout << "index=" << index << std::endl;
             size_t nodeIndex = index / this->numPartitionsPerNode;
             size_t partitionIndex = index % this->numPartitionsPerNode;
             JoinMap<RHSType>& myMap = *((*((*writeMe)[nodeIndex]))[partitionIndex]);
             //std::cout << "nodeIndex=" << nodeIndex << ", partitionIndex=" <<partitionIndex 
-                   //   << ", myMap.size="<<myMap.size()<<std::endl;
+                      //<< ", myMap.size="<<myMap.size()<<std::endl;
             // try to add the key... this will cause an allocation for a new key/val pair
             if (myMap.count(keyColumn[i]) == 0) {
                 try {
@@ -1190,6 +1192,8 @@ public:
                     throw n;
                 }
             }
+            //std::cout << i << ": nodeIndex=" << nodeIndex << ", partitionIndex=" <<partitionIndex
+                      //<< ", myMap.size="<<myMap.size()<<std::endl;
         }
     }
 };
