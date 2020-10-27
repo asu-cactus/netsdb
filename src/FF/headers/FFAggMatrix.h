@@ -21,7 +21,6 @@ public:
       return makeLambda(aggMe, [](Handle<FFMatrixBlock>& aggMe) {
           return aggMe->getKey();
       });
-    // return makeLambdaFromMethod(aggMe, getKey);
   }
 
   // the value type must have + defined
@@ -31,7 +30,6 @@ public:
           //std::cout << "[FFAggMatrix] " << &aggMe << ", " << &(aggMe->getValue()) << std::endl;
           return aggMe->getValue();
       });
-    // return makeLambdaFromMethod(aggMe, getValue);
   }
 };
 

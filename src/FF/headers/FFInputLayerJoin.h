@@ -36,7 +36,6 @@ public:
             uint32_t I = in1->getRowNums();
             uint32_t J = in2->getColNums();
             uint32_t K = in1->getColNums();
-            // std::cout << "[FFInputLayerJoin] " << in1->getBlockRowIndex() << ", " << in1->getBlockColIndex() << " X " << in2->getBlockRowIndex() << ", " << in2->getBlockColIndex() << " = " << in1->getBlockRowIndex() << ", " << in2->getBlockColIndex() << std::endl;
 
             // make an output
             pdb::Handle<FFMatrixBlock> resultFFMatrixBlock =
