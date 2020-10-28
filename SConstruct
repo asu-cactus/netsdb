@@ -820,6 +820,8 @@ common_env.Depends(pdbTest, [
   'bin/test78',
   'bin/test90', 
   'bin/TestLDA',
+  'bin/FFTest',
+  'bin/LSTMTest',
   'libraries/libCartesianJoin.so', 
   'libraries/libChrisSelection.so', 
   'libraries/libEmployeeSelection.so',
@@ -871,7 +873,22 @@ common_env.Depends(pdbTest, [
   'libraries/libLDADocWordTopicAssignment.so',
   'libraries/libLDADocWordTopicAssignmentIdentity.so',
   'libraries/libScanTopicsPerWord.so',
-  'libraries/libScanIntDoubleVectorPairSet.so'
+  'libraries/libScanIntDoubleVectorPairSet.so',
+
+  # FF Test libraries
+  'libraries/libFFMatrixBlock.so',
+  'libraries/libFFMatrixMeta.so',
+  'libraries/libFFMatrixData.so',
+  'libraries/libFFMatrixBlockScanner.so',
+  'libraries/libFFInputLayerJoin.so',
+  'libraries/libFFMatrixWriter.so',
+  'libraries/libFFAggMatrix.so',
+
+  # LSTM Test libraries
+  'libraries/libLSTMThreeWaySum.so',
+  'libraries/libLSTMTwoSum.so',
+  'libraries/libLSTMHiddenState.so',
+  
 ])
 
 
