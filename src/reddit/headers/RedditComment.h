@@ -24,7 +24,7 @@ public:
     bool BOOL_DEFAULT = false;
 
     bool archived = BOOL_DEFAULT;
-    String author;
+    String author = STRING_DEFAULT;
     long author_created_utc = LONG_DEFAULT;
     String author_flair_background_color = STRING_DEFAULT;
     String author_flair_css_class = STRING_DEFAULT;
@@ -66,14 +66,29 @@ public:
     Comment ( std::string jsonStr ) {
 
         json j = json::parse(jsonStr);
-        
-        author = j["author"].get<std::string>();
-        archived = j["archived"].get<bool>();
-        body = j["body"].get<std::string>();
-        id = j["id"].get<std::string>();
         // author_flair_richtext = 
         //     j["author_flair_richtext"].get<std::vector<std::string>>();
         // Each key henceforth is checked for existence
+        if (j.find("author")!=j.end()) {
+            if (!j.at("author").is_null()) {
+                author = j["author"].get<std::string>();
+            }
+        }
+        if (j.find("archived")!=j.end()) {
+            if (!j.at("archived").is_null()) {
+                archived = j["archived"].get<bool>();
+            }
+        }
+        if (j.find("body")!=j.end()) {
+            if (!j.at("body").is_null()) {
+                body = j["body"].get<std::string>();
+            }
+        }
+        if (j.find("id")!=j.end()) {
+            if (!j.at("id").is_null()) {
+                id = j["id"].get<std::string>();
+            }
+        }
         if (j.find("author_created_utc")!=j.end()) {
             if (!j.at("author_created_utc").is_null()) {
                 if(j.at("author_created_utc").type() == json::value_t::string){
