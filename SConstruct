@@ -580,6 +580,8 @@ common_env.SharedLibrary('libraries/libFFReluBiasSum.so', ['build/FF/FFReluBiasS
 
 # common_env.SharedLibrary('libraries/.so', ['build/LSTM/.cc'] + all)
 common_env.SharedLibrary('libraries/libLSTMThreeWaySum.so', ['build/LSTM/LSTMThreeWaySum.cc'] + all)
+common_env.SharedLibrary('libraries/libLSTMTwoSum.so', ['build/LSTM/LSTMTwoSum.cc'] + all)
+common_env.SharedLibrary('libraries/libLSTMHiddenState.so', ['build/LSTM/LSTMHiddenState.cc'] + all)
 
 #reddit
 common_env.SharedLibrary('libraries/libRedditComment.so', ['build/reddit/RedditComment.cc'] + all)
@@ -1235,6 +1237,8 @@ libLSTMTest=common_env.Alias('libLSTMTest', [
   'libraries/libFFAggMatrix.so',
 
   'libraries/libLSTMThreeWaySum.so',
+  'libraries/libLSTMTwoSum.so',
+  'libraries/libLSTMHiddenState.so',
 ])
 
 libLATest=common_env.Alias('libLATest', [
