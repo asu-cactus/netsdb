@@ -36,8 +36,6 @@ public:
             uint32_t I = in1->getRowNums();
             uint32_t J = in2->getRowNums();
 
-            std::cout << "[FFTRANSPOSEMULT] Multiplying!!" << std::endl;
-
             if (in1->getColNums() != in2->getColNums()) {
               std::cerr << "Block dimemsions mismatch! " << std::endl;
               exit(1);

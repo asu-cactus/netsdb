@@ -20,7 +20,6 @@ public:
                             Handle<FFMatrixBlock> in2) override {
     return makeLambda(
         in1, in2, [](Handle<FFMatrixBlock> &in1, Handle<FFMatrixBlock> &in2) {
-          std::cout << "[FFRELUBIASSUM] " <<  in1->getBlockRowIndex() << ", " << in1->getBlockColIndex() << " : " << in2->getBlockRowIndex() << ", " << in2->getBlockColIndex() << std::endl;
             return in1->getBlockRowIndex() == in2->getBlockRowIndex()
                 && in1->getBlockColIndex() == in2->getBlockColIndex();
         });
@@ -35,8 +34,6 @@ public:
 
             uint32_t I = in1->getRowNums();
             uint32_t J = in1->getColNums();
-
-            std::cout << "[FFRELUBIASSUM] Summing!" << std::endl;
 
             if (in1->getRowNums() != in2->getRowNums() ||
                 in1->getColNums() != in2->getColNums()) {
