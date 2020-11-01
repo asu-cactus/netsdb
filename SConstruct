@@ -883,6 +883,9 @@ common_env.Depends(pdbTest, [
   'libraries/libFFInputLayerJoin.so',
   'libraries/libFFMatrixWriter.so',
   'libraries/libFFAggMatrix.so',
+  'libraries/libFFTransposeBiasSum.so',
+  'libraries/libFFTransposeMult.so',
+  'libraries/libFFReluBiasSum.so',
 
   # LSTM Test libraries
   'libraries/libLSTMThreeWaySum.so',

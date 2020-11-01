@@ -52,7 +52,7 @@ print("#################################")
 print("CLEAN UP THE TESTING ENVIRONMENT")
 print("#################################")
 subprocess.call(['bash', './scripts/cleanupNode.sh'])
-numTotal = 5
+numTotal = 7 
 numErrors = 0
 numPassed = 0
 
@@ -192,6 +192,63 @@ except subprocess.CalledProcessError as e:
 else:
     print (bcolors.OKBLUE + "[PASSED] G2-distributed LDA test" + bcolors.ENDC)
     numPassed = numPassed + 1
+
+subprocess.call(['bash', './scripts/cleanupNode.sh'])
+
+print (bcolors.OKBLUE + "waiting for 5 seconds for server to be fully cleaned up...")
+time.sleep(10)
+
+
+
+print("#################################")
+print("RUN FF TEST ON G-2 PIPELINE")
+print("#################################")
+
+try:
+    #start pseudo cluster
+    startPseudoCluster()
+
+    #run bin/TestLDA
+    print (bcolors.OKBLUE + "start a query client to store and query data from pdb cluster" + bcolors.ENDC)
+    subprocess.check_call(['bin/FFTest'])
+
+except subprocess.CalledProcessError as e:
+    print (bcolors.FAIL + "[ERROR] in running FF test" + bcolors.ENDC)
+    print (e.returncode)
+    numErrors = numErrors + 1
+
+else:
+    print (bcolors.OKBLUE + "[PASSED] G2-distributed FF test" + bcolors.ENDC)
+    numPassed = numPassed + 1
+
+subprocess.call(['bash', './scripts/cleanupNode.sh'])
+
+print (bcolors.OKBLUE + "waiting for 5 seconds for server to be fully cleaned up...")
+time.sleep(10)
+
+
+print("#################################")
+print("RUN LSTM TEST ON G-2 PIPELINE")
+print("#################################")
+
+try:
+    #start pseudo cluster
+    startPseudoCluster()
+
+    #run bin/TestLDA
+    print (bcolors.OKBLUE + "start a query client to store and query data from pdb cluster" + bcolors.ENDC)
+    subprocess.check_call(['bin/LSTMTest'])
+
+except subprocess.CalledProcessError as e:
+    print (bcolors.FAIL + "[ERROR] in running LSTM test" + bcolors.ENDC)
+    print (e.returncode)
+    numErrors = numErrors + 1
+
+else:
+    print (bcolors.OKBLUE + "[PASSED] G2-distributed LSTM test" + bcolors.ENDC)
+    numPassed = numPassed + 1
+
+
 
 
 
