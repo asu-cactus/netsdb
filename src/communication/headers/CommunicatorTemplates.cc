@@ -52,8 +52,8 @@ bool PDBCommunicator::sendObject(Handle<ObjType>& sendMe, std::string& errMsg) {
     if (record == nullptr) {
         // JiaNote: below is refactored to make it more flexible.
         // If sendMe is not in this thread's allocator block, we do a deep copy
-        mem = (void*)calloc(DEFAULT_PAGE_SIZE, sizeof(char));
-        record = getRecord(sendMe, mem, DEFAULT_PAGE_SIZE);
+        mem = (void*)calloc(DEFAULT_MAX_PAGE_SIZE, sizeof(char));
+        record = getRecord(sendMe, mem, DEFAULT_MAX_PAGE_SIZE);
         if (record == nullptr) {
             int* a = 0;
             *a = 12;
