@@ -65,13 +65,13 @@ public:
             sumMatrix = currentMatrix1 + currentMatrix2;
             sumMatrix.transposeInPlace();
 
-            double sum = 0;
+            // double sum = 0;
             for (int i = 0; i < I * J; i++) {
               outData[i] = exp(outData[i]);
-              sum += outData[i];
+              // sum += outData[i];
             }
 
-            sumMatrix /= sum;
+            // sumMatrix /= sum;
 
             return resultFFMatrixBlock;
           } else {

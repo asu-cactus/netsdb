@@ -575,6 +575,8 @@ common_env.SharedLibrary('libraries/libFFAggMatrix.so', ['build/FF/FFAggMatrix.c
 common_env.SharedLibrary('libraries/libFFTransposeMult.so', ['build/FF/FFTransposeMult.cc'] + all)
 common_env.SharedLibrary('libraries/libFFTransposeBiasSum.so', ['build/FF/FFTransposeBiasSum.cc'] + all)
 common_env.SharedLibrary('libraries/libFFReluBiasSum.so', ['build/FF/FFReluBiasSum.cc'] + all)
+common_env.SharedLibrary('libraries/libFFRowAggregate.so', ['build/FF/FFRowAggregate.cc'] + all)
+common_env.SharedLibrary('libraries/libFFOutputLayer.so', ['build/FF/FFOutputLayer.cc'] + all)
 
 # LSTM
 
@@ -886,6 +888,8 @@ common_env.Depends(pdbTest, [
   'libraries/libFFTransposeBiasSum.so',
   'libraries/libFFTransposeMult.so',
   'libraries/libFFReluBiasSum.so',
+  'libraries/libFFRowAggregate.so',
+  'libraries/libFFOutputLayer.so',
 
   # LSTM Test libraries
   'libraries/libLSTMThreeWaySum.so',
@@ -1237,6 +1241,8 @@ libFFTest=common_env.Alias('libFFTest', [
   'libraries/libFFTransposeBiasSum.so',
   'libraries/libFFTransposeMult.so',
   'libraries/libFFReluBiasSum.so',
+  'libraries/libFFRowAggregate.so',
+  'libraries/libFFOutputLayer.so',
 ])
 
 libLSTMTest=common_env.Alias('libLSTMTest', [
