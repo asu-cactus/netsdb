@@ -325,7 +325,7 @@ JoinPairArray<ValueType>::JoinPairArray(uint32_t numSlotsIn) : JoinPairArray() {
 
 template<class ValueType>
 bool JoinPairArray<ValueType>::isOverFull() {
-  std::cout << "JoinPairArray: usedSlots="<< usedSlots << ", maxSlots=" << maxSlots << std::endl;
+  //std::cout << "JoinPairArray: usedSlots="<< usedSlots << ", maxSlots=" << maxSlots << std::endl;
   return usedSlots >= maxSlots;
 }
 

@@ -101,7 +101,7 @@ ValueType& Map<KeyType, ValueType>::operator[](const KeyType& which) {
     if (myArray->count(which) == 0) {
         if (myArray->isOverFull()) {
             Handle<PairArray<KeyType, ValueType>> temp = myArray->doubleArray();
-            std::cout << "doubled the size of JoinPairArray" << std::endl;
+            //std::cout << "doubled the size of JoinPairArray" << std::endl;
             myArray = temp;
         }
     }
