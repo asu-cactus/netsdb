@@ -15,6 +15,8 @@
 #include "FFAggMatrix.h"
 
 #include "LSTMThreeWaySum.h"
+#include "LSTMTwoSum.h"
+#include "LSTMHiddenState.h"
 
 #include "PDBClient.h"
 
@@ -161,41 +163,37 @@ int main(int argc, char *argv[]) {
   loadLibrary(pdbClient, "libraries/libFFAggMatrix.so");
 
   loadLibrary(pdbClient, "libraries/libLSTMThreeWaySum.so");
+  loadLibrary(pdbClient, "libraries/libLSTMTwoSum.so");
+  loadLibrary(pdbClient, "libraries/libLSTMHiddenState.so");
 
 
   createDatabase(pdbClient, "lstm");
 
-  createSet(pdbClient, "lstm", "forget", "Forget");
-  createSet(pdbClient, "lstm", "input", "Input");
-  createSet(pdbClient, "lstm", "output", "Output");
-  createSet(pdbClient, "lstm", "cell_state", "CellState");
-  createSet(pdbClient, "lstm", "cell_state_temp", "CellStateTemp");
-  createSet(pdbClient, "lstm", "hidden_state", "HiddenState");
+  createSet(pdbClient, "lstm", "f_t", "Forget");
+  createSet(pdbClient, "lstm", "x_t", "Input");
+  createSet(pdbClient, "lstm", "o_t", "Output");
+  createSet(pdbClient, "lstm", "c_t_1", "CellState");
+  createSet(pdbClient, "lstm", "c_t_temp", "CellStateTemp");
+  createSet(pdbClient, "lstm", "h_t_1", "HiddenState");
 
-  createSet(pdbClient, "lstm", "w_forget", "WForget");
-  createSet(pdbClient, "lstm", "w_forget_x", "WForgetX");
-  createSet(pdbClient, "lstm", "w_input", "WInput");
-  createSet(pdbClient, "lstm", "w_input_x", "WInputX");
-  createSet(pdbClient, "lstm", "w_output", "WOutput");
-  createSet(pdbClient, "lstm", "w_output_x", "WOutputX");
-  createSet(pdbClient, "lstm", "w_cell_state", "WCellState");
+  createSet(pdbClient, "lstm", "w_f", "WForget");
+  createSet(pdbClient, "lstm", "w_i", "WInput");
+  createSet(pdbClient, "lstm", "w_o", "WOutput");
+  createSet(pdbClient, "lstm", "w_c", "WCellState");
 
-  createSet(pdbClient, "lstm", "u_forget", "UForget");
-  createSet(pdbClient, "lstm", "u_forget_h", "UForgetH");
-  createSet(pdbClient, "lstm", "u_input", "UInput");
-  createSet(pdbClient, "lstm", "u_input_h", "UInputH");
-  createSet(pdbClient, "lstm", "u_output", "UOutput");
-  createSet(pdbClient, "lstm", "u_output_h", "UOutputH");
-  createSet(pdbClient, "lstm", "u_cell_state", "UCellState");
-  createSet(pdbClient, "lstm", "u_cell_state_h", "UCellStateH");
+  createSet(pdbClient, "lstm", "u_f", "UForget");
+  createSet(pdbClient, "lstm", "u_i", "UInput");
+  createSet(pdbClient, "lstm", "u_o", "UOutput");
+  createSet(pdbClient, "lstm", "u_c", "UCellState");
 
-  createSet(pdbClient, "lstm", "b_forget", "BForget");
-  createSet(pdbClient, "lstm", "b_input", "BInput");
-  createSet(pdbClient, "lstm", "b_output", "BOutput");
-  createSet(pdbClient, "lstm", "b_cell_state", "BCellState");
+  createSet(pdbClient, "lstm", "b_f", "BForget");
+  createSet(pdbClient, "lstm", "b_i", "BInput");
+  createSet(pdbClient, "lstm", "b_o", "BOutput");
+  createSet(pdbClient, "lstm", "b_c", "BCellState");
 
-  createSet(pdbClient, "lstm", "cell_state_next", "CellStatePrev");
-  createSet(pdbClient, "lstm", "hidden_state_next", "HiddenStateNext");
+  createSet(pdbClient, "lstm", "c_t", "CellStateNext");
+  createSet(pdbClient, "lstm", "h_t", "HiddenStateNext");
+  createSet(pdbClient, "lstm", "i_t", "InputGate");
 
   int D = 400; // features
   int B = 500; // batch size
@@ -203,29 +201,51 @@ int main(int argc, char *argv[]) {
   int block_x = 100;
   int block_y = 100;
 
-  loadMatrix(pdbClient, "lstm", "w_forget_x", L, D, block_x, block_y, 0, errMsg);
-  loadMatrix(pdbClient, "lstm", "u_forget_h", L, D, block_x, block_y, 0, errMsg);
-  loadMatrix(pdbClient, "lstm", "b_forget", L, D, block_x, block_y, 0, errMsg);
+  loadMatrix(pdbClient, "lstm", "w_f", L, D, block_x, block_y, 0, errMsg);
+  loadMatrix(pdbClient, "lstm", "x_t", D, B, block_x, block_y, -1, errMsg);
+  loadMatrix(pdbClient, "lstm", "u_f", L, L, block_x, block_y, 0, errMsg);
+  loadMatrix(pdbClient, "lstm", "b_f", L, B, block_x, block_y, 0, errMsg);
+  loadMatrix(pdbClient, "lstm", "h_t_1", L, B, block_x, block_y, 0, errMsg);
 
   {
-    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+    pdb::Handle<pdb::Computation> w_f =
+        pdb::makeObject<FFMatrixBlockScanner>("lstm", "w_f");
+    pdb::Handle<pdb::Computation> x_t =
+        pdb::makeObject<FFMatrixBlockScanner>("lstm", "x_t");
 
-    // make the computation
-    pdb::Handle<pdb::Computation> readA =
-        pdb::makeObject<FFMatrixBlockScanner>("lstm", "w_forget_x");
-    pdb::Handle<pdb::Computation> readB =
-        pdb::makeObject<FFMatrixBlockScanner>("lstm", "u_forget_h");
-    pdb::Handle<pdb::Computation> readC =
-        pdb::makeObject<FFMatrixBlockScanner>("lstm", "b_forget");
+    // multiply
+    Handle<Computation> w_forget_x_join = makeObject<FFInputLayerJoin>();
+    w_forget_x_join->setInput(0, w_f);
+    w_forget_x_join->setInput(1, x_t);
+
+    Handle<Computation> w_forget_x_agg = makeObject<FFAggMatrix>();
+    w_forget_x_agg->setInput(w_forget_x_join);
+
+
+    pdb::Handle<pdb::Computation> u_f =
+        pdb::makeObject<FFMatrixBlockScanner>("lstm", "u_f");
+    pdb::Handle<pdb::Computation> h_t_1 =
+        pdb::makeObject<FFMatrixBlockScanner>("lstm", "h_t_1");
+
+    Handle<Computation> u_forget_h_join = makeObject<FFInputLayerJoin>();
+    u_forget_h_join->setInput(0, u_f);
+    u_forget_h_join->setInput(1, h_t_1);
+
+    Handle<Computation> u_forget_h_agg = makeObject<FFAggMatrix>();
+    u_forget_h_agg->setInput(u_forget_h_join);
+
+
+    pdb::Handle<pdb::Computation> b_f =
+        pdb::makeObject<FFMatrixBlockScanner>("lstm", "b_f");
 
     // add and sigmod
     pdb::Handle<pdb::Computation> sum = pdb::makeObject<LSTMThreeWaySum>();
-    sum->setInput(0, readA);
-    sum->setInput(1, readB);
-    sum->setInput(2, readC);
+    sum->setInput(0, w_forget_x_agg);
+    sum->setInput(1, u_forget_h_agg);
+    sum->setInput(2, b_f);
 
     // make the writer
-    pdb::Handle<pdb::Computation> myWriter = pdb::makeObject<FFMatrixWriter>("lstm", "forget");
+    pdb::Handle<pdb::Computation> myWriter = pdb::makeObject<FFMatrixWriter>("lstm", "f_t");
     myWriter->setInput(sum);
 
     // run the computation
@@ -238,11 +258,290 @@ int main(int argc, char *argv[]) {
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
-    print_stats(pdbClient, "lstm", "w_forget_x");
-    print_stats(pdbClient, "lstm", "u_forget_h");
-    print_stats(pdbClient, "lstm", "b_forget");
-    print_stats(pdbClient, "lstm", "forget");
+    print_stats(pdbClient, "lstm", "w_f");
+    print_stats(pdbClient, "lstm", "x_t");
+    print_stats(pdbClient, "lstm", "u_f");
+    print_stats(pdbClient, "lstm", "h_t_1");
+    print_stats(pdbClient, "lstm", "b_f");
+    print_stats(pdbClient, "lstm", "f_t");
   }
+
+  loadMatrix(pdbClient, "lstm", "w_i", L, D, block_x, block_y, 0, errMsg);
+  loadMatrix(pdbClient, "lstm", "u_i", L, L, block_x, block_y, 0, errMsg);
+  loadMatrix(pdbClient, "lstm", "b_i", L, B, block_x, block_y, 0, errMsg);
+
+  {
+    pdb::Handle<pdb::Computation> w_i =
+        pdb::makeObject<FFMatrixBlockScanner>("lstm", "w_i");
+    pdb::Handle<pdb::Computation> x_t =
+        pdb::makeObject<FFMatrixBlockScanner>("lstm", "x_t");
+
+    // multiply
+    Handle<Computation> w_input_x_join = makeObject<FFInputLayerJoin>();
+    w_input_x_join->setInput(0, w_i);
+    w_input_x_join->setInput(1, x_t);
+
+    Handle<Computation> w_input_x_agg = makeObject<FFAggMatrix>();
+    w_input_x_agg->setInput(w_input_x_join);
+
+
+    pdb::Handle<pdb::Computation> u_i =
+        pdb::makeObject<FFMatrixBlockScanner>("lstm", "u_i");
+    pdb::Handle<pdb::Computation> h_t_1 =
+        pdb::makeObject<FFMatrixBlockScanner>("lstm", "h_t_1");
+
+    Handle<Computation> u_input_h_join = makeObject<FFInputLayerJoin>();
+    u_input_h_join->setInput(0, u_i);
+    u_input_h_join->setInput(1, h_t_1);
+
+    Handle<Computation> u_input_h_agg = makeObject<FFAggMatrix>();
+    u_input_h_agg->setInput(u_input_h_join);
+
+
+    pdb::Handle<pdb::Computation> b_i =
+        pdb::makeObject<FFMatrixBlockScanner>("lstm", "b_i");
+
+    // add and sigmod
+    pdb::Handle<pdb::Computation> sum = pdb::makeObject<LSTMThreeWaySum>();
+    sum->setInput(0, w_input_x_agg);
+    sum->setInput(1, u_input_h_agg);
+    sum->setInput(2, b_i);
+
+    // make the writer
+    pdb::Handle<pdb::Computation> myWriter = pdb::makeObject<FFMatrixWriter>("lstm", "i_t");
+    myWriter->setInput(sum);
+
+    // run the computation
+    if (!pdbClient.executeComputations(errMsg, myWriter)) {
+      std::cout << "Computation failed. Message was: " << errMsg << "\n";
+      return 1;
+    }
+  }
+
+  {
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+    print_stats(pdbClient, "lstm", "w_i");
+    print_stats(pdbClient, "lstm", "x_t");
+    print_stats(pdbClient, "lstm", "u_i");
+    print_stats(pdbClient, "lstm", "h_t_1");
+    print_stats(pdbClient, "lstm", "b_i");
+    print_stats(pdbClient, "lstm", "i_t");
+  }
+
+  loadMatrix(pdbClient, "lstm", "w_o", L, D, block_x, block_y, 0, errMsg);
+  loadMatrix(pdbClient, "lstm", "u_o", L, L, block_x, block_y, 0, errMsg);
+  loadMatrix(pdbClient, "lstm", "b_o", L, B, block_x, block_y, 0, errMsg);
+
+  {
+    pdb::Handle<pdb::Computation> w_o =
+        pdb::makeObject<FFMatrixBlockScanner>("lstm", "w_o");
+    pdb::Handle<pdb::Computation> x_t =
+        pdb::makeObject<FFMatrixBlockScanner>("lstm", "x_t");
+
+    // multiply
+    Handle<Computation> w_output_x_join = makeObject<FFInputLayerJoin>();
+    w_output_x_join->setInput(0, w_o);
+    w_output_x_join->setInput(1, x_t);
+
+    Handle<Computation> w_output_x_agg = makeObject<FFAggMatrix>();
+    w_output_x_agg->setInput(w_output_x_join);
+
+
+    pdb::Handle<pdb::Computation> u_o =
+        pdb::makeObject<FFMatrixBlockScanner>("lstm", "u_o");
+    pdb::Handle<pdb::Computation> h_t_1 =
+        pdb::makeObject<FFMatrixBlockScanner>("lstm", "h_t_1");
+
+    Handle<Computation> u_output_h_join = makeObject<FFInputLayerJoin>();
+    u_output_h_join->setInput(0, u_o);
+    u_output_h_join->setInput(1, h_t_1);
+
+    Handle<Computation> u_output_h_agg = makeObject<FFAggMatrix>();
+    u_output_h_agg->setInput(u_output_h_join);
+
+
+    pdb::Handle<pdb::Computation> b_o =
+        pdb::makeObject<FFMatrixBlockScanner>("lstm", "b_o");
+
+    // add and sigmod
+    pdb::Handle<pdb::Computation> sum = pdb::makeObject<LSTMThreeWaySum>();
+    sum->setInput(0, w_output_x_agg);
+    sum->setInput(1, u_output_h_agg);
+    sum->setInput(2, b_o);
+
+    // make the writer
+    pdb::Handle<pdb::Computation> myWriter = pdb::makeObject<FFMatrixWriter>("lstm", "o_t");
+    myWriter->setInput(sum);
+
+    // run the computation
+    if (!pdbClient.executeComputations(errMsg, myWriter)) {
+      std::cout << "Computation failed. Message was: " << errMsg << "\n";
+      return 1;
+    }
+  }
+
+  {
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+    print_stats(pdbClient, "lstm", "w_o");
+    print_stats(pdbClient, "lstm", "x_t");
+    print_stats(pdbClient, "lstm", "u_o");
+    print_stats(pdbClient, "lstm", "h_t_1");
+    print_stats(pdbClient, "lstm", "b_o");
+    print_stats(pdbClient, "lstm", "o_t");
+  }
+
+  loadMatrix(pdbClient, "lstm", "w_c", L, D, block_x, block_y, 0, errMsg);
+  loadMatrix(pdbClient, "lstm", "u_c", L, L, block_x, block_y, 0, errMsg);
+  loadMatrix(pdbClient, "lstm", "b_c", L, B, block_x, block_y, 0, errMsg);
+
+  {
+    pdb::Handle<pdb::Computation> w_c =
+        pdb::makeObject<FFMatrixBlockScanner>("lstm", "w_c");
+    pdb::Handle<pdb::Computation> x_t =
+        pdb::makeObject<FFMatrixBlockScanner>("lstm", "x_t");
+
+    // multiply
+    Handle<Computation> w_cell_state_join = makeObject<FFInputLayerJoin>();
+    w_cell_state_join->setInput(0, w_c);
+    w_cell_state_join->setInput(1, x_t);
+
+    Handle<Computation> w_cell_state_agg = makeObject<FFAggMatrix>();
+    w_cell_state_agg->setInput(w_cell_state_join);
+
+
+    pdb::Handle<pdb::Computation> u_c =
+        pdb::makeObject<FFMatrixBlockScanner>("lstm", "u_c");
+    pdb::Handle<pdb::Computation> h_t_1 =
+        pdb::makeObject<FFMatrixBlockScanner>("lstm", "h_t_1");
+
+    Handle<Computation> u_cell_state_h_join = makeObject<FFInputLayerJoin>();
+    u_cell_state_h_join->setInput(0, u_c);
+    u_cell_state_h_join->setInput(1, h_t_1);
+
+    Handle<Computation> u_cell_state_h_agg = makeObject<FFAggMatrix>();
+    u_cell_state_h_agg->setInput(u_cell_state_h_join);
+
+
+    pdb::Handle<pdb::Computation> b_c =
+        pdb::makeObject<FFMatrixBlockScanner>("lstm", "b_c");
+
+    // add and tanh
+    pdb::Handle<pdb::Computation> sum = pdb::makeObject<LSTMThreeWaySum>(SumActivation::Tanh);
+    sum->setInput(0, w_cell_state_agg);
+    sum->setInput(1, u_cell_state_h_agg);
+    sum->setInput(2, b_c);
+
+    // make the writer
+    pdb::Handle<pdb::Computation> myWriter = pdb::makeObject<FFMatrixWriter>("lstm", "c_t_temp");
+    myWriter->setInput(sum);
+
+    // run the computation
+    if (!pdbClient.executeComputations(errMsg, myWriter)) {
+      std::cout << "Computation failed. Message was: " << errMsg << "\n";
+      return 1;
+    }
+  }
+
+  {
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+    print_stats(pdbClient, "lstm", "w_c");
+    print_stats(pdbClient, "lstm", "x_t");
+    print_stats(pdbClient, "lstm", "u_c");
+    print_stats(pdbClient, "lstm", "h_t_1");
+    print_stats(pdbClient, "lstm", "b_c");
+    print_stats(pdbClient, "lstm", "c_t_temp");
+  }
+
+  loadMatrix(pdbClient, "lstm", "c_t_1", L, B, block_x, block_y, 0, errMsg);
+
+  {
+    pdb::Handle<pdb::Computation> f_t =
+        pdb::makeObject<FFMatrixBlockScanner>("lstm", "f_t");
+    pdb::Handle<pdb::Computation> c_t_1 =
+        pdb::makeObject<FFMatrixBlockScanner>("lstm", "c_t_1");
+
+    // multiply
+    Handle<Computation> forget_cell_state_join = makeObject<FFInputLayerJoin>();
+    forget_cell_state_join->setInput(0, f_t);
+    forget_cell_state_join->setInput(1, c_t_1);
+
+    Handle<Computation> forget_cell_state_agg = makeObject<FFAggMatrix>();
+    forget_cell_state_agg->setInput(forget_cell_state_join);
+
+    pdb::Handle<pdb::Computation> i_t =
+        pdb::makeObject<FFMatrixBlockScanner>("lstm", "i_t");
+    pdb::Handle<pdb::Computation> c_t_temp =
+        pdb::makeObject<FFMatrixBlockScanner>("lstm", "c_t_temp");
+
+    Handle<Computation> input_cell_state_temp_join = makeObject<FFInputLayerJoin>();
+    input_cell_state_temp_join->setInput(0, i_t);
+    input_cell_state_temp_join->setInput(1, c_t_temp);
+
+    Handle<Computation> input_cell_state_temp_agg = makeObject<FFAggMatrix>();
+    input_cell_state_temp_agg->setInput(input_cell_state_temp_join);
+
+    // add
+    pdb::Handle<pdb::Computation> sum = pdb::makeObject<LSTMTwoSum>();
+    sum->setInput(0, forget_cell_state_agg);
+    sum->setInput(1, input_cell_state_temp_agg);
+
+    // make the writer
+    pdb::Handle<pdb::Computation> myWriter = pdb::makeObject<FFMatrixWriter>("lstm", "c_t");
+    myWriter->setInput(sum);
+
+    // run the computation
+    if (!pdbClient.executeComputations(errMsg, myWriter)) {
+      std::cout << "Computation failed. Message was: " << errMsg << "\n";
+      return 1;
+    }
+  }
+
+  {
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+    print_stats(pdbClient, "lstm", "f_t");
+    print_stats(pdbClient, "lstm", "c_t_1");
+    print_stats(pdbClient, "lstm", "i_t");
+    print_stats(pdbClient, "lstm", "c_t_temp");
+    print_stats(pdbClient, "lstm", "c_t");
+  }
+
+  {
+    pdb::Handle<pdb::Computation> o_t =
+        pdb::makeObject<FFMatrixBlockScanner>("lstm", "o_t");
+    pdb::Handle<pdb::Computation> c_t_1 =
+        pdb::makeObject<FFMatrixBlockScanner>("lstm", "c_t");
+
+    // multiply
+    Handle<Computation> hidden_state_join = makeObject<LSTMHiddenState>();
+    hidden_state_join->setInput(0, o_t);
+    hidden_state_join->setInput(1, c_t_1);
+
+    Handle<Computation> hidden_state_agg = makeObject<FFAggMatrix>();
+    hidden_state_agg->setInput(hidden_state_join);
+
+    // make the writer
+    pdb::Handle<pdb::Computation> myWriter = pdb::makeObject<FFMatrixWriter>("lstm", "h_t");
+    myWriter->setInput(hidden_state_agg);
+
+    // run the computation
+    if (!pdbClient.executeComputations(errMsg, myWriter)) {
+      std::cout << "Computation failed. Message was: " << errMsg << "\n";
+      return 1;
+    }
+  }
+
+  {
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+    print_stats(pdbClient, "lstm", "o_t");
+    print_stats(pdbClient, "lstm", "c_t");
+    print_stats(pdbClient, "lstm", "h_t");
+  }
+
 
   return 0;
 }

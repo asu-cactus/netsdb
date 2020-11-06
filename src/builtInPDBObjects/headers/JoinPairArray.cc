@@ -142,8 +142,8 @@ int JoinPairArray<ValueType>::count(const size_t &me) {
   }
 
   // we should never reach here
-  std::cout << "Warning: Ran off the end of the hash table!!\n";
-  exit(1);
+  std::cout << "Warning: Ran off the end of the hash table count()\n";
+  return 0;
 }
 
 template<class ValueType>
@@ -191,7 +191,7 @@ void JoinPairArray<ValueType>::setUnused(const size_t &me) {
   }
 
   // we should never reach here
-  std::cout << "Fatal Error: Ran off the end of the hash table!!\n";
+  std::cout << "Fatal Error: Ran off the end of the hash table setUnused()\n";
   exit(1);
 }
 
@@ -224,7 +224,7 @@ JoinRecordList<ValueType> JoinPairArray<ValueType>::lookup(const size_t &me) {
   }
 
   // we should never reach here
-  std::cout << "Fatal Error: Ran off the end of the hash table!!\n";
+  std::cout << "Fatal Error: Ran off the end of the hash table lookup()\n";
   exit(1);
 }
 
@@ -288,7 +288,7 @@ ValueType &JoinPairArray<ValueType>::push(const size_t &me) {
   }
 
   // we should never reach here
-  std::cout << "Fatal Error: Ran off the end of the hash table!!\n";
+  std::cout << "Fatal Error: Ran off the end of the hash table push()\n";
   exit(1);
 }
 
@@ -325,6 +325,7 @@ JoinPairArray<ValueType>::JoinPairArray(uint32_t numSlotsIn) : JoinPairArray() {
 
 template<class ValueType>
 bool JoinPairArray<ValueType>::isOverFull() {
+  //std::cout << "JoinPairArray: usedSlots="<< usedSlots << ", maxSlots=" << maxSlots << std::endl;
   return usedSlots >= maxSlots;
 }
 

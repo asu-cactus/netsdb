@@ -368,14 +368,18 @@ public:
             size_t index = value % (this->numPartitionsPerNode * this->numNodes)% this->numPartitionsPerNode; 
             JoinMap<RHSType>& inputTableRef = *(inputTables[index]);
             // deal with all of the matches
-            auto a = inputTableRef.lookup(value);
-            int numHits = a.size();
-
-            for (int which = 0; which < numHits; which++) {
-                unpack(a[which], overallCounter, 0, columns);
-                overallCounter++;
+            int numHits = inputTableRef.count(inputHash[i]);
+            if (numHits > 0) {
+                auto a = inputTableRef.lookup(value);
+                if (numHits != a.size()) {
+                    numHits = a.size();
+                    std::cout << "WARNING: counts() and lookup() return inconsistent results" << std::endl;
+                }
+                for (int which = 0; which < numHits; which++) {
+                    unpack(a[which], overallCounter, 0, columns);
+                    overallCounter++;
+                }
             }
-
             // remember how many matches we had
             counts[i] = numHits;
         }
@@ -499,14 +503,20 @@ public:
         for (int i = 0; i < inputHash.size(); i++) {
 
             // deal with all of the matches
-            auto a = inputTableRef.lookup(inputHash[i]);
-            int numHits = a.size();
-
-            for (int which = 0; which < numHits; which++) {
+            int numHits = inputTableRef.count(inputHash[i]);
+            if (numHits > 0) {
+                auto a = inputTableRef.lookup(inputHash[i]);
+                if (numHits != a.size()) {
+                    numHits = a.size();
+                    std::cout << "WARNING: counts() and lookup() return inconsistent results" << std::endl;
+                }
+                    for (int which = 0; which < numHits; which++) {
               
-                    unpack(a[which], overallCounter, 0, columns);
-                    overallCounter++;
+                        unpack(a[which], overallCounter, 0, columns);
+                        overallCounter++;
+                }       
             }
+
 
             // remember how many matches we had
             counts[i] = numHits;

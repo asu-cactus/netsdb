@@ -56,6 +56,7 @@ template <class ValueType>
 ValueType& JoinMap<ValueType>::push(const size_t& me) {
     if (myArray->isOverFull()) {
         Handle<JoinPairArray<ValueType>> temp = myArray->doubleArray();
+        //std::cout << "doubled the size of JoinPairArray" << std::endl;
         myArray = temp;
     }
     return myArray->push(me);

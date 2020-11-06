@@ -580,6 +580,8 @@ common_env.SharedLibrary('libraries/libFFReluBiasSum.so', ['build/FF/FFReluBiasS
 
 # common_env.SharedLibrary('libraries/.so', ['build/LSTM/.cc'] + all)
 common_env.SharedLibrary('libraries/libLSTMThreeWaySum.so', ['build/LSTM/LSTMThreeWaySum.cc'] + all)
+common_env.SharedLibrary('libraries/libLSTMTwoSum.so', ['build/LSTM/LSTMTwoSum.cc'] + all)
+common_env.SharedLibrary('libraries/libLSTMHiddenState.so', ['build/LSTM/LSTMHiddenState.cc'] + all)
 
 #reddit
 common_env.SharedLibrary('libraries/libRedditComment.so', ['build/reddit/RedditComment.cc'] + all)
@@ -818,6 +820,8 @@ common_env.Depends(pdbTest, [
   'bin/test78',
   'bin/test90', 
   'bin/TestLDA',
+  'bin/FFTest',
+  'bin/LSTMTest',
   'libraries/libCartesianJoin.so', 
   'libraries/libChrisSelection.so', 
   'libraries/libEmployeeSelection.so',
@@ -869,7 +873,25 @@ common_env.Depends(pdbTest, [
   'libraries/libLDADocWordTopicAssignment.so',
   'libraries/libLDADocWordTopicAssignmentIdentity.so',
   'libraries/libScanTopicsPerWord.so',
-  'libraries/libScanIntDoubleVectorPairSet.so'
+  'libraries/libScanIntDoubleVectorPairSet.so',
+
+  # FF Test libraries
+  'libraries/libFFMatrixBlock.so',
+  'libraries/libFFMatrixMeta.so',
+  'libraries/libFFMatrixData.so',
+  'libraries/libFFMatrixBlockScanner.so',
+  'libraries/libFFInputLayerJoin.so',
+  'libraries/libFFMatrixWriter.so',
+  'libraries/libFFAggMatrix.so',
+  'libraries/libFFTransposeBiasSum.so',
+  'libraries/libFFTransposeMult.so',
+  'libraries/libFFReluBiasSum.so',
+
+  # LSTM Test libraries
+  'libraries/libLSTMThreeWaySum.so',
+  'libraries/libLSTMTwoSum.so',
+  'libraries/libLSTMHiddenState.so',
+  
 ])
 
 
@@ -1235,6 +1257,8 @@ libLSTMTest=common_env.Alias('libLSTMTest', [
   'libraries/libFFAggMatrix.so',
 
   'libraries/libLSTMThreeWaySum.so',
+  'libraries/libLSTMTwoSum.so',
+  'libraries/libLSTMHiddenState.so',
 ])
 
 libLATest=common_env.Alias('libLATest', [
