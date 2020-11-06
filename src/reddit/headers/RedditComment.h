@@ -23,6 +23,8 @@ public:
     int INTEGER_DEFAULT = 0;
     bool BOOL_DEFAULT = false;
 
+    int label = INTEGER_DEFAULT;
+    int index = INTEGER_DEFAULT;
     bool archived = BOOL_DEFAULT;
     String author = STRING_DEFAULT;
     long author_created_utc = LONG_DEFAULT;
@@ -62,9 +64,40 @@ public:
     //default constructor
     Comment () {}
 
+    Comment(Comment &other)
+        : label(other.label), index(other.index), archived(other.archived),
+          author(other.author), author_created_utc(other.author_created_utc),
+          author_flair_background_color(other.author_flair_background_color),
+          author_flair_css_class(other.author_flair_css_class),
+          author_flair_richtext(other.author_flair_richtext),
+          author_flair_type(other.author_flair_type),
+          author_fullname(other.author_fullname),
+          author_patreon_flair(other.author_patreon_flair), body(other.body),
+          can_gild(other.can_gild), can_mod_post(other.can_mod_post),
+          collapsed(other.collapsed), collapsed_reason(other.collapsed_reason),
+          controversiality(other.controversiality),
+          created_utc(other.created_utc), distinguished(other.distinguished),
+          edited(other.edited), gilded(other.gilded), gildings(other.gildings),
+          id(other.id), is_submitter(other.is_submitter),
+          link_id(other.link_id), no_follows(other.no_follows),
+          parent_id(other.parent_id), permalink(other.permalink),
+          removal_reason(other.removal_reason),
+          retrieved_on(other.retrieved_on), score(other.score),
+          send_replies(other.send_replies), stickied(other.stickied),
+          subreddit(other.subreddit), subreddit_id(other.subreddit_id),
+          subreddit_name_prefixed(other.subreddit_name_prefixed),
+          subreddit_type(other.subreddit_type) {}
+
     //constructor from a JSON string
     Comment ( std::string jsonStr ) {
+        parse_line(jsonStr);
+    }
 
+    Comment ( int index, std::string jsonStr ) : index(index) {
+        parse_line(jsonStr);
+    }
+
+    void parse_line( std::string jsonStr ) {
         json j = json::parse(jsonStr);
         // author_flair_richtext = 
         //     j["author_flair_richtext"].get<std::vector<std::string>>();

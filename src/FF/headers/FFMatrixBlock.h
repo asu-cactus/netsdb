@@ -36,7 +36,7 @@ public:
   FFMatrixBlock(int blockRowIndexIn, int blockColIndexIn, int rowNumsIn,
                 int colNumsIn, int totalRows, int totalCols)
       : data(rowNumsIn, colNumsIn),
-        meta(blockRowIndexIn, blockColIndexIn, rowNumsIn, colNumsIn) {}
+        meta(blockRowIndexIn, blockColIndexIn, totalRows, totalCols) {}
 
   FFMatrixBlock(int blockRowIndexIn, int blockColIndexIn, int rowNumsIn,
                 int colNumsIn, pdb::Handle<pdb::Vector<double>> rawDataIn)
@@ -47,9 +47,17 @@ public:
                 int colNumsIn, int totalRows, int totalCols,
                 pdb::Handle<pdb::Vector<double>> rawDataIn)
       : data(rowNumsIn, colNumsIn, rawDataIn),
-        meta(blockRowIndexIn, blockColIndexIn, rowNumsIn, colNumsIn) {}
+        meta(blockRowIndexIn, blockColIndexIn, totalRows, totalCols) {}
 
   int getRowNums() { return data.rowNums; }
+
+  int rowIndexStart() {
+    return getBlockRowIndex() * getRowNums();
+  }
+
+  int rowIndexEnd() {
+    return getBlockRowIndex() * getRowNums() + getRowNums();
+  }
 
   int getColNums() { return data.colNums; }
 

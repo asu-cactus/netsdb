@@ -22,6 +22,7 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
 
   long total = 20000000;
   long sent = 0;
+  long i = 0;
   pdb::makeObjectAllocatorBlock((size_t)blockSizeInMB * (size_t)1024 * (size_t)1024, true);
   pdb::Handle<pdb::Vector<pdb::Handle<reddit::Comment>>> storeMe = pdb::makeObject<pdb::Vector<pdb::Handle<reddit::Comment>>> ();
   while (!end) {
@@ -39,8 +40,9 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
       }
       rollback = false; 
       try {
-          pdb::Handle<reddit::Comment> comment = pdb::makeObject<reddit::Comment>(line);
+          pdb::Handle<reddit::Comment> comment = pdb::makeObject<reddit::Comment>(i, line);
           storeMe->push_back(comment);
+          i++;
       }
       catch (pdb::NotEnoughSpace &n) {
           if (! pdbClient.sendData<reddit::Comment> (std::pair<std::string, std::string>("comments", "redditDB"), storeMe, errMsg)) {
