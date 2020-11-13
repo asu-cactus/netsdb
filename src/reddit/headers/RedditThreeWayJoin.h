@@ -19,7 +19,7 @@ class ThreeWayJoin : public JoinComp<FullFeatures, Comment, Author, Sub> {
 
   Lambda<bool> getSelection(Handle<Comment> in1, Handle<Author> in2, Handle<Sub> in3) override {
     return ((makeLambdaFromMember(in1, author) == makeLambdaFromMember(in2, author)) && 
-            (makeLambdaFromMember(in1, subreddit) == makeLambdaFromMember(in3, name)));
+            (makeLambdaFromMember(in1, subreddit_id) == makeLambdaFromMember(in3, name)));
   }
 
   Lambda<Handle<FullFeatures>> getProjection(Handle<Comment> in1, Handle<Author> in2, Handle<Sub> in3) override {
