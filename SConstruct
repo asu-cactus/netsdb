@@ -792,8 +792,8 @@ common_env.Program('bin/KMeansDataLoader', ['build/tests/TestKMeansLoadData.cc']
 common_env.Program('bin/TestLDA', ['build/tests/TestLDA.cc'] + all + pdb_client)
 common_env.Program('bin/TestMatrix', ['build/tests/TestMatrix.cc'] + all)
 
-common_env.Program('bin/FFTest', ['build/tests/FFTest.cc', 'build/FF/SimpleFF.cc'] + all + pdb_client)
-common_env.Program('bin/RedditFeatureExtractor', ['build/tests/RedditFeatureExtractor.cc', 'build/FF/SimpleFF.cc'] + all + pdb_client)
+common_env.Program('bin/FFTest', ['build/tests/FFTest.cc', 'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
+common_env.Program('bin/RedditFeatureExtractor', ['build/tests/RedditFeatureExtractor.cc', 'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
 common_env.Program('bin/LSTMTest', ['build/tests/LSTMTest.cc'] + all + pdb_client)
 
 #PageRank

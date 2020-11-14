@@ -7,14 +7,16 @@
 #include "FFMatrixData.h"
 #include "FFMatrixMeta.h"
 #include "FFMatrixWriter.h"
+#include "FFOutputLayer.h"
 #include "FFReluBiasSum.h"
+#include "FFRowAggregate.h"
 #include "FFTransposeBiasSum.h"
 #include "FFTransposeMult.h"
-#include "FFRowAggregate.h"
-#include "FFOutputLayer.h"
 
+#include "FFMatrixUtil.h"
 #include "PDBClient.h"
 
+namespace ff {
 void loadLibrary(pdb::PDBClient &pdbClient, string path) {
   string errMsg;
   if (!pdbClient.registerType(path, errMsg)) {
@@ -46,40 +48,6 @@ void createDatabase(pdb::PDBClient &pdbClient, string dbName) {
   }
 }
 
-void print_matrix_stats(pdb::PDBClient &pdbClient, string dbName, string setName) {
-  int rows = 0, cols = 0, blocks = 0;
-  int totalRows = 0, totalCols = 0;
-  int blockRows = 0, blockCols = 0;
-  auto it = pdbClient.getSetIterator<FFMatrixBlock>(dbName, setName);
-
-  bool done = false;
-
-  for (auto r : it) {
-    if (!done) {
-      done = true;
-      cout << "Actual dimensions: (" << r->getTotalRowNums() << ", " << r->getTotalColNums() << "), Block position: " << r->getBlockRowIndex() << ", " << r->getBlockColIndex() << " : Block size: (" << r->getRowNums() << ", " << r->getColNums() << ")" << endl;
-    }
-
-    cout << r->getBlockRowIndex() << "," << r->getBlockColIndex() << ";";
-    rows = r->getRowNums();
-    cols = r->getColNums();
-    if (r->getBlockRowIndex() == 0) {
-      totalRows += r->getRowNums();
-      blockRows += 1;
-    }
-    if (r->getBlockColIndex() == 0) {
-      totalCols += r->getColNums();
-      blockCols += 1;
-    }
-    blocks++;
-  }
-
-  cout << "\n"
-       << setName << " (" << blockRows << " X " << blockCols << ") (" << blocks
-       << ") : (" << totalRows << " x " << totalCols
-       << "), Each block size: " << rows << " x " << cols << endl;
-}
-
 void setup(pdb::PDBClient &pdbClient, string database) {
   loadLibrary(pdbClient, "libraries/libFFMatrixMeta.so");
   loadLibrary(pdbClient, "libraries/libFFMatrixData.so");
@@ -106,26 +74,10 @@ void setup(pdb::PDBClient &pdbClient, string database) {
   createSet(pdbClient, database, "yo_exp_sum", "YOExpSum");
 }
 
-void print(pdb::PDBClient &pdbClient, string dbName, string setName) {
-  auto it = pdbClient.getSetIterator<FFMatrixBlock>(dbName, setName);
-
-  cout << setName << ": ";
-  bool done = false;
-  for (auto r : it) {
-    if (!done) {
-      done = true;
-      cout << "Actual dimensions: (" << r->getTotalRowNums() << ", " << r->getTotalColNums() << "), Block position: " << r->getBlockRowIndex() << ", " << r->getBlockColIndex() << " : Block size: (" << r->getRowNums() << ", " << r->getColNums() << ")" << endl;
-    }
-    double *data = r->getRawDataHandle()->c_ptr();
-    for (int i = 0; i < r->getRowNums() * r->getColNums(); i++) {
-      cout << data[i] << ",";
-    }
-    cout << endl;
-  }
-}
-
-void inference(pdb::PDBClient &pdbClient, string database, string w1, string w2, string wo, string inputs, string b1, string b2, string bo, string output, double dropout_rate) {
-      string errMsg;
+void inference(pdb::PDBClient &pdbClient, string database, string w1, string w2,
+               string wo, string inputs, string b1, string b2, string bo,
+               string output, double dropout_rate) {
+  string errMsg;
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
@@ -185,16 +137,16 @@ void inference(pdb::PDBClient &pdbClient, string database, string w1, string w2,
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
-    print_matrix_stats(pdbClient, database, w1);
-    print_matrix_stats(pdbClient, database, inputs);
-    print_matrix_stats(pdbClient, database, b1);
-    print_matrix_stats(pdbClient, database, "temp_y1");
-    print_matrix_stats(pdbClient, database, "y1");
+    ff::print_stats(pdbClient, database, w1);
+    ff::print_stats(pdbClient, database, inputs);
+    ff::print_stats(pdbClient, database, b1);
+    ff::print_stats(pdbClient, database, "temp_y1");
+    ff::print_stats(pdbClient, database, "y1");
 
-    // print(pdbClient, database, w1);
-    // print(pdbClient, database, inputs);
-    // print(pdbClient, database, b1);
-    // print(pdbClient, database, "y1");
+    // ff::print(pdbClient, database, w1);
+    // ff::print(pdbClient, database, inputs);
+    // ff::print(pdbClient, database, b1);
+    // ff::print(pdbClient, database, "y1");
   }
 
   pdbClient.deleteSet(database, "temp_y1");
@@ -260,16 +212,16 @@ void inference(pdb::PDBClient &pdbClient, string database, string w1, string w2,
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
-    print_matrix_stats(pdbClient, database, w2);
-    print_matrix_stats(pdbClient, database, "y1");
-    print_matrix_stats(pdbClient, database, b2);
-    print_matrix_stats(pdbClient, database, "temp_y2");
-    print_matrix_stats(pdbClient, database, "y2");
+    ff::print_stats(pdbClient, database, w2);
+    ff::print_stats(pdbClient, database, "y1");
+    ff::print_stats(pdbClient, database, b2);
+    ff::print_stats(pdbClient, database, "temp_y2");
+    ff::print_stats(pdbClient, database, "y2");
 
-    // print(pdbClient, database, w2);
-    // print(pdbClient, database, "y1");
-    // print(pdbClient, database, b2);
-    // print(pdbClient, database, "y2");
+    // ff::print(pdbClient, database, w2);
+    // ff::print(pdbClient, database, "y1");
+    // ff::print(pdbClient, database, b2);
+    // ff::print(pdbClient, database, "y2");
   }
 
   pdbClient.deleteSet(database, "temp_y2");
@@ -335,16 +287,16 @@ void inference(pdb::PDBClient &pdbClient, string database, string w1, string w2,
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
-    print_matrix_stats(pdbClient, database, wo);
-    print_matrix_stats(pdbClient, database, "y2");
-    print_matrix_stats(pdbClient, database, bo);
-    print_matrix_stats(pdbClient, database, "temp_yo");
-    print_matrix_stats(pdbClient, database, "yo");
+    ff::print_stats(pdbClient, database, wo);
+    ff::print_stats(pdbClient, database, "y2");
+    ff::print_stats(pdbClient, database, bo);
+    ff::print_stats(pdbClient, database, "temp_yo");
+    ff::print_stats(pdbClient, database, "yo");
 
-    // print(pdbClient, database, wo);
-    // print(pdbClient, database, "y2");
-    // print(pdbClient, database, bo);
-    // print(pdbClient, database, "yo");
+    // ff::print(pdbClient, database, wo);
+    // ff::print(pdbClient, database, "y2");
+    // ff::print(pdbClient, database, bo);
+    // ff::print(pdbClient, database, "yo");
   }
 
   pdbClient.deleteSet(database, "temp_yo");
@@ -356,8 +308,7 @@ void inference(pdb::PDBClient &pdbClient, string database, string w1, string w2,
     pdb::Handle<pdb::Computation> readA =
         makeObject<FFMatrixBlockScanner>(database, "yo");
 
-    pdb::Handle<pdb::Computation> expSum =
-        pdb::makeObject<FFRowAggregate>();
+    pdb::Handle<pdb::Computation> expSum = pdb::makeObject<FFRowAggregate>();
     expSum->setInput(readA);
 
     // make the writer
@@ -375,11 +326,11 @@ void inference(pdb::PDBClient &pdbClient, string database, string w1, string w2,
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
-    print_matrix_stats(pdbClient, database, "yo");
-    print_matrix_stats(pdbClient, database, "yo_exp_sum");
+    ff::print_stats(pdbClient, database, "yo");
+    ff::print_stats(pdbClient, database, "yo_exp_sum");
 
-    // print(pdbClient, database, "yo");
-    // print(pdbClient, database, "yo_exp_sum");
+    // ff::print(pdbClient, database, "yo");
+    // ff::print(pdbClient, database, "yo_exp_sum");
   }
 
   {
@@ -391,8 +342,7 @@ void inference(pdb::PDBClient &pdbClient, string database, string w1, string w2,
     pdb::Handle<pdb::Computation> readB =
         makeObject<FFMatrixBlockScanner>(database, "yo_exp_sum");
 
-    pdb::Handle<pdb::Computation> softmax =
-        pdb::makeObject<FFOutputLayer>();
+    pdb::Handle<pdb::Computation> softmax = pdb::makeObject<FFOutputLayer>();
     softmax->setInput(0, readA);
     softmax->setInput(1, readB);
 
@@ -411,15 +361,16 @@ void inference(pdb::PDBClient &pdbClient, string database, string w1, string w2,
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
-    print_matrix_stats(pdbClient, database, "yo");
-    print_matrix_stats(pdbClient, database, "yo_exp_sum");
-    print_matrix_stats(pdbClient, database, output);
+    ff::print_stats(pdbClient, database, "yo");
+    ff::print_stats(pdbClient, database, "yo_exp_sum");
+    ff::print_stats(pdbClient, database, output);
 
-    // print(pdbClient, database, "yo");
-    // print(pdbClient, database, "yo_exp_sum");
-    // print(pdbClient, database, output);
+    // ff::print(pdbClient, database, "yo");
+    // ff::print(pdbClient, database, "yo_exp_sum");
+    // ff::print(pdbClient, database, output);
   }
 
   pdbClient.deleteSet(database, "yo");
   pdbClient.deleteSet(database, "yo_exp_sum");
 }
+} // namespace ff

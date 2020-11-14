@@ -3,16 +3,17 @@
 #include <cstring>
 #include <fstream>
 #include <iostream>
-#include <vector>
 #include <random>
+#include <vector>
 
 #include "FFMatrixBlock.h"
+#include "FFMatrixBlockScanner.h"
 #include "RedditComment.h"
 #include "RedditCommentLabelJoin.h"
-#include "FFMatrixBlockScanner.h"
 #include <ScanUserSet.h>
 #include <WriteUserSet.h>
 
+#include "FFMatrixUtil.h"
 #include "PDBClient.h"
 #include "SimpleFF.h"
 
@@ -27,8 +28,9 @@ void getCommentFeatures(pdb::Handle<reddit::Comment> &comment,
   features[0] = ((double)comment->archived);
 
   system_clock::time_point tp_epoch;
-  time_point <system_clock,duration<int>> tp_seconds (duration<int>(comment->author_created_utc));
-  system_clock::time_point tp (tp_seconds);
+  time_point<system_clock, duration<int>> tp_seconds(
+      duration<int>(comment->author_created_utc));
+  system_clock::time_point tp(tp_seconds);
 
   time_t tt = system_clock::to_time_t(tp);
   tm utc_tm = *gmtime(&tt);
@@ -40,8 +42,9 @@ void getCommentFeatures(pdb::Handle<reddit::Comment> &comment,
   features[5] = ((double)comment->collapsed);
   features[6] = ((double)comment->controversiality);
 
-  time_point <system_clock,duration<int>> tq_seconds (duration<int>(comment->created_utc));
-  system_clock::time_point tq (tq_seconds);
+  time_point<system_clock, duration<int>> tq_seconds(
+      duration<int>(comment->created_utc));
+  system_clock::time_point tq(tq_seconds);
 
   time_t ttq = system_clock::to_time_t(tq);
   tm utc_tq = *gmtime(&ttq);
@@ -56,121 +59,12 @@ void getCommentFeatures(pdb::Handle<reddit::Comment> &comment,
   // features[14] = ((double)comment->stickied);
 }
 
-
-int load_matrix_data(pdb::PDBClient &pdbClient, string path, pdb::String dbName,
-                     pdb::String setName, int blockX, int blockY, int duplicateY,
-                     string &errMsg) {
-  if (path.size() == 0) {
-    throw runtime_error("Invalid filepath: " + path);
-  }
-
-  int totalX, totalY;
-
-  /// 1. Load the data from the file
-
-  // open the input file
-  ifstream is(path);
-  while (is.peek() == '#' || is.peek() == ' ')
-    is.ignore();
-
-  // load the data stats
-  is >> totalX;
-
-  while (is.peek() == ',' || is.peek() == ' ')
-    is.ignore();
-
-  is >> totalY;
-
-  cout << totalX << ", " << totalY << endl;
-
-  vector<vector<double>> matrix;
-
-  double val;
-  for (int i = 0; i < totalX; i++) {
-    vector<double> line;
-    for (int j = 0; j < totalY; j++) {
-      is >> val;
-      line.push_back(val);
-      while (is.peek() == ',' || is.peek() == ' ')
-        is.ignore();
-    }
-    matrix.push_back(line);
-  }
-
-  if (matrix.size() == 0) {
-    throw runtime_error("Invalid matrix file: " + path);
-  }
-
-  int total = 0;
-  pdb::makeObjectAllocatorBlock(128 * 1024 * 1024, true);
-
-  pdb::Handle<pdb::Vector<pdb::Handle<FFMatrixBlock>>> storeMatrix1 =
-      pdb::makeObject<pdb::Vector<pdb::Handle<FFMatrixBlock>>>();
-
-  int numXBlocks = ceil(totalX / (double)blockX);
-  int numYBlocks;
-  if (duplicateY != -1 && duplicateY > totalY) {
-    if (totalY != 1) {
-      cout << "Cannot duplicate if the original matrix has more than 1 column"
-           << endl;
-      exit(1);
-    }
-    numYBlocks = ceil(duplicateY / (double)blockY);
-  } else {
-    numYBlocks = ceil(totalY / (double)blockY);
-  }
-
-  if (duplicateY == -1)
-    duplicateY = totalY;
-
-  try {
-    for (int i = 0; i < numXBlocks; i++) {
-      for (int j = 0; j < numYBlocks; j++) {
-        pdb::Handle<FFMatrixBlock> myData =
-            pdb::makeObject<FFMatrixBlock>(i, j, blockX, blockY, matrix.size(), matrix[0].size());
-
-        for (int ii = 0; ii < blockX; ii++) {
-          for (int jj = 0; jj < blockY; jj++) {
-            int curX = (i * blockX + ii);
-            int curY = (j * blockY + jj);
-
-            double data = curX >= totalX || curY >= duplicateY
-                              ? 0 // padding to adjust to block dimensions
-                              : curY > matrix[curX].size() ? matrix[curX][0]
-                                                           : matrix[curX][curY];
-            (*(myData->getRawDataHandle()))[ii * blockY + jj] = data;
-          }
-        }
-
-        // cout << "New block: " << total << endl;
-        storeMatrix1->push_back(myData);
-        total++;
-      }
-    }
-    if (!pdbClient.sendData<FFMatrixBlock>(
-            pair<string, string>(setName, dbName), storeMatrix1, errMsg)) {
-      cout << "Failed to send data to dispatcher server" << endl;
-      exit(1);
-    }
-  } catch (pdb::NotEnoughSpace &e) {
-    cout << "Failed to send data to dispatcher server" << endl;
-    exit(1);
-  }
-  cout << setName << "(" << totalX << "x" << totalY << "): (" << numXBlocks
-       << " x " << numYBlocks << ")" << total << " blocks = " << blockX << " x "
-       << blockY << " each" << endl;
-
-  // to write back all buffered records
-  pdbClient.flushData(errMsg);
-
-  return matrix.size();
-}
-
-
-void extract_features(pdb::PDBClient &pdbClient, int block_x, int block_y, int total_features, int batch_size, string db, string set) {
+void extract_features(pdb::PDBClient &pdbClient, int block_x, int block_y,
+                      int total_features, int batch_size, string db,
+                      string set) {
   string errMsg;
 
-  createSet(pdbClient, db, set, set);
+  ff::createSet(pdbClient, db, set, set);
   pdb::makeObjectAllocatorBlock(128 * 1024 * 1024, true);
 
   // int numXBlocks = ceil(totalX / (double)blockX); // no idea how many
@@ -212,9 +106,8 @@ void extract_features(pdb::PDBClient &pdbClient, int block_x, int block_y, int t
         }
 
         if (!pdbClient.sendData<FFMatrixBlock>(
-                std::pair<std::string, std::string>(set,
-                                                    db),
-                storeMatrix1, errMsg)) {
+                std::pair<std::string, std::string>(set, db), storeMatrix1,
+                errMsg)) {
           cout << "Failed to send data to dispatcher server" << endl;
           exit(1);
         }
@@ -275,8 +168,7 @@ void extract_features(pdb::PDBClient &pdbClient, int block_x, int block_y, int t
 
   // Send the remaining blocks to database
   if (!pdbClient.sendData<FFMatrixBlock>(
-          std::pair<std::string, std::string>(set, db),
-          storeMatrix1, errMsg)) {
+          std::pair<std::string, std::string>(set, db), storeMatrix1, errMsg)) {
     cout << "Failed to send data to dispatcher server" << endl;
     exit(1);
   }
@@ -284,69 +176,6 @@ void extract_features(pdb::PDBClient &pdbClient, int block_x, int block_y, int t
   pdbClient.flushData(errMsg);
 
   cout << "Sent " << storeMatrix1->size() << " blocks to db" << endl;
-}
-
-void loadMatrix(pdb::PDBClient &pdbClient, pdb::String dbName, pdb::String setName,
-                int totalX, int totalY, int blockX, int blockY,
-                string &errMsg) {
-
-    std::random_device rd;
-
-
-    std::mt19937 e2(rd());
-
-    std::uniform_real_distribution<> distp(0.0001, 0.5);
-    std::uniform_real_distribution<> distn(-0.5, -0.0001);
-
-    auto gen = std::bind(std::uniform_int_distribution<>(0,1),std::default_random_engine());
-
-
-  int total = 0;
-  pdb::makeObjectAllocatorBlock(128 * 1024 * 1024, true);
-
-  pdb::Handle<pdb::Vector<pdb::Handle<FFMatrixBlock>>> storeMatrix1 =
-      pdb::makeObject<pdb::Vector<pdb::Handle<FFMatrixBlock>>>();
-
-  int numXBlocks = ceil(totalX / (double)blockX);
-  int numYBlocks = ceil(totalY / (double)blockY);
-
-  try {
-    for (int i = 0; i < numXBlocks; i++) {
-      for (int j = 0; j < numYBlocks; j++) {
-        pdb::Handle<FFMatrixBlock> myData =
-            pdb::makeObject<FFMatrixBlock>(i, j, blockX, blockY, totalX, totalY);
-
-        for (int ii = 0; ii < blockX; ii++) {
-          for (int jj = 0; jj < blockY; jj++) {
-            // row = i * blockX + ii, col = j * blockY + jj
-            double data =
-                (i * blockX + ii) >= totalX || (j * blockY + jj) >= totalY
-                    ? 0
-                    : (bool)gen() ? distn(e2) : distp(e2);
-            (*(myData->getRawDataHandle()))[ii * blockY + jj] = data;
-          }
-        }
-
-        // cout << "New block: " << total << endl;
-        storeMatrix1->push_back(myData);
-        total++;
-      }
-    }
-    if (!pdbClient.sendData<FFMatrixBlock>(
-            pair<string, string>(setName, dbName), storeMatrix1, errMsg)) {
-      cout << "Failed to send data to dispatcher server" << endl;
-      exit(1);
-    }
-  } catch (pdb::NotEnoughSpace &e) {
-    cout << "Failed to send data to dispatcher server" << endl;
-    exit(1);
-  }
-  cout << setName << "(" << totalX << "x" << totalY << "): (" << numXBlocks
-       << " x " << numYBlocks << ")" << total << " blocks = " << blockX << " x "
-       << blockY << " each" << endl;
-
-  // to write back all buffered records
-  pdbClient.flushData(errMsg);
 }
 
 int main(int argc, char *argv[]) {
@@ -360,7 +189,7 @@ int main(int argc, char *argv[]) {
   int block_x, block_y;
   int batch_size;
 
-  if (argc < 2) {
+  if (argc < 3) {
     cout << "Usage: blockDimensionX blockDimensionY batchSize "
             "path/to/weights/and/bias(leave empty if generate random)"
          << endl;
@@ -378,20 +207,20 @@ int main(int argc, char *argv[]) {
 
   string db = "redditDB", set = "comment_features";
 
-  setup(pdbClient, db);
+  ff::setup(pdbClient, db);
 
-  createSet(pdbClient, db, "w1", "W1");
-  createSet(pdbClient, db, "b1", "B1");
+  ff::createSet(pdbClient, db, "w1", "W1");
+  ff::createSet(pdbClient, db, "b1", "B1");
 
-  createSet(pdbClient, db, "w2", "W2");
-  createSet(pdbClient, db, "b2", "B2");
+  ff::createSet(pdbClient, db, "w2", "W2");
+  ff::createSet(pdbClient, db, "b2", "B2");
 
-  createSet(pdbClient, db, "wo", "WO");
-  createSet(pdbClient, db, "bo", "BO");
+  ff::createSet(pdbClient, db, "wo", "WO");
+  ff::createSet(pdbClient, db, "bo", "BO");
 
-  createSet(pdbClient, db, "output", "Output");
+  ff::createSet(pdbClient, db, "output", "Output");
 
-  createSet(pdbClient, db, "result", "Result");
+  ff::createSet(pdbClient, db, "result", "Result");
 
   string main_path = string(argv[4]);
   string input_path = main_path + "/input.out";
@@ -404,56 +233,58 @@ int main(int argc, char *argv[]) {
 
   if (!generate) {
     // load the input data
-    (void)load_matrix_data(pdbClient, w1_path, db, "w1", block_x, block_y, -1,
-                            errMsg);
-    (void)load_matrix_data(pdbClient, w2_path, db, "w2", block_x, block_y, -1,
-                            errMsg);
-    (void)load_matrix_data(pdbClient, wo_path, db, "wo", block_x, block_y, -1,
-                            errMsg);
-    (void)load_matrix_data(pdbClient, b1_path, db, "b1", block_x, block_y,
-                            batch_size, errMsg);
-    (void)load_matrix_data(pdbClient, b2_path, db, "b2", block_x, block_y,
-                            batch_size, errMsg);
-    (void)load_matrix_data(pdbClient, bo_path, db, "bo", block_x, block_y,
-                            batch_size, errMsg);
+    (void)ff::load_matrix_data(pdbClient, w1_path, db, "w1", block_x, block_y,
+                               -1, errMsg);
+    (void)ff::load_matrix_data(pdbClient, w2_path, db, "w2", block_x, block_y,
+                               -1, errMsg);
+    (void)ff::load_matrix_data(pdbClient, wo_path, db, "wo", block_x, block_y,
+                               -1, errMsg);
+    (void)ff::load_matrix_data(pdbClient, b1_path, db, "b1", block_x, block_y,
+                               batch_size, errMsg);
+    (void)ff::load_matrix_data(pdbClient, b2_path, db, "b2", block_x, block_y,
+                               batch_size, errMsg);
+    (void)ff::load_matrix_data(pdbClient, bo_path, db, "bo", block_x, block_y,
+                               batch_size, errMsg);
   } else {
     int hid1_size = 128;
     int hid2_size = 256;
     int num_labels = 2;
 
     // X x features_size = None x 5000
-    // loadMatrix(pdbClient, db, "inputs", batch_size, features, block_x,
+    // ff::loadMatrix(pdbClient, db, "inputs", batch_size, features, block_x,
     //             block_y, errMsg);
     // X x labels_size = ???
-    // loadMatrix(pdbClient, db, "label", 64, null, 1, 100, 2, errMsg);
+    // ff::loadMatrix(pdbClient, db, "label", 64, null, 1, 100, 2, errMsg);
 
     // 128 x features_size = 128 x 5000
-    loadMatrix(pdbClient, db, "w1", hid1_size, total_features, block_x, block_y,
-                errMsg);
+    ff::loadMatrix(pdbClient, db, "w1", hid1_size, total_features, block_x,
+                   block_y, errMsg);
     // 128 x 1
-    loadMatrix(pdbClient, db, "b1", hid1_size, batch_size, block_x, block_y,
-                errMsg);
+    ff::loadMatrix(pdbClient, db, "b1", hid1_size, batch_size, block_x, block_y,
+                   errMsg);
 
     // 256 x 128
-    loadMatrix(pdbClient, db, "w2", hid2_size, hid1_size, block_x, block_y,
-                errMsg);
+    ff::loadMatrix(pdbClient, db, "w2", hid2_size, hid1_size, block_x, block_y,
+                   errMsg);
     // 256 x 1
-    loadMatrix(pdbClient, db, "b2", hid2_size, batch_size, block_x, block_y,
-                errMsg);
+    ff::loadMatrix(pdbClient, db, "b2", hid2_size, batch_size, block_x, block_y,
+                   errMsg);
 
     // 2 x 256
-    loadMatrix(pdbClient, db, "wo", num_labels, hid2_size, block_x, block_y,
-                errMsg);
+    ff::loadMatrix(pdbClient, db, "wo", num_labels, hid2_size, block_x, block_y,
+                   errMsg);
     // 2 x 1
-    loadMatrix(pdbClient, db, "bo", num_labels, batch_size, block_x, block_y,
-                errMsg);
+    ff::loadMatrix(pdbClient, db, "bo", num_labels, batch_size, block_x,
+                   block_y, errMsg);
   }
 
-  extract_features(pdbClient, block_x, block_y, total_features, batch_size, db, set);
+  extract_features(pdbClient, block_x, block_y, total_features, batch_size, db,
+                   set);
 
   double dropout_rate = 0.5;
 
-  inference(pdbClient, db, "w1", "w2", "wo", set, "b1", "b2", "bo", "output", dropout_rate);
+  ff::inference(pdbClient, db, "w1", "w2", "wo", set, "b1", "b2", "bo",
+                "output", dropout_rate);
 
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
@@ -470,10 +301,9 @@ int main(int argc, char *argv[]) {
         j++;
       }
     }
-
   }
 
-  loadLibrary(pdbClient, "libraries/libRedditCommentLabelJoin.so");
+  ff::loadLibrary(pdbClient, "libraries/libRedditCommentLabelJoin.so");
 
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
@@ -482,7 +312,8 @@ int main(int argc, char *argv[]) {
     pdb::Handle<pdb::Computation> readA =
         makeObject<FFMatrixBlockScanner>(db, "output");
 
-    pdb::Handle<pdb::Computation> readB = makeObject<ScanUserSet<reddit::Comment>>(db, "comments");
+    pdb::Handle<pdb::Computation> readB =
+        makeObject<ScanUserSet<reddit::Comment>>(db, "comments");
 
     pdb::Handle<pdb::Computation> join =
         pdb::makeObject<reddit::CommentLabelJoin>();
@@ -509,7 +340,6 @@ int main(int argc, char *argv[]) {
     for (auto r : it) {
       cout << r->label << endl;
     }
-
   }
 
   return 0;

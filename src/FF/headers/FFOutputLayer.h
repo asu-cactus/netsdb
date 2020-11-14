@@ -18,7 +18,8 @@ public:
 
   Lambda<bool> getSelection(Handle<FFMatrixBlock> in1,
                             Handle<FFMatrixBlock> in2) override {
-    return makeLambdaFromMethod(in1, getBlockRowIndex) == makeLambdaFromMethod(in2, getBlockRowIndex);
+    return makeLambdaFromMethod(in1, getBlockRowIndex) ==
+           makeLambdaFromMethod(in2, getBlockRowIndex);
   }
 
   Lambda<Handle<FFMatrixBlock>>
@@ -31,8 +32,9 @@ public:
             uint32_t J = in1->getColNums();
 
             if (in1->getRowNums() != in2->getRowNums()) {
-                cout << "[FFOutputLayer] Cannot divide! Dimensions mismatch!" << endl;
-                exit(-1);
+              cout << "[FFOutputLayer] Cannot divide! Dimensions mismatch!"
+                   << endl;
+              exit(-1);
             }
 
             // make an output
@@ -47,10 +49,10 @@ public:
             double *in2Data = in2->getValue().rawData->c_ptr();
 
             for (int i = 0; i < I; i++) {
-                for (int j = 0; j < J; j++) {
-                    int pos = i * I + j;
-                    outData[pos] = in1Data[pos] / in2Data[i];
-                }
+              for (int j = 0; j < J; j++) {
+                int pos = i * I + j;
+                outData[pos] = in1Data[pos] / in2Data[i];
+              }
             }
 
             return resultFFMatrixBlock;

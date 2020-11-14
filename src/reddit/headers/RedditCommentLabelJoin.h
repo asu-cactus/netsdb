@@ -1,9 +1,9 @@
 #ifndef REDDIT_COMMENT_LABEL_JOIN_H
 #define REDDIT_COMMENT_LABEL_JOIN_H
 
-#include <JoinComp.h>
 #include "Lambda.h"
 #include "LambdaCreationFunctions.h"
+#include <JoinComp.h>
 
 #include "FFMatrixBlock.h"
 #include "RedditComment.h"
@@ -23,18 +23,24 @@ public:
 
   Lambda<bool> getSelection(Handle<::FFMatrixBlock> in1,
                             Handle<Comment> in2) override {
-    // The matrix is a 2 column matrix. First column implies YES and second column implies NO.
-    // Each comment is expected 
-    return (
-            makeLambda(in1, in2, [](Handle<::FFMatrixBlock> &in1, Handle<Comment> &in2) { return in1->rowIndexStart() <= in2->index; }) &&
+    // The matrix is a 2 column matrix. First column implies YES and second
+    // column implies NO. Each comment is expected
+    return (makeLambda(in1, in2,
+                       [](Handle<::FFMatrixBlock> &in1, Handle<Comment> &in2) {
+                         return in1->rowIndexStart() <= in2->index;
+                       }) &&
             // makeLambdaFromMethod(in1, rowIndexStart) <=
             //     makeLambdaFromMember(in2, index) &&
-            makeLambda(in1, in2, [](Handle<::FFMatrixBlock> &in1, Handle<Comment> &in2) { return in1->rowIndexEnd() > in2->index; }) &&
+            makeLambda(in1, in2,
+                       [](Handle<::FFMatrixBlock> &in1, Handle<Comment> &in2) {
+                         return in1->rowIndexEnd() > in2->index;
+                       }) &&
             // makeLambdaFromMethod(in1, rowIndexEnd) >
             //     makeLambdaFromMember(in2, index) &&
             // makeLambdaFromMethod(in1, getBlockColIndex) == 0
-            makeLambda(in1, [](Handle<::FFMatrixBlock>& in1) { return in1->getBlockColIndex() == 0; })
-    );
+            makeLambda(in1, [](Handle<::FFMatrixBlock> &in1) {
+              return in1->getBlockColIndex() == 0;
+            }));
   }
 
   Lambda<Handle<Comment>> getProjection(Handle<::FFMatrixBlock> in1,
