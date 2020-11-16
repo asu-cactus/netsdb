@@ -17,7 +17,7 @@ class JoinSubsWithComments : public JoinComp<SubsAndComments, Comment, Sub> {
   JoinSubsWithComments() = default;
 
   Lambda<bool> getSelection(Handle<Comment> in1, Handle<Sub> in2) override {
-    return (makeLambdaFromMember(in1, subreddit) == makeLambdaFromMember(in2, name));
+    return (makeLambdaFromMember(in1, subreddit_id) == makeLambdaFromMember(in2, name));
   }
 
   Lambda<Handle<SubsAndComments>> getProjection(Handle<Comment> in1, Handle<Sub> in2) override {
