@@ -575,6 +575,8 @@ common_env.SharedLibrary('libraries/libFFAggMatrix.so', ['build/FF/FFAggMatrix.c
 common_env.SharedLibrary('libraries/libFFTransposeMult.so', ['build/FF/FFTransposeMult.cc'] + all)
 common_env.SharedLibrary('libraries/libFFTransposeBiasSum.so', ['build/FF/FFTransposeBiasSum.cc'] + all)
 common_env.SharedLibrary('libraries/libFFReluBiasSum.so', ['build/FF/FFReluBiasSum.cc'] + all)
+common_env.SharedLibrary('libraries/libFFRowAggregate.so', ['build/FF/FFRowAggregate.cc'] + all)
+common_env.SharedLibrary('libraries/libFFOutputLayer.so', ['build/FF/FFOutputLayer.cc'] + all)
 
 # LSTM
 
@@ -593,6 +595,7 @@ common_env.SharedLibrary('libraries/libRedditJoin.so', ['build/reddit/RedditJoin
 common_env.SharedLibrary('libraries/libRedditThreeWayJoin.so', ['build/reddit/RedditThreeWayJoin.cc'] + all)
 common_env.SharedLibrary('libraries/libRedditJoinSubsAndComments.so', ['build/reddit/RedditJoinSubsAndComments.cc']+all)
 common_env.SharedLibrary('libraries/libRedditSubsAndComments.so', ['build/reddit/RedditSubsAndComments.cc']+all)
+common_env.SharedLibrary('libraries/libRedditCommentLabelJoin.so', ['build/reddit/RedditCommentLabelJoin.cc']+all)
 
 common_env.Program('bin/loadRedditComments', ['build/tests/LoadRedditComments.cc'] + all + pdb_client)
 common_env.Program('bin/loadRedditAuthors', ['build/tests/LoadRedditAuthors.cc'] + all + pdb_client)
@@ -789,7 +792,8 @@ common_env.Program('bin/KMeansDataLoader', ['build/tests/TestKMeansLoadData.cc']
 common_env.Program('bin/TestLDA', ['build/tests/TestLDA.cc'] + all + pdb_client)
 common_env.Program('bin/TestMatrix', ['build/tests/TestMatrix.cc'] + all)
 
-common_env.Program('bin/FFTest', ['build/tests/FFTest.cc'] + all + pdb_client)
+common_env.Program('bin/FFTest', ['build/tests/FFTest.cc', 'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
+common_env.Program('bin/RedditFeatureExtractor', ['build/tests/RedditFeatureExtractor.cc', 'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
 common_env.Program('bin/LSTMTest', ['build/tests/LSTMTest.cc'] + all + pdb_client)
 
 #PageRank
@@ -886,6 +890,8 @@ common_env.Depends(pdbTest, [
   'libraries/libFFTransposeBiasSum.so',
   'libraries/libFFTransposeMult.so',
   'libraries/libFFReluBiasSum.so',
+  'libraries/libFFRowAggregate.so',
+  'libraries/libFFOutputLayer.so',
 
   # LSTM Test libraries
   'libraries/libLSTMThreeWaySum.so',
@@ -1225,6 +1231,7 @@ libFFTest=common_env.Alias('libFFTest', [
   'bin/pdb-server', 
 
   'bin/FFTest',
+  'bin/RedditFeatureExtractor',
   
   # Other libraries from src/FF
   'libraries/libFFMatrixBlock.so',
@@ -1237,6 +1244,12 @@ libFFTest=common_env.Alias('libFFTest', [
   'libraries/libFFTransposeBiasSum.so',
   'libraries/libFFTransposeMult.so',
   'libraries/libFFReluBiasSum.so',
+  'libraries/libFFRowAggregate.so',
+  'libraries/libFFOutputLayer.so',
+
+  # Reddit libraries
+  'libraries/libRedditComment.so',
+  'libraries/libRedditCommentLabelJoin.so',
 ])
 
 libLSTMTest=common_env.Alias('libLSTMTest', [

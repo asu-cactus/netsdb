@@ -24,7 +24,6 @@ public:
                             Handle<FFMatrixBlock> in2) override {
     return makeLambda(
         in1, in2, [](Handle<FFMatrixBlock> &in1, Handle<FFMatrixBlock> &in2) {
-          std::cout << "[FFTRANBIASSUM] " <<  in1->getBlockRowIndex() << ", " << in1->getBlockColIndex() << " : " << in2->getBlockRowIndex() << ", " << in2->getBlockColIndex() << std::endl;
             return in1->getBlockRowIndex() == in2->getBlockRowIndex()
                 && in1->getBlockColIndex() == in2->getBlockColIndex();
         });
@@ -39,8 +38,6 @@ public:
 
             uint32_t I = in1->getRowNums();
             uint32_t J = in1->getColNums();
-
-            std::cout << "[FFTRANBIASSUM] Summing!" << std::endl;
 
             if (in1->getRowNums() != in2->getRowNums() ||
                 in1->getColNums() != in2->getColNums()) {
@@ -68,13 +65,24 @@ public:
             sumMatrix = currentMatrix1 + currentMatrix2;
             sumMatrix.transposeInPlace();
 
-            double sum = 0;
-            for (int i = 0; i < I * J; i++) {
-              outData[i] = exp(outData[i]);
-              sum += outData[i];
-            }
+            int row_idx = in1->getBlockColIndex();
+            int col_idx = in1->getBlockRowIndex();
+            int block_x = J;
+            int block_y = I;
+            int X = in1->getTotalColNums();
+            int Y = in1->getTotalRowNums();
 
-            sumMatrix /= sum;
+            for (int i = 0; i < block_x; i++) {
+              int act_x = row_idx * block_x + i;
+              for (int j = 0; j < block_y; j++) {
+                int act_y = col_idx * block_y + j;
+
+                if (act_x < X && act_y < Y) {
+                  int cur_pos = i * block_x + j;
+                  outData[cur_pos] = exp(outData[cur_pos]);
+                }
+              }
+            }
 
             return resultFFMatrixBlock;
           } else {

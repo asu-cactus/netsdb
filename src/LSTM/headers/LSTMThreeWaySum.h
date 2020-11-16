@@ -46,9 +46,6 @@ public:
             uint32_t I = in1->getRowNums();
             uint32_t J = in1->getColNums();
 
-            std::cout << "Multiplying" << in1->getBlockRowIndex() << " x "
-                      << in1->getBlockColIndex() << std::endl;
-
             if (in1->getRowNums() != in2->getRowNums() ||
                 in1->getColNums() != in2->getColNums() ||
                 in2->getRowNums() != in3->getRowNums() ||
