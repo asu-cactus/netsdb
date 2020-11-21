@@ -593,6 +593,7 @@ common_env.SharedLibrary('libraries/libRedditFeatures.so', ['build/reddit/Reddit
 common_env.SharedLibrary('libraries/libRedditFullFeatures.so', ['build/reddit/RedditFullFeatures.cc'] + all)
 common_env.SharedLibrary('libraries/libRedditJoin.so', ['build/reddit/RedditJoin.cc'] + all)
 common_env.SharedLibrary('libraries/libRedditThreeWayJoin.so', ['build/reddit/RedditThreeWayJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditThreeWayAdaptiveJoin.so', ['build/reddit/RedditThreeWayAdaptiveJoin.cc'] + all)
 common_env.SharedLibrary('libraries/libRedditJoinSubsAndComments.so', ['build/reddit/RedditJoinSubsAndComments.cc']+all)
 common_env.SharedLibrary('libraries/libRedditSubsAndComments.so', ['build/reddit/RedditSubsAndComments.cc']+all)
 common_env.SharedLibrary('libraries/libRedditCommentLabelJoin.so', ['build/reddit/RedditCommentLabelJoin.cc']+all)
@@ -602,6 +603,7 @@ common_env.Program('bin/loadRedditAuthors', ['build/tests/LoadRedditAuthors.cc']
 common_env.Program('bin/loadRedditSubs', ['build/tests/LoadRedditSubs.cc'] + all + pdb_client)
 common_env.Program('bin/testRedditJoin', ['build/tests/TestRedditJoin.cc'] + all + pdb_client)
 common_env.Program('bin/testRedditThreeWayJoin', ['build/tests/TestRedditThreeWayJoin.cc'] + all + pdb_client)
+common_env.Program('bin/testRedditThreeWayAdaptiveJoin', ['build/tests/TestRedditThreeWayAdaptiveJoin.cc'] + all + pdb_client)
 common_env.Program('bin/testRedditJoinSubsAndComments', ['build/tests/TestRedditJoinSubsWithComments.cc']+all+pdb_client)
 common_env.Program('bin/testRedditAuthors', ['build/tests/TestRedditAuthors.cc'] + all + pdb_client)
 common_env.Program('bin/testScanAuthors', ['build/tests/TestScanAuthors.cc'] + all + pdb_client)
@@ -1042,6 +1044,7 @@ reddit=common_env.Alias('reddit', [
   'libraries/libRedditFullFeatures.so',
   'libraries/libRedditJoin.so',
   'libraries/libRedditThreeWayJoin.so',
+  'libraries/libRedditThreeWayAdaptiveJoin.so',
   'libraries/libRedditSubsAndComments.so',
   'libraries/libRedditJoinSubsAndComments.so',
   'bin/loadRedditComments',
@@ -1052,6 +1055,7 @@ reddit=common_env.Alias('reddit', [
   'bin/testScanSubs',
   'bin/testRedditJoin',
   'bin/testRedditThreeWayJoin',
+  'bin/testRedditThreeWayAdaptiveJoin',
   'bin/testRedditJoinSubsAndComments'
 ])
 
