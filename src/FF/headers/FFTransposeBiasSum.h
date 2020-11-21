@@ -7,8 +7,8 @@
 #include "LambdaCreationFunctions.h"
 
 // LA libraries:
-#include <eigen3/Eigen/Dense>
 #include <cmath>
+#include <eigen3/Eigen/Dense>
 
 using namespace pdb;
 
@@ -24,8 +24,7 @@ public:
                             Handle<FFMatrixBlock> in2) override {
     return makeLambda(
         in1, in2, [](Handle<FFMatrixBlock> &in1, Handle<FFMatrixBlock> &in2) {
-            return in1->getBlockRowIndex() == in2->getBlockRowIndex()
-                && in1->getBlockColIndex() == in2->getBlockColIndex();
+          return in1->getBlockRowIndex() == in2->getBlockRowIndex();
         });
   }
 
@@ -40,9 +39,9 @@ public:
             uint32_t J = in1->getColNums();
 
             if (in1->getRowNums() != in2->getRowNums() ||
-                in1->getColNums() != in2->getColNums()) {
-                std::cerr << "Block dimemsions mismatch!" << std::endl;
-                exit(1);
+                in2->getColNums() != 1) {
+              std::cerr << "Block dimemsions mismatch!" << std::endl;
+              exit(1);
             }
 
             pdb::Handle<FFMatrixBlock> resultFFMatrixBlock =
@@ -54,15 +53,18 @@ public:
             double *in1Data = in1->getValue().rawData->c_ptr();
             double *in2Data = in2->getValue().rawData->c_ptr();
 
-            Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>
+            Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
+                                     Eigen::RowMajor>>
                 currentMatrix1(in1Data, I, J);
-            Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>
-                currentMatrix2(in2Data, I, J);
+            Eigen::Map<
+                Eigen::Matrix<double, Eigen::Dynamic, 1, Eigen::ColMajor>>
+                currentMatrix2(in2Data, I, 1);
 
-            Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>
+            Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
+                                     Eigen::RowMajor>>
                 sumMatrix(outData, I, J);
 
-            sumMatrix = currentMatrix1 + currentMatrix2;
+            sumMatrix = currentMatrix1.colwise() + currentMatrix2;
             sumMatrix.transposeInPlace();
 
             int row_idx = in1->getBlockColIndex();

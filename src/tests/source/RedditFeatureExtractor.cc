@@ -222,29 +222,29 @@ int main(int argc, char *argv[]) {
 
   ff::createSet(pdbClient, db, "result", "Result");
 
-  string main_path = string(argv[4]);
-  string input_path = main_path + "/input.out";
-  string w1_path = main_path + "/w1.out";
-  string w2_path = main_path + "/w2.out";
-  string wo_path = main_path + "/wo.out";
-  string b1_path = main_path + "/b1.out";
-  string b2_path = main_path + "/b2.out";
-  string bo_path = main_path + "/bo.out";
-
   if (!generate) {
+    string main_path = string(argv[4]);
+    string input_path = main_path + "/input.out";
+    string w1_path = main_path + "/w1.out";
+    string w2_path = main_path + "/w2.out";
+    string wo_path = main_path + "/wo.out";
+    string b1_path = main_path + "/b1.out";
+    string b2_path = main_path + "/b2.out";
+    string bo_path = main_path + "/bo.out";
+
     // load the input data
     (void)ff::load_matrix_data(pdbClient, w1_path, db, "w1", block_x, block_y,
-                               -1, errMsg);
+                               false, false, errMsg);
     (void)ff::load_matrix_data(pdbClient, w2_path, db, "w2", block_x, block_y,
-                               -1, errMsg);
+                               false, false, errMsg);
     (void)ff::load_matrix_data(pdbClient, wo_path, db, "wo", block_x, block_y,
-                               -1, errMsg);
+                               false, false, errMsg);
     (void)ff::load_matrix_data(pdbClient, b1_path, db, "b1", block_x, block_y,
-                               batch_size, errMsg);
+                               false, true, errMsg);
     (void)ff::load_matrix_data(pdbClient, b2_path, db, "b2", block_x, block_y,
-                               batch_size, errMsg);
+                               false, true, errMsg);
     (void)ff::load_matrix_data(pdbClient, bo_path, db, "bo", block_x, block_y,
-                               batch_size, errMsg);
+                               false, true, errMsg);
   } else {
     int hid1_size = 128;
     int hid2_size = 256;
@@ -258,25 +258,32 @@ int main(int argc, char *argv[]) {
 
     // 128 x features_size = 128 x 5000
     ff::loadMatrix(pdbClient, db, "w1", hid1_size, total_features, block_x,
-                   block_y, errMsg);
+                   block_y, false, false, errMsg);
     // 128 x 1
-    ff::loadMatrix(pdbClient, db, "b1", hid1_size, batch_size, block_x, block_y,
-                   errMsg);
+    ff::loadMatrix(pdbClient, db, "b1", hid1_size, 1, block_x, block_y, false,
+                   true, errMsg);
 
     // 256 x 128
     ff::loadMatrix(pdbClient, db, "w2", hid2_size, hid1_size, block_x, block_y,
-                   errMsg);
+                   false, false, errMsg);
     // 256 x 1
-    ff::loadMatrix(pdbClient, db, "b2", hid2_size, batch_size, block_x, block_y,
-                   errMsg);
+    ff::loadMatrix(pdbClient, db, "b2", hid2_size, 1, block_x, block_y, false,
+                   true, errMsg);
 
     // 2 x 256
     ff::loadMatrix(pdbClient, db, "wo", num_labels, hid2_size, block_x, block_y,
-                   errMsg);
+                   false, false, errMsg);
     // 2 x 1
-    ff::loadMatrix(pdbClient, db, "bo", num_labels, batch_size, block_x,
-                   block_y, errMsg);
+    ff::loadMatrix(pdbClient, db, "bo", num_labels, 1, block_x, block_y, false,
+                   true, errMsg);
   }
+
+  // ff::print_stats(pdbClient, db, "w1");
+  // ff::print_stats(pdbClient, db, "w2");
+  // ff::print_stats(pdbClient, db, "wo");
+  // ff::print_stats(pdbClient, db, "b1");
+  // ff::print_stats(pdbClient, db, "b2");
+  // ff::print_stats(pdbClient, db, "bo");
 
   extract_features(pdbClient, block_x, block_y, total_features, batch_size, db,
                    set);
@@ -333,7 +340,7 @@ int main(int argc, char *argv[]) {
   }
 
   {
-    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 1024};
 
     auto it = pdbClient.getSetIterator<reddit::Comment>(db, "result");
 
