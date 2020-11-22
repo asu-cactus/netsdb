@@ -3,10 +3,7 @@
 
 #include <PDBClient.h>
 #include <RedditComment.h>
-#include <RedditAuthor.h>
-#include <RedditSub.h>
-#include <RedditFullFeatures.h>
-#include <RedditThreeWayAdaptiveJoin.h>
+#include <RedditLabelProjection.h>
 #include <ScanUserSet.h>
 #include <WriteUserSet.h>
 
@@ -17,25 +14,22 @@ void run(PDBClient &pdbClient) {
 
   string errMsg;
 
-    pdb::makeObjectAllocatorBlock(128 * 1024 * 1024, true);
+    pdb::makeObjectAllocatorBlock(64 * 1024 * 1024, true);
 
     // clear the rankings
-    pdbClient.clearSet("redditDB", "fullfeatures", "reddit::FullFeatures", errMsg);
+    pdbClient.clearSet("redditDB", "labeledComments", "reddit::Comment", errMsg);
 
     // make a scan set
-    Handle<Computation> input1 = makeObject<ScanUserSet<reddit::Comment>>("redditDB", "labeledComments");
-    Handle<Computation> input2 = makeObject<ScanUserSet<reddit::Author>>("redditDB", "authors");
-    Handle<Computation> input3 = makeObject<ScanUserSet<reddit::Sub>>("redditDB", "subs");
+    Handle<Computation> input = makeObject<ScanUserSet<reddit::Comment>>("redditDB", "comments");
 
     // join previous ranks with links
-    Handle<Computation> join = makeObject<reddit::ThreeWayAdaptiveJoin>();
-    join->setInput(0, input1);
-    join->setInput(1, input2);
-    join->setInput(2, input3);
+    Handle<Computation> select = makeObject<reddit::RedditLabelProjection>(0.5);
+    select->setInput(input);
+
 
     // write it out
-    Handle<Computation> myWriteSet = makeObject<WriteUserSet<reddit::FullFeatures>>("redditDB", "fullfeatures");
-    myWriteSet->setInput(join);
+    Handle<Computation> myWriteSet = makeObject<WriteUserSet<reddit::Comment>>("redditDB", "labeledComments");
+    myWriteSet->setInput(select);
 
     // execute the computation
     auto begin = std::chrono::high_resolution_clock::now();
@@ -54,8 +48,7 @@ int main(int argc, char* argv[]) {
 
   // make sure we have the arguments
   if(argc < 4) {
-
-    std::cout << "Usage : ./TestRedditThreeWayAdaptiveJoin managerIP managerPort whetherToPartitionData\n";
+    std::cout << "Usage : ./TestRandomLabels managerIP managerPort whetherToPartitionData\n";
     std::cout << "managerIP - IP of the manager\n";
     std::cout << "managerPort - Port of the manager\n";
     std::cout << "whetherToPartitionData - Y yes, N no\n";
@@ -81,14 +74,11 @@ int main(int argc, char* argv[]) {
   
   if (whetherToRegisterLibraries) {
       pdbClient.registerType("libraries/libRedditComment.so", errMsg);
-      pdbClient.registerType("libraries/libRedditAuthor.so", errMsg);
-      pdbClient.registerType("libraries/libRedditSub.so", errMsg);
-      pdbClient.registerType("libraries/libRedditFullFeatures.so", errMsg);
-      pdbClient.registerType("libraries/libRedditThreeWayAdaptiveJoin.so", errMsg);
+      pdbClient.registerType("libraries/libRedditLabelProjection.so", errMsg);
   }
   
-  pdbClient.removeSet("redditDB", "fullfeatures", errMsg);
-  pdbClient.createSet<reddit::FullFeatures>("redditDB", "fullfeatures", errMsg);
+  pdbClient.removeSet("redditDB", "labeledComments", errMsg);
+  pdbClient.createSet<reddit::Comment>("redditDB", "labeledComments", errMsg);
   // run one iteration
   auto begin = std::chrono::high_resolution_clock::now();
   run(pdbClient);
@@ -98,13 +88,19 @@ int main(int argc, char* argv[]) {
               << " secs." << std::endl;
 
   // print the results
-  std::cout << "FullFeatures: \n";
-  SetIterator<reddit::FullFeatures> result = pdbClient.getSetIterator<reddit::FullFeatures>("redditDB", "fullfeatures");
+  std::cout << "Labeled Comments: \n";
+  SetIterator<reddit::Comment> result = pdbClient.getSetIterator<reddit::Comment>("redditDB", "labeledComments");
   int count = 0;
+  int positiveLabels = 0;
   for (const auto &r : result) {
      count++;
+     if (r->label == 1){
+         positiveLabels ++;
+     }
+
   }
   std::cout << "count: " << count << std::endl;
-  pdbClient.removeSet("redditDB", "fullfeatures", errMsg);
+  std::cout << "positiveLabels: " << positiveLabels << std::endl;
+  pdbClient.removeSet("redditDB", "labeledComments", errMsg);
 
 }

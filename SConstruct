@@ -597,13 +597,14 @@ common_env.SharedLibrary('libraries/libRedditThreeWayAdaptiveJoin.so', ['build/r
 common_env.SharedLibrary('libraries/libRedditJoinSubsAndComments.so', ['build/reddit/RedditJoinSubsAndComments.cc']+all)
 common_env.SharedLibrary('libraries/libRedditSubsAndComments.so', ['build/reddit/RedditSubsAndComments.cc']+all)
 common_env.SharedLibrary('libraries/libRedditCommentLabelJoin.so', ['build/reddit/RedditCommentLabelJoin.cc']+all)
-
+common_env.SharedLibrary('libraries/libRedditLabelProjection.so', ['build/reddit/RedditLabelProjection.cc']+all)
 common_env.Program('bin/loadRedditComments', ['build/tests/LoadRedditComments.cc'] + all + pdb_client)
 common_env.Program('bin/loadRedditAuthors', ['build/tests/LoadRedditAuthors.cc'] + all + pdb_client)
 common_env.Program('bin/loadRedditSubs', ['build/tests/LoadRedditSubs.cc'] + all + pdb_client)
 common_env.Program('bin/testRedditJoin', ['build/tests/TestRedditJoin.cc'] + all + pdb_client)
 common_env.Program('bin/testRedditThreeWayJoin', ['build/tests/TestRedditThreeWayJoin.cc'] + all + pdb_client)
 common_env.Program('bin/testRedditThreeWayAdaptiveJoin', ['build/tests/TestRedditThreeWayAdaptiveJoin.cc'] + all + pdb_client)
+common_env.Program('bin/testRedditRandomLabels', ['build/tests/TestRedditRandomLabels.cc'] + all + pdb_client)
 common_env.Program('bin/testRedditJoinSubsAndComments', ['build/tests/TestRedditJoinSubsWithComments.cc']+all+pdb_client)
 common_env.Program('bin/testRedditAuthors', ['build/tests/TestRedditAuthors.cc'] + all + pdb_client)
 common_env.Program('bin/testScanAuthors', ['build/tests/TestScanAuthors.cc'] + all + pdb_client)
@@ -1047,6 +1048,7 @@ reddit=common_env.Alias('reddit', [
   'libraries/libRedditThreeWayAdaptiveJoin.so',
   'libraries/libRedditSubsAndComments.so',
   'libraries/libRedditJoinSubsAndComments.so',
+  'libraries/libRedditLabelProjection.so',
   'bin/loadRedditComments',
   'bin/loadRedditAuthors',
   'bin/loadRedditSubs',
@@ -1056,7 +1058,8 @@ reddit=common_env.Alias('reddit', [
   'bin/testRedditJoin',
   'bin/testRedditThreeWayJoin',
   'bin/testRedditThreeWayAdaptiveJoin',
-  'bin/testRedditJoinSubsAndComments'
+  'bin/testRedditJoinSubsAndComments',
+  'bin/testRedditRandomLabels'
 ])
 
 tpch=common_env.Alias('tpch', [

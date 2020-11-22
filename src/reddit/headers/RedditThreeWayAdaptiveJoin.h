@@ -18,11 +18,12 @@ class ThreeWayAdaptiveJoin : public JoinComp<FullFeatures, Comment, Author, Sub>
   ThreeWayAdaptiveJoin() = default;
 
   Lambda<bool> getSelection(Handle<Comment> in1, Handle<Author> in2, Handle<Sub> in3) override {
-
-    if (in1->label == 1) 
-        return (makeLambdaFromMember(in1, author) == makeLambdaFromMember(in2, author));
-    else
-        return (makeLambdaFromMember(in1, subreddit_id) == makeLambdaFromMember(in3, name));
+    return makeLambda(in1, in2, in3, [](Handle<Comment>& in1, Handle<Author>& in2, Handle<Sub>& in3) {
+        if (in1->label == 1) 
+           return in1->author == in2->author;
+        else
+           return in1->subreddit_id == in3->name;
+    });
   }
 
   Lambda<Handle<FullFeatures>> getProjection(Handle<Comment> in1, Handle<Author> in2, Handle<Sub> in3) override {
