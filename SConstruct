@@ -592,6 +592,7 @@ common_env.SharedLibrary('libraries/libRedditSub.so', ['build/reddit/RedditSub.c
 common_env.SharedLibrary('libraries/libRedditFeatures.so', ['build/reddit/RedditFeatures.cc'] + all)
 common_env.SharedLibrary('libraries/libRedditFullFeatures.so', ['build/reddit/RedditFullFeatures.cc'] + all)
 common_env.SharedLibrary('libraries/libRedditJoin.so', ['build/reddit/RedditJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditPositiveLabelSelection.so', ['build/reddit/RedditPositiveLabelSelection.cc'] + all)
 common_env.SharedLibrary('libraries/libRedditThreeWayJoin.so', ['build/reddit/RedditThreeWayJoin.cc'] + all)
 common_env.SharedLibrary('libraries/libRedditThreeWayAdaptiveJoin.so', ['build/reddit/RedditThreeWayAdaptiveJoin.cc'] + all)
 common_env.SharedLibrary('libraries/libRedditJoinSubsAndComments.so', ['build/reddit/RedditJoinSubsAndComments.cc']+all)
@@ -1044,6 +1045,7 @@ reddit=common_env.Alias('reddit', [
   'libraries/libRedditFeatures.so',
   'libraries/libRedditFullFeatures.so',
   'libraries/libRedditJoin.so',
+  'libraries/libRedditPositiveLabelSelection.so',
   'libraries/libRedditThreeWayJoin.so',
   'libraries/libRedditThreeWayAdaptiveJoin.so',
   'libraries/libRedditSubsAndComments.so',

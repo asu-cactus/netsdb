@@ -710,7 +710,10 @@ bool TCAPAnalyzer::analyze(
           sink = makeObject<SetIdentifier>(this->jobId,
                                            outputName + "_repartitionData");
           sink->setPageSize(conf->getBroadcastPageSize());
-          size_t desiredSize = this->exactSizeOfCurSource/conf->getBroadcastPageSize()/this->numNodesInCluster;
+          std::cout << "this->exactSizeOfCurSource" << this->exactSizeOfCurSource << std::endl;
+          std::cout << "conf->getBroadcastPageSize()" << conf->getBroadcastPageSize() << std::endl;
+          std::cout << "this->numNodesInCluster" << this->numNodesInCluster << std::endl;
+          size_t desiredSize = (size_t)this->exactSizeOfCurSource/(size_t)conf->getBroadcastPageSize()/(size_t)this->numNodesInCluster;
           if (desiredSize == 0) {
               desiredSize = 1;
           }
