@@ -42,7 +42,7 @@ int main(int argc, char* argv[]){
         std::cout << "managerPort - Port of the manager\n";
         std::cout << "inputFileName - The file to load for reddit comments data, which is a set of JSON objects\n";
         std::cout << "whetherToPrepartitionData - Y yes, N no\n";
-        std::cout << "whetherToRegisterLibraries - Y yes, N no\n";    
+        std::cout << "numOfThreads - number of concurrent clients to execute";    
     }
     std::string managerIp = std::string(argv[1]);
     int32_t port = std::stoi(argv[2]);
@@ -51,9 +51,7 @@ int main(int argc, char* argv[]){
         whetherToPartitionData = false;
     }
     bool whetherToRegisterLibraries = true;
-    if (strcmp(argv[5], "N")==0) {
-        whetherToRegisterLibraries = false;
-    }
+    int numOfThread = std::stoi(argv[5]);
     std::vector<std::string> pathVec;
     std::string dbName = "redditDB";
     std::string setName = "comments";
@@ -98,7 +96,7 @@ int main(int argc, char* argv[]){
 >>>>>>> Initial code for threded multi-client read operation.
 =======
     ReaderClient rc(port, managerIp, clientLogger);
-    rc.load<reddit::Comment>(1, commentsFiles, dbName, setName, 64,
+    rc.load<reddit::Comment>(numOfThread, commentsFiles, dbName, setName, 64,
     "libraries/libRedditComment.so", 20000000);
 >>>>>>> Reader client for multi thread loading
     return 0;
