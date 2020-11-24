@@ -11,6 +11,7 @@
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 // ReaderClient::ReaderClient(int port, std::string managerIp,
 // pdb::PDBLoggerPtr clientLogger){
 //     this->port = port;
@@ -26,6 +27,13 @@
 //     this->maxRowCount = total;
 //     this->objectToRegister = objectPath;
 >>>>>>> Initial code for threded multi-client read operation.
+=======
+// ReaderClient::ReaderClient(int port, std::string managerIp,
+// pdb::PDBLoggerPtr clientLogger){
+//     this->port = port;
+//     this->managerIp = managerIp;
+//     this->clientLogger = clientLogger;
+>>>>>>> Reader client for multi thread loading
 //     this->inMutex = new std::mutex();
 //     this->countMutex = new std::mutex();
 //     this->currRowCount = 0;
@@ -33,16 +41,21 @@
 // }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 // ReaderClient::~ReaderClient(){
 =======
 // template <typename T>
 // pdb::ReaderClient<T>::~ReaderClient(){
 >>>>>>> Initial code for threded multi-client read operation.
+=======
+// ReaderClient::~ReaderClient(){
+>>>>>>> Reader client for multi thread loading
 //     delete this->countMutex;
 //     delete this->inMutex;
 // }
 
 // template <typename T>
+<<<<<<< HEAD
 <<<<<<< HEAD
 // void ReaderClient::load(int numOfThreads, std::queue<std::ifstream *> &inFiles,
 // std::string dbName, std::string setName, int blockSizeInMB,
@@ -67,6 +80,19 @@
 //             this->countMutex, this->maxRowCount,
 //             std::cref(this->currRowCount), std::cref(this->maxFlag)));
 >>>>>>> Initial code for threded multi-client read operation.
+=======
+// void ReaderClient::load(int numOfThreads, std::queue<std::ifstream *> &inFiles,
+// std::string dbName, std::string setName, int blockSizeInMB,
+// std::string objectPath, long maxRowCount){
+//     std::vector<std::thread> threadVec;
+//     for(int i = 0; i < numOfThreads; i++){
+//         threadVec.push_back(std::thread(
+//             readerRoutine<T>, std::cref(inFiles), dbName, setName,
+//             blockSizeInMB, this->port, this->managerIp, this->clientLogger,
+//             objectPath, this->inMutex, this->countMutex, maxRowCount,
+//             std::cref(this->currRowCount), std::cref(this->maxFlag)
+//             ));
+>>>>>>> Reader client for multi thread loading
 //         cout << "READER CLIENT: Thread " << i << " started."
 //             << std::endl;
 //     }
@@ -77,6 +103,7 @@
 //     }
 // }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 // template <typename T>
@@ -174,4 +201,6 @@
 // }
 
 >>>>>>> Initial code for threded multi-client read operation.
+=======
+>>>>>>> Reader client for multi thread loading
 #endif

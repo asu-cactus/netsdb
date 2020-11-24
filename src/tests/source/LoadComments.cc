@@ -1,15 +1,20 @@
 #include "PDBClient.h"
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "ReaderClient.h"
 =======
 #include <ReaderClient.h>
 >>>>>>> Initial code for threded multi-client read operation.
+=======
+#include "ReaderClient.h"
+>>>>>>> Reader client for multi thread loading
 #include "RedditComment.h"
 
 #include <string>
 #include <queue>
 #include <vector>
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 class RedditCommentsReader: public ReaderClient<reddit::Comment> {
@@ -26,6 +31,8 @@ private:
 };
 
 >>>>>>> Initial code for threded multi-client read operation.
+=======
+>>>>>>> Reader client for multi thread loading
 int main(int argc, char* argv[]){
     std::string errMsg = "Error occurred in loading Reddit Comments.";
     // make sure we have all the required arguments
@@ -80,6 +87,7 @@ int main(int argc, char* argv[]){
 
     //Load the raw data into the output set
 <<<<<<< HEAD
+<<<<<<< HEAD
     ReaderClient rc(port, managerIp, clientLogger);
     rc.load<reddit::Comment>(1, commentsFiles, dbName, setName, 64,
     "libraries/libRedditComment.so", 20000000);
@@ -88,5 +96,10 @@ int main(int argc, char* argv[]){
     20000000, "libraries/libRedditComment.so");
     r.exec(1, commentsFiles, dbName, setName, 64);
 >>>>>>> Initial code for threded multi-client read operation.
+=======
+    ReaderClient rc(port, managerIp, clientLogger);
+    rc.load<reddit::Comment>(1, commentsFiles, dbName, setName, 64,
+    "libraries/libRedditComment.so", 20000000);
+>>>>>>> Reader client for multi thread loading
     return 0;
 }
