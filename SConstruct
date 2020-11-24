@@ -586,7 +586,7 @@ common_env.SharedLibrary('libraries/libLSTMTwoSum.so', ['build/LSTM/LSTMTwoSum.c
 common_env.SharedLibrary('libraries/libLSTMHiddenState.so', ['build/LSTM/LSTMHiddenState.cc'] + all)
 
 # Client IO
-common_env.SharedLibrary('bin/libReaderClient.so', ['build/clientIO/ReaderClient.cc'] + all)
+common_env.SharedLibrary('libraries/libReaderClient.so', ['build/clientIO/ReaderClient.cc'] + all)
 
 #reddit
 common_env.SharedLibrary('libraries/libRedditComment.so', ['build/reddit/RedditComment.cc'] + all)
@@ -1057,7 +1057,7 @@ reddit=common_env.Alias('reddit', [
   'libraries/libRedditSubsAndComments.so',
   'libraries/libRedditJoinSubsAndComments.so',
   'libraries/libRedditLabelProjection.so',
-  'bin/libReaderClient.so',
+  'libraries/libReaderClient.so',
   'bin/loadRedditComments',
   'bin/loadRedditAuthors',
   'bin/loadRedditSubs',
@@ -1069,7 +1069,7 @@ reddit=common_env.Alias('reddit', [
   'bin/testRedditThreeWayAdaptiveJoin',
   'bin/testRedditJoinSubsAndComments',
   'bin/testRedditRandomLabels',
-  'bin/loadComments',
+  'bin/loadComments'
 ])
 
 tpch=common_env.Alias('tpch', [
