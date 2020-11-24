@@ -1,11 +1,31 @@
 #include "PDBClient.h"
+<<<<<<< HEAD
 #include "ReaderClient.h"
+=======
+#include <ReaderClient.h>
+>>>>>>> Initial code for threded multi-client read operation.
 #include "RedditComment.h"
 
 #include <string>
 #include <queue>
 #include <vector>
 
+<<<<<<< HEAD
+=======
+class RedditCommentsReader: public ReaderClient<reddit::Comment> {
+public:
+    RedditCommentsReader(int port, std::string managerIp,
+    pdb::PDBLoggerPtr clientLogger, long total, std::string objectPath
+    ): ReaderClient(port, managerIp, clientLogger, total, objectPath) {}
+
+private:
+    pdb::Handle<reddit::Comment> rowParser(std::string line, int currCount){
+        // Index is the current row count, not the actual row Index. 
+        return pdb::makeObject<reddit::Comment>(line);
+    }
+};
+
+>>>>>>> Initial code for threded multi-client read operation.
 int main(int argc, char* argv[]){
     std::string errMsg = "Error occurred in loading Reddit Comments.";
     // make sure we have all the required arguments
@@ -59,8 +79,14 @@ int main(int argc, char* argv[]){
         (size_t)64*(size_t)1024*(size_t)1024, setName, nullptr, myLambda1);
 
     //Load the raw data into the output set
+<<<<<<< HEAD
     ReaderClient rc(port, managerIp, clientLogger);
     rc.load<reddit::Comment>(1, commentsFiles, dbName, setName, 64,
     "libraries/libRedditComment.so", 20000000);
+=======
+    RedditCommentsReader r(port, managerIp, clientLogger,
+    20000000, "libraries/libRedditComment.so");
+    r.exec(1, commentsFiles, dbName, setName, 64);
+>>>>>>> Initial code for threded multi-client read operation.
     return 0;
 }
