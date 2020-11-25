@@ -33,6 +33,7 @@
 %token APPLY
 %token SCAN
 %token AGG 
+%token PARTITION
 %token JOIN 
 %token OUTPUT 
 %token GETS
@@ -95,6 +96,13 @@ AtomicComputation: TupleSpec GETS APPLY '(' TupleSpec ',' TupleSpec ',' STRING '
 {
 	$$ = makeAgg ($1, $5, $7);
 }
+
+// Atomic Computation: Partition:
+| TupleSpec GETS PARTITION '(' TupleSpec ',' STRING ')'
+{
+        $$ = makePartition ($1, $5, $7);
+}
+
 
 | TupleSpec GETS SCAN '(' STRING ',' STRING ',' STRING ')'
 {

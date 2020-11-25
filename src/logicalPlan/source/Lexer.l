@@ -67,6 +67,9 @@
 
 [Oo][Uu][Tt][Pp][Uu][Tt]	return OUTPUT;
 
+[Pp][Aa][Rr][Tt][Ii][Tt][Ii][Oo][Nn]   return PARTITION;
+
+
 "<="			return GETS;
 
 ")"    	        	return (')');

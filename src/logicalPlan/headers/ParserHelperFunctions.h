@@ -39,6 +39,9 @@ struct AtomicComputation* makeScan(struct TupleSpec* output,
 struct AtomicComputation* makeAgg(struct TupleSpec* output,
                                   struct TupleSpec* input,
                                   char* nodeName);
+struct AtomicComputation* makePartition(struct TupleSpec* output,
+                                  struct TupleSpec* input,
+                                  char* nodeName);
 struct AtomicComputation* makeApply(struct TupleSpec* output,
                                     struct TupleSpec* input,
                                     struct TupleSpec* projection,
@@ -76,6 +79,7 @@ struct AtomicComputation* makeFlatten(struct TupleSpec* output,
                                       struct TupleSpec* input,
                                       struct TupleSpec* projection,
                                       char* nodeName);
+
 #ifdef __cplusplus
 }
 #endif
