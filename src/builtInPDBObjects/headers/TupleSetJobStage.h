@@ -201,6 +201,7 @@ public:
         return this->repartitionOrNot;
     }
 
+
     // to set whether to repartition the output for a join
     void setRepartitionJoin(bool repartitionJoinOrNot) {
         this->repartitionJoinOrNot = repartitionJoinOrNot;
@@ -501,28 +502,29 @@ private:
     String partitionLambdaName;
 
     // tuple sets to build the pipeline
-    Handle<Vector<String>> buildTheseTupleSets;
+    Handle<Vector<String>> buildTheseTupleSets = nullptr;
 
     // Does this stage has a PartitionedJoinSink
-    bool repartitionJoinOrNot;
+    bool repartitionJoinOrNot = false;
+
 
     // Does this stage require probing a hash table ?
-    bool probeOrNot;
+    bool probeOrNot = false;
 
     // Does this stage require repartitioning output?
-    bool repartitionOrNot;
+    bool repartitionOrNot = false;
 
     // Does this stage require combining repartitioned results?
-    bool combineOrNot;
+    bool combineOrNot = false;
 
     // Does this stage require broadcasting results?
-    bool broadcastOrNot;
+    bool broadcastOrNot = false;
 
     // Does this stage consume aggregation hash output?
-    bool inputAggHashOutOrNot;
+    bool inputAggHashOutOrNot = false;
 
     // Does this stage collect results to one partition?
-    bool collectAsMapOrNot;
+    bool collectAsMapOrNot = false;
 
     // Number of nodes to collect aggregation results
     int numNodesToCollect = 1;
@@ -537,7 +539,7 @@ private:
     int numNodes;
 
     // number of partitions on each node
-    Handle<Vector<Handle<Vector<HashPartitionID>>>> numPartitions;
+    Handle<Vector<Handle<Vector<HashPartitionID>>>> numPartitions = nullptr;
 
     // IP for each node
     Handle<Vector<String>> ipAddresses;

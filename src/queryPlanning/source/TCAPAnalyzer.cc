@@ -7,6 +7,7 @@
 #include "MultiSelectionComp.h"
 #include "ScanUserSet.h"
 #include "SelectionComp.h"
+#include "PartitionComp.h"
 #include <cfloat>
 
 #ifndef JOIN_COST_THRESHOLD
@@ -77,6 +78,11 @@ TCAPAnalyzer::TCAPAnalyzer(std::string jobId,
                 sourceComputation);
         curInputSetIdentifier = makeObject<SetIdentifier>(
             selector->getDatabaseName(), selector->getSetName());
+      } else if (sourceComputation->getComputationType() == 
+                 "PartitionComp") {
+        Handle<PartitionComp<Object, Object>> partitioner = 
+            unsafeCast<PartitionComp<Object, Object>, Computation>(sourceComputation);
+        curInputSetIdentifier = makeObject<SetIdentifier>(partitioner->getDatabaseName(), partitioner->getSetName());
       } else {
         std::cout << "Source Computation Type: "
                   << sourceComputation->getComputationType()
@@ -213,7 +219,7 @@ unsigned int TCAPAnalyzer::getNumConsumers(std::string name) {
   return (consumers.size() - curConsumerIndex);
 }
 
-// a source computation for a pipeline can be ScanSet, Selection,
+// a source computation for a pipeline can be ScanSet, Selection, Partition
 // ClusterAggregation, and
 // ClusterJoin.
 bool TCAPAnalyzer::analyze(
@@ -251,6 +257,12 @@ bool TCAPAnalyzer::analyze(
             sourceComputation);
     curInputSetIdentifier = makeObject<SetIdentifier>(
         selector->getDatabaseName(), selector->getSetName());
+  } else if (sourceComputation->getComputationType() ==
+                 "PartitionComp") {
+    Handle<PartitionComp<Object, Object>> partitioner =
+        unsafeCast<PartitionComp<Object, Object>, Computation>(sourceComputation);
+    curInputSetIdentifier = makeObject<SetIdentifier>(partitioner->getDatabaseName(), partitioner->getSetName());
+      
   } else {
     std::cout << "Source Computation Type: "
               << sourceComputation->getComputationType()
@@ -487,6 +499,7 @@ bool TCAPAnalyzer::updateSourceSets(Handle<SetIdentifier> oldSet,
   return ret;
 }
 
+//PartitionComp cannot have any consummers.
 bool TCAPAnalyzer::analyze(
     std::vector<Handle<AbstractJobStage>> &physicalPlanToOutput,
     std::vector<Handle<SetIdentifier>> &interGlobalSets,
@@ -578,6 +591,25 @@ bool TCAPAnalyzer::analyze(
         this->updateSourceSets(curInputSetIdentifier, nullptr, nullptr);
       }
       return true;
+    } else if (myComputation->getComputationType() == "PartitionComp") {
+      //TODO: PartitionComp should configure the dataset to have partitioner lambdas, so that the partition can be utilized for local join.
+      std::string sourceTupleSetName = curSource->getOutputName();
+      if (joinSource != "") {
+        sourceTupleSetName = joinSource;
+        joinSource = "";
+      }
+      std::cout << "to create TupleSetJobStage with repartitioning, because I am a partition computation at the end" << std::endl;
+      Handle<TupleSetJobStage> jobStage = createTupleSetJobStage(
+          jobStageId, sourceTupleSetName, curNode->getInputName(), mySpecifier,
+          buildTheseTupleSets, myComputation->getOutputType(),
+          curInputSetIdentifier, nullptr, sink, false, true, false, isProbing,
+          myPolicy, false, 0, 0, false, hasLocalJoinProbe, partitionComputationSpecifier, partitionLambdaName);
+      physicalPlanToOutput.push_back(jobStage);
+      if (this->dynamicPlanningOrNot == true) {
+        this->updateSourceSets(curInputSetIdentifier, nullptr, nullptr);
+      }
+      return true;
+
     } else {
       std::cout << "Sink Computation Type: "
                 << myComputation->getComputationType()
@@ -589,6 +621,12 @@ bool TCAPAnalyzer::analyze(
     }
 
   } else if (numConsumersForCurNode == 1) {
+    if (myComputation->getComputationType() == "PartitionComp") {
+      std::cout << "PartitionComp "
+                << "cannot have any consumer node right now" << std::endl;
+      this->logger->fatal("PartitionComp cannot have any consumer node right now");
+      exit(1);
+    }
     AtomicComputationPtr nextNode = consumers[0];
     //compare nextNode's computation and myComputation
     std::string nextSpecifier = nextNode->getComputationName();

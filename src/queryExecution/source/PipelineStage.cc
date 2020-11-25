@@ -30,7 +30,7 @@
 #include "SimpleSendBytesRequest.h"
 #include "ShuffleSink.h"
 #include "HashPartitionWork.h"
-
+#include "PartitionComp.h"
 #ifdef ENABLE_COMPRESSION
 #include <snappy.h>
 #endif
@@ -451,6 +451,14 @@ void PipelineStage::executePipelineWork(int i,
                 unsafeCast<ClusterAggregateComp<Object, Object, Object, Object>, Computation>(
                     computation);
             scanner = aggregator->getOutputSetScanner();
+        } else if (computation->getComputationType() == "PartitionComp") {
+            Handle<PartitionComp<Object, Object>> partitioner =
+                unsafeCast<PartitionComp<Object, Object>, Computation>(computation);
+            scanner = partitioner->getOutputSetScanner();
+            int nodeId = this->jobStage->getNodeId();
+            partitioner->setNodeId(nodeId);
+            std::cout << "PartitionComp's nodeId is set to be " << nodeId << std::endl;
+
         } else {
             std::cout << "Error: we can't support source computation type "
                       << computation->getComputationType() << std::endl;
@@ -581,6 +589,18 @@ void PipelineStage::executePipelineWork(int i,
         join->setNumNodes(this->jobStage->getNumNodes());
         std::cout << "Join set to have " << join->getNumPartitions() << " partitions" << std::endl;
         std::cout << "Join set to have " << join->getNumNodes() << " nodes" << std::endl;
+    } else if (targetSpecifier.find("PartitionComp") != std::string::npos) {
+        Handle<Computation> partitionComputation =
+            newPlan->getPlan()->getNode(targetSpecifier).getComputationHandle();
+        Handle<PartitionComp<Object, Object>> partitioner =
+            unsafeCast<PartitionComp<Object, Object>, Computation>(partitionComputation);
+        int numPartitionsInCluster = this->jobStage->getNumTotalPartitions();
+        PDB_COUT << "num partitions in the cluster is " << numPartitionsInCluster << std::endl;
+        partitioner->setNumPartitions(numPartitionsInCluster);
+        partitioner->setNumNodes(jobStage->getNumNodes());
+        int nodeId = this->jobStage->getNodeId();
+        partitioner->setNodeId(nodeId);
+        std::cout << "PartitionComp's nodeId is set to be " << nodeId << std::endl;
     }
 
 #ifdef REUSE_CONNECTION_FOR_AGG_NO_COMBINER
