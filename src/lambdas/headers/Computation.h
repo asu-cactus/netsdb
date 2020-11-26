@@ -6,6 +6,8 @@
 #include "Lambda.h"
 #include "ComputeSource.h"
 #include "ComputeSink.h"
+#include "CombinedVectorPartitioner.h"
+#include "SetIdentifier.h"
 #include "SinkMerger.h"
 #include "SinkShuffler.h"
 #include "InputTupleSetSpecifier.h"
@@ -310,8 +312,7 @@ public:
     // added by Jia, to populate the Lambdas to the self learning database
     virtual void populateLambdas(long jobId, SelfLearningWrapperServer server) {} 
 
-
-
+    CombinedVectorPartitionerPtr getPartitioner(Handle<SetIdentifier> source) {return nullptr;}
 private:
     // JiaNote: added to construct query graph
 
