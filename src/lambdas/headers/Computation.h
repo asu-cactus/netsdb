@@ -6,7 +6,7 @@
 #include "Lambda.h"
 #include "ComputeSource.h"
 #include "ComputeSink.h"
-#include "CombinedVectorPartitioner.h"
+#include "CombinedVectorPartitionerContext.h"
 #include "SetIdentifier.h"
 #include "SinkMerger.h"
 #include "SinkShuffler.h"
@@ -312,7 +312,41 @@ public:
     // added by Jia, to populate the Lambdas to the self learning database
     virtual void populateLambdas(long jobId, SelfLearningWrapperServer server) {} 
 
-    CombinedVectorPartitionerPtr getPartitioner(Handle<SetIdentifier> source) {return nullptr;}
+
+    //create a partitioner context that include the filter function and hash function
+    CombinedVectorPartitionerContextPtr getPartitionerContext(std::pair<std::string, std::string> source) {
+
+        if (this->getNumConsumers() >0) {
+            //this is not the sink
+            return nullptr;
+        } else {
+            //
+            int numInputs = this->getNumInputs();
+            for (int i = 0; i < numInputs; i++) {
+               Handle<Computation> curComputation = this->getIthInput(i); 
+               if(curComputation->getComputationType() == "JoinComp") {
+                   int numParents = curComputation->getNumInputs();
+                   for (int j = 0; j < numParents; j++) {
+                       Handle<Computation> curJoinInput = curComputation->getIthInput(j);
+                       if (curJoinInput->getComputationType() == "SelectionComp") {
+                           Handle<Computation> curSource = curJoinInput->getIthInput(0);
+                           if ((curSource->getDatabaseName() == source.first) && (curSource->getSetName() == source.second)) {
+                               //we have find the right path!!
+                               //Step 1. extract lambdas from the curJoinInput computation
+                               //Step 2. extract filterFunc from the curJoinInput computation
+                               //Step 3. extract lambdas from the curComputation
+                               //Stpe 4. extract hashFunc from the curComputation
+                               //Step 5. create and return a CombinedVectorPartitionerContextPtr instance
+                           }
+                       }
+                   } 
+               }
+            }
+        }
+        return nullptr;
+    }
+
+
 private:
     // JiaNote: added to construct query graph
 

@@ -4,6 +4,7 @@
 #include "PDBDebug.h"
 #include "IRPolicy.h"
 #include "CombinedVectorPartitioner.h"
+#include "CombinedVectorPartitionerContext.h"
 #include "Computation.h"
 #include "Handle.h"
 #include "SetIdentifier.h"
@@ -16,12 +17,12 @@ IRPolicy::IRPolicy() {
 
 IRPolicy::IRPolicy(int numNodes,
                  int numPartitions,
-                 Handle<Computation> sink,
-             Handle<SetIdentifier> source) {
+                 std::vector<Handle<Computation>> sinks,
+                 std::pair<std::string, std::string> source) {
 
        this->numNodes = numNodes;
        this->numPartitions = numPartitions;
-       this->sink = sink;
+       this->sinks = sinks;
        this->source = source;
        this->storageNodes = std::vector<NodePartitionDataPtr>();
        this->myPolicyName = "Lambda: "+std::to_string(numNodes)+","+std::to_string(numPartitions);
@@ -108,7 +109,11 @@ IRPolicy::partition(Handle<Vector<Handle<Object>>> toPartition) {
             << std::endl;
         exit(-1);
     }
-    CombinedVectorPartitionerPtr partitioner = this->sink->getPartitioner(source);
+    CombinedVectorPartitionerPtr partitioner = std::make_shared<CombinedVectorPartitioner>();
+    for (int i = 0; i < this->sinks.size(); i++) {
+        CombinedVectorPartitionerContextPtr partitionerContext = this->sinks[i]->getPartitionerContext(source);
+        partitioner->addContext(partitionerContext);
+    }
     partitioner->partition(this->numNodes, this->numPartitions, toPartition, partitionedData);
     return partitionedData;
 }

@@ -7,6 +7,7 @@
 #include "PDBVector.h"
 #include "PDBMap.h"
 #include "DataTypes.h"
+#include "CombinedVectorPartitionerContext.h"
 
 namespace pdb {
 
@@ -20,23 +21,17 @@ private:
 
 
     // this is a lambda that we'll call to process input
-    std::function<bool(Handle<Object> &)> filterInput1;
-    std::function<NodeID(Handle<Object> &, int numNodes, int numPartitions)> hashInput1;
-    std::function<bool(Handle<Object> &)> filterInput2;
-    std::function<NodeID(Handle<Object> &, int numNodes, int numPartitions)> hashInput2;
+    std::vector<std::function<bool(Handle<Object> &)>> filterFuncs;
+    std::vector<std::function<NodeID(Handle<Object> &, int numNodes, int numPartitions)>> hashFuncs;
 
 public:
 
-    // constructor
-    CombinedVectorPartitioner(std::function<bool(Handle<Object> &)> filterInput1, 
-                                            std::function<NodeID(Handle<Object> &, int numNodes, int numPartitions)> hashInput1, 
-                                            std::function<bool(Handle<Object> &)> filterInput2, 
-                                            std::function<NodeID(Handle<Object> &, int numNodes, int numPartitions)> hashInput2) {
+    // default constructor
+    CombinedVectorPartitioner() {}
 
-         this->filterInput1 = filterInput1;
-         this->hashInput1 = hashInput1;
-         this->filterInput2 = filterInput2;
-         this->hashInput2 = hashInput2;
+    void addContext(CombinedVectorPartitionerContextPtr context) {
+          filterFuncs.push_back(context->getFilterFunc());
+          hashFuncs.push_back(context->getHashFunc());
     }
 
 
@@ -45,10 +40,10 @@ public:
                      std::shared_ptr<std::unordered_map<NodeID, Handle<Vector<Handle<Object>>>>> partitionedObjects) {
           for(int i = 0; i < objectsToProcess->size(); i++) {
               Handle<Object> a = (*objectsToProcess)[i];
-              if (filterInput1(a)) 
-                   (*partitionedObjects)[hashInput1(a, numNodes, numPartitions)]->push_back(a);
+              if (filterFuncs[0](a)) 
+                   (*partitionedObjects)[hashFuncs[0](a, numNodes, numPartitions)]->push_back(a);
               else 
-                   (*partitionedObjects)[hashInput2(a, numNodes, numPartitions)]->push_back(a);
+                   (*partitionedObjects)[hashFuncs[1](a, numNodes, numPartitions)]->push_back(a);
           }
           return true;
     }

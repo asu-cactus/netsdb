@@ -16,6 +16,8 @@
 #include "MultiInputsBase.h"
 #include "TupleSetMachine.h"
 #include "SimpleVectorPartitioner.h"
+#include "SimplePartitioner.h"
+#include "SimpleFilter.h"
 
 namespace pdb {
 
@@ -124,6 +126,13 @@ public:
 
     // this gets a transformer that transforms a vector of input objects into a vector of output objects
     virtual SimpleVectorPartitionerPtr getPartitioner() { return nullptr; }
+
+    // this returns a filter that filters each input object by returning true or false
+    virtual SimpleFilterPtr getFilter() { return nullptr;}
+
+    // this returns a partitioner that decides the node for dispatching each input object
+    virtual SimplePartitionerPtr getObjectPartitioner() {return nullptr;}
+
 
     // this gets a hash value directly
     virtual size_t getHash(Handle<Object> input) { return 0; }

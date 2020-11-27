@@ -25,8 +25,8 @@ public:
     //constructor
     IRPolicy(int numNodes, 
              int numPartitions, 
-             Handle<Computation> sink,
-             Handle<SetIdentifier> source);
+             std::vector<Handle<Computation>> sinks,
+             std::pair<std::string, std::string> source);
 
 
     //destructor
@@ -64,10 +64,10 @@ private:
     int numPartitions = 0;
 
     //the sink of the IR graph
-    Handle<Computation> sink = nullptr;
+    std::vector<Handle<Computation>> sinks;
 
     //the source set, which is to be partitioned, and will later be consumed by the IR graph
-    Handle<SetIdentifier> source = nullptr;
+    std::pair<string, string> source;
 
 
     std::vector<NodePartitionDataPtr> createNodePartitionData(

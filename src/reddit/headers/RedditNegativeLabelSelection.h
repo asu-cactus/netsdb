@@ -15,7 +15,10 @@ class NegativeLabelSelection : public SelectionComp<Comment, Comment> {
   NegativeLabelSelection() = default;
 
   Lambda<bool> getSelection(Handle<Comment> in) override {
-    return (makeLambdaFromMember(in, label) == makeLambda(in, [](Handle<Comment>& in){return -1;}));
+    //return (makeLambdaFromMember(in, label) == makeLambda(in, [](Handle<Comment>& in){return -1;}));
+    return makeLambda(in, [](Handle<Comment>& in) {
+        return in->label == -1;
+    });
   }
 
   Lambda<Handle<Comment>> getProjection(Handle<Comment> in) override {
