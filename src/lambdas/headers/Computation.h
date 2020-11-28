@@ -333,10 +333,21 @@ public:
                            if ((curSource->getDatabaseName() == source.first) && (curSource->getSetName() == source.second)) {
                                //we have find the right path!!
                                //Step 1. extract lambdas from the curJoinInput computation
+                               std::map<std::string, GenericLambdaObjectPtr> allSelectionLambdas;
+                               curJoinInput->extractLambdas(allSelectionLambdas);
+                               GenericLambdaObjectPtr selectLambda=allSelectionLambdas["native_lambda_0"];                                                              
                                //Step 2. extract filterFunc from the curJoinInput computation
+                               SimpleFilterPtr simpleFilter = selectLambda->getFilter();                                                              
                                //Step 3. extract lambdas from the curComputation
                                //Stpe 4. extract hashFunc from the curComputation
+                               std::map<std::string, GenericLambdaObjectPtr> allJoinLambdas;
+                               curComputation->extractLambdas(allJoinLambdas);
+                               GenericLambdaObjectPtr  joinLambda=allJoinLambdas["attAccess_0"];
+                               SimplePartitionerPtr simplePartitioner = joinLambda->getObjectPartitioner();
                                //Step 5. create and return a CombinedVectorPartitionerContextPtr instance
+                               CombinedVectorPartitionerContextPtr context = 
+                                   std::make_shared<CombinedVectorPartitionerContext>(simpleFilter->getFilter(), simplePartitioner->getPartitioner());
+                               return context;
                            }
                        }
                    } 
