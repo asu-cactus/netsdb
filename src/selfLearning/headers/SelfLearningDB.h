@@ -48,7 +48,7 @@ public:
     //schedule a BuildHashSet job stage or a BuildPartitionedHashSet job stage
     bool createData (std::string databaseName, std::string setName, std::string created_jobId,
                 std::string setType, std::string className, int typeId, size_t pageSize, 
-                long lambdaId, int replicationFactor, long& id);
+                long lambdaId, int replicationFactor, long& id, long lambdaId1=-1);
 
     // --to update the SIZE field and MODIFICATION_TIME field in the DATA table each time when we finish execution of a job stage, or each time we invoke flush
     bool updateDataForSize (long id, size_t size);
