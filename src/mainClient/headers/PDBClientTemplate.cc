@@ -15,6 +15,18 @@ bool PDBClient::createSet(const std::string &databaseName,
 }
 
 
+
+template <class DataType>
+bool PDBClient::createSet(const std::string &databaseName,
+                          const std::string &setName, std::string &errMsg,
+                          size_t pageSize, const std::string &createdJobId, Handle<Vector<Handle<Computation>>> dispatchComputations, std::string jobName) {
+
+  return distributedStorageClient.createSet<DataType>(
+        databaseName, setName, errMsg, pageSize, createdJobId, dispatchComputations, jobName);
+}
+
+
+
 template <class DataType>
 bool PDBClient::sendData(std::pair<std::string, std::string> setAndDatabase,
                          Handle<Vector<Handle<DataType>>> dataToSend,

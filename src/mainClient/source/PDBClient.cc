@@ -64,6 +64,17 @@ bool PDBClient::createSet(const std::string &databaseName,
                                             errMsg, pageSize, createdJobId, dispatchComputation, lambda);
 }
 
+
+bool PDBClient::createSet(const std::string &databaseName,
+                          const std::string &setName,
+                          const std::string &typeName, std::string &errMsg,
+                          size_t pageSize, const std::string &createdJobId, Handle<Vector<Handle<Computation>>> dispatchComputations, std::string jobName) {
+
+  return distributedStorageClient.createSet(databaseName, setName, typeName,
+                                            errMsg, pageSize, createdJobId, dispatchComputations, jobName);
+}
+
+
 bool PDBClient::createTempSet(const std::string &databaseName,
                               const std::string &setName,
                               const std::string &typeName, std::string &errMsg,

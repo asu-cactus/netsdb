@@ -12,6 +12,7 @@
 
 #include "DistributedStorageAddDatabase.h"
 #include "DistributedStorageAddSet.h"
+#include "DistributedStorageAddSetWithPartition.h"
 #include "DistributedStorageAddTempSet.h"
 #include "DistributedStorageRemoveDatabase.h"
 #include "DistributedStorageRemoveSet.h"
@@ -25,6 +26,7 @@
 #include "DispatcherServer.h"
 #include "Lambda.h"
 #include "LambdaPolicy.h"
+#include "IRPolicy.h"
 #include "Statistics.h"
 #include "StorageAddDatabase.h"
 #include "StorageAddSet.h"
@@ -568,6 +570,184 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
             res = sendUsingMe->sendObject(response, errMsg);
             return make_pair(res, errMsg);
         }));
+
+
+    forMe.registerHandler(
+        DistributedStorageAddSetWithPartition_TYPEID,
+        make_shared<SimpleRequestHandler<DistributedStorageAddSetWithPartition>>([&](
+            Handle<DistributedStorageAddSetWithPartition> request, PDBCommunicatorPtr sendUsingMe) {
+            const UseTemporaryAllocationBlock tempBlock{8 * 1024 * 1024};
+            auto begin = std::chrono::high_resolution_clock::now();
+            auto beforeCreateSet = begin;
+            auto afterCreateSet = begin;
+
+            PDB_COUT << "received DistributedStorageAddSetWithPartition message" << std::endl;
+            std::string errMsg;
+            mutex lock;
+
+            auto successfulNodes = std::vector<std::string>();
+            auto failureNodes = std::vector<std::string>();
+            auto nodesToBroadcast = std::vector<std::string>();
+
+            std::string database = request->getDatabase();
+            std::string set = request->getSetName();
+
+
+            long lambdaId = -1;
+            long lambdaId1 = -1;
+
+            if (getFunctionality<CatalogClient>().setExists(database, set)) {
+                std::cout << "Set " << database << ":" << set << " already exists " << std::endl;
+            } else {
+                PDB_COUT << "Set " << database << ":" << set << " does not exist" << std::endl;
+
+                // JiaNote: comment out below line because searchForObjectTypeName doesn't work for
+                // complex type like Vector<Handle<Foo>>
+                // int16_t typeId =
+                // getFunctionality<CatalogClient>().searchForObjectTypeName(request->getTypeName());
+                int16_t typeId = VTableMap::getIDByName(VTableMap::getInternalTypeName(request->getTypeName()), false);
+                if (typeId == 0) {
+                    return make_pair(false, "Could not identify type=" + request->getTypeName());
+                }
+
+                beforeCreateSet = std::chrono::high_resolution_clock::now();
+
+                if (!getFunctionality<CatalogClient>().createSet(request->getTypeName(), typeId, database, set, errMsg)) {
+                    std::cout << "Could not register set, because: " << errMsg << std::endl;
+                    Handle<SimpleRequestResult> response =
+                        makeObject<SimpleRequestResult>(false, errMsg);
+                    bool res = sendUsingMe->sendObject(response, errMsg);
+                    return make_pair(res, errMsg);
+                }
+                afterCreateSet = std::chrono::high_resolution_clock::now();
+            }
+            std::vector<std::string> allNodes;
+            const auto nodes = getFunctionality<ResourceManagerServer>().getAllNodes();
+            for (int i = 0; i < nodes->size(); i++) {
+                std::string address = static_cast<std::string>((*nodes)[i]->getAddress());
+                std::string port = std::to_string((*nodes)[i]->getPort());
+                allNodes.push_back(address + ":" + port);
+            }
+            nodesToBroadcast = allNodes;
+            auto catalogGetNodesEnd = std::chrono::high_resolution_clock::now();
+            std::shared_ptr<AbstractDataPlacementOptimizer> optimizer = nullptr;
+            size_t pageSize = request->getPageSize();
+            //to get ShuffleInfo object
+            std::shared_ptr<ShuffleInfo> shuffleInfo = getFunctionality<QuerySchedulerServer>().getShuffleInfo();;
+            size_t desiredSize = request->getDesiredSize();
+            if (desiredSize == 0) {
+                desiredSize = 1000;
+            }
+
+            std::cout << "******************** desired size = " << desiredSize << "********************" << std::endl;
+            Handle<StorageAddSet> storageCmd = makeObject<StorageAddSet>(request->getDatabase(),
+                                                                         request->getSetName(),
+                                                                         request->getTypeName(),
+                                                                         pageSize,
+                                                                         desiredSize,
+                                                                         request->getMRUorNot(),
+                                                                         request->getMRUorNot());
+            std::cout << "Page size is determined to be " << pageSize << std::endl;
+
+
+            Handle<Vector<Handle<Computation>>> myComputations = request->getDispatchComputations();
+            std::vector<Handle<Computation>> sinks;
+            for (int i = 0; i < myComputations->size(); i++) {
+                sinks.push_back((*myComputations)[i]);
+            }
+            std::string jobName = request->getJobName();
+            std::pair<std::string, std::string> source;
+            source.first = request->getDatabase();
+            source.second = request->getSetName();
+
+            int numNodes = shuffleInfo->getNumNodes();
+            int numPartitions = shuffleInfo->getNumHashPartitions();
+            std::cout << "numNodes = " << numNodes << std::endl;
+            std::cout << "numPartitions = " << numPartitions << std::endl;
+
+            //to create an IRPolicy
+            PartitionPolicyPtr myIRPolicy = std::make_shared<IRPolicy>(numNodes, numPartitions, sinks, source);
+            //to set the IRPolicy
+            std::cout << "to register policy" << std::endl;
+            getFunctionality<DispatcherServer>().registerSet(std::pair<std::string, std::string>(request->getSetName(), request->getDatabase()), myIRPolicy);
+            lambdaId = getFunctionality<SelfLearningServer>().getLambdaId(jobName, "JoinComp_0", "attAccess_0");
+            lambdaId1 = getFunctionality<SelfLearningServer>().getLambdaId(jobName, "JoinComp_1", "attAccess_0");
+            std::cout << "the lambda id is " << lambdaId << std::endl;
+            std::cout << "the lambda id1 is " << lambdaId << std::endl;
+
+            std::cout << "to broadcast StorageAddset" << std::endl;
+            getFunctionality<DistributedStorageManagerServer>()
+                .broadcast<StorageAddSet, Object, SimpleRequestResult>(
+                    storageCmd,
+                    nullptr,
+                    nodesToBroadcast,
+                    generateAckHandler(successfulNodes, failureNodes, lock));
+            std::cout << "broadcasted StorageAddSet" << std::endl;
+            auto storageAddSetEnd = std::chrono::high_resolution_clock::now();
+
+
+            bool res = true;
+            if (failureNodes.size() > 0) {
+                res = false;
+            } else {
+                // update stats
+                StatisticsPtr stats = getFunctionality<QuerySchedulerServer>().getStats();
+                if (stats == nullptr) {
+                    getFunctionality<QuerySchedulerServer>().collectStats();
+                    stats = getFunctionality<QuerySchedulerServer>().getStats();
+                }
+                stats->setNumPages(request->getDatabase(), request->getSetName(), 0);
+                stats->setNumBytes(request->getDatabase(), request->getSetName(), 0);
+            }
+
+            if (this->selfLearningOrNot == true) {
+                long id;
+                std::string createdJobId = request->getCreatedJobId();
+                if (createdJobId == "") {
+                    createdJobId = this->getNextClientId();
+                }
+                std::cout << "createdJobId is " << createdJobId << std::endl;
+                int typeId = VTableMap::getIDByName(request->getTypeName());
+                std::cout << "typeId is " << typeId << std::endl;
+                std::cout << "create data in sqlite for " << request->getDatabase() << ":" << request->getSetName() << std::endl;
+                getFunctionality<SelfLearningServer>().createData(request->getDatabase(), request->getSetName(),
+                                                            createdJobId, "UserSet",
+                                                            request->getTypeName(), typeId,
+                                                            request->getPageSize(), lambdaId, 1, id, lambdaId1);
+                std::cout << "created data in sqlite" << std::endl;
+                idMap[std::pair<std::string, std::string>(request->getDatabase(), request->getSetName())] = id;
+            }
+            auto catalogAddSetEnd = std::chrono::high_resolution_clock::now();
+
+            PDB_COUT << "Time Duration for catalog create set Metadata:\t "
+                     << std::chrono::duration_cast<std::chrono::duration<float>>(afterCreateSet -
+                                                                                 beforeCreateSet)
+                            .count()
+                     << " secs." << std::endl;
+            PDB_COUT << "Time Duration for catalog getting nodes:\t "
+                     << std::chrono::duration_cast<std::chrono::duration<float>>(
+                            catalogGetNodesEnd - afterCreateSet)
+                            .count()
+                     << " secs." << std::endl;
+            PDB_COUT << "Time Duration for storage adding set:\t "
+                     << std::chrono::duration_cast<std::chrono::duration<float>>(storageAddSetEnd -
+                                                                                 catalogGetNodesEnd)
+                            .count()
+                     << " secs." << std::endl;
+            PDB_COUT << "Time Duration for catalog adding addNodeToSet metadata:\t "
+                     << std::chrono::duration_cast<std::chrono::duration<float>>(catalogAddSetEnd -
+                                                                                 storageAddSetEnd)
+                            .count()
+                     << " secs." << std::endl;
+            PDB_COUT << std::endl;
+
+
+            Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(res, errMsg);
+            res = sendUsingMe->sendObject(response, errMsg);
+            return make_pair(res, errMsg);
+        }));
+
+
 
     forMe.registerHandler(
         DistributedStorageRemoveDatabase_TYPEID,

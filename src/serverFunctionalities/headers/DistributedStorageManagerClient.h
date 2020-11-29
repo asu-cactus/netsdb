@@ -41,6 +41,17 @@ public:
                    bool isMRU = false);
 
 
+    bool createSet(const std::string& databaseName,
+                   const std::string& setName,
+                   const std::string& typeName,
+                   std::string& errMsg,
+                   size_t pageSize,
+                   const std::string& createdJobId,
+                   Handle<Vector<Handle<Computation>>> computationsForDispatch,
+                   std::string jobName,
+                   size_t desiredSize = 0,
+                   bool isMRU = false);
+
 
     // create a temp set that only goes through storage
     bool createTempSet(const std::string& databaseName,
@@ -65,6 +76,21 @@ public:
                    Handle<LambdaIdentifier> lambdaForDispatch = nullptr,
                    size_t desiredSize = 0,
                    bool isMRU = false);
+
+
+    // templated createSet
+    template <class DataType>
+    bool createSet(const std::string& databaseName,
+                   const std::string& setName,
+                   std::string& errMsg,
+                   size_t pageSize,
+                   const std::string& createdJobId,
+                   Handle<Vector<Handle<Computation>>> computationsForDispatch,
+                   std::string jobName,
+                   size_t desiredSize = 0,
+                   bool isMRU = false);
+
+
 
     // storage cleanup to flush buffered data to disk
     bool flushData(std::string& errMsg);

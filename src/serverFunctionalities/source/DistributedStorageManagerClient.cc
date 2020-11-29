@@ -6,6 +6,7 @@
 #include "SimpleRequest.h"
 #include "DistributedStorageAddDatabase.h"
 #include "DistributedStorageAddSet.h"
+#include "DistributedStorageAddSetWithPartition.h"
 #include "DistributedStorageAddTempSet.h"
 #include "DistributedStorageRemoveDatabase.h"
 #include "DistributedStorageRemoveSet.h"
@@ -79,6 +80,39 @@ bool DistributedStorageManagerClient::createSet(const std::string& databaseName,
         isMRU
         );
 }
+
+
+bool DistributedStorageManagerClient::createSet(const std::string& databaseName,
+                                                const std::string& setName,
+                                                const std::string& typeName,
+                                                std::string& errMsg,
+                                                size_t pageSize,
+                                                const std::string& createdJobId,
+                                                Handle<Vector<Handle<Computation>>> dispatchComputations,
+                                                std::string jobName,
+                                                size_t desiredSize,
+                                                bool isMRU ) {
+    std::cout << "to create set for " << databaseName << ":" << setName << std::endl;
+    std::cout << "jobName is " << jobName << std::endl;
+    return simpleRequest<DistributedStorageAddSetWithPartition, SimpleRequestResult, bool>(
+        logger,
+        port,
+        address,
+        false,
+        1024,
+        generateResponseHandler("Could not add set to distributed storage manager:", errMsg),
+        databaseName,
+        setName,
+        typeName,
+        pageSize,
+        createdJobId,
+        dispatchComputations,
+        jobName,
+        desiredSize,
+        isMRU
+        );
+}
+
 
 bool DistributedStorageManagerClient::createTempSet(const std::string& databaseName,
                                                     const std::string& setName,

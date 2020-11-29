@@ -7,6 +7,7 @@
 #include "StorageAddSet.h"
 #include "SimpleRequest.h"
 #include "DistributedStorageAddSet.h"
+#include "DistributedStorageAddSetWithPartition.h"
 #include "SimpleRequestResult.h"
 #include "DataTypes.h"
 #include <cstddef>
@@ -47,6 +48,40 @@ namespace pdb {
             desiredSize,
             isMRU);
     }
+
+    template <class DataType>
+    bool DistributedStorageManagerClient::createSet(const std::string& databaseName,
+                                                    const std::string& setName,
+                                                    std::string& errMsg,
+                                                    size_t pageSize,
+                                                    const std::string& createdJobId,
+                                                    Handle<Vector<Handle<Computation>>> computationsForDispatch,
+                                                    std::string jobName,
+                                                    size_t desiredSize,
+                                                    bool isMRU) {
+        std::string typeName = getTypeName<DataType>();
+        int16_t typeId = getTypeID<DataType>();
+        PDB_COUT << "typeName for set to create =" << typeName << ", typeId=" << typeId << std::endl;
+        return simpleRequest<DistributedStorageAddSetWithPartition, SimpleRequestResult, bool>(
+            logger,
+            port,
+            address,
+            false,
+            1024,
+            generateResponseHandler("Could not add set to distributed storage manager:", errMsg),
+            databaseName,
+            setName,
+            typeName,
+            pageSize,
+            createdJobId,
+            computationsForDispatch,
+            jobName,
+            desiredSize,
+            isMRU);
+    }
+
+
+
 
 }
 #endif

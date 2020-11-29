@@ -77,10 +77,16 @@ public:
 
 
 
-  /* Creates a set with a given type for an existing database */
+  /* Creates a set with a given type for an existing database, which can be applied with lambda-based dispatching policy */
   bool createSet(const std::string &databaseName, const std::string &setName,
                  const std::string &typeName, std::string &errMsg,
                  size_t pageSize = DEFAULT_PAGE_SIZE, const std::string &createdJobId = "", Handle<Computation> dispatchComputation = nullptr, Handle<LambdaIdentifier> lambda = nullptr);
+
+  /* Creates a set with a given type for an existing database, which can be applied with IR-based dispatching policy*/
+  bool createSet(const std::string &databaseName, const std::string &setName,
+                 const std::string &typeName, std::string &errMsg,
+                 size_t pageSize, const std::string &createdJobId, Handle<Vector<Handle<Computation>>> dispatchComputations, const std::string jobName);
+
 
   /* Creates a set with a given type (using a template) for an existing
    * database with page_size value. */
@@ -89,6 +95,14 @@ public:
                             const std::string &setName, std::string &errMsg, 
                             size_t pageSize = DEFAULT_PAGE_SIZE,
                             const std::string &createdJobId = "", Handle<Computation> dispatchComputation = nullptr, Handle<LambdaIdentifier> lambda = nullptr);
+
+ /* Creates a set with a given type (using a template) for an existing
+   * database with page_size value, which can be applied with IR-based dispatching policy */
+  template <class DataType>
+  bool createSet(const std::string &databaseName,
+                            const std::string &setName, std::string &errMsg,
+                            size_t pageSize,
+                            const std::string &createdJobId, Handle<Vector<Handle<Computation>>> dispatchComputations, const std::string jobName);
 
   /* Creates a temporary set with a given type for an existing database (only
    * goes through storage) */
