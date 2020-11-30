@@ -58,6 +58,7 @@ bool DistributedStorageManagerClient::createSet(const std::string& databaseName,
                                                 bool isMRU ) {
     std::cout << "to create set for " << databaseName << ":" << setName << std::endl;
     if (lambdaIdentifier != nullptr) {
+
          std::cout << "jobName is " << lambdaIdentifier->getJobName() << std::endl;
          std::cout << "computationName is " << lambdaIdentifier->getComputationName() << std::endl;
          std::cout << "lambdaName is " << lambdaIdentifier->getLambdaName() << std::endl;
@@ -94,24 +95,29 @@ bool DistributedStorageManagerClient::createSet(const std::string& databaseName,
                                                 bool isMRU ) {
     std::cout << "to create set for " << databaseName << ":" << setName << std::endl;
     std::cout << "jobName is " << jobName << std::endl;
-    return simpleRequest<DistributedStorageAddSetWithPartition, SimpleRequestResult, bool>(
+    Handle<DistributedStorageAddSetWithPartition> request = makeObject<DistributedStorageAddSetWithPartition> (databaseName,
+    setName, typeName, pageSize, createdJobId, dispatchComputations, jobName, desiredSize, isMRU);
+    return simpleDoubleRequest<DistributedStorageAddSetWithPartition, Vector<Handle<Computation>>, SimpleRequestResult, bool>(
         logger,
         port,
         address,
         false,
         1024,
-        generateResponseHandler("Could not add set to distributed storage manager:", errMsg),
-        databaseName,
-        setName,
-        typeName,
-        pageSize,
-        createdJobId,
-        dispatchComputations,
-        jobName,
-        desiredSize,
-        isMRU
-        );
-}
+        [&](Handle<SimpleRequestResult> result) {
+            if (result != nullptr) {
+                if (!result->getRes().first) {
+                    errMsg = "Error in create set: " + result->getRes().second;
+                    logger->error(errMsg);
+                    return false;
+                }
+                return true;
+            }
+            errMsg = "Error creating set with IR partitioning";
+            return false;
+         },
+        request,
+        dispatchComputations);
+    }
 
 
 bool DistributedStorageManagerClient::createTempSet(const std::string& databaseName,

@@ -318,23 +318,32 @@ public:
 
         if (this->getNumConsumers() >0) {
             //this is not the sink
+            std::cout <<"this is not the sink" << std::endl;
             return nullptr;
         } else {
             //
             int numInputs = this->getNumInputs();
+            std::cout <<"Number of inputs of this node is " << numInputs << std::endl;
             for (int i = 0; i < numInputs; i++) {
                Handle<Computation> curComputation = this->getIthInput(i); 
+               std::cout <<"Type of input node is " << curComputation->getComputationType() << std::endl;
                if(curComputation->getComputationType() == "JoinComp") {
                    int numParents = curComputation->getNumInputs();
+                   std::cout <<"Number of inputs of the "<<i<<"-th input node is " << numParents << std::endl;
                    for (int j = 0; j < numParents; j++) {
                        Handle<Computation> curJoinInput = curComputation->getIthInput(j);
+                       std::cout << "Type of the "<<j<<"-th input of the"<<i<<"-th input node is "<<curJoinInput->getComputationType()<< std::endl;
                        if (curJoinInput->getComputationType() == "SelectionComp") {
                            Handle<Computation> curSource = curJoinInput->getIthInput(0);
+                           std::cout <<"source: database:"<<curSource->getDatabaseName()<<"; set:"<<curSource->getSetName()<<std::endl;
                            if ((curSource->getDatabaseName() == source.first) && (curSource->getSetName() == source.second)) {
                                //we have find the right path!!
                                //Step 1. extract lambdas from the curJoinInput computation
                                std::map<std::string, GenericLambdaObjectPtr> allSelectionLambdas;
                                curJoinInput->extractLambdas(allSelectionLambdas);
+                               for (auto a : allSelectionLambdas) {
+                                   std::cout << a.first << std::endl;
+                               }
                                GenericLambdaObjectPtr selectLambda=allSelectionLambdas["native_lambda_0"];                                                              
                                //Step 2. extract filterFunc from the curJoinInput computation
                                SimpleFilterPtr simpleFilter = selectLambda->getFilter();                                                              

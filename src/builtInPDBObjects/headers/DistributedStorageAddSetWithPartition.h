@@ -103,7 +103,7 @@ private:
     String createdJobId;
     size_t pageSize;
     Handle<Vector<Handle<Computation>>> dispatchComputations;
-    std::string jobName;
+    String jobName;
     size_t desiredSize;
     bool isMRU;
 };

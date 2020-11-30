@@ -17,7 +17,7 @@ IRPolicy::IRPolicy() {
 
 IRPolicy::IRPolicy(int numNodes,
                  int numPartitions,
-                 std::vector<Handle<Computation>> sinks,
+                 Handle<Vector<Handle<Computation>>> sinks,
                  std::pair<std::string, std::string> source) {
 
        this->numNodes = numNodes;
@@ -26,6 +26,36 @@ IRPolicy::IRPolicy(int numNodes,
        this->source = source;
        this->storageNodes = std::vector<NodePartitionDataPtr>();
        this->myPolicyName = "Lambda: "+std::to_string(numNodes)+","+std::to_string(numPartitions);
+/*
+*  computations->push_back(myWriteSet);
+  computations->push_back(myWriteSet1);
+  computations->push_back(join);
+  computations->push_back(join1);
+  computations->push_back(select);
+  computations->push_back(select1);
+  computations->push_back(input1);
+  computations->push_back(input2);
+  computations->push_back(input3);
+*/
+
+    if(sinks->size()!=9){
+       std::cout <<"Fatal error: IR policy can only support computation graphs of specific shape" << std::endl;
+       exit(1);
+    }
+    (*sinks)[0]->setInput((*sinks)[2]);
+    (*sinks)[2]->setInput(0, (*sinks)[4]);
+    (*sinks)[2]->setInput(1, (*sinks)[7]);
+    (*sinks)[4]->setInput((*sinks)[6]);
+    (*sinks)[1]->setInput(0, (*sinks)[3]);
+    (*sinks)[1]->setInput(1, (*sinks)[8]);
+    (*sinks)[3]->setInput((*sinks)[6]);
+//    this->partitioner = std::make_shared<CombinedVectorPartitioner>();
+//    for (int i = 0; i < 2; i++) {
+//        CombinedVectorPartitionerContextPtr partitionerContext = (*sinks)[i]->getPartitionerContext(source);
+//        partitioner->addContext(partitionerContext);
+//    }
+
+
 }
 
 
@@ -96,7 +126,7 @@ NodePartitionDataPtr IRPolicy::handleDeadNode(NodePartitionDataPtr deadNode) {
 std::shared_ptr<std::unordered_map<NodeID, Handle<Vector<Handle<Object>>>>>
 IRPolicy::partition(Handle<Vector<Handle<Object>>> toPartition) {
     const UseTemporaryAllocationBlock tempBlock { 256 * 1024 * 1024 };
-    std::cout << "Lambda policy to partition vector of " << toPartition->size() << " elements" << std::endl;
+    std::cout << "IR policy to partition vector of " << toPartition->size() << " elements" << std::endl;
     auto partitionedData =
         std::make_shared<std::unordered_map<NodeID, Handle<Vector<Handle<Object>>>>>();
     std::cout << numNodes << " nodes" << std::endl;
@@ -109,9 +139,9 @@ IRPolicy::partition(Handle<Vector<Handle<Object>>> toPartition) {
             << std::endl;
         exit(-1);
     }
-    CombinedVectorPartitionerPtr partitioner = std::make_shared<CombinedVectorPartitioner>();
-    for (int i = 0; i < this->sinks.size(); i++) {
-        CombinedVectorPartitionerContextPtr partitionerContext = this->sinks[i]->getPartitionerContext(source);
+    this->partitioner = std::make_shared<CombinedVectorPartitioner>();
+    for (int i = 0; i < 2; i++) {
+        CombinedVectorPartitionerContextPtr partitionerContext = (*sinks)[i]->getPartitionerContext(source);
         partitioner->addContext(partitionerContext);
     }
     partitioner->partition(this->numNodes, this->numPartitions, toPartition, partitionedData);

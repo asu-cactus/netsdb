@@ -110,22 +110,26 @@ int main(int argc, char* argv[]) {
   CatalogClient catalogClient(port, managerIp, clientLogger);
   PDBClient pdbClient(port, managerIp, clientLogger, false, true);
   pdbClient.registerType("libraries/libRedditComment.so", errMsg);
+  pdbClient.registerType("libraries/libRedditAuthor.so", errMsg);
+  pdbClient.registerType("libraries/libRedditSub.so", errMsg);
+  pdbClient.registerType("libraries/libRedditFeatures.so", errMsg);
+  pdbClient.registerType("libraries/libRedditSubsAndComments.so", errMsg);
+  pdbClient.registerType("libraries/libRedditJoin.so", errMsg);
+  pdbClient.registerType("libraries/libRedditJoinSubsAndComments.so", errMsg);
+  pdbClient.registerType("libraries/libRedditPositiveLabelSelection.so", errMsg);
+  pdbClient.registerType("libraries/libRedditNegativeLabelSelection.so", errMsg);
+
 
   // now, create a new database
   pdbClient.createDatabase("redditDB", errMsg);
   
   Handle<LambdaIdentifier> myLambda1 = nullptr;
-  /*
-  if (whetherToPartitionData) {
-      myLambda1 = makeObject<LambdaIdentifier>("pageRankIteration_1", "JoinComp_2", "attAccess_1");
-  }
-  */
 
   ///construct dispatching computations
   pdb::makeObjectAllocatorBlock(64 * 1024 * 1024, true);
 
   // make a scan set
-  Handle<Computation> input1 = makeObject<ScanUserSet<reddit::Comment>>("redditDB", "labeledComments");
+  Handle<Computation> input1 = makeObject<ScanUserSet<reddit::Comment>>("redditDB", "comments");
   Handle<Computation> input2 = makeObject<ScanUserSet<reddit::Author>>("redditDB", "authors");
 
   // make a selection
@@ -160,11 +164,22 @@ int main(int argc, char* argv[]) {
   Handle<Vector<Handle<Computation>>> sinks = makeObject<Vector<Handle<Computation>>>();
   sinks->push_back(myWriteSet);
   sinks->push_back(myWriteSet1);
-  
+ 
+
+  Handle<Vector<Handle<Computation>>> computations = makeObject<Vector<Handle<Computation>>>();
+  computations->push_back(myWriteSet);
+  computations->push_back(myWriteSet1);
+  computations->push_back(join);
+  computations->push_back(join1);
+  computations->push_back(select);
+  computations->push_back(select1);
+  computations->push_back(input1);
+  computations->push_back(input2);
+  computations->push_back(input3); 
 
   // now, create the output set
   pdbClient.removeSet("redditDB", "comments", errMsg);
-  pdbClient.createSet<reddit::Comment>("redditDB", "comments", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "comments", sinks, "redditAdaptiveJoin");
+  pdbClient.createSet<reddit::Comment>("redditDB", "comments", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "comments", computations, "redditAdaptiveJoin");
 
   // parse the input file 
   parseInputJSONFile(pdbClient, inputFileName, 64); }

@@ -7,7 +7,7 @@
 #include "Computation.h"
 #include "PartitionPolicy.h"
 #include <pthread.h>
-
+#include "CombinedVectorPartitioner.h"
 namespace pdb {
 
 class IRPolicy;
@@ -25,7 +25,7 @@ public:
     //constructor
     IRPolicy(int numNodes, 
              int numPartitions, 
-             std::vector<Handle<Computation>> sinks,
+             Handle<Vector<Handle<Computation>>> sinks,
              std::pair<std::string, std::string> source);
 
 
@@ -64,11 +64,13 @@ private:
     int numPartitions = 0;
 
     //the sink of the IR graph
-    std::vector<Handle<Computation>> sinks;
+    Handle<Vector<Handle<Computation>>> sinks;
 
     //the source set, which is to be partitioned, and will later be consumed by the IR graph
     std::pair<string, string> source;
 
+    //partitioner
+    CombinedVectorPartitionerPtr partitioner;
 
     std::vector<NodePartitionDataPtr> createNodePartitionData(
         Handle<Vector<Handle<NodeDispatcherData>>> storageNodes);

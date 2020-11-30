@@ -576,13 +576,15 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
         DistributedStorageAddSetWithPartition_TYPEID,
         make_shared<SimpleRequestHandler<DistributedStorageAddSetWithPartition>>([&](
             Handle<DistributedStorageAddSetWithPartition> request, PDBCommunicatorPtr sendUsingMe) {
-            const UseTemporaryAllocationBlock tempBlock{8 * 1024 * 1024};
+            const UseTemporaryAllocationBlock tempBlock{128 * 1024 * 1024};
             auto begin = std::chrono::high_resolution_clock::now();
             auto beforeCreateSet = begin;
             auto afterCreateSet = begin;
-
-            PDB_COUT << "received DistributedStorageAddSetWithPartition message" << std::endl;
+            bool success;
             std::string errMsg;
+            Handle<Vector<Handle<Computation>>> myComputations =
+                    sendUsingMe->getNextObject<Vector<Handle<Computation>>>(success, errMsg);
+            PDB_COUT << "received DistributedStorageAddSetWithPartition message" << std::endl;
             mutex lock;
 
             auto successfulNodes = std::vector<std::string>();
@@ -591,7 +593,8 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
 
             std::string database = request->getDatabase();
             std::string set = request->getSetName();
-
+            std::string jobName = request->getJobName();
+            std::cout <<"create database="<<database<<", set="<<set<<",using partitioning computation extracted from job=" << jobName; 
 
             long lambdaId = -1;
             long lambdaId1 = -1;
@@ -650,12 +653,6 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
             std::cout << "Page size is determined to be " << pageSize << std::endl;
 
 
-            Handle<Vector<Handle<Computation>>> myComputations = request->getDispatchComputations();
-            std::vector<Handle<Computation>> sinks;
-            for (int i = 0; i < myComputations->size(); i++) {
-                sinks.push_back((*myComputations)[i]);
-            }
-            std::string jobName = request->getJobName();
             std::pair<std::string, std::string> source;
             source.first = request->getDatabase();
             source.second = request->getSetName();
@@ -664,9 +661,8 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
             int numPartitions = shuffleInfo->getNumHashPartitions();
             std::cout << "numNodes = " << numNodes << std::endl;
             std::cout << "numPartitions = " << numPartitions << std::endl;
-
             //to create an IRPolicy
-            PartitionPolicyPtr myIRPolicy = std::make_shared<IRPolicy>(numNodes, numPartitions, sinks, source);
+            PartitionPolicyPtr myIRPolicy = std::make_shared<IRPolicy>(numNodes, numPartitions, myComputations, source);
             //to set the IRPolicy
             std::cout << "to register policy" << std::endl;
             getFunctionality<DispatcherServer>().registerSet(std::pair<std::string, std::string>(request->getSetName(), request->getDatabase()), myIRPolicy);
