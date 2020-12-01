@@ -150,6 +150,8 @@ public:
     // to get Lambda given job name, computation name and lambda name
     Handle<LambdaIdentifier> getLambda(std::string jobName, std::string computationName, std::string lambdaName);
 
+    // to get Lambda and Lambda1 given a set
+    Handle<Vector<Handle<LambdaIdentifier>>> getPartitionLambdas(std::string databaseName, std::string setName);
 
     // to get partition Lambda given a set
     Handle<LambdaIdentifier> getPartitionLambda(std::string databaseName, std::string setName);

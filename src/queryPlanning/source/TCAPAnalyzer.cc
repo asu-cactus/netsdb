@@ -1321,11 +1321,13 @@ bool TCAPAnalyzer::matchSourceWithQuery(std::string jobInstanceId,
               return false;
           }
           std::string jobName = this->db->getJobName(jobInstanceId);
-          Handle<LambdaIdentifier> partitionLambda =
-            this->db->getPartitionLambda(sourceSetIdentifier->getDatabase(),
+          Handle<Vector<Handle<LambdaIdentifier>>> partitionLambdas =
+            this->db->getPartitionLambdas(sourceSetIdentifier->getDatabase(),
                                          sourceSetIdentifier->getSetName());
-          if (partitionLambda != nullptr) {
 
+          for (int i = 0; i < partitionLambdas->size(); i++) {
+
+	      Handle<LambdaIdentifier> partitionLambda = (*partitionLambdas)[i];
               std::cout << "Query: jobName is " << jobName << ", computationName is " << res.first
                         << ", lambdaName is " << res.second << std::endl;
               std::cout << "PartitionLambda: jobName is " << partitionLambda->getJobName()
@@ -1356,10 +1358,12 @@ bool TCAPAnalyzer::matchSourceWithQuery(std::string jobInstanceId,
 
                   }
 
-              }
+               }
+               if (prepartitioned == true) 
+                   break;
 
-          }
-          return prepartitioned;
+            }
+            return prepartitioned;
 
 }
 

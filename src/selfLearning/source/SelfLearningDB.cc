@@ -173,7 +173,7 @@ bool SelfLearningDB :: createData (std::string databaseName, std::string setName
                           + std::to_string(lambdaId) + ","
                           + std::to_string(replicationFactor)+","
                           + "strftime('%s', 'now', 'localtime'),"
-                          + std::to_string(lambdaId1)+"));";
+                          + std::to_string(lambdaId1)+");";
       std::cout << "CreateData: " << cmdString << std::endl;
       return execDB(cmdString);
 
@@ -1361,6 +1361,80 @@ Handle<LambdaIdentifier> SelfLearningDB::getLambda(std::string jobName, std::str
     return ret;
 
 }
+
+Handle<Vector<Handle<LambdaIdentifier>>> SelfLearningDB::getPartitionLambdas(std::string databaseName, std::string setName){
+    Handle<Vector<Handle<LambdaIdentifier>>> lambdas = nullptr;
+    lambdas = makeObject<Vector<Handle<LambdaIdentifier>>>();
+    sqlite3_stmt * statement;
+    long lambdaId = -1;
+    long lambdaId1 = -1;
+    //first to get lambdaId
+    std::string queryString = "SELECT LAMBDA_ID, LAMBDA_ID1 from DATA WHERE DATABASE_NAME = " + quoteStr(databaseName) + " AND SET_NAME = " + quoteStr(setName) + " ORDER BY MODIFICATION_TIME DESC";
+    std::cout << "Get LAMBDA_IDs: " << queryString << std::endl;
+    if (sqlite3_prepare_v2(selfLearningDBHandler, queryString.c_str(), -1, &statement,
+                     NULL) == SQLITE_OK) {
+        int res = sqlite3_step(statement);
+        if (res == SQLITE_ROW) {
+            lambdaId = sqlite3_column_int(statement, 0);
+            lambdaId1 = sqlite3_column_int(statement, 1);
+        }
+    } else {
+        std::cout << (std::string)(sqlite3_errmsg(selfLearningDBHandler)) << std::endl;
+        sqlite3_finalize(statement);
+        return lambdas;
+    }
+    sqlite3_finalize(statement);
+
+    if ((lambdaId < 0) && (lambdaId1 <0)) {
+        return lambdas;
+    }
+   
+    long lambdaIds[2];
+    lambdaIds[0] = lambdaId;
+    lambdaIds[1] = lambdaId1;
+    long jobId;
+    std::string lambdaIdentifier;
+    std::string computationName;
+    std::string lambdaName;
+    std::string lambdaInputClass;
+    
+    for (int i = 0; i < 2; i++){
+        //then to find the lambda name
+        queryString = "SELECT JOB_ID, LAMBDA_IDENTIFIER, COMPUTATION_NAME, LAMBDA_NAME, LAMBDA_INPUT_CLASS from LAMBDA WHERE ID = "
+             + std::to_string(lambdaIds[i]);
+        std::cout << "Get LambdaName: " << queryString << std::endl;
+        if (sqlite3_prepare_v2(selfLearningDBHandler, queryString.c_str(), -1, &statement,
+                     NULL) == SQLITE_OK) {
+            while (1) {
+                int res = sqlite3_step(statement);
+                if (res == SQLITE_ROW) {
+                     jobId = sqlite3_column_int(statement, 0);
+                     lambdaIdentifier = reinterpret_cast<const char*>(sqlite3_column_text(statement, 1));
+                     computationName = reinterpret_cast<const char*>(sqlite3_column_text(statement, 2));
+                     lambdaName = reinterpret_cast<const char*>(sqlite3_column_text(statement, 3));
+                     lambdaInputClass = reinterpret_cast<const char*>(sqlite3_column_text(statement, 4));
+                     std::cout << "jobId is " << jobId << std::endl;
+                     std::cout << "lambdaIdentifier is " << lambdaIdentifier << std::endl;
+                     std::cout << "computationName is " << computationName << std::endl;
+                     std::cout << "lambdaName is " << lambdaName << std::endl;
+                     std::cout << "lambdaInputClass is " << lambdaInputClass << std::endl;
+                } else if (res == SQLITE_DONE) {
+                     break;
+                }
+            }
+            sqlite3_finalize(statement);
+            std::string jobName = getJobName(jobId);
+            Handle<LambdaIdentifier> lambda = makeObject<LambdaIdentifier>(lambdaId, lambdaIdentifier, lambdaInputClass, jobName, computationName, lambdaName);
+            lambdas->push_back(lambda);
+        } else {
+            std::cout << (std::string)(sqlite3_errmsg(selfLearningDBHandler)) << std::endl;
+            sqlite3_finalize(statement);
+        }
+    }
+
+    return lambdas;
+}
+
 
 Handle<LambdaIdentifier> SelfLearningDB::getPartitionLambda(std::string databaseName, std::string setName) {
 
