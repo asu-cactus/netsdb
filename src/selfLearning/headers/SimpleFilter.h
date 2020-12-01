@@ -30,8 +30,8 @@ public:
          this->processInput = processInput;
     }
 
-    std::function<bool(Handle<Object> &)>& getFilter() {
-         return this->processInput;
+    bool filter(Handle<Object> & object) {
+         return this->processInput(object);
     }
 
 };

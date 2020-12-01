@@ -3,8 +3,6 @@
 
 #include "PDBDebug.h"
 #include "IRPolicy.h"
-#include "CombinedVectorPartitioner.h"
-#include "CombinedVectorPartitionerContext.h"
 #include "Computation.h"
 #include "Handle.h"
 #include "SetIdentifier.h"
@@ -50,11 +48,12 @@ IRPolicy::IRPolicy(int numNodes,
     (*sinks)[1]->setInput(1, (*sinks)[8]);
     (*sinks)[3]->setInput((*sinks)[6]);
 //    this->partitioner = std::make_shared<CombinedVectorPartitioner>();
-//    for (int i = 0; i < 2; i++) {
-//        CombinedVectorPartitionerContextPtr partitionerContext = (*sinks)[i]->getPartitionerContext(source);
-//        partitioner->addContext(partitionerContext);
-//    }
-
+//    this->context = (*sinks)[0]->getPartitionerContext(source);
+//    this->partitioner->addContext(context);
+//    this->context1 = (*sinks)[1]->getPartitionerContext(source);
+//    this->partitioner->addContext(context1);
+    (*sinks)[0]->populateLambdasForCombinedPartitioner(source, filterLambda, joinLambda);
+    (*sinks)[1]->populateLambdasForCombinedPartitioner(source, filterLambda1, joinLambda1);
 
 }
 
@@ -139,12 +138,22 @@ IRPolicy::partition(Handle<Vector<Handle<Object>>> toPartition) {
             << std::endl;
         exit(-1);
     }
-    this->partitioner = std::make_shared<CombinedVectorPartitioner>();
-    for (int i = 0; i < 2; i++) {
-        CombinedVectorPartitionerContextPtr partitionerContext = (*sinks)[i]->getPartitionerContext(source);
-        partitioner->addContext(partitionerContext);
+    for(int i = 0; i < toPartition->size(); i++) {
+        Handle<Object> a = (*toPartition)[i];
+        NodeID nodeId;
+        bool result = filterLambda->getFilter()->filter(a);
+        if (result) {
+            nodeId = joinLambda->getObjectPartitioner()->partition(a, numNodes, numPartitions);
+        } else {
+            nodeId = joinLambda1->getObjectPartitioner()->partition(a, numNodes, numPartitions);
+        }
+        Handle<Vector<Handle<Object>>> myVec = (*partitionedData)[nodeId];
+        if(myVec == nullptr) {
+            myVec = makeObject<Vector<Handle<Object>>>();
+            (*partitionedData)[nodeId] = myVec;
+        }
+        (*partitionedData)[nodeId]->push_back(a);
     }
-    partitioner->partition(this->numNodes, this->numPartitions, toPartition, partitionedData);
     return partitionedData;
 }
 

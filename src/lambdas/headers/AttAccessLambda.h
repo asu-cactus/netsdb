@@ -230,7 +230,6 @@ public:
                int numPartitions,
                Handle<Vector<Handle<Object>>> & inputObjects,
                std::shared_ptr<std::unordered_map<NodeID, Handle<Vector<Handle<Object>>>>> partitionedObjects) {
-            std::cout << "to run partitioner from AttAccessLambda" << std::endl;
             size_t numObjects = inputObjects->size();
             for (size_t i = 0; i < numObjects; i++) {
                Handle<Object> myObj = (*inputObjects)[i];
@@ -269,7 +268,6 @@ public:
            [=](Handle<Object>& myObj,
                int numNodes,
                int numPartitions) {
-               std::cout << "to run object partitioner from AttAccessLambda" << std::endl;
                Handle<ClassType> myIn = unsafeCast<ClassType, Object>(myObj);
                Ptr<Out> myOut = (Out*)((char*)&(*(myIn)) + offsetOfAttToProcess);
                Out myValue = *myOut;

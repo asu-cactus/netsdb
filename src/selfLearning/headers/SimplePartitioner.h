@@ -30,8 +30,8 @@ public:
          this->processInput = processInput;
     }
 
-    std::function<NodeID(Handle<Object> &, int numNodes, int numPartitions)>& getPartitioner() {
-         return this->processInput;
+    NodeID partition(Handle<Object> & object, int numNodes, int numPartitions) {
+         return this->processInput(object, numNodes, numPartitions);
     }
 
 };

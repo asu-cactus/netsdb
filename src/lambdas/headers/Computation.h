@@ -6,7 +6,6 @@
 #include "Lambda.h"
 #include "ComputeSource.h"
 #include "ComputeSink.h"
-#include "CombinedVectorPartitionerContext.h"
 #include "SetIdentifier.h"
 #include "SinkMerger.h"
 #include "SinkShuffler.h"
@@ -313,19 +312,19 @@ public:
     virtual void populateLambdas(long jobId, SelfLearningWrapperServer server) {} 
 
 
-    //create a partitioner context that include the filter function and hash function
-    CombinedVectorPartitionerContextPtr getPartitionerContext(std::pair<std::string, std::string> source) {
-
-        if (this->getNumConsumers() >0) {
+    //added by Jia, to populate lambdas for partitioning
+    //must guarantee that lambdas parameter is an empty vector
+    virtual void populateLambdasForCombinedPartitioner(std::pair<std::string, std::string> source, GenericLambdaObjectPtr& selectLambda, GenericLambdaObjectPtr& joinLambda) {
+       if (this->getNumConsumers() >0) {
             //this is not the sink
             std::cout <<"this is not the sink" << std::endl;
-            return nullptr;
+            return;
         } else {
             //
             int numInputs = this->getNumInputs();
             std::cout <<"Number of inputs of this node is " << numInputs << std::endl;
             for (int i = 0; i < numInputs; i++) {
-               Handle<Computation> curComputation = this->getIthInput(i); 
+               Handle<Computation> curComputation = this->getIthInput(i);
                std::cout <<"Type of input node is " << curComputation->getComputationType() << std::endl;
                if(curComputation->getComputationType() == "JoinComp") {
                    int numParents = curComputation->getNumInputs();
@@ -344,27 +343,21 @@ public:
                                for (auto a : allSelectionLambdas) {
                                    std::cout << a.first << std::endl;
                                }
-                               GenericLambdaObjectPtr selectLambda=allSelectionLambdas["native_lambda_0"];                                                              
-                               //Step 2. extract filterFunc from the curJoinInput computation
-                               SimpleFilterPtr simpleFilter = selectLambda->getFilter();                                                              
+                               selectLambda=allSelectionLambdas["native_lambda_0"];
                                //Step 3. extract lambdas from the curComputation
-                               //Stpe 4. extract hashFunc from the curComputation
                                std::map<std::string, GenericLambdaObjectPtr> allJoinLambdas;
                                curComputation->extractLambdas(allJoinLambdas);
-                               GenericLambdaObjectPtr  joinLambda=allJoinLambdas["attAccess_0"];
-                               SimplePartitionerPtr simplePartitioner = joinLambda->getObjectPartitioner();
-                               //Step 5. create and return a CombinedVectorPartitionerContextPtr instance
-                               CombinedVectorPartitionerContextPtr context = 
-                                   std::make_shared<CombinedVectorPartitionerContext>(simpleFilter->getFilter(), simplePartitioner->getPartitioner());
-                               return context;
+                               joinLambda=allJoinLambdas["attAccess_0"];
                            }
                        }
-                   } 
+                   }
                }
             }
         }
-        return nullptr;
+        return;
+
     }
+
 
 
 private:

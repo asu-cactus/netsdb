@@ -115,15 +115,16 @@ extern int yydebug;
     APPLY = 259,
     SCAN = 260,
     AGG = 261,
-    JOIN = 262,
-    OUTPUT = 263,
-    GETS = 264,
-    HASHLEFT = 265,
-    HASHRIGHT = 266,
-    HASHONE = 267,
-    FLATTEN = 268,
-    IDENTIFIER = 269,
-    STRING = 270
+    PARTITION = 262,
+    JOIN = 263,
+    OUTPUT = 264,
+    GETS = 265,
+    HASHLEFT = 266,
+    HASHRIGHT = 267,
+    HASHONE = 268,
+    FLATTEN = 269,
+    IDENTIFIER = 270,
+    STRING = 271
   };
 #endif
 
@@ -140,7 +141,7 @@ union YYSTYPE
 	struct TupleSpec *myTupleSpec;
 	struct AttList *myAttList;
 
-#line 144 "src/logicalPlan/source/Parser.c" /* yacc.c:355  */
+#line 145 "src/logicalPlan/source/Parser.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -156,7 +157,7 @@ int yyparse (void *scanner, struct AtomicComputationList **myPlan);
 
 /* Copy the second part of user declarations.  */
 
-#line 160 "src/logicalPlan/source/Parser.c" /* yacc.c:358  */
+#line 161 "src/logicalPlan/source/Parser.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -398,21 +399,21 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  7
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   108
+#define YYLAST   112
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  19
+#define YYNTOKENS  20
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  6
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  18
+#define YYNRULES  19
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  106
+#define YYNSTATES  112
 
 /* YYTRANSLATE[YYX] -- Symbol number corresponding to YYX as returned
    by yylex, with out-of-bounds checking.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   270
+#define YYMAXUTOK   271
 
 #define YYTRANSLATE(YYX)                                                \
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -425,7 +426,7 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-      16,    18,     2,     2,    17,     2,     2,     2,     2,     2,
+      17,    19,     2,     2,    18,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -448,15 +449,15 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
-      15
+      15,    16
 };
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    63,    63,    74,    79,    89,    94,    99,   104,   109,
-     114,   119,   124,   129,   134,   144,   149,   155,   160
+       0,    64,    64,    75,    80,    90,    95,   101,   107,   112,
+     117,   122,   127,   132,   137,   142,   152,   157,   163,   168
 };
 #endif
 
@@ -465,11 +466,11 @@ static const yytype_uint8 yyrline[] =
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
 {
-  "$end", "error", "$undefined", "FILTER", "APPLY", "SCAN", "AGG", "JOIN",
-  "OUTPUT", "GETS", "HASHLEFT", "HASHRIGHT", "HASHONE", "FLATTEN",
-  "IDENTIFIER", "STRING", "'('", "','", "')'", "$accept",
-  "LogicalQueryPlan", "AtomicComputationList", "AtomicComputation",
-  "TupleSpec", "AttList", YY_NULLPTR
+  "$end", "error", "$undefined", "FILTER", "APPLY", "SCAN", "AGG",
+  "PARTITION", "JOIN", "OUTPUT", "GETS", "HASHLEFT", "HASHRIGHT",
+  "HASHONE", "FLATTEN", "IDENTIFIER", "STRING", "'('", "','", "')'",
+  "$accept", "LogicalQueryPlan", "AtomicComputationList",
+  "AtomicComputation", "TupleSpec", "AttList", YY_NULLPTR
 };
 #endif
 
@@ -479,14 +480,14 @@ static const char *const yytname[] =
 static const yytype_uint16 yytoknum[] =
 {
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
-     265,   266,   267,   268,   269,   270,    40,    44,    41
+     265,   266,   267,   268,   269,   270,   271,    40,    44,    41
 };
 # endif
 
-#define YYPACT_NINF -26
+#define YYPACT_NINF -27
 
 #define yypact_value_is_default(Yystate) \
-  (!!((Yystate) == (-26)))
+  (!!((Yystate) == (-27)))
 
 #define YYTABLE_NINF -1
 
@@ -497,17 +498,18 @@ static const yytype_uint16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-     -12,     0,    26,   -12,   -26,    23,    17,   -26,   -26,     7,
-     -26,   -26,     6,    18,    20,    21,    22,    24,    25,    27,
-      28,    30,    31,    19,   -26,   -12,   -12,    33,   -12,   -12,
-     -12,   -12,   -12,   -12,   -12,   -26,    32,    34,    35,    36,
-      37,    38,    39,    40,    41,    42,   -12,   -12,    45,    46,
-     -12,    47,   -12,   -12,   -12,   -12,    48,    49,    50,    51,
-      53,    54,    55,    56,    57,    58,    61,    62,    63,   -26,
-     -12,    64,    65,    66,    67,    68,    69,    71,    72,    74,
-      75,    76,    77,    78,    79,   -26,    70,   -26,   -12,    80,
-      83,    84,   -26,   -26,    82,    85,    86,    87,    88,   -26,
-      92,   -26,   -26,   -26,    90,   -26
+     -13,     1,    26,   -13,   -27,    17,    10,   -27,   -27,     8,
+     -27,   -27,    16,    19,    20,    21,    22,    23,    24,    25,
+      27,    28,    29,    30,    33,   -27,   -13,   -13,    35,   -13,
+     -13,   -13,   -13,   -13,   -13,   -13,   -13,   -27,    31,    34,
+      36,    37,    38,    39,    40,    41,    42,    43,    44,   -13,
+     -13,    47,    48,    49,   -13,    50,   -13,   -13,   -13,   -13,
+      51,    52,    53,    54,    55,    57,    58,    59,    60,    61,
+      62,    56,    65,    66,   -27,   -27,   -13,    67,    68,    69,
+      70,    71,    72,    74,    75,    77,    78,    79,    80,    81,
+      82,   -27,    73,   -27,   -13,    83,    86,    87,   -27,   -27,
+      85,    88,    89,    90,    91,   -27,    95,   -27,   -27,   -27,
+      93,   -27
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -516,22 +518,23 @@ static const yytype_int8 yypact[] =
 static const yytype_uint8 yydefact[] =
 {
        0,     0,     0,     2,     4,     0,     0,     1,     3,     0,
-      18,    16,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,    15,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,    17,     0,     0,     0,     0,
+      19,    17,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,    16,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,    18,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,     6,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,    10,     0,     7,     0,     0,
-       0,     0,    13,    14,     0,     0,     0,     0,     0,     5,
-       0,     8,    11,    12,     0,     9
+       0,     0,     0,     0,     6,     7,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,    11,     0,     8,     0,     0,     0,     0,    14,    15,
+       0,     0,     0,     0,     0,     5,     0,     9,    12,    13,
+       0,    10
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -26,   -26,   -26,    81,   -25,   -26
+     -27,   -27,   -27,    64,   -26,   -27
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
@@ -545,63 +548,66 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_uint8 yytable[] =
 {
-      36,    37,     1,    39,    40,    41,    42,    43,    44,    45,
-      13,    14,    15,    16,    17,    18,     6,    19,    20,    21,
-      22,    56,    57,    23,    24,    60,     7,    62,    63,    64,
-      65,    10,     9,    35,    25,    11,    26,    27,    28,     0,
-      29,    30,     0,    31,    32,    79,    33,    34,    38,    46,
-       0,    47,    48,    49,    50,    51,    52,    53,    54,    55,
-      58,    59,    61,    95,     0,    66,    67,    68,     0,    69,
-      70,    71,    72,    73,    74,    75,    76,    77,    78,    80,
-      81,    82,    83,    84,     8,    94,     0,    85,    86,     0,
-      87,    88,    89,    90,    91,    96,    92,    93,    97,    98,
-      99,     0,   100,     0,   101,   102,   103,   104,   105
+      38,    39,     1,    41,    42,    43,    44,    45,    46,    47,
+      48,    13,    14,    15,    16,    17,    18,    19,     6,    20,
+      21,    22,    23,    60,    61,    10,     7,     9,    65,    11,
+      67,    68,    69,    70,    24,    25,    26,    27,    28,    29,
+      30,    31,    32,     0,    33,    34,    35,    36,    37,    49,
+      85,    40,    50,     0,    51,    52,    53,    54,    55,    56,
+      57,    58,    59,    62,    63,    64,    66,     8,   101,    71,
+      72,    73,    82,    74,    75,    76,    77,    78,    79,    80,
+      81,    83,    84,    86,    87,    88,    89,    90,     0,   100,
+       0,    91,    92,     0,    93,    94,    95,    96,    97,   102,
+      98,    99,   103,   104,   105,     0,   106,     0,   107,   108,
+     109,   110,   111
 };
 
 static const yytype_int8 yycheck[] =
 {
-      25,    26,    14,    28,    29,    30,    31,    32,    33,    34,
-       3,     4,     5,     6,     7,     8,    16,    10,    11,    12,
-      13,    46,    47,    17,    18,    50,     0,    52,    53,    54,
-      55,    14,     9,    14,    16,    18,    16,    16,    16,    -1,
-      16,    16,    -1,    16,    16,    70,    16,    16,    15,    17,
-      -1,    17,    17,    17,    17,    17,    17,    17,    17,    17,
-      15,    15,    15,    88,    -1,    17,    17,    17,    -1,    18,
-      17,    17,    17,    17,    17,    17,    15,    15,    15,    15,
-      15,    15,    15,    15,     3,    15,    -1,    18,    17,    -1,
-      18,    17,    17,    17,    17,    15,    18,    18,    15,    15,
-      18,    -1,    17,    -1,    18,    18,    18,    15,    18
+      26,    27,    15,    29,    30,    31,    32,    33,    34,    35,
+      36,     3,     4,     5,     6,     7,     8,     9,    17,    11,
+      12,    13,    14,    49,    50,    15,     0,    10,    54,    19,
+      56,    57,    58,    59,    18,    19,    17,    17,    17,    17,
+      17,    17,    17,    -1,    17,    17,    17,    17,    15,    18,
+      76,    16,    18,    -1,    18,    18,    18,    18,    18,    18,
+      18,    18,    18,    16,    16,    16,    16,     3,    94,    18,
+      18,    18,    16,    19,    19,    18,    18,    18,    18,    18,
+      18,    16,    16,    16,    16,    16,    16,    16,    -1,    16,
+      -1,    19,    18,    -1,    19,    18,    18,    18,    18,    16,
+      19,    19,    16,    16,    19,    -1,    18,    -1,    19,    19,
+      19,    16,    19
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,    14,    20,    21,    22,    23,    16,     0,    22,     9,
-      14,    18,    24,     3,     4,     5,     6,     7,     8,    10,
-      11,    12,    13,    17,    18,    16,    16,    16,    16,    16,
-      16,    16,    16,    16,    16,    14,    23,    23,    15,    23,
-      23,    23,    23,    23,    23,    23,    17,    17,    17,    17,
-      17,    17,    17,    17,    17,    17,    23,    23,    15,    15,
-      23,    15,    23,    23,    23,    23,    17,    17,    17,    18,
-      17,    17,    17,    17,    17,    17,    15,    15,    15,    23,
-      15,    15,    15,    15,    15,    18,    17,    18,    17,    17,
-      17,    17,    18,    18,    15,    23,    15,    15,    15,    18,
-      17,    18,    18,    18,    15,    18
+       0,    15,    21,    22,    23,    24,    17,     0,    23,    10,
+      15,    19,    25,     3,     4,     5,     6,     7,     8,     9,
+      11,    12,    13,    14,    18,    19,    17,    17,    17,    17,
+      17,    17,    17,    17,    17,    17,    17,    15,    24,    24,
+      16,    24,    24,    24,    24,    24,    24,    24,    24,    18,
+      18,    18,    18,    18,    18,    18,    18,    18,    18,    18,
+      24,    24,    16,    16,    16,    24,    16,    24,    24,    24,
+      24,    18,    18,    18,    19,    19,    18,    18,    18,    18,
+      18,    18,    16,    16,    16,    24,    16,    16,    16,    16,
+      16,    19,    18,    19,    18,    18,    18,    18,    19,    19,
+      16,    24,    16,    16,    16,    19,    18,    19,    19,    19,
+      16,    19
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    19,    20,    21,    21,    22,    22,    22,    22,    22,
-      22,    22,    22,    22,    22,    23,    23,    24,    24
+       0,    20,    21,    22,    22,    23,    23,    23,    23,    23,
+      23,    23,    23,    23,    23,    23,    24,    24,    25,    25
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     1,     2,     1,    12,     8,    10,    12,    14,
-      10,    12,    12,    10,    10,     4,     3,     3,     1
+       0,     2,     1,     2,     1,    12,     8,     8,    10,    12,
+      14,    10,    12,    12,    10,    10,     4,     3,     3,     1
 };
 
 
@@ -1286,144 +1292,152 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 64 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 65 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
 	(yyval.myAtomicComputationList) = (yyvsp[0].myAtomicComputationList);
 	*myPlan = (yyval.myAtomicComputationList);
 }
-#line 1295 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
+#line 1301 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 75 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 76 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
 	(yyval.myAtomicComputationList) = pushBackAtomicComputation ((yyvsp[-1].myAtomicComputationList), (yyvsp[0].myAtomicComputation));
 }
-#line 1303 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
+#line 1309 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 80 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 81 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
 	(yyval.myAtomicComputationList) =  makeAtomicComputationList ((yyvsp[0].myAtomicComputation));
 }
-#line 1311 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
+#line 1317 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 90 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 91 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
 	(yyval.myAtomicComputation) = makeApply ((yyvsp[-11].myTupleSpec), (yyvsp[-7].myTupleSpec), (yyvsp[-5].myTupleSpec), (yyvsp[-3].myChar), (yyvsp[-1].myChar));
 }
-#line 1319 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
+#line 1325 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 95 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 96 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
 	(yyval.myAtomicComputation) = makeAgg ((yyvsp[-7].myTupleSpec), (yyvsp[-3].myTupleSpec), (yyvsp[-1].myChar));
 }
-#line 1327 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
+#line 1333 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 100 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 102 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
-	(yyval.myAtomicComputation) = makeScan ((yyvsp[-9].myTupleSpec), (yyvsp[-5].myChar), (yyvsp[-3].myChar), (yyvsp[-1].myChar));
+        (yyval.myAtomicComputation) = makePartition ((yyvsp[-7].myTupleSpec), (yyvsp[-3].myTupleSpec), (yyvsp[-1].myChar));
 }
-#line 1335 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
+#line 1341 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 105 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 108 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
-	(yyval.myAtomicComputation) = makeOutput ((yyvsp[-11].myTupleSpec), (yyvsp[-7].myTupleSpec), (yyvsp[-5].myChar), (yyvsp[-3].myChar), (yyvsp[-1].myChar));
+	(yyval.myAtomicComputation) = makeScan ((yyvsp[-9].myTupleSpec), (yyvsp[-5].myChar), (yyvsp[-3].myChar), (yyvsp[-1].myChar));
 }
-#line 1343 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
+#line 1349 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 110 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 113 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
-	(yyval.myAtomicComputation) = makeJoin ((yyvsp[-13].myTupleSpec), (yyvsp[-9].myTupleSpec), (yyvsp[-7].myTupleSpec), (yyvsp[-5].myTupleSpec), (yyvsp[-3].myTupleSpec), (yyvsp[-1].myChar));
+	(yyval.myAtomicComputation) = makeOutput ((yyvsp[-11].myTupleSpec), (yyvsp[-7].myTupleSpec), (yyvsp[-5].myChar), (yyvsp[-3].myChar), (yyvsp[-1].myChar));
 }
-#line 1351 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
+#line 1357 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 115 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 118 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
-	(yyval.myAtomicComputation) = makeFilter ((yyvsp[-9].myTupleSpec), (yyvsp[-5].myTupleSpec), (yyvsp[-3].myTupleSpec), (yyvsp[-1].myChar));
+	(yyval.myAtomicComputation) = makeJoin ((yyvsp[-13].myTupleSpec), (yyvsp[-9].myTupleSpec), (yyvsp[-7].myTupleSpec), (yyvsp[-5].myTupleSpec), (yyvsp[-3].myTupleSpec), (yyvsp[-1].myChar));
 }
-#line 1359 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
+#line 1365 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 120 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 123 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
-	(yyval.myAtomicComputation) = makeHashLeft ((yyvsp[-11].myTupleSpec), (yyvsp[-7].myTupleSpec), (yyvsp[-5].myTupleSpec), (yyvsp[-3].myChar), (yyvsp[-1].myChar));
+	(yyval.myAtomicComputation) = makeFilter ((yyvsp[-9].myTupleSpec), (yyvsp[-5].myTupleSpec), (yyvsp[-3].myTupleSpec), (yyvsp[-1].myChar));
 }
-#line 1367 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
+#line 1373 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 125 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 128 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
-	(yyval.myAtomicComputation) = makeHashRight ((yyvsp[-11].myTupleSpec), (yyvsp[-7].myTupleSpec), (yyvsp[-5].myTupleSpec), (yyvsp[-3].myChar), (yyvsp[-1].myChar));
+	(yyval.myAtomicComputation) = makeHashLeft ((yyvsp[-11].myTupleSpec), (yyvsp[-7].myTupleSpec), (yyvsp[-5].myTupleSpec), (yyvsp[-3].myChar), (yyvsp[-1].myChar));
 }
-#line 1375 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
+#line 1381 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 130 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 133 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
-        (yyval.myAtomicComputation) = makeHashOne ((yyvsp[-9].myTupleSpec), (yyvsp[-5].myTupleSpec), (yyvsp[-3].myTupleSpec), (yyvsp[-1].myChar));
+	(yyval.myAtomicComputation) = makeHashRight ((yyvsp[-11].myTupleSpec), (yyvsp[-7].myTupleSpec), (yyvsp[-5].myTupleSpec), (yyvsp[-3].myChar), (yyvsp[-1].myChar));
 }
-#line 1383 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
+#line 1389 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 135 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 138 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
-        (yyval.myAtomicComputation) = makeFlatten ((yyvsp[-9].myTupleSpec), (yyvsp[-5].myTupleSpec), (yyvsp[-3].myTupleSpec), (yyvsp[-1].myChar));
+        (yyval.myAtomicComputation) = makeHashOne ((yyvsp[-9].myTupleSpec), (yyvsp[-5].myTupleSpec), (yyvsp[-3].myTupleSpec), (yyvsp[-1].myChar));
 }
-#line 1391 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
+#line 1397 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 145 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 143 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
-	(yyval.myTupleSpec) = makeTupleSpec ((yyvsp[-3].myChar), (yyvsp[-1].myAttList));
+        (yyval.myAtomicComputation) = makeFlatten ((yyvsp[-9].myTupleSpec), (yyvsp[-5].myTupleSpec), (yyvsp[-3].myTupleSpec), (yyvsp[-1].myChar));
 }
-#line 1399 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
+#line 1405 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 150 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 153 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
-	(yyval.myTupleSpec) = makeEmptyTupleSpec ((yyvsp[-2].myChar));
+	(yyval.myTupleSpec) = makeTupleSpec ((yyvsp[-3].myChar), (yyvsp[-1].myAttList));
 }
-#line 1407 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
+#line 1413 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 156 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 158 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
-	(yyval.myAttList) = pushBackAttribute ((yyvsp[-2].myAttList), (yyvsp[0].myChar));
+	(yyval.myTupleSpec) = makeEmptyTupleSpec ((yyvsp[-2].myChar));
 }
-#line 1415 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
+#line 1421 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 161 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 164 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+    {
+	(yyval.myAttList) = pushBackAttribute ((yyvsp[-2].myAttList), (yyvsp[0].myChar));
+}
+#line 1429 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
+    break;
+
+  case 19:
+#line 169 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
 	(yyval.myAttList) = makeAttList ((yyvsp[0].myChar));
 }
-#line 1423 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
+#line 1437 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
     break;
 
 
-#line 1427 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
+#line 1441 "src/logicalPlan/source/Parser.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1651,7 +1665,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 167 "src/logicalPlan/source/Parser.y" /* yacc.c:1906  */
+#line 175 "src/logicalPlan/source/Parser.y" /* yacc.c:1906  */
 
 
 int yylex(YYSTYPE *, void *);

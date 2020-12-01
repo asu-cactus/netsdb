@@ -20,6 +20,14 @@
 
 using namespace pdb;
 
+void classify(pdb::Handle<reddit::Comment> comment){
+   if (comment->score > 1) {
+       comment->label = 1;
+   } else{
+       comment->label = -1;
+   }
+}
+
 void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSizeInMB) {
 
   // the error message is put there
@@ -29,7 +37,7 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
   bool end = false;
   bool rollback = false;
 
-  long total = 20000000;
+  long total = 1000000;
   long sent = 0;
   long i = 0;
   pdb::makeObjectAllocatorBlock((size_t)blockSizeInMB * (size_t)1024 * (size_t)1024, true);
@@ -50,6 +58,7 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
       rollback = false; 
       try {
           pdb::Handle<reddit::Comment> comment = pdb::makeObject<reddit::Comment>(i, line);
+          classify(comment);
           storeMe->push_back(comment);
           i++;
       }
