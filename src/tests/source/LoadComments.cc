@@ -96,6 +96,7 @@ int main(int argc, char* argv[]){
 >>>>>>> Initial code for threded multi-client read operation.
 =======
     ReaderClient rc(port, managerIp, clientLogger);
+    std::cout << numOfThread << " concurrent clients starting." << std::endl;
     rc.load<reddit::Comment>(numOfThread, commentsFiles, dbName, setName, 64,
     "libraries/libRedditComment.so", 20000000);
 >>>>>>> Reader client for multi thread loading

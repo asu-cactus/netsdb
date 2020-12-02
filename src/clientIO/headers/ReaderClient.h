@@ -211,9 +211,11 @@ private:
         pdbClient.registerType(objectToRegister, errMsg);
         // Keep reading the files until all the files are read
         while(!inFiles.empty()){
+            cout << "Waiting for file mutex to access." << std::endl;
             inMutex->lock();
             std::ifstream *currFile = inFileQ.front();
             inFileQ.pop();
+            std::cout << "File pointer poped from the queue." << std::endl;
             inMutex->unlock();
             rollback = false;
             end = false;
@@ -323,7 +325,21 @@ private:
             }
             pdbClient.flushData(errMsg);
             // Stop reading more File streams, if max row count has been reached.
-            if(stopFlag) break;
+            if(stopFlag){
+                delete currFile;
+                std::cout << "Maximun row count reached." << std::endl;
+                std::cout << "Waiting for file mutex to clear all file pointers."
+                    << std::endl;
+                inMutex->lock();
+                while (!inFiles.empty()){
+                    std::ifstream *fp = inFileQ.front();
+                    delete fp;
+                    inFileQ.pop();
+                }
+                cout << "Cleared all the allocated file pointers." << std::endl;
+                inMutex->unlock();
+                break;
+            } 
             delete currFile;
         }
     }
