@@ -58,6 +58,7 @@ int main(int argc, char* argv[]){
 
     //Load the raw data into the output set
     ReaderClient rc(port, managerIp, clientLogger);
+    std::cout << numOfThread << " concurrent clients starting." << std::endl;
     rc.load<reddit::Comment>(numOfThread, commentsFiles, dbName, setName, 64,
     "libraries/libRedditComment.so", 20000000);
     return 0;
