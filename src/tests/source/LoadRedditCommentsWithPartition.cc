@@ -37,7 +37,7 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
   bool end = false;
   bool rollback = false;
 
-  long total = 1000000;
+  long total = 0;
   long sent = 0;
   long i = 0;
   pdb::makeObjectAllocatorBlock((size_t)blockSizeInMB * (size_t)1024 * (size_t)1024, true);
@@ -70,9 +70,8 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
           std::cout << "Dispatched " << storeMe->size() << " comments." << std::endl;
           sent = sent+storeMe->size();
           std::cout << "sent " << sent << " objects in total" << std::endl;
-          if (sent >= total) { 
+          if ((sent >= total)&&(total!=0)) { 
               end = true;
-//              return;
           }
           rollback = true; 
           pdb::makeObjectAllocatorBlock((size_t)blockSizeInMB * (size_t)1024 * (size_t)1024, true);

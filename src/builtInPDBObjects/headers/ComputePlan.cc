@@ -43,6 +43,7 @@ inline LogicalPlanPtr ComputePlan::getPlan() {
     // if it didn't parse, get outta here
     if (parseFailed) {
         std::cout << "Parse error when compiling TCAP: " << extra.errorMessage;
+        std::cout << myLogicalPlan << std::endl;
         exit(1);
     }
 

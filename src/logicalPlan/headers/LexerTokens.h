@@ -23,10 +23,10 @@
 #define APPLY 259
 #define SCAN 260
 #define AGG 261
-#define JOIN 262
-#define OUTPUT 263
-#define GETS 264
-#define PARTITION 265
+#define PARTITION 262
+#define JOIN 263
+#define OUTPUT 264
+#define GETS 265
 #define HASHLEFT 266
 #define HASHRIGHT 267
 #define HASHONE 268

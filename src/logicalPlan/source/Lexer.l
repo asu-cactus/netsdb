@@ -63,12 +63,11 @@
 
 [Aa][Gg][Gg][Rr][Ee][Gg][Aa][Tt][Ee]	return AGG;
 
+[Pp][Aa][Rr][Tt][Ii][Tt][Ii][Oo][Nn]	return PARTITION;
+
 [Jj][Oo][Ii][Nn]		return JOIN;
 
 [Oo][Uu][Tt][Pp][Uu][Tt]	return OUTPUT;
-
-[Pp][Aa][Rr][Tt][Ii][Tt][Ii][Oo][Nn]   return PARTITION;
-
 
 "<="			return GETS;
 
