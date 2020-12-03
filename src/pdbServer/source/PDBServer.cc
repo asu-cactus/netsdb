@@ -348,10 +348,17 @@ void PDBServer::startServer(PDBWorkPtr runMeAtStart) {
         exit(-1);
     }
 
+    initFunctionalityComms();
+
     // and now just sleep
     while (!allDone) {
         sleep(1);
     }
+}
+
+void PDBServer::initFunctionalityComms() {
+    for (int i = 0; i < allFunctionalities.size(); i++)
+        allFunctionalities[i]->initComms();
 }
 
 void PDBServer::registerHandlersFromLastFunctionality() {

@@ -109,6 +109,8 @@ private:
     // used to ask the most recently-added functionality to register its handlers
     void registerHandlersFromLastFunctionality();
 
+    void initFunctionalityComms();
+
     // when we get a message over the input socket, we'll handle it using the registered handler
     map<int16_t, PDBCommWorkPtr> handlers;
 
