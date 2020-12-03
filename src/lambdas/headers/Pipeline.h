@@ -189,9 +189,9 @@ public:
         //std::cout << "got a new page" << std::endl;
         // Jia Note: this is not perfect to always create a container in every new page, but 
         // doing this can avoid a memory copy
-        /*if (myRAM->outputSink == nullptr) {
+        if (myRAM->outputSink == nullptr) {
             myRAM->outputSink = dataSink->createNewOutputContainer();
-        }*/
+        }
 
         if (myRAM->location == nullptr) {
             std::cout << "ERROR: insufficient memory in heap" << std::endl;
@@ -230,9 +230,9 @@ public:
                          std::cout << "ERROR: insufficient memory in heap" << std::endl;
                          return;
                      }
-                     /*if (myRAM->outputSink == nullptr) {
+                     if (myRAM->outputSink == nullptr) {
                          myRAM->outputSink = dataSink->createNewOutputContainer();
-                     }*/
+                     }
                      if (batchSize == 1) {
                          std::cout << "ERROR: object size is too large to fit to page" << std::endl;
                          return;
@@ -266,9 +266,9 @@ public:
                         std::cout << "ERROR: insufficient memory in heap or the corresponding partition sink is used up" << std::endl;
                         return;
                     }
-                    /*if (myRAM->outputSink == nullptr) {
+                    if (myRAM->outputSink == nullptr) {
                          myRAM->outputSink = dataSink->createNewOutputContainer();
-                    }*/
+                    }
                     // then try again
                     try {
                         curChunk = q->process(curChunk);
