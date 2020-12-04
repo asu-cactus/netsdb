@@ -1325,6 +1325,8 @@ bool TCAPAnalyzer::matchSourceWithQuery(std::string jobInstanceId,
             this->db->getPartitionLambdas(sourceSetIdentifier->getDatabase(),
                                          sourceSetIdentifier->getSetName());
 
+          std::cout << sourceSetIdentifier->getDatabase() << ":"<<sourceSetIdentifier->getSetName() << " has " 
+              << partitionLambdas->size() << " lambdas" << std::endl;
           for (int i = 0; i < partitionLambdas->size(); i++) {
 
 	      Handle<LambdaIdentifier> partitionLambda = (*partitionLambdas)[i];

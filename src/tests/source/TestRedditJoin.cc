@@ -23,7 +23,7 @@ void run(PDBClient &pdbClient, bool whetherToAdaptiveJoin) {
     pdbClient.clearSet("redditDB", "features", "reddit::Features", errMsg);
 
     // make a scan set
-    Handle<Computation> input1 = makeObject<ScanUserSet<reddit::Comment>>("redditDB", "labeledComments");
+    Handle<Computation> input1 = makeObject<ScanUserSet<reddit::Comment>>("redditDB", "comments");
     Handle<Computation> input2 = makeObject<ScanUserSet<reddit::Author>>("redditDB", "authors");
 
     // make a selection

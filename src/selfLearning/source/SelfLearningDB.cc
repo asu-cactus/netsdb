@@ -1377,6 +1377,7 @@ Handle<Vector<Handle<LambdaIdentifier>>> SelfLearningDB::getPartitionLambdas(std
         if (res == SQLITE_ROW) {
             lambdaId = sqlite3_column_int(statement, 0);
             lambdaId1 = sqlite3_column_int(statement, 1);
+            std::cout << "lambdaId=" << lambdaId << ", lambdaId1=" << lambdaId1 << std::endl;
         }
     } else {
         std::cout << (std::string)(sqlite3_errmsg(selfLearningDBHandler)) << std::endl;

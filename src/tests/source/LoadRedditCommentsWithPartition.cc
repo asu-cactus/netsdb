@@ -187,7 +187,7 @@ int main(int argc, char* argv[]) {
 
   // now, create the output set
   pdbClient.removeSet("redditDB", "comments", errMsg);
-  pdbClient.createSet<reddit::Comment>("redditDB", "comments", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "comments", computations, "redditAdaptiveJoin");
+  pdbClient.createSet<reddit::Comment>("redditDB", "comments", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "comments", computations, "reddit");
 
   // parse the input file 
   parseInputJSONFile(pdbClient, inputFileName, 64); }

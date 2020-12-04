@@ -41,8 +41,11 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
       rollback = false; 
       try {
           pdb::Handle<reddit::Comment> comment = pdb::makeObject<reddit::Comment>(i, line);
-          storeMe->push_back(comment);
-          i++;
+          if (strcmp(comment->author.c_str(), "[deleted]") !=0){
+          //std::cout << comment->author << ":" << hashMe(comment->author.c_str(), comment->author.size()) << std::endl;
+              storeMe->push_back(comment);
+              i++;
+          }
       }
       catch (pdb::NotEnoughSpace &n) {
           if (! pdbClient.sendData<reddit::Comment> (std::pair<std::string, std::string>("comments", "redditDB"), storeMe, errMsg)) {
