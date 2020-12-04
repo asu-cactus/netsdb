@@ -604,6 +604,7 @@ common_env.SharedLibrary('libraries/libRedditSubsAndComments.so', ['build/reddit
 common_env.SharedLibrary('libraries/libRedditCommentLabelJoin.so', ['build/reddit/RedditCommentLabelJoin.cc']+all)
 common_env.SharedLibrary('libraries/libRedditLabelProjection.so', ['build/reddit/RedditLabelProjection.cc']+all)
 common_env.Program('bin/loadRedditComments', ['build/tests/LoadRedditComments.cc'] + all + pdb_client)
+common_env.Program('bin/createRedditComments', ['build/tests/CreateRedditComments.cc'] + all + pdb_client)
 common_env.Program('bin/loadComments', ['build/tests/LoadComments.cc'] + all + pdb_client)
 common_env.Program('bin/loadRedditAuthors', ['build/tests/LoadRedditAuthors.cc'] + all + pdb_client)
 common_env.Program('bin/loadRedditSubs', ['build/tests/LoadRedditSubs.cc'] + all + pdb_client)
@@ -1069,7 +1070,8 @@ reddit=common_env.Alias('reddit', [
   'bin/testRedditThreeWayAdaptiveJoin',
   'bin/testRedditJoinSubsAndComments',
   'bin/testRedditRandomLabels',
-  'bin/loadComments'
+  'bin/loadComments',
+  'bin/createRedditComments'
 ])
 
 tpch=common_env.Alias('tpch', [
