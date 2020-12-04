@@ -86,7 +86,6 @@ int main(int argc, char* argv[]) {
 
   // make sure we have the arguments
   if(argc < 5) {
-
     std::cout << "Usage : ./LoadRedditComments managerIP managerPort inputFileName whetherToPartitionData, whetherToRegisterLibraries\n";
     std::cout << "managerIP - IP of the manager\n";
     std::cout << "managerPort - Port of the manager\n";
@@ -114,19 +113,6 @@ int main(int argc, char* argv[]) {
   PDBClient pdbClient(port, managerIp, clientLogger, false, true);
   pdbClient.registerType("libraries/libRedditComment.so", errMsg);
 
-  // now, create a new database
-  pdbClient.createDatabase("redditDB", errMsg);
-  
-  Handle<LambdaIdentifier> myLambda1 = nullptr;
-  /*
-  if (whetherToPartitionData) {
-      myLambda1 = makeObject<LambdaIdentifier>("pageRankIteration_1", "JoinComp_2", "attAccess_1");
-  }
-  */
-
-  // now, create the output set
-  pdbClient.removeSet("redditDB", "comments", errMsg);
-  pdbClient.createSet<reddit::Comment>("redditDB", "comments", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "comments", nullptr, myLambda1);
-
   // parse the input file 
-  parseInputJSONFile(pdbClient, inputFileName, 64); }
+  parseInputJSONFile(pdbClient, inputFileName, 64); 
+}

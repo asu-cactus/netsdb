@@ -215,8 +215,8 @@ private:
             inMutex->lock();
             std::ifstream *currFile = inFileQ.front();
             inFileQ.pop();
-            std::cout << "File pointer poped from the queue." << std::endl;
             inMutex->unlock();
+            std::cout << "File pointer poped from the queue." << std::endl;
             rollback = false;
             end = false;
             pdb::makeObjectAllocatorBlock(
