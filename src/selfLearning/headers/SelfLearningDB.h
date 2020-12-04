@@ -48,7 +48,7 @@ public:
     //schedule a BuildHashSet job stage or a BuildPartitionedHashSet job stage
     bool createData (std::string databaseName, std::string setName, std::string created_jobId,
                 std::string setType, std::string className, int typeId, size_t pageSize, 
-                long lambdaId, int replicationFactor, long& id);
+                long lambdaId, int replicationFactor, long& id, long lambdaId1=-1);
 
     // --to update the SIZE field and MODIFICATION_TIME field in the DATA table each time when we finish execution of a job stage, or each time we invoke flush
     bool updateDataForSize (long id, size_t size);
@@ -150,6 +150,8 @@ public:
     // to get Lambda given job name, computation name and lambda name
     Handle<LambdaIdentifier> getLambda(std::string jobName, std::string computationName, std::string lambdaName);
 
+    // to get Lambda and Lambda1 given a set
+    Handle<Vector<Handle<LambdaIdentifier>>> getPartitionLambdas(std::string databaseName, std::string setName);
 
     // to get partition Lambda given a set
     Handle<LambdaIdentifier> getPartitionLambda(std::string databaseName, std::string setName);

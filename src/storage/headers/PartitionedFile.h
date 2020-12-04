@@ -336,7 +336,7 @@ private:
     /**
      * Logger instance
      */
-    pdb::PDBLoggerPtr logger;
+    pdb::PDBLoggerPtr logger = nullptr;
 
     /**
      * Meta data instance

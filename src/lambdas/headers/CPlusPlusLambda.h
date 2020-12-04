@@ -5,6 +5,7 @@
 #include <memory>
 #include <iostream>
 #include <vector>
+#include "SimpleFilter.h"
 
 #define CAST(TYPENAME, WHICH) ((*(((std::vector<Handle<TYPENAME>>**)args)[WHICH]))[which])
 
@@ -611,6 +612,25 @@ public:
         });
 
     }
+
+    //Assumption 1: Out type must have hash function defined
+    //Assumption 2: numPartitions should be multiples of numNodes
+    //std::function<bool(Handle<Object> &)> processInput;
+    SimpleFilterPtr getFilter() override {
+        if (!std::is_same<ReturnType, bool>::value) {
+            return nullptr;
+        } else {
+            return std::make_shared<SimpleFilter> (
+               [=](Handle<Object> & myObj) {
+                   Handle<ParamOne> myIn = unsafeCast<ParamOne, Object>(myObj);
+                   ReturnType myValue;
+                   applyLambda<F, ReturnType, ParamOne, ParamTwo, ParamThree, ParamFour, ParamFive>(myFunc, myValue, myIn);
+                   return static_cast<bool>(*((bool*)&myValue));
+            });
+        }
+
+    }
+
 
     size_t getHash(Handle<Object> input) override {
 

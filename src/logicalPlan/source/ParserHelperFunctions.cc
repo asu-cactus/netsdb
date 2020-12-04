@@ -102,6 +102,21 @@ struct AtomicComputation* makeAgg(struct TupleSpec* output,
     return returnVal.get();
 }
 
+struct AtomicComputation* makePartition(struct TupleSpec* output,
+                                  struct TupleSpec* input,
+                                  char* nodeName) {
+    AtomicComputationPtr returnVal =
+        std::make_shared<ApplyPartition>(*input, *output, *input, std::string(nodeName));
+    returnVal->setShared(returnVal);
+    delete output;
+    delete input;
+    free(nodeName);
+    return returnVal.get();
+}
+
+
+
+
 struct AtomicComputation* makeJoin(struct TupleSpec* output,
                                    struct TupleSpec* lInput,
                                    struct TupleSpec* lProjection,
@@ -179,6 +194,9 @@ struct AtomicComputation* makeFlatten(struct TupleSpec* output,
     free(nodeName);
     return returnVal.get();
 }
+
+
+
 
 
 struct AtomicComputation* makeScan(struct TupleSpec* output,

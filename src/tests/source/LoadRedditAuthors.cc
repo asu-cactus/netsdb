@@ -19,7 +19,7 @@ void parseInputCSVFile(PDBClient &pdbClient, std::string fileName, int blockSize
   std :: string line;
   bool end = false;
   bool rollback = false;
-  long total = 15000000;
+  long total = 0;
   long sent = 0;
   pdb::makeObjectAllocatorBlock((size_t)blockSizeInMB * (size_t)1024 * (size_t)1024, true);
   pdb::Handle<pdb::Vector<pdb::Handle<reddit::Author>>> storeMe = pdb::makeObject<pdb::Vector<pdb::Handle<reddit::Author>>> ();
@@ -48,7 +48,7 @@ void parseInputCSVFile(PDBClient &pdbClient, std::string fileName, int blockSize
           }
           std::cout << "Dispatched " << storeMe->size() << " authors." << std::endl;
           sent += storeMe->size();
-          if (sent >= total) {
+          if ((sent >= total)&&(total!=0)) {
               end = true;
           }
           rollback = true; 

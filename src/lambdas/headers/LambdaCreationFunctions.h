@@ -210,8 +210,10 @@ LambdaTree<Ptr<ReturnType>> makeLambdaUsingMember(std::string inputTypeName,
                                                   Handle<ClassType>& var,
                                                   ReturnType* member,
                                                   size_t offset) {
-    PDB_COUT << "makeLambdaUsingMember: input type code is " << var.getExactTypeInfoValue()
+    std::cout << "makeLambdaUsingMember: input type code is " << var.getExactTypeInfoValue()
              << std::endl;
+    std::cout << "inputTypeName="<<inputTypeName<<", attName="<<attName<<", attType="<<attType<<", offset="
+<<offset<<std::endl;
     return LambdaTree<Ptr<ReturnType>>(std::make_shared<AttAccessLambda<ReturnType, ClassType>>(
         inputTypeName, attName, attType, var, offset));
 }

@@ -30,11 +30,11 @@ using namespace std;
 #endif
 
 #ifndef DEFAULT_SHUFFLE_PAGE_SIZE
-#define DEFAULT_SHUFFLE_PAGE_SIZE size_t(256) * size_t(1024) * size_t(1024)
+#define DEFAULT_SHUFFLE_PAGE_SIZE size_t(512) * size_t(1024) * size_t(1024)
 #endif
 
 #ifndef DEFAULT_BROADCAST_PAGE_SIZE
-#define DEFAULT_BROADCAST_PAGE_SIZE size_t(128) * size_t(1024) * size_t(1024)
+#define DEFAULT_BROADCAST_PAGE_SIZE size_t(512) * size_t(1024) * size_t(1024)
 #endif
 
 
@@ -61,11 +61,11 @@ using namespace std;
 
 // unit: KB
 #ifndef DEFAULT_MEM_SIZE
-#define DEFAULT_MEM_SIZE ((size_t)(32) * (size_t)(1024) * (size_t)(1024))
+#define DEFAULT_MEM_SIZE ((size_t)(61) * (size_t)(1024) * (size_t)(1024))
 #endif
 
 #ifndef DEFAULT_NUM_CORES
-#define DEFAULT_NUM_CORES 4 
+#define DEFAULT_NUM_CORES 8 
 #endif
 
 // create a smart pointer for Configuration objects

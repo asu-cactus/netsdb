@@ -8,8 +8,10 @@
 #include "TupleSet.h"
 #include <vector>
 #include "SimpleComputeExecutor.h"
+#include "SimplePartitioner.h"
 #include "SimpleVectorPartitioner.h"
 #include "TupleSetMachine.h"
+#include "DataTypes.h"
 
 namespace pdb {
 
@@ -228,7 +230,6 @@ public:
                int numPartitions,
                Handle<Vector<Handle<Object>>> & inputObjects,
                std::shared_ptr<std::unordered_map<NodeID, Handle<Vector<Handle<Object>>>>> partitionedObjects) {
-            std::cout << "to run partitioner from AttAccessLambda" << std::endl;
             size_t numObjects = inputObjects->size();
             for (size_t i = 0; i < numObjects; i++) {
                Handle<Object> myObj = (*inputObjects)[i];
@@ -256,6 +257,35 @@ public:
         }); 
 
     }
+
+
+    //Assumption 1: Out type must have hash function defined
+    //Assumption 2: numPartitions should be multiples of numNodes
+    //std::function<NodeID(Handle<Object> &, int numNodes, int numPartitions)> partitionFunc
+    SimplePartitionerPtr getObjectPartitioner() override {
+
+        return std::make_shared<SimplePartitioner> (
+           [=](Handle<Object>& myObj,
+               int numNodes,
+               int numPartitions) {
+               Handle<ClassType> myIn = unsafeCast<ClassType, Object>(myObj);
+               Ptr<Out> myOut = (Out*)((char*)&(*(myIn)) + offsetOfAttToProcess);
+               Out myValue = *myOut;
+               size_t hashVal = Hasher<Out>::hash(myValue);
+               NodeID nodeId;
+               unsigned int partitionId;
+#ifndef NO_MOD_PARTITION
+               partitionId = hashVal % numPartitions;
+#else
+               partitionId = (hashVal / numPartitions) % numPartitions;
+#endif
+               nodeId = (partitionId /(numPartitions / numNodes));
+               return nodeId;
+        });
+
+    }
+
+
 
 
     ComputeExecutorPtr getExecutor(TupleSpec& inputSchema,

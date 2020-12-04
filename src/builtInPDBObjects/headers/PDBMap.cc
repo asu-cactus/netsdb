@@ -17,7 +17,7 @@ inline unsigned int newHash(unsigned int x) {
 
 // computes a hash over an input character array
 inline size_t hashMe(char* me, size_t len) {
-    size_t code = 0;
+/*    size_t code = 0;
 #ifndef HASH_FOR_TPCH
     for (int i = 0; i < len; i += 8) {
 
@@ -50,11 +50,11 @@ inline size_t hashMe(char* me, size_t len) {
     }
 #else
     for (int i = 0; i < len; i++) {
-        code = 31 * code + me[i];
+        code = 31 * code + me[len-1-i];
     }
-
-#endif
-    return code;
+#endif*/
+    //std::cout << me << ":" << code << std::endl;
+    return std::hash<std::string>{}(std::string(me));
 }
 
 template <class KeyType, class ValueType>

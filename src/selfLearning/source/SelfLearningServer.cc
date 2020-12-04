@@ -62,10 +62,10 @@ bool SelfLearningServer :: createTables() {
 
 bool SelfLearningServer :: createData (std::string databaseName, std::string setName, std::string created_jobId,
                 std::string setType, std::string className, int typeId, size_t pageSize, long lambdaId,
-                int replicationFactor, long& id) {
+                int replicationFactor, long& id, long lambdaId1) {
 
     return this->db->createData(databaseName, setName, created_jobId, setType, className, typeId, pageSize, lambdaId,
-                replicationFactor, id);
+                replicationFactor, id, lambdaId1);
 
 }
 

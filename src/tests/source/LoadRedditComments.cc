@@ -20,7 +20,7 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
   bool end = false;
   bool rollback = false;
 
-  long total = 20000000;
+  long total = 0;
   long sent = 0;
   long i = 0;
   pdb::makeObjectAllocatorBlock((size_t)blockSizeInMB * (size_t)1024 * (size_t)1024, true);
@@ -41,8 +41,11 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
       rollback = false; 
       try {
           pdb::Handle<reddit::Comment> comment = pdb::makeObject<reddit::Comment>(i, line);
-          storeMe->push_back(comment);
-          i++;
+          if (strcmp(comment->author.c_str(), "[deleted]") !=0){
+          //std::cout << comment->author << ":" << hashMe(comment->author.c_str(), comment->author.size()) << std::endl;
+              storeMe->push_back(comment);
+              i++;
+          }
       }
       catch (pdb::NotEnoughSpace &n) {
           if (! pdbClient.sendData<reddit::Comment> (std::pair<std::string, std::string>("comments", "redditDB"), storeMe, errMsg)) {
@@ -52,9 +55,8 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
           std::cout << "Dispatched " << storeMe->size() << " comments." << std::endl;
           sent = sent+storeMe->size();
           std::cout << "sent " << sent << " objects in total" << std::endl;
-          if (sent >= total) { 
+          if ((sent >= total)&&(total !=0)) { 
               end = true;
-//              return;
           }
           rollback = true; 
           pdb::makeObjectAllocatorBlock((size_t)blockSizeInMB * (size_t)1024 * (size_t)1024, true);

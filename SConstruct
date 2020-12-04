@@ -71,7 +71,7 @@ common_env.Append(CCFLAGS='-DENABLE_COMPRESSION')
 #common_env.Append(CCFLAGS='-DPDB_DEBUG')
 common_env.Append(CCFLAGS='-DEVICT_STOP_THRESHOLD=0.90')
 #uncomment following for KMeans
-#common_env.Append(CCFLAGS='-DCLEANUP_INACTIVE_BLOCKS')
+#common_env.Append(CCFLAGS='-DHASH_FOR_TPCH')
 common_env.Append(CCFLAGS='-DNUM_KMEANS_DIMENSIONS=10')
 #common_env.Append(CCFLAGS='-DUSE_MEMCACHED_SLAB_ALLOCATOR')
 #common_env.Append(CCFLAGS='-DCOLLECT_RESULTS_AS_ONE_PARTITION')
@@ -592,16 +592,22 @@ common_env.SharedLibrary('libraries/libRedditSub.so', ['build/reddit/RedditSub.c
 common_env.SharedLibrary('libraries/libRedditFeatures.so', ['build/reddit/RedditFeatures.cc'] + all)
 common_env.SharedLibrary('libraries/libRedditFullFeatures.so', ['build/reddit/RedditFullFeatures.cc'] + all)
 common_env.SharedLibrary('libraries/libRedditJoin.so', ['build/reddit/RedditJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditPositiveLabelSelection.so', ['build/reddit/RedditPositiveLabelSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditNegativeLabelSelection.so', ['build/reddit/RedditNegativeLabelSelection.cc'] + all)
 common_env.SharedLibrary('libraries/libRedditThreeWayJoin.so', ['build/reddit/RedditThreeWayJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditThreeWayAdaptiveJoin.so', ['build/reddit/RedditThreeWayAdaptiveJoin.cc'] + all)
 common_env.SharedLibrary('libraries/libRedditJoinSubsAndComments.so', ['build/reddit/RedditJoinSubsAndComments.cc']+all)
 common_env.SharedLibrary('libraries/libRedditSubsAndComments.so', ['build/reddit/RedditSubsAndComments.cc']+all)
 common_env.SharedLibrary('libraries/libRedditCommentLabelJoin.so', ['build/reddit/RedditCommentLabelJoin.cc']+all)
-
+common_env.SharedLibrary('libraries/libRedditLabelProjection.so', ['build/reddit/RedditLabelProjection.cc']+all)
 common_env.Program('bin/loadRedditComments', ['build/tests/LoadRedditComments.cc'] + all + pdb_client)
+common_env.Program('bin/loadRedditCommentsWithPartition', ['build/tests/LoadRedditCommentsWithPartition.cc'] + all + pdb_client)
 common_env.Program('bin/loadRedditAuthors', ['build/tests/LoadRedditAuthors.cc'] + all + pdb_client)
 common_env.Program('bin/loadRedditSubs', ['build/tests/LoadRedditSubs.cc'] + all + pdb_client)
 common_env.Program('bin/testRedditJoin', ['build/tests/TestRedditJoin.cc'] + all + pdb_client)
 common_env.Program('bin/testRedditThreeWayJoin', ['build/tests/TestRedditThreeWayJoin.cc'] + all + pdb_client)
+common_env.Program('bin/testRedditThreeWayAdaptiveJoin', ['build/tests/TestRedditThreeWayAdaptiveJoin.cc'] + all + pdb_client)
+common_env.Program('bin/testRedditRandomLabels', ['build/tests/TestRedditRandomLabels.cc'] + all + pdb_client)
 common_env.Program('bin/testRedditJoinSubsAndComments', ['build/tests/TestRedditJoinSubsWithComments.cc']+all+pdb_client)
 common_env.Program('bin/testRedditAuthors', ['build/tests/TestRedditAuthors.cc'] + all + pdb_client)
 common_env.Program('bin/testScanAuthors', ['build/tests/TestScanAuthors.cc'] + all + pdb_client)
@@ -1041,10 +1047,15 @@ reddit=common_env.Alias('reddit', [
   'libraries/libRedditFeatures.so',
   'libraries/libRedditFullFeatures.so',
   'libraries/libRedditJoin.so',
+  'libraries/libRedditPositiveLabelSelection.so',
+  'libraries/libRedditNegativeLabelSelection.so',
   'libraries/libRedditThreeWayJoin.so',
+  'libraries/libRedditThreeWayAdaptiveJoin.so',
   'libraries/libRedditSubsAndComments.so',
   'libraries/libRedditJoinSubsAndComments.so',
+  'libraries/libRedditLabelProjection.so',
   'bin/loadRedditComments',
+  'bin/loadRedditCommentsWithPartition',
   'bin/loadRedditAuthors',
   'bin/loadRedditSubs',
   'bin/testRedditAuthors',
@@ -1052,7 +1063,9 @@ reddit=common_env.Alias('reddit', [
   'bin/testScanSubs',
   'bin/testRedditJoin',
   'bin/testRedditThreeWayJoin',
-  'bin/testRedditJoinSubsAndComments'
+  'bin/testRedditThreeWayAdaptiveJoin',
+  'bin/testRedditJoinSubsAndComments',
+  'bin/testRedditRandomLabels'
 ])
 
 tpch=common_env.Alias('tpch', [

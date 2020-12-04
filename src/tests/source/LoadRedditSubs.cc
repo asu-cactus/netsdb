@@ -20,7 +20,7 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
   bool end = false;
   bool rollback = false;
 
-  long total = 5000000;
+  long total = 0;
   long sent = 0;
   pdb::makeObjectAllocatorBlock((size_t)blockSizeInMB * (size_t)1024 * (size_t)1024, true);
   pdb::Handle<pdb::Vector<pdb::Handle<reddit::Sub>>> storeMe = pdb::makeObject<pdb::Vector<pdb::Handle<reddit::Sub>>> ();
@@ -40,6 +40,7 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
       rollback = false; 
       try {
           pdb::Handle<reddit::Sub> sub = pdb::makeObject<reddit::Sub>(line);
+          //std::cout << sub->name << ":" << hashMe(sub->name.c_str(), sub->name.size()) << std::endl;
           storeMe->push_back(sub);
       }
       catch (pdb::NotEnoughSpace &n) {
@@ -50,7 +51,7 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
           std::cout << "Dispatched " << storeMe->size() << " subs." << std::endl;
           sent = sent+storeMe->size();
           std::cout << "sent " << sent << " objects in total" << std::endl;
-          if (sent >= total) { 
+          if ((sent >= total)&&(total!=0)) { 
               end = true;
 //              return;
           }

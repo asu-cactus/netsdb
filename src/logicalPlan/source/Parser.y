@@ -15,6 +15,8 @@
 	void yyerror(yyscan_t scanner, struct AtomicComputationList **myStatement, const char *);
 %}
 
+%define parse.error verbose
+
 // this stores all of the types returned by production rules
 %union {
 	char *myChar;
@@ -33,6 +35,7 @@
 %token APPLY
 %token SCAN
 %token AGG 
+%token PARTITION
 %token JOIN 
 %token OUTPUT 
 %token GETS
@@ -95,6 +98,12 @@ AtomicComputation: TupleSpec GETS APPLY '(' TupleSpec ',' TupleSpec ',' STRING '
 {
 	$$ = makeAgg ($1, $5, $7);
 }
+
+| TupleSpec GETS PARTITION '(' TupleSpec ',' STRING ')'
+{
+        $$ = makePartition ($1, $5, $7);
+}
+
 
 | TupleSpec GETS SCAN '(' STRING ',' STRING ',' STRING ')'
 {
