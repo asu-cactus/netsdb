@@ -74,11 +74,6 @@ CatalogServer::CatalogServer(const string &catalogDirectoryIn,
   // create the directories for the catalog
   initDirectories();
 
-  // if I am a worker than I need to sync with the manager catalog.
-  if(!isManagerCatalogServer) {
-    syncWithManager();
-  }
-
   // creates instance of catalog
   PDBLoggerPtr catalogLogger = make_shared<PDBLogger>("catalogLogger");
   this->pdbCatalog = make_shared<PDBCatalog>(catalogDirectory + "/catalog.sqlite");
@@ -92,6 +87,13 @@ CatalogServer::CatalogServer(const string &catalogDirectoryIn,
   }
 
   PDB_COUT << "Catalog Server successfully initialized!\n";
+}
+
+void CatalogServer::initComms() {
+  // if I am a worker than I need to sync with the manager catalog.
+  if(!isManagerCatalogServer) {
+    syncWithManager();
+  }
 }
 
 void CatalogServer::initDirectories() const {

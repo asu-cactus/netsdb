@@ -13,11 +13,13 @@ class String;
 namespace ff {
 int load_matrix_data(pdb::PDBClient &pdbClient, std::string path,
                      pdb::String dbName, pdb::String setName, int blockX,
-                     int blockY, int duplicateY, std::string &errMsg);
+                     int blockY, bool dont_pad_x, bool dont_pad_y,
+                     std::string &errMsg);
 
 void loadMatrix(pdb::PDBClient &pdbClient, pdb::String dbName,
                 pdb::String setName, int totalX, int totalY, int blockX,
-                int blockY, std::string &errMsg);
+                int blockY, bool dont_pad_x, bool dont_pad_y,
+                std::string &errMsg);
 
 void load_matrix_from_file(std::string path,
                            std::vector<std::vector<double>> &matrix);

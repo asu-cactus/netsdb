@@ -67,19 +67,19 @@ int main(int argc, char *argv[]) {
 
     // load the input data
     batch_size = ff::load_matrix_data(pdbClient, input_path, "ff", "inputs",
-                                      block_x, block_y, -1, errMsg);
+                                      block_x, block_y, false, false, errMsg);
     (void)ff::load_matrix_data(pdbClient, w1_path, "ff", "w1", block_x, block_y,
-                               -1, errMsg);
+                               false, false, errMsg);
     (void)ff::load_matrix_data(pdbClient, w2_path, "ff", "w2", block_x, block_y,
-                               -1, errMsg);
+                               false, false, errMsg);
     (void)ff::load_matrix_data(pdbClient, wo_path, "ff", "wo", block_x, block_y,
-                               -1, errMsg);
+                               false, false, errMsg);
     (void)ff::load_matrix_data(pdbClient, b1_path, "ff", "b1", block_x, block_y,
-                               batch_size, errMsg);
+                               false, true, errMsg);
     (void)ff::load_matrix_data(pdbClient, b2_path, "ff", "b2", block_x, block_y,
-                               batch_size, errMsg);
+                               false, true, errMsg);
     (void)ff::load_matrix_data(pdbClient, bo_path, "ff", "bo", block_x, block_y,
-                               batch_size, errMsg);
+                               false, true, errMsg);
   } else {
     batch_size = 400;
     // block_x = 20;
@@ -92,30 +92,30 @@ int main(int argc, char *argv[]) {
 
     // X x features_size = None x 5000
     ff::loadMatrix(pdbClient, "ff", "inputs", batch_size, features, block_x,
-                   block_y, errMsg);
+                   block_y, false, false, errMsg);
     // X x labels_size = ???
     // ff::loadMatrix(pdbClient, "ff", "label", 64, null, 1, 100, 2, errMsg);
 
     // 128 x features_size = 128 x 5000
     ff::loadMatrix(pdbClient, "ff", "w1", hid1_size, features, block_x, block_y,
-                   errMsg);
+                   false, false, errMsg);
     // 128 x 1
     ff::loadMatrix(pdbClient, "ff", "b1", hid1_size, batch_size, block_x,
-                   block_y, errMsg);
+                   block_y, false, true, errMsg);
 
     // 256 x 128
     ff::loadMatrix(pdbClient, "ff", "w2", hid2_size, hid1_size, block_x,
-                   block_y, errMsg);
+                   block_y, false, false, errMsg);
     // 256 x 1
-    ff::loadMatrix(pdbClient, "ff", "b2", hid2_size, batch_size, block_x,
-                   block_y, errMsg);
+    ff::loadMatrix(pdbClient, "ff", "b2", hid2_size, 1, block_x, block_y, false,
+                   true, errMsg);
 
     // 2 x 256
     ff::loadMatrix(pdbClient, "ff", "wo", num_labels, hid2_size, block_x,
-                   block_y, errMsg);
+                   block_y, false, false, errMsg);
     // 2 x 1
-    ff::loadMatrix(pdbClient, "ff", "bo", num_labels, batch_size, block_x,
-                   block_y, errMsg);
+    ff::loadMatrix(pdbClient, "ff", "bo", num_labels, 1, block_x, block_y,
+                   false, true, errMsg);
   }
 
   double dropout_rate = 0.5;

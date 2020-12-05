@@ -210,7 +210,7 @@ try:
 
     #run bin/TestLDA
     print (bcolors.OKBLUE + "start a query client to store and query data from pdb cluster" + bcolors.ENDC)
-    subprocess.check_call(['bin/FFTest'])
+    subprocess.check_call(['bin/FFTest', '100', '100'])
 
 except subprocess.CalledProcessError as e:
     print (bcolors.FAIL + "[ERROR] in running FF test" + bcolors.ENDC)

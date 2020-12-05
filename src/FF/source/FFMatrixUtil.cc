@@ -3,13 +3,14 @@
 #include "FFMatrixBlock.h"
 
 #include "PDBClient.h"
+#include <algorithm>
 
 using namespace std;
 
 namespace ff {
 int load_matrix_data(pdb::PDBClient &pdbClient, string path, pdb::String dbName,
                      pdb::String setName, int blockX, int blockY,
-                     int duplicateY, string &errMsg) {
+                     bool dont_pad_x, bool dont_pad_y, string &errMsg) {
   if (path.size() == 0) {
     throw runtime_error("Invalid filepath: " + path);
   }
@@ -58,37 +59,41 @@ int load_matrix_data(pdb::PDBClient &pdbClient, string path, pdb::String dbName,
       pdb::makeObject<pdb::Vector<pdb::Handle<FFMatrixBlock>>>();
 
   int numXBlocks = ceil(totalX / (double)blockX);
-  int numYBlocks;
-  if (duplicateY != -1 && duplicateY > totalY) {
-    if (totalY != 1) {
-      cout << "Cannot duplicate if the original matrix has more than 1 column"
-           << endl;
-      exit(1);
-    }
-    numYBlocks = ceil(duplicateY / (double)blockY);
-  } else {
-    numYBlocks = ceil(totalY / (double)blockY);
-  }
+  int numYBlocks = ceil(totalY / (double)blockY);
 
-  if (duplicateY == -1)
-    duplicateY = totalY;
+  // cout << "Creating " << numXBlocks << " X blocks and " << numYBlocks
+  //      << " Y blocks" << endl;
 
   try {
     for (int i = 0; i < numXBlocks; i++) {
+      int actual_blockX =
+          dont_pad_x ? min((unsigned long)blockX, matrix.size() - i * blockX)
+                     : blockX;
+
       for (int j = 0; j < numYBlocks; j++) {
-        pdb::Handle<FFMatrixBlock> myData = pdb::makeObject<FFMatrixBlock>(
-            i, j, blockX, blockY, matrix.size(), matrix[0].size());
+        int actual_blockY = dont_pad_y ? min((unsigned long)blockY,
+                                             matrix[0].size() - j * blockY)
+                                       : blockY;
 
-        for (int ii = 0; ii < blockX; ii++) {
-          for (int jj = 0; jj < blockY; jj++) {
-            int curX = (i * blockX + ii);
-            int curY = (j * blockY + jj);
+        pdb::Handle<FFMatrixBlock> myData =
+            pdb::makeObject<FFMatrixBlock>(i, j, actual_blockX, actual_blockY,
+                                           matrix.size(), matrix[0].size());
 
-            double data = curX >= totalX || curY >= duplicateY
+        for (int ii = 0; ii < actual_blockX; ii++) {
+          for (int jj = 0; jj < actual_blockY; jj++) {
+            int curX = (i * actual_blockX + ii);
+            int curY = (j * actual_blockY + jj);
+
+            if ((dont_pad_x && curX >= totalX) ||
+                (dont_pad_y && curY >= totalY)) {
+              cout << "Shouldnt be here!" << endl;
+              exit(1);
+            }
+
+            double data = curX >= totalX || curY >= totalY
                               ? 0 // padding to adjust to block dimensions
-                              : curY > matrix[curX].size() ? matrix[curX][0]
-                                                           : matrix[curX][curY];
-            (*(myData->getRawDataHandle()))[ii * blockY + jj] = data;
+                              : matrix[curX][curY];
+            (*(myData->getRawDataHandle()))[ii * actual_blockY + jj] = data;
           }
         }
 
@@ -118,7 +123,7 @@ int load_matrix_data(pdb::PDBClient &pdbClient, string path, pdb::String dbName,
 
 void loadMatrix(pdb::PDBClient &pdbClient, pdb::String dbName,
                 pdb::String setName, int totalX, int totalY, int blockX,
-                int blockY, string &errMsg) {
+                int blockY, bool dont_pad_x, bool dont_pad_y, string &errMsg) {
 
   std::random_device rd;
 
@@ -141,18 +146,32 @@ void loadMatrix(pdb::PDBClient &pdbClient, pdb::String dbName,
 
   try {
     for (int i = 0; i < numXBlocks; i++) {
-      for (int j = 0; j < numYBlocks; j++) {
-        pdb::Handle<FFMatrixBlock> myData = pdb::makeObject<FFMatrixBlock>(
-            i, j, blockX, blockY, totalX, totalY);
+      int actual_blockX =
+          dont_pad_x ? min(blockX, totalX - i * blockX) : blockX;
 
-        for (int ii = 0; ii < blockX; ii++) {
-          for (int jj = 0; jj < blockY; jj++) {
+      for (int j = 0; j < numYBlocks; j++) {
+        int actual_blockY =
+            dont_pad_y ? min(blockY, totalY - j * blockY) : blockY;
+
+        pdb::Handle<FFMatrixBlock> myData = pdb::makeObject<FFMatrixBlock>(
+            i, j, actual_blockX, actual_blockY, totalX, totalY);
+
+        for (int ii = 0; ii < actual_blockX; ii++) {
+          for (int jj = 0; jj < actual_blockY; jj++) {
+            int curX = (i * actual_blockX + ii);
+            int curY = (j * actual_blockY + jj);
+
+            if ((dont_pad_x && curX >= totalX) ||
+                (dont_pad_y && curY >= totalY)) {
+              cout << "Shouldnt be here!" << endl;
+              exit(1);
+            }
+
             // row = i * blockX + ii, col = j * blockY + jj
-            double data =
-                (i * blockX + ii) >= totalX || (j * blockY + jj) >= totalY
-                    ? 0
-                    : (bool)gen() ? distn(e2) : distp(e2);
-            (*(myData->getRawDataHandle()))[ii * blockY + jj] = data;
+            double data = curX >= totalX || curY >= totalY
+                              ? 0
+                              : (bool)gen() ? distn(e2) : distp(e2);
+            (*(myData->getRawDataHandle()))[ii * actual_blockY + jj] = data;
           }
         }
 

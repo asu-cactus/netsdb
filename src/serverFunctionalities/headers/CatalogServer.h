@@ -85,6 +85,8 @@ public:
    */
   void registerHandlers(PDBServer &forMe) override;
 
+  void initComms() override;
+
  private:
 
   /**
