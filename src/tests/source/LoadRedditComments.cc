@@ -65,6 +65,7 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
                    oddHash++;
                    //std::cout << oddHash << ":" << comment->toString() << std::endl;
               }
+              comment->index = i;
               storeMe->push_back(comment);
               i++;
           }
