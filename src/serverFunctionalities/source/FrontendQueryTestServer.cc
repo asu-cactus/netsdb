@@ -994,6 +994,9 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
                         Record<Vector<Handle<Object>>>* myRec =
                             (Record<Vector<Handle<Object>>>*)(nextPage->getBytes());
                         Handle<Vector<Handle<Object>>> inputVec = myRec->getRootObject();
+                        if (inputVec != nullptr) {
+                            std::cout << "this record on this page has " << inputVec->size() << " elements" << std::endl;
+                        }
                         if (inputVec == nullptr) {
                             std::cout << "no vector in this page" << std::endl;
                             // to evict this page

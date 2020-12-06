@@ -51,7 +51,7 @@ elif  common_env['PLATFORM'] == 'posix':
 #common_env.Append(CCFLAGS='-DUSE_VALGRIND')
 common_env.Append(CCFLAGS='-DINITIALIZE_ALLOCATOR_BLOCK')
 #common_env.Append(CCFLAGS='-DENABLE_SHALLOW_COPY')
-common_env.Append(CCFLAGS='-DDEFAULT_BATCH_SIZE=8')
+common_env.Append(CCFLAGS='-DDEFAULT_BATCH_SIZE=1')
 common_env.Append(CCFLAGS='-DREMOVE_SET_WITH_EVICTION')
 common_env.Append(CCFLAGS='-DAUTO_TUNING')
 common_env.Append(CCFLAGS='-DPROFILING')

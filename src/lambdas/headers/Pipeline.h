@@ -147,6 +147,9 @@ public:
             // in this case, the page did not have any output data written to it... it only had
             // intermediate results, and so we will just discard it
             if (unwrittenPages.front()->outputSink == nullptr) {
+                std::cout << "WARNING: we find an output page that has no container in it, which is bad, so we create one" << std::endl;
+                unwrittenPages.front()->outputSink = dataSink->createNewOutputContainer();
+                getRecord(unwrittenPages.front()->outputSink); 
                 if (getNumObjectsInAllocatorBlock(unwrittenPages.front()->location) != 0) {
 
                     // this is bad... there should not be any objects here because this memory
@@ -189,14 +192,11 @@ public:
         //std::cout << "got a new page" << std::endl;
         // Jia Note: this is not perfect to always create a container in every new page, but 
         // doing this can avoid a memory copy
-        if (myRAM->outputSink == nullptr) {
-            myRAM->outputSink = dataSink->createNewOutputContainer();
-        }
-
         if (myRAM->location == nullptr) {
             std::cout << "ERROR: insufficient memory in heap" << std::endl;
             return;
         }
+        myRAM->outputSink = dataSink->createNewOutputContainer();
 
         // and here is the chunk
         TupleSetPtr curChunk;
@@ -230,15 +230,14 @@ public:
                          std::cout << "ERROR: insufficient memory in heap" << std::endl;
                          return;
                      }
-                     if (myRAM->outputSink == nullptr) {
-                         myRAM->outputSink = dataSink->createNewOutputContainer();
-                     }
+                     myRAM->outputSink = dataSink->createNewOutputContainer();
                      if (batchSize == 1) {
                          std::cout << "ERROR: object size is too large to fit to page" << std::endl;
                          return;
                      }
                      batchSize = batchSize/2;
                      dataSource->setChunkSize(batchSize);
+                     std::cout << "batch size tuned to " << batchSize << std::endl;
                 }
             }
             if (curChunk == nullptr) {
@@ -266,9 +265,8 @@ public:
                         std::cout << "ERROR: insufficient memory in heap or the corresponding partition sink is used up" << std::endl;
                         return;
                     }
-                    if (myRAM->outputSink == nullptr) {
-                         myRAM->outputSink = dataSink->createNewOutputContainer();
-                    }
+                    myRAM->outputSink = dataSink->createNewOutputContainer();
+
                     // then try again
                     try {
                         curChunk = q->process(curChunk);
@@ -279,21 +277,18 @@ public:
                                      "for executor type: "
                                   << q->getType() << ", consider to reduce batch size or increase page size" 
                                   << std::endl;
-                        return;
+                        exit(1);
                     }
                 }
             }
             bool end = false;
-            int write_out_runs = 0;
             while (!end) {
                 try {
 
                     if (myRAM->outputSink == nullptr) {
                         myRAM->outputSink = dataSink->createNewOutputContainer();
                     }
-                    //std::cout << "to write to output sink-" << write_out_runs <<std::endl;
                     dataSink->writeOut(curChunk, myRAM->outputSink);
-                    //std::cout << "written to output sink-"<< write_out_runs << std::endl;
                     end = true;                    
 
                 } catch (NotEnoughSpace& n) {
@@ -308,8 +303,11 @@ public:
                     cleanPages(iteration);
 
                     myRAM = std::make_shared<MemoryHolder>(getNewPage());
-                    myRAM->outputSink = nullptr;
-                    write_out_runs ++;
+                    if (myRAM->location == nullptr) {
+                        std::cout << "ERROR: insufficient memory in heap or the corresponding partition sink is used up" << std::endl;
+                        return;
+                    }
+                    myRAM->outputSink = dataSink->createNewOutputContainer();
                  }
             }
             // lastly, write back all of the output pages

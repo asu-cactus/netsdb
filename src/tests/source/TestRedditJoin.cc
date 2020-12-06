@@ -26,18 +26,11 @@ void run(PDBClient &pdbClient, bool whetherToAdaptiveJoin) {
     Handle<Computation> input1 = makeObject<ScanUserSet<reddit::Comment>>("redditDB", "comments");
     Handle<Computation> input2 = makeObject<ScanUserSet<reddit::Author>>("redditDB", "authors");
 
-    // make a selection
-    Handle<Computation> select = makeObject<reddit::PositiveLabelSelection>();
-    select->setInput(input1);
 
     // join previous ranks with links
     Handle<Computation> join = makeObject<reddit::JoinAuthorsWithComments>();
 
-    if (whetherToAdaptiveJoin) {
-        join->setInput(0, select);
-    } else {
-        join->setInput(0, input1);
-    }
+    join->setInput(0, input1);
     join->setInput(1, input2);
 
 

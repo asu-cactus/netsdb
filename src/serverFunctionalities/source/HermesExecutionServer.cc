@@ -39,7 +39,7 @@
 #endif
 
 #ifndef HASH_PARTITIONED_JOIN_SIZE_RATIO
-#define HASH_PARTITIONED_JOIN_SIZE_RATIO 0.5
+#define HASH_PARTITIONED_JOIN_SIZE_RATIO 2.0
 #endif
 
 namespace pdb {
@@ -1062,6 +1062,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
         if (numPages == 0) {
           numPages = 1;
         }
+        std::cout << "numPages=" << numPages << std::endl;
         double sizeRatio = HASH_PARTITIONED_JOIN_SIZE_RATIO * numPartitions;
         size_t hashSetSize = (double) (conf->getShufflePageSize()) *
             (double) (numPages) * sizeRatio / (double) (numPartitions);
@@ -1168,11 +1169,14 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
               while (myIter->hasNext()) {
                 page = myIter->next();
                 if (page != nullptr) {
+                  std::cout << "get a non-empty page" << std::endl;
                   // to get the map on the page
                   RecordIteratorPtr recordIter = make_shared<RecordIterator>(page);
                   while (recordIter->hasNext()) {
                     Record<Object> *record = recordIter->next();
+                    std::cout <<"get a record" << std::endl;
                     if (record != nullptr) {
+                      std::cout <<"get a non-empty record" << std::endl; 
                       Handle<Object> mapsToMerge = record->getRootObject();
                       merger->writeVectorOut(mapsToMerge, myMap);
                     }
@@ -1203,6 +1207,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
             std::cout << "partition-" << i << " has " << numHashKeysInCurPartition << " keys." << std::endl;
             out = getAllocator().printInactiveBlocks();
             std::cout << "HashPartitionedJoinBuildHTJobStage-backend-thread: print "
+
                          "inactive blocks:"
                       << std::endl;
             std::cout << out << std::endl;

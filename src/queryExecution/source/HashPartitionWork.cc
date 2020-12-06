@@ -81,6 +81,7 @@ void HashPartitionWork :: execute(PDBBuzzerPtr callerBuzzer) {
     while (myIter->hasNext()) {
         PDBPagePtr page = myIter->next();
         if (page != nullptr) {
+            std::cout << "worker-" << id << ": received a non-empty page" << std::endl;
             // to load output page
             if (output == nullptr) {
                 //use broadcastPageSize for broadcast join and hash partition join
@@ -96,19 +97,20 @@ void HashPartitionWork :: execute(PDBBuzzerPtr callerBuzzer) {
             Record<Vector<Handle<Vector<Handle<Object>>>>>* record =
                 (Record<Vector<Handle<Vector<Handle<Object>>>>>*)(page->getBytes());
             if (record != nullptr) {
+                std::cout << "worker-" << id << ": received a non-empty record" << std::endl;
                 Handle<Vector<Handle<Vector<Handle<Object>>>>> objectsToShuffle =
                     record->getRootObject();
                 if (objectsToShuffle != nullptr) {
-                     //std::cout << "number of vectors for " << id << ": " << objectsToShuffle->size() << std::endl;
+                     std::cout << "number of vectors in the record: " << objectsToShuffle->size() << std::endl;
                 }
                 Handle<Vector<Handle<Object>>>& objectToShuffle = (*objectsToShuffle)[id];
                 Vector<Handle<Object>>& theOtherMaps = *objectToShuffle;
-                //std::cout << "number of sub vectors: " << theOtherMaps.size() << std::endl; 
+                std::cout << "number of sub vectors for id="<< id << ": " << theOtherMaps.size() << std::endl; 
                 for (unsigned int i = 0; i < theOtherMaps.size(); i++) {
                     if (theOtherMaps[i] != nullptr) {
                         bool success = shuffler->writeOut(theOtherMaps[i], myMaps);
                         if (success == false) {
-                            // output page is full, send it out
+                            std::cout << "output page is full, send it out" << std::endl;
                             getRecord(myMaps);
                             Record<Object>* myRecord = (Record<Object>*)output;
                             size_t numBytes = myRecord->numBytes();

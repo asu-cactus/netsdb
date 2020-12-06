@@ -408,7 +408,7 @@ void PipelineStage::executePipelineWork(int i,
     Handle<SetIdentifier> sourceContext = this->jobStage->getSourceContext();
 
 
-    // handle three types of sources
+    // handle four types of sources
     if ((this->jobStage->isLocalJoinSink())
        && (computation->getComputationType() == "ScanUserSet")) {
         Handle<ScanUserSet<Object>> scanner 
@@ -760,7 +760,7 @@ void PipelineStage::executePipelineWork(int i,
                 }
             } else if ((this->jobStage->isRepartition() == true) &&
                        (this->jobStage->isCombining() == false) && (join != nullptr)) {
-                PDB_COUT << "to hash partition a page" << std::endl;
+                std::cout << "to hash partition a page" << std::endl;
                 // to handle a hash partition join
                 // get the objects
                 Record<Object>* record = (Record<Object>*)page;
@@ -990,7 +990,7 @@ void PipelineStage::runPipeline(HermesExecutionServer* server,
        || ((sourceContext->getSetType() == UserSetType) 
        && (computation->getComputationType() == "JoinComp"))) {
         std::cout << "to prepare for partitioned source" << std::endl;
-        int sourceBufferSize = 2; //efficient use of memory
+        int sourceBufferSize = 24; //efficient use of memory
         int numPartitionsInCluster = this->jobStage->getNumTotalPartitions();
         int numNodes = this->jobStage->getNumNodes();
         numPartitions = numPartitionsInCluster / numNodes;
@@ -1623,10 +1623,7 @@ void PipelineStage::runPipelineWithHashPartitionSink(HermesExecutionServer* serv
 
 
     // each queue has multiple producers and one consumer
-    int shuffleBufferSize = numThreads;
-    if (shuffleBufferSize > 12) {
-        shuffleBufferSize = 12;
-    }
+    int shuffleBufferSize = 2*numThreads;
     PDB_COUT << "shuffleBufferSize=" << shuffleBufferSize << std::endl;
     std::vector<PageCircularBufferPtr> shuffleBuffers;
     std::vector<PageCircularBufferIteratorPtr> shuffleIters;
