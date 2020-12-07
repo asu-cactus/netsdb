@@ -46,7 +46,7 @@ void run(PDBClient &pdbClient, bool whetherToAdaptiveJoin) {
     join->setInput(1, input2);
 
     // make another scan set
-     Handle<Computation> input3 = makeObject<ScanUserSet<reddit::Sub>>("redditDB", "subreddits");
+     Handle<Computation> input3 = makeObject<ScanUserSet<reddit::Sub>>("redditDB", "subs");
 
     //make another selection
     Handle<Computation> select1 = makeObject<reddit::NegativeLabelSelection>();
