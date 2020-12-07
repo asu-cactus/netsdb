@@ -105,11 +105,11 @@ int main(int argc, char* argv[]) {
   pdbClient.createDatabase("redditDB", errMsg);
   
   Handle<LambdaIdentifier> myLambda1 = nullptr;
-  /*
+  
   if (whetherToPartitionData) {
-      myLambda1 = makeObject<LambdaIdentifier>("pageRankIteration_1", "JoinComp_2", "attAccess_1");
+      myLambda1 = makeObject<LambdaIdentifier>("reddit", "JoinComp_7", "attAccess_1");
   }
-  */
+  
 
   // now, create the output set
   pdbClient.removeSet("redditDB", "subs", errMsg);

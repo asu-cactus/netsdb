@@ -153,4 +153,19 @@ int main(int argc, char* argv[]) {
   std::cout << "count: " << count << std::endl;
   pdbClient.removeSet("redditDB", "subsAndComments", errMsg);
 
+  std::cout << "Comments: \n";
+  SetIterator<reddit::Comment> result3 = pdbClient.getSetIterator<reddit::Comment>("redditDB", "comments");
+  int positiveCount = 0;
+  int negativeCount = 0;
+  count = 0;
+  for (const auto &r : result3) {
+     count++;
+     if (r->label >0)
+         positiveCount++;
+     else
+         negativeCount++;   
+  }
+  std::cout << "Total " << count << " comments" << std::endl;
+  std::cout << "Total " << positiveCount << " positive comments" << std::endl;
+  std::cout << "Total " << negativeCount << " negative comments" << std::endl;
 }

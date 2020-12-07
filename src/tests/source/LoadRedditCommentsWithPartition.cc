@@ -20,7 +20,7 @@
 
 using namespace pdb;
 
-void classify(pdb::Handle<reddit::Comment> comment){
+static void classify(pdb::Handle<reddit::Comment> comment){
    if (comment->score > 1) {
        comment->label = 1;
    } else{

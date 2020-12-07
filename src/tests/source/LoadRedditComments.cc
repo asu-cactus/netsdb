@@ -11,6 +11,15 @@
 
 using namespace pdb;
 
+static void classify(pdb::Handle<reddit::Comment> comment){
+   if (comment->score > 1) {
+       comment->label = 1;
+   } else{
+       comment->label = -1;
+   }
+}
+
+
 void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSizeInMB) {
 
   // the error message is put there
@@ -41,6 +50,7 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
       rollback = false; 
       try {
           pdb::Handle<reddit::Comment> comment = pdb::makeObject<reddit::Comment>(i, line);
+          classify(comment);
           if (strcmp(comment->author.c_str(), "[deleted]") !=0){
           //std::cout << comment->author << ":" << hashMe(comment->author.c_str(), comment->author.size()) << std::endl;
               storeMe->push_back(comment);
