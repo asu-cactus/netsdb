@@ -1075,7 +1075,6 @@ reddit=common_env.Alias('reddit', [
   'bin/loadComments',
   'bin/libReaderClient.so',
   'bin/createRedditComments'
-
 ])
 
 tpch=common_env.Alias('tpch', [

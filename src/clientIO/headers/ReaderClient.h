@@ -9,6 +9,7 @@
 #include <thread>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 
 =======
@@ -20,6 +21,10 @@ template <typename T>
 
 
 >>>>>>> Reader client for multi thread loading
+=======
+
+
+>>>>>>> ff93e0b3e5d3811b9eab951fc6e26a8146bf56d5
 class ReaderClient {
 private:
     std::mutex *inMutex;
@@ -30,6 +35,7 @@ protected:
     int port;
     std::string managerIp;
     pdb::PDBLoggerPtr clientLogger;
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   
@@ -44,6 +50,8 @@ public:
     long maxRowCount = LONG_MAX;
 =======
 >>>>>>> Reader client for multi thread loading
+=======
+>>>>>>> ff93e0b3e5d3811b9eab951fc6e26a8146bf56d5
   
 public:
     ReaderClient(int port, std::string managerIp,
@@ -52,11 +60,14 @@ public:
         this->managerIp = managerIp;
         this->clientLogger = clientLogger;
 <<<<<<< HEAD
+<<<<<<< HEAD
         this->maxRowCount = total;
         this->objectToRegister = objectPath;
 >>>>>>> Initial code for threded multi-client read operation.
 =======
 >>>>>>> Reader client for multi thread loading
+=======
+>>>>>>> ff93e0b3e5d3811b9eab951fc6e26a8146bf56d5
         this->inMutex = new std::mutex();
         this->countMutex = new std::mutex();
         this->currRowCount = 0;
@@ -79,6 +90,9 @@ public:
      * communication to the Dispatcher.
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> ff93e0b3e5d3811b9eab951fc6e26a8146bf56d5
      * @param objectPath PDB object to register
      * @param maxRowCount Max row count for the set
      */
@@ -94,6 +108,7 @@ public:
                 objectPath, this->inMutex, this->countMutex, maxRowCount,
                 std::cref(this->currRowCount), std::cref(this->maxFlag)
                 ));
+<<<<<<< HEAD
 =======
 =======
      * @param objectPath PDB object to register
@@ -117,6 +132,8 @@ public:
 =======
                 ));
 >>>>>>> Reader client for multi thread loading
+=======
+>>>>>>> ff93e0b3e5d3811b9eab951fc6e26a8146bf56d5
             cout << "READER CLIENT: Thread " << i << " started."
                 << std::endl;
         }
@@ -136,6 +153,7 @@ protected:
      */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     template <typename P>
     static pdb::Handle<P> rowParser(std::string line,
     int currCount){ return pdb::makeObject<P>(line); }
@@ -147,6 +165,11 @@ protected:
     static pdb::Handle<P> rowParser(std::string line,
     int currCount){ return pdb::makeObject<P>(line); }
 >>>>>>> Reader client for multi thread loading
+=======
+    template <typename P>
+    static pdb::Handle<P> rowParser(std::string line,
+    int currCount){ return pdb::makeObject<P>(line); }
+>>>>>>> ff93e0b3e5d3811b9eab951fc6e26a8146bf56d5
 
 private:
     /**
@@ -168,6 +191,7 @@ private:
      * @param maxRowCount Maximum rows to load
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
      * @param flag Flag to check if the max row count is reached
      * communication to the Dispatcher.
      */
@@ -179,15 +203,21 @@ private:
      */
 >>>>>>> Initial code for threded multi-client read operation.
 =======
+=======
+>>>>>>> ff93e0b3e5d3811b9eab951fc6e26a8146bf56d5
      * @param flag Flag to check if the max row count is reached
      * communication to the Dispatcher.
      */
     template <typename R>
+<<<<<<< HEAD
 >>>>>>> Reader client for multi thread loading
+=======
+>>>>>>> ff93e0b3e5d3811b9eab951fc6e26a8146bf56d5
     static void readerRoutine(std::queue<std::ifstream *> const &inFiles,
     std::string dbName, std::string setName, int blockSizeInMB, int port, 
     std::string managerIp, pdb::PDBLoggerPtr clientLogger,
     std::string objectToRegister, std::mutex *inMutex, std::mutex *countMutex,
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     int maxRowCount, int const &rowCount, bool const &flag){
@@ -198,6 +228,9 @@ private:
 =======
     int maxRowCount, int const &rowCount, bool const &flag){
 >>>>>>> Reader client for multi thread loading
+=======
+    int maxRowCount, int const &rowCount, bool const &flag){
+>>>>>>> ff93e0b3e5d3811b9eab951fc6e26a8146bf56d5
         int &count = const_cast<int &>(rowCount);
         bool &stopFlag = const_cast<bool &>(flag);
         std::queue<std::ifstream *> &inFileQ = 
@@ -223,6 +256,7 @@ private:
                 (size_t)blockSizeInMB * (size_t)1024 * (size_t)1024, true);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             pdb::Handle<pdb::Vector<pdb::Handle<R>>> storeMe = 
                 pdb::makeObject<pdb::Vector<pdb::Handle<R>>>();
 =======
@@ -233,12 +267,17 @@ private:
             pdb::Handle<pdb::Vector<pdb::Handle<R>>> storeMe = 
                 pdb::makeObject<pdb::Vector<pdb::Handle<R>>>();
 >>>>>>> Reader client for multi thread loading
+=======
+            pdb::Handle<pdb::Vector<pdb::Handle<R>>> storeMe = 
+                pdb::makeObject<pdb::Vector<pdb::Handle<R>>>();
+>>>>>>> ff93e0b3e5d3811b9eab951fc6e26a8146bf56d5
             while (!end) {
                 // Roll back one line, hence skip reading new line from stream.
                 // And load the previously fetched line.
                 if (!rollback) {
                     if(!std::getline(*currFile, line)){
                         end = true;
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
                         if (!pdbClient.sendData<R>(
@@ -248,6 +287,9 @@ private:
 =======
                         if (!pdbClient.sendData<R>(
 >>>>>>> Reader client for multi thread loading
+=======
+                        if (!pdbClient.sendData<R>(
+>>>>>>> ff93e0b3e5d3811b9eab951fc6e26a8146bf56d5
                                 std::pair<std::string,
                                 std::string>(setName, dbName),
                                 storeMe, errMsg)){
@@ -266,11 +308,15 @@ private:
                 try {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> ff93e0b3e5d3811b9eab951fc6e26a8146bf56d5
                     pdb::Handle<R> row = rowParser<R>(line, count);
                     storeMe->push_back(row);
                 }
                 catch (pdb::NotEnoughSpace &n) {
                     if (! pdbClient.sendData<R>(
+<<<<<<< HEAD
 =======
                     pdb::Handle<T> row = parserFunc(line, count);
                     storeMe->push_back(row);
@@ -285,6 +331,8 @@ private:
                 catch (pdb::NotEnoughSpace &n) {
                     if (! pdbClient.sendData<R>(
 >>>>>>> Reader client for multi thread loading
+=======
+>>>>>>> ff93e0b3e5d3811b9eab951fc6e26a8146bf56d5
                         std::pair<std::string, std::string>(setName, dbName),
                         storeMe, errMsg
                         )) {
@@ -313,6 +361,7 @@ private:
                         pdb::makeObject<
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                             pdb::Vector<pdb::Handle<R>>
 =======
                             pdb::Vector<pdb::Handle<T>>
@@ -320,6 +369,9 @@ private:
 =======
                             pdb::Vector<pdb::Handle<R>>
 >>>>>>> Reader client for multi thread loading
+=======
+                            pdb::Vector<pdb::Handle<R>>
+>>>>>>> ff93e0b3e5d3811b9eab951fc6e26a8146bf56d5
                         >();
                 }
             }

@@ -12,11 +12,15 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> ff93e0b3e5d3811b9eab951fc6e26a8146bf56d5
 // ReaderClient::ReaderClient(int port, std::string managerIp,
 // pdb::PDBLoggerPtr clientLogger){
 //     this->port = port;
 //     this->managerIp = managerIp;
 //     this->clientLogger = clientLogger;
+<<<<<<< HEAD
 =======
 // template <typename T>
 // pdb::ReaderClient<T>::ReaderClient(int port, std::string managerIp,
@@ -34,12 +38,15 @@
 //     this->managerIp = managerIp;
 //     this->clientLogger = clientLogger;
 >>>>>>> Reader client for multi thread loading
+=======
+>>>>>>> ff93e0b3e5d3811b9eab951fc6e26a8146bf56d5
 //     this->inMutex = new std::mutex();
 //     this->countMutex = new std::mutex();
 //     this->currRowCount = 0;
 //     this->maxFlag = false;
 // }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 // ReaderClient::~ReaderClient(){
@@ -50,11 +57,15 @@
 =======
 // ReaderClient::~ReaderClient(){
 >>>>>>> Reader client for multi thread loading
+=======
+// ReaderClient::~ReaderClient(){
+>>>>>>> ff93e0b3e5d3811b9eab951fc6e26a8146bf56d5
 //     delete this->countMutex;
 //     delete this->inMutex;
 // }
 
 // template <typename T>
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 // void ReaderClient::load(int numOfThreads, std::queue<std::ifstream *> &inFiles,
@@ -81,6 +92,8 @@
 //             std::cref(this->currRowCount), std::cref(this->maxFlag)));
 >>>>>>> Initial code for threded multi-client read operation.
 =======
+=======
+>>>>>>> ff93e0b3e5d3811b9eab951fc6e26a8146bf56d5
 // void ReaderClient::load(int numOfThreads, std::queue<std::ifstream *> &inFiles,
 // std::string dbName, std::string setName, int blockSizeInMB,
 // std::string objectPath, long maxRowCount){
@@ -92,7 +105,10 @@
 //             objectPath, this->inMutex, this->countMutex, maxRowCount,
 //             std::cref(this->currRowCount), std::cref(this->maxFlag)
 //             ));
+<<<<<<< HEAD
 >>>>>>> Reader client for multi thread loading
+=======
+>>>>>>> ff93e0b3e5d3811b9eab951fc6e26a8146bf56d5
 //         cout << "READER CLIENT: Thread " << i << " started."
 //             << std::endl;
 //     }
@@ -103,6 +119,7 @@
 //     }
 // }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -203,4 +220,6 @@
 >>>>>>> Initial code for threded multi-client read operation.
 =======
 >>>>>>> Reader client for multi thread loading
+=======
+>>>>>>> ff93e0b3e5d3811b9eab951fc6e26a8146bf56d5
 #endif
