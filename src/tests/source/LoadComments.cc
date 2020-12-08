@@ -8,19 +8,6 @@
 #include <vector>
 
 
-class RedditCommentsReader: public ReaderClient<reddit::Comment> {
-public:
-    RedditCommentsReader(int port, std::string managerIp,
-    pdb::PDBLoggerPtr clientLogger, long total, std::string objectPath
-    ): ReaderClient(port, managerIp, clientLogger, total, objectPath) {}
-
-private:
-    pdb::Handle<reddit::Comment> rowParser(std::string line, int currCount){
-        // Index is the current row count, not the actual row Index. 
-        return pdb::makeObject<reddit::Comment>(line);
-    }
-};
-
 int main(int argc, char* argv[]){
     std::string errMsg = "Error occurred in loading Reddit Comments.";
     // make sure we have all the required arguments
