@@ -25,7 +25,8 @@ fi
 # Read the list of part files within the input directory
 # Start a background process for each file.
 in_files=$(ls ${4})
-for part_file in in_files; do
-  ./"${1}" "${2}" "${3}" "${part_file}" "${5}" "${6}" &
+for part_file in ${in_files[@]}; do
+  echo "File passed to the client is ${part_file}"
+  ./"${1}" "${2}" "${3}" "${4}/${part_file}" "${5}" "${6}" &
   echo "Process to read file ${part_file} started with process id ${!}"
 done

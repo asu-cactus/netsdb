@@ -19,4 +19,4 @@ fi
 total_lines=$(cat ${1} | wc -l)
 lines_each_op_file=$(expr ${total_lines} / ${3})
 
-split -l "${lines_each_op_file}" "${2}"
+split -dl "${lines_each_op_file}" "${1}" "${2}/"
