@@ -585,6 +585,7 @@ common_env.SharedLibrary('libraries/libLSTMThreeWaySum.so', ['build/LSTM/LSTMThr
 common_env.SharedLibrary('libraries/libLSTMTwoSum.so', ['build/LSTM/LSTMTwoSum.cc'] + all)
 common_env.SharedLibrary('libraries/libLSTMHiddenState.so', ['build/LSTM/LSTMHiddenState.cc'] + all)
 
+
 #reddit
 common_env.SharedLibrary('libraries/libRedditComment.so', ['build/reddit/RedditComment.cc'] + all)
 common_env.SharedLibrary('libraries/libRedditAuthor.so', ['build/reddit/RedditAuthor.cc'] + all)
@@ -602,6 +603,7 @@ common_env.SharedLibrary('libraries/libRedditCommentLabelJoin.so', ['build/reddi
 common_env.SharedLibrary('libraries/libRedditLabelProjection.so', ['build/reddit/RedditLabelProjection.cc']+all)
 common_env.Program('bin/loadRedditComments', ['build/tests/LoadRedditComments.cc'] + all + pdb_client)
 common_env.Program('bin/loadRedditCommentsWithPartition', ['build/tests/LoadRedditCommentsWithPartition.cc'] + all + pdb_client)
+common_env.Program('bin/createRedditComments', ['build/tests/CreateRedditComments.cc'] + all + pdb_client)
 common_env.Program('bin/loadRedditAuthors', ['build/tests/LoadRedditAuthors.cc'] + all + pdb_client)
 common_env.Program('bin/loadRedditSubs', ['build/tests/LoadRedditSubs.cc'] + all + pdb_client)
 common_env.Program('bin/testRedditJoin', ['build/tests/TestRedditJoin.cc'] + all + pdb_client)
@@ -1065,7 +1067,8 @@ reddit=common_env.Alias('reddit', [
   'bin/testRedditThreeWayJoin',
   'bin/testRedditThreeWayAdaptiveJoin',
   'bin/testRedditJoinSubsAndComments',
-  'bin/testRedditRandomLabels'
+  'bin/testRedditRandomLabels',
+  'bin/createRedditComments'
 ])
 
 tpch=common_env.Alias('tpch', [
