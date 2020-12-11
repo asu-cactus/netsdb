@@ -608,6 +608,7 @@ common_env.SharedLibrary('libraries/libRedditCommentsToFeatures.so', ['build/red
 common_env.SharedLibrary('libraries/libRedditCommentFeatureChunks.so', ['build/reddit/CommentFeatureChunks.cc']+all)
 common_env.SharedLibrary('libraries/libRedditCommentFeaturesToChunks.so', ['build/reddit/CommentFeaturesToChunks.cc']+all)
 common_env.SharedLibrary('libraries/libRedditCommentChunksToBlocks.so', ['build/reddit/CommentChunksToBlocks.cc']+all)
+common_env.SharedLibrary('libraries/libRedditMatrixBlockPartition.so', ['build/reddit/MatrixBlockPartition.cc']+all)
 
 common_env.Program('bin/loadRedditComments', ['build/tests/LoadRedditComments.cc'] + all + pdb_client)
 common_env.Program('bin/loadRedditCommentsWithPartition', ['build/tests/LoadRedditCommentsWithPartition.cc'] + all + pdb_client)
@@ -1283,6 +1284,7 @@ libFFTest=common_env.Alias('libFFTest', [
   'libraries/libRedditCommentFeatureChunks.so',
   'libraries/libRedditCommentFeaturesToChunks.so',
   'libraries/libRedditCommentChunksToBlocks.so',
+  'libraries/libRedditMatrixBlockPartition.so',
 ])
 
 libLSTMTest=common_env.Alias('libLSTMTest', [
