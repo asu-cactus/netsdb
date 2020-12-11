@@ -30,3 +30,6 @@ for part_file in ${in_files[@]}; do
   ./"${1}" "${2}" "${3}" "${4}/${part_file}" "${5}" "${6}" "${7}" "${8}"&
   echo "Process to read file ${part_file} started with process id ${!}"
 done
+
+wait
+echo "All concurrent processes are completed."
