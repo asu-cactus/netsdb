@@ -26,6 +26,7 @@
 #include "CommentFeatures.h"
 #include "CommentFeaturesToChunks.h"
 #include "CommentsToFeatures.h"
+#include "MatrixBlockPartition.h"
 
 int main(int argc, char *argv[]) {
   string errMsg;
@@ -56,7 +57,20 @@ int main(int argc, char *argv[]) {
 
   string db = "redditDB", set = "comment_features";
 
-  ff::setup(pdbClient, db);
+  // ff::setup(pdbClient, db);
+
+  ff::loadLibrary(pdbClient, "libraries/libFFMatrixMeta.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFMatrixData.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlock.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlockScanner.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFInputLayerJoin.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFMatrixWriter.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFAggMatrix.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFReluBiasSum.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFTransposeMult.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFTransposeBiasSum.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFRowAggregate.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFOutputLayer.so");
 
   ff::createSet(pdbClient, db, set, set);
 
@@ -128,6 +142,7 @@ int main(int argc, char *argv[]) {
   ff::loadLibrary(pdbClient, "libraries/libRedditCommentsToFeatures.so");
   ff::loadLibrary(pdbClient, "libraries/libRedditCommentFeaturesToChunks.so");
   ff::loadLibrary(pdbClient, "libraries/libRedditCommentChunksToBlocks.so");
+  ff::loadLibrary(pdbClient, "libraries/libRedditMatrixBlockPartition.so");
 
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
@@ -153,6 +168,26 @@ int main(int argc, char *argv[]) {
     pdb::Handle<pdb::Computation> myWriter =
         pdb::makeObject<FFMatrixWriter>(db, set);
     myWriter->setInput(slice);
+
+    // run the computation
+    if (!pdbClient.executeComputations(errMsg, myWriter)) {
+      cout << "Computation failed. Message was: " << errMsg << "\n";
+      exit(1);
+    }
+  }
+
+
+  {
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+    // make the computation
+    pdb::Handle<pdb::Computation> readB =
+        makeObject<ScanUserSet<FFMatrixBlock>>(db, set);
+
+    // make the writer
+    pdb::Handle<pdb::Computation> myWriter =
+        pdb::makeObject<reddit::MatrixBlockPartition>(db, set);
+    myWriter->setInput(readB);
 
     // run the computation
     if (!pdbClient.executeComputations(errMsg, myWriter)) {

@@ -621,7 +621,7 @@ bool TCAPAnalyzer::analyze(
     }
 
   } else if (numConsumersForCurNode == 1) {
-    if (myComputation->getComputationType() == "PartitionComp") {
+    if (myComputation->getComputationType() == "PartitionComp" && consumers[0]->getAtomicComputationType() != "Partition") {
       std::cout << "PartitionComp "
                 << "cannot have any consumer node right now" << std::endl;
       this->logger->fatal("PartitionComp cannot have any consumer node right now");
