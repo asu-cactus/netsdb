@@ -1288,11 +1288,11 @@ std::pair<std::string, std::string> TCAPAnalyzer::getHashSource (AtomicComputati
           std::string rightAtt = (joinNode->getRightProjection().getAtts())[0];
           std::cout << "rightAtt=" << rightAtt << std::endl;
           std::pair<std::string, std::string> res;
-          if (sourceAtt == leftAtt) {
+          if ((sourceAtt == leftAtt)||((sourceAtt.find("in")!=std::string::npos)&&(rightAtt.find("in")!=std::string::npos)&&(sourceAtt != rightAtt))) {
               AtomicComputationPtr producer = this->logicalPlan->getComputations().getProducingAtomicComputation(joinNode->getInput().getSetName());
               res = producer->findSource((joinNode->getInput().getAtts())[0],
                                                                      this->logicalPlan->getComputations());
-          } else if (sourceAtt == rightAtt) {
+          } else if ((sourceAtt == rightAtt)||((sourceAtt.find("in")!=std::string::npos)&&(leftAtt.find("in")!=std::string::npos)&&(sourceAtt != leftAtt))) {
 
               AtomicComputationPtr producer = this->logicalPlan->getComputations().getProducingAtomicComputation(joinNode->getRightInput().getSetName());
               res = producer->findSource((joinNode->getRightInput().getAtts())[0], this->logicalPlan->getComputations());

@@ -9,12 +9,12 @@
 #include <queue>
 
 #ifndef MIN_BATCH_SIZE
-#define MIN_BATCH_SIZE 10
+#define MIN_BATCH_SIZE 1
 #endif
 
 
 #ifndef DELAY_VALUE
-#define DELAY_VALUE 2
+#define DELAY_VALUE 4
 #endif
 
 namespace pdb {
@@ -104,6 +104,7 @@ public:
 
     ~Pipeline() {
 
+        std::cout << id << ": cleanup pipeline" << std::endl;
         // kill all of the pipeline stages
         while (pipeline.size())
             pipeline.pop_back();
@@ -142,12 +143,12 @@ public:
         std::cout << id << ": to clean page for iteration-" << iteration << std::endl;
         std::cout << id << ": unwrittenPages.size() =" << unwrittenPages.size() << std::endl;
         while (unwrittenPages.size() > 0 && iteration > unwrittenPages.front()->iteration + delay) {
-            std::cout << "iteration=" << iteration << " and unwrittenPages.front()->iteration=" << unwrittenPages.front()->iteration
+            std::cout << id << ": iteration=" << iteration << " and unwrittenPages.front()->iteration=" << unwrittenPages.front()->iteration
                      << std::endl;
             // in this case, the page did not have any output data written to it... it only had
             // intermediate results, and so we will just discard it
             if (unwrittenPages.front()->outputSink == nullptr) {
-                std::cout << "WARNING: we find an output page that has no container in it, which is bad, so we create one" << std::endl;
+                std::cout << id << ": WARNING: we find an output page that has no container in it, which is bad, so we create one" << std::endl;
                 unwrittenPages.front()->outputSink = dataSink->createNewOutputContainer();
                 getRecord(unwrittenPages.front()->outputSink); 
                 if (getNumObjectsInAllocatorBlock(unwrittenPages.front()->location) != 0) {
@@ -156,7 +157,7 @@ public:
                     // chunk does not store an output vector
                     emptyOutContainingBlock(unwrittenPages.front()->location);
 
-                    std::cout << "This is Strange... how did I find a page with objects??\n";
+                    std::cout << id << ": This is Strange... how did I find a page with objects??\n";
                 }
                 std::cout << id << ": to discard a page in iteration=" << iteration << " and page iteration =" << unwrittenPages.front()->iteration << std::endl;
                 discardPage(unwrittenPages.front()->location);
@@ -165,7 +166,7 @@ public:
                 // in this case, the page DID have some data written to it
             } else {
                 // and force the reference count for this guy to go to zero
-                std::cout << "to empty out containing block" << std::endl;
+                std::cout << id << ": to empty out containing block" << std::endl;
                 unwrittenPages.front()->outputSink.emptyOutContainingBlock();
 
                 // OK, because we will have invalidated the current object allocator block, we need
@@ -187,14 +188,13 @@ public:
     void run() {
 
         // this is where we are outputting all of our results to
-        //std::cout << "to get a new page" << std::endl;
+        std::cout << id << ": to get a new output page" << std::endl;
         MemoryHolderPtr myRAM = std::make_shared<MemoryHolder>(getNewPage());
-        //std::cout << "got a new page" << std::endl;
-        // Jia Note: this is not perfect to always create a container in every new page, but 
-        // doing this can avoid a memory copy
+        std::cout << id << ": got a new page" << std::endl;
+
         if (myRAM->location == nullptr) {
             std::cout << "ERROR: insufficient memory in heap" << std::endl;
-            return;
+            exit(1);
         }
         myRAM->outputSink = dataSink->createNewOutputContainer();
 
@@ -207,49 +207,45 @@ public:
         // while there is still data
         // Jia Note: dataSource->getNextTupleSet() can throw exception for certain data sources like
         // MapTupleSetIterator
-        int depth = 0;
         int batchSize = DEFAULT_BATCH_SIZE;
         while (true) {
-            bool tuned = false;
-            while (! tuned) {
-                try {
-                     curChunk = dataSource->getNextTupleSet();
-                     tuned = true;
-                } catch (NotEnoughSpace& n) {
-                     myRAM->setIteration(iteration);
-                     unwrittenPages.push(myRAM);
-                     std::cout << id << ": 1- setIteration=" << iteration << std::endl;
-                     iteration++;
-                     depth++;
-                     if (depth > delay) delay = depth;
-                     cleanPages(iteration);
-                     //std::cout << "to get a new page" << std::endl;
-                     myRAM = std::make_shared<MemoryHolder>(getNewPage());
-                     //std::cout << "got a new page" << std::endl;
-                     if (myRAM->location == nullptr) {
-                         std::cout << "ERROR: insufficient memory in heap" << std::endl;
-                         return;
-                     }
-                     myRAM->outputSink = dataSink->createNewOutputContainer();
-                     if (batchSize == 1) {
-                         std::cout << "ERROR: object size is too large to fit to page" << std::endl;
-                         return;
-                     }
-                     batchSize = batchSize/2;
-                     dataSource->setChunkSize(batchSize);
-                     std::cout << "batch size tuned to " << batchSize << std::endl;
-                }
-            }
-            if (curChunk == nullptr) {
-                std::cout << "WARNING: get an empty chunk in pipeline" << std::endl;
-                break;
-            }
-            //std::cout << "got a chunk to feed to pipeline" << std::endl;
+
+           try {
+               curChunk = dataSource->getNextTupleSet();
+           } catch (NotEnoughSpace& n) {
+               myRAM->setIteration(iteration);
+               unwrittenPages.push(myRAM);
+               std::cout << id << ": 1- setIteration=" << iteration << std::endl;
+               iteration++;
+               cleanPages(iteration);
+               std::cout << id <<": to get a new output page" << std::endl;
+               myRAM = std::make_shared<MemoryHolder>(getNewPage());
+               std::cout << id <<": got a new output page" << std::endl;
+               if (myRAM->location == nullptr) {
+                   std::cout << id << ": ERROR: insufficient memory in heap" << std::endl;
+                   exit(1);
+               }
+               myRAM->outputSink = dataSink->createNewOutputContainer();
+               if (batchSize == 1) {
+                   std::cout << id << ": ERROR: object size is too large to fit to page" << std::endl;
+                   return;
+               }
+           }
+
+           if (curChunk == nullptr) {
+               std::cout << id << ": WARNING: get an empty chunk in pipeline" << std::endl;
+               break;
+           }
+           
+           //if (id==1)
+               //std::cout << id << ": got a chunk to feed to pipeline" << std::endl;
             // go through all of the pipeline stages
-            for (ComputeExecutorPtr& q : pipeline) {
+           for (ComputeExecutorPtr& q : pipeline) {
 
                 try {
                     curChunk = q->process(curChunk);
+                //if (id==1)
+                    //std::cout << id << ": processed a chunk" << std::endl;
 
                 } catch (NotEnoughSpace& n) {
                     // and get a new page
@@ -258,38 +254,41 @@ public:
                     std::cout << id << ": 2- setIteration=" << iteration << std::endl;
                     iteration++;
                     cleanPages(iteration);
-                    depth++;
-                    if (depth > delay) delay = depth;
+                    std::cout << id <<": to get a new output page" << std::endl;
                     myRAM = std::make_shared<MemoryHolder>(getNewPage());
                     if (myRAM->location == nullptr) {
                         std::cout << "ERROR: insufficient memory in heap or the corresponding partition sink is used up" << std::endl;
                         return;
                     }
+                    std::cout << id <<": got a new output page" << std::endl;
                     myRAM->outputSink = dataSink->createNewOutputContainer();
 
                     // then try again
                     try {
                         curChunk = q->process(curChunk);
                     } catch (NotEnoughSpace& n) {
-                        std::cout << "curChunk contains " << curChunk->getNumRows(0) << " rows" 
+                        std::cout << id << ": curChunk contains " << curChunk->getNumRows(0) << " rows" 
                                   << std::endl;
-                        std::cout << "Pipeline Error: Batch processing memory exceeds page size "
+                        std::cout << id << ": Pipeline Error: Batch processing memory exceeds page size "
                                      "for executor type: "
                                   << q->getType() << ", consider to reduce batch size or increase page size" 
                                   << std::endl;
                         exit(1);
                     }
                 }
-            }
-            bool end = false;
-            while (!end) {
+           }
+
+           bool end = false;
+           while (!end) {
                 try {
 
-                    if (myRAM->outputSink == nullptr) {
-                        myRAM->outputSink = dataSink->createNewOutputContainer();
-                    }
-                    dataSink->writeOut(curChunk, myRAM->outputSink);
-                    end = true;                    
+                   if (myRAM->outputSink == nullptr) {
+                       myRAM->outputSink = dataSink->createNewOutputContainer();
+                   }
+                   dataSink->writeOut(curChunk, myRAM->outputSink);
+                   //if (id==1)
+                        //std::cout << id << ": write out a chunk" << std::endl;
+                   end = true;                    
 
                 } catch (NotEnoughSpace& n) {
 
@@ -299,17 +298,16 @@ public:
                     unwrittenPages.push(myRAM);
                     std::cout << id << ": 3- setIteration=" << iteration << std::endl;
                     iteration++;
-                    depth++;
                     cleanPages(iteration);
-
+                    std::cout << id <<": to get a new output page" << std::endl;
                     myRAM = std::make_shared<MemoryHolder>(getNewPage());
                     if (myRAM->location == nullptr) {
                         std::cout << "ERROR: insufficient memory in heap or the corresponding partition sink is used up" << std::endl;
                         return;
                     }
-                    myRAM->outputSink = dataSink->createNewOutputContainer();
+                    std::cout << id <<": got a new output page" << std::endl;
                  }
-            }
+           }
             // lastly, write back all of the output pages
         }
 

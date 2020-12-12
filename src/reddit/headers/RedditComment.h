@@ -305,10 +305,14 @@ public:
         }
     }
 
-    size_t hash() const {
+    size_t hash() const override{
+        //std::cout << "run hash on Comment" << std::endl;
         return author.hash();
     }
 
+    std::string toString() override {
+        return std::string(author)+std::string(",")+std::string(subreddit_id)+std::string(", hash:") + std::to_string(hash());
+    }
 };
 
 

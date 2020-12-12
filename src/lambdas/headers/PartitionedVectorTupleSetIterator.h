@@ -17,6 +17,8 @@ private:
 
     int numNodes;
 
+    int loopId = 0;
+
     GenericLambdaObjectPtr partitionLambda;
 
     // function to call to get another vector to process
@@ -26,11 +28,11 @@ private:
     std::function<void(PDBPagePtr)> doneWithVector;
 
     // this is the vector to process
-    Handle<Vector<Handle<ValueType>>> iterateOverMe;
+    Handle<Vector<Handle<Object>>> iterateOverMe;
 
     // the pointer to the current page holding the vector, and the last page that we previously
     // processed
-    Record<Vector<Handle<ValueType>>>*myRec, *lastRec;
+    Record<Vector<Handle<Object>>>*myRec, *lastRec;
 
     // the page that contains the record
     PDBPagePtr myPage, lastPage;
@@ -48,6 +50,7 @@ private:
     // size of vector
     size_t mySize = 0;
 
+    std::vector<Handle<ValueType>>* inputColumn = nullptr;
 
 public:
     // the first param is a callback function that the iterator will call in order to obtain the
@@ -80,23 +83,20 @@ public:
         output = std::make_shared<TupleSet>();
         myPage = nullptr;
         myRec = nullptr;
+        // create the output vector and put it into the tuple set
+        inputColumn = new std::vector<Handle<ValueType>>;
+        output->addColumn(0, inputColumn, true);
         // extract the vector from the input page
         myPage = getAnotherVector();
         if (myPage != nullptr) {
-           myRec = (Record<Vector<Handle<ValueType>>>*)(myPage->getBytes());
+           myRec = (Record<Vector<Handle<Object>>>*)(myPage->getBytes());
         }
         if (myRec != nullptr) {
-
             iterateOverMe = myRec->getRootObject();
             this->mySize = iterateOverMe->size();
             std::cout << myPartitionId << ": Got iterateOverMe with " << mySize << " objects" << std::endl;
-            // create the output vector and put it into the tuple set
-            std::vector<Handle<ValueType>>* inputColumn = new std::vector<Handle<ValueType>>;
-            output->addColumn(0, inputColumn, true);
         } else {
-
             iterateOverMe = nullptr;
-            output = nullptr;
         }
 
         // we are at position zero
@@ -109,10 +109,10 @@ public:
 
     void updatePage () {
 
-        std::cout << myPartitionId << ": to update the page" << std::endl;
         // this means that we got to the end of the vector
         lastPage = myPage;
         if (lastPage != nullptr) {
+            std::cout << myPartitionId << ": to update the page with ID="<< myPage->getPageID() << ", mySize="<< mySize << ", pos=" << pos << std::endl;
             doneWithVector(lastPage);
             lastPage = nullptr;
             myRec = nullptr;
@@ -120,7 +120,7 @@ public:
         // try to get another vector
         myPage = getAnotherVector();
         if(myPage != nullptr) {
-            myRec = (Record<Vector<Handle<ValueType>>>*)(myPage->getBytes());
+            myRec = (Record<Vector<Handle<Object>>>*)(myPage->getBytes());
         }
         // if we could not, then we are outta here
         if (myRec != nullptr) {
@@ -144,8 +144,13 @@ public:
 
     // returns the next tuple set to process, or nullptr if there is not one to process
     TupleSetPtr getNextTupleSet() override {
-        // JiaNote: below two lines are necessary to fix a bug that iterateOverMe may be nullptr
-        // when first time get to here
+
+        loopId++;
+
+        if (loopId % 20000 == 0) {
+            std::cout << myPartitionId<< ": has processed "<< loopId << " objects" << std::endl;
+        }
+
         if (iterateOverMe == nullptr) {
             return nullptr;
         }
@@ -154,13 +159,21 @@ public:
             return nullptr;
         }
 
+
         // see if there are no more items in the vector to iterate over
         if (pos == mySize) {
             updatePage();
         }
 
+        if (iterateOverMe == nullptr) {
+            return nullptr;
+        }
 
-        Vector<Handle<ValueType>>& myVec = *iterateOverMe;
+        if (mySize == 0) {
+            return nullptr;
+        }
+
+        Vector<Handle<Object>>& myVec = *iterateOverMe;
         std::vector<Handle<ValueType>>& inputColumn = output->getColumn<Handle<ValueType>>(0);
         // resize the output vector as appropriate
         inputColumn.resize(chunkSize);
@@ -170,20 +183,19 @@ public:
         int index;
         while (true) {
             if (pos < mySize) {
-                
-                hashVal = Hasher<Handle<ValueType>>::hash(myVec[pos]);
+                //pageId for debugging
+                int pageId = myPage->getPageID();
+                int refCount = myPage->getRefCount();
+                Handle<ValueType> myIn = unsafeCast<ValueType, Object>(myVec[pos]);
+                hashVal = Hasher<ValueType>::hash(*myIn);
                 index = hashVal % (numPartitionsPerNode * numNodes) % numPartitionsPerNode;
                 if (index == myPartitionId) {
-                    if (myPartitionId == 0) {
-//                        std::cout << "hashVal: "<< hashVal << ", mySize: "<< mySize <<", index: " << index << ", myPartitionId: " << myPartitionId << ", pos: " << pos <<", count: "<< count <<", chunkSize: "<< chunkSize << std::endl;
-                    }
-                    inputColumn[count] = myVec[pos];
+                    inputColumn[count] = myIn;
                     count++;
                     if (count == chunkSize) {
                        pos++;
                        return output;
                     }
-
                 }
                 pos++;
                 
@@ -204,14 +216,7 @@ public:
     }
 
     ~PartitionedVectorTupleSetIterator() {
-
-        // if lastRec is not a nullptr, then it means that we have not yet freed it
-        if ((lastRec != nullptr)||(lastPage != nullptr)) {
-            makeObjectAllocatorBlock(4096, true);
-            doneWithVector(lastPage);
-        }
-
-        lastRec = nullptr;
+        std::cout << "cleanup PartitionedVectorTUpleSetIterator for myPartitionId=" << myPartitionId << std::endl;
     }
 };
 }

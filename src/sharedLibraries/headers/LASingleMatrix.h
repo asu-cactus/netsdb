@@ -24,7 +24,7 @@ public:
 
     SingleMatrix(MatrixBlock block) : key(1), myValue(block) {}
 
-    size_t hash() const {
+    size_t hash() const override{
         return myValue.hash();
     }
 

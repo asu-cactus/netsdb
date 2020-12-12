@@ -59,8 +59,10 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
       try {
           pdb::Handle<reddit::Comment> comment = pdb::makeObject<reddit::Comment>(i, line);
           classify(comment);
-          storeMe->push_back(comment);
-          i++;
+          if (strcmp(comment->author.c_str(), "[deleted]") !=0){
+              storeMe->push_back(comment);
+              i++;
+          }
       }
       catch (pdb::NotEnoughSpace &n) {
           if (! pdbClient.sendData<reddit::Comment> (std::pair<std::string, std::string>("comments", "redditDB"), storeMe, errMsg)) {
@@ -151,7 +153,7 @@ int main(int argc, char* argv[]) {
   join->setInput(1, input2);
 
   // make another scan set
-  Handle<Computation> input3 = makeObject<ScanUserSet<reddit::Sub>>("redditDB", "subreddits");
+  Handle<Computation> input3 = makeObject<ScanUserSet<reddit::Sub>>("redditDB", "subs");
 
   //make another selection
   Handle<Computation> select1 = makeObject<reddit::NegativeLabelSelection>();

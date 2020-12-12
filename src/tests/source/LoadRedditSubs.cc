@@ -33,7 +33,7 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
                  return;
              }
              pdbClient.flushData (errMsg);
-             std::cout << "Dispatched " << storeMe->size() << " comments." << std::endl;
+             std::cout << "Dispatched " << storeMe->size() << " subs." << std::endl;
              break;
           }
       }
@@ -107,13 +107,13 @@ int main(int argc, char* argv[]) {
   Handle<LambdaIdentifier> myLambda1 = nullptr;
   
   if (whetherToPartitionData) {
-      myLambda1 = makeObject<LambdaIdentifier>("reddit", "JoinComp_7", "attAccess_1");
+      myLambda1 = makeObject<LambdaIdentifier>("reddit-s", "JoinComp_3", "attAccess_1");
   }
   
 
   // now, create the output set
   pdbClient.removeSet("redditDB", "subs", errMsg);
-  pdbClient.createSet<reddit::Sub>("redditDB", "subs", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "subs", nullptr, myLambda1);
+  pdbClient.createSet<reddit::Sub>("redditDB", "subs", errMsg, (size_t)256*(size_t)1024*(size_t)1024, "subs", nullptr, myLambda1);
 
   // parse the input file 
   parseInputJSONFile(pdbClient, inputFileName, 64); }

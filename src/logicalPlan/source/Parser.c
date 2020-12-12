@@ -94,7 +94,7 @@
 # undef YYERROR_VERBOSE
 # define YYERROR_VERBOSE 1
 #else
-# define YYERROR_VERBOSE 0
+# define YYERROR_VERBOSE 1
 #endif
 
 
@@ -133,7 +133,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 19 "src/logicalPlan/source/Parser.y" /* yacc.c:355  */
+#line 21 "src/logicalPlan/source/Parser.y" /* yacc.c:355  */
 
 	char *myChar;
 	struct AtomicComputationList *myAtomicComputationList;
@@ -456,12 +456,12 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    64,    64,    75,    80,    90,    95,   101,   107,   112,
-     117,   122,   127,   132,   137,   142,   152,   157,   163,   168
+       0,    66,    66,    77,    82,    92,    97,   102,   108,   113,
+     118,   123,   128,   133,   138,   143,   153,   158,   164,   169
 };
 #endif
 
-#if YYDEBUG || YYERROR_VERBOSE || 0
+#if YYDEBUG || YYERROR_VERBOSE || 1
 /* YYTNAME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
@@ -1292,7 +1292,7 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 65 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 67 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
 	(yyval.myAtomicComputationList) = (yyvsp[0].myAtomicComputationList);
 	*myPlan = (yyval.myAtomicComputationList);
@@ -1301,7 +1301,7 @@ yyreduce:
     break;
 
   case 3:
-#line 76 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 78 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
 	(yyval.myAtomicComputationList) = pushBackAtomicComputation ((yyvsp[-1].myAtomicComputationList), (yyvsp[0].myAtomicComputation));
 }
@@ -1309,7 +1309,7 @@ yyreduce:
     break;
 
   case 4:
-#line 81 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 83 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
 	(yyval.myAtomicComputationList) =  makeAtomicComputationList ((yyvsp[0].myAtomicComputation));
 }
@@ -1317,7 +1317,7 @@ yyreduce:
     break;
 
   case 5:
-#line 91 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 93 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
 	(yyval.myAtomicComputation) = makeApply ((yyvsp[-11].myTupleSpec), (yyvsp[-7].myTupleSpec), (yyvsp[-5].myTupleSpec), (yyvsp[-3].myChar), (yyvsp[-1].myChar));
 }
@@ -1325,7 +1325,7 @@ yyreduce:
     break;
 
   case 6:
-#line 96 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 98 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
 	(yyval.myAtomicComputation) = makeAgg ((yyvsp[-7].myTupleSpec), (yyvsp[-3].myTupleSpec), (yyvsp[-1].myChar));
 }
@@ -1333,7 +1333,7 @@ yyreduce:
     break;
 
   case 7:
-#line 102 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 103 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
         (yyval.myAtomicComputation) = makePartition ((yyvsp[-7].myTupleSpec), (yyvsp[-3].myTupleSpec), (yyvsp[-1].myChar));
 }
@@ -1341,7 +1341,7 @@ yyreduce:
     break;
 
   case 8:
-#line 108 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 109 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
 	(yyval.myAtomicComputation) = makeScan ((yyvsp[-9].myTupleSpec), (yyvsp[-5].myChar), (yyvsp[-3].myChar), (yyvsp[-1].myChar));
 }
@@ -1349,7 +1349,7 @@ yyreduce:
     break;
 
   case 9:
-#line 113 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 114 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
 	(yyval.myAtomicComputation) = makeOutput ((yyvsp[-11].myTupleSpec), (yyvsp[-7].myTupleSpec), (yyvsp[-5].myChar), (yyvsp[-3].myChar), (yyvsp[-1].myChar));
 }
@@ -1357,7 +1357,7 @@ yyreduce:
     break;
 
   case 10:
-#line 118 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 119 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
 	(yyval.myAtomicComputation) = makeJoin ((yyvsp[-13].myTupleSpec), (yyvsp[-9].myTupleSpec), (yyvsp[-7].myTupleSpec), (yyvsp[-5].myTupleSpec), (yyvsp[-3].myTupleSpec), (yyvsp[-1].myChar));
 }
@@ -1365,7 +1365,7 @@ yyreduce:
     break;
 
   case 11:
-#line 123 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 124 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
 	(yyval.myAtomicComputation) = makeFilter ((yyvsp[-9].myTupleSpec), (yyvsp[-5].myTupleSpec), (yyvsp[-3].myTupleSpec), (yyvsp[-1].myChar));
 }
@@ -1373,7 +1373,7 @@ yyreduce:
     break;
 
   case 12:
-#line 128 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 129 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
 	(yyval.myAtomicComputation) = makeHashLeft ((yyvsp[-11].myTupleSpec), (yyvsp[-7].myTupleSpec), (yyvsp[-5].myTupleSpec), (yyvsp[-3].myChar), (yyvsp[-1].myChar));
 }
@@ -1381,7 +1381,7 @@ yyreduce:
     break;
 
   case 13:
-#line 133 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 134 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
 	(yyval.myAtomicComputation) = makeHashRight ((yyvsp[-11].myTupleSpec), (yyvsp[-7].myTupleSpec), (yyvsp[-5].myTupleSpec), (yyvsp[-3].myChar), (yyvsp[-1].myChar));
 }
@@ -1389,7 +1389,7 @@ yyreduce:
     break;
 
   case 14:
-#line 138 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 139 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
         (yyval.myAtomicComputation) = makeHashOne ((yyvsp[-9].myTupleSpec), (yyvsp[-5].myTupleSpec), (yyvsp[-3].myTupleSpec), (yyvsp[-1].myChar));
 }
@@ -1397,7 +1397,7 @@ yyreduce:
     break;
 
   case 15:
-#line 143 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 144 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
         (yyval.myAtomicComputation) = makeFlatten ((yyvsp[-9].myTupleSpec), (yyvsp[-5].myTupleSpec), (yyvsp[-3].myTupleSpec), (yyvsp[-1].myChar));
 }
@@ -1405,7 +1405,7 @@ yyreduce:
     break;
 
   case 16:
-#line 153 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 154 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
 	(yyval.myTupleSpec) = makeTupleSpec ((yyvsp[-3].myChar), (yyvsp[-1].myAttList));
 }
@@ -1413,7 +1413,7 @@ yyreduce:
     break;
 
   case 17:
-#line 158 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 159 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
 	(yyval.myTupleSpec) = makeEmptyTupleSpec ((yyvsp[-2].myChar));
 }
@@ -1421,7 +1421,7 @@ yyreduce:
     break;
 
   case 18:
-#line 164 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 165 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
 	(yyval.myAttList) = pushBackAttribute ((yyvsp[-2].myAttList), (yyvsp[0].myChar));
 }
@@ -1429,7 +1429,7 @@ yyreduce:
     break;
 
   case 19:
-#line 169 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
+#line 170 "src/logicalPlan/source/Parser.y" /* yacc.c:1646  */
     {
 	(yyval.myAttList) = makeAttList ((yyvsp[0].myChar));
 }
@@ -1665,7 +1665,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 175 "src/logicalPlan/source/Parser.y" /* yacc.c:1906  */
+#line 176 "src/logicalPlan/source/Parser.y" /* yacc.c:1906  */
 
 
 int yylex(YYSTYPE *, void *);

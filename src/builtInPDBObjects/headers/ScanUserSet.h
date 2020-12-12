@@ -135,10 +135,10 @@ public:
                     std::cout << myPartitionId << ": to get a page" << std::endl;
                     PDBPagePtr page = this->iterator->next();
                     if (page != nullptr) {
-                        std::cout << "PartitionedVectorTupleSetIterator got a page with ID=" << page->getPageID() << std::endl;
+                        std::cout << myPartitionId << ": PartitionedVectorTupleSetIterator got a page with ID=" << page->getPageID() << std::endl;
                         return page;
                     } else {
-                        std::cout <<"PartitionedVectorTupleSetIterator got a null page" << std::endl;
+                        std::cout << myPartitionId << ": PartitionedVectorTupleSetIterator got a null page" << std::endl;
                         sched_yield();
                     }
                 }
@@ -160,23 +160,23 @@ public:
                     freeMe->decRefCount();
                     if (freeMe->getRefCount() == 0) {
 #ifdef PROFILING_CACHE
-                        std::cout << "To unpin Join source page with DatabaseID=" << dbId
+                        std::cout << myPartitionId << ": To unpin Join source page with DatabaseID=" << dbId
                                   << ", UserTypeID=" << typeId << ", SetID=" << setId
                                   << ", PageID=" << freeMe->getPageID() << std::endl;
 #endif
+                       
                         try {
                             this->proxy->unpinUserPage(nodeId, dbId, typeId, setId, freeMe, false);
-                            std::cout << "Unpinned page: "<< freeMe->getPageID() << std::endl;
+                            std::cout << myPartitionId << ": Unpinned page: "<< freeMe->getPageID() << std::endl;
                         } catch (NotEnoughSpace& n) {
                             makeObjectAllocatorBlock(4096, true);
                             this->proxy->unpinUserPage(nodeId, dbId, typeId, setId, freeMe, false);
                             std::cout << "Unpinned page: "<< freeMe->getPageID() << std::endl;
                         }
-                      
                     }
 #ifdef PROFILING_CACHE
                     else {
-                        std::cout << "Can't unpin Join source page with DatabaseID=" << dbId
+                        std::cout << myPartitionId << ": Can't unpin Join source page with DatabaseID=" << dbId
                                   << ", UserTypeID=" << typeId << ", SetID=" << setId
                                   << ", PageID=" << freeMe->getPageID()
                                   << ", reference count=" << freeMe->getRefCount() << std::endl;

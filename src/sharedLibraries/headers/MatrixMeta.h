@@ -27,7 +27,7 @@ public:
         }
     }
 
-    size_t hash() const {
+    size_t hash() const override{
         return 10000 * blockRowIndex + blockColIndex;
     }
 };

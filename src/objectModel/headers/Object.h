@@ -32,12 +32,21 @@ public:
     static void* operator new(std::size_t count, void* ptr);
     void setVTablePtr(void* setToMe);
     void* getVTablePtr();
-    size_t hash() const;
+    virtual size_t hash() const {
+       
+       size_t x = (size_t)(this);
+       //std::cout << "this:" << x << std::endl;
+       x = ((x >> 16) ^ x) * 0x45d9f3b;
+       x = ((x >> 16) ^ x) * 0x45d9f3b;
+       x = (x >> 16) ^ x;
+       return x;
+    };
 
     // these are properly defined via the ENABLE_DEEP_COPY macro
     virtual void setUpAndCopyFrom(void* target, void* source) const;
     virtual void deleteObject(void* deleteMe);
     virtual size_t getSize(void* ofMe);
+    virtual std::string toString() {return "";};
 };
 }
 

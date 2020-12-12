@@ -111,11 +111,11 @@ public:
         // std::endl;
     }
 
-    size_t hash() const {
+    size_t hash() const override{
         return 10000*meta.blockRowIndex + meta.blockColIndex;
     }
 
-    const std::string toString() const {
+    virtual std::string toString() override {
         return std::string("Block: (")+std::to_string(meta.blockRowIndex)+std::string(",")
                +std::to_string(meta.blockColIndex)+std::string(")");
     }
@@ -144,7 +144,8 @@ public:
     }
 
     friend std::ostream& operator<<(std::ostream& stream, const StringIntPair& printMe) {
-        return stream << printMe.toString();
+        //return stream << printMe.toString();
+        return stream << "";
     }
 
     std::string toSchemaString(std::string format) override {

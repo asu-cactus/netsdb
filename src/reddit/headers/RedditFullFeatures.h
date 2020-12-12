@@ -55,7 +55,7 @@ public:
         description = subreddit->description;
     }
 
-    size_t hash() const {
+    size_t hash() const override{
         return author.hash();
     }
 };

@@ -27,6 +27,7 @@ public:
     int& getValue() {
         return total;
     }
+
 };
 }
 

@@ -54,11 +54,6 @@ inline void* Object::getVTablePtr() {
     return *temp;
 }
 
-inline size_t Object::hash() const {
-    return (size_t)(this)%128;
-}
-
-
 inline void Object::setUpAndCopyFrom(void* target, void* source) const {
     std::cerr
         << "Bad: you are trying to do a deep Object copy without the ENABLE_DEEP_COPY macro.\n";

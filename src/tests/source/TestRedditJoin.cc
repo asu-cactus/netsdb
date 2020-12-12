@@ -25,12 +25,16 @@ void run(PDBClient &pdbClient, bool whetherToAdaptiveJoin) {
     // make a scan set
     Handle<Computation> input1 = makeObject<ScanUserSet<reddit::Comment>>("redditDB", "comments");
     Handle<Computation> input2 = makeObject<ScanUserSet<reddit::Author>>("redditDB", "authors");
-
-
+    Handle<Computation> select = makeObject<reddit::PositiveLabelSelection>();
+    select->setInput(input1);
     // join previous ranks with links
     Handle<Computation> join = makeObject<reddit::JoinAuthorsWithComments>();
 
-    join->setInput(0, input1);
+    if (whetherToAdaptiveJoin) {
+        join->setInput(0, select);
+    } else {
+        join->setInput(0, input1);
+    }
     join->setInput(1, input2);
 
 
@@ -40,7 +44,7 @@ void run(PDBClient &pdbClient, bool whetherToAdaptiveJoin) {
 
     // execute the computation
     auto begin = std::chrono::high_resolution_clock::now();
-    pdbClient.executeComputations(errMsg, "reddit", myWriteSet);
+    pdbClient.executeComputations(errMsg, "reddit-a", myWriteSet);
     auto end = std::chrono::high_resolution_clock::now();
           std::cout << "Time Duration for Run: "
               << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
@@ -102,6 +106,7 @@ int main(int argc, char* argv[]) {
   SetIterator<reddit::Features> result = pdbClient.getSetIterator<reddit::Features>("redditDB", "features");
   int count = 0;
   for (const auto &r : result) {
+     std::cout << r->toString() << std::endl;
      count++;
   }
   std::cout << "count: " << count << std::endl;

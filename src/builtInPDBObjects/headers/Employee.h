@@ -24,9 +24,6 @@ public:
 
     ~Employee() {}
     Employee() {}
-    size_t hash() {
-        return name->hash();
-    }
     void print() {
         std::cout << "name is: " << *name << " age is: " << age << " dept is: " << department;
     }
@@ -64,7 +61,7 @@ public:
         return name == me.name;
     }
 
-    size_t hash () const {
+    size_t hash () const override {
 
         return name->hash();
 

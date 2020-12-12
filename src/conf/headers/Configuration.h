@@ -51,7 +51,7 @@ using namespace std;
 #endif
 
 #ifndef DEFAULT_BATCH_SIZE
-#define DEFAULT_BATCH_SIZE 100
+#define DEFAULT_BATCH_SIZE 1
 #endif
 
 

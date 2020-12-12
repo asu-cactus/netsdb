@@ -54,16 +54,16 @@ public:
         return ((myString == toMe.myString) && (myInt == toMe.myInt));
     }
 
-    size_t hash() const {
-        return hashMe(myString->c_str(), myString->size() - 1);
+    size_t hash() const override{
+        return hashMe(myString->c_str(), myString->size());
     }
 
-    const std::string toString() const {
+    std::string toString() override {
         return (std::string(myString->c_str()) + std::string("_") + std::to_string(myInt));
     }
 
     friend std::ostream& operator<<(std::ostream& stream, const StringIntPair& printMe) {
-        return stream << printMe.toString();
+        return stream << "";
     }
 
 };

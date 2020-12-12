@@ -374,11 +374,11 @@ static yyconst flex_int16_t yy_accept[94] =
        20,   20,    3,    4,    3,    0,   21,    0,    1,   16,
        20,   20,   20,   20,   20,   20,   20,   20,   20,   20,
         2,    0,   21,    0,   20,   20,   20,   20,   20,   20,
-       20,   20,   20,   20,   20,   20,   20,   20,   13,   20,
+       20,   20,   20,   20,   20,   20,   20,   20,   14,   20,
        20,   11,   20,    6,   20,   20,   20,   20,   20,   20,
-       20,   20,    5,   20,   20,   20,   20,   14,   20,   20,
+       20,   20,    5,   20,   20,   20,   20,   15,   20,   20,
        10,   20,    9,   20,   20,   20,    7,   20,   20,   12,
-        8,   15,    0
+        8,   13,    0
 
     } ;
 
@@ -926,41 +926,41 @@ return AGG;
 case 13:
 YY_RULE_SETUP
 #line 66 "src/logicalPlan/source/Lexer.l"
-return JOIN;
+return PARTITION;
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
 #line 68 "src/logicalPlan/source/Lexer.l"
-return OUTPUT;
+return JOIN;
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
 #line 70 "src/logicalPlan/source/Lexer.l"
-return PARTITION;
+return OUTPUT;
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 73 "src/logicalPlan/source/Lexer.l"
+#line 72 "src/logicalPlan/source/Lexer.l"
 return GETS;
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 75 "src/logicalPlan/source/Lexer.l"
+#line 74 "src/logicalPlan/source/Lexer.l"
 return (')');
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 77 "src/logicalPlan/source/Lexer.l"
+#line 76 "src/logicalPlan/source/Lexer.l"
 return ('(');
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 79 "src/logicalPlan/source/Lexer.l"
+#line 78 "src/logicalPlan/source/Lexer.l"
 return (',');
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 81 "src/logicalPlan/source/Lexer.l"
+#line 80 "src/logicalPlan/source/Lexer.l"
 {yylval->myChar = strdup (yytext);
   			return IDENTIFIER;
 			}     
@@ -968,7 +968,7 @@ YY_RULE_SETUP
 case 21:
 /* rule 21 can match eol */
 YY_RULE_SETUP
-#line 85 "src/logicalPlan/source/Lexer.l"
+#line 84 "src/logicalPlan/source/Lexer.l"
 {char *temp = strdup (yytext); /* strip the open and close quotes */
                          temp[strlen (temp) - 1] = 0;
 			 yylval->myChar = strdup (temp + 1);
@@ -979,22 +979,22 @@ YY_RULE_SETUP
 case 22:
 /* rule 22 can match eol */
 YY_RULE_SETUP
-#line 92 "src/logicalPlan/source/Lexer.l"
+#line 91 "src/logicalPlan/source/Lexer.l"
 ++yylineno;
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 94 "src/logicalPlan/source/Lexer.l"
+#line 93 "src/logicalPlan/source/Lexer.l"
 ;
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 96 "src/logicalPlan/source/Lexer.l"
+#line 95 "src/logicalPlan/source/Lexer.l"
 yyerror(yyscanner, 0, "LEX_ERROR: invalid character");
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 98 "src/logicalPlan/source/Lexer.l"
+#line 97 "src/logicalPlan/source/Lexer.l"
 ECHO;
 	YY_BREAK
 #line 1001 "<stdout>"
@@ -2141,7 +2141,7 @@ void yyfree (void * ptr , yyscan_t yyscanner)
 
 #define YYTABLES_NAME "yytables"
 
-#line 98 "src/logicalPlan/source/Lexer.l"
+#line 97 "src/logicalPlan/source/Lexer.l"
 
 
 

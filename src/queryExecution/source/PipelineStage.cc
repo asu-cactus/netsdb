@@ -362,9 +362,6 @@ void PipelineStage::executePipelineWork(int i,
     }
 #endif
 
-#ifdef CLEANUP_INACTIVE_BLOCKS
-    getAllocator().cleanInactiveBlocks((size_t)(1048576));
-#endif
     // seed the random number generator for each thread
     srand(time(NULL));
 
@@ -376,23 +373,23 @@ void PipelineStage::executePipelineWork(int i,
     const UseTemporaryAllocationBlock tempBlock{32 * 1024 * 1024};
 #endif
 
-    PDB_COUT << i << ": to get compute plan" << std::endl;
+    std::cout << i << ": to get compute plan" << std::endl;
     Handle<ComputePlan> plan = this->jobStage->getComputePlan();
     plan->nullifyPlanPointer();
-    PDB_COUT << i << ": to deep copy ComputePlan object" << std::endl;
+    std::cout << i << ": to deep copy ComputePlan object" << std::endl;
     Handle<ComputePlan> newPlan = deepCopyToCurrentAllocationBlock<ComputePlan>(plan);
 
     bool isHashPartitionedJoinProbing = false;
     Handle<Computation> computation = nullptr;
     std::vector<std::string> buildTheseTupleSets;
     jobStage->getTupleSetsToBuildPipeline(buildTheseTupleSets);
-    PDB_COUT << "buildTheseTupleSets[0]=" << buildTheseTupleSets[0] << std::endl;
+    std::cout << i << ": buildTheseTupleSets[0]=" << buildTheseTupleSets[0] << std::endl;
     std::string sourceSpecifier = jobStage->getSourceTupleSetSpecifier();
-    PDB_COUT << "Source tupleset name=" << sourceSpecifier << std::endl;
+    std::cout << i << ": Source tupleset name=" << sourceSpecifier << std::endl;
     if (buildTheseTupleSets[0] != sourceSpecifier) {
         std::string producerComputationName =
             newPlan->getProducingComputationName(buildTheseTupleSets[0]);
-        PDB_COUT << "Producer computation name=" << producerComputationName << std::endl;
+        std::cout << i << ": Producer computation name=" << producerComputationName << std::endl;
         computation = newPlan->getPlan()->getNode(producerComputationName).getComputationHandle();
         if (computation->getComputationType() == "JoinComp") {
             isHashPartitionedJoinProbing = true;
@@ -400,7 +397,7 @@ void PipelineStage::executePipelineWork(int i,
     }
     if (isHashPartitionedJoinProbing == false) {
         std::string producerComputationName = newPlan->getProducingComputationName(sourceSpecifier);
-        PDB_COUT << "Producer computation name=" << producerComputationName << std::endl;
+        std::cout << i << ": Producer computation name=" << producerComputationName << std::endl;
         computation = newPlan->getPlan()->getNode(producerComputationName).getComputationHandle();
     }
 
@@ -416,12 +413,12 @@ void PipelineStage::executePipelineWork(int i,
         scanner->setIterator(iterators.at(i));
         scanner->setProxy(proxy);
         if (scanner->getBatchSize() <= 0) {
-            scanner->setBatchSize(64);
+            scanner->setBatchSize(batchSize);
         }
         std::string partitionComputationName = this->jobStage->getPartitionComputationSpecifier();
         std::string partitionLambdaName = this->jobStage->getPartitionLambdaName();
-        std::cout << "partitionComputationName:" << partitionComputationName << std::endl;
-        std::cout << "partitionLambdaName:" << partitionLambdaName<<std::endl;
+        std::cout << i << ": partitionComputationName:" << partitionComputationName << std::endl;
+        std::cout << i << ": partitionLambdaName:" << partitionLambdaName<<std::endl;
         GenericLambdaObjectPtr myPartitionLambda = newPlan->getPlan()->getNode(
             partitionComputationName).getLambda(
             partitionLambdaName);
@@ -457,7 +454,7 @@ void PipelineStage::executePipelineWork(int i,
             scanner = partitioner->getOutputSetScanner();
             int nodeId = this->jobStage->getNodeId();
             partitioner->setNodeId(nodeId);
-            std::cout << "PartitionComp's nodeId is set to be " << nodeId << std::endl;
+            std::cout << i << ": PartitionComp's nodeId is set to be " << nodeId << std::endl;
 
         } else {
             std::cout << "Error: we can't support source computation type "
@@ -471,7 +468,7 @@ void PipelineStage::executePipelineWork(int i,
             if ((scanner->getBatchSize() <= 0) || (scanner->getBatchSize() > 1000)) {
                 scanner->setBatchSize(batchSize);
             }
-            PDB_COUT << "SCANNER BATCH SIZE: " << scanner->getBatchSize() << std::endl;
+            std::cout << i <<"SCANNER BATCH SIZE: " << scanner->getBatchSize() << std::endl;
         }
     } else if ((sourceContext->getSetType() == UserSetType) &&
                (computation->getComputationType() == "JoinComp")) {
@@ -548,25 +545,25 @@ void PipelineStage::executePipelineWork(int i,
     } else {
         std::cout << "info contains nothing for this stage" << std::endl;
         if (this->jobStage->isProbing() == true) {
-            std::cout << "this stage needs probing hash tables" << std::endl;
+            std::cout << i<<": this stage needs probing hash tables" << std::endl;
         } else {
-            std::cout << "this stage doesn't need probing hash tables" << std :: endl;
+            std::cout << i<<": this stage doesn't need probing hash tables" << std :: endl;
         }
         if (this->jobStage->getHashSets() != nullptr) {
-            std::cout << "we have hash tables prepared for the stage" << std::endl;
+            std::cout << i <<": we have hash tables prepared for the stage" << std::endl;
         } else {
-            std::cout << "we don't have hash tables prepared for the stage" << std :: endl;
+            std::cout << i<<": we don't have hash tables prepared for the stage" << std :: endl;
         }
         if (sourceContext->getSetType() == UserSetType) {
-            std::cout << "this stage has a UserSetType source" << std::endl;
+            std::cout << i <<": this stage has a UserSetType source" << std::endl;
         } else {
-            std::cout << "this stage doesn't have a UserSetType source" << std :: endl;
+            std::cout << i <<": this stage doesn't have a UserSetType source" << std :: endl;
         }
     }
 
-    std::cout << "source specifier: " << this->jobStage->getSourceTupleSetSpecifier() << std::endl;
-    std::cout << "target specifier: " << this->jobStage->getTargetTupleSetSpecifier() << std::endl;
-    std::cout << "target computation: " << this->jobStage->getTargetComputationSpecifier()
+    std::cout << i << ": source specifier: " << this->jobStage->getSourceTupleSetSpecifier() << std::endl;
+    std::cout << i << ": target specifier: " << this->jobStage->getTargetTupleSetSpecifier() << std::endl;
+    std::cout << i << ": target computation: " << this->jobStage->getTargetComputationSpecifier()
              << std::endl;
 
     Handle<JoinComp<Object, Object, Object>> join = nullptr;
@@ -587,8 +584,8 @@ void PipelineStage::executePipelineWork(int i,
         join = unsafeCast<JoinComp<Object, Object, Object>, Computation>(joinComputation);
         join->setNumPartitions(this->jobStage->getNumTotalPartitions());
         join->setNumNodes(this->jobStage->getNumNodes());
-        std::cout << "Join set to have " << join->getNumPartitions() << " partitions" << std::endl;
-        std::cout << "Join set to have " << join->getNumNodes() << " nodes" << std::endl;
+        std::cout << i << ": Join set to have " << join->getNumPartitions() << " partitions" << std::endl;
+        std::cout << i << ": Join set to have " << join->getNumNodes() << " nodes" << std::endl;
     } else if (targetSpecifier.find("PartitionComp") != std::string::npos) {
         Handle<Computation> partitionComputation =
             newPlan->getPlan()->getNode(targetSpecifier).getComputationHandle();
@@ -624,7 +621,7 @@ void PipelineStage::executePipelineWork(int i,
             if (this->jobStage->isLocalJoinSink()) {
                 void * bytes = partitionedHashSetForSink->getPage(i);
                 if (bytes == nullptr) {
-                     std::cout << "Insufficient memory in heap when allocating local join sink" << std::endl;
+                     std::cout << "Fatal Error: Insufficient memory in heap when allocating local join sink" << std::endl;
                      exit(1);
                 }
                 return std::make_pair(bytes, partitionedHashSetForSink->getPageSize());
@@ -704,12 +701,12 @@ void PipelineStage::executePipelineWork(int i,
                                  sizeof(SetID) + sizeof(PageID) + sizeof(int) + sizeof(size_t));
             if (this->jobStage->isLocalJoinSink()) {
                 std::cout << "we have built one hashmap partition-" << i << " for local join" << std::endl;
-                /*Record<Object>* record = (Record<Object>*)page;
+                Record<Object>* record = (Record<Object>*)page;
                 if (record != nullptr) {
                     Handle<Object> object = record->getRootObject();
                     Handle<JoinMap<Object>> sinkMap = unsafeCast<JoinMap<Object>, Object>(object);  
                     std::cout << "join sink-" << i << " size is " << sinkMap->size() << std::endl;
-                }*/
+                }
             } else if (this->jobStage->isBroadcasting() == true) {
                 PDB_COUT << "to broadcast a page" << std::endl;
                 // to handle a broadcast join
@@ -900,7 +897,7 @@ void PipelineStage::executePipelineWork(int i,
         },
 
         info);
-    std::cout << "\nRunning Pipeline\n";
+    std::cout << i<<": Running Pipeline\n";
     curPipeline->id = i;
     curPipeline->run();
     curPipeline = nullptr;
@@ -994,6 +991,7 @@ void PipelineStage::runPipeline(HermesExecutionServer* server,
         int numPartitionsInCluster = this->jobStage->getNumTotalPartitions();
         int numNodes = this->jobStage->getNumNodes();
         numPartitions = numPartitionsInCluster / numNodes;
+        std::cout << "numPartitions=" << numPartitions << std::endl;
         for (int i = 0; i < numPartitions; i++) {
             PDBLoggerPtr myLogger =
                 make_shared<PDBLogger>(std::string("scanPartitionedSource-") + std::to_string(i));
@@ -1029,17 +1027,16 @@ void PipelineStage::runPipeline(HermesExecutionServer* server,
         std::string hashSetName = this->jobStage->getSinkContext()->getDatabase()+":"+this->jobStage->getSinkContext()->getSetName();
         std::cout << "num input pages: " << this->jobStage->getSourceContext()->getNumPages() << std::endl;
         std::cout << "page size: "<< this->jobStage->getSourceContext()->getPageSize() << std::endl;
-        size_t hashSetSize = ((size_t)(this->jobStage->getSourceContext()->getNumPages())) * this->jobStage->getSourceContext()->getPageSize() * 3;
-        if (hashSetSize > (size_t)(1024)*(size_t)(1024)*(size_t)(1024)) {
-            hashSetSize = (size_t)(1024)*(size_t)(1024)*(size_t)(1024);
-        }
+        size_t hashSetSize = ((size_t)(this->jobStage->getSourceContext()->getNumPages())) * this->jobStage->getSourceContext()->getPageSize() * 3.0 / numSourceThreads;
+        if (hashSetSize > DEFAULT_HASH_SET_SIZE)
+            hashSetSize = DEFAULT_HASH_SET_SIZE; 
         std::cout << "hashSetSize for local join sink is " << hashSetSize << std::endl; 
         partitionedSetForSink = make_shared<PartitionedHashSet>(hashSetName, hashSetSize);
         server->addHashSet(hashSetName, partitionedSetForSink);
         std::cout << "add hashSet for local join sink " << hashSetName << std::endl;
         for (int i = 0; i < numSourceThreads; i++) {
             if (partitionedSetForSink->addPage() == nullptr) {
-                std::cout << "insufficient memory when allocating the " << i << "-th map" << std::endl;
+                std::cout << "Fatal Error: insufficient memory when allocating the " << i << "-th map" << std::endl;
                 exit(1);
             }
         }
@@ -1050,12 +1047,17 @@ void PipelineStage::runPipeline(HermesExecutionServer* server,
     // initialize mutextes
     pthread_mutex_t connection_mutex;
     pthread_mutex_init(&connection_mutex, nullptr);
+    
+    int counter = 0;
 
     // create a buzzer and counter
     PDBBuzzerPtr tempBuzzer =
-        make_shared<PDBBuzzer>([&](PDBAlarm myAlarm, int& counter) { counter++; });
+        make_shared<PDBBuzzer>([&](PDBAlarm myAlarm, int& counter) { 
+            counter++; 
+            std::cout << "counter = " << counter << std::endl; 
+       }
+       );
 
-    int counter = 0;
 
     for (int i = 0; i < numSourceThreads; i++) {
         PDBWorkerPtr worker =
@@ -1107,7 +1109,7 @@ void PipelineStage::runPipeline(HermesExecutionServer* server,
         sourceCounter = 0;
         sourceBuzzer = make_shared<PDBBuzzer>([&](PDBAlarm myAlarm, int& sourceCounter) {
             sourceCounter++;
-            PDB_COUT << "source counter = " << sourceCounter << std::endl;
+            std::cout << "source counter = " << sourceCounter << std::endl;
         });
         // get scan iterators
         std::vector<PageCircularBufferIteratorPtr> scanIterators =
@@ -1145,13 +1147,14 @@ void PipelineStage::runPipeline(HermesExecutionServer* server,
                         sched_yield();
                     }
                 }
+                
                 callerBuzzer->buzz(PDBAlarm::WorkAllDone, sourceCounter);
             });
 
             worker->execute(myWork, sourceBuzzer);
         }  // for
 
-        while (sourceCounter < 1) {
+        while (sourceCounter < 1 ) {
             sourceBuzzer->wait();
         }
         sourceCounter = 0;
@@ -1161,13 +1164,22 @@ void PipelineStage::runPipeline(HermesExecutionServer* server,
             PageCircularBufferPtr buffer = sourceBuffers[i];
             buffer->close();
         }
+
+        while (counter < numSourceThreads) {
+            tempBuzzer->wait();
+        }
+
+    } else {
+
+        while (counter < numSourceThreads) {
+            tempBuzzer->wait();
+        }
+
     }
 
-    while (counter < numSourceThreads) {
-        tempBuzzer->wait();
-    }
-
+    std::cout << "counter = " << counter << ": we will finish soon with runPipeline()" << std::endl;
     counter = 0;
+
     pthread_mutex_destroy(&connection_mutex);
 
 
@@ -1446,9 +1458,6 @@ void PipelineStage::runPipelineWithShuffleSink(HermesExecutionServer* server) {
             std::cout << "inactive blocks after running combiner in this worker:" << std::endl;
             std::cout << out << std::endl;
 #endif
-            getAllocator().cleanInactiveBlocks((size_t)((size_t)32 * (size_t)1024 * (size_t)1024));
-            getAllocator().cleanInactiveBlocks((size_t)((size_t)128 * (size_t)1024 * (size_t)1024));
-            getAllocator().cleanInactiveBlocks((size_t)DEFAULT_NET_PAGE_SIZE);
             callerBuzzer->buzz(PDBAlarm::WorkAllDone, combinerCounter);
         }
 
@@ -1582,9 +1591,6 @@ void PipelineStage::runPipelineWithBroadcastSink(HermesExecutionServer* server) 
             std::cout << "inactive blocks after sending data in this worker:" << std::endl;
             std::cout << out << std::endl;
 #endif
-            getAllocator().cleanInactiveBlocks((size_t)((size_t)32 * (size_t)1024 * (size_t)1024));
-            getAllocator().cleanInactiveBlocks((size_t)((size_t)128 * (size_t)1024 * (size_t)1024));
-            getAllocator().cleanInactiveBlocks((size_t)DEFAULT_NET_PAGE_SIZE);
             callerBuzzer->buzz(PDBAlarm::WorkAllDone, shuffleCounter);
         }
 

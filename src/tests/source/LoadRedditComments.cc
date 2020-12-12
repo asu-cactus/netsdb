@@ -32,6 +32,7 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
   long total = 0;
   long sent = 0;
   long i = 0;
+  int oddHash = 0;
   pdb::makeObjectAllocatorBlock((size_t)blockSizeInMB * (size_t)1024 * (size_t)1024, true);
   pdb::Handle<pdb::Vector<pdb::Handle<reddit::Comment>>> storeMe = pdb::makeObject<pdb::Vector<pdb::Handle<reddit::Comment>>> ();
   while (!end) {
@@ -52,7 +53,11 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
           pdb::Handle<reddit::Comment> comment = pdb::makeObject<reddit::Comment>(i, line);
           classify(comment);
           if (strcmp(comment->author.c_str(), "[deleted]") !=0){
-          //std::cout << comment->author << ":" << hashMe(comment->author.c_str(), comment->author.size()) << std::endl;
+              //std::cout << Hasher<Handle<Object>>::hash(comment) << ":" << Hasher<reddit::Comment>::hash(*comment) << std::endl;
+              if ((Hasher<Handle<Object>>::hash(comment) % 2) == 1){
+                   oddHash++;
+                   //std::cout << oddHash << ":" << comment->toString() << std::endl;
+              }
               storeMe->push_back(comment);
               i++;
           }
@@ -85,7 +90,7 @@ int main(int argc, char* argv[]) {
   string errMsg;
 
   // make sure we have the arguments
-  if(argc < 5) {
+  if(argc < 6) {
 
     std::cout << "Usage : ./LoadRedditComments managerIP managerPort inputFileName whetherToPartitionData, whetherToRegisterLibraries\n";
     std::cout << "managerIP - IP of the manager\n";
@@ -93,6 +98,7 @@ int main(int argc, char* argv[]) {
     std::cout << "inputFileName - The file to load for reddit comments data, which is a set of JSON objects\n";
     std::cout << "whetherToPrepartitionData - Y yes, N no\n";
     std::cout << "whetherToRegisterLibraries - Y yes, N no\n";    
+    std::cout << "partition on author or subs - A authors, S subs\n";
   }
 
   //  get the manager address
@@ -107,6 +113,10 @@ int main(int argc, char* argv[]) {
   if (strcmp(argv[5], "N")==0) {
       whetherToRegisterLibraries = false;
   }
+  bool whetherToPartitionOnAuthors = true;
+  if (strcmp(argv[6], "S")==0) {
+      whetherToPartitionOnAuthors = false;
+  }
 
   // make a client
   pdb::PDBLoggerPtr clientLogger = make_shared<pdb::PDBLogger>("clientLog");
@@ -118,15 +128,28 @@ int main(int argc, char* argv[]) {
   pdbClient.createDatabase("redditDB", errMsg);
   
   Handle<LambdaIdentifier> myLambda1 = nullptr;
-  /*
+  
   if (whetherToPartitionData) {
-      myLambda1 = makeObject<LambdaIdentifier>("pageRankIteration_1", "JoinComp_2", "attAccess_1");
+      if (whetherToPartitionOnAuthors) {
+          myLambda1 = makeObject<LambdaIdentifier>("reddit-a", "JoinComp_3", "attAccess_0");
+      } else {
+          myLambda1 = makeObject<LambdaIdentifier>("reddit-s", "JoinComp_3", "attAccess_0");
+      }
   }
-  */
+  
 
   // now, create the output set
   pdbClient.removeSet("redditDB", "comments", errMsg);
-  pdbClient.createSet<reddit::Comment>("redditDB", "comments", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "comments", nullptr, myLambda1);
+  pdbClient.createSet<reddit::Comment>("redditDB", "comments", errMsg, (size_t)256*(size_t)1024*(size_t)1024, "comments", nullptr, myLambda1);
 
   // parse the input file 
-  parseInputJSONFile(pdbClient, inputFileName, 64); }
+  parseInputJSONFile(pdbClient, inputFileName, 64); 
+
+  SetIterator<reddit::Comment> result = pdbClient.getSetIterator<reddit::Comment>("redditDB", "comments");
+  int count = 0;
+  for (const auto &r : result) {
+     count++;
+  }
+  std::cout << "count: " << count << std::endl;
+
+}

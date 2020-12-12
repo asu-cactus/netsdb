@@ -53,9 +53,14 @@ public:
         field05 = account->field05;
     }
 
-    size_t hash() const {
+    size_t hash() const override{
         return author.hash();
     }
+
+    std::string toString() override{
+        return std::string(author.c_str())+":"+std::string(subreddit_id.c_str());
+    }
+
 };
 
 

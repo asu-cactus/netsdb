@@ -103,13 +103,13 @@ int main(int argc, char* argv[]) {
   Handle<LambdaIdentifier> myLambda1 = nullptr;
 
   if (whetherToPartitionData) {
-      myLambda1 = makeObject<LambdaIdentifier>("reddit", "JoinComp_3", "attAccess_1");
+      myLambda1 = makeObject<LambdaIdentifier>("reddit-a", "JoinComp_3", "attAccess_1");
   }
 
 
   // now, create the output set
   pdbClient.removeSet("redditDB", "authors", errMsg);
-  pdbClient.createSet<reddit::Author>("redditDB", "authors", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "authors", nullptr, myLambda1);
+  pdbClient.createSet<reddit::Author>("redditDB", "authors", errMsg, (size_t)256*(size_t)1024*(size_t)1024, "authors", nullptr, myLambda1);
 
   // parse the input file 
   parseInputCSVFile(pdbClient, inputFileName, 64);

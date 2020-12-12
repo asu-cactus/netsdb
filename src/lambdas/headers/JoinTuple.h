@@ -1280,6 +1280,8 @@ private:
     // tells us which attribute is the key
     int keyAtt;
 
+    size_t loopId=0;
+
     // if useTheseAtts[i] = j, it means that the i^th attribute that we need to extract from the
     // input tuple is j
     std::vector<int> useTheseAtts;
@@ -1293,6 +1295,7 @@ private:
 
 public:
     ~JoinSink() {
+        std::cout << "JoinSink: cleanup columns" << std::endl;
         if (columns != nullptr)
             delete[] columns;
     }
@@ -1315,14 +1318,16 @@ public:
     }
 
     Handle<Object> createNewOutputContainer() override {
-        PDB_COUT << "JoinSink: to create new JoinMap instance" << std::endl;
+        std::cout << "JoinSink: to create new JoinMap instance" << std::endl;
         // we simply create a new map to store the output
         Handle<JoinMap<RHSType>> returnVal = makeObject<JoinMap<RHSType>>();
         return returnVal;
     }
 
     void writeOut(TupleSetPtr input, Handle<Object>& writeToMe) override {
-        PDB_COUT << "JoinSink: write out tuples in this tuple set" << std::endl;
+        loopId++;
+        if (loopId%20000==0)
+           std::cout << "JoinSink: write out "<< loopId <<" tuple sets" << std::endl;
         // get the map we are adding to
         Handle<JoinMap<RHSType>> writeMe = unsafeCast<JoinMap<RHSType>>(writeToMe);
         JoinMap<RHSType>& myMap = *writeMe;

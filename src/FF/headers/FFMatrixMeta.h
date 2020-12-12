@@ -33,7 +33,7 @@ public:
            blockRowIndex == other.blockRowIndex;
   }
 
-  size_t hash() const { return 10000 * blockRowIndex + blockColIndex; }
+  size_t hash() const override{ return 10000 * blockRowIndex + blockColIndex; }
 
   FFMatrixMeta &operator=(const FFMatrixMeta &rhs) {
     blockColIndex = rhs.blockColIndex;

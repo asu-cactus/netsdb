@@ -26,8 +26,7 @@ inline String::String() {
 }
 
 inline size_t String::hash() const {
-
-    return hashMe(c_str(), size() - 1);
+    return hashMe(c_str(), size());
 }
 
 inline String& String::operator=(const char* toMe) {

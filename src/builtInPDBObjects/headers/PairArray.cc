@@ -22,6 +22,16 @@ namespace std {
       return (size_t)(x);
     }
   };
+
+  template <> struct hash<pdb::Object>
+  {
+    size_t operator()(const pdb::Object o) const
+    {
+      return (size_t)(o.hash());
+    }
+  };
+
+
 }
 
 namespace pdb {
@@ -53,6 +63,7 @@ unsigned int newHash(unsigned int x);
 inline size_t specialHash(unsigned u) {
     return newHash(u);
 }
+
 
 inline size_t specialHash(int u) {
     return newHash((unsigned)(u));

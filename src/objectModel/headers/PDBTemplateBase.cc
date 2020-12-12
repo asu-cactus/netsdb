@@ -42,7 +42,7 @@ void PDBTemplateBase::setup() {
 
     // if we descend from Object, then get the type code
     if (std::is_base_of<Object, ObjType>::value) {
-        info = (int16_t)getTypeID<ObjType>(true);
+        info = (int16_t)getTypeID<ObjType>(false);
     } else if (std::is_base_of<String, ObjType>::value) {
         info = String_TYPEID;
     } else if (std::is_base_of<HandleBase, ObjType>::value) {

@@ -60,7 +60,7 @@ public:
         return this->port == other.getPort() && this->address == other.getAddress();
     }
 
-    std::string toString() {
+    virtual std::string toString() override {
         return std::to_string(this->port) + ":" + static_cast<std::string>(this->address);
     }
 

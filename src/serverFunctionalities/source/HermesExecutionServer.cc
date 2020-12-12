@@ -39,7 +39,7 @@
 #endif
 
 #ifndef HASH_PARTITIONED_JOIN_SIZE_RATIO
-#define HASH_PARTITIONED_JOIN_SIZE_RATIO 2.0
+#define HASH_PARTITIONED_JOIN_SIZE_RATIO 1.5
 #endif
 
 namespace pdb {
@@ -1063,9 +1063,8 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
           numPages = 1;
         }
         std::cout << "numPages=" << numPages << std::endl;
-        double sizeRatio = HASH_PARTITIONED_JOIN_SIZE_RATIO * numPartitions;
         size_t hashSetSize = (double) (conf->getShufflePageSize()) *
-            (double) (numPages) * sizeRatio / (double) (numPartitions);
+            (double) (numPages) * (double) (HASH_PARTITIONED_JOIN_SIZE_RATIO) / (double) (numPartitions);
         // create hash set
         if (hashSetSize > (size_t)(1024)*(size_t)(1024)*(size_t)(1024)) {
             hashSetSize = (size_t)(1024)*(size_t)(1024)*(size_t)(1024);

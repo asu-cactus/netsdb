@@ -20,6 +20,7 @@ elif common_env['PLATFORM'] == 'posix':
 #common_env.Append(YACCFLAGS='-d')
 common_env.Append(CFLAGS='-std=c11')
 
+
 # the following variables are used for output coloring to see errors and warnings better.
 common_env = Environment(ENV = {'PATH' : os.environ['PATH'],
                          'TERM' : os.environ['TERM'],
@@ -30,6 +31,7 @@ SRC_ROOT = os.path.join(Dir('.').abspath, "src") # assume the root source dir is
 if common_env['PLATFORM'] == 'darwin':
     print 'Compiling on OSX'
     common_env.Append(CXXFLAGS = '-std=c++1y -Wall -O3 -g')
+
     common_env.Replace(CXX = "clang++")
 
 # Linux settings
@@ -64,7 +66,7 @@ common_env.Append(CCFLAGS='-DPROFILING_CACHE')
 common_env.Append(CCFLAGS='-DENABLE_LARGE_GRAPH')
 #for nearest neighbor search, below flag should be set to large like 200 for 64MB page size
 common_env.Append(CCFLAGS='-DJOIN_HASH_TABLE_SIZE_RATIO=1.5')
-common_env.Append(CCFLAGS='-DHASH_PARTITIONED_JOIN_SIZE_RATIO=0.5')
+common_env.Append(CCFLAGS='-DHASH_PARTITIONED_JOIN_SIZE_RATIO=1.5')
 common_env.Append(CCFLAGS='-DPROFILING')
 common_env.Append(CCFLAGS='-DJOIN_COST_THRESHOLD=0')
 common_env.Append(CCFLAGS='-DENABLE_COMPRESSION')

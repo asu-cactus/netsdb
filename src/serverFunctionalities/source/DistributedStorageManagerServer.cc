@@ -666,10 +666,10 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
             //to set the IRPolicy
             std::cout << "to register policy" << std::endl;
             getFunctionality<DispatcherServer>().registerSet(std::pair<std::string, std::string>(request->getSetName(), request->getDatabase()), myIRPolicy);
-            lambdaId = getFunctionality<SelfLearningServer>().getLambdaId(jobName, "JoinComp_0", "attAccess_0");
-            lambdaId1 = getFunctionality<SelfLearningServer>().getLambdaId(jobName, "JoinComp_1", "attAccess_0");
+            lambdaId = getFunctionality<SelfLearningServer>().getLambdaId("reddit-a", "JoinComp_3", "attAccess_0");
+            lambdaId1 = getFunctionality<SelfLearningServer>().getLambdaId("reddit-s", "JoinComp_3", "attAccess_0");
             std::cout << "the lambda id is " << lambdaId << std::endl;
-            std::cout << "the lambda id1 is " << lambdaId << std::endl;
+            std::cout << "the lambda id1 is " << lambdaId1 << std::endl;
 
             std::cout << "to broadcast StorageAddset" << std::endl;
             getFunctionality<DistributedStorageManagerServer>()

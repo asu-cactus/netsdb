@@ -87,6 +87,22 @@ public:
         pthread_mutex_unlock(&this->refCountMutex);
     }
 
+    inline int decAndGetRefCount() {
+        pthread_mutex_lock(&this->refCountMutex);
+        this->refCount--;
+        int ret = this->refCount;
+        if (ret < 0) {
+            // there is a problem:
+            // reference count should always >= 0
+            this->refCount = 0;
+        } 
+        if (this->refCount == 0) {
+            this->setPinned(false);
+        }
+        pthread_mutex_unlock(&this->refCountMutex);
+        return ret;
+    }
+
     inline void freeContent() {
         pthread_mutex_lock(&this->refCountMutex);
         if (this->rawBytes != nullptr) {
@@ -277,8 +293,13 @@ void * addRemainBytes(size_t& size) {
 
     // To return the reference count of this page.
     int getRefCount() {
-        return this->refCount;
+        pthread_mutex_lock(&this->refCountMutex);
+        int ret = this->refCount;
+        pthread_mutex_unlock(&this->refCountMutex);
+        return ret;
     }
+
+
 
     // To reset the reference count of this page.
     void resetRefCount() {

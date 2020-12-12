@@ -135,7 +135,7 @@ public:
         return *this;
     }
 
-    size_t hash () const { return 0; }
+    size_t hash () const override { return 0; }
 };
 
 #endif
