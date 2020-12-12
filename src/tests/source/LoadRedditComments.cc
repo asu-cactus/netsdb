@@ -91,7 +91,6 @@ int main(int argc, char* argv[]) {
 
   // make sure we have the arguments
   if(argc < 6) {
-
     std::cout << "Usage : ./LoadRedditComments managerIP managerPort inputFileName whetherToPartitionData, whetherToRegisterLibraries\n";
     std::cout << "managerIP - IP of the manager\n";
     std::cout << "managerPort - Port of the manager\n";
