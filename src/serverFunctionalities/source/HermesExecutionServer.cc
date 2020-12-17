@@ -1066,8 +1066,8 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
         size_t hashSetSize = (double) (conf->getShufflePageSize()) *
             (double) (numPages) * (double) (HASH_PARTITIONED_JOIN_SIZE_RATIO) / (double) (numPartitions);
         // create hash set
-        if (hashSetSize > (size_t)(1024)*(size_t)(1024)*(size_t)(1024)) {
-            hashSetSize = (size_t)(1024)*(size_t)(1024)*(size_t)(1024);
+        if (hashSetSize > (size_t)(2)*(size_t)(1024)*(size_t)(1024)*(size_t)(1024)) {
+            hashSetSize = (size_t)(2)*(size_t)(1024)*(size_t)(1024)*(size_t)(1024);
         }
         std::cout << "hashSetSize is tuned to" << hashSetSize << std::endl;
         std::string hashSetName = request->getHashSetName();

@@ -94,7 +94,7 @@ int main(int argc, char* argv[]) {
   }
   
   pdbClient.removeSet("redditDB", "subsAndComments", errMsg);
-  pdbClient.createSet<reddit::SubsAndComments>("redditDB", "subsAndComments", errMsg);
+  pdbClient.createSet<reddit::SubsAndComments>("redditDB", "subsAndComments", errMsg,  (size_t)512*(size_t)1024*(size_t)1024);
   // run one iteration
   auto begin = std::chrono::high_resolution_clock::now();
   run(pdbClient, whetherAdaptiveJoin);

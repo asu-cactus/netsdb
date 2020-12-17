@@ -39,7 +39,7 @@
 
 
 #ifndef DEFAULT_HASH_SET_SIZE
-  #define DEFAULT_HASH_SET_SIZE ((size_t)(1024)*(size_t)(1024)*(size_t)(1024))
+  #define DEFAULT_HASH_SET_SIZE ((size_t)(2)*(size_t)(1024)*(size_t)(1024)*(size_t)(1024))
 #endif
 
 
@@ -621,7 +621,7 @@ void PipelineStage::executePipelineWork(int i,
             if (this->jobStage->isLocalJoinSink()) {
                 void * bytes = partitionedHashSetForSink->getPage(i);
                 if (bytes == nullptr) {
-                     std::cout << "Fatal Error: Insufficient memory in heap when allocating local join sink" << std::endl;
+                     std::cout << "Error: Insufficient memory in heap when allocating local join sink" << std::endl;
                      exit(1);
                 }
                 return std::make_pair(bytes, partitionedHashSetForSink->getPageSize());
@@ -659,7 +659,7 @@ void PipelineStage::executePipelineWork(int i,
                         (this->jobStage->isCombining() == false) && (join != nullptr))) {
                 // TODO: move this to Pangea
                 // join case
-                void* myPage = calloc(conf->getBroadcastPageSize() - sizeof(size_t), 1);
+                void* myPage = calloc(conf->getBroadcastPageSize(), 1);
                 if (myPage == nullptr) {
                     std::cout << "Pipeline Error: insufficient memory in heap" << std::endl;
                 }
@@ -717,15 +717,13 @@ void PipelineStage::executePipelineWork(int i,
                     Handle<Object> objectToSend = record->getRootObject();
                     if (objectToSend != nullptr) {
                         PDBPagePtr pageToBroadcast = std::make_shared<PDBPage>(
-                            ((char*)page -
-                             (sizeof(NodeID) + sizeof(DatabaseID) + sizeof(UserTypeID) +
-                              sizeof(SetID) + sizeof(PageID) + sizeof(int) + sizeof(size_t))),
+                            ((char*)page - headerSize),
                             0,
                             0,
                             0,
                             0,
                             0,
-                            conf->getBroadcastPageSize() - sizeof(size_t),
+                            conf->getBroadcastPageSize(),
                             0,
                             0);
                         int numNodes = jobStage->getNumNodes();
@@ -766,9 +764,7 @@ void PipelineStage::executePipelineWork(int i,
                     Handle<Object> objectToSend = record->getRootObject();
                     if (objectToSend != nullptr) {
                         PDBPagePtr pageToSend = std::make_shared<PDBPage>(
-                            ((char*)page -
-                             (sizeof(NodeID) + sizeof(DatabaseID) + sizeof(UserTypeID) +
-                              sizeof(SetID) + sizeof(PageID) + sizeof(int) + sizeof(size_t))),
+                            ((char*)page - headerSize),
                             0,
                             0,
                             0,
@@ -785,11 +781,14 @@ void PipelineStage::executePipelineWork(int i,
                         for (k = 0; k < numNodes; k++) {
                             PageCircularBufferPtr buffer = sinkBuffers[k];
                             buffer->addPageToTail(pageToSend);
+                            std::cout << "added a page to hash partioning buffer with RefCount="<< pageToSend->getRefCount() << std::endl;
                         }
                     } else {
+                        std::cout << "Hash partitioning: to free empty out page" << std::endl;
                         free((char*)page - headerSize);
                     }
                 } else {
+                    std::cout << "Hash partitioning: to free empty out page" << std::endl;
                     free((char*)page - headerSize);
                 }
 
@@ -1634,21 +1633,18 @@ void PipelineStage::runPipelineWithHashPartitionSink(HermesExecutionServer* serv
     std::vector<PageCircularBufferPtr> shuffleBuffers;
     std::vector<PageCircularBufferIteratorPtr> shuffleIters;
 
+    int shuffleCounter = 0;
     // create a buzzer and counter
     PDBBuzzerPtr shuffleBuzzer = make_shared<PDBBuzzer>([&](PDBAlarm myAlarm, int& shuffleCounter) {
         shuffleCounter++;
-        PDB_COUT << "shuffleCounter = " << shuffleCounter << std::endl;
+        std::cout << "shuffleCounter = " << shuffleCounter << std::endl;
     });
-    int shuffleCounter = 0;
 
     
     NodeID myNodeId = jobStage->getNodeId();
     int numNodes = jobStage->getNumNodes();
-    PDB_COUT << "to run shuffle with " << numNodes << " threads." << std::endl;
-    int numThreadsForLocalStore = numThreads/2;
-    if (numThreadsForLocalStore == 0) {
-        numThreadsForLocalStore = 1;
-    }
+    std::cout << "to run shuffle with " << numNodes << " threads." << std::endl;
+    int numThreadsForLocalStore = 1;
 
     for (int i = 0; i < numNodes; i++) {
         PageCircularBufferPtr buffer = make_shared<PageCircularBuffer>(shuffleBufferSize, logger);
@@ -1664,7 +1660,6 @@ void PipelineStage::runPipelineWithHashPartitionSink(HermesExecutionServer* serv
                 // start thread
                 PDBWorkPtr myWork = make_shared<HashPartitionWork>(i, iter, this, shuffleCounter);
                 worker->execute(myWork, shuffleBuzzer);
-
             }
 
         } else {
@@ -1690,6 +1685,8 @@ void PipelineStage::runPipelineWithHashPartitionSink(HermesExecutionServer* serv
         PageCircularBufferPtr buffer = shuffleBuffers[k];
         buffer->close();
     }
+
+    std::cout << "RunPipelineWithHashPartitionedSink: closed shuffle buffers that feed to the hash partitioning works"<<std::endl;
 
     while (shuffleCounter < numNodes - 1 + numThreadsForLocalStore) {
         shuffleBuzzer->wait();

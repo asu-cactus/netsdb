@@ -41,7 +41,7 @@ public:
             uint32_t I = in1->getRowNums();
             uint32_t J = in1->getColNums();
 
-            if (in1->getRowNums() != in2->getRowNums() ||
+            if (in1->getRowNums() != in2->getRowNums()||
                 in2->getColNums() != 1) {
               std::cout << "[ReluBiasSum] IN1 : " << I << " X " << J
                         << ", IN2: " << in2->getRowNums() << " X "

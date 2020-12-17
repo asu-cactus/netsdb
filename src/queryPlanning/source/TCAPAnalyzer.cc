@@ -793,7 +793,46 @@ bool TCAPAnalyzer::analyze(
           }
           curInputSetIdentifier->setIndexInInputs(indexInInputs);
 
-          if (matchOrNot == false) {
+          //we need to probe the other side
+          std::vector<std::pair<std::string, std::string>> scannerSources;
+          std::pair<std::string, std::string> curScannerSource;
+          join->getSources(scannerSources);
+          Handle<SetIdentifier> rhsSourceIdentifier = nullptr;
+          for (int k = 0; k < scannerSources.size(); k++) {
+              curScannerSource = scannerSources[k];
+              if ((curScannerSource.first == curInputSetIdentifier->getDatabase())
+                  &&(curScannerSource.second == curInputSetIdentifier->getSetName())) {
+                  continue;
+              } else {
+                  rhsSourceIdentifier = makeObject<SetIdentifier>(curScannerSource.first, curScannerSource.second);
+                  break;
+              }
+          }
+          std::string otherSourceSetName = curScannerSource.first + ":" + curScannerSource.second;
+          std::cout << "otherSourceSetName: " << otherSourceSetName << std::endl;
+          std::vector<AtomicComputationPtr> rhsSources = curSourceNodes[otherSourceSetName];
+          std::cout << "Sources: " << std::endl;
+          for (auto a : curSourceNodes) {
+              std::cout << a.first << std::endl;
+          }
+          std::cout << "rhsSources.size()=" << rhsSources.size() << std::endl;
+          std::string rhsPartitionComputationName = "";
+          std::string rhsPartitionLambdaName = "";
+          bool otherMatchOrNot = false;
+          
+          if ((matchOrNot == true)&&(rhsSources.size()>0)) {
+              matchSourceWithQuery(this->jobId,
+                                                 rhsSources[0],
+                                                 joinNode,
+                                                 logicalPlan,
+                                                 rhsSourceIdentifier,
+                                                 rhsPartitionComputationName,
+                                                 rhsPartitionLambdaName);
+               std::cout << "rhsPartitionComputationName: " << rhsPartitionComputationName
+                    << ", rhsPartitionLambdaName: " << rhsPartitionLambdaName << std::endl;
+
+          }
+          if ((matchOrNot == false)||(otherMatchOrNot == false)) {
               join->setJoinType(HashPartitionedJoin);
               std::cout << "to create TupleSetJobStage to repartition data for join" << std::endl; 
               hashSetName = sink->getDatabase() + ":" + sink->getSetName();
@@ -964,7 +1003,7 @@ bool TCAPAnalyzer::analyze(
           }
           curInputSetIdentifier->setIndexInInputs(indexInInputs);
 
-          if (matchOrNot == false) {
+          if ((matchOrNot == false)||(join->getJoinType() != LocalJoin)) {
               join->setJoinType(HashPartitionedJoin);
               std::cout << "to create a TupleSetJobStage to repartition data for probing" << std::endl;
               Handle<TupleSetJobStage> joinPrepStage = createTupleSetJobStage(

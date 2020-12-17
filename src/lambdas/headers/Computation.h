@@ -110,6 +110,7 @@ public:
     Handle<Computation>& getIthInput(int i) const {
         return (*inputs)[i];
     }
+
     
     int getIndexInInputsByComputationName(std::string myComputationName) {
         for (int i = 0; i < inputs->size(); i++) {

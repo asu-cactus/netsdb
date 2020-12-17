@@ -2,7 +2,7 @@
 
 num_of_arg=$#
 
-if [ ${num_of_arg} -eq 6 ]
+if [ ${num_of_arg} -ge 6 ]
 then
   echo "Arguments given are:- ."
   echo "1. Program to execute - ${1}"
@@ -27,6 +27,6 @@ fi
 in_files=$(ls ${4})
 for part_file in ${in_files[@]}; do
   echo "File passed to the client is ${part_file}"
-  ./"${1}" "${2}" "${3}" "${4}/${part_file}" "${5}" "${6}" &
+  ./"${1}" "${2}" "${3}" "${4}/${part_file}" "${5}" "${6}" "${7}" "${8}"&
   echo "Process to read file ${part_file} started with process id ${!}"
 done

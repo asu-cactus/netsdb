@@ -98,6 +98,7 @@ int main(int argc, char* argv[]) {
     std::cout << "whetherToPrepartitionData - Y yes, N no\n";
     std::cout << "whetherToRegisterLibraries - Y yes, N no\n";    
     std::cout << "partition on author or subs - A authors, S subs\n";
+    std::cout << "whetherToRemoveSet - Y yes, N no\n";
   }
 
   //  get the manager address
@@ -115,6 +116,10 @@ int main(int argc, char* argv[]) {
   bool whetherToPartitionOnAuthors = true;
   if (strcmp(argv[6], "S")==0) {
       whetherToPartitionOnAuthors = false;
+  }
+  bool whetherToRemoveSet = true;
+  if (strcmp(argv[7], "N")==0) {
+      whetherToRemoveSet = false;
   }
 
   // make a client
@@ -138,7 +143,9 @@ int main(int argc, char* argv[]) {
   
 
   // now, create the output set
-  pdbClient.removeSet("redditDB", "comments", errMsg);
+  if (whetherToRemoveSet == true) {
+      pdbClient.removeSet("redditDB", "comments", errMsg);
+  }
   pdbClient.createSet<reddit::Comment>("redditDB", "comments", errMsg, (size_t)256*(size_t)1024*(size_t)1024, "comments", nullptr, myLambda1);
 
   // parse the input file 

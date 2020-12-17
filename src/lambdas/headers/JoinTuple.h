@@ -318,7 +318,8 @@ public:
               TupleSpec& attsToIncludeInOutput,
               bool needToSwapLHSAndRhs)
         : myMachine(inputSchema, attsToIncludeInOutput) {
- 
+        std::cout << "*****Created a PartitionedJoinProbe instance with numPartitionsPerNode=" 
+                  << numPartitionsPerNode << ", numNodes=" << numNodes << std::endl; 
         this->numPartitionsPerNode = numPartitionsPerNode;
         this->numNodes = numNodes;
 
@@ -821,10 +822,10 @@ public:
                 lastPage = nullptr;
             }
 
-            while (curJoinMap == nullptr) {
+            while ((curJoinMap == nullptr)&& (pos < iterateOverMe->size())) {
                 curJoinMap = (*iterateOverMe)[pos];
                 pos++;
-                if (curJoinMap != nullptr) {
+                if ((curJoinMap != nullptr)&&(curJoinMap->getNumPartitions() !=0)) {
                     if ((curJoinMap->getPartitionId() % curJoinMap->getNumPartitions()) !=
                         myPartitionId) {
                         curJoinMap = nullptr;
@@ -834,7 +835,7 @@ public:
                         posInRecordList = 0;
                     }
                 }
-                if (curJoinMap == nullptr) {
+                else {
                     if (pos == iterateOverMe->size()) {
                         break;
                     } else {

@@ -1300,7 +1300,7 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
 
                 void* myBytes = nullptr;
                 if (set != nullptr) {
-                    myBytes = set->getNewBytes(sizeOfBytes);
+                    myBytes = set->getNewBytes(sizeOfBytes, true);
                 }
 
                 if (myBytes != nullptr) {
@@ -1318,6 +1318,11 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                               << ", setId = " << setId << ", pageSize =" << set->getPageSize()  << std::endl;
                
                     logger->error(errMsg);
+                    const UseTemporaryAllocationBlock myBlock{2048};
+                    Handle<StorageBytesPinned> ack = makeObject<StorageBytesPinned>();
+                    ack->setSizeOfBytes(0);
+                    ack->setSharedMemOffset(0);
+                    sendUsingMe->sendObject<StorageBytesPinned>(ack, errMsg);
                 }
                 return make_pair(res, errMsg);
             }));

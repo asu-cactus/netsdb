@@ -256,6 +256,31 @@ public:
         return getIthInputType<In1, In2, Rest...>(i);
     }
 
+    // we assume all ancesters of the join has only one input
+    void getSources(std::vector<std::pair<std::string, std::string>>& sources) {
+        int numSources = getNumInputs();
+        Handle<Computation> curComputation = nullptr;
+        for (int i = 0; i < numSources; i++) {
+            curComputation = getIthInput(i);
+            while (curComputation != nullptr){
+                if(curComputation->getComputationType() == "ScanUserSet") {
+                    break;
+                }
+                curComputation=curComputation->getIthInput(0);
+            }
+            if (curComputation != nullptr) {
+                sources.push_back(std::pair<std::string, std::string>(curComputation->getDatabaseName(), curComputation->getSetName()));
+            }
+        }
+        for (int i = 0; i < sources.size(); i++) {
+            std::cout << i <<"-th source of join "<< sources[i].first << ":" << sources[i].second << std::endl;
+        }
+    }
+
+
+
+
+
     // JiaNote: TODO: encapsulate and reuse code for getting correctJoinTuple
 
     // JiaNote: this gets a sink merger

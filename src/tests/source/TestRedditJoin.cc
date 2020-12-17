@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
   }
   
   pdbClient.removeSet("redditDB", "features", errMsg);
-  pdbClient.createSet<reddit::Features>("redditDB", "features", errMsg);
+  pdbClient.createSet<reddit::Features>("redditDB", "features", errMsg,  (size_t)512*(size_t)1024*(size_t)1024);
   // run one iteration
   auto begin = std::chrono::high_resolution_clock::now();
   run(pdbClient, whetherToAdaptiveJoin);
@@ -106,7 +106,6 @@ int main(int argc, char* argv[]) {
   SetIterator<reddit::Features> result = pdbClient.getSetIterator<reddit::Features>("redditDB", "features");
   int count = 0;
   for (const auto &r : result) {
-     std::cout << r->toString() << std::endl;
      count++;
   }
   std::cout << "count: " << count << std::endl;

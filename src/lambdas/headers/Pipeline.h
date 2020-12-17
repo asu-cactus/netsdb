@@ -223,7 +223,7 @@ public:
                std::cout << id <<": got a new output page" << std::endl;
                if (myRAM->location == nullptr) {
                    std::cout << id << ": ERROR: insufficient memory in heap" << std::endl;
-                   exit(1);
+                   return;
                }
                myRAM->outputSink = dataSink->createNewOutputContainer();
                if (batchSize == 1) {

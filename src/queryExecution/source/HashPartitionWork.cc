@@ -101,7 +101,7 @@ void HashPartitionWork :: execute(PDBBuzzerPtr callerBuzzer) {
                 Handle<Vector<Handle<Vector<Handle<Object>>>>> objectsToShuffle =
                     record->getRootObject();
                 if (objectsToShuffle != nullptr) {
-                     std::cout << "number of vectors in the record: " << objectsToShuffle->size() << std::endl;
+                     std::cout << id << ": number of vectors in the record: " << objectsToShuffle->size() << std::endl;
                 }
                 Handle<Vector<Handle<Object>>>& objectToShuffle = (*objectsToShuffle)[id];
                 Vector<Handle<Object>>& theOtherMaps = *objectToShuffle;
@@ -110,7 +110,7 @@ void HashPartitionWork :: execute(PDBBuzzerPtr callerBuzzer) {
                     if (theOtherMaps[i] != nullptr) {
                         bool success = shuffler->writeOut(theOtherMaps[i], myMaps);
                         if (success == false) {
-                            std::cout << "output page is full, send it out" << std::endl;
+                            std::cout << id << ": output page is full, send it out" << std::endl;
                             getRecord(myMaps);
                             Record<Object>* myRecord = (Record<Object>*)output;
                             size_t numBytes = myRecord->numBytes();
@@ -125,22 +125,37 @@ void HashPartitionWork :: execute(PDBBuzzerPtr callerBuzzer) {
                                 std::cout << getAllocator().printCurrentBlock()
                                                   << std::endl;
                                 makeObjectAllocatorBlock(128 * 1024, true);
+                                std::cout << id << ": sendData to "<< jobStage->getSinkContext()->getDatabase()
+                                          << ":" << jobStage->getSinkContext()->getSetName() << std::endl;
                                 stage->sendData(communicator,
                                          sendBuffer,
                                          numBytes,
                                          jobStage->getSinkContext()->getDatabase(),
                                          jobStage->getSinkContext()->getSetName(),
                                          errMsg);
+                                std::cout << id << ": sent data to "<< jobStage->getSinkContext()->getDatabase()
+                                          << ":" << jobStage->getSinkContext()->getSetName() << std::endl;
                              } else {
                                 makeObjectAllocatorBlock(128 * 1024, true);
-                                proxy->pinBytes(jobStage->getSinkContext()->getDatabaseId(),
+                                std::cout << id << ": pinBytes to " << jobStage->getSinkContext()->getDatabaseId() 
+                                          << ":" << jobStage->getSinkContext()->getTypeId()
+                                          << ":" << jobStage->getSinkContext()->getSetId();
+                                bool ret = proxy->pinBytes(jobStage->getSinkContext()->getDatabaseId(),
                                          jobStage->getSinkContext()->getTypeId(),
                                          jobStage->getSinkContext()->getSetId(),
                                          numBytes,
                                          sendBuffer,
                                          false);
+                                std::cout << id << ": pined bytes to " << jobStage->getSinkContext()->getDatabaseId()
+                                          << ":" << jobStage->getSinkContext()->getTypeId()
+                                          << ":" << jobStage->getSinkContext()->getSetId();
+                                if (!ret) {
+                                    std::cout << "Error: Failed to pin bytes" << std::endl;
+                                }
                              }
+                             std::cout << id << ": to free the " << numPages << "-th sendBuffer" << std::endl;
                              free(sendBuffer);
+                             std::cout << id << ": freed the " << numPages << "-th sendBuffer" << std::endl;
                              numPages++;
                              // free the output page and reload a new output page
                              myMaps = nullptr;
@@ -148,12 +163,20 @@ void HashPartitionWork :: execute(PDBBuzzerPtr callerBuzzer) {
                              makeObjectAllocatorBlock(buffer, conf->getNetBroadcastPageSize()-sizeof(size_t), true);
                              // redo for current map;
                              myMaps = shuffler->createNewOutputContainer();
-                             shuffler->writeOut(theOtherMaps[i], myMaps);
-                        }
-                    }
+                             bool res = shuffler->writeOut(theOtherMaps[i], myMaps);
+                             if (res == false) {
+                                 std::cout << id << ":Error: we do not have room to write all resting data out" << std::endl;
+                             } else {
+                                 std::cout << id << ": we successfully write the resting of the map out" << std::endl;
+                             }
+                        }//if (success == false)
+                    } //if theOtherMaps[i] != nullpt<r
+                    std::cout << id << ": HashPartitioned the "<< i << "-th map" << std::endl;
                     numMaps++;
                     if ((output != nullptr) && (buffer != nullptr) && (output != buffer)) {
+                         std::cout << id <<": to free the output buffer" << std::endl;
                          free(output);
+                         std::cout << id <<": freed the output buffer" << std::endl;
                          output = buffer;
                     }
                 }  // for
@@ -162,12 +185,13 @@ void HashPartitionWork :: execute(PDBBuzzerPtr callerBuzzer) {
             // unpin the input page
             page->decRefCount();
             if (page->getRefCount() == 0) {
-                std::cout << id << ": to free shuffle input page with id=" << page->getPageID() << std::endl;
+                std::cout << id << ": to free shuffle input page with refCount=" << page->getRefCount() << std::endl;
                 page->freeContent();
+                std::cout << id << ": freed shuffle input page with refCount=" << page->getRefCount() << std::endl;
             }
         }  // if
     }      // while
-    // send out the page
+    // send out the last page
     numPages++;
     if (myMaps != nullptr) {
         getRecord(myMaps);
@@ -182,26 +206,36 @@ void HashPartitionWork :: execute(PDBBuzzerPtr callerBuzzer) {
         memcpy(sendBuffer, output, numBytes);
         if (id != myNodeId) {
             makeObjectAllocatorBlock(128 * 1024, true);
+            std::cout << id <<": sendData" << std::endl;
             stage->sendData(communicator,
                 sendBuffer,
                 numBytes,
                 jobStage->getSinkContext()->getDatabase(),
                 jobStage->getSinkContext()->getSetName(),
                 errMsg);
+            std::cout << id <<": sent data" << std::endl;
         } else {
             makeObjectAllocatorBlock(128 * 1024, true);
-            proxy->pinBytes(jobStage->getSinkContext()->getDatabaseId(),
+            std::cout << id <<": pinBytes" << std::endl;
+            bool ret = proxy->pinBytes(jobStage->getSinkContext()->getDatabaseId(),
                 jobStage->getSinkContext()->getTypeId(),
                 jobStage->getSinkContext()->getSetId(),
                 numBytes,
                 sendBuffer,
                 false);
+            std::cout << id <<": pinned bytes" << std::endl;
+            if (!ret) {
+                std::cout << "Error: Failed to pin bytes" << std::endl;
+            }
         }
+        std::cout << id << ": to free the "<< numPages<<"-th send buffer" << std::endl;
         free(sendBuffer);
+        std::cout << id << ": freed the "<< numPages<<"-th send buffer" << std::endl;
         numPages++;
         myMaps = nullptr;
     }
     if (output != nullptr) {
+        std::cout << id << ": to free the final output" << std::endl;
         free(output);
         output = nullptr;
     }
@@ -217,11 +251,8 @@ void HashPartitionWork :: execute(PDBBuzzerPtr callerBuzzer) {
                  jobStage->getSinkContext()->getSetName(),
                  errMsg);
     }
-    getAllocator().cleanInactiveBlocks((size_t)((size_t)32 * (size_t)1024 * (size_t)1024));
-    getAllocator().cleanInactiveBlocks((size_t)((size_t)128 * (size_t)1024 * (size_t)1024));
-    getAllocator().cleanInactiveBlocks((size_t)(conf->getNetBroadcastPageSize()));
     callerBuzzer->buzz(PDBAlarm::WorkAllDone, counter);
-
+    std::cout << "finished " << id << "-th HashPartition work on " << myNodeId << std::endl;
 }
 
 }

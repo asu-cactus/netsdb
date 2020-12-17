@@ -450,7 +450,7 @@ size_t JoinRecordList<ValueType>::size() {
     if (JM_GET_NEXT(parent->data, whichOne) < parent->overflows.size()) {
       return parent->overflows[JM_GET_NEXT(parent->data, whichOne)].size() + 1;
     } else {
-      std::cout << "not invalid pos, return 0" << std::endl;
+      std::cout << "invalid pos, return 0" << std::endl;
       return 0;
     }
   } else {
