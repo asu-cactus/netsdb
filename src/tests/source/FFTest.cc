@@ -100,7 +100,7 @@ int main(int argc, char *argv[]) {
     ff::loadMatrix(pdbClient, "ff", "w1", hid1_size, features, block_x, block_y,
                    false, false, errMsg);
     // 128 x 1
-    ff::loadMatrix(pdbClient, "ff", "b1", hid1_size, batch_size, block_x,
+    ff::loadMatrix(pdbClient, "ff", "b1", hid1_size, 1, block_x,
                    block_y, false, true, errMsg);
 
     // 256 x 128
@@ -124,7 +124,9 @@ int main(int argc, char *argv[]) {
                 "output", dropout_rate);
 
   vector<vector<double>> labels_test;
-  ff::load_matrix_from_file(labels_path, labels_test);
+
+  if (!generate)
+    ff::load_matrix_from_file(labels_path, labels_test);
 
   int correct = 0;
   {
@@ -136,17 +138,22 @@ int main(int argc, char *argv[]) {
       double *data = r->getRawDataHandle()->c_ptr();
       int i = 0;
       int j = r->getBlockRowIndex() * r->getRowNums();
-      while (i < r->getRowNums() * r->getColNums() && j < labels_test.size()) {
+      while (i < r->getRowNums() * r->getColNums()) {
+        if (!generate && j >= labels_test.size())
+          break;
         // double a = exp(data[i]);
         // double b = exp(data[i + 1]);
         // double sum = a + b;
 
-        int pos1 = data[i] > data[i + 1] ? 0 : 1;
         cout << data[i] << ", " << data[i + 1] << endl;
-        int pos2 = labels_test[j][0] > labels_test[j][1] ? 0 : 1;
 
-        if (pos1 == pos2)
-          correct++;
+        if (!generate) {
+          int pos1 = data[i] > data[i + 1] ? 0 : 1;
+          int pos2 = labels_test[j][0] > labels_test[j][1] ? 0 : 1;
+
+          if (pos1 == pos2)
+            correct++;
+        }
 
         // cout << (a/sum) << ", " << (b/sum) << " : " << labels_test[j][0] <<
         // ", " << labels_test[j][1] << endl;
@@ -155,7 +162,8 @@ int main(int argc, char *argv[]) {
       }
     }
 
-    cout << "Accuracy: " << correct << "/" << labels_test.size() << std::endl;
+    if (!generate)
+      cout << "Accuracy: " << correct << "/" << labels_test.size() << std::endl;
   }
 
   sleep(20);

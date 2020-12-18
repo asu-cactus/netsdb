@@ -18,7 +18,7 @@
 class FFMatrixBlock : public pdb::Object {
 private:
   FFMatrixData data;
-  FFMatrixMeta meta;
+  pdb::Handle<FFMatrixMeta> meta;
 
 public:
   const static int librayCode = EIGEN_CODE;
@@ -31,23 +31,28 @@ public:
 
   FFMatrixBlock(int blockRowIndexIn, int blockColIndexIn, int rowNumsIn,
                 int colNumsIn)
-      : data(rowNumsIn, colNumsIn), meta(blockRowIndexIn, blockColIndexIn) {}
+      : data(rowNumsIn, colNumsIn) {
+        meta = pdb::makeObject<FFMatrixMeta>(blockRowIndexIn, blockColIndexIn);
+      }
 
   FFMatrixBlock(int blockRowIndexIn, int blockColIndexIn, int rowNumsIn,
                 int colNumsIn, int totalRows, int totalCols)
-      : data(rowNumsIn, colNumsIn),
-        meta(blockRowIndexIn, blockColIndexIn, totalRows, totalCols) {}
+      : data(rowNumsIn, colNumsIn) {
+        meta = pdb::makeObject<FFMatrixMeta>(blockRowIndexIn, blockColIndexIn, totalRows, totalCols);
+      }
 
   FFMatrixBlock(int blockRowIndexIn, int blockColIndexIn, int rowNumsIn,
                 int colNumsIn, pdb::Handle<pdb::Vector<double>> rawDataIn)
-      : data(rowNumsIn, colNumsIn, rawDataIn),
-        meta(blockRowIndexIn, blockColIndexIn) {}
+      : data(rowNumsIn, colNumsIn, rawDataIn)  {
+        meta = pdb::makeObject<FFMatrixMeta>(blockRowIndexIn, blockColIndexIn);
+      }
 
   FFMatrixBlock(int blockRowIndexIn, int blockColIndexIn, int rowNumsIn,
                 int colNumsIn, int totalRows, int totalCols,
                 pdb::Handle<pdb::Vector<double>> rawDataIn)
-      : data(rowNumsIn, colNumsIn, rawDataIn),
-        meta(blockRowIndexIn, blockColIndexIn, totalRows, totalCols) {}
+      : data(rowNumsIn, colNumsIn, rawDataIn) {
+        meta = pdb::makeObject<FFMatrixMeta>(blockRowIndexIn, blockColIndexIn, totalRows, totalCols);
+      }
 
   int getRowNums() { return data.rowNums; }
 
@@ -63,25 +68,23 @@ public:
 
   pdb::Handle<pdb::Vector<double>> &getRawDataHandle() { return data.rawData; }
 
-  FFMatrixMeta &getKey() { return meta; }
+  pdb::Handle<FFMatrixMeta> &getKey() { return meta; }
+
+  FFMatrixMeta &getKeyRef() { return *meta; }
 
   FFMatrixData &getValue() { return data; }
 
-  int getBlockRowIndex() { return meta.blockRowIndex; }
+  int getBlockRowIndex() { return meta->blockRowIndex; }
 
-  int getBlockColIndex() { return meta.blockColIndex; }
+  int getBlockColIndex() { return meta->blockColIndex; }
 
-  int getTotalRowNums() { return meta.totalRows; }
+  int getTotalRowNums() { return meta->totalRows; }
 
-  int getTotalColNums() { return meta.totalCols; }
+  int getTotalColNums() { return meta->totalCols; }
 
   // This is needed for row-wise computation
-  FFMatrixMeta getRowKey() {
-      FFMatrixMeta rowMeta;
-      rowMeta.blockRowIndex = meta.blockRowIndex;
-      rowMeta.blockColIndex = 0;
-      rowMeta.totalRows = meta.totalRows;
-      rowMeta.totalCols = 1;
+  pdb::Handle<FFMatrixMeta> getRowKey() {
+      pdb::Handle<FFMatrixMeta> rowMeta = pdb::makeObject<FFMatrixMeta>(meta->blockRowIndex, 0, meta->totalRows, 1);
       return rowMeta;
   }
 
