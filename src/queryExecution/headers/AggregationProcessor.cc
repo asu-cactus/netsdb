@@ -7,6 +7,15 @@ namespace pdb {
 
 
 template <class KeyType, class ValueType>
+AggregationProcessor<KeyType, ValueType>::~AggregationProcessor() {
+
+    if(begin != nullptr)
+        delete begin;
+    if(end != nullptr)
+        delete end;
+}
+
+template <class KeyType, class ValueType>
 AggregationProcessor<KeyType, ValueType>::AggregationProcessor(HashPartitionID id) {
 
     this->id = id;

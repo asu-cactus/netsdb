@@ -26,6 +26,7 @@ private:
     std::vector<AtomicComputationPtr> scans;
 
 public:
+
     // gets the computation that builds the tuple set with the specified name
     AtomicComputationPtr getProducingAtomicComputation(std::string outputName);
 

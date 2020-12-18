@@ -54,8 +54,8 @@ public:
     ENABLE_DEEP_COPY
 
 private:
-    int16_t identifier;
-    String objectTypeName;
+    int16_t identifier=0;
+    String objectTypeName="";
 };
 }
 

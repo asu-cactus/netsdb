@@ -50,7 +50,7 @@ elif  common_env['PLATFORM'] == 'posix':
     common_env.Replace(CXX = "clang++")
 
 #common_env.Append(CCFLAGS='-DDEBUG_VTABLE_FIXING')
-#common_env.Append(CCFLAGS='-DUSE_VALGRIND')
+common_env.Append(CCFLAGS='-DUSE_VALGRIND')
 common_env.Append(CCFLAGS='-DINITIALIZE_ALLOCATOR_BLOCK')
 #common_env.Append(CCFLAGS='-DENABLE_SHALLOW_COPY')
 common_env.Append(CCFLAGS='-DDEFAULT_BATCH_SIZE=1')
@@ -805,7 +805,7 @@ common_env.Program('bin/TestMatrix', ['build/tests/TestMatrix.cc'] + all)
 common_env.Program('bin/FFTest', ['build/tests/FFTest.cc', 'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
 common_env.Program('bin/RedditFeatureExtractor', ['build/tests/RedditFeatureExtractor.cc', 'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
 common_env.Program('bin/LSTMTest', ['build/tests/LSTMTest.cc'] + all + pdb_client)
-
+common_env.Program('bin/LSTMDebug', ['build/tests/LSTMDebug.cc'] + all + pdb_client)
 #PageRank
 
 common_env.Program('bin/PageRank', ['build/tests/PageRank.cc'] + all + pdb_client)
@@ -1278,7 +1278,7 @@ libLSTMTest=common_env.Alias('libLSTMTest', [
   'bin/pdb-server', 
 
   'bin/LSTMTest',
-  
+  'bin/LSTMDebug', 
   # Other libraries from src/LSTM
   'libraries/libFFMatrixBlock.so',
   'libraries/libFFMatrixData.so',

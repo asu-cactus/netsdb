@@ -16,7 +16,7 @@ template <class KeyType, class ValueType>
 class AggregationProcessor : public SimpleSingleTableQueryProcessor {
 
 public:
-    ~AggregationProcessor(){};
+    ~AggregationProcessor();
     AggregationProcessor(){};
     AggregationProcessor(HashPartitionID id);
     void initialize() override;

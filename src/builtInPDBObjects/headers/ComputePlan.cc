@@ -47,10 +47,11 @@ inline LogicalPlanPtr ComputePlan::getPlan() {
         exit(1);
     }
 
-    // this is the logical plan to return
-    myPlan = std::make_shared<LogicalPlan>(*myResult, allComputations);
-    delete myResult;
-
+    if (myResult != nullptr) {
+        // this is the logical plan to return
+        // JiaNote: there is a memory leak regarding myResult, we need to fix it in the future
+        myPlan = std::make_shared<LogicalPlan>(*myResult, allComputations);
+    }
     // and now we are outta here
     return myPlan;
 }

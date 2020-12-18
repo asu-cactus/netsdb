@@ -952,6 +952,8 @@ public:
         lastPage = nullptr;
         myRec = nullptr;
         myPage = nullptr;
+        if (columns != nullptr)
+            delete [] columns;
     }
 };
 

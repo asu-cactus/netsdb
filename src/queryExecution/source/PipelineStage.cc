@@ -47,6 +47,7 @@ namespace pdb {
 
 PipelineStage::~PipelineStage() {
     this->jobStage = nullptr;
+    this->nodeIds.clear();
 }
 
 PipelineStage::PipelineStage(Handle<TupleSetJobStage> stage,
@@ -1047,13 +1048,13 @@ void PipelineStage::runPipeline(HermesExecutionServer* server,
     pthread_mutex_t connection_mutex;
     pthread_mutex_init(&connection_mutex, nullptr);
     
-    int counter = 0;
+    int pipelineCounter = 0;
 
     // create a buzzer and counter
     PDBBuzzerPtr tempBuzzer =
-        make_shared<PDBBuzzer>([&](PDBAlarm myAlarm, int& counter) { 
+        make_shared<PDBBuzzer>([](PDBAlarm myAlarm, int& counter) { 
             counter++; 
-            std::cout << "counter = " << counter << std::endl; 
+            std::cout << "pipelineCounter = " << counter << std::endl; 
        }
        );
 
@@ -1090,7 +1091,7 @@ void PipelineStage::runPipeline(HermesExecutionServer* server,
                       << std::endl;
             std::cout << out << std::endl;
 #endif
-            callerBuzzer->buzz(PDBAlarm::WorkAllDone, counter);
+            callerBuzzer->buzz(PDBAlarm::WorkAllDone, pipelineCounter);
 
         }
 
@@ -1164,20 +1165,20 @@ void PipelineStage::runPipeline(HermesExecutionServer* server,
             buffer->close();
         }
 
-        while (counter < numSourceThreads) {
+        while (pipelineCounter < numSourceThreads) {
             tempBuzzer->wait();
         }
 
     } else {
 
-        while (counter < numSourceThreads) {
+        while (pipelineCounter < numSourceThreads) {
             tempBuzzer->wait();
         }
 
     }
 
-    std::cout << "counter = " << counter << ": we will finish soon with runPipeline()" << std::endl;
-    counter = 0;
+    std::cout << "pipelineCounter = " << pipelineCounter << ": we will finish soon with runPipeline()" << std::endl;
+    pipelineCounter = 0;
 
     pthread_mutex_destroy(&connection_mutex);
 

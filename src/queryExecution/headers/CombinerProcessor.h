@@ -22,6 +22,8 @@ class CombinerProcessor : public SimpleSingleTableQueryProcessor {
 public:
     ~CombinerProcessor() {
         blockPtr = nullptr;
+        if(begin != nullptr) delete begin;
+        if(end != nullptr) delete end;
         begin = nullptr;
         end = nullptr;
     };
