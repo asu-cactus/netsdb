@@ -821,7 +821,7 @@ bool TCAPAnalyzer::analyze(
           bool otherMatchOrNot = false;
           
           if ((matchOrNot == true)&&(rhsSources.size()>0)) {
-              matchSourceWithQuery(this->jobId,
+              otherMatchOrNot = matchSourceWithQuery(this->jobId,
                                                  rhsSources[0],
                                                  joinNode,
                                                  logicalPlan,

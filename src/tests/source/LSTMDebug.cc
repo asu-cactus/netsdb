@@ -27,10 +27,10 @@ void print(pdb::PDBClient &pdbClient, string dbName, string setName) {
 
   for (auto r : it) {
     std::cout << "hash:"<< r->hash() <<std::endl;
-    double *data = r->getRawDataHandle()->c_ptr();
+/*    double *data = r->getRawDataHandle()->c_ptr();
     for (int i = 0; i < r->getRowNums() * r->getColNums(); i++) {
       std::cout << data[i] << ",";
-    }
+    }*/
   }
 }
 
