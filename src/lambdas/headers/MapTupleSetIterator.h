@@ -41,7 +41,9 @@ public:
     void setChunkSize(size_t chunkSize) override {
         this->chunkSize = chunkSize;
     }
-
+    size_t getChunkSize() override {
+        return this->chunkSize;
+    }
 
     // returns the next tuple set to process, or nullptr if there is not one to process
     TupleSetPtr getNextTupleSet() override {

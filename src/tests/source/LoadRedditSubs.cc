@@ -113,7 +113,7 @@ int main(int argc, char* argv[]) {
 
   // now, create the output set
   pdbClient.removeSet("redditDB", "subs", errMsg);
-  pdbClient.createSet<reddit::Sub>("redditDB", "subs", errMsg, (size_t)256*(size_t)1024*(size_t)1024, "subs", nullptr, myLambda1);
+  pdbClient.createSet<reddit::Sub>("redditDB", "subs", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "subs", nullptr, myLambda1);
 
   // parse the input file 
   parseInputJSONFile(pdbClient, inputFileName, 64); }

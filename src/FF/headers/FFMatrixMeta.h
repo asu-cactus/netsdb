@@ -34,7 +34,7 @@ public:
   }
 
   size_t hash() const override{ 
-     std::cout << "invoke FFMatrixMeta.hash(), blockRowIndex="<<blockRowIndex<<", blockColIndex="<<blockColIndex << std::endl;
+     //std::cout << "invoke FFMatrixMeta.hash(), blockRowIndex="<<blockRowIndex<<", blockColIndex="<<blockColIndex << std::endl;
      return 10000 * blockRowIndex + blockColIndex; }
 
   FFMatrixMeta &operator=(const FFMatrixMeta &rhs) {

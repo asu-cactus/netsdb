@@ -901,7 +901,7 @@ bool CatalogServer::loadAndRegisterType(int16_t typeIDFromManagerCatalog, const 
 
   // write out the shared library
   auto sizeWritten = write(fileDesc, soFile, soFileSize);
-  PDB_COUT << "For type id : " <<  typeIDFromManagerCatalog << " shared library of size : " << sizeWritten  << "written to disk.\n";
+  std::cout << "For type id : " <<  typeIDFromManagerCatalog << " shared library of size : " << sizeWritten  << "written to disk.\n";
 
   // close the damn thing
   close(fileDesc);
@@ -922,7 +922,7 @@ bool CatalogServer::loadAndRegisterType(int16_t typeIDFromManagerCatalog, const 
     errMsg.append("\n");
 
     // log what happened
-    PDB_COUT << errMsg;
+    std::cout << errMsg;
 
     // close the damn thing
     dlclose(so_handle);
@@ -934,7 +934,7 @@ bool CatalogServer::loadAndRegisterType(int16_t typeIDFromManagerCatalog, const 
   auto *myFunc = (getObjectTypeNameFunc *) dlsym(so_handle, "getObjectTypeName");
 
   // log what is happening
-  PDB_COUT << "Tried to extract the getObjectTypeName function from the .so file \n";
+  std::cout << "Tried to extract the getObjectTypeName function from the .so file \n";
 
   // if the function is not defined or there was an error return
   char *symError;
@@ -945,28 +945,28 @@ bool CatalogServer::loadAndRegisterType(int16_t typeIDFromManagerCatalog, const 
     errMsg.append(symError);
     errMsg.append("\n");
 
-    PDB_COUT << errMsg << endl;
+    std::cout << errMsg << endl;
 
     return false;
   }
 
   // log what is happening
-  PDB_COUT << "Successfully extracted the getObjectTypeName function from the .so file" << endl;
+  std::cout << "Successfully extracted the getObjectTypeName function from the .so file" << endl;
 
   // now, get the type name so we can write the appropriate file
   string typeName(myFunc());
   dlclose(so_handle);
 
   // log what is happening
-  PDB_COUT << "typeName returned from SO file: " << typeName << endl;
+  std::cout << "typeName returned from SO file: " << typeName << endl;
 
   // rename temporary file
   string newName = catalogDirectory + "/tmp_so_files/" + typeName + ".so";
   int result = rename(tempFile.c_str(), newName.c_str());
   if (result == 0) {
-    PDB_COUT << "Successfully renaming file " << newName << endl;
+    std::cout << "Successfully renaming file " << newName << endl;
   } else {
-    PDB_COUT << "Renaming temp file failed " << newName << endl;
+    std::cout << "Renaming temp file failed " << newName << endl;
     return false;
   }
 
@@ -974,7 +974,7 @@ bool CatalogServer::loadAndRegisterType(int16_t typeIDFromManagerCatalog, const 
   if(pdbCatalog->getTypeWithoutLibrary(typeName) == nullptr) {
 
     // ok we don't have it log that!
-    PDB_COUT << "Fixing vtable ptr for type " << typeName << " with metadata retrieved from remote Catalog Server." << endl;
+    std::cout << "Fixing vtable ptr for type " << typeName << " with metadata retrieved from remote Catalog Server." << endl;
 
     // we are gonna put the type code here
     int16_t typeCode;
@@ -989,7 +989,7 @@ bool CatalogServer::loadAndRegisterType(int16_t typeIDFromManagerCatalog, const 
     }
 
     // log what is happening
-    PDB_COUT << "ID Assigned to type " << typeName << " is " << std::to_string(typeCode) << endl;
+    std::cout << "ID Assigned to type " << typeName << " is " << std::to_string(typeCode) << endl;
 
 
     // copy the type into a vector

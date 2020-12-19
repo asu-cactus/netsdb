@@ -146,7 +146,7 @@ int main(int argc, char* argv[]) {
   if (whetherToRemoveSet == true) {
       pdbClient.removeSet("redditDB", "comments", errMsg);
   }
-  pdbClient.createSet<reddit::Comment>("redditDB", "comments", errMsg, (size_t)256*(size_t)1024*(size_t)1024, "comments", nullptr, myLambda1);
+  pdbClient.createSet<reddit::Comment>("redditDB", "comments", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "comments", nullptr, myLambda1);
 
   // parse the input file 
   parseInputJSONFile(pdbClient, inputFileName, 64); 

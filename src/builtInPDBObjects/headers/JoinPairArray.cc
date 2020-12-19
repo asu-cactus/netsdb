@@ -167,6 +167,7 @@ void JoinPairArray<ValueType>::setUnused(const size_t &me) {
       if (JM_GET_NEXT(data, slot) != UINT32_MAX &&
           overflows[JM_GET_NEXT(data, slot)].size() >= 1) {
         overflows[JM_GET_NEXT(data, slot)].pop_back();
+        std::cout << "JoinMap: setUnused " << me << " with overflow" << std::endl;
         return;
       }
 
@@ -175,7 +176,7 @@ void JoinPairArray<ValueType>::setUnused(const size_t &me) {
 
       JM_GET_HASH(data, slot) = JM_UNUSED;
       JM_GET_NEXT(data, slot) = UINT32_MAX;
-
+      std::cout << "JoinMap: setUnused " << me << " without overflow" << std::endl;
       return;
     }
 

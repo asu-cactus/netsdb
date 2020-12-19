@@ -27,10 +27,15 @@ struct MemoryHolder {
 
     // his memory
     void* location;
+    size_t size;
+
+
 
     // the iteration where he was last written...
     // we use this beause we canot delete
     int iteration;
+
+    size_t getSize() { return size; }
 
     void setIteration(int iterationIn) {
         if (outputSink != nullptr)
@@ -40,6 +45,7 @@ struct MemoryHolder {
 
     MemoryHolder(std::pair<void*, size_t> buildMe) {
         location = buildMe.first;
+        size = buildMe.second;
         makeObjectAllocatorBlock(location, buildMe.second, true);
         outputSink = nullptr;
     }
@@ -207,7 +213,6 @@ public:
         // while there is still data
         // Jia Note: dataSource->getNextTupleSet() can throw exception for certain data sources like
         // MapTupleSetIterator
-        int batchSize = DEFAULT_BATCH_SIZE;
         while (true) {
 
            try {
@@ -226,10 +231,6 @@ public:
                    return;
                }
                myRAM->outputSink = dataSink->createNewOutputContainer();
-               if (batchSize == 1) {
-                   std::cout << id << ": ERROR: object size is too large to fit to page" << std::endl;
-                   return;
-               }
            }
 
            if (curChunk == nullptr) {
@@ -271,8 +272,7 @@ public:
                                   << std::endl;
                         std::cout << id << ": Pipeline Error: Batch processing memory exceeds page size "
                                      "for executor type: "
-                                  << q->getType() << ", consider to reduce batch size or increase page size" 
-                                  << std::endl;
+                                  << q->getType() << ", consider to reduce batch size or increase page size. Current batch size is "<<dataSource->getChunkSize() << ", current page size is "<< myRAM->getSize() << std::endl; 
                         exit(1);
                     }
                 }

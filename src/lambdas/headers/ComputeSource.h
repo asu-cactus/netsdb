@@ -21,6 +21,8 @@ public:
     // JiaNote: to enable auto-tuning of batch size in case of failure.
     virtual void setChunkSize(size_t chunkSize) = 0;
 
+    virtual size_t getChunkSize() = 0;
+
     virtual ~ComputeSource() {}
 };
 }
