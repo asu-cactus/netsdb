@@ -208,6 +208,8 @@ int main(int argc, char *argv[]) {
   loadMatrix(pdbClient, "lstm", "h_t_1", L, B, block_x, block_y, 0, errMsg);
 
   {
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
     pdb::Handle<pdb::Computation> w_f =
         pdb::makeObject<FFMatrixBlockScanner>("lstm", "w_f");
     pdb::Handle<pdb::Computation> x_t =
@@ -271,6 +273,8 @@ int main(int argc, char *argv[]) {
   loadMatrix(pdbClient, "lstm", "b_i", L, B, block_x, block_y, 0, errMsg);
 
   {
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+    
     pdb::Handle<pdb::Computation> w_i =
         pdb::makeObject<FFMatrixBlockScanner>("lstm", "w_i");
     pdb::Handle<pdb::Computation> x_t =
@@ -334,6 +338,8 @@ int main(int argc, char *argv[]) {
   loadMatrix(pdbClient, "lstm", "b_o", L, B, block_x, block_y, 0, errMsg);
 
   {
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+    
     pdb::Handle<pdb::Computation> w_o =
         pdb::makeObject<FFMatrixBlockScanner>("lstm", "w_o");
     pdb::Handle<pdb::Computation> x_t =
@@ -397,6 +403,8 @@ int main(int argc, char *argv[]) {
   loadMatrix(pdbClient, "lstm", "b_c", L, B, block_x, block_y, 0, errMsg);
 
   {
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+    
     pdb::Handle<pdb::Computation> w_c =
         pdb::makeObject<FFMatrixBlockScanner>("lstm", "w_c");
     pdb::Handle<pdb::Computation> x_t =
@@ -458,6 +466,8 @@ int main(int argc, char *argv[]) {
   loadMatrix(pdbClient, "lstm", "c_t_1", L, B, block_x, block_y, 0, errMsg);
 
   {
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+    
     pdb::Handle<pdb::Computation> f_t =
         pdb::makeObject<FFMatrixBlockScanner>("lstm", "f_t");
     pdb::Handle<pdb::Computation> c_t_1 =
@@ -510,6 +520,8 @@ int main(int argc, char *argv[]) {
   }
 
   {
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+    
     pdb::Handle<pdb::Computation> o_t =
         pdb::makeObject<FFMatrixBlockScanner>("lstm", "o_t");
     pdb::Handle<pdb::Computation> c_t_1 =
