@@ -2,6 +2,7 @@
 #define FF_MATRIXMETA_H
 
 #include "Object.h"
+#include "Handle.h"
 
 class FFMatrixMeta : public pdb::Object {
 public:
