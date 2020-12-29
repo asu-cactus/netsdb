@@ -369,6 +369,10 @@ int PartitionedFile::writeMeta() {
     fflush(this->metaFile);
     // allocate buffer for meta data
     char* buffer = (char*)malloc(metaSize * sizeof(char));
+    if (buffer == nullptr) {
+        std::cout << "PartitionedFile.cc: Failed to allocate memory with size=" << metaSize << std::endl;
+        exit(1);
+    }
     char* cur = buffer;
 
     // intialize FileType
@@ -696,6 +700,10 @@ void PartitionedFile::buildMetaDataFromMetaPartition(SharedMemPtr shm) {
     // load meta partition to memory
     fseek(this->metaFile, sizeof(size_t), SEEK_SET);
     char* buf = (char*)malloc(size * sizeof(char));
+    if (buf == nullptr) {
+        std::cout << "PartitionedFile.cc: Failed to allocate memory with size=" << size << std::endl;
+        exit(1);
+    }
     sizeRead = fread((void*)buf, sizeof(char), size, this->metaFile);
     if (sizeRead < size) {
         cout << "Metadata corrupted, please remove storage folders and try again...\n";

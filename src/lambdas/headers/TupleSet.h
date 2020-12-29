@@ -335,6 +335,10 @@ public:
 
             // copy the ones that need to be retained over
             std::vector<ColType>* newVec = new std::vector<ColType>(counter);
+            if (newVec == nullptr) {
+                std::cout << "TupleSet.h: Failed to allocate memory " << std::endl; 
+                exit(1);
+            }
             counter = 0;
             for (int i = 0; i < filterMe.size(); i++) {
                 if (whichAreValid[i])
@@ -356,6 +360,10 @@ public:
 
             // copy the ones that need to be retained over
             std::vector<ColType>* newVec = new std::vector<ColType>(counter);
+            if (newVec == nullptr) {
+                std::cout << "TupleSet.h: Failed to allocate memory " << std::endl;
+                exit(1);
+            }
             counter = 0;
             for (int i = 0; i < timesToReplicate.size(); i++) {
                 for (int j = 0; j < timesToReplicate[i]; j++) {

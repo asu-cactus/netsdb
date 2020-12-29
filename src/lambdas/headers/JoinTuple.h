@@ -25,7 +25,10 @@ typedef enum {
 
 template <typename T>
 void copyFrom(T& out, Handle<T>& in) {
-    out = *in;
+    if (in != nullptr)
+        out = *in;
+    else
+        std::cout << "Error in copyFrom: in is nullptr" << std::endl;
 }
 
 template <typename T>
@@ -35,12 +38,15 @@ void copyFrom(T& out, T& in) {
 
 template <typename T>
 void copyFrom(Handle<T>& out, Handle<T>& in) {
-    out = in;
+     out = in;
 }
 
 template <typename T>
 void copyFrom(Handle<T>& out, T& in) {
-    *out = in;
+    if (out != nullptr)
+        *out = in;
+    else
+        std::cout << "Error in copyFrom: out is nullptr" << std::endl;
 }
 
 template <typename T>
@@ -85,6 +91,10 @@ public:
 
     static void* allocate(TupleSet& processMe, int where) {
         std::vector<Handle<HoldMe>>* me = new std::vector<Handle<HoldMe>>;
+        if (me == nullptr){
+            std::cout << "JoinTuple.h: Failed to allocate memory" << std::endl;
+            exit(1);
+        }
         processMe.addColumn(where, me, true);
         return me;
     }
@@ -334,6 +344,10 @@ public:
         // set up the output tuple
         output = std::make_shared<TupleSet>();
         columns = new void*[positions.size()];
+        if (columns == nullptr) {
+            std::cout << "Error: No memory on heap" << std::endl;
+            exit(1);
+        }
         if (needToSwapLHSAndRhs) {
             offset = positions.size();
             createCols<RHSType>(columns, *output, 0, 0, positions);
@@ -767,9 +781,17 @@ public:
             PDB_COUT << "Got iterateOverMe" << std::endl;
             // create the output vector for objects and put it into the tuple set
             columns = new void*[positions.size()];
+            if (columns == nullptr) {
+                std::cout << "Error: No memory on heap" << std::endl;
+                exit(1);
+            }
             createCols<RHSType>(columns, *output, 0, 0, positions);
             // create the output vector for hash value and put it into the tuple set
             hashColumn = new std::vector<size_t>;
+            if (hashColumn == nullptr) {
+                std::cout << "Error: No memory on heap" << std::endl;
+                exit(1);
+            }
             output->addColumn(positions.size(), hashColumn, true);
             isDone = false;
 
@@ -1018,19 +1040,27 @@ public:
     bool writeOut(Handle<Object> shuffleMe, Handle<Object>& shuffleToMe) override {
 
         // get the map we are adding to
+        if (shuffleMe == nullptr) {
+            std::cout << "Error: To shuffle a NULL JoinMap" << std::endl;
+            return true;
+        }
+        if (shuffleToMe == nullptr) {
+            std::cout << "Error: To shuffle to a NULL Vector of JoinMap" << std::endl;
+            return true;
+        }
         Handle<JoinMap<RHSType>> theOtherMap = unsafeCast<JoinMap<RHSType>>(shuffleMe);
         JoinMap<RHSType> mapToShuffle = *theOtherMap;
 
         Handle<Vector<Handle<JoinMap<RHSType>>>> shuffledMaps =
             unsafeCast<Vector<Handle<JoinMap<RHSType>>>, Object>(shuffleToMe);
         Vector<Handle<JoinMap<RHSType>>>& myMaps = *shuffledMaps;
-        Handle<JoinMap<RHSType>> thisMap;
+        Handle<JoinMap<RHSType>> thisMap=nullptr;
         try {
             thisMap = makeObject<JoinMap<RHSType>>(mapToShuffle.size(),
                                                    mapToShuffle.getPartitionId(),
                                                    mapToShuffle.getNumPartitions());
         } catch (NotEnoughSpace& n) {
-            std::cout << "can't allocate for new map with " << mapToShuffle.size() << " elements" << std::endl;
+            std::cout << "Can't allocate for new map with " << mapToShuffle.size() << " elements" << std::endl;
             return false;
         }
         JoinMap<RHSType>& myMap = *thisMap;
@@ -1071,7 +1101,7 @@ public:
                             return false;
                         }
                     } else {
-                        RHSType* temp;
+                        RHSType* temp = nullptr;
                         try {
                             temp = &(myMap.push(myHash));
                         } catch (NotEnoughSpace& n) {
@@ -1195,9 +1225,13 @@ public:
         Handle<Vector<Handle<Vector<Handle<JoinMap<RHSType>>>>>> writeMe =
             unsafeCast<Vector<Handle<Vector<Handle<JoinMap<RHSType>>>>>>(writeToMe);
         // get all of the columns
-        if (columns == nullptr)
+        if (columns == nullptr) {
             columns = new void*[whereEveryoneGoes.size()];
-
+            if (columns == nullptr) {
+                std::cout << "Error: No memory on heap" << std::endl;
+                exit(1);
+            }
+        }
         int counter = 0;
         // before: for (auto &a: whereEveryoneGoes) {
         for (counter = 0; counter < whereEveryoneGoes.size(); counter++) {
@@ -1249,7 +1283,7 @@ public:
                 // the key is there
             } else {
                 // and add the value
-                RHSType* temp;
+                RHSType* temp = nullptr;
                 try {
 
                     temp = &(myMap.push(keyColumn[i]));
@@ -1352,9 +1386,13 @@ public:
         JoinMap<RHSType>& myMap = *writeMe;
 
         // get all of the columns
-        if (columns == nullptr)
+        if (columns == nullptr){
             columns = new void*[whereEveryoneGoes.size()];
-
+            if (columns == nullptr) {
+                std::cout << "Error: No memory on heap" << std::endl;
+                exit(1);
+            }
+        }
         int counter = 0;
         // before: for (auto &a: whereEveryoneGoes) {
         for (counter = 0; counter < whereEveryoneGoes.size(); counter++) {
@@ -1394,7 +1432,7 @@ public:
             } else {
 
                 // and add the value
-                RHSType* temp;
+                RHSType* temp = nullptr;
                 try {
 
                     temp = &(myMap.push(keyColumn[i]));

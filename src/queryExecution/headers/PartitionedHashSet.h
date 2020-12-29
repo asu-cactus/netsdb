@@ -104,13 +104,24 @@ public:
 
     // add page
     void* addPage() {
-        void* block = (void*)malloc(sizeof(char) * pageSize);
+          
+        void* block = nullptr;
+        block = (void*)malloc(sizeof(char) * pageSize);
+        while (block == nullptr){
+            pageSize = pageSize * 0.75;
+            size_t numAddedPages = partitionPages.size();
+            cleanup();
+            for (size_t i=0; i < numAddedPages; i++){
+                addPage();
+            } 
+            block = (void*)malloc(sizeof(char) * pageSize);
+        }
         if (block != nullptr) {
             pthread_mutex_lock(&myMutex);
             partitionPages.push_back(block);
             partitionStatus.push_back(false);
             pthread_mutex_unlock(&myMutex);
-        }
+        } 
         return block;
     }
 

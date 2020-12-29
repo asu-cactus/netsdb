@@ -39,7 +39,7 @@
 #endif
 
 #ifndef HASH_PARTITIONED_JOIN_SIZE_RATIO
-#define HASH_PARTITIONED_JOIN_SIZE_RATIO 1.5
+#define HASH_PARTITIONED_JOIN_SIZE_RATIO 1.0
 #endif
 
 namespace pdb {
@@ -767,6 +767,11 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                                                                            if (aggregationPage == nullptr) {
                                                                              aggregationPage =
                                                                                  (void *) malloc(aggregationPageSize * sizeof(char));
+                                                                             if (aggregationPage == nullptr) {
+                                                                                  std::cout << "HermesExecutionServer.cc: Failed to allocate memory with size="
+                                                                                            << aggregationPageSize << std::endl;
+                                                                                  exit(1);
+                                                                             }
                                                                              aggregateProcessor->loadOutputPage(aggregationPage,
                                                                                                                 aggregationPageSize);
                                                                            }
@@ -1041,8 +1046,8 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
           Handle<HashPartitionedJoinBuildHTJobStage> request, PDBCommunicatorPtr sendUsingMe) {
         getAllocator().cleanInactiveBlocks((size_t) ((size_t) 256 * (size_t) 1024 * (size_t) 1024));
         const UseTemporaryAllocationBlock block{32 * 1024 * 1024};
-        bool success;
-        std::string errMsg;
+        bool success = true;
+        std::string errMsg="";
 
         std::cout << "Backend got HashPartitionedJoinBuildHTJobStage message with Id="
                   << request->getStageId() << std::endl;

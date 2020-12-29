@@ -85,6 +85,10 @@ public:
         myRec = nullptr;
         // create the output vector and put it into the tuple set
         inputColumn = new std::vector<Handle<ValueType>>;
+        if (inputColumn == nullptr) {
+            std::cout << "CPlusPlusLambda: Failed to allocate memory" << std::endl;
+            exit(1);
+        }
         output->addColumn(0, inputColumn, true);
         // extract the vector from the input page
         myPage = getAnotherVector();

@@ -326,7 +326,6 @@ JoinPairArray<ValueType>::JoinPairArray(uint32_t numSlotsIn) : JoinPairArray() {
 
 template<class ValueType>
 bool JoinPairArray<ValueType>::isOverFull() {
-  //std::cout << "JoinPairArray: usedSlots="<< usedSlots << ", maxSlots=" << maxSlots << std::endl;
   return usedSlots >= maxSlots;
 }
 
@@ -373,9 +372,7 @@ Handle<JoinPairArray<ValueType>> JoinPairArray<ValueType>::doubleArray() {
            << getAllocator().getBytesAvailableInCurrentAllocatorBlock() << std::endl;
   std::string out = getAllocator().printInactiveBlocks();
   PDB_COUT << "inactive blocks: " << out << std::endl;
-  PDB_COUT << "usedSlots = " << usedSlots << ", maxSlots = " << maxSlots << std::endl;
   uint32_t howMany = numSlots * 2;
-  PDB_COUT << "doubleArray to " << howMany << std::endl;
   // allocate the new Array
   Handle<JoinPairArray<ValueType>> tempArray =
       makeObjectWithExtraStorage<JoinPairArray<ValueType>>(objSize * howMany, howMany);

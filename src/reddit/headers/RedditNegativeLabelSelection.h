@@ -17,14 +17,25 @@ class NegativeLabelSelection : public SelectionComp<Comment, Comment> {
   Lambda<bool> getSelection(Handle<Comment> in) override {
     //return (makeLambdaFromMember(in, label) == makeLambda(in, [](Handle<Comment>& in){return -1;}));
     return makeLambda(in, [](Handle<Comment>& in) {
-        return in->label == -1;
+        if (in != nullptr) {
+           return in->label == -1;
+        } else {
+           std::cout << "Error: null Comment handle" << std::endl;
+           return false;
+        }
     });
   }
 
   Lambda<Handle<Comment>> getProjection(Handle<Comment> in) override {
     return makeLambda(in, [](Handle<Comment>& in) {
-      Handle<Comment> tmp = makeObject<Comment>(*in);
-      return tmp;
+      if (in != nullptr){
+         Handle<Comment> tmp = makeObject<Comment>(*in);
+         return tmp;
+      } else {
+         std::cout << "Error: null Comment handle" << std::endl;
+         Handle<Comment> tmp = makeObject<Comment>();
+         return tmp;
+      }
     });
   }
 };

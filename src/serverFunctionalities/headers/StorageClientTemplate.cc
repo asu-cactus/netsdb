@@ -147,6 +147,10 @@ bool StorageClient::retrieveData(std::string databaseName,
                     // the protocol is that each page is corresponding to a Vector
                     // let's get next Vector
                     char* recvBuffer = (char*)malloc(response->getRawPageSize());
+                    if (recvBuffer == nullptr) {
+                        std::cout << "StorageClientTemplate.cc: Failed to allocate memory with size =" << response->getRawPageSize() << std::endl;
+                        exit(1);
+                    }
                     success = communicator.receiveBytes(recvBuffer, errMsg);
                     if (success == false) {
                         close(filedesc);

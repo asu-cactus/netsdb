@@ -53,6 +53,10 @@ public:
             PDB_COUT << "Got iterateOverMe" << std::endl;
             // create the output vector and put it into the tuple set
             std::vector<Handle<Object>>* inputColumn = new std::vector<Handle<Object>>;
+            if (inputColumn == nullptr) {                                                            
+                std::cout << "VectorTupleSetIterator.h: Failed to allocate memory" << std::endl;           
+                exit(1);                                                                           
+            }    
             output->addColumn(0, inputColumn, true);
         } else {
 

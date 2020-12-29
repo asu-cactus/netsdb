@@ -150,6 +150,10 @@ ReturnType simpleDoubleRequest(PDBLoggerPtr myLogger,
     // get the response and process it
     ReturnType finalResult;
     void* memory = malloc(temp.getSizeOfNextObject());
+    if (memory == nullptr) {
+        std::cout << "SimpleRequest.cc: failed to allocate memory" << std::endl;
+        exit(1);
+    }
     {
         Handle<ResponseType> result = temp.getNextObject<ResponseType>(memory, success, errMsg);
         if (!success) {

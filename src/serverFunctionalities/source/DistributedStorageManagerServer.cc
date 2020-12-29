@@ -1303,6 +1303,10 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                         break;
                     }
                     curPage = (char*)malloc(objSize);
+                    if (curPage == nullptr) {
+                        std::cout << "DistributedStorageManagerServer: Failed to allocate memory with sizea=" << objSize << std::endl;
+                        exit(1);
+                    }
                     if (!communicator->receiveBytes(curPage, errMsg)) {
                         std::cout << "Problem getting data from slave: " << errMsg << std::endl;
                         communicator = nullptr;

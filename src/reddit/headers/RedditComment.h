@@ -44,7 +44,7 @@ public:
     String distinguished = STRING_DEFAULT;
     String edited = STRING_DEFAULT;
     int gilded = INTEGER_DEFAULT;
-    Handle<Map<String, int>> gildings;
+    Handle<Map<String, int>> gildings= makeObject<Map<String, int>>();
     String id = STRING_DEFAULT;
     bool is_submitter = BOOL_DEFAULT;
     String link_id = STRING_DEFAULT;

@@ -139,6 +139,10 @@ public:
     MultiInputsBase* getMultiInputsBase() {
         if (multiInputsBase == nullptr) {
             multiInputsBase = new MultiInputsBase();
+            if (multiInputsBase == nullptr) {
+               std::cout << "JoinComp: Failed to allocate memory" << std::endl;
+               exit(1);
+            }
         }
         return multiInputsBase;
     }
@@ -161,6 +165,10 @@ public:
     void analyzeInputSets(std::vector<std::string>& inputNames) {
         if (multiInputsBase == nullptr) {
             multiInputsBase = new MultiInputsBase();
+            if (multiInputsBase == nullptr) {
+               std::cout << "JoinComp: Failed to allocate memory" << std::endl;
+               exit(1);
+            }
         }
         // Step 1. setup all input names (the column name corresponding to input in tuple set)
         for (int i = 0; i < inputNames.size(); i++) {
@@ -587,6 +595,10 @@ public:
             std::string tcapString = "";
             if (multiInputsBase == nullptr) {
                 multiInputsBase = new MultiInputsBase();
+                if (multiInputsBase == nullptr) {
+                   std::cout << "JoinComp: Failed to allocate memory" << std::endl;
+                   exit(1);
+                }
             }
             multiInputsBase->setNumInputs(this->getNumInputs());
             std::vector<std::string> inputNames;

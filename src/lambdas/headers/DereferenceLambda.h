@@ -233,6 +233,10 @@ public:
                 // create the output attribute, if needed
                 if (!output->hasColumn(outAtt)) {
                     std::vector<OutType>* outColumn = new std::vector<OutType>;
+                    if (outColumn == nullptr) {
+                        std::cout << "DereferenceLambda: Failed to allocate memory" << std::endl;
+                        exit(1);
+                    }
                     output->addColumn(outAtt, outColumn, true);
                 }
 

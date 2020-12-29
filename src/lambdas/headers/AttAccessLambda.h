@@ -319,6 +319,10 @@ public:
                 // setup the output column, if it is not already set up
                 if (!output->hasColumn(outAtt)) {
                     std::vector<Ptr<Out>>* outputCol = new std::vector<Ptr<Out>>;
+                    if (outputCol == nullptr) {
+                        std::cout << "AttAccessLambda: Failed to allocate memory" << std::endl;
+                        exit(1);
+                    }
                     output->addColumn(outAtt, outputCol, true);
                 }
 

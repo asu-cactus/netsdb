@@ -77,6 +77,11 @@ public:
 #else
             void* readToHere = malloc(objSize);
 #endif
+
+            if (readToHere == nullptr) {
+                std::cout << "OutputIterator.h: Failed to allocate memory with size=" << objSize << std::endl;
+                exit(1);
+            }
             // we've got some more data
 
             if (!connection->receiveBytes(readToHere, errMsg)) {
@@ -87,6 +92,10 @@ public:
             size_t uncompressedSize = 0;
             snappy::GetUncompressedLength(readToHere, objSize, &uncompressedSize);
             page = (Record<Vector<Handle<OutType>>>*)malloc(uncompressedSize);
+            if (page == nullptr) {
+                std::cout << "OutputIterator.h: Failed to allocate memory with uncompressedSize=" << uncompressedSize << std::endl;
+                exit(1);
+            }
 #ifdef ENABLE_COMPRESSION
             snappy::RawUncompress(readToHere, objSize, (char*)(page));
 #else

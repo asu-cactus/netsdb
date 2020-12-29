@@ -260,6 +260,10 @@ void* SlabAllocator::memory_allocate(size_t size) {
     if (mem_base == nullptr) {
         /* We are not using a preallocated large memory chunk */
         ret = malloc(size);
+        if (ret == nullptr) {
+            std::cout << "SlabAllocator: failed to allocate memory with size=" << size << std::endl;
+            exit(1);
+        }
     } else {
         ret = mem_current;
 

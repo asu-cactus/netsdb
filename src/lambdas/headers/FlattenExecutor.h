@@ -85,6 +85,10 @@ public:
         // add new column
         if (!output->hasColumn(outAtt)) {
             std::vector<Handle<Object>>* outColumn = new std::vector<Handle<Object>>();
+            if (outColumn == nullptr) {                                                
+                std::cout << "FlatternExecutor: Failed to allocate memory" << std::endl;     
+                exit(1);                                                                 
+            }                                                                          
             output->addColumn(outAtt, outColumn, true);
         }
 

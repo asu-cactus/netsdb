@@ -18,6 +18,10 @@ public:
         : iterateOverMe(iterateOverMe), chunkSize(chunkSize) {
         output = std::make_shared<TupleSet>();
         std::vector<Handle<Object>>* inputColumn = new std::vector<Handle<Object>>;
+        if (inputColumn == nullptr) {
+            std::cout << "TupleSetIterator: Failed to allocate memory" << std::endl;
+            exit(1);
+        }
         output->addColumn(0, inputColumn, true);
         pos = 0;
     }

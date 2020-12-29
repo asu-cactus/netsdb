@@ -358,6 +358,10 @@ Record<Vector<Handle<Computation>>> * SelfLearningDB :: getComputations (long id
            if (res == SQLITE_ROW) {
                int numBytes = sqlite3_column_bytes(statement, 0);
                void * buffer = (void *) malloc (numBytes);
+               if (buffer == nullptr) {
+                  std::cout << "SelfLearningDB.cc: Failed to allocate memory with size=" << numBytes << std::endl;
+                  exit(1);
+               }
                memcpy(buffer, sqlite3_column_blob(statement, 0), numBytes);
                ret = (Record<Vector<Handle<Computation>>> *) buffer;
            } 
@@ -382,6 +386,10 @@ Handle<Computation> SelfLearningDB :: getComputation(std::string jobName, std::s
            if (res == SQLITE_ROW) {
                int numBytes = sqlite3_column_bytes(statement, 0);
                buffer = (void *) malloc (numBytes);
+               if (buffer == nullptr) {
+                   std::cout << "SelfLearningDB.cc: Failed to allocate memory with size=" << numBytes << std::endl;
+                   exit(1);
+               }
                memcpy(buffer, sqlite3_column_blob(statement, 0), numBytes);
                recordPtr = (Record<Vector<Handle<Computation>>> *) buffer;
                Handle<Vector<Handle<Computation>>> retrievedComputations = recordPtr->getRootObject();

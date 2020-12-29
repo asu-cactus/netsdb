@@ -33,7 +33,15 @@ void AggOutProcessor<OutputClass, KeyType, ValueType>::loadInputPage(void* pageT
         delete end;
     }
     begin = new PDBMapIterator<KeyType, ValueType>(inputData->getArray(), true);
+    if (begin == nullptr) {
+        std::cout << "AggOutProcessor.cc: Failed to allocate memory" << std::endl;
+        exit(1);
+    }
     end = new PDBMapIterator<KeyType, ValueType>(inputData->getArray());
+    if (end == nullptr) {
+        std::cout << "AggOutProcessor.cc: Failed to allocate memory" << std::endl;
+        exit(1);
+    }
 }
 
 // loads up another output page to write results to

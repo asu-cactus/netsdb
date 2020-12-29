@@ -313,6 +313,11 @@ void PangeaStorageServer::writeBackRecords(pair<std::string, std::string> databa
 
                 // create the vector to hold these guys
                 void* myRAM = malloc(allRecs[allRecs.size() - 1]->numBytes());
+                if (myRAM == nullptr) {
+                    std::cout << "PangeaStorageServer: Failed to allocate memory with size="
+                              << allRecs[allRecs.size() - 1]->numBytes() << std::endl;
+                    exit(1);
+                }
                 const UseTemporaryAllocationBlock block(myRAM,
                                                         allRecs[allRecs.size() - 1]->numBytes());
                 Handle<Vector<Handle<Object>>> extraData =
@@ -879,6 +884,10 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
 #else
                 void* readToHere = malloc(numBytes);
 #endif
+                if (readToHere == nullptr) {
+                    std::cout << "PangeaStorageServer.cc: Failed to allocate memory with size=" << numBytes << std::endl;
+                    exit(1);
+                }
                 everythingOK = sendUsingMe->receiveBytes(readToHere, errMsg);
 
                 {
@@ -938,6 +947,10 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                     free(requestInLoop);
                 }
                 requestInLoop = malloc(numBytes);
+                if (requestInLoop == nullptr) {
+                    std::cout << "PangeaStorageServer.cc: Failed to allocate memory with size=" << numBytes << std::endl;
+                    exit(1);
+                }
                 curRequest = sendUsingMe->getNextObject<StorageAddObjectInLoop>(
                     requestInLoop, everythingOK, errMsg);
                 std::cout << "got new StorageAddObjectInLoop" << std::endl;
@@ -990,16 +1003,28 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
             char* readToHere = nullptr;
             if (compressedOrNot == false) {
                 readToHere = (char*)malloc(numBytes);
+                if(readToHere == nullptr) {
+                    std::cout << "PangeaStorageServer.cc: Failed to allocate memory with size=" << numBytes << std::endl;
+                    exit(1);
+                }
                 objectsToStore = sendUsingMe->getNextObject<Vector<Handle<Object>>>(
                     readToHere, everythingOK, errMsg);
                 std::cout << "received " << objectsToStore->size() << " objects to store " << numBytes << " bytes" << std::endl;
             } else {
                 char* temp = new char[numBytes];
+                if(temp == nullptr) {
+                    std::cout << "PangeaStorageServer.cc: Failed to allocate memory with size=" << numBytes << std::endl;
+                    exit(1);
+                }
                 std::cout << "received " << numBytes << " bytes" << std::endl;
                 sendUsingMe->receiveBytes(temp, errMsg);
                 size_t uncompressedSize = 0;
                 snappy::GetUncompressedLength(temp, numBytes, &uncompressedSize);
                 readToHere = (char*)malloc(uncompressedSize);
+                if(readToHere == nullptr) {
+                    std::cout << "PangeaStorageServer.cc: Failed to allocate memory with size=" << numBytes << std::endl;
+                    exit(1);
+                }
                 snappy::RawUncompress(temp, numBytes, (char*)(readToHere));
                 Record<Vector<Handle<Object>>>* myRecord =
                     (Record<Vector<Handle<Object>>>*)readToHere;

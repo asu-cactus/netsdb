@@ -52,7 +52,15 @@ void CombinerProcessor<KeyType, ValueType>::loadInputPage(void* pageToProcess) {
     std::cout << "CombinerProcessor: loaded a page with first partition id=" << curPartId
              << " and size=" << curMap->size() << std::endl;
     begin = new PDBMapIterator<KeyType, ValueType>(curMap->getArray(), true);
+    if (begin == nullptr) {
+        std::cout << "CombinerProcessor.cc: Failed to allocate memory" << std::endl;
+        exit(1);
+    }
     end = new PDBMapIterator<KeyType, ValueType>(curMap->getArray());
+    if (end == nullptr) {
+        std::cout << "CombinerProcessor.cc: Failed to allocate memory" << std::endl;
+        exit(1);
+    }
 }
 
 // loads up another output page to write results to
@@ -111,7 +119,15 @@ bool CombinerProcessor<KeyType, ValueType>::fillNextOutputPage() {
                         if (begin != nullptr) delete begin;
                         if (end != nullptr) delete end;
                         begin = new PDBMapIterator<KeyType, ValueType>(curMap->getArray(), true);
+                        if (begin == nullptr) {
+                            std::cout << "CombinerProcessor.cc: Failed to allocate memory" << std::endl;
+                            exit(1);
+                        }
                         end = new PDBMapIterator<KeyType, ValueType>(curMap->getArray());
+                        if (end == nullptr) {
+                            std::cout << "CombinerProcessor.cc: Failed to allocate memory" << std::endl;
+                            exit(1);
+                        }
 
                         if ((*begin) != (*end)) {
                             curOutputMap = (*outputData)[curPartPos];

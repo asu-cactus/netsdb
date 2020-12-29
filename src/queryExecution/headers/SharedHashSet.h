@@ -35,6 +35,7 @@ public:
         this->pageData = (void*)malloc(sizeof(char) * pageSize);
         if (pageData == nullptr) {
             std::cout << "SharedHashSet Error: insufficient heap memory" << std::endl;
+            exit(1);
         }
     }
 

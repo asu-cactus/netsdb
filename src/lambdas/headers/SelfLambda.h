@@ -133,6 +133,10 @@ public:
                 // setup the output column, if it is not already set up
                 if (!output->hasColumn(outAtt)) {
                     std::vector<Ptr<ClassType>>* outputCol = new std::vector<Ptr<ClassType>>;
+                    if (outputCol == nullptr) {
+                        std::cout << "SelfLambda: Failed to allocate memory" << std::endl;
+                        exit(1);
+                    }
                     output->addColumn(outAtt, outputCol, true);
                 }
 

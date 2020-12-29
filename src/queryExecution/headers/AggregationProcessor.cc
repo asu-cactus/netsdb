@@ -43,8 +43,15 @@ void AggregationProcessor<KeyType, ValueType>::loadInputObject(Handle<Object>& o
             delete end;
         }
         begin = new PDBMapIterator<KeyType, ValueType>(curMap->getArray(), true);
+        if (begin == nullptr) {
+            std::cout << "AggregationProcessor.cc: Failed to allocate memory" << std::endl;
+            exit(1);
+        }
         end = new PDBMapIterator<KeyType, ValueType>(curMap->getArray());
-
+        if (end == nullptr) {
+            std::cout << "AggregationProcessor.cc: Failed to allocate memory" << std::endl;
+            exit(1);
+        }
     } else {
         // there is no hash partition for this thread
         curMap = nullptr;

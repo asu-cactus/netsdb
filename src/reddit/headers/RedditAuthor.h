@@ -19,12 +19,12 @@ public:
 
     ENABLE_DEEP_COPY
 
-    int author_id;
+    int author_id=-1;
     String author = "";
-    long field02;
-    long field03;
-    int field04;
-    int field05;
+    long field02=-1;
+    long field03=-1;
+    int field04=-1;
+    int field05=-1;
 
 
     //default constructor

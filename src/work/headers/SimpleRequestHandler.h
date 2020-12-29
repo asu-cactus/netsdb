@@ -46,6 +46,10 @@ public:
             return;
         }
         void* memory = malloc(myCommunicator->getSizeOfNextObject());
+        if(memory == nullptr) {
+            std::cout << "SimpleRequestHandler: Failed to allocate memory" << std::endl;
+            exit(1);
+        } 
         {
             Handle<RequestType> request =
                 myCommunicator->getNextObject<RequestType>(memory, success, errMsg);

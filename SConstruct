@@ -30,7 +30,7 @@ SRC_ROOT = os.path.join(Dir('.').abspath, "src") # assume the root source dir is
 # OSX settings
 if common_env['PLATFORM'] == 'darwin':
     print 'Compiling on OSX'
-    common_env.Append(CXXFLAGS = '-std=c++1y -Wall -O3 -g')
+    common_env.Append(CXXFLAGS = '-std=c++1y -Wall -Oz  -g')
 
     common_env.Replace(CXX = "clang++")
 
@@ -44,13 +44,13 @@ elif  common_env['PLATFORM'] == 'posix':
 
     #for debugging
     #Needs to be turned on for KMeans and TPCH
-    common_env.Append(CXXFLAGS = '-std=c++14 -g -O3 -march=native -Winline -Winline-asm -Wno-deprecated-declarations')
+    common_env.Append(CXXFLAGS = '-std=c++14 -g -O3  -march=native -Winline -Winline-asm -Wno-deprecated-declarations')
     #common_env.Append(CXXFLAGS = '-std=c++14 -g  -Oz -ldl -lstdc++ -Wno-deprecated-declarations')
     common_env.Append(LINKFLAGS = '-pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++')
     common_env.Replace(CXX = "clang++")
 
 #common_env.Append(CCFLAGS='-DDEBUG_VTABLE_FIXING')
-common_env.Append(CCFLAGS='-DUSE_VALGRIND')
+#common_env.Append(CCFLAGS='-DUSE_VALGRIND')
 common_env.Append(CCFLAGS='-DINITIALIZE_ALLOCATOR_BLOCK')
 #common_env.Append(CCFLAGS='-DENABLE_SHALLOW_COPY')
 common_env.Append(CCFLAGS='-DDEFAULT_BATCH_SIZE=1')
@@ -66,7 +66,7 @@ common_env.Append(CCFLAGS='-DPROFILING_CACHE')
 common_env.Append(CCFLAGS='-DENABLE_LARGE_GRAPH')
 #for nearest neighbor search, below flag should be set to large like 200 for 64MB page size
 common_env.Append(CCFLAGS='-DJOIN_HASH_TABLE_SIZE_RATIO=1.5')
-common_env.Append(CCFLAGS='-DHASH_PARTITIONED_JOIN_SIZE_RATIO=1.5')
+common_env.Append(CCFLAGS='-DHASH_PARTITIONED_JOIN_SIZE_RATIO=1.0')
 common_env.Append(CCFLAGS='-DPROFILING')
 common_env.Append(CCFLAGS='-DJOIN_COST_THRESHOLD=0')
 common_env.Append(CCFLAGS='-DENABLE_COMPRESSION')

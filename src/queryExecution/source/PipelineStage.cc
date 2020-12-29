@@ -179,6 +179,10 @@ bool PipelineStage::sendData(PDBCommunicatorPtr conn,
         conn->sendObject(request, errMsg);
 #ifdef ENABLE_COMPRESSION
         char* compressedBytes = new char[snappy::MaxCompressedLength(size)];
+        if (compressedBytes == nullptr) {
+           std::cout << "PipelineStage.cc: failed to allocate memory with size=" << size << std::endl;
+           exit(1);
+        }
         size_t compressedSize;
         snappy::RawCompress((char*)data, size, compressedBytes, &compressedSize);
         std::cout << "size before compression is " << size << " and size after compression is "
@@ -606,6 +610,11 @@ void PipelineStage::executePipelineWork(int i,
     if ((this->jobStage->isRepartition() == true) && (this->jobStage->isCombining() == false) &&
         (join == nullptr)) {
         mem = (char*)malloc(conf->getNetShufflePageSize());
+        if (mem == nullptr) {
+            std::cout << "PipelineStage.cc: Failed to allocate memory with size=" << conf->getNetShufflePageSize() << std::endl;
+            exit(1);
+        }
+
     }
 #endif
 
@@ -1375,6 +1384,10 @@ void PipelineStage::runPipelineWithShuffleSink(HermesExecutionServer* server) {
 #else
                         char* compressedBytes =
                             new char[snappy::MaxCompressedLength(record->numBytes())];
+                        if (compressedBytes == nullptr) {
+                            std::cout << "PipelineStage.cc: failed to allocate memory" << std::endl;
+                            exit(1);
+                        }
                         size_t compressedSize;
                         snappy::RawCompress(
                             (char*)record, record->numBytes(), compressedBytes, &compressedSize);
@@ -1433,6 +1446,10 @@ void PipelineStage::runPipelineWithShuffleSink(HermesExecutionServer* server) {
                                    errMsg);
 #else
             char* compressedBytes = new char[snappy::MaxCompressedLength(record->numBytes())];
+            if (compressedBytes == nullptr) {
+                std::cout << "PipelineStage.cc: failed to allocate memory" << std::endl;
+                exit(1);
+            }
             size_t compressedSize;
             snappy::RawCompress(
                 (char*)record, record->numBytes(), compressedBytes, &compressedSize);

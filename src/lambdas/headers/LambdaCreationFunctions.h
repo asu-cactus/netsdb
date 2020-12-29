@@ -318,6 +318,10 @@ extern int mapToPartitionId (size_t hashVal, int numPartitions);
                 std::vector<typename std::remove_reference<decltype(VAR->METHOD())>::type>*        \
                     outColumn = new std::vector<                                                   \
                         typename std::remove_reference<decltype(VAR->METHOD())>::type>;            \
+                        if (outColumn == nullptr) {                                                \
+                          std::cout << "MethodLambda: Failed to allocate memory" << std::endl;     \
+                          exit(1);                                                                 \
+                        }                                                                          \
                 input->addColumn(outAtt, outColumn, true);                                         \
                 return true;                                                                       \
             }                                                                                      \
@@ -328,6 +332,10 @@ extern int mapToPartitionId (size_t hashVal, int numPartitions);
                 std::vector<Ptr<typename std::remove_reference<decltype(VAR->METHOD())>::type>>*   \
                     outColumn = new std::vector<                                                   \
                         Ptr<typename std::remove_reference<decltype(VAR->METHOD())>::type>>;       \
+                        if (outColumn == nullptr) {                                                \
+                          std::cout << "MethodLambda: Failed to allocate memory" << std::endl;     \
+                          exit(1);                                                                 \
+                        }                                                                          \
                 input->addColumn(outAtt, outColumn, true);                                         \
                 return true;                                                                       \
             }                                                                                      \
@@ -373,6 +381,10 @@ extern int mapToPartitionId (size_t hashVal, int numPartitions);
                             Ptr<typename std::remove_reference<decltype(VAR->METHOD())>::type>>*   \
                             outColumn = new std::vector<Ptr<                                       \
                                 typename std::remove_reference<decltype(VAR->METHOD())>::type>>;   \
+                        if (outColumn == nullptr) {                                                \
+                          std::cout << "MethodLambda: Failed to allocate memory" << std::endl;     \
+                          exit(1);                                                                 \
+                        }                                                                          \
                         output->addColumn(outAtt, outColumn, true);                                \
                     }                                                                              \
                                                                                                    \
@@ -416,6 +428,10 @@ extern int mapToPartitionId (size_t hashVal, int numPartitions);
                             VAR->METHOD())>::type>* outColumn =                                    \
                             new std::vector<                                                       \
                                 typename std::remove_reference<decltype(VAR->METHOD())>::type>;    \
+                        if (outColumn == nullptr) {                                                \
+                          std::cout << "MethodLambda: Failed to allocate memory" << std::endl;     \
+                          exit(1);                                                                 \
+                        }                                                                          \
                         output->addColumn(outAtt, outColumn, true);                                \
                     }                                                                              \
                                                                                                    \

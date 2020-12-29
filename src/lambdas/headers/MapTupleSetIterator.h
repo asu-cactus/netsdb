@@ -34,6 +34,10 @@ public:
 
         output = std::make_shared<TupleSet>();
         std::vector<Handle<OutputType>>* inputColumn = new std::vector<Handle<OutputType>>;
+        if (inputColumn == nullptr) {
+            std::cout << "MapTupleSetIterator: Failed to allocate memory" << std::endl;
+            exit(1);
+        }
         output->addColumn(0, inputColumn, true);
     }
 
