@@ -20,7 +20,7 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
   bool end = false;
   bool rollback = false;
 
-  long total = 0;
+  long total = 182813;
   long sent = 0;
   pdb::makeObjectAllocatorBlock((size_t)blockSizeInMB * (size_t)1024 * (size_t)1024, true);
   pdb::Handle<pdb::Vector<pdb::Handle<reddit::Sub>>> storeMe = pdb::makeObject<pdb::Vector<pdb::Handle<reddit::Sub>>> ();

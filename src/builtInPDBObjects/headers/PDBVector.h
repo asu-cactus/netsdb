@@ -16,6 +16,9 @@
 
 namespace pdb {
 
+template <class ValueType>
+class JoinMap;
+
 // This is the basic Vector type that works correcrly with Objects and Handles.
 // The operations have exactly the same interface as std :: vector, except that
 // not all operations are implemented.
@@ -58,6 +61,9 @@ public:
 
     // beause the communicator needs to see inside to do efficient sends
     friend class PDBCommunicator;
+    // this method is used to do a deep copy of this join map
+    template <class T> friend Handle<JoinMap<T>> deepCopyJoinMap(Handle<JoinMap<T>>& copyMe);
+
 };
 }
 

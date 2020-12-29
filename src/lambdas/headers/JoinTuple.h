@@ -850,21 +850,23 @@ public:
                 lastRec = nullptr;
                 lastPage = nullptr;
             }
-
-            while ((curJoinMap == nullptr)&& (pos < iterateOverMe->size())) {
+            while ((curJoinMap == nullptr) && (pos < iterateOverMe->size())) {
                 curJoinMap = (*iterateOverMe)[pos];
                 pos++;
                 if (curJoinMap != nullptr){
                   if (curJoinMap->getNumPartitions() >0) {
-                    if ((curJoinMap->getPartitionId() % curJoinMap->getNumPartitions()) !=
-                        myPartitionId) {
-                        curJoinMap = nullptr;
-                    } else {
+                    if (((curJoinMap->getPartitionId() % curJoinMap->getNumPartitions()) ==
+                        myPartitionId)&&(curJoinMap->size()>0)) {
+                        std::cout << "We've got a non-null map with partitionId=" << myPartitionId << ", pos=" << pos <<", size=" << curJoinMap->size() << std::endl;
                         curJoinMapIter = curJoinMap->begin();
                         joinMapEndIter = curJoinMap->end();
                         posInRecordList = 0;
-                        std::cout << "We've got a non-null map with partitionId=" << myPartitionId << ", pos=" << pos <<", size=" << curJoinMap->size() << std::endl;
+                    } else {
+                        curJoinMap = nullptr;
                     }
+                  } else {
+                        curJoinMap = nullptr;
+                        std::cout << "Warning: a map has 0 partitions" << std::endl;
                   }
                 }
                 else {
