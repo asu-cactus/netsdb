@@ -205,7 +205,7 @@ public:
         myRAM->outputSink = dataSink->createNewOutputContainer();
 
         // and here is the chunk
-        TupleSetPtr curChunk;
+        TupleSetPtr curChunk = nullptr;
 
         // the iteration counter
         int iteration = 0;
@@ -218,6 +218,7 @@ public:
            try {
                curChunk = dataSource->getNextTupleSet();
            } catch (NotEnoughSpace& n) {
+               curChunk = nullptr;
                myRAM->setIteration(iteration);
                unwrittenPages.push(myRAM);
                std::cout << id << ": 1- setIteration=" << iteration << std::endl;

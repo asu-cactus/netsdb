@@ -361,6 +361,10 @@ public:
         return name.hash();
     }
 
+   std::string toString() override {
+        return std::string(name);
+    }
+    
 };
 
 

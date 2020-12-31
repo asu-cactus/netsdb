@@ -314,7 +314,7 @@ public:
     }
 
     std::string toString() override {
-        return std::string(author)+std::string(",")+std::string(subreddit_id)+std::string(", hash:") + std::to_string(hash());
+        return std::string(subreddit_id);
     }
 };
 

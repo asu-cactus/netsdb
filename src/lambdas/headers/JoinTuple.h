@@ -1116,6 +1116,7 @@ public:
                         try {
                             RHSType* temp = &(myMap.push(myHash));
                             packData(*temp, ((*myList)[i]));
+                            //std::cout << (*myList)[i].myData.toString() << std::endl;              
                             numPacked++;
                         } catch (NotEnoughSpace& n) {
                             myMap.setUnused(myHash);
@@ -1141,6 +1142,7 @@ public:
                         }
                         try {
                             packData(*temp, ((*myList)[i]));
+                            //std::cout << (*myList)[i].myData.toString() << std::endl;
                             numPacked++;
                         } catch (NotEnoughSpace& n) {
                             myMap.setUnused(myHash);
