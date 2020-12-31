@@ -155,6 +155,17 @@ public:
         return offset;
     } */
 
+    //to tell whether a column exits
+    bool existsColumn(int whichColumn) {
+       if (columns.count(whichColumn) == 0) {
+            std::cout << "existsColumn: This is bad. Tried to get column " << whichColumn
+                      << " but could not find it.\n";
+            return false;
+       } else {
+            return true;
+       }
+
+    }
 
     // this takes as input a vector of pointers to
     // return a specified column
@@ -163,6 +174,7 @@ public:
         if (columns.count(whichColumn) == 0) {
             std::cout << "This is bad. Tried to get column " << whichColumn
                       << " but could not find it.\n";
+            exit(1);
         }
         return *((std::vector<ColType>*)columns[whichColumn].first);
     }
@@ -176,6 +188,7 @@ public:
         if (columns.count(whichColumn) == 0) {
             std::cout << "This is bad. Tried to write out column " << whichColumn
                       << " but could not find it.\n";
+            exit(1);
         }
         auto& which = columns[whichColumn];
 
@@ -424,6 +437,7 @@ public:
             getTypeName<ColType>(),
             getSerializedSize<std::is_base_of<PtrBase, ColType>::value, ColType>());
         columns[where] = std::make_pair((void*)addMe, myFuncs);
+        std::cout << "Added column at position=" << where << std::endl;
     }
 };
 }

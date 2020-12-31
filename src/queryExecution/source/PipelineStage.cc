@@ -514,10 +514,11 @@ void PipelineStage::executePipelineWork(int i,
             bool probePartitionedHashMap = false;
             std::string key = (*mapIter).key;
             std::string hashSetName = (*mapIter).value;
-            std::cout << "to probe " << key << ":" << hashSetName << std::endl;
+            std::cout << "to probe " << key << "#" << hashSetName << std::endl;
             if (hashSetName.find(':') == 0) {
                 probePartitionedHashMap = true;
-                hashSetName = hashSetName.substr(1);                
+                hashSetName = hashSetName.substr(1);  
+                std::cout << "probePartitionedHashMap = true and hashSetName=" << hashSetName<<std::endl;              
             }
             AbstractHashSetPtr hashSet = server->getHashSet(hashSetName);
             if (hashSet == nullptr) {
@@ -526,14 +527,18 @@ void PipelineStage::executePipelineWork(int i,
                 return;
             }
             if (hashSet->getHashSetType() == "SharedHashSet") {
+                std::cout << "We are probing SharedHashSet" << std::endl;
                 SharedHashSetPtr sharedHashSet = std::dynamic_pointer_cast<SharedHashSet>(hashSet);
                 info[key] = std::make_shared<JoinArg>(*newPlan, sharedHashSet->getPage(), nullptr);
             } else if (hashSet->getHashSetType() == "PartitionedHashSet") {
+                std::cout << "We are probing PartitionedHashSet" << std::endl;
                 PartitionedHashSetPtr partitionedHashSet =
                         std::dynamic_pointer_cast<PartitionedHashSet>(hashSet);
                 if (!probePartitionedHashMap) {
+                    std::cout << "info[key] = std::make_shared<JoinArg>(*newPlan, partitionedHashSet->getPage(i, true), nullptr);"<<std::endl;
                     info[key] = std::make_shared<JoinArg>(*newPlan, partitionedHashSet->getPage(i, true), nullptr);
                 } else {
+                    std::cout << "info[key] = std::make_shared<JoinArg>(*newPlan, nullptr, partitionedHashSet);" <<std::endl;
                     std::string joinComputationName =
                          newPlan->getProducingComputationName(key);
                     Handle<Computation> joinComputation =
@@ -544,6 +549,7 @@ void PipelineStage::executePipelineWork(int i,
                     join->setNumPartitions(this->jobStage->getNumTotalPartitions());
                     join->setNumNodes(this->jobStage->getNumNodes());
                     info[key] = std::make_shared<JoinArg>(*newPlan, nullptr, partitionedHashSet);
+                    
                 }
             }
         }

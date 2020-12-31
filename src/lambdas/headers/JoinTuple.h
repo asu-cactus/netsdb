@@ -89,12 +89,14 @@ public:
     // and this is the recursion
     MeTo myOtherData;
 
+    // e.g. TypeToCreate::allocate(processMe, offset + positions[whichPos]);
     static void* allocate(TupleSet& processMe, int where) {
         std::vector<Handle<HoldMe>>* me = new std::vector<Handle<HoldMe>>;
         if (me == nullptr){
             std::cout << "JoinTuple.h: Failed to allocate memory" << std::endl;
             exit(1);
         }
+        std::cout << "Allocated column at where=" << where << std::endl;
         processMe.addColumn(where, me, true);
         return me;
     }
@@ -117,10 +119,11 @@ public:
         std::vector<Handle<HoldMe>>& me = *((std::vector<Handle<HoldMe>>*)input);
 
         if (whichPos >= me.size()) {
-            Handle<HoldMe> temp;
+            Handle<HoldMe> temp = makeObject<HoldMe>();
             pdb::copyTo(myData, temp);
             me.push_back(temp);
         } else {
+            me[whichPos] = makeObject<HoldMe>();
             pdb::copyTo(myData, me[whichPos]);
         }
     }
@@ -141,6 +144,9 @@ public:
 
 // this adds a new column to processMe of type TypeToCreate.  This is added at position offset +
 // positions[whichPos]
+// e.g. createCols<RHSType>(columns, *output, 0, 0, positions);
+// e.g.             createCols<RHSType>(
+//                columns, *output, attsToIncludeInOutput.getAtts().size(), 0, positions);
 template <typename TypeToCreate>
 typename std::enable_if<sizeof(TypeToCreate::myOtherData) == 0, void>::type createCols(
     void** putUsHere, TupleSet& processMe, int offset, int whichPos, std::vector<int> positions) {
@@ -479,6 +485,7 @@ public:
         // set up the output tuple
         output = std::make_shared<TupleSet>();
         columns = new void*[positions.size()];
+        std::cout << "To get Prober: positions.size()=" << positions.size() << std::endl;
         if (columns == nullptr) { 
             std::cout << "Error: No memory on heap, thrown from JoinProbe constructor" << std::endl;
             exit(1);
@@ -491,10 +498,10 @@ public:
             createCols<RHSType>(
                 columns, *output, attsToIncludeInOutput.getAtts().size(), 0, positions);
         }
-
         // this is the input attribute that we will hash in order to try to find matches
         std::vector<int> matches = myMachine.match(attsToOperateOn);
         whichAtt = matches[0];
+        std::cout << "JoinProber is created with "<< output->getNumColumns() << " columns and whichAtt is " << whichAtt << std::endl;
     }
 
     std::string getType() override {
@@ -525,7 +532,7 @@ public:
                 auto a = inputTableRef.lookup(inputHash[i]);
                 if (numHits != a.size()) {
                     numHits = a.size();
-                    std::cout << "WARNING: counts() and lookup() return inconsistent results" << std::endl;
+                    std::cout << "WARNING: count() and lookup() return inconsistent results" << std::endl;
                 }
                     for (int which = 0; which < numHits; which++) {
               
@@ -778,7 +785,7 @@ public:
         if (myRec != nullptr) {
 
             iterateOverMe = myRec->getRootObject();
-            PDB_COUT << "Got iterateOverMe" << std::endl;
+            std::cout << myPartitionId << ": PartitionedJoinMapTupleSetIterator: Got iterateOverMe, positions.size()="<< positions.size() << std::endl;
             // create the output vector for objects and put it into the tuple set
             columns = new void*[positions.size()];
             if (columns == nullptr) {
@@ -787,12 +794,13 @@ public:
             }
             createCols<RHSType>(columns, *output, 0, 0, positions);
             // create the output vector for hash value and put it into the tuple set
-            hashColumn = new std::vector<size_t>;
+            hashColumn = new std::vector<size_t>();
             if (hashColumn == nullptr) {
                 std::cout << "Error: No memory on heap" << std::endl;
                 exit(1);
             }
             output->addColumn(positions.size(), hashColumn, true);
+            std::cout << myPartitionId << ": PartitionedJoinMapTupleSetIterator: now we have " << output->getNumColumns() << " columns in the output" << std::endl;
             isDone = false;
 
         } else {
@@ -850,6 +858,7 @@ public:
                 lastRec = nullptr;
                 lastPage = nullptr;
             }
+            // if we have finished processing of current map, we need to get next map for processing
             while ((curJoinMap == nullptr) && (pos < iterateOverMe->size())) {
                 curJoinMap = (*iterateOverMe)[pos];
                 pos++;
@@ -869,14 +878,11 @@ public:
                         std::cout << "Warning: a map has 0 partitions" << std::endl;
                   }
                 }
-                else {
-                    if (pos == iterateOverMe->size()) {
-                        break;
-                    } 
-                }
             }
             // there are two possibilities, first we find my map, second we come to end of this page
             if (curJoinMap != nullptr) {
+
+                //initialize the states if we currently do not have a list in the map to traverse yet
                 if (myList == nullptr) {
                     if (curJoinMapIter != joinMapEndIter) {
                         myList = *curJoinMapIter;
@@ -885,9 +891,12 @@ public:
                         posInRecordList = 0;
                     }
                 }
+                
+                //loop to fill in the output tupleset
                 while (curJoinMapIter != joinMapEndIter) {
                     for (size_t i = posInRecordList; i < myListSize; i++) {
                         try {
+                            //put the input object into the tupleset
                             unpack((*myList)[i], overallCounter, 0, columns);
                         } catch (NotEnoughSpace& n) {
                             //if we cannot write out the whole map, we roll back to the initial state when we enter this function.
@@ -909,7 +918,13 @@ public:
                         if (overallCounter == this->chunkSize) {
                             hashColumn->resize(overallCounter);
                             eraseEnd<RHSType>(overallCounter, 0, columns);
-                            return output;
+                            if (output->existsColumn(1)) {
+                                return output;
+                            } else {
+                                std::cout << myPartitionId << ": Error in PartitionedJoinMapTupleSetIterator 1: not existing column 1 in "
+                                          << output->getNumColumns() << " columns\n"; 
+                                return nullptr;
+                            }
                         }
                     }
                     if (posInRecordList >= myListSize) {
@@ -926,9 +941,11 @@ public:
                         posInRecordList = 0;
                     }
                 }
-                //we have finished the list in this join map
+                //we have finished the lists in this join map
                 curJoinMap = nullptr;
             }
+
+            // if we have come to the end of the iterateOverMe, we need fetch a new rec or even a new page
             if ((curJoinMap == nullptr) && (pos == iterateOverMe->size())) {
                 // this means that we got to the end of the vector
                 lastRec = myRec;
@@ -959,7 +976,13 @@ public:
 
                         hashColumn->resize(overallCounter);
                         eraseEnd<RHSType>(overallCounter, 0, columns);
-                        return output;
+                        if (output->existsColumn(1)) {
+                            return output;
+                        } else {
+                            std::cout << myPartitionId << ": Error in PartitionedJoinMapTupleSetIterator 2: not existing column 1 in "
+                                      << output->getNumColumns() << " columns\n";
+                            return nullptr;
+                        }
 
                     } else {
                         return nullptr;
@@ -1645,14 +1668,14 @@ findCorrectJoinTuple(std::vector<std::string>& typeList, std::vector<int>& where
     //std::cout << "to find correct join tuple" << std::endl;
     JoinTuplePtr returnVal;
     std::string in1Name = getTypeName<Handle<In1>>();
-    //std::cout << "in1Name is " << in1Name << std::endl;
-    //std::cout << "to find type for " << in1Name << std::endl; 
+    std::cout << "in1Name is " << in1Name << std::endl;
+    std::cout << "to find type for " << in1Name << std::endl; 
     int in1Pos = findType(in1Name, typeList);
-    //std::cout << "in1Pos is " << in1Pos << std::endl;
+    std::cout << "in1Pos is " << in1Pos << std::endl;
     if (in1Pos != -1) {
         whereEveryoneGoes.push_back(in1Pos);
         typeList[in1Pos] = in1Name;
-        //std::cout << "typeList[" << in1Pos << "]=" << in1Name << std::endl;
+        std::cout << "typeList[" << in1Pos << "]=" << in1Name << std::endl;
         return std::make_shared<JoinSingleton<JoinTuple<In1, char[0]>>>();
     } else {
         std::cout << "Why did we not find a type?\n";

@@ -473,6 +473,7 @@ public:
             plan.getPlan()->getComputations().getProducingAtomicComputation(
                 outputScheme.getSetName());
         for (auto& a : outputScheme.getAtts()) {
+            //We should note that the database/set name should not contain keyword "hash"
             if ((a.find("hash") != std::string::npos)||(a.find("OneFor") != std::string::npos)) {
                 continue;
             }
@@ -491,6 +492,7 @@ public:
             } else {
                 std::string myType =
                     plan.getPlan()->getNode(res.first).getLambda(res.second)->getOutputType();
+                std::cout << "myType=" << myType << std::endl;
                 if (myType.find_first_of("pdb::Handle<") == 0) {
                     typeList.push_back(myType);
                 } else {
@@ -743,7 +745,13 @@ public:
         // and return the correct probing code
 
         if (joinArg.partitionedHashSet == nullptr) {
-
+            std::cout << "to get prober:" << std::endl;
+            std::cout << "pipelinedInputSchema:" << pipelinedInputSchema << std::endl;
+            std::cout << "pipelinedAttsToOperateOn:" << pipelinedAttsToOperateOn << std::endl;
+            std::cout << "pipelinedAttsToIncludeInOutput:" << pipelinedAttsToIncludeInOutput << std::endl;
+            if (needToSwapAtts){
+               std::cout << "needToSwapAtts=true" << std::endl;
+            }
             return correctJoinTuple->getProber(joinArg.pageWhereHashTableIs,
                                            whereEveryoneGoes,
                                            pipelinedInputSchema,

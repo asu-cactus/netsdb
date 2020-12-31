@@ -231,6 +231,7 @@ public:
                    return;
                }
                myRAM->outputSink = dataSink->createNewOutputContainer();
+               curChunk = dataSource->getNextTupleSet();
            }
 
            if (curChunk == nullptr) {
