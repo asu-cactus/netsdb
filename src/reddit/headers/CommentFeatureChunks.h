@@ -1,5 +1,5 @@
-#ifndef SUPPLIER_INFO_H
-#define SUPPLIER_INFO_H
+#ifndef COMMENT_FEATURE_CHUNKS_H
+#define COMMENT_FEATURE_CHUNKS_H
 
 #include <cassert>
 
