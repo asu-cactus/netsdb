@@ -28,6 +28,14 @@
 #include "CommentsToFeatures.h"
 #include "MatrixBlockPartition.h"
 
+#include <RedditAuthor.h>
+#include <RedditFeatures.h>
+#include <RedditJoin.h>
+#include <RedditPositiveLabelSelection.h>
+#include <ScanUserSet.h>
+#include <WriteUserSet.h>
+
+
 int main(int argc, char *argv[]) {
   string errMsg;
   string masterIp = "localhost";
@@ -63,8 +71,8 @@ int main(int argc, char *argv[]) {
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixData.so");
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlock.so");
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlockScanner.so");
-  ff::loadLibrary(pdbClient, "libraries/libFFInputLayerJoin.so");
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixWriter.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFInputLayerJoin.so");
   ff::loadLibrary(pdbClient, "libraries/libFFAggMatrix.so");
   ff::loadLibrary(pdbClient, "libraries/libFFReluBiasSum.so");
   ff::loadLibrary(pdbClient, "libraries/libFFTransposeMult.so");
@@ -85,7 +93,7 @@ int main(int argc, char *argv[]) {
 
   ff::createSet(pdbClient, db, "output", "Output");
 
-  ff::createSet(pdbClient, db, "result", "Result");
+  ff::createSet(pdbClient, db, "labeled_comments", "LabeledComments");
 
   if (!generate) {
     string main_path = string(argv[4]);
@@ -145,7 +153,7 @@ int main(int argc, char *argv[]) {
   ff::loadLibrary(pdbClient, "libraries/libRedditMatrixBlockPartition.so");
 
   {
-    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 256};
 
     // make the computation
     pdb::Handle<pdb::Computation> readB =
@@ -166,28 +174,8 @@ int main(int argc, char *argv[]) {
 
     // make the writer
     pdb::Handle<pdb::Computation> myWriter =
-        pdb::makeObject<FFMatrixWriter>(db, set);
-    myWriter->setInput(slice);
-
-    // run the computation
-    if (!pdbClient.executeComputations(errMsg, myWriter)) {
-      cout << "Computation failed. Message was: " << errMsg << "\n";
-      exit(1);
-    }
-  }
-
-
-  {
-    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
-
-    // make the computation
-    pdb::Handle<pdb::Computation> readB =
-        makeObject<ScanUserSet<FFMatrixBlock>>(db, set);
-
-    // make the writer
-    pdb::Handle<pdb::Computation> myWriter =
         pdb::makeObject<reddit::MatrixBlockPartition>(db, set);
-    myWriter->setInput(readB);
+    myWriter->setInput(slice);
 
     // run the computation
     if (!pdbClient.executeComputations(errMsg, myWriter)) {
@@ -229,14 +217,57 @@ int main(int argc, char *argv[]) {
     }
   }
 
+  pdbClient.deleteSet(db, "comments");
+  pdbClient.deleteSet(db, "w1");
+  pdbClient.deleteSet(db, "b1");
+  pdbClient.deleteSet(db, "w2");
+  pdbClient.deleteSet(db, "b2");
+  pdbClient.deleteSet(db, "wo");
+  pdbClient.deleteSet(db, "bo");
+  pdbClient.deleteSet(db, "output");
+
+  pdbClient.flushData(errMsg);
+
+  // {
+  //   const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 1024};
+
+  //   auto it = pdbClient.getSetIterator<reddit::Comment>(db, "labeled_comments");
+
+  //   for (auto r : it) {
+  //     cout << r->label << endl;
+  //   }
+  // }
+
+  pdbClient.registerType("libraries/libRedditComment.so", errMsg);
+  pdbClient.registerType("libraries/libRedditAuthor.so", errMsg);
+  pdbClient.registerType("libraries/libRedditFeatures.so", errMsg);
+  pdbClient.registerType("libraries/libRedditJoin.so", errMsg);
+  pdbClient.registerType("libraries/libRedditPositiveLabelSelection.so", errMsg);
+
   {
-    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 1024};
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
-    auto it = pdbClient.getSetIterator<reddit::Comment>(db, "result");
+    // make the computation
+    pdb::Handle<pdb::Computation> readA =
+        makeObject<ScanUserSet<reddit::Comment>>(db, "labeled_comments");
 
-    for (auto r : it) {
-      cout << r->label << endl;
+    pdb::Handle<pdb::Computation> readB =
+        makeObject<ScanUserSet<reddit::Author>>(db, "authors");
+
+    pdb::Handle<pdb::Computation> join = makeObject<reddit::JoinAuthorsWithComments>();
+    join->setInput(0, readA);
+    join->setInput(1, readB);
+
+    Handle<Computation> myWriteSet = makeObject<WriteUserSet<reddit::Features>>("redditDB", "features");
+    myWriteSet->setInput(join);
+
+    // run the computation
+    if (!pdbClient.executeComputations(errMsg, "reddit-a", myWriteSet)) {
+      cout << "Computation failed. Message was: " << errMsg << "\n";
+      exit(1);
     }
+
+    pdbClient.flushData(errMsg);
   }
 
   return 0;
