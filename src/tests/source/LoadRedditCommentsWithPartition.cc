@@ -20,6 +20,18 @@
 
 using namespace pdb;
 
+static void classify_v1(pdb::Handle<reddit::Comment> comment, float prob){
+
+   assert((prob >=0) && (prob <=1));
+   double sampled_variable = (double)(rand()%100)/(double)(100);
+   if (sampled_variable < prob) {
+       comment->label = 1;
+   } else{
+       comment->label = -1;
+   }
+}
+
+
 static void classify(pdb::Handle<reddit::Comment> comment){
    if (comment->score > 1) {
        comment->label = 1;
@@ -37,7 +49,7 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
   bool end = false;
   bool rollback = false;
 
-  long total = 0;
+  long total = 10000856;
   long sent = 0;
   long i = 0;
   pdb::makeObjectAllocatorBlock((size_t)blockSizeInMB * (size_t)1024 * (size_t)1024, true);
@@ -58,7 +70,7 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
       rollback = false; 
       try {
           pdb::Handle<reddit::Comment> comment = pdb::makeObject<reddit::Comment>(i, line);
-          classify(comment);
+          classify_v1(comment, 0.1);
           if (strcmp(comment->author.c_str(), "[deleted]") !=0){
               storeMe->push_back(comment);
               i++;

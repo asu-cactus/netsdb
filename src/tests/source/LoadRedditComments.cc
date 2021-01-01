@@ -11,6 +11,13 @@
 
 using namespace pdb;
 
+static void classify_v1(pdb::Handle<reddit::Comment> comment){
+
+   int sampled_variable = rand()%10;
+   comment->label = sampled_variable;
+}
+
+
 static void classify(pdb::Handle<reddit::Comment> comment){
    if (comment->score > 1) {
        comment->label = 1;
@@ -51,7 +58,7 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
       rollback = false; 
       try {
           pdb::Handle<reddit::Comment> comment = pdb::makeObject<reddit::Comment>(i, line);
-          classify(comment);
+          classify_v1(comment);
           if (strcmp(comment->author.c_str(), "[deleted]") !=0){
               //std::cout << Hasher<Handle<Object>>::hash(comment) << ":" << Hasher<reddit::Comment>::hash(*comment) << std::endl;
               if ((Hasher<Handle<Object>>::hash(comment) % 2) == 1){
@@ -100,7 +107,7 @@ int main(int argc, char* argv[]) {
     std::cout << "partition on author or subs - A authors, S subs\n";
     std::cout << "whetherToRemoveSet - Y yes, N no\n";
   }
-
+  srand (time(NULL));
   //  get the manager address
   std::string managerIp = std::string(argv[1]);
   int32_t port = std::stoi(argv[2]);

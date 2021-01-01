@@ -597,6 +597,28 @@ common_env.SharedLibrary('libraries/libRedditFullFeatures.so', ['build/reddit/Re
 common_env.SharedLibrary('libraries/libRedditJoin.so', ['build/reddit/RedditJoin.cc'] + all)
 common_env.SharedLibrary('libraries/libRedditPositiveLabelSelection.so', ['build/reddit/RedditPositiveLabelSelection.cc'] + all)
 common_env.SharedLibrary('libraries/libRedditNegativeLabelSelection.so', ['build/reddit/RedditNegativeLabelSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection0_0.so', ['build/reddit/RedditLabelSelection0_0.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection0_1.so', ['build/reddit/RedditLabelSelection0_1.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection0_2.so', ['build/reddit/RedditLabelSelection0_2.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection0_3.so', ['build/reddit/RedditLabelSelection0_3.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection0_4.so', ['build/reddit/RedditLabelSelection0_4.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection0_5.so', ['build/reddit/RedditLabelSelection0_5.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection0_6.so', ['build/reddit/RedditLabelSelection0_6.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection0_7.so', ['build/reddit/RedditLabelSelection0_7.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection0_8.so', ['build/reddit/RedditLabelSelection0_8.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection0_9.so', ['build/reddit/RedditLabelSelection0_9.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection0_10.so', ['build/reddit/RedditLabelSelection0_10.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection1_0.so', ['build/reddit/RedditLabelSelection1_0.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection1_1.so', ['build/reddit/RedditLabelSelection1_1.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection1_2.so', ['build/reddit/RedditLabelSelection1_2.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection1_3.so', ['build/reddit/RedditLabelSelection1_3.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection1_4.so', ['build/reddit/RedditLabelSelection1_4.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection1_5.so', ['build/reddit/RedditLabelSelection1_5.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection1_6.so', ['build/reddit/RedditLabelSelection1_6.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection1_7.so', ['build/reddit/RedditLabelSelection1_7.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection1_8.so', ['build/reddit/RedditLabelSelection1_8.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection1_9.so', ['build/reddit/RedditLabelSelection1_9.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection1_10.so', ['build/reddit/RedditLabelSelection1_10.cc'] + all)
 common_env.SharedLibrary('libraries/libRedditThreeWayJoin.so', ['build/reddit/RedditThreeWayJoin.cc'] + all)
 common_env.SharedLibrary('libraries/libRedditThreeWayAdaptiveJoin.so', ['build/reddit/RedditThreeWayAdaptiveJoin.cc'] + all)
 common_env.SharedLibrary('libraries/libRedditJoinSubsAndComments.so', ['build/reddit/RedditJoinSubsAndComments.cc']+all)
@@ -611,6 +633,7 @@ common_env.Program('bin/loadRedditSubs', ['build/tests/LoadRedditSubs.cc'] + all
 common_env.Program('bin/testRedditJoin', ['build/tests/TestRedditJoin.cc'] + all + pdb_client)
 common_env.Program('bin/testRedditThreeWayJoin', ['build/tests/TestRedditThreeWayJoin.cc'] + all + pdb_client)
 common_env.Program('bin/testRedditThreeWayAdaptiveJoin', ['build/tests/TestRedditThreeWayAdaptiveJoin.cc'] + all + pdb_client)
+common_env.Program('bin/testRedditThreeWayAdaptiveJoinWithVariousSelections', ['build/tests/TestRedditThreeWayAdaptiveJoinWithVariousSelections.cc'] + all + pdb_client)
 common_env.Program('bin/testRedditRandomLabels', ['build/tests/TestRedditRandomLabels.cc'] + all + pdb_client)
 common_env.Program('bin/testRedditJoinSubsAndComments', ['build/tests/TestRedditJoinSubsWithComments.cc']+all+pdb_client)
 common_env.Program('bin/testRedditAuthors', ['build/tests/TestRedditAuthors.cc'] + all + pdb_client)
@@ -1055,6 +1078,28 @@ reddit=common_env.Alias('reddit', [
   'libraries/libRedditJoin.so',
   'libraries/libRedditPositiveLabelSelection.so',
   'libraries/libRedditNegativeLabelSelection.so',
+  'libraries/libRedditLabelSelection0_0.so',
+  'libraries/libRedditLabelSelection0_1.so',
+  'libraries/libRedditLabelSelection0_2.so',
+  'libraries/libRedditLabelSelection0_3.so',
+  'libraries/libRedditLabelSelection0_4.so',
+  'libraries/libRedditLabelSelection0_5.so',
+  'libraries/libRedditLabelSelection0_6.so',
+  'libraries/libRedditLabelSelection0_7.so',
+  'libraries/libRedditLabelSelection0_8.so',
+  'libraries/libRedditLabelSelection0_9.so',
+  'libraries/libRedditLabelSelection0_10.so',
+  'libraries/libRedditLabelSelection1_0.so',
+  'libraries/libRedditLabelSelection1_1.so',
+  'libraries/libRedditLabelSelection1_2.so',
+  'libraries/libRedditLabelSelection1_3.so',
+  'libraries/libRedditLabelSelection1_4.so',
+  'libraries/libRedditLabelSelection1_5.so',
+  'libraries/libRedditLabelSelection1_6.so',
+  'libraries/libRedditLabelSelection1_7.so',
+  'libraries/libRedditLabelSelection1_8.so',
+  'libraries/libRedditLabelSelection1_9.so',
+  'libraries/libRedditLabelSelection1_10.so',
   'libraries/libRedditThreeWayJoin.so',
   'libraries/libRedditThreeWayAdaptiveJoin.so',
   'libraries/libRedditSubsAndComments.so',
@@ -1070,6 +1115,7 @@ reddit=common_env.Alias('reddit', [
   'bin/testRedditJoin',
   'bin/testRedditThreeWayJoin',
   'bin/testRedditThreeWayAdaptiveJoin',
+  'bin/testRedditThreeWayAdaptiveJoinWithVariousSelections',
   'bin/testRedditJoinSubsAndComments',
   'bin/testRedditRandomLabels',
   'bin/createRedditComments'
