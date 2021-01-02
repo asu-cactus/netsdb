@@ -22,11 +22,12 @@ public:
   Lambda<bool> getSelection(Handle<FFMatrixBlock> in1,
                             Handle<FFMatrixBlock> in2) override {
     // return makeLambda(
-        // in1, in2, [](Handle<FFMatrixBlock> &in1, Handle<FFMatrixBlock> &in2) {
-        //   return in1->getBlockColIndex() == in2->getBlockColIndex();
-        // });
-        // Only this can help with partitioning
-    return makeLambdaFromMethod(in1, getBlockColIndex) == makeLambdaFromMethod(in2, getBlockColIndex);
+    // in1, in2, [](Handle<FFMatrixBlock> &in1, Handle<FFMatrixBlock> &in2) {
+    //   return in1->getBlockColIndex() == in2->getBlockColIndex();
+    // });
+    // Only this can help with partitioning
+    return makeLambdaFromMethod(in1, getBlockColIndex) ==
+           makeLambdaFromMethod(in2, getBlockColIndex);
   }
 
   Lambda<Handle<FFMatrixBlock>>
@@ -53,23 +54,18 @@ public:
             double *in1Data = in1->getValue().rawData->c_ptr();
             double *in2Data = in2->getValue().rawData->c_ptr();
 
+            Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
+                                     Eigen::RowMajor>>
+                currentMatrix1(in1Data, in1->getRowNums(), in1->getColNums());
+            Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
+                                     Eigen::RowMajor>>
+                currentMatrix2(in2Data, in2->getRowNums(), in2->getColNums());
 
             Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
                                      Eigen::RowMajor>>
-                currentMatrix1(in1Data,
-                               in1->getRowNums(), in1->getColNums());
-            Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
-                                     Eigen::RowMajor>>
-                currentMatrix2(in2Data,
-                               in2->getRowNums(), in2->getColNums());
-
-            Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
-                                     Eigen::RowMajor>>
-                productMatrix(outData,
-                              I, J);
+                productMatrix(outData, I, J);
 
             productMatrix = currentMatrix1 * currentMatrix2.transpose();
-
 
             return resultFFMatrixBlock;
           } else {

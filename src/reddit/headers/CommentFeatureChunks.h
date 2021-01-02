@@ -39,8 +39,6 @@ public:
       : chunk_size(chunk_size), chunk_index((int)(feature.index / chunk_size)) {
     feature_chunk = makeObject<Map<int, Vector<double>>>();
     (*feature_chunk)[feature.index] = *(feature.features);
-    std::cout << "Adding key: " << feature.index << " to bucket " << chunk_index
-              << std::endl;
     feature_count = feature.features->size();
   }
 
@@ -65,8 +63,6 @@ public:
   }
 
   CommentFeatureChunks &operator+(CommentFeatureChunks &addMeIn) {
-    std::cout << "Merging " << this->chunk_index << " and " << addMeIn.getKey()
-              << std::endl;
     Map<int, Vector<double>> &rhs = addMeIn.getChunk();
     auto iter = rhs.begin();
     while (iter != rhs.end()) {

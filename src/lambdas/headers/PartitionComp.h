@@ -30,9 +30,6 @@ public:
         int suffix = 0;
         Handle<ValueClass> checkMe = nullptr;
         Lambda<KeyClass> projectionLambda = getProjection(checkMe);
-        std::cout << "[PARTITIONCOMP] " << getNumPartitions() << std::endl;
-        std::cout << "[PARTITIONCOMP] " << getNumNodes() << std::endl;
-        std::cout << "[PARTITIONCOMP] " << getNodeId() << std::endl;
         projectionLambda.toMap(returnVal, suffix);
     }
 

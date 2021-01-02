@@ -26,11 +26,12 @@ public:
   Lambda<bool> getSelection(Handle<FFMatrixBlock> in1,
                             Handle<FFMatrixBlock> in2) override {
     // return makeLambda(
-    //     in1, in2, [](Handle<FFMatrixBlock> &in1, Handle<FFMatrixBlock> &in2) {
+    //     in1, in2, [](Handle<FFMatrixBlock> &in1, Handle<FFMatrixBlock> &in2)
+    //     {
     //       return in1->getBlockRowIndex() == in2->getBlockRowIndex();
     //     });
-    return makeLambdaFromMethod(in1, getBlockRowIndex) == makeLambdaFromMethod(in2, getBlockRowIndex);
-
+    return makeLambdaFromMethod(in1, getBlockRowIndex) ==
+           makeLambdaFromMethod(in2, getBlockRowIndex);
   }
 
   Lambda<Handle<FFMatrixBlock>>
@@ -43,7 +44,7 @@ public:
             uint32_t I = in1->getRowNums();
             uint32_t J = in1->getColNums();
 
-            if (in1->getRowNums() != in2->getRowNums()||
+            if (in1->getRowNums() != in2->getRowNums() ||
                 in2->getColNums() != 1) {
               std::cout << "[ReluBiasSum] IN1 : " << I << " X " << J
                         << ", IN2: " << in2->getRowNums() << " X "

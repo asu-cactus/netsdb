@@ -20,7 +20,7 @@ class CommentsChunk : public pdb::Object {
 public:
   int chunk_index;
   int chunk_size;
-//   int feature_count;
+  //   int feature_count;
   Handle<Map<int, Comment>> feature_chunk = nullptr;
 
   ENABLE_DEEP_COPY
@@ -52,8 +52,6 @@ public:
   CommentsChunk &getValue() { return *this; }
 
   CommentsChunk &operator+(CommentsChunk &addMeIn) {
-    std::cout << "Merging " << this->chunk_index << " and " << addMeIn.getKey()
-              << std::endl;
     Map<int, Comment> &rhs = addMeIn.getChunk();
     auto iter = rhs.begin();
     while (iter != rhs.end()) {

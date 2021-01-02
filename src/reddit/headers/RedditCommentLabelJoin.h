@@ -5,8 +5,8 @@
 #include "LambdaCreationFunctions.h"
 #include <JoinComp.h>
 
-#include "FFMatrixBlock.h"
 #include "CommentsChunk.h"
+#include "FFMatrixBlock.h"
 
 #include <iostream>
 
@@ -14,7 +14,8 @@ using namespace pdb;
 
 namespace reddit {
 
-class CommentLabelJoin : public JoinComp<CommentsChunk, ::FFMatrixBlock, CommentsChunk> {
+class CommentLabelJoin
+    : public JoinComp<CommentsChunk, ::FFMatrixBlock, CommentsChunk> {
 
 public:
   ENABLE_DEEP_COPY
@@ -23,11 +24,13 @@ public:
 
   Lambda<bool> getSelection(Handle<::FFMatrixBlock> in1,
                             Handle<CommentsChunk> in2) override {
-    return makeLambdaFromMethod(in1, getBlockRowIndex) == makeLambdaFromMethod(in2, getChunkIndex);
+    return makeLambdaFromMethod(in1, getBlockRowIndex) ==
+           makeLambdaFromMethod(in2, getChunkIndex);
   }
 
-  Lambda<Handle<CommentsChunk>> getProjection(Handle<::FFMatrixBlock> in1,
-                                        Handle<CommentsChunk> in2) override {
+  Lambda<Handle<CommentsChunk>>
+  getProjection(Handle<::FFMatrixBlock> in1,
+                Handle<CommentsChunk> in2) override {
     return makeLambda(
         in1, in2, [](Handle<::FFMatrixBlock> &in1, Handle<CommentsChunk> &in2) {
           double *data = in1->getRawDataHandle()->c_ptr();
@@ -43,7 +46,6 @@ public:
               exit(1);
             }
             (*iter).value.label = data[pos] > data[pos + 1] ? 1 : -1;
-            std::cout << myKey << " = " << data[pos] << ", " << data[pos + 1] << std::endl;
             ++iter;
           }
 

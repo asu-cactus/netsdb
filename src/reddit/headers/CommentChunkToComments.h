@@ -33,8 +33,8 @@ public:
   CommentChunkToComments() {}
 
   Lambda<bool> getSelection(Handle<CommentsChunk> checkMe) override {
-    return makeLambda(
-        checkMe, [](Handle<CommentsChunk> &checkMe) { return true; });
+    return makeLambda(checkMe,
+                      [](Handle<CommentsChunk> &checkMe) { return true; });
   }
 
   Lambda<Vector<Handle<Comment>>>
