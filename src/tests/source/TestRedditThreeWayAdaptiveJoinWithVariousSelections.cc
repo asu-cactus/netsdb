@@ -229,6 +229,7 @@ int main(int argc, char* argv[]) {
               << " secs." << std::endl;
 
   // print the results
+  /*
   std::cout << "Features: \n";
   SetIterator<reddit::Features> result1 = pdbClient.getSetIterator<reddit::Features>("redditDB", "features");
   int count = 0;
@@ -262,4 +263,6 @@ int main(int argc, char* argv[]) {
   std::cout << "Total " << count << " comments" << std::endl;
   std::cout << "Total " << positiveCount << " positive comments" << std::endl;
   std::cout << "Total " << negativeCount << " negative comments" << std::endl;
+*/
+
 }

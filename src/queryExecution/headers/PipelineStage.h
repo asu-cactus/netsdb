@@ -125,7 +125,7 @@ public:
     void feedSharedBuffers(HermesExecutionServer* server,
                            std::vector<PageCircularBufferPtr>& sourceBuffers,
                            int numPartitions,
-                           int& counter,
+                           atomic_int& counter,
                            PDBBuzzerPtr tempBuzzer,
                            bool& success,
                            std::string& errMsg);

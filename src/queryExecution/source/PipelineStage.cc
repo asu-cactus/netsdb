@@ -275,7 +275,7 @@ std::vector<PageCircularBufferIteratorPtr> PipelineStage::getUserSetIterators(
 void PipelineStage::feedSharedBuffers(HermesExecutionServer* server,
                                       std::vector<PageCircularBufferPtr>& sourceBuffers,
                                       int numPartitions,
-                                      int& counter,
+                                      atomic_int& counter,
                                       PDBBuzzerPtr tempBuzzer,
                                       bool& success,
                                       std::string& errMsg) {
@@ -962,8 +962,9 @@ void PipelineStage::runPipeline(HermesExecutionServer* server,
     bool success;
     std::string errMsg;
     int numPartitions = 0;
-    int sourceCounter = 0;
-    PDBBuzzerPtr sourceBuzzer;
+    atomic_int sourceCounter;
+    sourceCounter = 0;
+    PDBBuzzerPtr sourceBuzzer = nullptr;
     std::vector<PageCircularBufferPtr> sourceBuffers;
     // get user set iterators
     std::vector<PageCircularBufferIteratorPtr> iterators;
@@ -1063,11 +1064,12 @@ void PipelineStage::runPipeline(HermesExecutionServer* server,
     pthread_mutex_t connection_mutex;
     pthread_mutex_init(&connection_mutex, nullptr);
     
-    int pipelineCounter = 0;
+    atomic_int pipelineCounter;
+    pipelineCounter = 0;
 
     // create a buzzer and counter
     PDBBuzzerPtr tempBuzzer =
-        make_shared<PDBBuzzer>([](PDBAlarm myAlarm, int& counter) { 
+        make_shared<PDBBuzzer>([](PDBAlarm myAlarm, atomic_int& counter) { 
             counter++; 
             std::cout << "pipelineCounter = " << counter << std::endl; 
        }
@@ -1122,7 +1124,7 @@ void PipelineStage::runPipeline(HermesExecutionServer* server,
         // start the scanning thread
         std::cout << "start scanning source set and put pages to source buffers" << std::endl;
         sourceCounter = 0;
-        sourceBuzzer = make_shared<PDBBuzzer>([&](PDBAlarm myAlarm, int& sourceCounter) {
+        sourceBuzzer = make_shared<PDBBuzzer>([](PDBAlarm myAlarm, atomic_int& sourceCounter) {
             sourceCounter++;
             std::cout << "source counter = " << sourceCounter << std::endl;
         });
@@ -1160,6 +1162,7 @@ void PipelineStage::runPipeline(HermesExecutionServer* server,
                     } else {
                         std::cout << "Scanner got a null page" << std::endl;
                         sched_yield();
+                        //break;
                     }
                 }
                 
@@ -1263,12 +1266,13 @@ void PipelineStage::runPipelineWithShuffleSink(HermesExecutionServer* server) {
 
     // create a buzzer and counter
     PDBBuzzerPtr combinerBuzzer =
-        make_shared<PDBBuzzer>([&](PDBAlarm myAlarm, int& combinerCounter) {
+        make_shared<PDBBuzzer>([&](PDBAlarm myAlarm, atomic_int& combinerCounter) {
             combinerCounter++;
             PDB_COUT << "combinerCounter = " << combinerCounter << std::endl;
         });
     PDB_COUT << "to run combiner with " << numNodes << " threads." << std::endl;
-    int combinerCounter = 0;
+    atomic_int combinerCounter;
+    combinerCounter = 0;
 
     int i;
     for (i = 0; i < numNodes; i++) {
@@ -1532,12 +1536,13 @@ void PipelineStage::runPipelineWithBroadcastSink(HermesExecutionServer* server) 
     pthread_mutex_init(&connection_mutex, nullptr);
 
     // create a buzzer and counter
-    PDBBuzzerPtr shuffleBuzzer = make_shared<PDBBuzzer>([&](PDBAlarm myAlarm, int& shuffleCounter) {
+    PDBBuzzerPtr shuffleBuzzer = make_shared<PDBBuzzer>([&](PDBAlarm myAlarm, atomic_int& shuffleCounter) {
         shuffleCounter++;
         PDB_COUT << "shuffleCounter = " << shuffleCounter << std::endl;
     });
     PDB_COUT << "to run shuffle with " << numNodes << " threads." << std::endl;
-    int shuffleCounter = 0;
+    atomic_int shuffleCounter;
+    shuffleCounter = 0;
 
     int i;
     NodeID myNodeId = jobStage->getNodeId();
@@ -1657,9 +1662,10 @@ void PipelineStage::runPipelineWithHashPartitionSink(HermesExecutionServer* serv
     std::vector<PageCircularBufferPtr> shuffleBuffers;
     std::vector<PageCircularBufferIteratorPtr> shuffleIters;
 
-    int shuffleCounter = 0;
+    atomic_int shuffleCounter;
+    shuffleCounter = 0;
     // create a buzzer and counter
-    PDBBuzzerPtr shuffleBuzzer = make_shared<PDBBuzzer>([&](PDBAlarm myAlarm, int& shuffleCounter) {
+    PDBBuzzerPtr shuffleBuzzer = make_shared<PDBBuzzer>([&](PDBAlarm myAlarm, atomic_int& shuffleCounter) {
         shuffleCounter++;
         std::cout << "shuffleCounter = " << shuffleCounter << std::endl;
     });

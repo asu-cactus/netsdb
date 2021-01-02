@@ -18,7 +18,7 @@ typedef shared_ptr<PDBScanWork> PDBScanWorkPtr;
 
 class PDBScanWork : public pdb::PDBWork {
 public:
-    PDBScanWork(PageIteratorPtr iter, pdb::PangeaStorageServer* storage, int& counter);
+    PDBScanWork(PageIteratorPtr iter, pdb::PangeaStorageServer* storage, atomic_int& counter);
     ~PDBScanWork();
     bool sendPagePinned(pdb::PDBCommunicatorPtr myCommunicator,
                         bool morePagesToPin,
@@ -41,7 +41,7 @@ public:
 private:
     PageIteratorPtr iter;
     pdb::PangeaStorageServer* storage;
-    int& counter;
+    atomic_int& counter;
     pthread_mutex_t connection_mutex;
 };
 

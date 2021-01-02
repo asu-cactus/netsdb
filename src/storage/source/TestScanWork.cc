@@ -12,7 +12,7 @@ using namespace std;
 
 TestScanWork::TestScanWork(PageCircularBufferIteratorPtr iter,
                            pdb::HermesExecutionServer* server,
-                           int& counter)
+                           atomic_int& counter)
     : counter(counter) {
     this->iter = iter;
     this->server = server;

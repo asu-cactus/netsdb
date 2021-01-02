@@ -1441,14 +1441,17 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
             set->setPinned(true);
             int numIterators = iterators->size();
 
-            PDBBuzzerPtr tempBuzzer = make_shared<PDBBuzzer>([&](PDBAlarm myAlarm, int& counter) {
+            std::cout<<"GetSetPages iterators:" << numIterators << std::endl;
+
+            PDBBuzzerPtr tempBuzzer = make_shared<PDBBuzzer>([](PDBAlarm myAlarm, atomic_int& counter) {
                 counter++;
-                PDB_COUT << "counter = " << counter << std::endl;
+                std::cout << "GetSetPages: counter = " << counter << std::endl;
             });
 
             // scan pages and load pages in a multi-threaded style
 
-            int counter = 0;
+            atomic_int counter;
+            counter = 0;
             for (int i = 0; i < numIterators; i++) {
                 PDBWorkerPtr worker = getFunctionality<PangeaStorageServer>().getWorker();
                 PDBScanWorkPtr scanWork = make_shared<PDBScanWork>(

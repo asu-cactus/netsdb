@@ -15,7 +15,7 @@
 
 namespace pdb {
 
-HashPartitionWork :: HashPartitionWork(int id, PageCircularBufferIteratorPtr iter,  PipelineStage * stage, int& counter) 
+HashPartitionWork :: HashPartitionWork(int id, PageCircularBufferIteratorPtr iter,  PipelineStage * stage, atomic_int& counter) 
     : counter(counter) {
     this->id = id;
     this->iter = iter;

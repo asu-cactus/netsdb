@@ -176,6 +176,7 @@ vector<PageIteratorPtr>* UserSet::getIterators() {
     } else {
         PartitionedFilePtr partitionedFile = dynamic_pointer_cast<PartitionedFile>(this->file);
         int numPartitions = partitionedFile->getNumPartitions();
+        std::cout<<"We have " << numPartitions << " partitions" << std::endl;
         int i = 0;
         for (i = 0; i < numPartitions; i++) {
             if (partitionedFile->getMetaData()->getPartition(i)->getNumPages() > 0) {

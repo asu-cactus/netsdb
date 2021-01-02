@@ -32,7 +32,7 @@ typedef shared_ptr<PDBBuzzer> PDBBuzzerPtr;
 #include <pthread.h>
 #include <string>
 #include <functional>
-
+#include <atomic>
 
 class PDBBuzzer {
 public:
@@ -45,6 +45,9 @@ public:
     // sounds the buzzer, causing workFunc () to be called
     void buzz(PDBAlarm withMe, int& counter);
 
+    // sounds the buzzer, causing atomicFunc () to be called
+    void buzz(PDBAlarm withMe, std::atomic_int& counter);
+
     // blocks until someone calls buzz
     void wait();
 
@@ -54,6 +57,7 @@ public:
     PDBBuzzer(std::function<void(PDBAlarm)>);
     PDBBuzzer(std::function<void(PDBAlarm, string)>);
     PDBBuzzer(std::function<void(PDBAlarm, int&)>);
+    PDBBuzzer(std::function<void(PDBAlarm, std::atomic_int&)>);
     ~PDBBuzzer();
 
 
@@ -64,6 +68,7 @@ private:
     std::function<void(PDBAlarm)> noStringFunc = nullptr;
     std::function<void(PDBAlarm, std::string)> stringFunc = nullptr;
     std::function<void(PDBAlarm, int&)> intFunc = nullptr;
+    std::function<void(PDBAlarm, std::atomic_int&)> atomicFunc = nullptr;
 };
 
 
