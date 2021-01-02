@@ -207,7 +207,7 @@ int main(int argc, char *argv[]) {
     pdb::Handle<pdb::Computation> readB =
         makeObject<ScanUserSet<reddit::Comment>>(db, "comments");
 
-    pdb::Handle<pdb::Computation> chonk = makeObject<reddit::CommentsToChunks>(batch_size);
+    pdb::Handle<pdb::Computation> chonk = makeObject<reddit::CommentsToChunks>(block_x);
     chonk->setInput(readB);
 
     pdb::Handle<pdb::Computation> join =
