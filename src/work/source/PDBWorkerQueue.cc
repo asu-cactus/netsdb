@@ -39,7 +39,7 @@ PDBWorkerQueue::PDBWorkerQueue(PDBLoggerPtr myLoggerIn, int numWorkers) {
     }
 
     // this is the location where each worker is going to have their stack
-    origStackBase = malloc(1024 * 1024 * 4 * (numWorkers + 1));
+    origStackBase = calloc(1024 * 1024 * 4 * (numWorkers + 1), 1);
     if (origStackBase == nullptr) {
         std::cout << "PDBWorkerQueue.cc: Failed to allocate memory with size = " << 1024 * 1024 * 4 * (numWorkers + 1) << std::endl;
         exit(1);

@@ -66,7 +66,7 @@ void DispatcherServer::registerHandlers(PDBServer& forMe) {
                 tempPage = new char[numBytes];
                 sendUsingMe->receiveBytes(tempPage, errMsg);
 #else
-                readToHere = malloc(numBytes);
+                readToHere = (char*)malloc(numBytes);
                 sendUsingMe->receiveBytes(readToHere, errMsg);
 #endif
 

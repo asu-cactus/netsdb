@@ -222,7 +222,7 @@ Handle<ObjType> PDBCommunicator::getNextObject(bool& success, std::string& errMs
         return nullptr;
     }
     // read in the object
-    void* mem = malloc(msgSize);
+    void* mem = calloc(msgSize, 1);
     if (mem == nullptr) {
         PDB_COUT << "nextTypeId = " << nextTypeID << std::endl;
         PDB_COUT << "msgSize = " << msgSize << std::endl;

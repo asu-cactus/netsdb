@@ -10,6 +10,12 @@
 using namespace pdb;
 using json = nlohmann::json;
 
+static String STRING_DEFAULT = "";
+static long LONG_DEFAULT = 0L;
+static int INTEGER_DEFAULT = 0;
+static bool BOOL_DEFAULT = false;
+
+
 namespace reddit {
 
 class Comment : public Object {
@@ -18,10 +24,6 @@ public:
 
     ENABLE_DEEP_COPY
 
-    String STRING_DEFAULT = "NULL";
-    long LONG_DEFAULT = 0L;
-    int INTEGER_DEFAULT = 0;
-    bool BOOL_DEFAULT = false;
 
     int label = INTEGER_DEFAULT;
     int index = INTEGER_DEFAULT;

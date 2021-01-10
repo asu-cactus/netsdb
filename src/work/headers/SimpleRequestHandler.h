@@ -45,7 +45,7 @@ public:
             callerBuzzer->buzz(PDBAlarm::GenericError);
             return;
         }
-        void* memory = malloc(myCommunicator->getSizeOfNextObject());
+        void* memory = calloc(myCommunicator->getSizeOfNextObject(), 1);
         if(memory == nullptr) {
             std::cout << "SimpleRequestHandler: Failed to allocate memory" << std::endl;
             exit(1);

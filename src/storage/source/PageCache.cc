@@ -2,6 +2,8 @@
 #ifndef PAGE_CACHE_CC
 #define PAGE_CACHE_CC
 
+#include <stdio.h>
+#include <string.h>
 #include "PDBDebug.h"
 #include "PageCache.h"
 #include "PDBEvictWork.h"
@@ -128,7 +130,7 @@ char* PageCache::allocateBufferFromSharedMemoryBlocking(size_t size, int& alignO
         }
         data = (char*)this->shm->mallocAlign(size, 512, alignOffset);
     }
-
+    memset (data, 0, size);
     PDB_COUT << "page allocated!\n";
     return data;
 }

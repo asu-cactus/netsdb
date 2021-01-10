@@ -39,6 +39,7 @@ private:
     ConfigurationPtr conf;
     atomic_int& counter;
     pthread_mutex_t connection_mutex;
+    PDBLoggerPtr logger;
 };
 
 }

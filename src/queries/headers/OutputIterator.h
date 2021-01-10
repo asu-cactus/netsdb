@@ -75,7 +75,7 @@ public:
 #ifdef ENABLE_COMPRESSION
             char* readToHere = new char[objSize];
 #else
-            void* readToHere = malloc(objSize);
+            char* readToHere = (char *)malloc(objSize);
 #endif
 
             if (readToHere == nullptr) {
@@ -168,9 +168,9 @@ public:
 private:
     int size = 0;
     int pos = -1;
-    Handle<Vector<Handle<OutType>>> data;
-    Record<Vector<Handle<OutType>>>* page;
-    PDBCommunicatorPtr connection;
+    Handle<Vector<Handle<OutType>>> data = nullptr;
+    Record<Vector<Handle<OutType>>>* page=nullptr;
+    PDBCommunicatorPtr connection=nullptr;
 };
 }
 

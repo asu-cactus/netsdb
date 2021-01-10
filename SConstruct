@@ -46,11 +46,11 @@ elif  common_env['PLATFORM'] == 'posix':
     #Needs to be turned on for KMeans and TPCH
     common_env.Append(CXXFLAGS = '-std=c++14 -g3 -O3 -fPIC -fno-tree-vectorize  -march=native -Winline -Winline-asm -Wno-deprecated-declarations')
     #common_env.Append(CXXFLAGS = '-std=c++14 -g  -Oz -ldl -lstdc++ -Wno-deprecated-declarations')
-    common_env.Append(LINKFLAGS = '-pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++')
+    common_env.Append(LINKFLAGS = '-pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++ -lcrypto -lssl')
     common_env.Replace(CXX = "clang++")
 
 #common_env.Append(CCFLAGS='-DDEBUG_VTABLE_FIXING')
-#common_env.Append(CCFLAGS='-DUSE_VALGRIND')
+#common_env.Append(CCFLAGS='-DDEBUG_SHUFFLING')
 common_env.Append(CCFLAGS='-DINITIALIZE_ALLOCATOR_BLOCK')
 #common_env.Append(CCFLAGS='-DENABLE_SHALLOW_COPY')
 common_env.Append(CCFLAGS='-DDEFAULT_BATCH_SIZE=1')
@@ -66,7 +66,7 @@ common_env.Append(CCFLAGS='-DPROFILING_CACHE')
 common_env.Append(CCFLAGS='-DENABLE_LARGE_GRAPH')
 #for nearest neighbor search, below flag should be set to large like 200 for 64MB page size
 common_env.Append(CCFLAGS='-DJOIN_HASH_TABLE_SIZE_RATIO=1.5')
-common_env.Append(CCFLAGS='-DHASH_PARTITIONED_JOIN_SIZE_RATIO=1.5')
+common_env.Append(CCFLAGS='-DHASH_PARTITIONED_JOIN_SIZE_RATIO=2.0')
 common_env.Append(CCFLAGS='-DPROFILING')
 common_env.Append(CCFLAGS='-DJOIN_COST_THRESHOLD=0')
 common_env.Append(CCFLAGS='-DENABLE_COMPRESSION')
@@ -639,7 +639,9 @@ common_env.Program('bin/testRedditJoinSubsAndComments', ['build/tests/TestReddit
 common_env.Program('bin/testRedditAuthors', ['build/tests/TestRedditAuthors.cc'] + all + pdb_client)
 common_env.Program('bin/testScanAuthors', ['build/tests/TestScanAuthors.cc'] + all + pdb_client)
 common_env.Program('bin/testScanSubs', ['build/tests/TestScanSubs.cc'] + all + pdb_client)
-
+common_env.Program('bin/testRepartition', ['build/tests/TestRepartition.cc']+ all + pdb_client)
+common_env.Program('bin/testRepartition1', ['build/tests/TestRepartition1.cc']+ all + pdb_client)
+common_env.Program('bin/testRepartition3', ['build/tests/TestRepartition3.cc']+ all + pdb_client)
 # K-means
 common_env.SharedLibrary('libraries/libScanDoubleArraySet.so', ['build/libraries/ScanDoubleArraySet.cc'] + all)
 common_env.SharedLibrary('libraries/libKMeansAggregate.so', ['build/libraries/KMeansAggregate.cc'] + all)
@@ -1118,7 +1120,10 @@ reddit=common_env.Alias('reddit', [
   'bin/testRedditThreeWayAdaptiveJoinWithVariousSelections',
   'bin/testRedditJoinSubsAndComments',
   'bin/testRedditRandomLabels',
-  'bin/createRedditComments'
+  'bin/createRedditComments',
+  'bin/testRepartition',
+  'bin/testRepartition1',
+  'bin/testRepartition3'
 ])
 
 tpch=common_env.Alias('tpch', [

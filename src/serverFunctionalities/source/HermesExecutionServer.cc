@@ -38,7 +38,7 @@
 #endif
 
 #ifndef HASH_PARTITIONED_JOIN_SIZE_RATIO
-#define HASH_PARTITIONED_JOIN_SIZE_RATIO 1.5
+#define HASH_PARTITIONED_JOIN_SIZE_RATIO 2 
 #endif
 
 namespace pdb {

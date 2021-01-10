@@ -1,7 +1,7 @@
 #ifndef PIPELINE_STAGE_CC
 #define PIPELINE_STAGE_CC
 
-
+#include <openssl/md5.h>
 #include "AbstractAggregateComp.h"
 #include "StorageAddData.h"
 #include "StorageAddObjectInLoop.h"
@@ -158,17 +158,18 @@ bool PipelineStage::storeCompressedShuffleData(char* bytes,
 
 // broadcast data
 bool PipelineStage::sendData(PDBCommunicatorPtr conn,
-                             void* data,
+                             char* data,
                              size_t size,
                              std::string databaseName,
                              std::string setName,
-                             std::string& errMsg) {
+                             std::string& errMsg,
+                             int counter) {
     bool success;
     if (data != nullptr) {
 #ifdef DEBUG_SHUFFLING
         // write the data to a test file
         std::string fileName =
-            jobStage->getJobId() + "_" + std::to_string(jobStage->getStageId()) + "_shuffle";
+            jobStage->getJobId() + "_" + std::to_string(jobStage->getStageId()) + "_shuffle-sent"+std::to_string(counter);
         FILE* myFile = fopen(fileName.c_str(), "w");
         fwrite(data, 1, size, myFile);
         fclose(myFile);
@@ -178,27 +179,22 @@ bool PipelineStage::sendData(PDBCommunicatorPtr conn,
             databaseName, setName, "IntermediateData", false, false);
         conn->sendObject(request, errMsg);
 #ifdef ENABLE_COMPRESSION
-        char* compressedBytes = new char[snappy::MaxCompressedLength(size)];
+        size_t maxSize = snappy::MaxCompressedLength(size);
+        char* compressedBytes = new char[maxSize];
         if (compressedBytes == nullptr) {
            std::cout << "PipelineStage.cc: failed to allocate memory with size=" << size << std::endl;
            exit(1);
         }
-        size_t compressedSize;
+        memset(compressedBytes, 0, maxSize);
+        size_t compressedSize = 0;
         snappy::RawCompress((char*)data, size, compressedBytes, &compressedSize);
         std::cout << "size before compression is " << size << " and size after compression is "
                   << compressedSize << std::endl;
+        errMsg = "";
         conn->sendBytes(compressedBytes, compressedSize, errMsg);
         delete[] compressedBytes;
 #else
         conn->sendBytes(data, size, errMsg);
-#endif
-#ifdef DEBUG_SHUFFLING
-        // write the data to a test file
-        std::string fileName1 =
-            jobStage->getJobId() + "_" + std::to_string(jobStage->getStageId()) + "_sent";
-        FILE* myFile1 = fopen(fileName1.c_str(), "w");
-        fwrite(data, 1, size, myFile1);
-        fclose(myFile1);
 #endif
     } else {
         Handle<StorageAddObjectInLoop> request = makeObject<StorageAddObjectInLoop>();
@@ -1030,6 +1026,7 @@ void PipelineStage::runPipeline(HermesExecutionServer* server,
         numThreads = hashSet->getNumPages();
     }
 
+
     int numSourceThreads = numThreads;
     if (numPartitions > 0) {
         numSourceThreads = numPartitions;
@@ -1079,7 +1076,7 @@ void PipelineStage::runPipeline(HermesExecutionServer* server,
     for (int i = 0; i < numSourceThreads; i++) {
         PDBWorkerPtr worker =
             server->getFunctionality<HermesExecutionServer>().getWorkers()->getWorker();
-        PDB_COUT << "to run the " << i << "-th work..." << std::endl;
+        std::cout << "to run the " << i << "-th work..." << std::endl;
         // TODO: start threads
         PDBWorkPtr myWork = make_shared<GenericWork>([&, i](PDBBuzzerPtr callerBuzzer) {
 
@@ -1108,6 +1105,7 @@ void PipelineStage::runPipeline(HermesExecutionServer* server,
                       << std::endl;
             std::cout << out << std::endl;
 #endif
+            std::cout << "finished running the " << i << "-th pipeline work" << std::endl;
             callerBuzzer->buzz(PDBAlarm::WorkAllDone, pipelineCounter);
 
         }
@@ -1184,12 +1182,14 @@ void PipelineStage::runPipeline(HermesExecutionServer* server,
         }
 
         while (pipelineCounter < numSourceThreads) {
+            sched_yield();
             tempBuzzer->wait();
         }
 
     } else {
 
         while (pipelineCounter < numSourceThreads) {
+            sched_yield();
             tempBuzzer->wait();
         }
 
@@ -1594,7 +1594,7 @@ void PipelineStage::runPipelineWithBroadcastSink(HermesExecutionServer* server) 
                     // send out the page
                     Record<Object>* myRecord = (Record<Object>*)(page->getBytes());
                     sendData(communicator,
-                             myRecord,
+                             (char*)myRecord,
                              myRecord->numBytes(),
                              jobStage->getSinkContext()->getDatabase(),
                              jobStage->getSinkContext()->getSetName(),
@@ -1665,9 +1665,9 @@ void PipelineStage::runPipelineWithHashPartitionSink(HermesExecutionServer* serv
     atomic_int shuffleCounter;
     shuffleCounter = 0;
     // create a buzzer and counter
-    PDBBuzzerPtr shuffleBuzzer = make_shared<PDBBuzzer>([&](PDBAlarm myAlarm, atomic_int& shuffleCounter) {
-        shuffleCounter++;
-        std::cout << "shuffleCounter = " << shuffleCounter << std::endl;
+    PDBBuzzerPtr shuffleBuzzer = make_shared<PDBBuzzer>([](PDBAlarm myAlarm, atomic_int& counter) {
+        counter++;
+        std::cout << "shuffleCounter = " << counter << std::endl;
     });
 
     

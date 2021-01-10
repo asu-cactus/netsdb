@@ -81,7 +81,7 @@ class Handle : public HandleBase {
 
 private:
     // where this guy is located
-    int64_t offset;
+    int64_t offset = -1;
 
     // this is the class that all PDB templates include, so that they can
     // implement type erasure...

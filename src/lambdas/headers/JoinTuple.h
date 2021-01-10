@@ -104,10 +104,15 @@ public:
     // JiaNote: add the below two functions to facilitate JoinMap merging for broadcast join
     void copyDataFrom(Handle<HoldMe> me) {
         pdb::copyFrom(myData, me);
+        //std::cout << "copyFrom: " ;
+        //std::cout << me->toString() << std::endl; 
     }
 
     void copyDataFrom(HoldMe me) {
         pdb::copyFrom(myData, me);
+        //std::cout << "copyFrom: ";
+        //std::cout << me.toString() << ",";
+        //std::cout << myData.toString() << std::endl;
     }
 
     void copyFrom(void* input, int whichPos) {
@@ -123,9 +128,12 @@ public:
             pdb::copyTo(myData, temp);
             me.push_back(temp);
         } else {
-            me[whichPos] = makeObject<HoldMe>();
             pdb::copyTo(myData, me[whichPos]);
         }
+        //std::cout << "from :";
+        //std::cout << myData.toString() << std::endl;
+        //std::cout << "copyTo :";
+        //std::cout << me[whichPos]->toString() << std::endl;
     }
 
     static void truncate(void* input, int i) {
@@ -312,8 +320,6 @@ private:
 
 public:
     ~PartitionedJoinProbe() {
-        if (columns != nullptr)
-            delete[] columns;
     }
 
     // when we probe a partitioned hash table, a subset of the atts that we need to put into the output stream
@@ -453,8 +459,6 @@ private:
 
 public:
     ~JoinProbe() {
-        if (columns != nullptr)
-            delete[] columns;
     }
 
     // when we probe a hash table, a subset of the atts that we need to put into the output stream
@@ -669,10 +673,10 @@ public:
                             myMap.setUnused(myHash);
                             listIndex = j;
                             mapIndex = counter;   
-                            std::cout << "ERROR: join data is too large to be built in one map, "
+                            std::cout << "FATAL ERROR: join data is too large to be built in one map, "
                                          "results are truncated with listIndex=" << listIndex << ", mapIndex=" << mapIndex
                                       << std::endl;
-                            return;
+                            exit(1);
                         }
                     }
                     listIndex = 0;
@@ -866,7 +870,8 @@ public:
                   if (curJoinMap->getNumPartitions() >0) {
                     if (((curJoinMap->getPartitionId() % curJoinMap->getNumPartitions()) ==
                         myPartitionId)&&(curJoinMap->size()>0)) {
-                        std::cout << "We've got a non-null map with partitionId=" << myPartitionId << ", pos=" << pos <<", size=" << curJoinMap->size() << std::endl;
+                        std::cout << "We've got a non-null map with partitionId=" << myPartitionId << ", pos=" << pos <<", size=" << curJoinMap->size() << ", in page Id="<<myPage->getPageID() << ", referenceCount="<< myPage->getRefCount()<< std::endl;
+                        //curJoinMap->print();
                         curJoinMapIter = curJoinMap->begin();
                         joinMapEndIter = curJoinMap->end();
                         posInRecordList = 0;
@@ -898,6 +903,7 @@ public:
                         try {
                             //put the input object into the tupleset
                             unpack((*myList)[i], overallCounter, 0, columns);
+                            
                         } catch (NotEnoughSpace& n) {
                             //if we cannot write out the whole map, we roll back to the initial state when we enter this function.
                             pos = posToRecover;
@@ -918,13 +924,7 @@ public:
                         if (overallCounter == this->chunkSize) {
                             hashColumn->resize(overallCounter);
                             eraseEnd<RHSType>(overallCounter, 0, columns);
-                            if (output->existsColumn(1)) {
-                                return output;
-                            } else {
-                                std::cout << myPartitionId << ": Error in PartitionedJoinMapTupleSetIterator 1: not existing column 1 in "
-                                          << output->getNumColumns() << " columns\n"; 
-                                return nullptr;
-                            }
+                            return output;
                         }
                     }
                     if (posInRecordList >= myListSize) {
@@ -943,7 +943,7 @@ public:
                 }
                 //we have finished the lists in this join map
                 curJoinMap = nullptr;
-            }
+            }//while
 
             // if we have come to the end of the iterateOverMe, we need fetch a new rec or even a new page
             if ((curJoinMap == nullptr) && (pos == iterateOverMe->size())) {
@@ -976,13 +976,7 @@ public:
 
                         hashColumn->resize(overallCounter);
                         eraseEnd<RHSType>(overallCounter, 0, columns);
-                        if (output->existsColumn(1)) {
-                            return output;
-                        } else {
-                            std::cout << myPartitionId << ": Error in PartitionedJoinMapTupleSetIterator 2: not existing column 1 in "
-                                      << output->getNumColumns() << " columns\n";
-                            return nullptr;
-                        }
+                        return output;
 
                     } else {
                         return nullptr;
@@ -1011,8 +1005,6 @@ public:
         lastPage = nullptr;
         myRec = nullptr;
         myPage = nullptr;
-        if (columns != nullptr)
-            delete [] columns;
     }
 };
 
@@ -1025,13 +1017,16 @@ private:
     int nodeId;
     int curListIndex = 0;
     int curMapIndex = 0;
+    PDBLoggerPtr logger = nullptr;
 public:
     ~JoinSinkShuffler() {}
 
-    JoinSinkShuffler() {}
+    JoinSinkShuffler() {
+    }
 
     void setNodeId(int nodeId) override {
         this->nodeId = nodeId;
+        logger = std::make_shared<PDBLogger>("repartition"+std::to_string(nodeId)+".log");
     }
 
     int getNodeId() override {
@@ -1081,20 +1076,30 @@ public:
         Vector<Handle<JoinMap<RHSType>>>& myMaps = *shuffledMaps;
         Handle<JoinMap<RHSType>> thisMap=nullptr;
         try {
-            thisMap = makeObject<JoinMap<RHSType>>(mapToShuffle.size(),
+            thisMap = makeObject<JoinMap<RHSType>>(mapToShuffle.size()-getMapIndex(),
                                                    mapToShuffle.getPartitionId(),
                                                    mapToShuffle.getNumPartitions());
         } catch (NotEnoughSpace& n) {
-            std::cout << "Can't allocate for new map with " << mapToShuffle.size() << " elements" << std::endl;
+            std::cout << nodeId << ": Can't allocate for new map with " << mapToShuffle.size() << " elements" << std::endl;
+            logger->writeLn("Can't allocate for new map with ");
+            logger->writeInt(mapToShuffle.size());
+            logger->writeLn(" elements");
+            if (mapToShuffle.size() > 1000000000) {
+                exit(1);
+            }
             return false;
         }
         JoinMap<RHSType>& myMap = *thisMap;
         int counter = 0;
         int mapIndex = getMapIndex();
         int numPacked = 0;
-        std::cout << "this map has " << mapToShuffle.size() << " elements with mapIndex="<< getMapIndex() 
+        std::cout << nodeId <<": this map has " << mapToShuffle.size() << " elements with mapIndex="<< getMapIndex() 
                   << ", listIndex=" << getListIndex() << std::endl;
-
+        logger->writeInt(mapToShuffle.size());
+        logger->writeLn(" elements with mapIndex=");
+        logger->writeInt(getMapIndex());
+        logger->writeLn(", listIndex=");
+        logger->writeInt(getListIndex());
         for (JoinMapIterator<RHSType> iter = mapToShuffle.begin(); iter != mapToShuffle.end();
              ++iter) {
             if (counter < mapIndex) {
@@ -1116,14 +1121,22 @@ public:
                         try {
                             RHSType* temp = &(myMap.push(myHash));
                             packData(*temp, ((*myList)[i]));
-                            //std::cout << (*myList)[i].myData.toString() << std::endl;              
+                            //std::cout << temp->myData.toString();
                             numPacked++;
                         } catch (NotEnoughSpace& n) {
                             myMap.setUnused(myHash);
+                            //myMap.print();
                             setListIndex(i);
                             setMapIndex(counter);
-                            std::cout << "1: Run out of space in shuffling, to allocate a new page with listIndex=" << getListIndex() 
+                            std::cout << nodeId << ":1: Run out of space in shuffling, to allocate a new page with listIndex=" << getListIndex() 
                                       << ", mapIndex=" << getMapIndex() << ", mapSize="<< myMap.size()<<std::endl;
+                            logger->writeLn(":1: Run out of space in shuffling, to allocate a new page with listIndex=");
+                            logger->writeInt(getListIndex());
+                            logger->writeLn(", mapIndex=");
+                            logger->writeInt(getMapIndex());
+                            logger->writeLn(", mapSize=");
+                            logger->writeInt(myMap.size());
+
                             return false;
                         }
                     } else {
@@ -1132,25 +1145,40 @@ public:
                             temp = &(myMap.push(myHash));
                         } catch (NotEnoughSpace& n) {
                             //we may loose one element here, but no better way to handle this
+                            std::cout << nodeId<<":mapSize=" << myMap.size()<<std::endl;
                             myMap.setUnused(myHash);
+                            //myMap.print();
                             setListIndex(i);
                             setMapIndex(counter);
-                            std::cout << "2: Run out of space in shuffling, to allocate a new page with listIndex=" << getListIndex() 
+                            std::cout << nodeId << ":2: Run out of space in shuffling, to allocate a new page with listIndex=" << getListIndex() 
                                       << ", mapIndex=" << getMapIndex() << ", mapSize="<<myMap.size() 
                                       << std::endl;
+                            logger->writeLn(":2: Run out of space in shuffling, to allocate a new page with listIndex=");
+                            logger->writeInt(getListIndex());
+                            logger->writeLn(", mapIndex=");
+                            logger->writeInt(getMapIndex());
+                            logger->writeLn(", mapSize=");
+                            logger->writeInt(myMap.size());
                             return false;
                         }
                         try {
                             packData(*temp, ((*myList)[i]));
-                            //std::cout << (*myList)[i].myData.toString() << std::endl;
+                            //std::cout << temp->myData.toString();
                             numPacked++;
                         } catch (NotEnoughSpace& n) {
                             myMap.setUnused(myHash);
+                            //myMap.print();
                             setListIndex(i);
                             setMapIndex(counter);
-                            std::cout << "3: Run out of space in shuffling, to allocate a new page with listIndex=" << getListIndex() 
+                            std::cout << nodeId << ":3: Run out of space in shuffling, to allocate a new page with listIndex=" << getListIndex() 
                                       << ", mapIndex=" << getMapIndex() << ", mapSize="<<myMap.size()
                                       << std::endl;
+                            logger->writeLn(":3: Run out of space in shuffling, to allocate a new page with listIndex=");
+                            logger->writeInt(getListIndex());
+                            logger->writeLn(", mapIndex=");
+                            logger->writeInt(getMapIndex());
+                            logger->writeLn(", mapSize=");
+                            logger->writeInt(myMap.size());
                             return false;
                         }
                     }
@@ -1164,8 +1192,9 @@ public:
         // this point, the whole map will be discarded and will not add to the vector of maps.
         try {
              myMaps.push_back(thisMap);
+             //myMaps[myMaps.size()-1]->print();
         } catch (NotEnoughSpace& n) {
-             std::cout << "Run out of space in shuffling at the beginning of processing a map, to allocate a new page with listIndex=" << getListIndex()
+             std::cout << nodeId <<": Run out of space in shuffling at the beginning of processing a map, to allocate a new page with listIndex=" << getListIndex()
              << ", mapIndex=" << getMapIndex() << std::endl;
              return false;
         }
@@ -1202,8 +1231,6 @@ private:
 
 public:
     ~PartitionedJoinSink() {
-        if (columns != nullptr)
-            delete[] columns;
     }
 
     PartitionedJoinSink(int numPartitionsPerNode,
@@ -1317,7 +1344,6 @@ public:
 
                     // an exception means that we couldn't complete the addition
                 } catch (NotEnoughSpace& n) {
-
                     std::cout << "2: we are running out of space in writing join sink with nodeIndex=" << nodeIndex << ", hash=" << keyColumn[i] << ", partitionIndex=" << partitionIndex << std::endl;
                     std::cout << i << ": nodeIndex=" << nodeIndex << ", partitionIndex=" <<partitionIndex
                               << ", myMap.size="<<myMap.size()<<std::endl;
@@ -1376,8 +1402,6 @@ private:
 public:
     ~JoinSink() {
         std::cout << "JoinSink: cleanup columns" << std::endl;
-        if (columns != nullptr)
-            delete[] columns;
     }
 
     JoinSink(TupleSpec& inputSchema,
@@ -1467,7 +1491,7 @@ public:
                     // an exception means that we couldn't complete the addition
                 } catch (NotEnoughSpace& n) {
                     //we may loose one element here, but no better way to handle this
-                    myMap.setUnused(keyColumn[i]); 
+                    myMap.setUnused(keyColumn[i]);
                     truncate<RHSType>(i, 0, columns);
                     keyColumn.erase(keyColumn.begin(), keyColumn.begin() + i);
                     std::cout << "remove " << i << " from " << length << std::endl;

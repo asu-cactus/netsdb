@@ -79,7 +79,7 @@ ReturnType simpleRequest(PDBLoggerPtr myLogger,
                 return onErr;
             }
         }
-        void* memory = malloc(objectSize);
+        void* memory = calloc(objectSize, 1);
         if (memory == nullptr) {
             errMsg = "FATAL ERROR in simpleRequest: Can't allocate memory";
             myLogger->error(errMsg);
@@ -149,7 +149,7 @@ ReturnType simpleDoubleRequest(PDBLoggerPtr myLogger,
 
     // get the response and process it
     ReturnType finalResult;
-    void* memory = malloc(temp.getSizeOfNextObject());
+    void* memory = calloc(temp.getSizeOfNextObject(), 1);
     if (memory == nullptr) {
         std::cout << "SimpleRequest.cc: failed to allocate memory" << std::endl;
         exit(1);

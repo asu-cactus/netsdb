@@ -110,10 +110,10 @@ inline void defaultFreeRAM(bool isContained,
         here = CHAR_PTR(here) - CHUNK_HEADER_SIZE;
 
         // get the chunk size
-        unsigned chunkSize = GET_CHUNK_SIZE(here);
+        size_t chunkSize = GET_CHUNK_SIZE(here);
 
         // get the number of leading zeros
-        int leadingZeros = __builtin_clz(chunkSize);
+        unsigned int leadingZeros = __builtin_clz(chunkSize);
 
         // and remember this chunk
         myState.chunks[31 - leadingZeros].push_back(here);
@@ -198,7 +198,7 @@ inline void* defaultGetRAM(size_t howMuch, AllocatorState& myState) {
     // at position 6 (2^6 and larger) at position 7 (2^7 and larger), and so on, trying to find one
     // that fits.
     for (unsigned int i = 31 - numLeadingZeros; i < 32; i++) {
-        int len = myState.chunks[i].size();
+        int len = (int)(myState.chunks[i].size());
         for (int j = len - 1; j >= 0; j--) {
             if (GET_CHUNK_SIZE(myState.chunks[i][j]) >= bytesNeeded) {
                 void* returnVal = myState.chunks[i][j];

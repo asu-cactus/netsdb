@@ -2,6 +2,7 @@
 #ifndef PANGEA_STORAGE_SERVER_C
 #define PANGEA_STORAGE_SERVER_C
 
+#include <openssl/md5.h>
 #include "PDBDebug.h"
 #include "JoinMap.h"
 #include "PangeaStorageServer.h"
@@ -59,9 +60,7 @@
 #include <map>
 #include <iterator>
 #include <pthread.h>
-#ifdef ENABLE_COMPRESSION
 #include <snappy.h>
-#endif
 
 #define FLUSH_BUFFER_SIZE 3
 
@@ -686,8 +685,8 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
         StorageGetStats_TYPEID,
         make_shared<SimpleRequestHandler<StorageGetStats>>([&](Handle<StorageGetStats> request,
                                                                PDBCommunicatorPtr sendUsingMe) {
-             std::string errMsg;
-             bool res;
+             std::string errMsg="";
+             bool res=true;
              this->cache->printStats();
              this->printSets();
              // make the response
@@ -858,6 +857,7 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
             bool everythingOK = true;
             Handle<StorageAddObjectInLoop> curRequest = request;
             void* requestInLoop = nullptr;
+            int counter = 0;
             while (curRequest->isLoopEnded() == false) {
                 bool typeCheckOrNot = request->isTypeCheck();
                 if (typeCheckOrNot == true) {
@@ -929,7 +929,21 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
 #else
                     memcpy(myBytes, readToHere, numBytes);
 #endif
-
+                    /*MD5_CTX md5;
+                    MD5_Init(&md5);
+                    MD5_Update(&md5, myBytes, numBytes);
+                    unsigned char output[MD5_DIGEST_LENGTH];
+                    MD5_Final(output, &md5);
+                    std::cout << "Hash received: " << output << std::endl;
+                    logger->writeLn("Hash received: "+string((char *)output));*/
+#ifdef DEBUG_SHUFFLING
+                    // write the data to a test file
+                    std::string fileName =
+                      std::string(request->getDatabase()) + "_" + std::string(request->getSetName()) + "_shuffle-received"+std::to_string(counter);
+                    FILE* myFile = fopen(fileName.c_str(), "w");
+                    fwrite(myBytes, 1, sizeOfBytesToAdd, myFile);
+                    fclose(myFile);
+#endif
                 } else {
                     errMsg =
                         "Tried to add data of the wrong type to a database set or database set "
@@ -941,7 +955,7 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
 #else
                 free(readToHere);
 #endif
-
+                counter++;
                 numBytes = sendUsingMe->getSizeOfNextObject();
                 if (requestInLoop != nullptr) {
                     free(requestInLoop);
