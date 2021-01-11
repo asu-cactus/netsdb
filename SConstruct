@@ -627,6 +627,7 @@ common_env.SharedLibrary('libraries/libRedditCommentLabelJoin.so', ['build/reddi
 common_env.SharedLibrary('libraries/libRedditLabelProjection.so', ['build/reddit/RedditLabelProjection.cc']+all)
 common_env.Program('bin/loadRedditComments', ['build/tests/LoadRedditComments.cc'] + all + pdb_client)
 common_env.Program('bin/loadRedditCommentsWithPartition', ['build/tests/LoadRedditCommentsWithPartition.cc'] + all + pdb_client)
+common_env.Program('bin/loadRedditCommentsWithPartitionWithVariousSelections', ['build/tests/LoadRedditCommentsWithPartitionWithVariousSelections.cc'] + all + pdb_client)
 common_env.Program('bin/createRedditComments', ['build/tests/CreateRedditComments.cc'] + all + pdb_client)
 common_env.Program('bin/loadRedditAuthors', ['build/tests/LoadRedditAuthors.cc'] + all + pdb_client)
 common_env.Program('bin/loadRedditSubs', ['build/tests/LoadRedditSubs.cc'] + all + pdb_client)
@@ -1109,6 +1110,7 @@ reddit=common_env.Alias('reddit', [
   'libraries/libRedditLabelProjection.so',
   'bin/loadRedditComments',
   'bin/loadRedditCommentsWithPartition',
+  'bin/loadRedditCommentsWithPartitionWithVariousSelections',
   'bin/loadRedditAuthors',
   'bin/loadRedditSubs',
   'bin/testRedditAuthors',
