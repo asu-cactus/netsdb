@@ -102,7 +102,7 @@ private:
     int numOut;
 
     // true when the destructor is active
-    bool shuttingDown;
+    atomic_bool shuttingDown;
 
     // the logger to write to
     PDBLoggerPtr myLogger;

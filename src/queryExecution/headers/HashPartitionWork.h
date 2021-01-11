@@ -25,7 +25,7 @@ namespace pdb {
 class HashPartitionWork : public pdb::PDBWork {
 public:
     HashPartitionWork(int id, PageCircularBufferIteratorPtr iter, PipelineStage * stage, 
-         int& counter);
+         atomic_int& counter);
     ~HashPartitionWork();
 
     // do the actual work
@@ -37,8 +37,9 @@ private:
     PipelineStage * stage;
     Handle<TupleSetJobStage> jobStage;
     ConfigurationPtr conf;
-    int& counter;
+    atomic_int& counter;
     pthread_mutex_t connection_mutex;
+    PDBLoggerPtr logger;
 };
 
 }

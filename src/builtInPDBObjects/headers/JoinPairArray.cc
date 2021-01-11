@@ -146,6 +146,84 @@ int JoinPairArray<ValueType>::count(const size_t &me) {
   return 0;
 }
 
+
+
+template<class ValueType>
+void JoinPairArray<ValueType>::setUnused(const size_t &me) {
+
+  // hash this dude
+  size_t hashVal = me == JM_UNUSED ? 858931273 : me;
+
+  // figure out which pos he goes in
+  size_t slot = hashVal % (numSlots - 1);
+  // in the worst case, we can loop through the entire hash table looking.  :-(
+  for (size_t slotsChecked = 0; slotsChecked < numSlots; slotsChecked++) {
+
+    // if we found an empty pos, then this guy was not here
+    if (JM_GET_HASH(data, slot) == JM_UNUSED) {
+      return;
+
+      // found a non-empty pos; check for a match
+    } else if (JM_GET_HASH(data, slot) == hashVal) {
+
+      if ((JM_GET_NEXT(data, slot) != UINT32_MAX) &&
+          JM_GET_NEXT(data, slot) >= overflows.size()){
+        JM_GET_NEXT(data, slot) = UINT32_MAX;
+        std::cout << "hash2=" << JM_GET_HASH(data, slot);
+        std::cout << ", slot2=" << JM_GET_NEXT(data, slot);
+        return;
+      }
+
+      if (JM_GET_NEXT(data, slot) != UINT32_MAX &&
+          overflows[JM_GET_NEXT(data, slot)].size() >= 1) {
+        std::cout<<"usedSlots before="<<usedSlots;
+        std::cout<<"overflows[JM_GET_NEXT(data, slot)].size()=" << overflows[JM_GET_NEXT(data, slot)].size() << std::endl;
+        JM_GET_NEXT(data, slot) = UINT32_MAX;
+        std::cout << "hash1=" << JM_GET_HASH(data, slot);
+        std::cout << ", slot1=" << JM_GET_NEXT(data, slot);
+        return;
+      }
+
+        
+      if ((JM_GET_NEXT(data, slot) != UINT32_MAX) &&
+          JM_GET_NEXT(data, slot) < overflows.size() &&
+          overflows[JM_GET_NEXT(data, slot)].size() == 0){
+        JM_GET_NEXT(data, slot) = UINT32_MAX;
+        if (JM_GET_NEXT(data, slot) == overflows.size()-1) {
+          overflows.pop_back(); 
+        }
+        std::cout << "hash3=" << JM_GET_HASH(data, slot);
+        std::cout << ", slot3=" << JM_GET_NEXT(data, slot);
+        return;
+      }
+ 
+      // destruct those guys
+      ((ValueType *) (JM_GET_VALUE_PTR(data, slot)))->~ValueType();
+      JM_GET_HASH(data, slot) = JM_UNUSED;
+      JM_GET_NEXT(data, slot) = UINT32_MAX;
+      std::cout << "hash4=" << JM_GET_HASH(data, slot);
+      std::cout << ", slot4=" << JM_GET_NEXT(data, slot);
+      usedSlots --;
+      return;
+    }
+
+    // if we made it here, then it means that we found a non-empty pos, but no
+    // match... so we simply loop to the next iteration... if pos == numSlots - 1, it
+    // means we've made it to the end of the hash table... go to the beginning
+    if (slot == numSlots - 1)
+      slot = 0;
+
+      // otherwise, just go to the next pos
+    else
+      slot++;
+  }
+
+  // we should never reach here
+  std::cout << "Fatal Error: Ran off the end of the hash table setUnused()\n";
+  exit(1);
+}
+
+/*
 template<class ValueType>
 void JoinPairArray<ValueType>::setUnused(const size_t &me) {
 
@@ -195,6 +273,8 @@ void JoinPairArray<ValueType>::setUnused(const size_t &me) {
   std::cout << "Fatal Error: Ran off the end of the hash table setUnused()\n";
   exit(1);
 }
+
+*/
 
 template<class ValueType>
 JoinRecordList<ValueType> JoinPairArray<ValueType>::lookup(const size_t &me) {
@@ -316,7 +396,7 @@ JoinPairArray<ValueType>::JoinPairArray(uint32_t numSlotsIn) : JoinPairArray() {
   // remember the size
   numSlots = numSlotsIn;
   maxSlots = numSlotsIn * JM_FILL_FACTOR;
-
+  usedSlots = 0;
   // set everyone to unused
   for (int i = 0; i < numSlots; i++) {
     JM_GET_HASH(data, i) = JM_UNUSED;
@@ -459,7 +539,8 @@ size_t JoinRecordList<ValueType>::size() {
 template<class ValueType>
 ValueType &JoinRecordList<ValueType>::operator[](const size_t i) {
   if (parent == nullptr){
-    std::cout<<" parent is null! " << std::endl;
+    std::cout<<"Fatal Error: JoinRecordList's parent is null! " << std::endl;
+    exit(1);
   }
   uint32_t objSize = parent->objSize;
   return i == 0 ? JM_GET_VALUE(parent->data, whichOne, ValueType) : parent->overflows[JM_GET_NEXT(parent->data, whichOne)][i - 1];

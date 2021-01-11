@@ -105,11 +105,12 @@ public:
                                     std::string& errMsg);
     // send Shuffle data
     bool sendData(PDBCommunicatorPtr conn,
-                  void* bytes,
+                  char* bytes,
                   size_t size,
                   std::string databaseName,
                   std::string setName,
-                  std::string& errMsg);
+                  std::string& errMsg,
+                  int counter = 0);
 
     // tuning the backend circular buffer size
     size_t getBackendCircularBufferSize(bool& success, std::string& errMsg);
@@ -125,7 +126,7 @@ public:
     void feedSharedBuffers(HermesExecutionServer* server,
                            std::vector<PageCircularBufferPtr>& sourceBuffers,
                            int numPartitions,
-                           int& counter,
+                           atomic_int& counter,
                            PDBBuzzerPtr tempBuzzer,
                            bool& success,
                            std::string& errMsg);

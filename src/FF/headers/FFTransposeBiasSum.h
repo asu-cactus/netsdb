@@ -23,12 +23,14 @@ public:
   Lambda<bool> getSelection(Handle<FFMatrixBlock> in1,
                             Handle<FFMatrixBlock> in2) override {
     // return makeLambda(
+
     //     in1, in2, [](Handle<FFMatrixBlock> &in1, Handle<FFMatrixBlock> &in2)
     //     {
     //       return in1->getBlockRowIndex() == in2->getBlockRowIndex();
     //     });
     return makeLambdaFromMethod(in1, getBlockRowIndex) ==
            makeLambdaFromMethod(in2, getBlockRowIndex);
+
   }
 
   Lambda<Handle<FFMatrixBlock>>

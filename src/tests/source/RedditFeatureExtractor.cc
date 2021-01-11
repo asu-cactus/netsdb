@@ -28,6 +28,7 @@
 #include "CommentsToFeatures.h"
 #include "MatrixBlockPartition.h"
 
+
 #include "CommentsChunk.h"
 #include "CommentsToChunks.h"
 #include "CommentChunkToComments.h"
@@ -176,10 +177,12 @@ int main(int argc, char *argv[]) {
                                                        batch_size);
     slice->setInput(chonk);
 
+
     // make the writer
     pdb::Handle<pdb::Computation> myWriter =
         pdb::makeObject<reddit::MatrixBlockPartition>(db, set);
     myWriter->setInput(slice);
+
 
     // run the computation
     if (!pdbClient.executeComputations(errMsg, myWriter)) {
@@ -260,6 +263,7 @@ int main(int argc, char *argv[]) {
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
+
     // make the computation
     pdb::Handle<pdb::Computation> readA =
         makeObject<ScanUserSet<reddit::Comment>>(db, "labeled_comments");
@@ -273,6 +277,7 @@ int main(int argc, char *argv[]) {
 
     Handle<Computation> myWriteSet = makeObject<WriteUserSet<reddit::Features>>("redditDB", "features");
     myWriteSet->setInput(join);
+
 
     // run the computation
     if (!pdbClient.executeComputations(errMsg, "reddit-a", myWriteSet)) {

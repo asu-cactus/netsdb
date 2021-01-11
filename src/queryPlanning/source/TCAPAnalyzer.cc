@@ -1359,7 +1359,11 @@ bool TCAPAnalyzer::matchSourceWithQuery(std::string jobInstanceId,
           if ((res.first == "") && (res.second == "")) {
               return false;
           }
-          std::string jobName = this->db->getJobName(jobInstanceId);
+          std::string origJobName = this->db->getJobName(jobInstanceId);
+          //we ignore everything in jobName after # so that users can pack additional runtime information after #
+          size_t pos = origJobName.find('#');
+          std::string jobName = origJobName.substr(0, pos);
+          std::cout << "jobName is " << jobName << std::endl;
           Handle<Vector<Handle<LambdaIdentifier>>> partitionLambdas =
             this->db->getPartitionLambdas(sourceSetIdentifier->getDatabase(),
                                          sourceSetIdentifier->getSetName());

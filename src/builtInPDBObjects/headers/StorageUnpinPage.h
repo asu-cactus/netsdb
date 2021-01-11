@@ -62,12 +62,12 @@ public:
     ENABLE_DEEP_COPY
 
 private:
-    NodeID nodeId;
-    DatabaseID dbId;
-    UserTypeID userTypeId;
-    SetID setId;
-    PageID pageId;
-    bool wasDirty;
+    NodeID nodeId = -1;
+    DatabaseID dbId = -1;
+    UserTypeID userTypeId = -1;
+    SetID setId = -1;
+    PageID pageId = -1;
+    bool wasDirty = true;
 };
 }
 

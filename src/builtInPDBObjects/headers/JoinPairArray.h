@@ -139,7 +139,7 @@ class JoinPairArray : public Object {
   PDBTemplateBase valueTypeInfo;
 
   // the number of slots actually used
-  uint32_t usedSlots;
+  uint32_t usedSlots = 0;
 
   // the number of slots
   uint32_t numSlots;

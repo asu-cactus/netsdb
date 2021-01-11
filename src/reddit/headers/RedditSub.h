@@ -10,6 +10,8 @@
 using namespace pdb;
 using json = nlohmann::json;
 
+
+
 namespace reddit {
 
 class Sub : public Object {
@@ -18,61 +20,55 @@ public:
 
     ENABLE_DEEP_COPY
 
-    String STRING_DEFAULT = "NULL";
-    double DOUBLE_DEFAULT = 0.0;
-    long LONG_DEFAULT = 0L;
-    int INTEGER_DEFAULT = 0;
-    bool BOOL_DEFAULT = false;
-
-    bool accounts_active_is_fuzzed = BOOL_DEFAULT;    
-    bool allow_discovery = BOOL_DEFAULT;    
-    bool allow_images = BOOL_DEFAULT;  
-    bool allow_videogifs = BOOL_DEFAULT;   
-    bool allow_videos = BOOL_DEFAULT;
-    String audience_target = STRING_DEFAULT;  
-    String banner_img = STRING_DEFAULT;  
-    bool can_assign_link_flair = BOOL_DEFAULT;   
-    bool can_assign_user_flair = BOOL_DEFAULT;    
-    bool collapse_deleted_comments = BOOL_DEFAULT;
-    int comment_score_hide_mins = INTEGER_DEFAULT; 
-    String community_icon = STRING_DEFAULT;    
-    double created = DOUBLE_DEFAULT;    
-    double created_utc = DOUBLE_DEFAULT;   
-    String description = STRING_DEFAULT;
-    String description_html = STRING_DEFAULT;    
-    String display_name = STRING_DEFAULT;    
-    String display_name_prefixed = STRING_DEFAULT;    
-    bool emojis_enabled = BOOL_DEFAULT;
-    bool hide_ads = BOOL_DEFAULT;    
-    String id = STRING_DEFAULT;    
-    String key_color = STRING_DEFAULT;    
-    String lang = STRING_DEFAULT;    
-    bool link_flair_enabled = BOOL_DEFAULT;
-    bool link_flair_position = BOOL_DEFAULT;    
-    String name = STRING_DEFAULT;    
-    bool over18 = BOOL_DEFAULT;    
-    String primary_color = STRING_DEFAULT;    
-    String public_description = STRING_DEFAULT;
-    String public_description_html = STRING_DEFAULT;    
-    bool public_traffic = BOOL_DEFAULT;    
-    bool quarantine = BOOL_DEFAULT;    
-    bool show_media = BOOL_DEFAULT;    
-    bool show_media_preview = BOOL_DEFAULT;
-    bool spoilers_enabled = BOOL_DEFAULT;    
-    String submission_type = STRING_DEFAULT;    
-    String submit_text = STRING_DEFAULT;    
-    String subreddit_type = STRING_DEFAULT;    
-    long subscribers = LONG_DEFAULT;
-    String title = STRING_DEFAULT;    
-    String url = STRING_DEFAULT;    
-    bool user_flair_enabled_in_sr = BOOL_DEFAULT;    
-    String user_flair_position = STRING_DEFAULT;    
-    String user_flair_type = STRING_DEFAULT;
-    bool user_has_favorited = BOOL_DEFAULT;    
-    bool user_is_banned = BOOL_DEFAULT;    
-    bool user_sr_theme_enabled = BOOL_DEFAULT;    
-    int videostream_links_count = INTEGER_DEFAULT;
-    int wls = INTEGER_DEFAULT;
+    bool accounts_active_is_fuzzed = false;    
+    bool allow_discovery = false;    
+    bool allow_images = false;  
+    bool allow_videogifs = false;   
+    bool allow_videos = false;
+    String audience_target = "";  
+    String banner_img = "";  
+    bool can_assign_link_flair = false;   
+    bool can_assign_user_flair = false;    
+    bool collapse_deleted_comments = false;
+    int comment_score_hide_mins = 0; 
+    String community_icon = "";    
+    double created = 0.0;    
+    double created_utc = 0.0;   
+    String description = "";
+    String description_html = "";    
+    String display_name = "";    
+    String display_name_prefixed = "";    
+    bool emojis_enabled = false;
+    bool hide_ads = false;    
+    String id = "";    
+    String key_color = "";    
+    String lang = "";    
+    bool link_flair_enabled = false;
+    bool link_flair_position = false;    
+    String name = "";    
+    bool over18 = false;    
+    String primary_color = "";    
+    String public_description = "";
+    String public_description_html = "";    
+    bool public_traffic = false;    
+    bool quarantine = false;    
+    bool show_media = false;    
+    bool show_media_preview = false;
+    bool spoilers_enabled = false;    
+    String submission_type = "";    
+    String submit_text = "";    
+    String subreddit_type = "";    
+    long subscribers = 0;
+    String title = "";    
+    String url = "";    
+    bool user_flair_enabled_in_sr = false;    
+    String user_flair_position = "";    
+    String user_flair_type = "";
+    bool user_has_favorited = false;    
+    bool user_is_banned = false;    
+    bool user_sr_theme_enabled = false;    
+    int videostream_links_count = 0;
+    int wls = 0;
 
     //default constructor
     Sub () {}

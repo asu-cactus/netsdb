@@ -120,6 +120,21 @@ void JoinMap<ValueType>::setObjectSize() {
     size_t objSize = temp.getObjSize();
     this->objectSize = objSize;
 }
+
+
+template <class ValueType>
+void JoinMap<ValueType>::print() {
+    JoinMapIterator<ValueType> iter = this->begin();
+    while (iter != this->end()) {
+        std::shared_ptr<JoinRecordList<ValueType>> l = *iter;
+        std::cout << l->getHash() << ":";
+        for (int i = 0; i < l->size(); i++) {
+           std::cout << (*l)[i].myData.toString();
+        }
+        std::cout << std::endl;
+        ++iter;
+    }
+}
 }
 
 #endif

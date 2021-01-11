@@ -27,10 +27,10 @@ class InactiveAllocationBlock {
 
 public:
     // where the block begins
-    void* start;
+    void* start = nullptr;
 
     // where the block ends
-    void* end;
+    void* end = nullptr;
 
     // friend Allocator;
 public:
@@ -78,16 +78,16 @@ public:
 struct AllocatorState {
 
     // the location of the block of RAM that this guy is allocating from
-    void* activeRAM;
+    void* activeRAM = nullptr;
 
     // the number of bytes available in all
-    size_t numBytes;
+    size_t numBytes = 0;
 
     // true if we are supposed to throw an exception on allocation failure
-    bool throwException;
+    bool throwException = true;
 
     // true if the current allocation block is user-supplied
-    bool curBlockUserSupplied;
+    bool curBlockUserSupplied = false;
 
     // Th Allocator implements a really simple memory manager.  Every time there is a
     // request, the allocator class services it by pre-pending an usigned int to the returned

@@ -23,9 +23,10 @@
 using namespace sqlite_orm;
 
 pdb::PDBCatalog::PDBCatalog(std::string location) : storage(makeStorage(&location)) {
-
+  std::cout << "to initialize PDBCatalog instance" << std::endl;
   // sync the schema
   storage.sync_schema();
+  std::cout << "initialized PDBCatalog at " << location << "(" << this << ")"<<std::endl;
 }
 
 std::vector<unsigned char> pdb::PDBCatalog::serializeToBytes() {

@@ -154,6 +154,7 @@ public:
                key.typeId = this->getTypeID();
                key.setId = this->getSetID();
                key.pageId = this->inputBufferPage->getPageID();
+               std::cout << "to flush a page in getNewBytes with pageId"<< key.pageId << ", size=" << size << std::endl;
                this->pageCache->flushPageWithoutEviction(key);
             }
             if (evictWhenUnpin == true) {

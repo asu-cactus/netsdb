@@ -18,17 +18,17 @@ public:
 
     ENABLE_DEEP_COPY
 
-    String author;
-    long author_created_utc;
-    String author_fullname;
-    String body;
-    long created_utc;
-    String id;
-    bool no_follows;
-    String parent_id;
-    String subreddit_name;
-    String subreddit_id;
-    String description;
+    String author="";
+    long author_created_utc=0;
+    String author_fullname="";
+    String body="";
+    long created_utc=0;
+    String id="";
+    bool no_follows=false;
+    String parent_id="";
+    String subreddit_name="";
+    String subreddit_id="";
+    String description="";
 
     //default constructor
     SubsAndComments () {}

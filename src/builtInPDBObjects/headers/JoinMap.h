@@ -78,7 +78,7 @@ public:
     // JiaNote: add this to enable combination of two JoinMaps
     size_t getObjectSize();
     void setObjectSize();
-
+    void print();
     // this method is used to do a deep copy of this join map
     template <class T> friend Handle<JoinMap<T>> deepCopyJoinMap(Handle<JoinMap<T>>& copyMe);
 

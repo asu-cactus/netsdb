@@ -19,20 +19,20 @@ public:
 
     ENABLE_DEEP_COPY
 
-    String author;
-    long author_created_utc;
-    String author_fullname;
-    String body;
-    long created_utc;
-    String id;
-    bool no_follows;
-    String parent_id;
-    String subreddit;
-    String subreddit_id;
-    long field02;
-    long field03;
-    int field04;
-    int field05;
+    String author="";
+    long author_created_utc=0;
+    String author_fullname="";
+    String body="";
+    long created_utc=0;
+    String id="";
+    bool no_follows=false;
+    String parent_id="";
+    String subreddit="";
+    String subreddit_id="";
+    long field02=0;
+    long field03=0;
+    int field04=0;
+    int field05=0;
 
     //default constructor
     Features () {}

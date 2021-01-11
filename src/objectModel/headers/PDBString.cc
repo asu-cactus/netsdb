@@ -9,7 +9,7 @@
 #include "PDBMap.h"
 #include "BuiltInObjectTypeIDs.h"
 
-#define CAN_FIT_IN_DATA(len) (len <= sizeof(decltype(data().getOffset())))
+#define CAN_FIT_IN_DATA(len) (len <= (int)(sizeof(decltype(data().getOffset()))))
 
 namespace pdb {
 
@@ -26,7 +26,7 @@ inline String::String() {
 }
 
 inline size_t String::hash() const {
-    return hashMe(c_str(), size());
+    return hashMe(c_str(), size()-1);
 }
 
 inline String& String::operator=(const char* toMe) {
@@ -88,7 +88,10 @@ inline String& String::operator=(const String& s) {
         if (data().getExactTypeInfoValue() >= 0) {
             data().setOffset(-1);
         }
-        data() = s.data();
+        //data() = s.data();
+        int len = s.size();
+        data() = makeObjectWithExtraStorage<char>((len - 1) * sizeof(char));
+        memmove(c_str(), s.c_str(), len);
     }
     data().setExactTypeInfoValue(s.data().getExactTypeInfoValue());
     return *this;
@@ -114,7 +117,7 @@ inline String& String::operator=(const std::string& s) {
 }
 
 inline String::String(const char* toMe) {
-    int len = strlen(toMe) + 1;
+    int len = (int)(strlen(toMe)) + 1;
     if (CAN_FIT_IN_DATA(len)) {
         data().setExactTypeInfoValue(len);
     } else {
@@ -127,7 +130,7 @@ inline String::String(const char* toMe) {
 }
 
 inline String::String(const char* toMe, size_t n) {
-    int len = n + 1;
+    int len = (int)n + 1;
 
     if (CAN_FIT_IN_DATA(len)) {
         data().setExactTypeInfoValue(len);
@@ -142,7 +145,7 @@ inline String::String(const char* toMe, size_t n) {
 }
 
 inline String::String(const std::string& s) {
-    int len = s.size() + 1;
+    int len = (int)(s.size()) + 1;
 
     if (CAN_FIT_IN_DATA(len)) {
         data().setExactTypeInfoValue(len);
@@ -164,7 +167,6 @@ inline String::operator std::string() const {
 }
 
 inline char* String::c_str() const {
-
     if (data().getExactTypeInfoValue() >= 0) {
         return (char*)&data();
     } else {
@@ -187,6 +189,9 @@ inline std::ostream& operator<<(std::ostream& stream, const String& printMe) {
 }
 
 inline bool String::operator==(const String& toMe) {
+    //std::cout << data().getExactTypeInfoValue();
+    //std::cout << ":" << c_str();
+    //std::cout << ":" << toMe << std::endl;
     return strcmp(c_str(), toMe.c_str()) == 0;
 }
 

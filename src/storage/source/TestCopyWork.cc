@@ -20,7 +20,7 @@ TestCopyWork::TestCopyWork(PageCircularBufferIteratorPtr iter,
                            UserTypeID destTypeId,
                            SetID destSetId,
                            pdb::HermesExecutionServer* server,
-                           int& counter)
+                           atomic_int& counter)
     : counter(counter) {
     this->iter = iter;
     this->destDatabaseId = destDatabaseId;

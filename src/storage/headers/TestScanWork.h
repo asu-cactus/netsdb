@@ -6,6 +6,7 @@
 #include "PageCircularBufferIterator.h"
 #include "HermesExecutionServer.h"
 #include <memory>
+#include <atomic>
 using namespace std;
 class TestScanWork;
 typedef shared_ptr<TestScanWork> TestScanWorkPtr;
@@ -19,7 +20,7 @@ class TestScanWork : public pdb::PDBWork {
 public:
     TestScanWork(PageCircularBufferIteratorPtr iter,
                  pdb::HermesExecutionServer* server,
-                 int& counter);
+                 atomic_int& counter);
 
     // do the actual work
     void execute(PDBBuzzerPtr callerBuzzer) override;
@@ -27,7 +28,7 @@ public:
 private:
     PageCircularBufferIteratorPtr iter;
     pdb::HermesExecutionServer* server;
-    int& counter;
+    atomic_int& counter;
 };
 
 

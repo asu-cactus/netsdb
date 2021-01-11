@@ -142,7 +142,7 @@ void run(PDBClient &pdbClient, bool whetherToAdaptiveJoin, int threshold) {
 
     // execute the computation
     auto begin = std::chrono::high_resolution_clock::now();
-    pdbClient.executeComputations(errMsg, "reddit-three-way-"+std::to_string(threshold), myWriteSet, myWriteSet1);
+    pdbClient.executeComputations(errMsg, "reddit-three-way#"+std::to_string(threshold), myWriteSet, myWriteSet1);
     auto end = std::chrono::high_resolution_clock::now();
           std::cout << "Time Duration for Run: "
               << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
@@ -229,6 +229,7 @@ int main(int argc, char* argv[]) {
               << " secs." << std::endl;
 
   // print the results
+  /*
   std::cout << "Features: \n";
   SetIterator<reddit::Features> result1 = pdbClient.getSetIterator<reddit::Features>("redditDB", "features");
   int count = 0;
@@ -262,4 +263,6 @@ int main(int argc, char* argv[]) {
   std::cout << "Total " << count << " comments" << std::endl;
   std::cout << "Total " << positiveCount << " positive comments" << std::endl;
   std::cout << "Total " << negativeCount << " negative comments" << std::endl;
+*/
+
 }

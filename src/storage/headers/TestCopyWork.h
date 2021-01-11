@@ -25,7 +25,7 @@ public:
                  UserTypeID destTypeId,
                  SetID destSetId,
                  pdb::HermesExecutionServer* server,
-                 int& counter);
+                 atomic_int& counter);
 
     // do the actual work
     void execute(PDBBuzzerPtr callerBuzzer) override;
@@ -36,7 +36,7 @@ private:
     DatabaseID destDatabaseId;
     UserTypeID destTypeId;
     SetID destSetId;
-    int& counter;
+    atomic_int& counter;
 };
 
 

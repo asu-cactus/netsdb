@@ -106,7 +106,7 @@ public:
     void* addPage() {
           
         void* block = nullptr;
-        block = (void*)malloc(sizeof(char) * pageSize);
+        block = (void*)calloc(sizeof(char) * pageSize, 1);
         while (block == nullptr){
             pageSize = pageSize * 0.75;
             size_t numAddedPages = partitionPages.size();
@@ -114,7 +114,7 @@ public:
             for (size_t i=0; i < numAddedPages; i++){
                 addPage();
             } 
-            block = (void*)malloc(sizeof(char) * pageSize);
+            block = (void*)calloc(sizeof(char) * pageSize, 1);
         }
         if (block != nullptr) {
             pthread_mutex_lock(&myMutex);

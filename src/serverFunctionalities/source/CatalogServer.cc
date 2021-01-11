@@ -77,7 +77,10 @@ CatalogServer::CatalogServer(const string &catalogDirectoryIn,
   // creates instance of catalog
   PDBLoggerPtr catalogLogger = make_shared<PDBLogger>("catalogLogger");
   this->pdbCatalog = make_shared<PDBCatalog>(catalogDirectory + "/catalog.sqlite");
-
+  if (this->pdbCatalog == nullptr) {
+     std::cout << "Maybe the database file gets corrupted, we cannot initialize the pdbCatalog instance" << std::endl;
+     exit(1);
+  }  
   // initialize the types
   initBuiltInTypes();
 
@@ -348,9 +351,9 @@ void CatalogServer::registerHandlers(PDBServer &forMe) {
           auto typeId = request->getTypeLibraryId();
 
           // create
-          std::string errMsg;
-          string bytes;
-          string outTypeName;
+          std::string errMsg="";
+          string bytes="";
+          string outTypeName="";
 
           // retrieves from remote catalog the Shared Library bytes in "returnedBytes" and metadata in the "response" object
           auto client = CatalogClient(managerPort, managerIP, make_shared<pdb::PDBLogger>("clientCatalogToServerLog"));

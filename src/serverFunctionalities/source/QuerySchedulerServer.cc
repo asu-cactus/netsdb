@@ -226,8 +226,9 @@ void QuerySchedulerServer::scheduleStages(std::vector<Handle<AbstractJobStage>>&
                                           std::vector<Handle<SetIdentifier>>& intermediateSets,
                                           std::shared_ptr<ShuffleInfo> shuffleInfo, long jobInstanceId) {
 
-    int counter = 0;
-    PDBBuzzerPtr tempBuzzer = make_shared<PDBBuzzer>([&](PDBAlarm myAlarm, int& counter) {
+    atomic_int counter;
+    counter = 0;
+    PDBBuzzerPtr tempBuzzer = make_shared<PDBBuzzer>([&](PDBAlarm myAlarm, atomic_int& counter) {
         counter++;
         PDB_COUT << "counter = " << counter << std::endl;
     });
@@ -989,8 +990,9 @@ void QuerySchedulerServer::scheduleQuery() {
 // deprecated
 void QuerySchedulerServer::schedule() {
 
-    int counter = 0;
-    PDBBuzzerPtr tempBuzzer = make_shared<PDBBuzzer>([&](PDBAlarm myAlarm, int& counter) {
+    atomic_int counter;
+    counter = 0;
+    PDBBuzzerPtr tempBuzzer = make_shared<PDBBuzzer>([&](PDBAlarm myAlarm, atomic_int& counter) {
         counter++;
         PDB_COUT << "counter = " << counter << std::endl;
     });
@@ -1023,8 +1025,9 @@ void QuerySchedulerServer::schedule() {
 
 void QuerySchedulerServer::collectStats() {
     this->statsForOptimization = make_shared<Statistics>();
-    int counter = 0;
-    PDBBuzzerPtr tempBuzzer = make_shared<PDBBuzzer>([&](PDBAlarm myAlarm, int& counter) {
+    atomic_int counter;
+    counter = 0;
+    PDBBuzzerPtr tempBuzzer = make_shared<PDBBuzzer>([&](PDBAlarm myAlarm, atomic_int& counter) {
         counter++;
         PDB_COUT << "counter = " << counter << std::endl;
     });

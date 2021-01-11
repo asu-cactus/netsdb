@@ -49,11 +49,22 @@ void PDBBuzzer::buzz(PDBAlarm withMe, int& counter) {
     pthread_mutex_unlock(&waitingMutex);
 }
 
+void PDBBuzzer::buzz(PDBAlarm withMe, std::atomic_int& counter) {
+    pthread_mutex_lock(&waitingMutex);
+    if (atomicFunc != nullptr)
+        atomicFunc(withMe, counter);
+
+    pthread_cond_signal(&waitingSignal);
+    signalSent = true;
+    pthread_mutex_unlock(&waitingMutex);
+}
+
 void PDBBuzzer::wait() {
 
     // wait until there is a buzz
     pthread_mutex_lock(&waitingMutex);
     if (signalSent == true) {
+        signalSent = false;
         pthread_mutex_unlock(&waitingMutex);
         return;
     }
@@ -79,6 +90,14 @@ PDBBuzzer::PDBBuzzer(std::function<void(PDBAlarm, int&)> intFuncIn) {
     pthread_cond_init(&waitingSignal, nullptr);
     pthread_mutex_init(&waitingMutex, nullptr);
     intFunc = intFuncIn;
+    signalSent = false;
+}
+
+
+PDBBuzzer::PDBBuzzer(std::function<void(PDBAlarm, std::atomic_int&)> intFuncIn) {
+    pthread_cond_init(&waitingSignal, nullptr);
+    pthread_mutex_init(&waitingMutex, nullptr);
+    atomicFunc = intFuncIn;
     signalSent = false;
 }
 

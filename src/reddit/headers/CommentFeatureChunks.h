@@ -1,5 +1,7 @@
+
 #ifndef COMMENT_FEATURE_CHUNKS_H
 #define COMMENT_FEATURE_CHUNKS_H
+
 
 #include <cassert>
 
@@ -39,6 +41,7 @@ public:
       : chunk_size(chunk_size), chunk_index((int)(feature.index / chunk_size)) {
     feature_chunk = makeObject<Map<int, Vector<double>>>();
     (*feature_chunk)[feature.index] = *(feature.features);
+
     feature_count = feature.features->size();
   }
 
@@ -63,6 +66,7 @@ public:
   }
 
   CommentFeatureChunks &operator+(CommentFeatureChunks &addMeIn) {
+
     Map<int, Vector<double>> &rhs = addMeIn.getChunk();
     auto iter = rhs.begin();
     while (iter != rhs.end()) {

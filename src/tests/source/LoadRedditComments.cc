@@ -36,7 +36,7 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
   bool end = false;
   bool rollback = false;
 
-  long total = 0;
+  long total = 10000000;
   long sent = 0;
   long i = 0;
   int oddHash = 0;
@@ -143,9 +143,11 @@ int main(int argc, char* argv[]) {
   
   if (whetherToPartitionData) {
       if (whetherToPartitionOnAuthors) {
-          myLambda1 = makeObject<LambdaIdentifier>("reddit-a", "JoinComp_3", "attAccess_0");
+          //myLambda1 = makeObject<LambdaIdentifier>("reddit-a", "JoinComp_3", "attAccess_0");
+          myLambda1 = makeObject<LambdaIdentifier>("reddit-three-way", "JoinComp_3", "attAccess_0");
       } else {
-          myLambda1 = makeObject<LambdaIdentifier>("reddit-s", "JoinComp_3", "attAccess_0");
+          //myLambda1 = makeObject<LambdaIdentifier>("reddit-s", "JoinComp_3", "attAccess_0");
+          myLambda1 = makeObject<LambdaIdentifier>("reddit-three-way", "JoinComp_7", "attAccess_0");
       }
   }
   
