@@ -40,7 +40,7 @@ static void classify(pdb::Handle<reddit::Comment> comment){
    }
 }
 
-void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSizeInMB) {
+void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSizeInMB, float prob) {
 
   // the error message is put there
   string errMsg;
@@ -49,7 +49,7 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
   bool end = false;
   bool rollback = false;
 
-  long total = 10000856;
+  long total = 10000000;
   long sent = 0;
   long i = 0;
   pdb::makeObjectAllocatorBlock((size_t)blockSizeInMB * (size_t)1024 * (size_t)1024, true);
@@ -70,7 +70,7 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
       rollback = false; 
       try {
           pdb::Handle<reddit::Comment> comment = pdb::makeObject<reddit::Comment>(i, line);
-          classify_v1(comment, 0.1);
+          classify_v1(comment, prob);
           if (strcmp(comment->author.c_str(), "[deleted]") !=0){
               storeMe->push_back(comment);
               i++;
@@ -104,7 +104,7 @@ int main(int argc, char* argv[]) {
   string errMsg;
 
   // make sure we have the arguments
-  if(argc < 5) {
+  if(argc < 6) {
 
     std::cout << "Usage : ./LoadRedditCommentsWithPartition managerIP managerPort inputFileName whetherToPartitionData, whetherToRegisterLibraries\n";
     std::cout << "managerIP - IP of the manager\n";
@@ -112,6 +112,7 @@ int main(int argc, char* argv[]) {
     std::cout << "inputFileName - The file to load for reddit comments data, which is a set of JSON objects\n";
     std::cout << "whetherToPrepartitionData - Y yes, N no\n";
     std::cout << "whetherToRegisterLibraries - Y yes, N no\n";    
+    std::cout << "classification probability - a float number between 0 and 1\n";
   }
 
   //  get the manager address
@@ -126,6 +127,7 @@ int main(int argc, char* argv[]) {
   if (strcmp(argv[5], "N")==0) {
       whetherToRegisterLibraries = false;
   }
+  float prob = atof(argv[6]);
 
   // make a client
   pdb::PDBLoggerPtr clientLogger = make_shared<pdb::PDBLogger>("clientLog");
@@ -201,7 +203,12 @@ int main(int argc, char* argv[]) {
 
   // now, create the output set
   pdbClient.removeSet("redditDB", "comments", errMsg);
-  pdbClient.createSet<reddit::Comment>("redditDB", "comments", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "comments", computations, "reddit");
+
+  if (whetherToPartitionData) {
+      pdbClient.createSet<reddit::Comment>("redditDB", "comments", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "comments", computations, "reddit");
+  } else {
+      pdbClient.createSet<reddit::Comment>("redditDB", "comments", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "comments");
+  }
 
   // parse the input file 
-  parseInputJSONFile(pdbClient, inputFileName, 64); }
+  parseInputJSONFile(pdbClient, inputFileName, 64, prob); }

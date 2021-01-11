@@ -651,7 +651,7 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                                                                          request->getMRUorNot(),
                                                                          request->getMRUorNot());
             std::cout << "Page size is determined to be " << pageSize << std::endl;
-
+            std::cout << "jobName to match is " << jobName << std::endl; 
 
             std::pair<std::string, std::string> source;
             source.first = request->getDatabase();
@@ -666,8 +666,8 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
             //to set the IRPolicy
             std::cout << "to register policy" << std::endl;
             getFunctionality<DispatcherServer>().registerSet(std::pair<std::string, std::string>(request->getSetName(), request->getDatabase()), myIRPolicy);
-            lambdaId = getFunctionality<SelfLearningServer>().getLambdaId("reddit-a", "JoinComp_3", "attAccess_0");
-            lambdaId1 = getFunctionality<SelfLearningServer>().getLambdaId("reddit-s", "JoinComp_3", "attAccess_0");
+            lambdaId = getFunctionality<SelfLearningServer>().getLambdaId(jobName, "JoinComp_3", "attAccess_0");
+            lambdaId1 = getFunctionality<SelfLearningServer>().getLambdaId(jobName, "JoinComp_7", "attAccess_0");
             std::cout << "the lambda id is " << lambdaId << std::endl;
             std::cout << "the lambda id1 is " << lambdaId1 << std::endl;
 

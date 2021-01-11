@@ -293,7 +293,7 @@ int main(int argc, char* argv[]) {
   pdbClient.removeSet("redditDB", "comments", errMsg);
 
   if (whetherToPartitionData) {
-      pdbClient.createSet<reddit::Comment>("redditDB", "comments", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "comments", computations, "reddit-three-way-"+std::to_string(threshold));
+      pdbClient.createSet<reddit::Comment>("redditDB", "comments", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "comments", computations, "reddit-three-way"+std::to_string(threshold));
   } else {
       pdbClient.createSet<reddit::Comment>("redditDB", "comments", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "comments");
   }
