@@ -627,9 +627,14 @@ common_env.SharedLibrary('libraries/libRedditCommentLabelJoin.so', ['build/reddi
 common_env.SharedLibrary('libraries/libRedditLabelProjection.so', ['build/reddit/RedditLabelProjection.cc']+all)
 common_env.SharedLibrary('libraries/libRedditCommentFeatures.so', ['build/reddit/CommentFeatures.cc']+all)
 common_env.SharedLibrary('libraries/libRedditCommentsToFeatures.so', ['build/reddit/CommentsToFeatures.cc']+all)
+
+common_env.SharedLibrary('libraries/libRedditCommentsToChunks.so', ['build/reddit/CommentsToChunks.cc']+all)
+common_env.SharedLibrary('libraries/libRedditCommentsChunk.so', ['build/reddit/CommentsChunk.cc']+all)
 common_env.SharedLibrary('libraries/libRedditCommentFeatureChunks.so', ['build/reddit/CommentFeatureChunks.cc']+all)
 common_env.SharedLibrary('libraries/libRedditCommentFeaturesToChunks.so', ['build/reddit/CommentFeaturesToChunks.cc']+all)
 common_env.SharedLibrary('libraries/libRedditCommentChunksToBlocks.so', ['build/reddit/CommentChunksToBlocks.cc']+all)
+common_env.SharedLibrary('libraries/libRedditCommentChunkToComments.so', ['build/reddit/CommentChunkToComments.cc']+all)
+
 common_env.SharedLibrary('libraries/libRedditMatrixBlockPartition.so', ['build/reddit/MatrixBlockPartition.cc']+all)
 
 common_env.Program('bin/loadRedditComments', ['build/tests/LoadRedditComments.cc'] + all + pdb_client)
@@ -1334,9 +1339,12 @@ libFFTest=common_env.Alias('libFFTest', [
 
   'libraries/libRedditCommentFeatures.so',
   'libraries/libRedditCommentsToFeatures.so',
+  'libraries/libRedditCommentsChunk.so',
+  'libraries/libRedditCommentsToChunks.so',
   'libraries/libRedditCommentFeatureChunks.so',
   'libraries/libRedditCommentFeaturesToChunks.so',
   'libraries/libRedditCommentChunksToBlocks.so',
+  'libraries/libRedditCommentChunkToComments.so',
   'libraries/libRedditMatrixBlockPartition.so',
 ])
 

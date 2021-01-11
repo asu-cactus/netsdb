@@ -5,8 +5,8 @@
 #include "LambdaCreationFunctions.h"
 #include <JoinComp.h>
 
+#include "CommentsChunk.h"
 #include "FFMatrixBlock.h"
-#include "RedditComment.h"
 
 #include <iostream>
 
@@ -14,7 +14,8 @@ using namespace pdb;
 
 namespace reddit {
 
-class CommentLabelJoin : public JoinComp<Comment, ::FFMatrixBlock, Comment> {
+class CommentLabelJoin
+    : public JoinComp<CommentsChunk, ::FFMatrixBlock, CommentsChunk> {
 
 public:
   ENABLE_DEEP_COPY
@@ -22,37 +23,31 @@ public:
   CommentLabelJoin() = default;
 
   Lambda<bool> getSelection(Handle<::FFMatrixBlock> in1,
-                            Handle<Comment> in2) override {
-    // The matrix is a 2 column matrix. First column implies YES and second
-    // column implies NO. Each comment is expected
-    return (makeLambda(in1, in2,
-                       [](Handle<::FFMatrixBlock> &in1, Handle<Comment> &in2) {
-                         return in1->rowIndexStart() <= in2->index;
-                       }) &&
-            // makeLambdaFromMethod(in1, rowIndexStart) <=
-            //     makeLambdaFromMember(in2, index) &&
-            makeLambda(in1, in2,
-                       [](Handle<::FFMatrixBlock> &in1, Handle<Comment> &in2) {
-                         return in1->rowIndexEnd() > in2->index;
-                       }) &&
-            // makeLambdaFromMethod(in1, rowIndexEnd) >
-            //     makeLambdaFromMember(in2, index) &&
-            // makeLambdaFromMethod(in1, getBlockColIndex) == 0
-            makeLambda(in1, [](Handle<::FFMatrixBlock> &in1) {
-              return in1->getBlockColIndex() == 0;
-            }));
+                            Handle<CommentsChunk> in2) override {
+    return makeLambdaFromMethod(in1, getBlockRowIndex) ==
+           makeLambdaFromMethod(in2, getChunkIndex);
   }
 
-  Lambda<Handle<Comment>> getProjection(Handle<::FFMatrixBlock> in1,
-                                        Handle<Comment> in2) override {
+  Lambda<Handle<CommentsChunk>>
+  getProjection(Handle<::FFMatrixBlock> in1,
+                Handle<CommentsChunk> in2) override {
     return makeLambda(
-        in1, in2, [](Handle<::FFMatrixBlock> &in1, Handle<Comment> &in2) {
-          int pos = (in2->index % in1->getRowNums()) * in1->getColNums();
-
+        in1, in2, [](Handle<::FFMatrixBlock> &in1, Handle<CommentsChunk> &in2) {
           double *data = in1->getRawDataHandle()->c_ptr();
-          Handle<Comment> tmp = makeObject<Comment>(*in2);
-          std::cout << data[pos] << ", " << data[pos + 1] << std::endl;
-          tmp->label = data[pos] > data[pos + 1] ? 1 : -1;
+          Handle<CommentsChunk> tmp = makeObject<CommentsChunk>(*in2);
+
+          Map<int, Comment> &rhs = tmp->getChunk();
+          auto iter = rhs.begin();
+          while (iter != rhs.end()) {
+            int myKey = (*iter).key;
+            int pos = (myKey % in1->getRowNums()) * in1->getColNums();
+            if (pos >= in1->getRowNums() * in1->getColNums()) {
+              std::cout << "EXCEEDED BOUNDS! FAILED!!" << std::endl;
+              exit(1);
+            }
+            (*iter).value.label = data[pos] > data[pos + 1] ? 1 : -1;
+            ++iter;
+          }
 
           return tmp;
         });

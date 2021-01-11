@@ -14,9 +14,11 @@
 
 #include "PDBVector.h"
 
+
+#include <cassert>
 #include <chrono>
 #include <ctime>
-#include <cassert>
+
 
 using namespace pdb;
 
@@ -88,7 +90,10 @@ public:
     std::random_device rd;
     std::mt19937 e2(rd());
     std::uniform_real_distribution<> distp(1, 3);
-    auto gen = std::bind(std::uniform_int_distribution<>(0, 41), std::default_random_engine());
+
+    auto gen = std::bind(std::uniform_int_distribution<>(0, 41),
+                         std::default_random_engine());
+
 
     for (int i = 0; i < 59; i++) {
       double data = feature[gen()] * distp(e2);

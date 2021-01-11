@@ -28,19 +28,6 @@
 #include "CommentsToFeatures.h"
 #include "MatrixBlockPartition.h"
 
-
-#include "CommentsChunk.h"
-#include "CommentsToChunks.h"
-#include "CommentChunkToComments.h"
-
-#include <RedditAuthor.h>
-#include <RedditFeatures.h>
-#include <RedditJoin.h>
-#include <RedditPositiveLabelSelection.h>
-#include <ScanUserSet.h>
-#include <WriteUserSet.h>
-
-
 int main(int argc, char *argv[]) {
   string errMsg;
   string masterIp = "localhost";
@@ -85,7 +72,7 @@ int main(int argc, char *argv[]) {
   ff::loadLibrary(pdbClient, "libraries/libFFRowAggregate.so");
   ff::loadLibrary(pdbClient, "libraries/libFFOutputLayer.so");
 
-  ff::createSet(pdbClient, db, set, set);
+//   ff::createSet(pdbClient, db, set, set);
 
   ff::createSet(pdbClient, db, "w1", "W1");
   ff::createSet(pdbClient, db, "b1", "B1");
@@ -98,7 +85,7 @@ int main(int argc, char *argv[]) {
 
   ff::createSet(pdbClient, db, "output", "Output");
 
-  ff::createSet(pdbClient, db, "labeled_comments", "LabeledComments");
+  ff::createSet(pdbClient, db, "result", "Result");
 
   if (!generate) {
     string main_path = string(argv[4]);
@@ -150,55 +137,11 @@ int main(int argc, char *argv[]) {
                    true, errMsg);
   }
 
-  ff::loadLibrary(pdbClient, "libraries/libRedditCommentFeatures.so");
-  ff::loadLibrary(pdbClient, "libraries/libRedditCommentFeatureChunks.so");
-  ff::loadLibrary(pdbClient, "libraries/libRedditCommentsToFeatures.so");
-  ff::loadLibrary(pdbClient, "libraries/libRedditCommentFeaturesToChunks.so");
-  ff::loadLibrary(pdbClient, "libraries/libRedditCommentChunksToBlocks.so");
-  ff::loadLibrary(pdbClient, "libraries/libRedditMatrixBlockPartition.so");
-
-  {
-    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 256};
-
-    // make the computation
-    pdb::Handle<pdb::Computation> readB =
-        makeObject<ScanUserSet<reddit::Comment>>(db, "comments");
-
-    pdb::Handle<pdb::Computation> sel =
-        pdb::makeObject<reddit::CommentsToFeatures>();
-    sel->setInput(readB);
-
-    pdb::Handle<pdb::Computation> chonk =
-        pdb::makeObject<reddit::CommentFeaturesToChunks>(block_x);
-    chonk->setInput(sel);
-
-    pdb::Handle<pdb::Computation> slice =
-        pdb::makeObject<reddit::CommentChunksToBlocks>(block_x, block_y, true,
-                                                       batch_size);
-    slice->setInput(chonk);
-
-
-    // make the writer
-    pdb::Handle<pdb::Computation> myWriter =
-        pdb::makeObject<reddit::MatrixBlockPartition>(db, set);
-    myWriter->setInput(slice);
-
-
-    // run the computation
-    if (!pdbClient.executeComputations(errMsg, myWriter)) {
-      cout << "Computation failed. Message was: " << errMsg << "\n";
-      exit(1);
-    }
-  }
-
   double dropout_rate = 0.5;
   ff::inference(pdbClient, db, "w1", "w2", "wo", set, "b1", "b2", "bo",
                 "output", dropout_rate);
 
   ff::loadLibrary(pdbClient, "libraries/libRedditCommentLabelJoin.so");
-  ff::loadLibrary(pdbClient, "libraries/libRedditCommentsChunk.so");
-  ff::loadLibrary(pdbClient, "libraries/libRedditCommentsToChunks.so");
-  ff::loadLibrary(pdbClient, "libraries/libRedditCommentChunkToComments.so");
 
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
@@ -210,21 +153,15 @@ int main(int argc, char *argv[]) {
     pdb::Handle<pdb::Computation> readB =
         makeObject<ScanUserSet<reddit::Comment>>(db, "comments");
 
-    pdb::Handle<pdb::Computation> chonk = makeObject<reddit::CommentsToChunks>(block_x);
-    chonk->setInput(readB);
-
     pdb::Handle<pdb::Computation> join =
         pdb::makeObject<reddit::CommentLabelJoin>();
     join->setInput(0, readA);
-    join->setInput(1, chonk);
-
-    pdb::Handle<pdb::Computation> split = makeObject<reddit::CommentChunkToComments>();
-    split->setInput(join);
+    join->setInput(1, readB);
 
     // make the writer
     pdb::Handle<pdb::Computation> sumWriter =
-        pdb::makeObject<WriteUserSet<reddit::Comment>>(db, "labeled_comments");
-    sumWriter->setInput(split);
+        pdb::makeObject<WriteUserSet<reddit::Comment>>(db, "result");
+    sumWriter->setInput(join);
 
     // run the computation
     if (!pdbClient.executeComputations(errMsg, sumWriter)) {
@@ -233,59 +170,14 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  pdbClient.deleteSet(db, "comments");
-  pdbClient.deleteSet(db, "w1");
-  pdbClient.deleteSet(db, "b1");
-  pdbClient.deleteSet(db, "w2");
-  pdbClient.deleteSet(db, "b2");
-  pdbClient.deleteSet(db, "wo");
-  pdbClient.deleteSet(db, "bo");
-  pdbClient.deleteSet(db, "output");
-
-  pdbClient.flushData(errMsg);
-
-  // {
-  //   const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 1024};
-
-  //   auto it = pdbClient.getSetIterator<reddit::Comment>(db, "labeled_comments");
-
-  //   for (auto r : it) {
-  //     cout << r->label << endl;
-  //   }
-  // }
-
-  pdbClient.registerType("libraries/libRedditComment.so", errMsg);
-  pdbClient.registerType("libraries/libRedditAuthor.so", errMsg);
-  pdbClient.registerType("libraries/libRedditFeatures.so", errMsg);
-  pdbClient.registerType("libraries/libRedditJoin.so", errMsg);
-  pdbClient.registerType("libraries/libRedditPositiveLabelSelection.so", errMsg);
-
   {
-    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 1024};
 
+    auto it = pdbClient.getSetIterator<reddit::Comment>(db, "result");
 
-    // make the computation
-    pdb::Handle<pdb::Computation> readA =
-        makeObject<ScanUserSet<reddit::Comment>>(db, "labeled_comments");
-
-    pdb::Handle<pdb::Computation> readB =
-        makeObject<ScanUserSet<reddit::Author>>(db, "authors");
-
-    pdb::Handle<pdb::Computation> join = makeObject<reddit::JoinAuthorsWithComments>();
-    join->setInput(0, readA);
-    join->setInput(1, readB);
-
-    Handle<Computation> myWriteSet = makeObject<WriteUserSet<reddit::Features>>("redditDB", "features");
-    myWriteSet->setInput(join);
-
-
-    // run the computation
-    if (!pdbClient.executeComputations(errMsg, "reddit-a", myWriteSet)) {
-      cout << "Computation failed. Message was: " << errMsg << "\n";
-      exit(1);
+    for (auto r : it) {
+      cout << r->label << endl;
     }
-
-    pdbClient.flushData(errMsg);
   }
 
   return 0;

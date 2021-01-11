@@ -20,11 +20,16 @@ public:
 
   MatrixBlockPartition() : partition_type(MatrixBlockPartitionType::Row) {}
 
-  MatrixBlockPartition(std::string dbname, std::string setname) : partition_type(MatrixBlockPartitionType::Row) {
+
+  MatrixBlockPartition(std::string dbname, std::string setname)
+      : partition_type(MatrixBlockPartitionType::Row) {
     this->setOutput(dbname, setname);
   }
 
-  MatrixBlockPartition(std::string dbname, std::string setname, MatrixBlockPartitionType partition_type) : partition_type(partition_type) {
+  MatrixBlockPartition(std::string dbname, std::string setname,
+                       MatrixBlockPartitionType partition_type)
+      : partition_type(partition_type) {
+
     this->setOutput(dbname, setname);
   }
 
