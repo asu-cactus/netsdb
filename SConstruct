@@ -625,6 +625,13 @@ common_env.SharedLibrary('libraries/libRedditJoinSubsAndComments.so', ['build/re
 common_env.SharedLibrary('libraries/libRedditSubsAndComments.so', ['build/reddit/RedditSubsAndComments.cc']+all)
 common_env.SharedLibrary('libraries/libRedditCommentLabelJoin.so', ['build/reddit/RedditCommentLabelJoin.cc']+all)
 common_env.SharedLibrary('libraries/libRedditLabelProjection.so', ['build/reddit/RedditLabelProjection.cc']+all)
+common_env.SharedLibrary('libraries/libRedditCommentFeatures.so', ['build/reddit/CommentFeatures.cc']+all)
+common_env.SharedLibrary('libraries/libRedditCommentsToFeatures.so', ['build/reddit/CommentsToFeatures.cc']+all)
+common_env.SharedLibrary('libraries/libRedditCommentFeatureChunks.so', ['build/reddit/CommentFeatureChunks.cc']+all)
+common_env.SharedLibrary('libraries/libRedditCommentFeaturesToChunks.so', ['build/reddit/CommentFeaturesToChunks.cc']+all)
+common_env.SharedLibrary('libraries/libRedditCommentChunksToBlocks.so', ['build/reddit/CommentChunksToBlocks.cc']+all)
+common_env.SharedLibrary('libraries/libRedditMatrixBlockPartition.so', ['build/reddit/MatrixBlockPartition.cc']+all)
+
 common_env.Program('bin/loadRedditComments', ['build/tests/LoadRedditComments.cc'] + all + pdb_client)
 common_env.Program('bin/loadRedditCommentsWithPartition', ['build/tests/LoadRedditCommentsWithPartition.cc'] + all + pdb_client)
 common_env.Program('bin/loadRedditCommentsWithPartitionWithVariousSelections', ['build/tests/LoadRedditCommentsWithPartitionWithVariousSelections.cc'] + all + pdb_client)
@@ -1324,6 +1331,13 @@ libFFTest=common_env.Alias('libFFTest', [
   # Reddit libraries
   'libraries/libRedditComment.so',
   'libraries/libRedditCommentLabelJoin.so',
+
+  'libraries/libRedditCommentFeatures.so',
+  'libraries/libRedditCommentsToFeatures.so',
+  'libraries/libRedditCommentFeatureChunks.so',
+  'libraries/libRedditCommentFeaturesToChunks.so',
+  'libraries/libRedditCommentChunksToBlocks.so',
+  'libraries/libRedditMatrixBlockPartition.so',
 ])
 
 libLSTMTest=common_env.Alias('libLSTMTest', [

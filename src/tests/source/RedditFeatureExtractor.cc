@@ -8,6 +8,10 @@
 
 #include "FFMatrixBlock.h"
 #include "FFMatrixBlockScanner.h"
+#include "FFMatrixData.h"
+#include "FFMatrixMeta.h"
+#include "FFMatrixWriter.h"
+
 #include "RedditComment.h"
 #include "RedditCommentLabelJoin.h"
 #include <ScanUserSet.h>
@@ -17,166 +21,20 @@
 #include "PDBClient.h"
 #include "SimpleFF.h"
 
-#include <chrono>
-#include <ctime>
+#include "CommentChunksToBlocks.h"
+#include "CommentFeatureChunks.h"
+#include "CommentFeatures.h"
+#include "CommentFeaturesToChunks.h"
+#include "CommentsToFeatures.h"
+#include "MatrixBlockPartition.h"
 
-using namespace std;
-using namespace std::chrono;
+#include <RedditAuthor.h>
+#include <RedditFeatures.h>
+#include <RedditJoin.h>
+#include <RedditPositiveLabelSelection.h>
+#include <ScanUserSet.h>
+#include <WriteUserSet.h>
 
-void getCommentFeatures(pdb::Handle<reddit::Comment> &comment,
-                        vector<double> &features) {
-  features[0] = ((double)comment->archived);
-
-  system_clock::time_point tp_epoch;
-  time_point<system_clock, duration<int>> tp_seconds(
-      duration<int>(comment->author_created_utc));
-  system_clock::time_point tp(tp_seconds);
-
-  time_t tt = system_clock::to_time_t(tp);
-  tm utc_tm = *gmtime(&tt);
-
-  features[1] = (double)utc_tm.tm_mday / 31.0;
-  features[2] = ((double)comment->author_patreon_flair);
-  features[3] = ((double)comment->can_gild);
-  features[4] = ((double)comment->can_mod_post);
-  features[5] = ((double)comment->collapsed);
-  features[6] = ((double)comment->controversiality);
-
-  time_point<system_clock, duration<int>> tq_seconds(
-      duration<int>(comment->created_utc));
-  system_clock::time_point tq(tq_seconds);
-
-  time_t ttq = system_clock::to_time_t(tq);
-  tm utc_tq = *gmtime(&ttq);
-
-  features[7] = (double)utc_tq.tm_mday / 31.0;
-  features[8] = ((double)comment->gilded);
-  // features[9] = ((double)comment->is_submitter);
-  // features[10] = ((double)comment->no_follows);
-  // features[11] = ((double)comment->retrieved_on);
-  // features[12] = ((double)comment->score);
-  // features[13] = ((double)comment->send_replies);
-  // features[14] = ((double)comment->stickied);
-}
-
-void extract_features(pdb::PDBClient &pdbClient, int block_x, int block_y,
-                      int total_features, int batch_size, string db,
-                      string set) {
-  string errMsg;
-
-  ff::createSet(pdbClient, db, set, set);
-  pdb::makeObjectAllocatorBlock(128 * 1024 * 1024, true);
-
-  // int numXBlocks = ceil(totalX / (double)blockX); // no idea how many
-  // comments
-  int numYBlocks = ceil(total_features / (double)block_y);
-
-  // will contain comment features
-  vector<double> features;
-  features.resize(total_features);
-
-  auto it = pdbClient.getSetIterator<reddit::Comment>(db, "comments");
-  int pos = 0;       // total comments seen
-  int block_pos = 0; // total X blocks seen
-
-  pdb::Handle<pdb::Vector<pdb::Handle<FFMatrixBlock>>> storeMatrix1 =
-      pdb::makeObject<pdb::Vector<pdb::Handle<FFMatrixBlock>>>();
-
-  int total_blocks = 0;
-  int batch_pos = 0;
-
-  for (auto r : it) {
-
-    // Create new row of blocks
-    if (batch_pos == 0) {
-      int new_blocks_pushed = 0;
-      try {
-        for (; new_blocks_pushed < numYBlocks; new_blocks_pushed++) {
-          pdb::Handle<FFMatrixBlock> myData = pdb::makeObject<FFMatrixBlock>(
-              block_pos, new_blocks_pushed, block_x, block_y, batch_size,
-              total_features);
-          storeMatrix1->push_back(myData);
-        }
-      } catch (pdb::NotEnoughSpace &n) {
-        cout << "Not enough space. Sending existing blocks to db to make space."
-             << endl;
-        // Remove the new blocks created
-        for (int i = 0; i < new_blocks_pushed; i++) {
-          storeMatrix1->pop_back();
-        }
-
-        if (!pdbClient.sendData<FFMatrixBlock>(
-                std::pair<std::string, std::string>(set, db), storeMatrix1,
-                errMsg)) {
-          cout << "Failed to send data to dispatcher server" << endl;
-          exit(1);
-        }
-
-        cout << "Sent " << storeMatrix1->size() << " blocks to db" << endl;
-        pdb::makeObjectAllocatorBlock(128 * 1024 * 1024, true);
-        storeMatrix1 =
-            pdb::makeObject<pdb::Vector<pdb::Handle<FFMatrixBlock>>>();
-
-        new_blocks_pushed = 0;
-        for (; new_blocks_pushed < numYBlocks; new_blocks_pushed++) {
-          pdb::Handle<FFMatrixBlock> myData = pdb::makeObject<FFMatrixBlock>(
-              block_pos, new_blocks_pushed, block_x, block_y, -1,
-              total_features);
-          storeMatrix1->push_back(myData);
-        }
-      }
-
-      total_blocks += new_blocks_pushed;
-    }
-
-    getCommentFeatures(r, features);
-
-    int start = storeMatrix1->size() - numYBlocks;
-    for (int i = 0; i < numYBlocks; i++) {
-      for (int j = 0; j < block_y; j++) {
-        int curY = (i * block_y + j);
-        double data = curY >= total_features
-                          ? 0.0 // padding to adjust to block dimensions
-                          : features[curY];
-        (*((*storeMatrix1)[start + i]
-               ->getRawDataHandle()))[batch_pos * block_y + j] = data;
-      }
-    }
-
-    batch_pos++;
-    if (batch_pos == block_x) {
-      batch_pos = 0;
-      block_pos++;
-    }
-
-    pos++;
-  }
-
-  // padding required for the last row of blocks
-  if (batch_pos != 0) {
-    // row padding to keep block_x X block_y dimensions for each block
-    int start = storeMatrix1->size() - numYBlocks;
-    for (int b = 0; b < numYBlocks; b++) {
-      for (int i = batch_pos; i < block_x; i++) {
-        for (int j = 0; j < block_y; j++) {
-          (*((*storeMatrix1)[start + b]->getRawDataHandle()))[i * block_y + j] =
-              0.0;
-        }
-      }
-    }
-  }
-
-  // Send the remaining blocks to database
-  if (!pdbClient.sendData<FFMatrixBlock>(
-          std::pair<std::string, std::string>(set, db), storeMatrix1, errMsg)) {
-    cout << "Failed to send data to dispatcher server" << endl;
-    exit(1);
-  }
-
-  pdbClient.flushData(errMsg);
-
-  cout << "Sent " << storeMatrix1->size() << " blocks to db" << endl;
-}
 
 int main(int argc, char *argv[]) {
   string errMsg;
@@ -207,7 +65,22 @@ int main(int argc, char *argv[]) {
 
   string db = "redditDB", set = "comment_features";
 
-  ff::setup(pdbClient, db);
+  // ff::setup(pdbClient, db);
+
+  ff::loadLibrary(pdbClient, "libraries/libFFMatrixMeta.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFMatrixData.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlock.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlockScanner.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFMatrixWriter.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFInputLayerJoin.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFAggMatrix.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFReluBiasSum.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFTransposeMult.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFTransposeBiasSum.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFRowAggregate.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFOutputLayer.so");
+
+  ff::createSet(pdbClient, db, set, set);
 
   ff::createSet(pdbClient, db, "w1", "W1");
   ff::createSet(pdbClient, db, "b1", "B1");
@@ -220,7 +93,7 @@ int main(int argc, char *argv[]) {
 
   ff::createSet(pdbClient, db, "output", "Output");
 
-  ff::createSet(pdbClient, db, "result", "Result");
+  ff::createSet(pdbClient, db, "labeled_comments", "LabeledComments");
 
   if (!generate) {
     string main_path = string(argv[4]);
@@ -250,13 +123,7 @@ int main(int argc, char *argv[]) {
     int hid2_size = 256;
     int num_labels = 2;
 
-    // X x features_size = None x 5000
-    // ff::loadMatrix(pdbClient, db, "inputs", batch_size, features, block_x,
-    //             block_y, errMsg);
-    // X x labels_size = ???
-    // ff::loadMatrix(pdbClient, db, "label", 64, null, 1, 100, 2, errMsg);
-
-    // 128 x features_size = 128 x 5000
+    // 128 x 9 = 128 x 9
     ff::loadMatrix(pdbClient, db, "w1", hid1_size, total_features, block_x,
                    block_y, false, false, errMsg);
     // 128 x 1
@@ -278,37 +145,48 @@ int main(int argc, char *argv[]) {
                    true, errMsg);
   }
 
-  // ff::print_stats(pdbClient, db, "w1");
-  // ff::print_stats(pdbClient, db, "w2");
-  // ff::print_stats(pdbClient, db, "wo");
-  // ff::print_stats(pdbClient, db, "b1");
-  // ff::print_stats(pdbClient, db, "b2");
-  // ff::print_stats(pdbClient, db, "bo");
-
-  extract_features(pdbClient, block_x, block_y, total_features, batch_size, db,
-                   set);
-
-  double dropout_rate = 0.5;
-
-  ff::inference(pdbClient, db, "w1", "w2", "wo", set, "b1", "b2", "bo",
-                "output", dropout_rate);
+  ff::loadLibrary(pdbClient, "libraries/libRedditCommentFeatures.so");
+  ff::loadLibrary(pdbClient, "libraries/libRedditCommentFeatureChunks.so");
+  ff::loadLibrary(pdbClient, "libraries/libRedditCommentsToFeatures.so");
+  ff::loadLibrary(pdbClient, "libraries/libRedditCommentFeaturesToChunks.so");
+  ff::loadLibrary(pdbClient, "libraries/libRedditCommentChunksToBlocks.so");
+  ff::loadLibrary(pdbClient, "libraries/libRedditMatrixBlockPartition.so");
 
   {
-    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 256};
 
-    auto it = pdbClient.getSetIterator<FFMatrixBlock>(db, "output");
+    // make the computation
+    pdb::Handle<pdb::Computation> readB =
+        makeObject<ScanUserSet<reddit::Comment>>(db, "comments");
 
-    for (auto r : it) {
-      double *data = r->getRawDataHandle()->c_ptr();
-      int i = 0;
-      int j = r->getBlockRowIndex() * r->getRowNums();
-      while (i < r->getRowNums() * r->getColNums()) {
-        cout << data[i] << ", " << data[i + 1] << endl;
-        i += r->getColNums();
-        j++;
-      }
+    pdb::Handle<pdb::Computation> sel =
+        pdb::makeObject<reddit::CommentsToFeatures>();
+    sel->setInput(readB);
+
+    pdb::Handle<pdb::Computation> chonk =
+        pdb::makeObject<reddit::CommentFeaturesToChunks>(block_x);
+    chonk->setInput(sel);
+
+    pdb::Handle<pdb::Computation> slice =
+        pdb::makeObject<reddit::CommentChunksToBlocks>(block_x, block_y, true,
+                                                       batch_size);
+    slice->setInput(chonk);
+
+    // make the writer
+    pdb::Handle<pdb::Computation> myWriter =
+        pdb::makeObject<reddit::MatrixBlockPartition>(db, set);
+    myWriter->setInput(slice);
+
+    // run the computation
+    if (!pdbClient.executeComputations(errMsg, myWriter)) {
+      cout << "Computation failed. Message was: " << errMsg << "\n";
+      exit(1);
     }
   }
+
+  double dropout_rate = 0.5;
+  ff::inference(pdbClient, db, "w1", "w2", "wo", set, "b1", "b2", "bo",
+                "output", dropout_rate);
 
   ff::loadLibrary(pdbClient, "libraries/libRedditCommentLabelJoin.so");
 
@@ -339,14 +217,57 @@ int main(int argc, char *argv[]) {
     }
   }
 
+  pdbClient.deleteSet(db, "comments");
+  pdbClient.deleteSet(db, "w1");
+  pdbClient.deleteSet(db, "b1");
+  pdbClient.deleteSet(db, "w2");
+  pdbClient.deleteSet(db, "b2");
+  pdbClient.deleteSet(db, "wo");
+  pdbClient.deleteSet(db, "bo");
+  pdbClient.deleteSet(db, "output");
+
+  pdbClient.flushData(errMsg);
+
+  // {
+  //   const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 1024};
+
+  //   auto it = pdbClient.getSetIterator<reddit::Comment>(db, "labeled_comments");
+
+  //   for (auto r : it) {
+  //     cout << r->label << endl;
+  //   }
+  // }
+
+  pdbClient.registerType("libraries/libRedditComment.so", errMsg);
+  pdbClient.registerType("libraries/libRedditAuthor.so", errMsg);
+  pdbClient.registerType("libraries/libRedditFeatures.so", errMsg);
+  pdbClient.registerType("libraries/libRedditJoin.so", errMsg);
+  pdbClient.registerType("libraries/libRedditPositiveLabelSelection.so", errMsg);
+
   {
-    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 1024};
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
-    auto it = pdbClient.getSetIterator<reddit::Comment>(db, "result");
+    // make the computation
+    pdb::Handle<pdb::Computation> readA =
+        makeObject<ScanUserSet<reddit::Comment>>(db, "labeled_comments");
 
-    for (auto r : it) {
-      cout << r->label << endl;
+    pdb::Handle<pdb::Computation> readB =
+        makeObject<ScanUserSet<reddit::Author>>(db, "authors");
+
+    pdb::Handle<pdb::Computation> join = makeObject<reddit::JoinAuthorsWithComments>();
+    join->setInput(0, readA);
+    join->setInput(1, readB);
+
+    Handle<Computation> myWriteSet = makeObject<WriteUserSet<reddit::Features>>("redditDB", "features");
+    myWriteSet->setInput(join);
+
+    // run the computation
+    if (!pdbClient.executeComputations(errMsg, "reddit-a", myWriteSet)) {
+      cout << "Computation failed. Message was: " << errMsg << "\n";
+      exit(1);
     }
+
+    pdbClient.flushData(errMsg);
   }
 
   return 0;
