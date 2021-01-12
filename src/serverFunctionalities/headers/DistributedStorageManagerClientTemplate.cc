@@ -57,6 +57,12 @@ namespace pdb {
                                                     const std::string& createdJobId,
                                                     Handle<Vector<Handle<Computation>>> computationsForDispatch,
                                                     std::string jobName,
+                                                    std::string jobName1, 
+                                                    std::string jobName2, 
+                                                    std::string computationName1, 
+                                                    std::string computationName2, 
+                                                    std::string lambdaName1, 
+                                                    std::string lambdaName2,
                                                     size_t desiredSize,
                                                     bool isMRU) {
         std::string typeName = getTypeName<DataType>();
@@ -65,7 +71,7 @@ namespace pdb {
         std::cout << "to create set for " << databaseName << ":" << setName << std::endl;
         std::cout << "jobName is " << jobName << std::endl;
         Handle<DistributedStorageAddSetWithPartition> request = makeObject<DistributedStorageAddSetWithPartition> (databaseName,
-            setName, typeName, pageSize, createdJobId, computationsForDispatch, jobName, desiredSize, isMRU);
+            setName, typeName, pageSize, createdJobId, computationsForDispatch, jobName, jobName1, jobName2, computationName1, computationName2, lambdaName1, lambdaName2, desiredSize, isMRU);
         return simpleDoubleRequest<DistributedStorageAddSetWithPartition, Vector<Handle<Computation>>, SimpleRequestResult, bool>(
            logger,
            port,

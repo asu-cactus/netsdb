@@ -68,10 +68,10 @@ bool PDBClient::createSet(const std::string &databaseName,
 bool PDBClient::createSet(const std::string &databaseName,
                           const std::string &setName,
                           const std::string &typeName, std::string &errMsg,
-                          size_t pageSize, const std::string &createdJobId, Handle<Vector<Handle<Computation>>> dispatchComputations, std::string jobName) {
+                          size_t pageSize, const std::string &createdJobId, Handle<Vector<Handle<Computation>>> dispatchComputations, std::string jobName, std::string jobName1, std::string jobName2, std::string computationName1, std::string computationName2, std::string lambdaName1, std::string lambdaName2) {
 
   return distributedStorageClient.createSet(databaseName, setName, typeName,
-                                            errMsg, pageSize, createdJobId, dispatchComputations, jobName);
+                                            errMsg, pageSize, createdJobId, dispatchComputations, jobName, jobName1, jobName2, computationName1, computationName2, lambdaName1, lambdaName2);
 }
 
 

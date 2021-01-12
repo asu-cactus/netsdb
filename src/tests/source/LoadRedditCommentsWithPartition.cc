@@ -205,7 +205,7 @@ int main(int argc, char* argv[]) {
   pdbClient.removeSet("redditDB", "comments", errMsg);
 
   if (whetherToPartitionData) {
-      pdbClient.createSet<reddit::Comment>("redditDB", "comments", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "comments", computations, "reddit");
+      pdbClient.createSet<reddit::Comment>("redditDB", "comments", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "comments", computations, "reddit", "reddit-a", "JoinComp_3", "attAccess_0", "reddit-s", "JoinComp_3", "attAccess_0");
   } else {
       pdbClient.createSet<reddit::Comment>("redditDB", "comments", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "comments");
   }

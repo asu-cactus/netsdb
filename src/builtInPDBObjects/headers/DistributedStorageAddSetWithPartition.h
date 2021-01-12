@@ -27,12 +27,24 @@ public:
                              std::string createdJobId,
                              Handle<Vector<Handle<Computation>>> dispatchComputations,
                              std::string jobName,
+                             std::string jobName1,
+                             std::string jobName2,
+                             std::string computationName1,
+                             std::string computationName2,
+                             std::string lambdaName1,
+                             std::string lambdaName2,
                              size_t desiredSize = 1,
                              bool isMRU = false)
         : dataBase(dataBase), setName(setName), typeName(typeName), pageSize(pageSize), createdJobId(createdJobId) {
 
         this->dispatchComputations = dispatchComputations;
         this->jobName = jobName;
+        this->jobName1 = jobName1;
+        this->jobName2 = jobName2;
+        this->computationName1 = computationName1;
+        this->computationName2 = computationName2;
+        this->lambdaName1 = lambdaName1;
+        this->lambdaName2 = lambdaName2;
         this->desiredSize = desiredSize;
         this->isMRU = isMRU;
     }
@@ -94,6 +106,54 @@ public:
         this->isMRU = isMRU;
     }
 
+    std::string  getJobName1() {
+        return this->jobName1;
+    }
+
+    void setJobName1(std::string jobName1) {
+        this->jobName1 = jobName1;
+    }
+
+    std::string  getJobName2() {
+        return this->jobName2;
+    }
+
+    void setJobName2(std::string jobName2) {
+        this->jobName2 = jobName2;
+    }
+
+    std::string  getLambdaName1() {
+        return this->lambdaName1;
+    }
+
+    void setLambdaName1(std::string LambdaName1) {
+        this->lambdaName1 = lambdaName1;
+    }
+
+    std::string  getLambdaName2() {
+        return this->lambdaName2;
+    }
+
+    void setLambdaName2(std::string LambdaName2) {
+        this->lambdaName2 = lambdaName2;
+    }
+
+    std::string  getComputationName1() {
+        return this->computationName1;
+    }
+
+    void setComputationName1(std::string computationName1) {
+        this->computationName1 = computationName1;
+    }
+
+    std::string  getComputationName2() {
+        return this->computationName2;
+    }
+    
+    void setComputationName2(std::string computationName2) {
+        this->computationName2 = computationName2;
+    }
+
     ENABLE_DEEP_COPY
 
 private:
@@ -106,6 +166,13 @@ private:
     String jobName;
     size_t desiredSize;
     bool isMRU;
+    String jobName1;
+    String jobName2;
+    String computationName1;
+    String computationName2;
+    String lambdaName1;
+    String lambdaName2;
+
 };
 }
 

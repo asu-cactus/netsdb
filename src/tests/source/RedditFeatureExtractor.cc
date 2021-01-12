@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
 
   bool generate = argc == 4;
 
-  int total_features = 9; // Change this later
+  int total_features = 100; // Change this later
 
   string db = "redditDB", set = "comment_features";
 

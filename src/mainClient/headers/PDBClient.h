@@ -85,7 +85,7 @@ public:
   /* Creates a set with a given type for an existing database, which can be applied with IR-based dispatching policy*/
   bool createSet(const std::string &databaseName, const std::string &setName,
                  const std::string &typeName, std::string &errMsg,
-                 size_t pageSize, const std::string &createdJobId, Handle<Vector<Handle<Computation>>> dispatchComputations, const std::string jobName);
+                 size_t pageSize, const std::string &createdJobId, Handle<Vector<Handle<Computation>>> dispatchComputations, const std::string jobName, std::string jobName1, std::string jobName2, std::string computationName1, std::string computationName2, std::string lambdaName1, std::string lambdaName2);
 
 
   /* Creates a set with a given type (using a template) for an existing
@@ -102,7 +102,7 @@ public:
   bool createSet(const std::string &databaseName,
                             const std::string &setName, std::string &errMsg,
                             size_t pageSize,
-                            const std::string &createdJobId, Handle<Vector<Handle<Computation>>> dispatchComputations, const std::string jobName);
+                            const std::string &createdJobId, Handle<Vector<Handle<Computation>>> dispatchComputations, const std::string jobName, std::string jobName1, std::string jobName2, std::string computationName1, std::string computationName2, std::string lambdaName1, std::string lambdaName2);
 
   /* Creates a temporary set with a given type for an existing database (only
    * goes through storage) */

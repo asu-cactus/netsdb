@@ -146,7 +146,7 @@ int JoinPairArray<ValueType>::count(const size_t &me) {
   return 0;
 }
 
-
+/*
 
 template<class ValueType>
 void JoinPairArray<ValueType>::setUnused(const size_t &me) {
@@ -222,8 +222,8 @@ void JoinPairArray<ValueType>::setUnused(const size_t &me) {
   std::cout << "Fatal Error: Ran off the end of the hash table setUnused()\n";
   exit(1);
 }
+*/
 
-/*
 template<class ValueType>
 void JoinPairArray<ValueType>::setUnused(const size_t &me) {
 
@@ -274,7 +274,7 @@ void JoinPairArray<ValueType>::setUnused(const size_t &me) {
   exit(1);
 }
 
-*/
+
 
 template<class ValueType>
 JoinRecordList<ValueType> JoinPairArray<ValueType>::lookup(const size_t &me) {

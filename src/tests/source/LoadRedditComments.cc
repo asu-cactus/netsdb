@@ -36,7 +36,7 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
   bool end = false;
   bool rollback = false;
 
-  long total = 10000000;
+  long total = 5000000;
   long sent = 0;
   long i = 0;
   int oddHash = 0;
@@ -58,16 +58,10 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
       rollback = false; 
       try {
           pdb::Handle<reddit::Comment> comment = pdb::makeObject<reddit::Comment>(i, line);
-          classify_v1(comment);
           if (strcmp(comment->author.c_str(), "[deleted]") !=0){
-              //std::cout << Hasher<Handle<Object>>::hash(comment) << ":" << Hasher<reddit::Comment>::hash(*comment) << std::endl;
-              if ((Hasher<Handle<Object>>::hash(comment) % 2) == 1){
-                   oddHash++;
-                   //std::cout << oddHash << ":" << comment->toString() << std::endl;
-              }
-              comment->index = i;
-              storeMe->push_back(comment);
+              classify_v1(comment);
               i++;
+              storeMe->push_back(comment);
           }
       }
       catch (pdb::NotEnoughSpace &n) {
@@ -143,11 +137,11 @@ int main(int argc, char* argv[]) {
   
   if (whetherToPartitionData) {
       if (whetherToPartitionOnAuthors) {
-          //myLambda1 = makeObject<LambdaIdentifier>("reddit-a", "JoinComp_3", "attAccess_0");
-          myLambda1 = makeObject<LambdaIdentifier>("reddit-three-way", "JoinComp_3", "attAccess_0");
+          myLambda1 = makeObject<LambdaIdentifier>("reddit-a", "JoinComp_3", "attAccess_0");
+          //myLambda1 = makeObject<LambdaIdentifier>("reddit-three-way", "JoinComp_3", "attAccess_0");
       } else {
-          //myLambda1 = makeObject<LambdaIdentifier>("reddit-s", "JoinComp_3", "attAccess_0");
-          myLambda1 = makeObject<LambdaIdentifier>("reddit-three-way", "JoinComp_7", "attAccess_0");
+          myLambda1 = makeObject<LambdaIdentifier>("reddit-s", "JoinComp_3", "attAccess_0");
+          //myLambda1 = makeObject<LambdaIdentifier>("reddit-three-way", "JoinComp_7", "attAccess_0");
       }
   }
   

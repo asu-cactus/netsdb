@@ -58,7 +58,9 @@ public:
       int myKey = (*iter).key;
       if (feature_chunk->count(myKey) != 0) {
         std::cout << "FAILED!!" << std::endl;
-        exit(1);
+        std::cout << myKey << ":";
+        std::cout << feature_chunk->count(myKey) << std::endl;
+        //exit(1);
       }
       (*feature_chunk)[myKey] = (*iter).value;
       ++iter;

@@ -49,6 +49,12 @@ public:
                    const std::string& createdJobId,
                    Handle<Vector<Handle<Computation>>> computationsForDispatch,
                    std::string jobName,
+                   std::string jobName1,
+                   std::string jobName2,
+                   std::string computationName1,
+                   std::string computationName2,
+                   std::string lambdaName1,
+                   std::string lambdaName2, 
                    size_t desiredSize = 0,
                    bool isMRU = false);
 
@@ -87,6 +93,12 @@ public:
                    const std::string& createdJobId,
                    Handle<Vector<Handle<Computation>>> computationsForDispatch,
                    std::string jobName,
+                   std::string jobName1,
+                   std::string jobName2,
+                   std::string computationName1,
+                   std::string computationName2,
+                   std::string lambdaName1,
+                   std::string lambdaName2,
                    size_t desiredSize = 0,
                    bool isMRU = false);
 
