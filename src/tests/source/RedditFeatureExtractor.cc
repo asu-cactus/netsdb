@@ -33,6 +33,9 @@
 #include "CommentsToChunks.h"
 #include "CommentChunkToComments.h"
 
+#include "FFMatrixMultiSel.h"
+#include "RedditCommentInferenceJoin.h"
+
 #include <RedditAuthor.h>
 #include <RedditFeatures.h>
 #include <RedditJoin.h>
@@ -195,10 +198,9 @@ int main(int argc, char *argv[]) {
   ff::inference(pdbClient, db, "w1", "w2", "wo", set, "b1", "b2", "bo",
                 "output", dropout_rate);
 
-  ff::loadLibrary(pdbClient, "libraries/libRedditCommentLabelJoin.so");
-  ff::loadLibrary(pdbClient, "libraries/libRedditCommentsChunk.so");
-  ff::loadLibrary(pdbClient, "libraries/libRedditCommentsToChunks.so");
-  ff::loadLibrary(pdbClient, "libraries/libRedditCommentChunkToComments.so");
+  ff::loadLibrary(pdbClient, "libraries/libRedditCommentInferenceJoin.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFMatrixMultiSel.so");
+  ff::loadLibrary(pdbClient, "libraries/libInferenceResult.so");
 
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
@@ -207,33 +209,29 @@ int main(int argc, char *argv[]) {
     pdb::Handle<pdb::Computation> readA =
         makeObject<FFMatrixBlockScanner>(db, "output");
 
+    pdb::Handle<pdb::Computation> multi_sel = makeObject<FFMatrixMultiSel>();
+    multi_sel->setInput(readA);
+
     pdb::Handle<pdb::Computation> readB =
         makeObject<ScanUserSet<reddit::Comment>>(db, "comments");
-
-    pdb::Handle<pdb::Computation> chonk = makeObject<reddit::CommentsToChunks>(block_x);
-    chonk->setInput(readB);
-
+    
     pdb::Handle<pdb::Computation> join =
-        pdb::makeObject<reddit::CommentLabelJoin>();
-    join->setInput(0, readA);
-    join->setInput(1, chonk);
-
-    pdb::Handle<pdb::Computation> split = makeObject<reddit::CommentChunkToComments>();
-    split->setInput(join);
+        pdb::makeObject<reddit::CommentInferenceJoin>();
+    join->setInput(0, multi_sel);
+    join->setInput(1, readB);
 
     // make the writer
-    pdb::Handle<pdb::Computation> sumWriter =
+    pdb::Handle<pdb::Computation> writer =
         pdb::makeObject<WriteUserSet<reddit::Comment>>(db, "labeled_comments");
-    sumWriter->setInput(split);
+    writer->setInput(join);
 
     // run the computation
-    if (!pdbClient.executeComputations(errMsg, sumWriter)) {
+    if (!pdbClient.executeComputations(errMsg, writer)) {
       cout << "Computation failed. Message was: " << errMsg << "\n";
       exit(1);
     }
   }
 
-  pdbClient.deleteSet(db, "comments");
   pdbClient.deleteSet(db, "w1");
   pdbClient.deleteSet(db, "b1");
   pdbClient.deleteSet(db, "w2");

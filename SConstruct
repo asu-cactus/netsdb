@@ -579,6 +579,8 @@ common_env.SharedLibrary('libraries/libFFTransposeBiasSum.so', ['build/FF/FFTran
 common_env.SharedLibrary('libraries/libFFReluBiasSum.so', ['build/FF/FFReluBiasSum.cc'] + all)
 common_env.SharedLibrary('libraries/libFFRowAggregate.so', ['build/FF/FFRowAggregate.cc'] + all)
 common_env.SharedLibrary('libraries/libFFOutputLayer.so', ['build/FF/FFOutputLayer.cc'] + all)
+common_env.SharedLibrary('libraries/libFFMatrixMultiSel.so', ['build/FF/FFMatrixMultiSel.cc'] + all)
+common_env.SharedLibrary('libraries/libInferenceResult.so', ['build/FF/InferenceResult.cc'] + all)
 
 # LSTM
 
@@ -636,6 +638,7 @@ common_env.SharedLibrary('libraries/libRedditCommentChunksToBlocks.so', ['build/
 common_env.SharedLibrary('libraries/libRedditCommentChunkToComments.so', ['build/reddit/CommentChunkToComments.cc']+all)
 
 common_env.SharedLibrary('libraries/libRedditMatrixBlockPartition.so', ['build/reddit/MatrixBlockPartition.cc']+all)
+common_env.SharedLibrary('libraries/libRedditCommentInferenceJoin.so', ['build/reddit/RedditCommentInferenceJoin.cc']+all)
 
 common_env.Program('bin/loadRedditComments', ['build/tests/LoadRedditComments.cc'] + all + pdb_client)
 common_env.Program('bin/loadRedditCommentsWithPartition', ['build/tests/LoadRedditCommentsWithPartition.cc'] + all + pdb_client)
@@ -1332,10 +1335,13 @@ libFFTest=common_env.Alias('libFFTest', [
   'libraries/libFFReluBiasSum.so',
   'libraries/libFFRowAggregate.so',
   'libraries/libFFOutputLayer.so',
+  'libraries/libFFMatrixMultiSel.so',
+  'libraries/libInferenceResult.so',
 
   # Reddit libraries
   'libraries/libRedditComment.so',
   'libraries/libRedditCommentLabelJoin.so',
+  'libraries/libRedditCommentInferenceJoin.so',
 
   'libraries/libRedditCommentFeatures.so',
   'libraries/libRedditCommentsToFeatures.so',
