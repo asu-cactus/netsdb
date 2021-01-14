@@ -67,8 +67,6 @@ void setup(pdb::PDBClient &pdbClient, string database) {
   createSet(pdbClient, database, "y2", "Y2");
 
   createSet(pdbClient, database, "yo", "YO");
-
-  createSet(pdbClient, database, "yo_exp_sum", "YOExpSum");
 }
 
 void inference(pdb::PDBClient &pdbClient, string database, string w1, string w2,
@@ -205,30 +203,9 @@ void inference(pdb::PDBClient &pdbClient, string database, string w1, string w2,
     pdb::Handle<pdb::Computation> expSum = pdb::makeObject<FFRowAggregate>();
     expSum->setInput(readA);
 
-    // make the writer
-    pdb::Handle<pdb::Computation> sumWriter =
-        pdb::makeObject<FFMatrixWriter>(database, "yo_exp_sum");
-    sumWriter->setInput(expSum);
-
-    // run the computation
-    if (!pdbClient.executeComputations(errMsg, sumWriter)) {
-      cout << "Computation failed. Message was: " << errMsg << "\n";
-      exit(1);
-    }
-  }
-
-  {
-    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
-
-    // make the computation
-    pdb::Handle<pdb::Computation> readA =
-        makeObject<FFMatrixBlockScanner>(database, "yo");
-    pdb::Handle<pdb::Computation> readB =
-        makeObject<FFMatrixBlockScanner>(database, "yo_exp_sum");
-
     pdb::Handle<pdb::Computation> softmax = pdb::makeObject<FFOutputLayer>();
     softmax->setInput(0, readA);
-    softmax->setInput(1, readB);
+    softmax->setInput(1, expSum);
 
     // make the writer
     pdb::Handle<pdb::Computation> sumWriter =
@@ -243,6 +220,5 @@ void inference(pdb::PDBClient &pdbClient, string database, string w1, string w2,
   }
 
   pdbClient.deleteSet(database, "yo");
-  pdbClient.deleteSet(database, "yo_exp_sum");
 }
 } // namespace ff

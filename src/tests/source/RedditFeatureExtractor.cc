@@ -36,6 +36,9 @@
 #include "FFMatrixMultiSel.h"
 #include "RedditCommentInferenceJoin.h"
 
+#include "InferenceResult.h"
+#include "InferenceResultPartition.h"
+
 #include <RedditAuthor.h>
 #include <RedditFeatures.h>
 #include <RedditJoin.h>
@@ -100,6 +103,8 @@ int main(int argc, char *argv[]) {
   ff::createSet(pdbClient, db, "bo", "BO");
 
   ff::createSet(pdbClient, db, "output", "Output");
+
+  ff::createSet(pdbClient, db, "inference", "Inference");
 
   ff::createSet(pdbClient, db, "labeled_comments", "LabeledComments");
 
@@ -201,6 +206,7 @@ int main(int argc, char *argv[]) {
   ff::loadLibrary(pdbClient, "libraries/libRedditCommentInferenceJoin.so");
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixMultiSel.so");
   ff::loadLibrary(pdbClient, "libraries/libInferenceResult.so");
+  ff::loadLibrary(pdbClient, "libraries/libInferenceResultPartition.so");
 
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
@@ -212,12 +218,31 @@ int main(int argc, char *argv[]) {
     pdb::Handle<pdb::Computation> multi_sel = makeObject<FFMatrixMultiSel>();
     multi_sel->setInput(readA);
 
+    // make the writer
+    pdb::Handle<pdb::Computation> myWriter =
+        pdb::makeObject<InferenceResultPartition>(db, "inference");
+    myWriter->setInput(multi_sel);
+
+    // run the computation
+    if (!pdbClient.executeComputations(errMsg, myWriter)) {
+      cout << "Computation failed. Message was: " << errMsg << "\n";
+      exit(1);
+    }
+  }
+
+  {
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+    // make the computation
+    pdb::Handle<pdb::Computation> readA =
+        makeObject<ScanUserSet<InferenceResult>>(db, "inference");
+
     pdb::Handle<pdb::Computation> readB =
         makeObject<ScanUserSet<reddit::Comment>>(db, "comments");
     
     pdb::Handle<pdb::Computation> join =
         pdb::makeObject<reddit::CommentInferenceJoin>();
-    join->setInput(0, multi_sel);
+    join->setInput(0, readA);
     join->setInput(1, readB);
 
     // make the writer
