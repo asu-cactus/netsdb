@@ -7,6 +7,9 @@
 
 namespace pdb {
 class PDBClient;
+template <typename>
+class Handle;
+class Computation;
 }
 
 namespace ff {
@@ -23,4 +26,9 @@ void inference(pdb::PDBClient &pdbClient, std::string database, std::string w1,
                std::string w2, std::string wo, std::string inputs,
                std::string b1, std::string b2, std::string bo,
                std::string output, double dropout_rate);
+
+void inference(pdb::PDBClient &pdbClient, std::string database, std::string w1,
+               std::string w2, std::string wo, std::string inputs,
+               std::string b1, std::string b2, std::string bo,
+               pdb::Handle<pdb::Computation> &output, double dropout_rate);
 } // namespace ff

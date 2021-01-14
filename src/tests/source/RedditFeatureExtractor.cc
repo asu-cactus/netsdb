@@ -185,7 +185,6 @@ int main(int argc, char *argv[]) {
                                                        batch_size);
     slice->setInput(chonk);
 
-
     // make the writer
     pdb::Handle<pdb::Computation> myWriter =
         pdb::makeObject<reddit::MatrixBlockPartition>(db, set);
@@ -199,28 +198,26 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  double dropout_rate = 0.5;
-  ff::inference(pdbClient, db, "w1", "w2", "wo", set, "b1", "b2", "bo",
-                "output", dropout_rate);
-
   ff::loadLibrary(pdbClient, "libraries/libRedditCommentInferenceJoin.so");
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixMultiSel.so");
   ff::loadLibrary(pdbClient, "libraries/libInferenceResult.so");
   ff::loadLibrary(pdbClient, "libraries/libInferenceResultPartition.so");
 
+  // Run FF inference on comment feature blocks
   {
-    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 256};
 
-    // make the computation
-    pdb::Handle<pdb::Computation> readA =
-        makeObject<FFMatrixBlockScanner>(db, "output");
-
+    double dropout_rate = 0.5;
+    pdb::Handle<pdb::Computation> inference;
+    ff::inference(pdbClient, db, "w1", "w2", "wo", set, "b1", "b2", "bo",
+                inference, dropout_rate);
+    
     pdb::Handle<pdb::Computation> multi_sel = makeObject<FFMatrixMultiSel>();
-    multi_sel->setInput(readA);
+    multi_sel->setInput(inference);
 
     // make the writer
     pdb::Handle<pdb::Computation> myWriter =
-        pdb::makeObject<InferenceResultPartition>(db, "inference");
+        pdb::makeObject<InferenceResultPartition>(db, "output");
     myWriter->setInput(multi_sel);
 
     // run the computation
@@ -230,12 +227,13 @@ int main(int argc, char *argv[]) {
     }
   }
 
+  // Join the partitioned inference results with comments
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
     // make the computation
     pdb::Handle<pdb::Computation> readA =
-        makeObject<ScanUserSet<InferenceResult>>(db, "inference");
+        makeObject<ScanUserSet<InferenceResult>>(db, "output");
 
     pdb::Handle<pdb::Computation> readB =
         makeObject<ScanUserSet<reddit::Comment>>(db, "comments");
