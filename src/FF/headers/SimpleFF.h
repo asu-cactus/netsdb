@@ -7,10 +7,9 @@
 
 namespace pdb {
 class PDBClient;
-template <typename>
-class Handle;
+template <typename> class Handle;
 class Computation;
-}
+} // namespace pdb
 
 namespace ff {
 void loadLibrary(pdb::PDBClient &pdbClient, std::string path);

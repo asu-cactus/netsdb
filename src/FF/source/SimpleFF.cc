@@ -69,9 +69,9 @@ void setup(pdb::PDBClient &pdbClient, string database) {
   createSet(pdbClient, database, "yo", "YO");
 }
 
-void inference_compute(pdb::PDBClient &pdbClient, string database, string w1, string w2,
-               string wo, string inputs, string b1, string b2, string bo,
-               double dropout_rate) {
+void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
+                       string w2, string wo, string inputs, string b1,
+                       string b2, string bo, double dropout_rate) {
   string errMsg;
 
   {
@@ -91,7 +91,6 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1, st
     pdb::Handle<pdb::Computation> myAggregation =
         pdb::makeObject<FFAggMatrix>();
     myAggregation->setInput(join);
-
 
     pdb::Handle<pdb::Computation> readC =
         makeObject<FFMatrixBlockScanner>(database, b1);
@@ -198,7 +197,8 @@ void inference(pdb::PDBClient &pdbClient, string database, string w1, string w2,
                string wo, string inputs, string b1, string b2, string bo,
                string output, double dropout_rate) {
   string errMsg;
-  inference_compute(pdbClient, database, w1, w2, wo, inputs, b1, b2, bo, dropout_rate);
+  inference_compute(pdbClient, database, w1, w2, wo, inputs, b1, b2, bo,
+                    dropout_rate);
 
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
@@ -233,7 +233,8 @@ void inference(pdb::PDBClient &pdbClient, string database, string w1, string w2,
                string wo, string inputs, string b1, string b2, string bo,
                pdb::Handle<pdb::Computation> &output, double dropout_rate) {
   string errMsg;
-  inference_compute(pdbClient, database, w1, w2, wo, inputs, b1, b2, bo, dropout_rate);
+  inference_compute(pdbClient, database, w1, w2, wo, inputs, b1, b2, bo,
+                    dropout_rate);
 
   // make the computation
   pdb::Handle<pdb::Computation> readA =

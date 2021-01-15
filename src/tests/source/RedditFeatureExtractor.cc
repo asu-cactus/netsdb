@@ -13,7 +13,6 @@
 #include "FFMatrixWriter.h"
 
 #include "RedditComment.h"
-#include "RedditCommentLabelJoin.h"
 #include <ScanUserSet.h>
 #include <WriteUserSet.h>
 
@@ -28,11 +27,6 @@
 #include "CommentsToFeatures.h"
 #include "MatrixBlockPartition.h"
 
-
-#include "CommentsChunk.h"
-#include "CommentsToChunks.h"
-#include "CommentChunkToComments.h"
-
 #include "FFMatrixMultiSel.h"
 #include "RedditCommentInferenceJoin.h"
 
@@ -45,7 +39,6 @@
 #include <RedditPositiveLabelSelection.h>
 #include <ScanUserSet.h>
 #include <WriteUserSet.h>
-
 
 int main(int argc, char *argv[]) {
   string errMsg;
@@ -190,7 +183,6 @@ int main(int argc, char *argv[]) {
         pdb::makeObject<reddit::MatrixBlockPartition>(db, set);
     myWriter->setInput(slice);
 
-
     // run the computation
     if (!pdbClient.executeComputations(errMsg, myWriter)) {
       cout << "Computation failed. Message was: " << errMsg << "\n";
@@ -210,8 +202,8 @@ int main(int argc, char *argv[]) {
     double dropout_rate = 0.5;
     pdb::Handle<pdb::Computation> inference;
     ff::inference(pdbClient, db, "w1", "w2", "wo", set, "b1", "b2", "bo",
-                inference, dropout_rate);
-    
+                  inference, dropout_rate);
+
     pdb::Handle<pdb::Computation> multi_sel = makeObject<FFMatrixMultiSel>();
     multi_sel->setInput(inference);
 
@@ -237,7 +229,7 @@ int main(int argc, char *argv[]) {
 
     pdb::Handle<pdb::Computation> readB =
         makeObject<ScanUserSet<reddit::Comment>>(db, "comments");
-    
+
     pdb::Handle<pdb::Computation> join =
         pdb::makeObject<reddit::CommentInferenceJoin>();
     join->setInput(0, readA);
