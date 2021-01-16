@@ -245,7 +245,7 @@ src/tpch/source/tpchPrepareTraining.cc
 Run 'bin/tpchPrepareTraining'
 
 
-#### Step 3. Run each of above workload with each of potential partitioning candidate in each training environment. Store this information into a RUN_STAT table. 
+#### Step 3. Run all workloads with all potential partitioning candidates in each training environment. Store this information into a RUN_STAT table. 
 
 An example for this step is coded in:
 src/tpch/source/tpchGenTrace.cc
