@@ -637,11 +637,13 @@ common_env.SharedLibrary('libraries/libRedditCommentFeatureChunks.so', ['build/r
 common_env.SharedLibrary('libraries/libRedditCommentFeaturesToChunks.so', ['build/reddit/CommentFeaturesToChunks.cc']+all)
 common_env.SharedLibrary('libraries/libRedditCommentChunksToBlocks.so', ['build/reddit/CommentChunksToBlocks.cc']+all)
 common_env.SharedLibrary('libraries/libRedditCommentChunkToComments.so', ['build/reddit/CommentChunkToComments.cc']+all)
+common_env.SharedLibrary('libraries/libRedditCommentPartition.so', ['build/reddit/CommentPartition.cc']+all)
 
 common_env.SharedLibrary('libraries/libRedditMatrixBlockPartition.so', ['build/reddit/MatrixBlockPartition.cc']+all)
 common_env.SharedLibrary('libraries/libRedditCommentInferenceJoin.so', ['build/reddit/RedditCommentInferenceJoin.cc']+all)
 
 common_env.Program('bin/loadRedditComments', ['build/tests/LoadRedditComments.cc'] + all + pdb_client)
+common_env.Program('bin/loadRedditCommentsIndexPartition', ['build/tests/LoadRedditCommentsIndexPartition.cc'] + all + pdb_client)
 common_env.Program('bin/loadRedditCommentsWithPartition', ['build/tests/LoadRedditCommentsWithPartition.cc'] + all + pdb_client)
 common_env.Program('bin/loadRedditCommentsWithPartitionWithVariousSelections', ['build/tests/LoadRedditCommentsWithPartitionWithVariousSelections.cc'] + all + pdb_client)
 common_env.Program('bin/createRedditComments', ['build/tests/CreateRedditComments.cc'] + all + pdb_client)
@@ -1124,7 +1126,9 @@ reddit=common_env.Alias('reddit', [
   'libraries/libRedditSubsAndComments.so',
   'libraries/libRedditJoinSubsAndComments.so',
   'libraries/libRedditLabelProjection.so',
+  'libraries/libRedditCommentPartition.so',
   'bin/loadRedditComments',
+  'bin/loadRedditCommentsIndexPartition',
   'bin/loadRedditCommentsWithPartition',
   'bin/loadRedditCommentsWithPartitionWithVariousSelections',
   'bin/loadRedditAuthors',
