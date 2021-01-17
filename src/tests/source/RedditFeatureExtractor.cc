@@ -43,6 +43,7 @@
 int main(int argc, char *argv[]) {
   string errMsg;
   string masterIp = "localhost";
+  string commentsSetName;
   pdb::PDBLoggerPtr clientLogger =
       make_shared<pdb::PDBLogger>("FFRedditclientLog");
   pdb::PDBClient pdbClient(8108, masterIp, clientLogger, false, true);
@@ -51,19 +52,19 @@ int main(int argc, char *argv[]) {
   int block_x, block_y;
   int batch_size;
 
-  if (argc < 3) {
-    cout << "Usage: blockDimensionX blockDimensionY batchSize "
-            "path/to/weights/and/bias(leave empty if generate random)"
+  if (argc < 4) {
+    cout << "Usage: commentsSetName blockDimensionX blockDimensionY batchSize path/to/weights/and/bias(leave empty if generate random)"
          << endl;
     exit(-1);
   }
 
-  block_x = atoi(argv[1]);
-  block_y = atoi(argv[2]);
-  batch_size = atoi(argv[3]);
+  commentsSetName = std::string(argv[1]);
+  block_x = atoi(argv[2]);
+  block_y = atoi(argv[3]);
+  batch_size = atoi(argv[4]);
   cout << "Using block dimensions " << block_x << ", " << block_y << endl;
 
-  bool generate = argc == 4;
+  bool generate = argc == 5;
 
   int total_features = 100; // Change this later
 
@@ -102,7 +103,7 @@ int main(int argc, char *argv[]) {
   ff::createSet(pdbClient, db, "labeled_comments", "LabeledComments");
 
   if (!generate) {
-    string main_path = string(argv[4]);
+    string main_path = string(argv[5]);
     string input_path = main_path + "/input.out";
     string w1_path = main_path + "/w1.out";
     string w2_path = main_path + "/w2.out";
@@ -163,7 +164,7 @@ int main(int argc, char *argv[]) {
 
     // make the computation
     pdb::Handle<pdb::Computation> readB =
-        makeObject<ScanUserSet<reddit::Comment>>(db, "comments");
+        makeObject<ScanUserSet<reddit::Comment>>(db, commentsSetName);
 
     pdb::Handle<pdb::Computation> sel =
         pdb::makeObject<reddit::CommentsToFeatures>();
@@ -180,7 +181,7 @@ int main(int argc, char *argv[]) {
 
     // make the writer
     pdb::Handle<pdb::Computation> myWriter =
-        pdb::makeObject<reddit::MatrixBlockPartition>(db, set);
+        pdb::makeObject<reddit::MatrixBlockPartition>(db, set, MatrixBlockPartitionType::Column);
     myWriter->setInput(slice);
 
     // run the computation
@@ -228,7 +229,7 @@ int main(int argc, char *argv[]) {
         makeObject<ScanUserSet<InferenceResult>>(db, "output");
 
     pdb::Handle<pdb::Computation> readB =
-        makeObject<ScanUserSet<reddit::Comment>>(db, "comments");
+        makeObject<ScanUserSet<reddit::Comment>>(db, commentsSetName);
 
     pdb::Handle<pdb::Computation> join =
         pdb::makeObject<reddit::CommentInferenceJoin>();
@@ -293,7 +294,7 @@ int main(int argc, char *argv[]) {
 
 
     // run the computation
-    if (!pdbClient.executeComputations(errMsg, "reddit-a", myWriteSet)) {
+    if (!pdbClient.executeComputations(errMsg, myWriteSet)) {
       cout << "Computation failed. Message was: " << errMsg << "\n";
       exit(1);
     }

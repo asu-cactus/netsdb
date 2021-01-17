@@ -72,7 +72,7 @@ public:
     while (iter != rhs.end()) {
       int myKey = (*iter).key;
       if (feature_chunk->count(myKey) != 0) {
-        std::cout << "FAILED!!" << std::endl;
+        std::cout << "[COMMENT FEATURE CHUNKS] Failed Aggregation! Expected count of " << myKey << " to be 0, but was " << feature_chunk->count(myKey) << std::endl;
         exit(1);
       }
       (*feature_chunk)[myKey] = (*iter).value;
