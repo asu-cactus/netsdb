@@ -16,16 +16,17 @@ namespace reddit {
 class CommentPartition : public PartitionComp<int, Comment> {
 public:
   ENABLE_DEEP_COPY
+  int range;
 
   CommentPartition() {}
 
-  CommentPartition(std::string dbname, std::string setname) {
+  CommentPartition(int range, std::string dbname, std::string setname) : range(range) {
     this->setOutput(dbname, setname);
   }
 
   Lambda<int> getProjection(Handle<Comment> checkMe) override {
     return makeLambda(
-        checkMe, [this](Handle<Comment> &checkMe) { return checkMe->index; });
+        checkMe, [this](Handle<Comment> &checkMe) { return (int) checkMe->index / range; });
   }
 };
 } // namespace reddit

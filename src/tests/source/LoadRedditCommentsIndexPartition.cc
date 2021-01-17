@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
   string errMsg;
 
   // make sure we have the arguments
-  if (argc < 6) {
+  if (argc < 7) {
 
     std::cout << "Usage : ./LoadRedditCommentsWithPartition managerIP "
                  "managerPort inputFileName runComputation deleteData\n";
@@ -99,6 +99,7 @@ int main(int argc, char *argv[]) {
                  "which is a set of JSON objects\n";
     std::cout << "runComputation\n";
     std::cout << "deleteData\n";
+    std::cout << "partitionRange\n";
   }
 
   //  get the manager address
@@ -107,6 +108,7 @@ int main(int argc, char *argv[]) {
   std::string inputFileName = std::string(argv[3]);
   bool runComputation = strcmp(argv[4], "Y") == 0;
   bool deleteData = strcmp(argv[5], "Y") == 0;
+  int32_t partitionRange = std::stoi(argv[6]);
 
   // make a client
   PDBLoggerPtr clientLogger = make_shared<PDBLogger>("clientLog");
@@ -116,50 +118,66 @@ int main(int argc, char *argv[]) {
   pdbClient.registerType("libraries/libRedditCommentPartition.so", errMsg);
 
   if (deleteData) {
-    pdbClient.deleteSet("redditDB", "comments_unpart");
-    pdbClient.deleteSet("redditDB", "comments");
+    std::cout << "Deleting previous data" << std::endl;
+    pdbClient.removeSet("redditDB", "comments_index_part", errMsg);
+    pdbClient.removeSet("redditDB", "comments", errMsg);
   }
 
   // now, create a new database
   pdbClient.createDatabase("redditDB", errMsg);
+  std::string setNameFinal = runComputation ? "comments" : "comments_index_part";
 
-  {
-    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 256};
+  if (runComputation) {
+    {
+      const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 256};
 
-    if (runComputation) {
       pdbClient.createSet<reddit::Comment>(
-          "redditDB", "comments_unpart", errMsg,
-          (size_t)128 * (size_t)1024 * (size_t)1024, "comments");
+          "redditDB", "comments_index_part", errMsg,
+          (size_t)128 * (size_t)1024 * (size_t)1024, "comments_index_part");
       pdbClient.createSet<reddit::Comment>(
           "redditDB", "comments", errMsg,
           (size_t)128 * (size_t)1024 * (size_t)1024, "comments");
 
-      parseInputJSONFile(pdbClient, inputFileName, 128, "comments_unpart",
-                         "redditDB");
+      parseInputJSONFile(pdbClient, inputFileName, 128, "comments_index_part",
+                          "redditDB");
 
       // make the computation
       pdb::Handle<pdb::Computation> readA =
           makeObject<ScanUserSet<reddit::Comment>>("redditDB",
-                                                   "comments_unpart");
+                                                    "comments_index_part");
 
       pdb::Handle<pdb::Computation> sel =
-          pdb::makeObject<reddit::CommentPartition>("redditDB", "comments");
+          pdb::makeObject<reddit::CommentPartition>(partitionRange, "redditDB", "comments");
       sel->setInput(readA);
 
       // run the computation
       if (!pdbClient.executeComputations(errMsg, "reddit-comments-index",
-                                         sel)) {
+                                          sel)) {
         cout << "Computation failed. Message was: " << errMsg << "\n";
         exit(1);
       }
-    } else {
+    }
+
+    // pdbClient.removeSet("redditDB", "comments", errMsg);
+
+  } else {
+    {
+      const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 256};
+
       Handle<LambdaIdentifier> myLambda1 = makeObject<LambdaIdentifier>(
           "reddit-comments-index", "PartitionComp_1", "native_lambda_0");
-      pdbClient.createSet<reddit::Comment>("redditDB", "comments", errMsg,
-                                           (size_t)64 * (size_t)1024 *
-                                               (size_t)1024,
-                                           "comments", nullptr, myLambda1);
-      parseInputJSONFile(pdbClient, inputFileName, 128, "comments", "redditDB");
+      pdbClient.createSet<reddit::Comment>("redditDB", "comments_index_part", errMsg,
+                                            (size_t)64 * (size_t)1024 *
+                                                (size_t)1024,
+                                            "comments_index_part", nullptr, myLambda1);
+      parseInputJSONFile(pdbClient, inputFileName, 128, "comments_index_part", "redditDB");
     }
   }
+
+  SetIterator<reddit::Comment> result = pdbClient.getSetIterator<reddit::Comment>("redditDB", setNameFinal);
+  int count = 0;
+  for (const auto &r : result) {
+     count++;
+  }
+  std::cout << "count: " << count << std::endl;
 }
