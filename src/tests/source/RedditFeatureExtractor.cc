@@ -13,7 +13,6 @@
 #include "FFMatrixWriter.h"
 
 #include "RedditComment.h"
-#include "RedditCommentLabelJoin.h"
 #include <ScanUserSet.h>
 #include <WriteUserSet.h>
 
@@ -28,10 +27,11 @@
 #include "CommentsToFeatures.h"
 #include "MatrixBlockPartition.h"
 
+#include "FFMatrixMultiSel.h"
+#include "RedditCommentInferenceJoin.h"
 
-#include "CommentsChunk.h"
-#include "CommentsToChunks.h"
-#include "CommentChunkToComments.h"
+#include "InferenceResult.h"
+#include "InferenceResultPartition.h"
 
 #include <RedditAuthor.h>
 #include <RedditFeatures.h>
@@ -39,7 +39,6 @@
 #include <RedditPositiveLabelSelection.h>
 #include <ScanUserSet.h>
 #include <WriteUserSet.h>
-
 
 int main(int argc, char *argv[]) {
   string errMsg;
@@ -97,6 +96,8 @@ int main(int argc, char *argv[]) {
   ff::createSet(pdbClient, db, "bo", "BO");
 
   ff::createSet(pdbClient, db, "output", "Output");
+
+  ff::createSet(pdbClient, db, "inference", "Inference");
 
   ff::createSet(pdbClient, db, "labeled_comments", "LabeledComments");
 
@@ -177,12 +178,10 @@ int main(int argc, char *argv[]) {
                                                        batch_size);
     slice->setInput(chonk);
 
-
     // make the writer
     pdb::Handle<pdb::Computation> myWriter =
         pdb::makeObject<reddit::MatrixBlockPartition>(db, set);
     myWriter->setInput(slice);
-
 
     // run the computation
     if (!pdbClient.executeComputations(errMsg, myWriter)) {
@@ -191,49 +190,63 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  double dropout_rate = 0.5;
-  ff::inference(pdbClient, db, "w1", "w2", "wo", set, "b1", "b2", "bo",
-                "output", dropout_rate);
+  ff::loadLibrary(pdbClient, "libraries/libRedditCommentInferenceJoin.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFMatrixMultiSel.so");
+  ff::loadLibrary(pdbClient, "libraries/libInferenceResult.so");
+  ff::loadLibrary(pdbClient, "libraries/libInferenceResultPartition.so");
 
-  ff::loadLibrary(pdbClient, "libraries/libRedditCommentLabelJoin.so");
-  ff::loadLibrary(pdbClient, "libraries/libRedditCommentsChunk.so");
-  ff::loadLibrary(pdbClient, "libraries/libRedditCommentsToChunks.so");
-  ff::loadLibrary(pdbClient, "libraries/libRedditCommentChunkToComments.so");
-
+  // Run FF inference on comment feature blocks
   {
-    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 256};
 
-    // make the computation
-    pdb::Handle<pdb::Computation> readA =
-        makeObject<FFMatrixBlockScanner>(db, "output");
+    double dropout_rate = 0.5;
+    pdb::Handle<pdb::Computation> inference;
+    ff::inference(pdbClient, db, "w1", "w2", "wo", set, "b1", "b2", "bo",
+                  inference, dropout_rate);
 
-    pdb::Handle<pdb::Computation> readB =
-        makeObject<ScanUserSet<reddit::Comment>>(db, "comments");
-
-    pdb::Handle<pdb::Computation> chonk = makeObject<reddit::CommentsToChunks>(block_x);
-    chonk->setInput(readB);
-
-    pdb::Handle<pdb::Computation> join =
-        pdb::makeObject<reddit::CommentLabelJoin>();
-    join->setInput(0, readA);
-    join->setInput(1, chonk);
-
-    pdb::Handle<pdb::Computation> split = makeObject<reddit::CommentChunkToComments>();
-    split->setInput(join);
+    pdb::Handle<pdb::Computation> multi_sel = makeObject<FFMatrixMultiSel>();
+    multi_sel->setInput(inference);
 
     // make the writer
-    pdb::Handle<pdb::Computation> sumWriter =
-        pdb::makeObject<WriteUserSet<reddit::Comment>>(db, "labeled_comments");
-    sumWriter->setInput(split);
+    pdb::Handle<pdb::Computation> myWriter =
+        pdb::makeObject<InferenceResultPartition>(db, "output");
+    myWriter->setInput(multi_sel);
 
     // run the computation
-    if (!pdbClient.executeComputations(errMsg, sumWriter)) {
+    if (!pdbClient.executeComputations(errMsg, myWriter)) {
       cout << "Computation failed. Message was: " << errMsg << "\n";
       exit(1);
     }
   }
 
-  pdbClient.deleteSet(db, "comments");
+  // Join the partitioned inference results with comments
+  {
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+    // make the computation
+    pdb::Handle<pdb::Computation> readA =
+        makeObject<ScanUserSet<InferenceResult>>(db, "output");
+
+    pdb::Handle<pdb::Computation> readB =
+        makeObject<ScanUserSet<reddit::Comment>>(db, "comments");
+
+    pdb::Handle<pdb::Computation> join =
+        pdb::makeObject<reddit::CommentInferenceJoin>();
+    join->setInput(0, readA);
+    join->setInput(1, readB);
+
+    // make the writer
+    pdb::Handle<pdb::Computation> writer =
+        pdb::makeObject<WriteUserSet<reddit::Comment>>(db, "labeled_comments");
+    writer->setInput(join);
+
+    // run the computation
+    if (!pdbClient.executeComputations(errMsg, writer)) {
+      cout << "Computation failed. Message was: " << errMsg << "\n";
+      exit(1);
+    }
+  }
+
   pdbClient.deleteSet(db, "w1");
   pdbClient.deleteSet(db, "b1");
   pdbClient.deleteSet(db, "w2");

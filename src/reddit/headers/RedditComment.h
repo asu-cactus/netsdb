@@ -99,6 +99,10 @@ public:
         parse_line(jsonStr);
     }
 
+    int get_index() {
+        return index;
+    }
+
     void parse_line( std::string jsonStr ) {
         json j = json::parse(jsonStr);
         // author_flair_richtext = 
