@@ -38,6 +38,7 @@ void createSet(pdb::PDBClient &pdbClient, string dbName, string setName,
   }
 }
 
+
 void createDatabase(pdb::PDBClient &pdbClient, string dbName) {
   string errMsg;
   if (!pdbClient.createDatabase(dbName, errMsg)) {
@@ -220,7 +221,7 @@ void inference(pdb::PDBClient &pdbClient, string database, string w1, string w2,
     sumWriter->setInput(softmax);
 
     // run the computation
-    if (!pdbClient.executeComputations(errMsg, sumWriter)) {
+    if (!pdbClient.executeComputations(errMsg, "inference", sumWriter)) {
       cout << "Computation failed. Message was: " << errMsg << "\n";
       exit(1);
     }

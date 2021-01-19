@@ -1326,7 +1326,7 @@ libFFTest=common_env.Alias('libFFTest', [
 
   'bin/FFTest',
   'bin/RedditFeatureExtractor',
-  
+  'bin/loadRedditCommentsIndexPartition',  
   # Other libraries from src/FF
   'libraries/libFFMatrixBlock.so',
   'libraries/libFFMatrixMeta.so',

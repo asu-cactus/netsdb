@@ -65,7 +65,7 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
   bool end = false;
   bool rollback = false;
 
-  long total = 10000000;
+  long total = 20000000;
   long sent = 0;
   long i = 0;
   pdb::makeObjectAllocatorBlock((size_t)blockSizeInMB * (size_t)1024 * (size_t)1024, true);
@@ -293,7 +293,7 @@ int main(int argc, char* argv[]) {
   pdbClient.removeSet("redditDB", "comments", errMsg);
 
   if (whetherToPartitionData) {
-      pdbClient.createSet<reddit::Comment>("redditDB", "comments", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "comments", computations, "reddit-three-way"+std::to_string(threshold), "reddit-three-way"+std::to_string(threshold), "JoinComp_3", "attAccess_0", "reddit-three-way"+std::to_string(threshold), "JoinComp_7", "attAccess_0");
+      pdbClient.createSet<reddit::Comment>("redditDB", "comments", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "comments", computations, "reddit-three-way"+std::to_string(threshold), "reddit-three-way"+std::to_string(threshold), "reddit-three-way"+std::to_string(threshold), "JoinComp_3", "JoinComp_7", "attAccess_0", "attAccess_0");
   } else {
       pdbClient.createSet<reddit::Comment>("redditDB", "comments", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "comments");
   }

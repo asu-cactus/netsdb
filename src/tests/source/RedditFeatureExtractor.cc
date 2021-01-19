@@ -58,6 +58,10 @@ int main(int argc, char *argv[]) {
     exit(-1);
   }
 
+  bool enablePartition = false;
+  long totalTime = 0;
+
+
   commentsSetName = std::string(argv[1]);
   block_x = atoi(argv[2]);
   block_y = atoi(argv[3]);
@@ -85,7 +89,19 @@ int main(int argc, char *argv[]) {
   ff::loadLibrary(pdbClient, "libraries/libFFRowAggregate.so");
   ff::loadLibrary(pdbClient, "libraries/libFFOutputLayer.so");
 
-  ff::createSet(pdbClient, db, set, set);
+  //specify the partitioning condition here
+  
+  if (enablePartition) {
+      std::string loadJobId = set;
+      std::string jobName = "inference";
+      std::string computationName = "JoinComp_2";
+      std::string lambdaName = "methodCall_1";
+      std::string errMsg;
+      Handle<LambdaIdentifier> identifier = pdb::makeObject<LambdaIdentifier>(jobName, computationName, lambdaName);
+      pdbClient.createSet<FFMatrixBlock>(db, set, errMsg, 64*1024*1024, loadJobId, nullptr, identifier);
+  }
+  else
+      ff::createSet(pdbClient, db, set, set);
 
   ff::createSet(pdbClient, db, "w1", "W1");
   ff::createSet(pdbClient, db, "b1", "B1");
@@ -96,7 +112,17 @@ int main(int argc, char *argv[]) {
   ff::createSet(pdbClient, db, "wo", "WO");
   ff::createSet(pdbClient, db, "bo", "BO");
 
-  ff::createSet(pdbClient, db, "output", "Output");
+  //partitioning condition
+  if (enablePartition) {
+      std::string loadJobId = "Output";
+      std::string jobName = "labeling";
+      std::string computationName = "JoinComp_2";
+      std::string lambdaName = "methodCall_0";
+      std::string errMsg;
+      Handle<LambdaIdentifier> identifier = pdb::makeObject<LambdaIdentifier>(jobName, computationName, lambdaName);
+      pdbClient.createSet<InferenceResult>(db, "output", errMsg, 64*1024*1024, loadJobId, nullptr, identifier);
+  } else
+      ff::createSet(pdbClient, db, "output", "Output");
 
   ff::createSet(pdbClient, db, "inference", "Inference");
 
@@ -159,7 +185,10 @@ int main(int argc, char *argv[]) {
   ff::loadLibrary(pdbClient, "libraries/libRedditCommentChunksToBlocks.so");
   ff::loadLibrary(pdbClient, "libraries/libRedditMatrixBlockPartition.so");
 
+
+
   {
+
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 256};
 
     // make the computation
@@ -180,15 +209,25 @@ int main(int argc, char *argv[]) {
     slice->setInput(chonk);
 
     // make the writer
-    pdb::Handle<pdb::Computation> myWriter =
-        pdb::makeObject<reddit::MatrixBlockPartition>(db, set, MatrixBlockPartitionType::Column);
+    pdb::Handle<pdb::Computation> myWriter = nullptr;
+
+    if (enablePartition)
+        myWriter = pdb::makeObject<reddit::MatrixBlockPartition>(db, set, MatrixBlockPartitionType::Column);
+    else
+        myWriter = pdb::makeObject<WriteUserSet<FFMatrixBlock>>(db, set);
+
     myWriter->setInput(slice);
 
+    auto begin = std::chrono::high_resolution_clock::now();
     // run the computation
     if (!pdbClient.executeComputations(errMsg, myWriter)) {
       cout << "Computation failed. Message was: " << errMsg << "\n";
       exit(1);
     }
+    auto end = std::chrono::high_resolution_clock::now();
+    std::cout << "Blocking Stage Time Duration: "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
+              << " secs." << std::endl;
   }
 
   ff::loadLibrary(pdbClient, "libraries/libRedditCommentInferenceJoin.so");
@@ -202,26 +241,43 @@ int main(int argc, char *argv[]) {
 
     double dropout_rate = 0.5;
     pdb::Handle<pdb::Computation> inference;
+    auto begin = std::chrono::high_resolution_clock::now(); 
     ff::inference(pdbClient, db, "w1", "w2", "wo", set, "b1", "b2", "bo",
                   inference, dropout_rate);
+    auto end = std::chrono::high_resolution_clock::now();
+    std::cout << "Inference Stage Time Duration: "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
+              << " secs." << std::endl;
 
     pdb::Handle<pdb::Computation> multi_sel = makeObject<FFMatrixMultiSel>();
     multi_sel->setInput(inference);
 
     // make the writer
-    pdb::Handle<pdb::Computation> myWriter =
-        pdb::makeObject<InferenceResultPartition>(db, "output");
+    pdb::Handle<pdb::Computation> myWriter = nullptr;
+
+    if (enablePartition)
+        myWriter = pdb::makeObject<InferenceResultPartition>(db, "output");
+    else
+        myWriter = pdb::makeObject<WriteUserSet<InferenceResult>>(db, "output");
+
     myWriter->setInput(multi_sel);
 
+
+    begin = std::chrono::high_resolution_clock::now();
     // run the computation
-    if (!pdbClient.executeComputations(errMsg, myWriter)) {
+    if (!pdbClient.executeComputations(errMsg, "flattening", myWriter)) {
       cout << "Computation failed. Message was: " << errMsg << "\n";
       exit(1);
     }
+    end = std::chrono::high_resolution_clock::now();
+    std::cout << "Inference results flatterning Stage Time Duration: "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
+              << " secs." << std::endl;
   }
 
   // Join the partitioned inference results with comments
   {
+
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
     // make the computation
@@ -241,11 +297,16 @@ int main(int argc, char *argv[]) {
         pdb::makeObject<WriteUserSet<reddit::Comment>>(db, "labeled_comments");
     writer->setInput(join);
 
+    auto begin = std::chrono::high_resolution_clock::now();
     // run the computation
-    if (!pdbClient.executeComputations(errMsg, writer)) {
+    if (!pdbClient.executeComputations(errMsg, "labeling", writer)) {
       cout << "Computation failed. Message was: " << errMsg << "\n";
       exit(1);
     }
+    auto end = std::chrono::high_resolution_clock::now();
+    std::cout << "Labeling Stage Time Duration: "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
+              << " secs." << std::endl;
   }
 
   pdbClient.deleteSet(db, "w1");
@@ -292,13 +353,16 @@ int main(int argc, char *argv[]) {
     Handle<Computation> myWriteSet = makeObject<WriteUserSet<reddit::Features>>("redditDB", "features");
     myWriteSet->setInput(join);
 
-
+    auto begin = std::chrono::high_resolution_clock::now();
     // run the computation
     if (!pdbClient.executeComputations(errMsg, myWriteSet)) {
       cout << "Computation failed. Message was: " << errMsg << "\n";
       exit(1);
     }
-
+    auto end = std::chrono::high_resolution_clock::now();
+    std::cout << "Adaptive Join Stage Time Duration: "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
+              << " secs." << std::endl;
     pdbClient.flushData(errMsg);
   }
 

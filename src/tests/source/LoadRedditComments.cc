@@ -36,7 +36,7 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
   bool end = false;
   bool rollback = false;
 
-  long total = 5000000;
+  long total = 10000000;
   long sent = 0;
   long i = 0;
   int oddHash = 0;
@@ -59,7 +59,8 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
       try {
           pdb::Handle<reddit::Comment> comment = pdb::makeObject<reddit::Comment>(i, line);
           if (strcmp(comment->author.c_str(), "[deleted]") !=0){
-              classify_v1(comment);
+              //classify_v1(comment);
+              classify(comment);
               i++;
               storeMe->push_back(comment);
           }
@@ -99,7 +100,7 @@ int main(int argc, char* argv[]) {
     std::cout << "inputFileName - The file to load for reddit comments data, which is a set of JSON objects\n";
     std::cout << "whetherToPrepartitionData - Y yes, N no\n";
     std::cout << "whetherToRegisterLibraries - Y yes, N no\n";    
-    std::cout << "partition on author or subs - A authors, S subs\n";
+    std::cout << "partition on author or subs - A authors, S subs, L labeling\n";
     std::cout << "whetherToRemoveSet - Y yes, N no\n";
   }
   srand (time(NULL));
@@ -115,10 +116,7 @@ int main(int argc, char* argv[]) {
   if (strcmp(argv[5], "N")==0) {
       whetherToRegisterLibraries = false;
   }
-  bool whetherToPartitionOnAuthors = true;
-  if (strcmp(argv[6], "S")==0) {
-      whetherToPartitionOnAuthors = false;
-  }
+  
   bool whetherToRemoveSet = true;
   if (strcmp(argv[7], "N")==0) {
       whetherToRemoveSet = false;
@@ -136,12 +134,14 @@ int main(int argc, char* argv[]) {
   Handle<LambdaIdentifier> myLambda1 = nullptr;
   
   if (whetherToPartitionData) {
-      if (whetherToPartitionOnAuthors) {
+      if (strcmp(argv[6], "A")==0) {
           myLambda1 = makeObject<LambdaIdentifier>("reddit-a", "JoinComp_3", "attAccess_0");
           //myLambda1 = makeObject<LambdaIdentifier>("reddit-three-way", "JoinComp_3", "attAccess_0");
-      } else {
+      } else if (strcmp(argv[6], "S")==0){
           myLambda1 = makeObject<LambdaIdentifier>("reddit-s", "JoinComp_3", "attAccess_0");
           //myLambda1 = makeObject<LambdaIdentifier>("reddit-three-way", "JoinComp_7", "attAccess_0");
+      } else {
+          myLambda1 = makeObject<LambdaIdentifier>("labeling", "JoinComp_2", "methodCall_0");
       }
   }
   
@@ -155,11 +155,11 @@ int main(int argc, char* argv[]) {
   // parse the input file 
   parseInputJSONFile(pdbClient, inputFileName, 64); 
 
-  SetIterator<reddit::Comment> result = pdbClient.getSetIterator<reddit::Comment>("redditDB", "comments");
+/*  SetIterator<reddit::Comment> result = pdbClient.getSetIterator<reddit::Comment>("redditDB", "comments");
   int count = 0;
   for (const auto &r : result) {
      count++;
   }
   std::cout << "count: " << count << std::endl;
-
+*/
 }

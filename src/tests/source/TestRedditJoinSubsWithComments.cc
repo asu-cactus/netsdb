@@ -104,13 +104,13 @@ int main(int argc, char* argv[]) {
               << " secs." << std::endl;
 
   // print the results
-  std::cout << "SubsAndComments: \n";
+/*  std::cout << "SubsAndComments: \n";
   SetIterator<reddit::SubsAndComments> result = pdbClient.getSetIterator<reddit::SubsAndComments>("redditDB", "subsAndComments");
   int count = 0;
   for (const auto &r : result) {
      count++;
   }
-  std::cout << "count: " << count << std::endl;
+  std::cout << "count: " << count << std::endl;*/
   pdbClient.removeSet("redditDB", "subsAndComments", errMsg);
 
 }
