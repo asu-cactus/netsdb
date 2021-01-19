@@ -1,8 +1,6 @@
 #ifndef QUERY_SCHEDULER_SERVER_CC
 #define QUERY_SCHEDULER_SERVER_CC
 
-#include "ProjectionOperator.h"
-#include "FilterOperator.h"
 #include "PDBDebug.h"
 #include "InterfaceFunctions.h"
 #include "QuerySchedulerServer.h"
@@ -21,7 +19,6 @@
 #include "TupleSetExecuteQuery.h"
 #include "ExecuteComputation.h"
 #include "RequestResources.h"
-#include "Selection.h"
 #include "SimpleRequestHandler.h"
 #include "SimpleRequestResult.h"
 #include "GenericWork.h"
@@ -101,11 +98,6 @@ void QuerySchedulerServer::cleanup() {
 
     delete this->standardResources;
     this->standardResources = nullptr;
-
-    for (int i = 0; i < currentPlan.size(); i++) {
-        currentPlan[i] = nullptr;
-    }
-    this->currentPlan.clear();
 
     for (int i = 0; i < queryPlan.size(); i++) {
         queryPlan[i] = nullptr;
@@ -613,43 +605,6 @@ void QuerySchedulerServer::scheduleStages(std::vector<Handle<AbstractJobStage>>&
 }
 
 
-// deprecated
-bool QuerySchedulerServer::schedule(std::string ip,
-                                    int port,
-                                    PDBLoggerPtr logger,
-                                    ObjectCreationMode mode) {
-
-    pthread_mutex_lock(&connection_mutex);
-    PDB_COUT << "to connect to the remote node" << std::endl;
-    PDBCommunicatorPtr communicator = std::make_shared<PDBCommunicator>();
-
-    PDB_COUT << "port:" << port << std::endl;
-    PDB_COUT << "ip:" << ip << std::endl;
-
-    string errMsg;
-    bool success;
-    if (communicator->connectToInternetServer(logger, port, ip, errMsg)) {
-        success = false;
-        std::cout << errMsg << std::endl;
-        pthread_mutex_unlock(&connection_mutex);
-        return success;
-    }
-    if (this->currentPlan.size() > 1) {
-        PDB_COUT << "#####################################" << std::endl;
-        PDB_COUT << "WARNING: GraphIr generates 2 stages" << std::endl;
-        PDB_COUT << "#####################################" << std::endl;
-    }
-    pthread_mutex_unlock(&connection_mutex);
-    // Now we only allow one stage for each query graph
-    for (int i = 0; i < 1; i++) {
-        Handle<JobStage> stage = currentPlan[i];
-        success = schedule(stage, communicator, mode);
-        if (!success) {
-            return success;
-        }
-    }
-    return true;
-}
 
 
 // JiaNote TODO: consolidate below three functions into a template function
@@ -856,86 +811,6 @@ bool QuerySchedulerServer::scheduleStage(int index,
 }
 
 
-// deprecated
-bool QuerySchedulerServer::schedule(Handle<JobStage>& stage,
-                                    PDBCommunicatorPtr communicator,
-                                    ObjectCreationMode mode) {
-
-    bool success;
-    std::string errMsg;
-
-    PDB_COUT << "to send the job stage with id=" << stage->getStageId() << " to the remote node"
-             << std::endl;
-
-    if (mode == Direct) {
-        success = communicator->sendObject<JobStage>(stage, errMsg);
-        if (!success) {
-            std::cout << errMsg << std::endl;
-            return false;
-        }
-
-    } else if (mode == Recreation) {
-        Handle<JobStage> stageToSend = makeObject<JobStage>(stage->getStageId());
-        std::string inDatabaseName = stage->getInput()->getDatabase();
-        std::string inSetName = stage->getInput()->getSetName();
-        Handle<SetIdentifier> input = makeObject<SetIdentifier>(inDatabaseName, inSetName);
-        stageToSend->setInput(input);
-
-        std::string outDatabaseName = stage->getOutput()->getDatabase();
-        std::string outSetName = stage->getOutput()->getSetName();
-        Handle<SetIdentifier> output = makeObject<SetIdentifier>(outDatabaseName, outSetName);
-        stageToSend->setOutput(output);
-        stageToSend->setOutputTypeName(stage->getOutputTypeName());
-
-        Vector<Handle<ExecutionOperator>> operators = stage->getOperators();
-        for (int i = 0; i < operators.size(); i++) {
-            Handle<QueryBase> newSelection =
-                deepCopyToCurrentAllocationBlock<QueryBase>(operators[i]->getSelection());
-            Handle<ExecutionOperator> curOperator;
-            if (operators[i]->getName() == "ProjectionOperator") {
-                curOperator = makeObject<ProjectionOperator>(newSelection);
-            } else if (operators[i]->getName() == "FilterOperator") {
-                curOperator = makeObject<FilterOperator>(newSelection);
-            }
-            PDB_COUT << curOperator->getName() << std::endl;
-            stageToSend->addOperator(curOperator);
-        }
-        success = communicator->sendObject<JobStage>(stageToSend, errMsg);
-        if (!success) {
-            std::cout << errMsg << std::endl;
-            return false;
-        }
-    } else if (mode == DeepCopy) {
-        Handle<JobStage> stageToSend = deepCopyToCurrentAllocationBlock<JobStage>(stage);
-        success = communicator->sendObject<JobStage>(stageToSend, errMsg);
-        if (!success) {
-            std::cout << errMsg << std::endl;
-            return false;
-        }
-    } else {
-        std::cout << "Error: No such object creation mode supported in scheduler" << std::endl;
-        return false;
-    }
-    PDB_COUT << "to receive query response from the remote node" << std::endl;
-    Handle<Vector<String>> result = communicator->getNextObject<Vector<String>>(success, errMsg);
-    if (result != nullptr) {
-        for (int j = 0; j < result->size(); j++) {
-            PDB_COUT << "Query execute: wrote set:" << (*result)[j] << std::endl;
-        }
-    } else {
-        PDB_COUT << "Query execute failure: can't get results" << std::endl;
-        return false;
-    }
-
-    Vector<Handle<JobStage>> childrenStages = stage->getChildrenStages();
-    for (int i = 0; i < childrenStages.size(); i++) {
-        success = schedule(childrenStages[i], communicator, mode);
-        if (!success) {
-            return success;
-        }
-    }
-    return true;
-}
 
 
 bool QuerySchedulerServer::parseTCAPString(Handle<Vector<Handle<Computation>>> myComputations,
@@ -958,15 +833,6 @@ void QuerySchedulerServer::printStages() {
 }
 
 
-// deprecated
-void QuerySchedulerServer::printCurrentPlan() {
-
-    for (int i = 0; i < this->currentPlan.size(); i++) {
-        PDB_COUT << "#########The " << i << "-th Plan#############" << std::endl;
-        currentPlan[i]->print();
-    }
-}
-
 
 // to replace: schedule()
 // this must be invoked after initialize() and before cleanup()
@@ -987,41 +853,6 @@ void QuerySchedulerServer::scheduleQuery() {
 }
 
 
-// deprecated
-void QuerySchedulerServer::schedule() {
-
-    atomic_int counter;
-    counter = 0;
-    PDBBuzzerPtr tempBuzzer = make_shared<PDBBuzzer>([&](PDBAlarm myAlarm, atomic_int& counter) {
-        counter++;
-        PDB_COUT << "counter = " << counter << std::endl;
-    });
-    for (int i = 0; i < this->standardResources->size(); i++) {
-        PDBWorkerPtr myWorker = getWorker();
-        PDBWorkPtr myWork =
-            make_shared<GenericWork>([i, this, &counter](PDBBuzzerPtr callerBuzzer) {
-                makeObjectAllocatorBlock(1 * 1024 * 1024, true);
-                PDB_COUT << "to schedule on the " << i << "-th node" << std::endl;
-                PDB_COUT << "port:" << (*(this->standardResources))[i]->getPort() << std::endl;
-                PDB_COUT << "ip:" << (*(this->standardResources))[i]->getAddress() << std::endl;
-                bool success = getFunctionality<QuerySchedulerServer>().schedule(
-                    (*(this->standardResources))[i]->getAddress(),
-                    (*(this->standardResources))[i]->getPort(),
-                    this->logger,
-                    Recreation);
-                if (!success) {
-                    callerBuzzer->buzz(PDBAlarm::GenericError, counter);
-                    return;
-                }
-                callerBuzzer->buzz(PDBAlarm::WorkAllDone, counter);
-            });
-        myWorker->execute(myWork, tempBuzzer);
-    }
-
-    while (counter < this->standardResources->size()) {
-        tempBuzzer->wait();
-    }
-}
 
 void QuerySchedulerServer::collectStats() {
     this->statsForOptimization = make_shared<Statistics>();

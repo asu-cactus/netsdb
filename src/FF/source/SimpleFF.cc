@@ -27,12 +27,14 @@ void loadLibrary(pdb::PDBClient &pdbClient, string path) {
 
 void createSet(pdb::PDBClient &pdbClient, string dbName, string setName,
                string setName1) {
+
   string errMsg;
+  pdbClient.removeSet(dbName, setName, errMsg);
   if (!pdbClient.createSet<FFMatrixBlock>(
           dbName, setName, errMsg, (size_t)64 * (size_t)1024 * (size_t)1024,
           setName1)) {
     cout << "Not able to create set: " + errMsg;
-    exit(-1);
+    //exit(-1); //It is possible that the set exists
   } else {
     cout << "Created set.\n";
   }
@@ -41,9 +43,10 @@ void createSet(pdb::PDBClient &pdbClient, string dbName, string setName,
 
 void createDatabase(pdb::PDBClient &pdbClient, string dbName) {
   string errMsg;
+  pdbClient.removeDatabase(dbName, errMsg);
   if (!pdbClient.createDatabase(dbName, errMsg)) {
     cout << "Not able to create database: " << errMsg << endl;
-    exit(-1);
+    //exit(-1); //It is possible that the database exists.
   } else {
     cout << "Created database" << endl;
   }

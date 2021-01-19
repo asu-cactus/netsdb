@@ -24,18 +24,14 @@
 #include "DeleteSet.h"
 #include "CatalogServer.h"
 #include "SetScan.h"
-#include "Selection.h"
 #include "BackendExecuteSelection.h"
 #include "KeepGoing.h"
 #include "DoneWithResult.h"
 #include "PangeaStorageServer.h"
-#include "JobStage.h"
 #include "TupleSetJobStage.h"
 #include "AggregationJobStage.h"
 #include "BroadcastJoinBuildHTJobStage.h"
 #include "HashPartitionedJoinBuildHTJobStage.h"
-#include "ProjectionOperator.h"
-#include "FilterOperator.h"
 #include <snappy.h>
 
 namespace pdb {
@@ -754,178 +750,6 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
 
         }));
 
-    // to handle a request to execute a job stage
-    forMe.registerHandler(
-        JobStage_TYPEID,
-        make_shared<SimpleRequestHandler<JobStage>>([&](Handle<JobStage> request,
-                                                        PDBCommunicatorPtr sendUsingMe) {
-            getAllocator().printInactiveBlocks();
-            std::string errMsg;
-            bool success;
-            PDB_COUT << "Frontend got a request for JobStage" << std::endl;
-            request->print();
-            makeObjectAllocatorBlock(24 * 1024 * 1024, true);
-            PDBCommunicatorPtr communicatorToBackend = make_shared<PDBCommunicator>();
-            if (communicatorToBackend->connectToLocalServer(
-                    getFunctionality<PangeaStorageServer>().getLogger(),
-                    getFunctionality<PangeaStorageServer>().getPathToBackEndServer(),
-                    errMsg)) {
-                std::cout << errMsg << std::endl;
-                return std::make_pair(false, errMsg);
-            }
-            PDB_COUT << "Frontend connected to backend" << std::endl;
-
-            Handle<JobStage> newRequest = makeObject<JobStage>(request->getStageId());
-            PDB_COUT << "Created JobStage object for forwarding" << std::endl;
-            // restructure the input information
-            std::string inDatabaseName = request->getInput()->getDatabase();
-            std::string inSetName = request->getInput()->getSetName();
-            Handle<SetIdentifier> input = makeObject<SetIdentifier>(inDatabaseName, inSetName);
-            PDB_COUT << "Created SetIdentifier object for input" << std::endl;
-            SetPtr inputSet = getFunctionality<PangeaStorageServer>().getSet(
-                std::pair<std::string, std::string>(inDatabaseName, inSetName));
-            if (inputSet == nullptr) {
-                PDB_COUT << "FrontendQueryTestServer: input set doesn't exist in this machine"
-                         << std::endl;
-                // TODO: move data from other servers
-                // temporarily, we simply return;
-                // now, we send back the result
-                Handle<Vector<String>> result = makeObject<Vector<String>>();
-                result->push_back(request->getOutput()->getSetName());
-                PDB_COUT << "Query is done without data. " << std::endl;
-                // return the results
-                if (!sendUsingMe->sendObject(result, errMsg)) {
-                    return std::make_pair(false, errMsg);
-                }
-                return std::make_pair(true, std::string("execution complete"));
-            }
-
-            input->setDatabaseId(inputSet->getDbID());
-            input->setTypeId(inputSet->getTypeID());
-            input->setSetId(inputSet->getSetID());
-            newRequest->setInput(input);
-            PDB_COUT << "Input is set with setName=" << inSetName
-                     << ", setId=" << inputSet->getSetID() << std::endl;
-
-            std::string outDatabaseName = request->getOutput()->getDatabase();
-            std::string outSetName = request->getOutput()->getSetName();
-            success = true;
-            // add the output set
-            // TODO: check whether output set exists
-            std::pair<std::string, std::string> outDatabaseAndSet =
-                std::make_pair(outDatabaseName, outSetName);
-            SetPtr outputSet = getFunctionality<PangeaStorageServer>().getSet(outDatabaseAndSet);
-            if (outputSet == nullptr) {
-
-                if (createOutputSet == true) {
-                    if (isStandalone == true) {
-                        getFunctionality<PangeaStorageServer>().addSet(
-                            outDatabaseName, request->getOutputTypeName(), outSetName);
-                        outputSet =
-                            getFunctionality<PangeaStorageServer>().getSet(outDatabaseAndSet);
-                        PDB_COUT << "Output set is created in storage" << std::endl;
-                        int16_t outType =
-                            VTableMap::getIDByName(request->getOutputTypeName(), false);
-                        // create the output set in the storage manager and in the catalog
-                        if (!getFunctionality<CatalogClient>().createSet(request->getOutputTypeName(), outType,
-                                                                      outDatabaseAndSet.first,
-                                                                      outDatabaseAndSet.second,
-                                                                      errMsg)) {
-                            std::cout << "Could not create the query output set in catalog for "
-                                      << outDatabaseAndSet.second << ": " << errMsg << "\n";
-                            return std::make_pair(false,
-                                                  std::string("Could not create set in catalog"));
-                            ;
-                        }
-                        PDB_COUT << "Output set is created in catalog" << std::endl;
-                    } else {
-                        std::cout << "ERROR: Now we do not support to create set in middle of "
-                                     "distribued query processing"
-                                  << std::endl;
-                        errMsg = std::string("Output set doesn't exist");
-                        success = false;
-                    }
-                } else {
-                    std::cout << "ERROR: Output set doesn't exist on this machine, please create "
-                                 "it correctly first"
-                              << std::endl;
-                    errMsg = std::string("Output set doesn't exist");
-                    success = false;
-                }
-
-
-            } else {
-
-                if (createOutputSet == true) {
-                    std::cout << "ERROR: output set exists, please remove it first" << std::endl;
-                    errMsg = std::string("ERROR: output set exists, please remove it first");
-                    success = false;
-                }
-            }
-            if (success == true) {
-                // restructure the output information
-                Handle<SetIdentifier> output =
-                    makeObject<SetIdentifier>(outDatabaseName, outSetName);
-                PDB_COUT << "Created SetIdentifier object for output with setName=" << outSetName
-                         << ", setId=" << outputSet->getSetID() << std::endl;
-                output->setDatabaseId(outputSet->getDbID());
-                output->setTypeId(outputSet->getTypeID());
-                output->setSetId(outputSet->getSetID());
-                newRequest->setOutput(output);
-                newRequest->setOutputTypeName(request->getOutputTypeName());
-                PDB_COUT << "Output is set" << std::endl;
-
-                // copy operators
-                Vector<Handle<ExecutionOperator>> operators = request->getOperators();
-                for (int i = 0; i < operators.size(); i++) {
-                    Handle<QueryBase> newSelection =
-                        deepCopyToCurrentAllocationBlock<QueryBase>(operators[i]->getSelection());
-                    Handle<ExecutionOperator> curOperator;
-                    if (operators[i]->getName() == "ProjectionOperator") {
-                        curOperator = makeObject<ProjectionOperator>(newSelection);
-                    } else if (operators[i]->getName() == "FilterOperator") {
-                        curOperator = makeObject<FilterOperator>(newSelection);
-                    }
-                    PDB_COUT << curOperator->getName() << std::endl;
-                    newRequest->addOperator(curOperator);
-                }
-
-                newRequest->print();
-                if (!communicatorToBackend->sendObject(newRequest, errMsg)) {
-                    std::cout << errMsg << std::endl;
-                    errMsg = std::string("can't send message to backend: ") + errMsg;
-                    success = false;
-                } else {
-                    PDB_COUT << "Frontend sent request to backend" << std::endl;
-                    // wait for backend to finish.
-                    communicatorToBackend->getNextObject<SimpleRequestResult>(success, errMsg);
-                    if (!success) {
-                        std::cout << "Error waiting for backend to finish this job stage. "
-                                  << errMsg << std::endl;
-                        errMsg = std::string("backend failure: ") + errMsg;
-                    }
-                }
-            }
-            // now, we send back the result
-            Handle<Vector<String>> result = makeObject<Vector<String>>();
-            if (success == true) {
-                result->push_back(request->getOutput()->getSetName());
-                PDB_COUT << "Query is done. " << std::endl;
-                errMsg = std::string("execution complete");
-            } else {
-                std::cout << "Query failed at server" << std::endl;
-            }
-            // return the results
-            if (!sendUsingMe->sendObject(result, errMsg)) {
-                return std::make_pair(false, errMsg);
-            }
-            if (success == false) {
-                // TODO:restart backend
-            }
-            return std::make_pair(success, errMsg);
-
-
-        }));
 
 
     // handle a request to delete a file

@@ -18,14 +18,11 @@
 #include "ExecuteQuery.h"
 #include "TestCopyWork.h"
 #include "DataProxy.h"
-#include "Selection.h"
 #include "QueryBase.h"
-#include "JobStage.h"
 #include "TupleSetJobStage.h"
 #include "AggregationJobStage.h"
 #include "BroadcastJoinBuildHTJobStage.h"
 #include "HashPartitionedJoinBuildHTJobStage.h"
-#include "PipelineNetwork.h"
 #include "PipelineStage.h"
 #include "PartitionedHashSet.h"
 #include "SharedHashSet.h"
@@ -171,45 +168,6 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
 
       }));
 
-  // register a handler to process the JobStage message
-  forMe.registerHandler(
-      JobStage_TYPEID,
-      make_shared<SimpleRequestHandler<JobStage>>([&](Handle<JobStage> request,
-                                                      PDBCommunicatorPtr sendUsingMe) {
-        PDB_COUT << "Backend got JobStage message with Id=" << request->getStageId()
-                 << std::endl;
-        request->print();
-        bool res = true;
-        std::string errMsg;
-        if (getCurPageScanner() == nullptr) {
-          // initialize a pipeline network
-          NodeID nodeId = getFunctionality<HermesExecutionServer>().getNodeID();
-          pdb::PDBLoggerPtr logger = getFunctionality<HermesExecutionServer>().getLogger();
-          SharedMemPtr shm = getFunctionality<HermesExecutionServer>().getSharedMem();
-          ConfigurationPtr conf = getFunctionality<HermesExecutionServer>().getConf();
-
-          PipelineNetworkPtr network = make_shared<PipelineNetwork>(
-              shm, logger, conf, nodeId, conf->getBatchSize(), conf->getNumThreads());
-          PDB_COUT << "initialize the pipeline network" << std::endl;
-          network->initialize(request);
-          PDB_COUT << "running source node" << std::endl;
-          network->runSource(0, this);
-        } else {
-          res = false;
-          errMsg = "A Job is already running in this server";
-        }
-
-        PDB_COUT << "to send back reply" << std::endl;
-
-
-        const UseTemporaryAllocationBlock block{1024};
-        Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(res, errMsg);
-
-        // return the result
-        res = sendUsingMe->sendObject(response, errMsg);
-        return make_pair(res, errMsg);
-
-      }));
 
   // register a handler to process the BroadcastJoinBuildHTJobStage message
   forMe.registerHandler(
@@ -459,11 +417,11 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                                                                if (memSize * ((size_t) (1024)) <
                                                                    sharedMemPoolSize + (size_t) 512 * (size_t) 1024 * (size_t) 1024) {
                                                                  std::cout << "WARNING: Auto tuning can not work, use default values" << std::endl;
-                                                                 tunedHashPageSize = (size_t) 1024 * (size_t) 1024 * (size_t) 1024;
+                                                                 tunedHashPageSize = (size_t) 2048 * (size_t) 1024 * (size_t) 1024;
                                                                }
 
-                                                               if (tunedHashPageSize > (size_t) 1024 * (size_t) 1024 * (size_t) 1024){
-                                                                  tunedHashPageSize = (size_t) 1024 * (size_t) 1024 * (size_t) 1024;
+                                                               if (tunedHashPageSize > (size_t) 2048 * (size_t) 1024 * (size_t) 1024){
+                                                                  tunedHashPageSize = (size_t) 2048 * (size_t) 1024 * (size_t) 1024;
                                                                }  
                                                                std::cout << "Tuned hash page size is " << tunedHashPageSize << std::endl;
                                                                conf->setHashPageSize(tunedHashPageSize);

@@ -9,7 +9,6 @@
 #include "PDBVector.h"
 #include "QueryBase.h"
 #include "ResourceInfo.h"
-#include "JobStage.h"
 #include "SimpleSingleTableQueryProcessor.h"
 #include "PDBLogger.h"
 #include "TupleSetJobStage.h"
@@ -85,16 +84,10 @@ public:
                          std::string myTCAPString);
 
 
-    // deprecated
-    // to print parsed physical execution plan
-    void printCurrentPlan();
 
     // to replace printCurrentPlan()
     void printStages();
 
-    // deprecated
-    // to schedule the current job plan
-    bool schedule(std::string ip, int port, PDBLoggerPtr logger, ObjectCreationMode mode);
 
     // to schedule dynamic pipeline stages
     void scheduleStages(std::vector<Handle<AbstractJobStage>>& stagesToSchedule,
@@ -102,11 +95,6 @@ public:
                         std::shared_ptr<ShuffleInfo> shuffleInfo, long jobInstanceId = -1);
 
 
-    // deprecated
-    // to schedule a job stage
-    bool schedule(Handle<JobStage>& stage,
-                  PDBCommunicatorPtr communicator,
-                  ObjectCreationMode mode);
 
     // Jia: one TODO is to consolidate below three functions into one function.
     // to replace: bool schedule(Handle<JobStage> &stage, PDBCommunicatorPtr communicator,
@@ -128,9 +116,6 @@ public:
                        Handle<HashPartitionedJoinBuildHTJobStage>& stage,
                        PDBCommunicatorPtr communicator,
                        ObjectCreationMode mode);
-    // deprecated
-    // to schedule the current job plan on all available resources
-    void schedule();
 
     // to replace: void schedule()
     // to schedule the query plan on all available resources
@@ -149,15 +134,6 @@ public:
     // return statsForOptimization
     StatisticsPtr getStats();
 
-    // deprecated
-    Handle<SetIdentifier> getOutputSet() {
-        return currentPlan[0]->getOutput();
-    }
-
-    // deprecated
-    std::string getOutputTypeName() {
-        return currentPlan[0]->getOutputTypeName();
-    }
 
 
     std::string getNextJobId() {
@@ -189,8 +165,6 @@ public:
     std::shared_ptr<ShuffleInfo> getShuffleInfo (); 
 
 protected:
-    // current resources (deprecated, and we should use standardResources in our code)
-    // Handle<Vector<Handle<ResourceInfo>>> resources;
 
     // current resources
     std::vector<StandardResourceInfoPtr>* standardResources;
@@ -201,10 +175,6 @@ protected:
     // port number
     int port;
 
-    // deprecated
-    // physical plan that is temporary, however each query scheduler can schedule one JobStage at
-    // each time, similar with Spark/Hadoop
-    std::vector<Handle<JobStage>> currentPlan;
 
     // use TupleSetJobStage/AggregationJobStage to replace JobStage
     std::vector<Handle<AbstractJobStage>> queryPlan;
