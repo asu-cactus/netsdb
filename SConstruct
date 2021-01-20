@@ -342,7 +342,6 @@ common_env.SharedLibrary('libraries/libScanEmpWithVector.so', ['build/libraries/
 common_env.SharedLibrary('libraries/libWriteEmpWithVector.so', ['build/libraries/WriteEmpWithVector.cc'] + all)
 common_env.SharedLibrary('libraries/libAllSelectionWithCreation.so', ['build/libraries/AllSelectionWithCreation.cc'] + all)
 common_env.SharedLibrary('libraries/libCartesianJoin.so', ['build/libraries/CartesianJoin.cc'] + all)
-common_env.SharedLibrary('libraries/libChrisSelection.so', ['build/libraries/ChrisSelection.cc'] + all)
 common_env.SharedLibrary('libraries/libEmployeeBuiltInIdentitySelection.so', ['build/libraries/EmployeeBuiltInIdentitySelection.cc'] + all)
 common_env.SharedLibrary('libraries/libEmployeeIdentitySelection.so', ['build/libraries/EmployeeIdentitySelection.cc'] + all)
 common_env.SharedLibrary('libraries/libEmployeeSelection.so', ['build/libraries/EmployeeSelection.cc'] + all)
@@ -404,7 +403,6 @@ common_env.SharedLibrary('libraries/libSillySelection.so', ['build/libraries/Sil
 common_env.SharedLibrary('libraries/libSimpleAggregation.so', ['build/libraries/SimpleAggregation.cc'] + all)
 common_env.SharedLibrary('libraries/libSimpleEmployee.so', ['build/libraries/SimpleEmployee.cc'] + all)
 common_env.SharedLibrary('libraries/libStringIntPairMultiSelection.so', ['build/libraries/StringIntPairMultiSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libStringSelection.so', ['build/libraries/StringSelection.cc'] + all)
 common_env.SharedLibrary('libraries/libStringSelectionOfStringIntPair.so', ['build/libraries/StringSelectionOfStringIntPair.cc'] + all)
 common_env.SharedLibrary('libraries/libWriteBuiltinEmployeeSet.so', ['build/libraries/WriteBuiltinEmployeeSet.cc'] + all)
 common_env.SharedLibrary('libraries/libWriteDoubleSet.so', ['build/libraries/WriteDoubleSet.cc'] + all)
@@ -883,7 +881,6 @@ common_env.Depends(pdbTest, [
   'bin/FFTest',
   'bin/LSTMTest',
   'libraries/libCartesianJoin.so', 
-  'libraries/libChrisSelection.so', 
   'libraries/libEmployeeSelection.so',
   'libraries/libFinalSelection.so', 
   'libraries/libIntAggregation.so', 
@@ -900,7 +897,6 @@ common_env.Depends(pdbTest, [
   'libraries/libSillyJoin.so', 
   'libraries/libSillySelection.so', 
   'libraries/libSimpleEmployee.so', 
-  'libraries/libStringSelection.so', 
   'libraries/libStringSelectionOfStringIntPair.so', 
   'libraries/libWriteIntSet.so', 
   'libraries/libWriteStringIntPairSet.so', 
@@ -1248,7 +1244,6 @@ mainTests=common_env.Alias('mainTests', [
   'libraries/libAllSelection.so',
   'libraries/libAllSelectionWithCreation.so',
   'libraries/libCartesianJoin.so',
-  'libraries/libChrisSelection.so',
   'libraries/libDoubleVectorAggregation.so',
   'libraries/libEmployeeSelection.so',
   'libraries/libEmployeeBuiltInIdentitySelection.so',
@@ -1277,7 +1272,6 @@ mainTests=common_env.Alias('mainTests', [
   'libraries/libSillySelection.so',
   'libraries/libSimpleAggregation.so',
   'libraries/libSimpleEmployee.so',
-  'libraries/libStringSelection.so',
   'libraries/libStringSelectionOfStringIntPair.so',
   'libraries/libSupervisorMultiSelection.so',
   'libraries/libWriteBuiltinEmployeeSet.so',

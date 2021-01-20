@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
     exit(-1);
   }
 
-  bool enablePartition = false;
+  bool enablePartition = true;
   long totalTime = 0;
 
 
@@ -228,7 +228,15 @@ int main(int argc, char *argv[]) {
     std::cout << "Blocking Stage Time Duration: "
               << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
               << " secs." << std::endl;
+
+    SetIterator<FFMatrixBlock> result = pdbClient.getSetIterator<FFMatrixBlock>(db, set);
+    int count = 0;
+    for (const auto &r : result) {
+        count++;
+    }
+    std::cout << "count: " << count << std::endl;
   }
+  exit(0);
 
   ff::loadLibrary(pdbClient, "libraries/libRedditCommentInferenceJoin.so");
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixMultiSel.so");
