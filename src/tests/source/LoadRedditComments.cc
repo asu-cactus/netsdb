@@ -141,7 +141,7 @@ int main(int argc, char* argv[]) {
           myLambda1 = makeObject<LambdaIdentifier>("reddit-s", "JoinComp_3", "attAccess_0");
           //myLambda1 = makeObject<LambdaIdentifier>("reddit-three-way", "JoinComp_7", "attAccess_0");
       } else {
-          myLambda1 = makeObject<LambdaIdentifier>("labeling", "JoinComp_2", "methodCall_0");
+          myLambda1 = makeObject<LambdaIdentifier>("labeling", "JoinComp_2", "methodCall_1");
       }
   }
   
