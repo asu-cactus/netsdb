@@ -87,13 +87,16 @@ public:
 
     void waitAllRequestsProcessed() {
         pthread_mutex_lock(&mutex);
-        std::cout << "numRequestsInProcessing: " << numRequestsInProcessing << std::endl;
-        while (numRequestsInProcessing > 0) {
-            pthread_mutex_unlock(&mutex);
+        int numRequests = numRequestsInProcessing;
+        pthread_mutex_unlock(&mutex);
+        std::cout << "numRequestsInProcessing: " << numRequests << std::endl;
+        while (numRequests > 0) {
             sleep(1);
             pthread_mutex_lock(&mutex);
+            numRequests = numRequestsInProcessing;
+            pthread_mutex_unlock(&mutex);
+            std::cout << "numRequestsInProcessing: " << numRequests << std::endl;
         }
-        pthread_mutex_unlock(&mutex);
     }
 
     void setSelfLearning (bool selfLearningOrNot) {

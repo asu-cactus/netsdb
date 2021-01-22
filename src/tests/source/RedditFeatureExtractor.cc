@@ -52,23 +52,27 @@ int main(int argc, char *argv[]) {
   int block_x, block_y;
   int batch_size;
 
-  if (argc < 4) {
-    cout << "Usage: commentsSetName blockDimensionX blockDimensionY batchSize path/to/weights/and/bias(leave empty if generate random)"
+  if (argc < 5) {
+    cout << "Usage: commentsSetName enablePartition blockDimensionX blockDimensionY batchSize path/to/weights/and/bias(leave empty if generate random)"
          << endl;
     exit(-1);
   }
 
-  bool enablePartition = true;
+  bool enablePartition = false;
+  
   long totalTime = 0;
 
 
   commentsSetName = std::string(argv[1]);
-  block_x = atoi(argv[2]);
-  block_y = atoi(argv[3]);
-  batch_size = atoi(argv[4]);
+  if (strcmp(argv[2], "Y")==0) {
+     enablePartition = true;
+  }
+  block_x = atoi(argv[3]);
+  block_y = atoi(argv[4]);
+  batch_size = atoi(argv[5]);
   cout << "Using block dimensions " << block_x << ", " << block_y << endl;
 
-  bool generate = argc == 5;
+  bool generate = argc == 6;
 
   int total_features = 100; // Change this later
 
@@ -93,7 +97,7 @@ int main(int argc, char *argv[]) {
   
   if (enablePartition) {
       std::string loadJobId = set;
-      std::string jobName = "inference";
+      std::string jobName = "inference-1";
       std::string computationName = "JoinComp_2";
       std::string lambdaName = "methodCall_1";
       std::string errMsg;
@@ -103,15 +107,31 @@ int main(int argc, char *argv[]) {
   else
       ff::createSet(pdbClient, db, set, set);
 
-  ff::createSet(pdbClient, db, "w1", "W1");
-  ff::createSet(pdbClient, db, "b1", "B1");
+  if (!enablePartition) {
+      ff::createSet(pdbClient, db, "w1", "W1");
+      ff::createSet(pdbClient, db, "b1", "B1");
+      ff::createSet(pdbClient, db, "y1", "Y1");
 
-  ff::createSet(pdbClient, db, "w2", "W2");
-  ff::createSet(pdbClient, db, "b2", "B2");
+      ff::createSet(pdbClient, db, "w2", "W2");
+      ff::createSet(pdbClient, db, "b2", "B2");
+      ff::createSet(pdbClient, db, "y2", "Y2");
 
-  ff::createSet(pdbClient, db, "wo", "WO");
-  ff::createSet(pdbClient, db, "bo", "BO");
+      ff::createSet(pdbClient, db, "wo", "WO");
+      ff::createSet(pdbClient, db, "bo", "BO");
+      ff::createSet(pdbClient, db, "yo", "YO");
+  } else {
+      ff::createSet(pdbClient, db, "w1", "W1", "inference-1", "JoinComp_2", "methodCall_0");
+      ff::createSet(pdbClient, db, "b1", "B1", "inference-1", "JoinComp_5", "methodCall_1");
+      ff::createSet(pdbClient, db, "y1", "Y1", "inference-2", "JoinComp_2", "methodCall_1");
 
+      ff::createSet(pdbClient, db, "w2", "W2", "inference-2", "JoinComp_2", "methodCall_0");
+      ff::createSet(pdbClient, db, "b2", "B2", "inference-2", "JoinComp_5", "methodCall_1");
+      ff::createSet(pdbClient, db, "y2", "Y2", "inference-3", "JoinComp_2", "methodCall_1");
+
+      ff::createSet(pdbClient, db, "wo", "WO", "inference-3", "JoinComp_2", "methodCall_0");
+      ff::createSet(pdbClient, db, "bo", "BO", "inference-3", "JoinComp_5", "methodCall_1");
+      ff::createSet(pdbClient, db, "yo", "YO");
+  }
   //partitioning condition
   if (enablePartition) {
       std::string loadJobId = "Output";
@@ -129,7 +149,7 @@ int main(int argc, char *argv[]) {
   ff::createSet(pdbClient, db, "labeled_comments", "LabeledComments");
 
   if (!generate) {
-    string main_path = string(argv[5]);
+    string main_path = string(argv[6]);
     string input_path = main_path + "/input.out";
     string w1_path = main_path + "/w1.out";
     string w2_path = main_path + "/w2.out";
@@ -232,17 +252,17 @@ int main(int argc, char *argv[]) {
     SetIterator<FFMatrixBlock> result = pdbClient.getSetIterator<FFMatrixBlock>(db, set);
     int count = 0;
     for (const auto &r : result) {
-        count++;
+      r->print();  
+      count++;
     }
     std::cout << "count: " << count << std::endl;
   }
-  exit(0);
 
   ff::loadLibrary(pdbClient, "libraries/libRedditCommentInferenceJoin.so");
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixMultiSel.so");
   ff::loadLibrary(pdbClient, "libraries/libInferenceResult.so");
   ff::loadLibrary(pdbClient, "libraries/libInferenceResultPartition.so");
-
+  ff::loadLibrary(pdbClient, "libraries/libFFMatrixPartitioner.so");
   // Run FF inference on comment feature blocks
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 256};
@@ -251,7 +271,7 @@ int main(int argc, char *argv[]) {
     pdb::Handle<pdb::Computation> inference;
     auto begin = std::chrono::high_resolution_clock::now(); 
     ff::inference(pdbClient, db, "w1", "w2", "wo", set, "b1", "b2", "bo",
-                  inference, dropout_rate);
+                  inference, dropout_rate, enablePartition);
     auto end = std::chrono::high_resolution_clock::now();
     std::cout << "Inference Stage Time Duration: "
               << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()

@@ -12,7 +12,7 @@
 #include "FFRowAggregate.h"
 #include "FFTransposeBiasSum.h"
 #include "FFTransposeMult.h"
-
+#include "FFMatrixPartitioner.h"
 #include "FFMatrixUtil.h"
 #include "PDBClient.h"
 
@@ -26,13 +26,14 @@ void loadLibrary(pdb::PDBClient &pdbClient, string path) {
 }
 
 void createSet(pdb::PDBClient &pdbClient, string dbName, string setName,
-               string setName1) {
+               string setName1, string jobName, string computationName, string lambdaName) {
 
   string errMsg;
   pdbClient.removeSet(dbName, setName, errMsg);
+  Handle<LambdaIdentifier> identifier = pdb::makeObject<LambdaIdentifier>(jobName, computationName, lambdaName);
   if (!pdbClient.createSet<FFMatrixBlock>(
           dbName, setName, errMsg, (size_t)64 * (size_t)1024 * (size_t)1024,
-          setName1)) {
+          setName1, nullptr, identifier)) {
     cout << "Not able to create set: " + errMsg;
     //exit(-1); //It is possible that the set exists
   } else {
@@ -75,7 +76,7 @@ void setup(pdb::PDBClient &pdbClient, string database) {
 
 void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
                        string w2, string wo, string inputs, string b1,
-                       string b2, string bo, double dropout_rate) {
+                       string b2, string bo, double dropout_rate, bool enablePartition) {
   string errMsg;
 
   {
@@ -105,12 +106,17 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
     reluBias->setInput(1, readC);
 
     // make the writer
-    pdb::Handle<pdb::Computation> myWriter =
-        pdb::makeObject<FFMatrixWriter>(database, "y1");
+    
+    pdb::Handle<pdb::Computation> myWriter = nullptr;
+
+    if (enablePartition) 
+        myWriter = pdb::makeObject<FFMatrixPartitioner>(database, "y1");
+    else
+        myWriter = pdb::makeObject<FFMatrixWriter>(database, "y1");
     myWriter->setInput(reluBias);
 
     // run the computation
-    if (!pdbClient.executeComputations(errMsg, myWriter)) {
+    if (!pdbClient.executeComputations(errMsg, "inference-1", myWriter)) {
       cout << "Computation failed. Message was: " << errMsg << "\n";
       exit(1);
     }
@@ -143,12 +149,16 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
     reluBias->setInput(1, readC);
 
     // make the writer
-    pdb::Handle<pdb::Computation> myWriter =
-        pdb::makeObject<FFMatrixWriter>(database, "y2");
+    pdb::Handle<pdb::Computation> myWriter = nullptr;
+
+    if (enablePartition)
+        myWriter = pdb::makeObject<FFMatrixPartitioner>(database, "y2");
+    else
+        myWriter = pdb::makeObject<FFMatrixWriter>(database, "y2");
     myWriter->setInput(reluBias);
 
     // run the computation
-    if (!pdbClient.executeComputations(errMsg, myWriter)) {
+    if (!pdbClient.executeComputations(errMsg, "inference-2", myWriter)) {
       cout << "Computation failed. Message was: " << errMsg << "\n";
       exit(1);
     }
@@ -188,7 +198,7 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
     myWriter->setInput(reluBias);
 
     // run the computation
-    if (!pdbClient.executeComputations(errMsg, myWriter)) {
+    if (!pdbClient.executeComputations(errMsg, "inference-3", myWriter)) {
       cout << "Computation failed. Message was: " << errMsg << "\n";
       exit(1);
     }
@@ -199,10 +209,10 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
 
 void inference(pdb::PDBClient &pdbClient, string database, string w1, string w2,
                string wo, string inputs, string b1, string b2, string bo,
-               string output, double dropout_rate) {
+               string output, double dropout_rate, bool enablePartition) {
   string errMsg;
   inference_compute(pdbClient, database, w1, w2, wo, inputs, b1, b2, bo,
-                    dropout_rate);
+                    dropout_rate, enablePartition);
 
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
@@ -224,7 +234,7 @@ void inference(pdb::PDBClient &pdbClient, string database, string w1, string w2,
     sumWriter->setInput(softmax);
 
     // run the computation
-    if (!pdbClient.executeComputations(errMsg, "inference", sumWriter)) {
+    if (!pdbClient.executeComputations(errMsg, "inference-4", sumWriter)) {
       cout << "Computation failed. Message was: " << errMsg << "\n";
       exit(1);
     }
@@ -235,10 +245,10 @@ void inference(pdb::PDBClient &pdbClient, string database, string w1, string w2,
 
 void inference(pdb::PDBClient &pdbClient, string database, string w1, string w2,
                string wo, string inputs, string b1, string b2, string bo,
-               pdb::Handle<pdb::Computation> &output, double dropout_rate) {
+               pdb::Handle<pdb::Computation> &output, double dropout_rate, bool enablePartition) {
   string errMsg;
   inference_compute(pdbClient, database, w1, w2, wo, inputs, b1, b2, bo,
-                    dropout_rate);
+                    dropout_rate, enablePartition);
 
   // make the computation
   pdb::Handle<pdb::Computation> readA =

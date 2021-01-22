@@ -580,6 +580,7 @@ common_env.SharedLibrary('libraries/libFFOutputLayer.so', ['build/FF/FFOutputLay
 common_env.SharedLibrary('libraries/libFFMatrixMultiSel.so', ['build/FF/FFMatrixMultiSel.cc'] + all)
 common_env.SharedLibrary('libraries/libInferenceResult.so', ['build/FF/InferenceResult.cc'] + all)
 common_env.SharedLibrary('libraries/libInferenceResultPartition.so', ['build/FF/InferenceResultPartition.cc'] + all)
+common_env.SharedLibrary('libraries/libFFMatrixPartitioner.so', ['build/FF/FFMatrixPartitioner.cc'] + all)
 
 # LSTM
 
@@ -1337,7 +1338,7 @@ libFFTest=common_env.Alias('libFFTest', [
   'libraries/libFFMatrixMultiSel.so',
   'libraries/libInferenceResult.so',
   'libraries/libInferenceResultPartition.so',
-
+  'libraries/libFFMatrixPartitioner.so',
   # Reddit libraries
   'libraries/libRedditComment.so',
   'libraries/libRedditCommentLabelJoin.so',

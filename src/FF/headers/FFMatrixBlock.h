@@ -111,7 +111,12 @@ public:
       return sumRowData;
   }
 
-  
+  void print() {
+     std::cout << "BlockRowIndex:" << getBlockRowIndex() << std::endl;
+     std::cout << "BlockColumnIndex:" << getBlockColIndex() << std::endl;
+     std::cout << "TotalRowNums:" << getTotalRowNums() << std::endl;
+     std::cout << "TotalColNums:" << getTotalColNums() << std::endl;
+  }  
 
 };
 
