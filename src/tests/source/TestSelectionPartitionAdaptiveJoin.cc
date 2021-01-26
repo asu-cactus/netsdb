@@ -1,13 +1,14 @@
 #include <iostream>
 #include <chrono>
 
-#include <PDBClient.h>
-#include <RedditComment.h>
-#include <RedditAuthor.h>
-#include <RedditSub.h>
-#include <LabelCommentsPartition.h>
-#include <RedditFullFeatures.h>
-#include <RedditThreeWayJoin.h>
+#include "PDBClient.h"
+#include "RedditComment.h"
+#include "RedditAuthor.h"
+#include "RedditSub.h"
+#include "LabelCommentsPartition.h"
+#include "RedditFullFeatures.h"
+#include "RedditThreeWayJoin.h"
+
 #include <ScanUserSet.h>
 #include <WriteUserSet.h>
 
