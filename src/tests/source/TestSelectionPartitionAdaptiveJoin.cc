@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
 
     // Measure the time required for partition computation.
     auto startTimePart = std::chrono::high_resolution_clock::now();
-    pdbClient.executeComputations(errMsg, "reddit", myWriteSet, myWriteSet1);
+    pdbClient.executeComputations(errMsg, "NegativePartitionComputation", partCompNeg);
     auto endTimePart = std::chrono::high_resolution_clock::now();
     float totalSecs = std::chrono::duration_cast<
         std::chrono::duration<float>>(endTimePart - startTimePart).count();
