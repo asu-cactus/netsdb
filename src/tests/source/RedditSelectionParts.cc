@@ -2,6 +2,8 @@
 #include <RedditComment.h>
 #include <RedditPositiveLabelSelection.h>
 #include <RedditNegativeLabelSelection.h>
+#include <ScanUserSet.h>
+#include <WriteUserSet.h>
 
 
 int main(int argc, char* argv[]) {
@@ -28,7 +30,7 @@ int main(int argc, char* argv[]) {
     // Read the reddits comments data
     pdb::Handle<pdb::Computation> redditData = pdb::makeObject<
         ScanUserSet<reddit::Comment>>("redditDB", "comments");
-    
+
     // Selection Computation
     pdb::Handle<pdb::Computation> negativeLabel =
         pdb::makeObject<reddit::NegativeLabelSelection>();
