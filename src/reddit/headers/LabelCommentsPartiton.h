@@ -9,7 +9,7 @@
 
 using namespace pdb;
 
-class LabelCommentsPartition : public PartitionComp<int, reddit::Comment> {
+class LabelCommentsPartition : public PartitionComp<std::string, reddit::Comment> {
 public:
   ENABLE_DEEP_COPY
 
@@ -19,9 +19,13 @@ public:
     this->setOutput(dbname, setname);
   }
 
-  Lambda<int> getProjection(Handle<reddit::Comment> checkMe) override {
-    return makeLambda(checkMe, [this](Handle<reddit::Comment> &checkMe) {
-      return checkMe->label;
+  Lambda<std::string> getProjection(Handle<reddit::Comment> row) override {
+    return makeLambda(row, [this](Handle<reddit::Comment> &row) {
+      if(row->label == 1){
+        return row->author;
+      }else{
+        return row->subreddit_id;
+      }
     });
   }
 };
