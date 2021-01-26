@@ -1127,6 +1127,7 @@ reddit=common_env.Alias('reddit', [
   'libraries/libRedditJoinSubsAndComments.so',
   'libraries/libRedditLabelProjection.so',
   'libraries/libRedditCommentPartition.so',
+  'libraries/labelCommentsPartition.so',
   'bin/loadRedditComments',
   'bin/loadRedditCommentsIndexPartition',
   'bin/loadRedditCommentsWithPartition',
@@ -1145,7 +1146,8 @@ reddit=common_env.Alias('reddit', [
   'bin/createRedditComments',
   'bin/testRepartition',
   'bin/testRepartition1',
-  'bin/testRepartition3'
+  'bin/testRepartition3',
+  'bin/redditSelectionParts'
 ])
 
 tpch=common_env.Alias('tpch', [
