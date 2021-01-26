@@ -662,6 +662,7 @@ common_env.Program('bin/testRepartition', ['build/tests/TestRepartition.cc']+ al
 common_env.Program('bin/testRepartition1', ['build/tests/TestRepartition1.cc']+ all + pdb_client)
 common_env.Program('bin/testRepartition3', ['build/tests/TestRepartition3.cc']+ all + pdb_client)
 common_env.Program('bin/redditSelectionParts', ['build/tests/RedditSelectionParts.cc']+ all + pdb_client)
+common_env.Program('bin/testSelectionPartitionAdaptiveJoin', ['build/tests/TestSelectionPartitionAdaptiveJoin.cc']+ all + pdb_client)
 
 # K-means
 common_env.SharedLibrary('libraries/libScanDoubleArraySet.so', ['build/libraries/ScanDoubleArraySet.cc'] + all)
@@ -1147,7 +1148,8 @@ reddit=common_env.Alias('reddit', [
   'bin/testRepartition',
   'bin/testRepartition1',
   'bin/testRepartition3',
-  'bin/redditSelectionParts'
+  'bin/redditSelectionParts',
+  'bin/testSelectionPartitionAdaptiveJoin'
 ])
 
 tpch=common_env.Alias('tpch', [

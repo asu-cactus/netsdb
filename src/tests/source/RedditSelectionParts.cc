@@ -49,5 +49,20 @@ int main(int argc, char* argv[]) {
     // Execute write operation for both the set
     pdbClient.executeComputations(errMsg, "RedditSelectionParts",
         writeNegativeSet, writePositiveSet);
+    // Count the number of rows in both the sets
+    SetIterator<reddit::Comment> negativeIter =
+        pdbClient.getSetIterator<reddit::Comment>("redditDB", "negativeComments");
+    SetIterator<reddit::Comment> positiveIter =
+        pdbClient.getSetIterator<reddit::Comment>("redditDB", "positiveComments");
+    int negativeCount = 0;
+    int positiveCount = 0;
+    for (const auto &r : negativeIter) {
+        ++negativeCount;
+    }
+    for (const auto &r : positiveIter) {
+        ++positiveCount;
+    }
+    std::cout << "Number of comments with negative label are " << negativeCount << std::endl;
+    std::cout << "Number of comments with positive label are " << positiveCount << std::endl;
     return 0;
 }
