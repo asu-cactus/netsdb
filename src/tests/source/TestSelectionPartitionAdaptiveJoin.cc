@@ -14,16 +14,26 @@
 int main(int argc, char* argv[]) {
     // Create required objects
     string errMsg;
-    if(argc < 2) {
+    if(argc < 3) {
         std::cout << "Usage : ./bin/redditSelectionParts managerIP managerPort\n";
         std::cout << "managerIP - IP of the manager\n";
         std::cout << "managerPort - Port of the manager\n";  
+        std::cout << "whetherToRegisterLibraries - Y yes, N no\n";
+    }
+    bool whetherToRegisterLibraries = true;
+    if (strcmp(argv[3], "N")==0) {
+        whetherToRegisterLibraries = false;
     }
     std::string managerIp = std::string(argv[1]);
     int32_t port = std::stoi(argv[2]);
     pdb::PDBLoggerPtr clientLogger = make_shared<pdb::PDBLogger>("clientLog");
     pdb::CatalogClient catalogClient(port, managerIp, clientLogger);
     pdb::PDBClient pdbClient(port, managerIp, clientLogger, false, true);
+
+    // Register the required objects
+    if (whetherToRegisterLibraries) {
+        pdbClient.registerType("libraries/labelCommentsPartition.so", errMsg);
+    }
 
     // Read the negative labeled reddit comments sets
     pdb::Handle<pdb::Computation> redditNegData = pdb::makeObject<

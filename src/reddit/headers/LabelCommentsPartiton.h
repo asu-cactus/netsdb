@@ -1,5 +1,5 @@
-#ifndef INFERENCE_RESULT_PARTITION_H
-#define INFERENCE_RESULT_PARTITION_H
+#ifndef LABEL_COMMENTS_PARTITION_H
+#define LABEL_COMMENTS_PARTITION_H
 
 #include "Lambda.h"
 #include "LambdaCreationFunctions.h"

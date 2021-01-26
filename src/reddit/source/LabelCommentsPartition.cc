@@ -1,5 +1,5 @@
-#ifndef INFERENCE_RESULT_PARTITION_CC
-#define INFERENCE_RESULT_PARTITION_CC
+#ifndef LABEL_COMMENTS_PARTITION_CC
+#define LABEL_COMMENTS_PARTITION_CC
 
 #include "LabelCommentsPartition.h"
 #include "GetVTable.h"
