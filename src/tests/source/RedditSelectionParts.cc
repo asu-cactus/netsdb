@@ -7,9 +7,17 @@
 int main(int argc, char* argv[]) {
     // Create required objects
     string errMsg;
-    pdb::PDBLoggerPtr clientLogger = pdb::make_shared<pdb::PDBLogger>("clientLog");
+    if(argc < 2) {
+        std::cout << "Usage : ./bin/redditSelectionParts managerIP managerPort\n";
+        std::cout << "managerIP - IP of the manager\n";
+        std::cout << "managerPort - Port of the manager\n";  
+    }
+    std::string managerIp = std::string(argv[1]);
+    int32_t port = std::stoi(argv[2]);
+    pdb::PDBLoggerPtr clientLogger = make_shared<pdb::PDBLogger>("clientLog");
     pdb::CatalogClient catalogClient(port, managerIp, clientLogger);
     pdb::PDBClient pdbClient(port, managerIp, clientLogger, false, true);
+
     // Create/Delete required sets
     pdbClient.removeSet("redditDB", "negativeComments", errMsg);
     pdbClient.removeSet("redditDB", "positiveComments", errMsg);
@@ -20,6 +28,7 @@ int main(int argc, char* argv[]) {
     // Read the reddits comments data
     pdb::Handle<pdb::Computation> redditData = pdb::makeObject<
         ScanUserSet<reddit::Comment>>("redditDB", "comments");
+    
     // Selection Computation
     pdb::Handle<pdb::Computation> negativeLabel =
         pdb::makeObject<reddit::NegativeLabelSelection>();
@@ -27,11 +36,12 @@ int main(int argc, char* argv[]) {
         pdb::makeObject<reddit::PositiveLabelSelection>();
     negativeLabel->setInput(redditData);
     positiveLabel->setInput(redditData);
+
     // Write the selected rows to respective sets
-    pdb:Handle<pdb::Computation> writeNegativeSet = pdb::makeObject<
-        pdb::WriteUserSet<reddit::Comment>>("redditDB", "negativeComments");
-    pdb:Handle<pdb::Computation> writePositiveSet = pdb::makeObject<
-        pdb::WriteUserSet<reddit::Comment>>("redditDB", "positiveComments");
+    pdb::Handle<pdb::Computation> writeNegativeSet = pdb::makeObject<
+        WriteUserSet<reddit::Comment>>("redditDB", "negativeComments");
+    pdb::Handle<pdb::Computation> writePositiveSet = pdb::makeObject<
+        WriteUserSet<reddit::Comment>>("redditDB", "positiveComments");
     writeNegativeSet->setInput(negativeLabel);
     writePositiveSet->setInput(positiveLabel);
     // Execute write operation for both the set
