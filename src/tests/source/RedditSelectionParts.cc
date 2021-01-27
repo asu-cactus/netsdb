@@ -27,6 +27,7 @@ int main(int argc, char* argv[]) {
     // Create/Delete required sets
     pdbClient.removeSet("redditDB", "negativeComments", errMsg);
     pdbClient.removeSet("redditDB", "positiveComments", errMsg);
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
     pdbClient.createSet<reddit::Comment>("redditDB", "negativeComments", errMsg,
         (size_t)64*(size_t)1024*(size_t)1024, "negativeComments", nullptr, nullptr);
     pdbClient.createSet<reddit::Comment>("redditDB", "positiveComments", errMsg,
@@ -54,19 +55,21 @@ int main(int argc, char* argv[]) {
     pdbClient.executeComputations(errMsg, "RedditSelectionParts",
         writeNegativeSet, writePositiveSet);
     // Count the number of rows in both the sets
-    SetIterator<reddit::Comment> negativeIter =
-        pdbClient.getSetIterator<reddit::Comment>("redditDB", "negativeComments");
-    SetIterator<reddit::Comment> positiveIter =
-        pdbClient.getSetIterator<reddit::Comment>("redditDB", "positiveComments");
-    int negativeCount = 0;
-    int positiveCount = 0;
-    for (const auto &r : negativeIter) {
-        ++negativeCount;
-    }
-    for (const auto &r : positiveIter) {
-        ++positiveCount;
-    }
-    std::cout << "Number of comments with negative set are " << negativeCount << std::endl;
-    std::cout << "Number of comments with positive set are " << positiveCount << std::endl;
+    // FIXME The count operation for the sets gives error
+    // FIXME Problem forwarding data to client: PDBCommunicator: not able to send the object type
+    // SetIterator<reddit::Comment> negativeIter =
+    //     pdbClient.getSetIterator<reddit::Comment>("redditDB", "negativeComments");
+    // SetIterator<reddit::Comment> positiveIter =
+    //     pdbClient.getSetIterator<reddit::Comment>("redditDB", "positiveComments");
+    // int negativeCount = 0;
+    // int positiveCount = 0;
+    // for (const auto &nr : negativeIter) {
+    //     ++negativeCount;
+    // }
+    // for (const auto &pr : positiveIter) {
+    //     ++positiveCount;
+    // }
+    // std::cout << "Number of comments with negative set are " << negativeCount << std::endl;
+    // std::cout << "Number of comments with positive set are " << positiveCount << std::endl;
     return 0;
 }

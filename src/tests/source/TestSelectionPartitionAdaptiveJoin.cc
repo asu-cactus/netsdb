@@ -33,14 +33,15 @@ int main(int argc, char* argv[]) {
 
     // Register the required objects
     if (whetherToRegisterLibraries) {
-        pdbClient.registerType("libraries/labelCommentsPartition.so", errMsg);
+        pdbClient.registerType("libraries/libLabelCommentsPartition.so", errMsg);
         pdbClient.registerType("libraries/libRedditComment.so", errMsg);
     }
 
     // Read the negative labeled reddit comments sets
     pdb::Handle<pdb::Computation> redditNegData = pdb::makeObject<
         ScanUserSet<reddit::Comment>>("redditDB", "negativeComments");
-    pdb::Handle<pdb::Computation> partCompNeg = pdb::makeObject<LabelCommentsPartition>();
+    pdb::Handle<pdb::Computation> partCompNeg =
+        pdb::makeObject<LabelCommentsPartition>("redditDB", "negativeComments");
     partCompNeg->setInput(redditNegData);
 
     // Measure the time required for partition computation.
