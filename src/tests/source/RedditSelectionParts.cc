@@ -21,6 +21,8 @@ int main(int argc, char* argv[]) {
     pdb::PDBClient pdbClient(port, managerIp, clientLogger, false, true);
     // Register the required reddit comment structure in the PDB Catalog
     pdbClient.registerType("libraries/libRedditComment.so", errMsg);
+    pdbClient.registerType("libraries/libRedditPositiveLabelSelection.so", errMsg);
+    pdbClient.registerType("libraries/libRedditNegativeLabelSelection.so", errMsg);
 
     // Create/Delete required sets
     pdbClient.removeSet("redditDB", "negativeComments", errMsg);
