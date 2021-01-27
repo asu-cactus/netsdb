@@ -99,10 +99,10 @@ int main(int argc, char *argv[]) {
       std::string loadJobId = set;
       std::string jobName = "inference-1";
       std::string computationName = "JoinComp_2";
-      std::string lambdaName = "methodCall_1";
+      std::string lambdaName = "methodCall_1"; 
       std::string errMsg;
       Handle<LambdaIdentifier> identifier = pdb::makeObject<LambdaIdentifier>(jobName, computationName, lambdaName);
-      pdbClient.createSet<FFMatrixBlock>(db, set, errMsg, 64*1024*1024, loadJobId, nullptr, identifier);
+      pdbClient.createSet<FFMatrixBlock>(db, set, errMsg, 64*1024*1024, loadJobId, nullptr, identifier);//getBlockColIndex
   }
   else
       ff::createSet(pdbClient, db, set, set);
@@ -120,16 +120,16 @@ int main(int argc, char *argv[]) {
       ff::createSet(pdbClient, db, "bo", "BO");
       ff::createSet(pdbClient, db, "yo", "YO");
   } else {
-      ff::createSet(pdbClient, db, "w1", "W1", "inference-1", "JoinComp_2", "methodCall_0");
-      ff::createSet(pdbClient, db, "b1", "B1", "inference-1", "JoinComp_5", "methodCall_1");
-      ff::createSet(pdbClient, db, "y1", "Y1", "inference-2", "JoinComp_2", "methodCall_1");
+      ff::createSet(pdbClient, db, "w1", "W1", "inference-1", "JoinComp_2", "methodCall_0");//getBlockColIndex
+      ff::createSet(pdbClient, db, "b1", "B1", "inference-1", "JoinComp_5", "methodCall_1");//getBlockRowIndex
+      ff::createSet(pdbClient, db, "y1", "Y1", "inference-2", "JoinComp_2", "methodCall_1");//getBlockColIndex
 
-      ff::createSet(pdbClient, db, "w2", "W2", "inference-2", "JoinComp_2", "methodCall_0");
-      ff::createSet(pdbClient, db, "b2", "B2", "inference-2", "JoinComp_5", "methodCall_1");
-      ff::createSet(pdbClient, db, "y2", "Y2", "inference-3", "JoinComp_2", "methodCall_1");
+      ff::createSet(pdbClient, db, "w2", "W2", "inference-2", "JoinComp_2", "methodCall_0");//getBlockColIndex
+      ff::createSet(pdbClient, db, "b2", "B2", "inference-2", "JoinComp_5", "methodCall_1");//getRowIndex
+      ff::createSet(pdbClient, db, "y2", "Y2", "inference-3", "JoinComp_2", "methodCall_1");//getBlockColIndex
 
-      ff::createSet(pdbClient, db, "wo", "WO", "inference-3", "JoinComp_2", "methodCall_0");
-      ff::createSet(pdbClient, db, "bo", "BO", "inference-3", "JoinComp_5", "methodCall_1");
+      ff::createSet(pdbClient, db, "wo", "WO", "inference-3", "JoinComp_2", "methodCall_0");//getBlockColIndex
+      ff::createSet(pdbClient, db, "bo", "BO", "inference-3", "JoinComp_5", "methodCall_1");//getBlockRowIndex
       ff::createSet(pdbClient, db, "yo", "YO");
   }
   //partitioning condition
@@ -140,13 +140,13 @@ int main(int argc, char *argv[]) {
       std::string lambdaName = "methodCall_0";
       std::string errMsg;
       Handle<LambdaIdentifier> identifier = pdb::makeObject<LambdaIdentifier>(jobName, computationName, lambdaName);
-      pdbClient.createSet<InferenceResult>(db, "output", errMsg, 64*1024*1024, loadJobId, nullptr, identifier);
+      pdbClient.createSet<InferenceResult>(db, "output", errMsg, 64*1024*1024, loadJobId, nullptr, identifier); //getKey
   } else
       ff::createSet(pdbClient, db, "output", "Output");
 
   ff::createSet(pdbClient, db, "inference", "Inference");
 
-  ff::createSet(pdbClient, db, "labeled_comments", "LabeledComments");
+  ff::createSet(pdbClient, db, "labeled_comments", "LabeledComments");//TO be partitioned
 
   if (!generate) {
     string main_path = string(argv[6]);
@@ -181,21 +181,21 @@ int main(int argc, char *argv[]) {
                    block_y, false, false, errMsg);
     // 128 x 1
     ff::loadMatrix(pdbClient, db, "b1", hid1_size, 1, block_x, block_y, false,
-                   true, errMsg);
+                   true, errMsg, false);
 
     // 256 x 128
     ff::loadMatrix(pdbClient, db, "w2", hid2_size, hid1_size, block_x, block_y,
                    false, false, errMsg);
     // 256 x 1
     ff::loadMatrix(pdbClient, db, "b2", hid2_size, 1, block_x, block_y, false,
-                   true, errMsg);
+                   true, errMsg, false);
 
     // 2 x 256
     ff::loadMatrix(pdbClient, db, "wo", num_labels, hid2_size, block_x, block_y,
                    false, false, errMsg);
     // 2 x 1
     ff::loadMatrix(pdbClient, db, "bo", num_labels, 1, block_x, block_y, false,
-                   true, errMsg);
+                   true, errMsg, false);
   }
 
   ff::loadLibrary(pdbClient, "libraries/libRedditCommentFeatures.so");
@@ -252,7 +252,7 @@ int main(int argc, char *argv[]) {
     SetIterator<FFMatrixBlock> result = pdbClient.getSetIterator<FFMatrixBlock>(db, set);
     int count = 0;
     for (const auto &r : result) {
-      r->print();  
+      //r->print();  
       count++;
     }
     std::cout << "count: " << count << std::endl;
@@ -347,15 +347,18 @@ int main(int argc, char *argv[]) {
 
   pdbClient.flushData(errMsg);
 
-  // {
-  //   const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 1024};
+   {
+     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 1024};
 
-  //   auto it = pdbClient.getSetIterator<reddit::Comment>(db, "labeled_comments");
+     auto it = pdbClient.getSetIterator<reddit::Comment>(db, "labeled_comments");
 
-  //   for (auto r : it) {
-  //     cout << r->label << endl;
-  //   }
-  // }
+//     int count = 0;
+//     for (auto r : it) {
+//       //cout << r->label << endl;
+//       count++;
+//     }
+//     std::cout << "count = " << count << std::endl;
+   }
 
   pdbClient.registerType("libraries/libRedditComment.so", errMsg);
   pdbClient.registerType("libraries/libRedditAuthor.so", errMsg);

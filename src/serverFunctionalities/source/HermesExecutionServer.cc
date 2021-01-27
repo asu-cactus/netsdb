@@ -930,6 +930,10 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
         if (hashSetSize > (size_t)(2)*(size_t)(1024)*(size_t)(1024)*(size_t)(1024)) {
             hashSetSize = (size_t)(2)*(size_t)(1024)*(size_t)(1024)*(size_t)(1024);
         }
+
+        if (hashSetSize < (size_t)(2)*(size_t)(1024)*(size_t)(1024)*(size_t)(1024)) {
+            hashSetSize = (size_t)(2)*(size_t)(1024)*(size_t)(1024)*(size_t)(1024);
+        }
         std::cout << "hashSetSize is tuned to" << hashSetSize << std::endl;
         std::string hashSetName = request->getHashSetName();
         PartitionedHashSetPtr partitionedSet = make_shared<PartitionedHashSet>(hashSetName, hashSetSize);

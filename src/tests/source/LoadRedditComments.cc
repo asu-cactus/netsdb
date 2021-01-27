@@ -36,7 +36,7 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
   bool end = false;
   bool rollback = false;
 
-  long total = 5000000;
+  long total = 10000000;
   long sent = 0;
   long i = 0;
   int oddHash = 0;

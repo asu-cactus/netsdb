@@ -46,6 +46,11 @@ public:
   }
 
   InferenceResult &getValue() { return *this; }
+
+  size_t hash() const override{
+     return Hasher<int>::hash(index);
+  }
+
 };
 
 #endif

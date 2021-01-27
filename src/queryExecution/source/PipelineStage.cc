@@ -1039,7 +1039,7 @@ void PipelineStage::runPipeline(HermesExecutionServer* server,
         std::cout << "num input pages: " << this->jobStage->getSourceContext()->getNumPages() << std::endl;
         std::cout << "page size: "<< this->jobStage->getSourceContext()->getPageSize() << std::endl;
         size_t hashSetSize = ((size_t)(this->jobStage->getSourceContext()->getNumPages())) * this->jobStage->getSourceContext()->getPageSize() * 3.0 / numSourceThreads;
-        if (hashSetSize > DEFAULT_HASH_SET_SIZE)
+        if (hashSetSize != DEFAULT_HASH_SET_SIZE)
             hashSetSize = DEFAULT_HASH_SET_SIZE; 
         std::cout << "hashSetSize for local join sink is " << hashSetSize << std::endl; 
         partitionedSetForSink = make_shared<PartitionedHashSet>(hashSetName, hashSetSize);
