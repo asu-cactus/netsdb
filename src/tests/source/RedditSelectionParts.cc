@@ -19,6 +19,8 @@ int main(int argc, char* argv[]) {
     pdb::PDBLoggerPtr clientLogger = make_shared<pdb::PDBLogger>("clientLog");
     pdb::CatalogClient catalogClient(port, managerIp, clientLogger);
     pdb::PDBClient pdbClient(port, managerIp, clientLogger, false, true);
+    // Register the required reddit comment structure in the PDB Catalog
+    pdbClient.registerType("libraries/libRedditComment.so", errMsg);
 
     // Create/Delete required sets
     pdbClient.removeSet("redditDB", "negativeComments", errMsg);
@@ -62,7 +64,7 @@ int main(int argc, char* argv[]) {
     for (const auto &r : positiveIter) {
         ++positiveCount;
     }
-    std::cout << "Number of comments with negative label are " << negativeCount << std::endl;
-    std::cout << "Number of comments with positive label are " << positiveCount << std::endl;
+    std::cout << "Number of comments with negative set are " << negativeCount << std::endl;
+    std::cout << "Number of comments with positive set are " << positiveCount << std::endl;
     return 0;
 }

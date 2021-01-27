@@ -34,6 +34,7 @@ int main(int argc, char* argv[]) {
     // Register the required objects
     if (whetherToRegisterLibraries) {
         pdbClient.registerType("libraries/labelCommentsPartition.so", errMsg);
+        pdbClient.registerType("libraries/libRedditComment.so", errMsg);
     }
 
     // Read the negative labeled reddit comments sets
