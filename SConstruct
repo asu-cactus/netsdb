@@ -629,7 +629,7 @@ common_env.SharedLibrary('libraries/libRedditCommentLabelJoin.so', ['build/reddi
 common_env.SharedLibrary('libraries/libRedditLabelProjection.so', ['build/reddit/RedditLabelProjection.cc']+all)
 common_env.SharedLibrary('libraries/libRedditCommentFeatures.so', ['build/reddit/CommentFeatures.cc']+all)
 common_env.SharedLibrary('libraries/libRedditCommentsToFeatures.so', ['build/reddit/CommentsToFeatures.cc']+all)
-common_env.SharedLibrary('libraries/labelCommentsPartition.so', ['build/reddit/LabelCommentsPartition.cc']+all)
+common_env.SharedLibrary('libraries/libLabelCommentsPartition.so', ['build/reddit/LabelCommentsPartition.cc']+all)
 
 common_env.SharedLibrary('libraries/libRedditCommentsToChunks.so', ['build/reddit/CommentsToChunks.cc']+all)
 common_env.SharedLibrary('libraries/libRedditCommentsChunk.so', ['build/reddit/CommentsChunk.cc']+all)
@@ -1128,7 +1128,7 @@ reddit=common_env.Alias('reddit', [
   'libraries/libRedditJoinSubsAndComments.so',
   'libraries/libRedditLabelProjection.so',
   'libraries/libRedditCommentPartition.so',
-  'libraries/labelCommentsPartition.so',
+  'libraries/libLabelCommentsPartition.so',
   'bin/loadRedditComments',
   'bin/loadRedditCommentsIndexPartition',
   'bin/loadRedditCommentsWithPartition',
