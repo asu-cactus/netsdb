@@ -161,11 +161,13 @@ void CatalogServer::registerHandlers(PDBServer &forMe) {
         bool res = true;
         std::string errMsg;
 
+        auto node = std::make_shared<pdb::PDBCatalogNode>(nodeID, address, port, type);
+
         // if we are a worker not we simply register the node and that is it.
         if (!isManagerCatalogServer) {
 
           // add the guy that made the request as a registered node
-          res = pdbCatalog->registerNode(std::make_shared<pdb::PDBCatalogNode>(nodeID, address, port, type), errMsg);
+          res = pdbCatalog->nodeExists(nodeID) ? pdbCatalog->updateNode(node, errMsg) : pdbCatalog->registerNode(node, errMsg);
 
           // create an allocation block to hold the response
           const UseTemporaryAllocationBlock tempBlock{1024};
@@ -192,7 +194,7 @@ void CatalogServer::registerHandlers(PDBServer &forMe) {
         }
 
         // add the guy that made the request as a registered node
-        res = pdbCatalog->registerNode(std::make_shared<pdb::PDBCatalogNode>(nodeID, address, port, type), errMsg);
+        res = pdbCatalog->nodeExists(nodeID) ? pdbCatalog->updateNode(node, errMsg) : pdbCatalog->registerNode(node, errMsg);
 
         // grab the catalog bytes
         auto catalogDump = pdbCatalog->serializeToBytes();
