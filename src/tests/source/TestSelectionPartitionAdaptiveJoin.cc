@@ -35,6 +35,10 @@ int main(int argc, char* argv[]) {
     if (whetherToRegisterLibraries) {
         pdbClient.registerType("libraries/libLabelCommentsPartition.so", errMsg);
         pdbClient.registerType("libraries/libRedditComment.so", errMsg);
+        pdbClient.registerType("libraries/libRedditAuthor.so", errMsg);
+        pdbClient.registerType("libraries/libRedditSub.so", errMsg);
+        pdbClient.registerType("libraries/libRedditFullFeatures.so", errMsg);
+        pdbClient.registerType("libraries/libRedditThreeWayJoin.so", errMsg);
     }
 
     // Read the negative labeled reddit comments sets
@@ -52,5 +56,33 @@ int main(int argc, char* argv[]) {
         std::chrono::duration<float>>(endTimePart - startTimePart).count();
     std::cout << "Time to run partition computation is " << totalSecs << " seconds." 
         << std::endl;
+
+    // Three way join between Negative Comments, Authors, Subreddit
+    pdbClient.removeSet("redditDB", "fullfeatures", errMsg);
+    pdbClient.createSet<reddit::FullFeatures>("redditDB", "fullfeatures", errMsg);
+
+    pdb::Handle<pdb::Computation> redditNegDataset = pdb::makeObject<
+        ScanUserSet<reddit::Comment>>("redditDB", "negativeComments");
+    pdb::Handle<pdb::Computation> authorDataset = pdb::makeObject<
+        ScanUserSet<reddit::Author>>("redditDB", "authors");
+    pdb::Handle<pdb::Computation> subsDataset = pdb::makeObject<
+        ScanUserSet<reddit::Author>>("redditDB", "subs");
+    pdb::Handle<pdb::Computation> opWriteSet = pdb::makeObject<
+        WriteUserSet<reddit::FullFeatures>>("redditDB", "fullfeatures");
+    pdb::Handle<pdb::Computation> threeWayJoin = pdb::makeObject<reddit::ThreeWayJoin>();
+    threeWayJoin->setInput(0, redditNegDataset);
+    threeWayJoin->setInput(1, authorDataset);
+    threeWayJoin->setInput(2, subsDataset);
+    opWriteSet->setInput(threeWayJoin)
+
+    // Measure the time required for the Three Way Join
+    auto startTimeJoin = std::chrono::high_resolution_clock::now();
+    pdbClient.executeComputations(errMsg, "NegativeThreeWayJoin", opWriteSet);
+    auto endTimeJoin = std::chrono::high_resolution_clock::now();
+    float totalJoinSecs = std::chrono::duration_cast<
+        std::chrono::duration<float>>(endTimeJoin - startTimeJoin).count();
+    std::cout << "Time to run negative three way join is " << totalJoinSecs << " seconds." 
+        << std::endl;
+
     return 0;
 }
