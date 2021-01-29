@@ -520,8 +520,21 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    std::string partitionMode = "N";
+    //partitionMode
+    //"N": no partitioning
+    //"Ha": heuristic-a
+    // l_orderkey, o_orderkey, ps_partkey, p_partkey, s_suppkey, c_custkey
+    //"Hb": heuristic-b
+    //l-partkey, o_orderkey, c-custkey, p-partkey, ps-partkey, s_suppkey
+    //"CostModel":
+    //l_orderkey, o_custkey, ps_partkey, p_partkey, s_suppkey, c_custkey
+    if (argc > 7) {
+        partitionMode = std::string(argv[7]);
+    }
 
-    if ((argc > 7) || (argc == 1)) {
+
+    if ((argc > 8) || (argc == 1)) {
        std::cout << "Usage: #tpchDirectory #whetherToRegisterLibraries (Y/N)" 
                  << " #whetherToCreateSets (Y/N) #whetherToAddData (Y/N)"
                  << " #whetherToRemoveData (Y/N) #whetherToStartTraining (Y/N)" << std::endl;
@@ -547,7 +560,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (whetherToCreateSets == true) {
-        createSets (pdbClient, whetherToStartTraining);
+        createSets (pdbClient, whetherToStartTraining, partitionMode);
     }
 
     if (whetherToAddData == true) {
@@ -572,7 +585,7 @@ int main(int argc, char* argv[]) {
 
 
     // Clean up the SO files.
-    int code = system("scripts/cleanupSoFiles.sh");
+    int code = system("scripts/cleanupSoFiles.sh ~/sigmod2020.pem");
     if (code < 0) {
         std::cout << "Can't cleanup so files" << std::endl;
     }
