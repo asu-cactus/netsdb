@@ -49,10 +49,11 @@ int main(int argc, char* argv[]) {
     auto endTimePart = std::chrono::high_resolution_clock::now();
     auto totalSecs = std::chrono::duration_cast<
         std::chrono::duration<float>>(endTimePart - startTimePart).count();
-    std::cout << "Time to run label partition computation is " << totalSecs << " seconds." 
-        << std::endl;
+    std::cout << "Pre-overhead :: Negative Partition Label :: " << totalSecs 
+        << " seconds." << std::endl;
 
     // Overhead 1 - Partition positive set based on Authors
+    const pdb::UseTemporaryAllocationBlock tempBlock1{1024 * 1024 * 128};
     pdb::Handle<pdb::Computation> redditPosData = pdb::makeObject<
         ScanUserSet<reddit::Comment>>("redditDB", "positiveComments");
     pdb::Handle<pdb::Computation> partPosAuthor = 
@@ -68,6 +69,7 @@ int main(int argc, char* argv[]) {
         << std::endl;
 
     // Overhead 2 - Partition negative set based on Authors
+    const pdb::UseTemporaryAllocationBlock tempBlock2{1024 * 1024 * 128};
     redditNegData = pdb::makeObject<
         ScanUserSet<reddit::Comment>>("redditDB", "negativeComments");
     pdb::Handle<pdb::Computation> partNegAuthor = 
@@ -84,6 +86,7 @@ int main(int argc, char* argv[]) {
 
 
     // Overhead 3 - Partition negative set based on subs (subreddit_id)
+    const pdb::UseTemporaryAllocationBlock tempBlock3{1024 * 1024 * 128};
     redditNegData = pdb::makeObject<
         ScanUserSet<reddit::Comment>>("redditDB", "negativeComments");
     pdb::Handle<pdb::Computation> partNegSubs = 
