@@ -55,21 +55,19 @@ int main(int argc, char* argv[]) {
     pdbClient.executeComputations(errMsg, "RedditSelectionParts",
         writeNegativeSet, writePositiveSet);
     // Count the number of rows in both the sets
-    // FIXME The count operation for the sets gives error
-    // FIXME Problem forwarding data to client: PDBCommunicator: not able to send the object type
-    // SetIterator<reddit::Comment> negativeIter =
-    //     pdbClient.getSetIterator<reddit::Comment>("redditDB", "negativeComments");
-    // SetIterator<reddit::Comment> positiveIter =
-    //     pdbClient.getSetIterator<reddit::Comment>("redditDB", "positiveComments");
-    // int negativeCount = 0;
-    // int positiveCount = 0;
-    // for (const auto &nr : negativeIter) {
-    //     ++negativeCount;
-    // }
-    // for (const auto &pr : positiveIter) {
-    //     ++positiveCount;
-    // }
-    // std::cout << "Number of comments with negative set are " << negativeCount << std::endl;
-    // std::cout << "Number of comments with positive set are " << positiveCount << std::endl;
+    SetIterator<reddit::Comment> negativeIter =
+        pdbClient.getSetIterator<reddit::Comment>("redditDB", "negativeComments");
+    SetIterator<reddit::Comment> positiveIter =
+        pdbClient.getSetIterator<reddit::Comment>("redditDB", "positiveComments");
+    int negativeCount = 0;
+    int positiveCount = 0;
+    for (const auto &nr : negativeIter) {
+        ++negativeCount;
+    }
+    for (const auto &pr : positiveIter) {
+        ++positiveCount;
+    }
+    std::cout << "Number of rows in negative set are " << negativeCount << std::endl;
+    std::cout << "Number of rows in positive set are " << positiveCount << std::endl;
     return 0;
 }
