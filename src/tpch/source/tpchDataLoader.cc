@@ -353,7 +353,7 @@ void createSets (PDBClient & pdbClient, std::string partitionMode, bool startTra
         Handle<LambdaIdentifier> myLambda = makeObject<LambdaIdentifier>("TPCHQuery03", "JoinComp_6", "attAccess_4");
         lineitemRes = pdbClient.createSet<LineItem>("tpch", "lineitem", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "loadLineItem", nullptr, myLambda);
     } else if (partitionMode.compare("Hb") == 0) {
-        Handle<LambdaIdentifier> myLambda = makeObject<LambdaIdentifier>("TPCHQuery17", "JoinComp_3", "attAccess_0");
+        Handle<LambdaIdentifier> myLambda = makeObject<LambdaIdentifier>("TPCHQuery17", "JoinComp_3", "attAccess_1");
         lineitemRes = pdbClient.createSet<LineItem>("tpch", "lineitem", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "loadLineItem", nullptr, myLambda);
     }
 
