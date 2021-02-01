@@ -316,36 +316,114 @@ void removeSets (PDBClient & pdbClient) {
 
 }
 
-
-void createSets (PDBClient & pdbClient, bool startTraining = false) {
+   //partitionMode
+    //"N": no partitioning
+    //"Ha": heuristic-a
+    // l_orderkey, o_orderkey, ps_partkey, p_partkey, s_suppkey, c_custkey
+    //"Hb": heuristic-b
+    //l-partkey, o_orderkey, c-custkey, p-partkey, ps-partkey, s_suppkey
+    //"CostModel":
+    //l_orderkey, o_custkey, ps_partkey, p_partkey, s_suppkey, c_custkey
+void createSets (PDBClient & pdbClient, std::string partitionMode, bool startTraining = false) {
 
     std::string errMsg;
+
+    //pdbClient.removeDatabase("tpch", errMsg);
     pdbClient.createDatabase("tpch", errMsg);
+
     pdbClient.removeSet("tpch", "customer", errMsg);
     std::cout << "to create set for Customer" << std::endl;
-    bool customerRes = pdbClient.createSet<Customer>("tpch", "customer", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "loadCustomer");
+    bool customerRes = false;
+
+    if (partitionMode.compare("N") == 0) {
+        customerRes=pdbClient.createSet<Customer>("tpch", "customer", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "loadCustomer");
+    } else {
+        //partition by c_custkey
+        Handle<LambdaIdentifier> myLambda = makeObject<LambdaIdentifier>("TPCHQuery03", "JoinComp_6", "attAccess_0");
+        customerRes=pdbClient.createSet<Customer>("tpch", "customer", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "loadCustomer", nullptr, myLambda);
+    }
+
     pdbClient.removeSet("tpch", "lineitem", errMsg);
     std::cout << "to create set for LineItem" << std::endl;
-    bool lineitemRes = pdbClient.createSet<LineItem>("tpch", "lineitem", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "loadLineItem");
+    bool lineitemRes = false;
+
+    if (partitionMode.compare("N") == 0) {
+        lineitemRes = pdbClient.createSet<LineItem>("tpch", "lineitem", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "loadLineItem");
+    } else if ((partitionMode.compare("Ha") == 0) || (partitionMode.compare("CostModel")==0)) {
+        Handle<LambdaIdentifier> myLambda = makeObject<LambdaIdentifier>("TPCHQuery03", "JoinComp_6", "attAccess_4");
+        lineitemRes = pdbClient.createSet<LineItem>("tpch", "lineitem", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "loadLineItem", nullptr, myLambda);
+    } else if (partitionMode.compare("Hb") == 0) {
+        Handle<LambdaIdentifier> myLambda = makeObject<LambdaIdentifier>("TPCHQuery17", "JoinComp_3", "attAccess_0");
+        lineitemRes = pdbClient.createSet<LineItem>("tpch", "lineitem", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "loadLineItem", nullptr, myLambda);
+    }
+
     pdbClient.removeSet("tpch", "nation", errMsg);
     std::cout << "to create set for Nation" << std::endl;
-    bool nationRes = pdbClient.createSet<Nation>("tpch", "nation", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "loadNation");
+    bool nationRes = false;
+   
+    if (partitionMode.compare("N") == 0) {
+        nationRes = pdbClient.createSet<Nation>("tpch", "nation", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "loadNation");
+    } else {
+        Handle<LambdaIdentifier> myLambda = makeObject<LambdaIdentifier>("TPCHQuery02", "JoinComp_7", "attAccess_0");
+        nationRes = pdbClient.createSet<Nation>("tpch", "nation", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "loadNation", nullptr, myLambda);
+    }
+
     pdbClient.removeSet("tpch", "order", errMsg);
     std::cout << "to create set for Order" << std::endl;
-    bool orderRes = pdbClient.createSet<Order>("tpch", "order", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "loadOrder");
+    bool orderRes = false;
+
+    if (partitionMode.compare("N") == 0) {
+        orderRes = pdbClient.createSet<Order>("tpch", "order", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "loadOrder");
+    } else if ((partitionMode.compare("Ha") == 0) || (partitionMode.compare("Hb") == 0)) {
+        Handle<LambdaIdentifier> myLambda = makeObject<LambdaIdentifier>("TPCHQuery03", "JoinComp_6", "attAccess_3");
+        orderRes = pdbClient.createSet<Order>("tpch", "order", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "loadOrder", nullptr, myLambda);
+    } else if (partitionMode.compare("CostModel") == 0) {
+        Handle<LambdaIdentifier> myLambda = makeObject<LambdaIdentifier>("TPCHQuery03", "JoinComp_6", "attAccess_1");
+        orderRes = pdbClient.createSet<Order>("tpch", "order", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "loadOrder", nullptr, myLambda);
+    }
+
     pdbClient.removeSet("tpch", "part", errMsg);
     std::cout << "to create set for Part" << std::endl;
-    bool partRes = pdbClient.createSet<Part>("tpch", "part", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "loadPart");
+    bool partRes = false;
+
+    if (partitionMode.compare("N") == 0) {
+       partRes = pdbClient.createSet<Part>("tpch", "part", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "loadPart");
+    } else {
+       Handle<LambdaIdentifier> myLambda = makeObject<LambdaIdentifier>("TPCHQuery02", "JoinComp_5", "attAccess_0");
+       partRes = pdbClient.createSet<Part>("tpch", "part", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "loadPart", nullptr, myLambda);
+    }
+
     pdbClient.removeSet("tpch", "partsupp", errMsg);
     std::cout << "to create set for PartSupp" << std::endl;
-    bool partsuppRes = pdbClient.createSet<PartSupp>("tpch", "partsupp", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "loadPartSupp");
+    bool partsuppRes = false;
+
+    if (partitionMode.compare("N") == 0) {
+        partsuppRes = pdbClient.createSet<PartSupp>("tpch", "partsupp", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "loadPartSupp");
+    } else {
+        Handle<LambdaIdentifier> myLambda = makeObject<LambdaIdentifier>("TPCHQuery02", "JoinComp_9", "attAccess_1");
+        partsuppRes = pdbClient.createSet<PartSupp>("tpch", "partsupp", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "loadPartSupp", nullptr, myLambda);
+    }
+
     pdbClient.removeSet("tpch", "region", errMsg);
     std::cout << "to create set for Region" << std::endl;
-    bool regionRes = pdbClient.createSet<Region>("tpch", "region", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "loadRegion");
+    bool regionRes = false;
+
+    if (partitionMode.compare("N") == 0) {
+        regionRes = pdbClient.createSet<Region>("tpch", "region", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "loadRegion");
+    } else {
+        Handle<LambdaIdentifier> myLambda = makeObject<LambdaIdentifier>("TPCHQuery02", "JoinComp_5", "attAccess_0");
+        regionRes = pdbClient.createSet<Region>("tpch", "region", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "loadRegion", nullptr, myLambda);
+    }
+
     pdbClient.removeSet("tpch", "supplier", errMsg);
     std::cout << "to create set for Supplier" << std::endl;
-    bool supplierRes = pdbClient.createSet<Supplier>("tpch", "supplier", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "loadSupplier");
-
+    bool supplierRes = false;
+    if (partitionMode.compare("N") == 0) {
+       supplierRes = pdbClient.createSet<Supplier>("tpch", "supplier", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "loadSupplier");
+    } else {
+       Handle<LambdaIdentifier> myLambda = makeObject<LambdaIdentifier>("TPCHQuery02", "JoinComp_9", "attAccess_0");
+       supplierRes = pdbClient.createSet<Supplier>("tpch", "supplier", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "loadSupplier", nullptr, myLambda);
+    }
     
 
     if ((startTraining == true) && ((customerRes || lineitemRes || nationRes || orderRes || partRes || partsuppRes || regionRes || supplierRes) == false)) {
@@ -537,7 +615,8 @@ int main(int argc, char* argv[]) {
     if ((argc > 8) || (argc == 1)) {
        std::cout << "Usage: #tpchDirectory #whetherToRegisterLibraries (Y/N)" 
                  << " #whetherToCreateSets (Y/N) #whetherToAddData (Y/N)"
-                 << " #whetherToRemoveData (Y/N) #whetherToStartTraining (Y/N)" << std::endl;
+                 << " #whetherToRemoveData (Y/N) #whetherToStartTraining (Y/N)" 
+                 << " #partitionMode (N, Ha, Hb, CostModel)" << std::endl;
     }
 
     // Connection info
@@ -560,7 +639,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (whetherToCreateSets == true) {
-        createSets (pdbClient, whetherToStartTraining, partitionMode);
+        createSets (pdbClient, partitionMode, whetherToStartTraining);
     }
 
     if (whetherToAddData == true) {

@@ -5,6 +5,7 @@
 #ifndef PDB_PDBCATALOGSET_H
 #define PDB_PDBCATALOGSET_H
 
+#include <iostream>
 #include <string>
 #include <sqlite_orm.h>
 #include "PDBCatalogDatabase.h"
@@ -38,7 +39,11 @@ class PDBCatalogSet {
    */
   PDBCatalogSet(const std::string &name,
                 const std::string &database,
-                const std::string &type) : setIdentifier(database + ":" + name), name(name), database(database), type(std::make_shared<std::string>(type)) {}
+                const std::string &type) : setIdentifier(database + ":" + name), name(name), database(database), type(std::make_shared<std::string>(type)) {
+
+      std::cout << "Create PDBCatalogSet instance of primary key being: " << database << ":" << name << std::endl;
+
+  }
 
 
   /**

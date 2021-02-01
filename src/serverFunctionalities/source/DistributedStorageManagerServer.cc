@@ -328,7 +328,7 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
             if (getFunctionality<CatalogClient>().setExists(database, set)) {
                 std::cout << "Set " << database << ":" << set << " already exists " << std::endl;
             } else {
-                PDB_COUT << "Set " << database << ":" << set << " does not exist" << std::endl;
+                std::cout << "Set " << database << ":" << set << " does not exist" << std::endl;
 
                 // JiaNote: comment out below line because searchForObjectTypeName doesn't work for
                 // complex type like Vector<Handle<Foo>>
@@ -905,32 +905,34 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
             auto set = getFunctionality<CatalogClient>().getSet(databaseName, setName, error);
 
             if (set == nullptr) {
-                std::cout << "Cannot remove set, Set " << fullSetName << " does not exist "
+                std::cout << "Cannot remove set from Catalog, Set " << fullSetName << " does not exist "
                           << std::endl;
-                Handle<SimpleRequestResult> response =
-                    makeObject<SimpleRequestResult>(false, errMsg);
-                bool res = sendUsingMe->sendObject(response, errMsg);
-                return make_pair(res, errMsg);
+                //Handle<SimpleRequestResult> response =
+                  //  makeObject<SimpleRequestResult>(false, errMsg);
+                //bool res = sendUsingMe->sendObject(response, errMsg);
+                //return make_pair(res, errMsg);
             }
 
-            // this should basically never happen
-            assert(set->type != nullptr);
+            else {
 
-            // grab the type associated with the set
-            auto type = getFunctionality<CatalogClient>().getType(*set->type, errMsg);
+               // this should basically never happen
+               assert(set->type != nullptr);
 
-            // check if the type exists
-            if(type == nullptr) {
-              std::cout << "Remove set, can not find the type with the id : " << *set->type << "\n";
-              Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(false, errMsg);
-              bool res = sendUsingMe->sendObject(response, errMsg);
-              return make_pair(res, errMsg);
+               // grab the type associated with the set
+               auto type = getFunctionality<CatalogClient>().getType(*set->type, errMsg);
+
+               // check if the type exists
+               if(type == nullptr) {
+                   std::cout << "Remove set, can not find the type with the id : " << *set->type << "\n";
+                   Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(false, errMsg);
+                   bool res = sendUsingMe->sendObject(response, errMsg);
+                   return make_pair(res, errMsg);
+               }
+
+               // set the type name
+               typeName = type->name;
+
             }
-
-            // set the type name
-            typeName = type->name;
-
-
 #ifndef USING_ALL_NODES
             if (!getFunctionality<DistributedStorageManagerServer>().findNodesContainingSet(
                     database, set, nodesToBroadcast, errMsg)) {
@@ -952,7 +954,7 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
 #endif
 
             auto catalogGetNodesEnd = std::chrono::high_resolution_clock::now();
-            PDB_COUT << "to broadcast StorageRemoveUserSet" << std::endl;
+            std::cout << "to broadcast StorageRemoveUserSet" << std::endl;
             Handle<StorageRemoveUserSet> storageCmd = makeObject<StorageRemoveUserSet>(
                 request->getDatabase(), request->getSetName(), typeName);
             getFunctionality<DistributedStorageManagerServer>()

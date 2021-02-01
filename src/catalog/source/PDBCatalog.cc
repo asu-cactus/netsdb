@@ -229,6 +229,7 @@ bool pdb::PDBCatalog::updateNode(const pdb::PDBCatalogNodePtr& node, std::string
 
 
 pdb::PDBCatalogSetPtr pdb::PDBCatalog::getSet(const std::string &dbName, const std::string &setName) {
+  std::cout << "to search for set in Catalog: " << dbName + ":" + setName << std::endl;
   return storage.get_no_throw<PDBCatalogSet>(dbName + ":" + setName);
 }
 

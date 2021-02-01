@@ -121,23 +121,30 @@ public:
             lastPage = nullptr;
             myRec = nullptr;
         }
-        // try to get another vector
-        myPage = getAnotherVector();
-        if(myPage != nullptr) {
-            myRec = (Record<Vector<Handle<Object>>>*)(myPage->getBytes());
-        }
-        // if we could not, then we are outta here
-        if (myRec != nullptr) {
-            // and reset everything
-            iterateOverMe = myRec->getRootObject();
-            // JiaNote: we also need to reset mySize
-            this->mySize = iterateOverMe->size();
-            std::cout << myPartitionId << ": Got iterateOverMe with " << mySize << " objects" << std::endl;
-            pos = 0;
-        } else {
 
-            iterateOverMe = nullptr;
-            mySize = 0;
+
+        // try to get another vector
+        while (mySize == 0) {
+            myPage = getAnotherVector();
+            if(myPage != nullptr) {
+                myRec = (Record<Vector<Handle<Object>>>*)(myPage->getBytes());
+            } else {
+                return;
+            }
+            // if we could not, then we are outta here
+            if (myRec != nullptr) {
+                // and reset everything
+                iterateOverMe = myRec->getRootObject();
+                // JiaNote: we also need to reset mySize
+                this->mySize = iterateOverMe->size();
+                std::cout << myPartitionId << ": Got iterateOverMe with " << mySize << " objects" << std::endl;
+                pos = 0;
+                if (mySize > 0) return;
+            } else {
+
+                iterateOverMe = nullptr;
+                mySize = 0;
+            }
         }
     }
 

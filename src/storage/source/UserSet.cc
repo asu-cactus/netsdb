@@ -240,9 +240,8 @@ void UserSet::evictPages() {
     } else { 
         setPinned(true);
         vector<PageIteratorPtr>* iterators = this->getIterators();
-        int numIterators = iterators->size();
         int i;
-        for (i = 0; i < numIterators; i++) {
+        for (i = 0; i < iterators->size(); i++) {
             PageIteratorPtr curIter = iterators->at(i);
             while (curIter->hasNext()) {
                 PDBPagePtr curPage = curIter->next();

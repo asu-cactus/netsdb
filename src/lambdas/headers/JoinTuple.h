@@ -835,7 +835,7 @@ public:
 
         // JiaNote: below two lines are necessary to fix a bug that iterateOverMe may be nullptr
         // when first time get to here
-        if ((iterateOverMe == nullptr) || (isDone == true)) {
+        if (isDone == true) {
             return nullptr;
         }
 
@@ -857,10 +857,8 @@ public:
             // we will ever reference stored in lastRec has been fluhhed through the
             // pipeline; hence, we can kill it
 
-            if ((lastRec != nullptr) && (lastPage != nullptr)) {
-                doneWithVector(lastPage);
+            if (lastRec != nullptr) {
                 lastRec = nullptr;
-                lastPage = nullptr;
             }
             // if we have finished processing of current map, we need to get next map for processing
             while ((curJoinMap == nullptr) && (pos < iterateOverMe->size())) {
@@ -944,47 +942,64 @@ public:
                 //we have finished the lists in this join map
                 curJoinMap = nullptr;
             }//while
-
-            // if we have come to the end of the iterateOverMe, we need fetch a new rec or even a new page
             if ((curJoinMap == nullptr) && (pos == iterateOverMe->size())) {
-                // this means that we got to the end of the vector
+                iterateOverMe = nullptr;
+                pos = 0;
                 lastRec = myRec;
-                if (myIter->hasNext() == true) {
-                    myRec = (Record<Vector<Handle<JoinMap<RHSType>>>>*)myIter->next();
+            }
+            // if we have come to the end of the iterateOverMe, we need fetch a new rec or even a new page
+            while (iterateOverMe == nullptr) {
+                // this means that we got to the end of the vector
+                if (myIter != nullptr) {
+                    if (myIter->hasNext() == true) {
+                        myRec = (Record<Vector<Handle<JoinMap<RHSType>>>>*)myIter->next();
+                    } else {
+                        myRec = nullptr;
+                    }
                 } else {
+                    myRec = nullptr;
+                }
+
+                if (myRec == nullptr) {
+
                     lastPage = myPage;
                     // try to get another vector
                     myPage = getAnotherVector();
                     if (myPage != nullptr) {
-                        myIter = std::make_shared<RecordIterator>(myPage);
-                        if (myIter->hasNext() == true) {
+                         myIter = std::make_shared<RecordIterator>(myPage);
+                         if (myIter->hasNext() == true) {
                             myRec = (Record<Vector<Handle<JoinMap<RHSType>>>>*)(myIter->next());
-                        } else {
+                         } else {
                             myRec = nullptr;
                             myIter = nullptr;
-                        }
+                         }
                     } else {
-                        myRec = nullptr;
-                        myIter = nullptr;
-                    }
-                }
-                // if we could not obtain more vector, then we are outta here
-                if (myRec == nullptr) {
-                    isDone = true;
+                         myRec = nullptr;
+                         myIter = nullptr;
+                    } 
+                    if (lastPage != nullptr) {
+                        doneWithVector(lastPage);
+                        lastPage = nullptr;
+                    }  
                     iterateOverMe = nullptr;
-                    if (overallCounter > 0) {
+                    if (myPage == nullptr){
+                        isDone = true;
+                        if (overallCounter > 0) {
 
-                        hashColumn->resize(overallCounter);
-                        eraseEnd<RHSType>(overallCounter, 0, columns);
-                        return output;
+                           hashColumn->resize(overallCounter);
+                           eraseEnd<RHSType>(overallCounter, 0, columns);
+                           overallCounter = 0;
+                           return output;
 
-                    } else {
+                        }
                         return nullptr;
                     }
+                } 
+                if (myRec != nullptr) {
+                    // and reset everything
+                    iterateOverMe = myRec->getRootObject();
+                    pos = 0;
                 }
-                // and reset everything
-                iterateOverMe = myRec->getRootObject();
-                pos = 0;
             }
             // our counter hasn't been full, so we continue the loop
         }

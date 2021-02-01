@@ -153,7 +153,7 @@ public:
 
    }
 
-    size_t hash() const {
+    size_t hash() const override {
         return Hasher<int>::hash(o_orderkey);
     }
 

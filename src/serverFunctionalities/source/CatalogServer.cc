@@ -568,7 +568,9 @@ void CatalogServer::registerHandlers(PDBServer &forMe) {
 
         // register the set with the catalog
         res = pdbCatalog->registerSet(make_shared<PDBCatalogSet>(setName, dbName, internalTypeName), errMsg) && res;
-
+        if (res == false) {
+             std::cout << "Error in registering set: " << setName << ":" << dbName << std::endl;
+        }
         // after we added the set to the local catalog, if this is the
         // manager catalog iterate over all nodes in the cluster and broadcast the
         // request to the distributed copies of the catalog
@@ -586,13 +588,13 @@ void CatalogServer::registerHandlers(PDBServer &forMe) {
             res = item.second.first && res;
 
             // log what is happening
-            PDB_COUT << "Node IP: " << item.first + (item.second.first ? " updated correctly!" : " couldn't be updated due to error: ") << item.second.second << "\n";
+            std::cout << "Node IP: " << item.first + (item.second.first ? " updated correctly!" : " couldn't be updated due to error: ") << item.second.second << "\n";
           }
 
         } else {
 
           // log what happened
-          PDB_COUT << "This is not Manager Catalog Node, thus metadata was only registered locally!\n";
+          std::cout << "This is not Manager Catalog Node, thus metadata was only registered locally!\n";
         }
 
         // create an allocation block to hold the response
