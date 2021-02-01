@@ -113,22 +113,23 @@ public:
 
     void updatePage () {
 
-        // this means that we got to the end of the vector
-        lastPage = myPage;
-        if (lastPage != nullptr) {
-            std::cout << myPartitionId << ": to update the page with ID="<< myPage->getPageID() << ", mySize="<< mySize << ", pos=" << pos << std::endl;
-            doneWithVector(lastPage);
-            lastPage = nullptr;
-            myRec = nullptr;
-        }
-
-
         // try to get another vector
         while (mySize == 0) {
+
+            // this means that we got to the end of the vector
+            lastPage = myPage;
+            if (lastPage != nullptr) {
+                std::cout << myPartitionId << ": to update the page with ID="<< myPage->getPageID() << ", mySize="<< mySize << ", pos=" << pos << std::endl;
+                doneWithVector(lastPage);
+                lastPage = nullptr;
+                myRec = nullptr;
+            }
+
             myPage = getAnotherVector();
             if(myPage != nullptr) {
                 myRec = (Record<Vector<Handle<Object>>>*)(myPage->getBytes());
             } else {
+                iterateOverMe = nullptr;
                 return;
             }
             // if we could not, then we are outta here
@@ -145,6 +146,7 @@ public:
                 iterateOverMe = nullptr;
                 mySize = 0;
             }
+            
         }
     }
 
@@ -175,6 +177,7 @@ public:
 
         // see if there are no more items in the vector to iterate over
         if (pos == mySize) {
+            mySize = 0;
             updatePage();
         }
 
@@ -213,7 +216,7 @@ public:
                 pos++;
                 
             } else {
-
+                mySize = 0;
                 updatePage();                
                 if (mySize == 0) {
                     if (count == 0) return nullptr;
