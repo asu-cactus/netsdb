@@ -171,7 +171,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Clean up the SO files.
-    int code = system("scripts/cleanupSoFiles.sh");
+    int code = system("scripts/cleanupSoFiles.sh ~/sigmod2020.pem");
     if (code < 0) {
 
         std::cout << "Can't cleanup so files" << std::endl;

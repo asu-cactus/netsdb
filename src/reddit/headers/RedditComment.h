@@ -313,10 +313,8 @@ public:
 
     size_t hash() const override{
         //std::cout << "run hash on Comment" << std::endl;
-        if (label < 8)
-           return author.hash();
-        else
-           return subreddit_id.hash();
+        //return author.hash();
+        return Hasher<int>::hash(index);
     }
 
     std::string toString() override {

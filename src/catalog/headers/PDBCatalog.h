@@ -253,6 +253,16 @@ class PDBCatalog {
    */
   bool removeSet(const std::string &dbName, const std::string &setName, std::string &error);
 
+  /**
+   * Registers the node
+   * @param node - the node we want to register
+   * @param error - the error if we fail
+   * @return true if the node is registered successfully
+   */
+  bool updateNode(const PDBCatalogNodePtr& node, std::string &error);
+
+
+
  private:
 
   /**

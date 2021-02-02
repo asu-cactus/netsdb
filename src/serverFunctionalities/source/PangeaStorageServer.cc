@@ -1074,7 +1074,10 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                 std::cout << "to store data to " << request->getDatabase() <<
                         ":" << request->getSetName() << std::endl;
                 SetPtr mySet = getFunctionality<PangeaStorageServer>().getSet(databaseAndSet);
-               
+                if (mySet == nullptr) {
+                   std::cout << "Set doesn't exist: " << request->getDatabase() << ":" << request->getSetName() << std::endl;
+                   exit(1);
+                } 
                 size_t myPageSize = mySet->getPageSize();
                 if (request->isDirectPut() == false) {
 
@@ -1987,7 +1990,7 @@ bool PangeaStorageServer::addSet(std::string dbName, std::string setName, size_t
 bool PangeaStorageServer::removeSet(std::string dbName, std::string setName) {
     SetPtr set = getSet(std::pair<std::string, std::string>(dbName, setName));
     if (set == nullptr) {
-        PDB_COUT << "set with dbName=" << dbName << " and setName=" << setName << " doesn't exist"
+        std::cout << "set with dbName=" << dbName << " and setName=" << setName << " doesn't exist"
                  << std::endl;
         return false;
     }
@@ -1999,15 +2002,17 @@ bool PangeaStorageServer::removeSet(std::string dbName, std::string setName) {
     DatabaseID dbId = set->getDbID();
     UserTypeID typeId = set->getTypeID();
     SetID setId = set->getSetID();
-    DefaultDatabasePtr database = dbs->at(dbId);
-    TypePtr type = database->getType(typeId);
-    pthread_mutex_lock(&this->usersetLock);
-    type->removeSet(setId);
-    int numRemoved = userSets->erase(std::pair<DatabaseID, SetID>(dbId, setId));
-    PDB_COUT << "numItems removed from userSets:" << numRemoved << std::endl;
-    numRemoved = names2ids->erase(std::pair<std::string, std::string>(dbName, setName));
-    PDB_COUT << "numItems removed from names2ids:" << numRemoved << std::endl;
-    pthread_mutex_unlock(&this->usersetLock);
+    if (dbs->count(dbId) > 0) {
+        DefaultDatabasePtr database = dbs->at(dbId);
+        TypePtr type = database->getType(typeId);
+        pthread_mutex_lock(&this->usersetLock);
+        type->removeSet(setId);
+        int numRemoved = userSets->erase(std::pair<DatabaseID, SetID>(dbId, setId));
+        PDB_COUT << "numItems removed from userSets:" << numRemoved << std::endl;
+        numRemoved = names2ids->erase(std::pair<std::string, std::string>(dbName, setName));
+        PDB_COUT << "numItems removed from names2ids:" << numRemoved << std::endl;
+        pthread_mutex_unlock(&this->usersetLock);
+    }
     return true;
 }
 

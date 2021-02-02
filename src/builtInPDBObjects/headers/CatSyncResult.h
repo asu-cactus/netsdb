@@ -45,21 +45,28 @@ public:
 
   CatSyncResult() = default;
 
-  explicit CatSyncResult(const std::vector<unsigned char> &bytes) {
+  explicit CatSyncResult(const std::vector<unsigned char> &bytes, bool restart = false) {
+    this->restart = restart;
 
-    // init the fields
-    this->bytes = pdb::makeObject<pdb::Vector<unsigned char>>(bytes.size(), bytes.size());
+    if (restart == false) {
+        // init the fields
+        this->bytes = pdb::makeObject<pdb::Vector<unsigned char>>(bytes.size(), bytes.size());
+        // copy the bytes
+        memcpy(this->bytes->c_ptr(), bytes.data(), bytes.size());
+    }
 
-    // copy the bytes
-    memcpy(this->bytes->c_ptr(), bytes.data(), bytes.size());
   }
 
   CatSyncResult(const Handle<CatSyncResult> &requestToCopy)  {
-    // init the fields
-    this->bytes = pdb::makeObject<pdb::Vector<unsigned char>>(requestToCopy->bytes->size(), requestToCopy->bytes->size());
+    this->restart = requestToCopy->restart;
+    if (restart == false) {
+        // init the fields
+        this->bytes = pdb::makeObject<pdb::Vector<unsigned char>>(requestToCopy->bytes->size(), requestToCopy->bytes->size());
 
-    // copy the bytes
-    memcpy(bytes->c_ptr(), requestToCopy->bytes->c_ptr(), bytes->size());
+        // copy the bytes
+        memcpy(bytes->c_ptr(), requestToCopy->bytes->c_ptr(), bytes->size());
+    }
+
   }
 
   ~CatSyncResult() = default;
@@ -70,6 +77,7 @@ public:
    * The bytes we want to send
    */
   pdb::Handle<Vector<unsigned char>> bytes;
+  bool restart = false;
 };
 
 } /* namespace pdb */

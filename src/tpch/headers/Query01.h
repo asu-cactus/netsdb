@@ -46,7 +46,7 @@ public:
         this->l_linestatus = l_linestatus;
     }
 
-    size_t hash() const {
+    size_t hash() const override{
         return String((std::string(l_returnflag)+std::string(l_linestatus))).hash();
     }
 

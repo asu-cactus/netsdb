@@ -195,7 +195,7 @@ public:
         this->o_shippriority = joinOut.o_shippriority;
     }
 
-    size_t hash() const {
+    size_t hash() const override {
         return l_orderkey;
     }
 

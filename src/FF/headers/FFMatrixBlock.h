@@ -19,7 +19,7 @@ class FFMatrixBlock : public pdb::Object {
 private:
   FFMatrixData data;
   pdb::Handle<FFMatrixMeta> meta;
-
+  bool partitionByCol = true;
 public:
   const static int librayCode = EIGEN_CODE;
 
@@ -30,28 +30,32 @@ public:
   FFMatrixBlock() {}
 
   FFMatrixBlock(int blockRowIndexIn, int blockColIndexIn, int rowNumsIn,
-                int colNumsIn)
+                int colNumsIn, bool partitionByCol = true)
       : data(rowNumsIn, colNumsIn) {
         meta = pdb::makeObject<FFMatrixMeta>(blockRowIndexIn, blockColIndexIn);
+        this->partitionByCol = partitionByCol;
       }
 
   FFMatrixBlock(int blockRowIndexIn, int blockColIndexIn, int rowNumsIn,
-                int colNumsIn, int totalRows, int totalCols)
+                int colNumsIn, int totalRows, int totalCols,  bool partitionByCol = true)
       : data(rowNumsIn, colNumsIn) {
         meta = pdb::makeObject<FFMatrixMeta>(blockRowIndexIn, blockColIndexIn, totalRows, totalCols);
+        this->partitionByCol = partitionByCol;
       }
 
   FFMatrixBlock(int blockRowIndexIn, int blockColIndexIn, int rowNumsIn,
-                int colNumsIn, pdb::Handle<pdb::Vector<double>> rawDataIn)
+                int colNumsIn, pdb::Handle<pdb::Vector<double>> rawDataIn, bool partitionByCol = true)
       : data(rowNumsIn, colNumsIn, rawDataIn)  {
         meta = pdb::makeObject<FFMatrixMeta>(blockRowIndexIn, blockColIndexIn);
+        this->partitionByCol = partitionByCol;
       }
 
   FFMatrixBlock(int blockRowIndexIn, int blockColIndexIn, int rowNumsIn,
                 int colNumsIn, int totalRows, int totalCols,
-                pdb::Handle<pdb::Vector<double>> rawDataIn)
+                pdb::Handle<pdb::Vector<double>> rawDataIn, bool partitionByCol = true)
       : data(rowNumsIn, colNumsIn, rawDataIn) {
         meta = pdb::makeObject<FFMatrixMeta>(blockRowIndexIn, blockColIndexIn, totalRows, totalCols);
+        this->partitionByCol = partitionByCol;
       }
 
   int getRowNums() { return data.rowNums; }
@@ -117,6 +121,14 @@ public:
      std::cout << "TotalRowNums:" << getTotalRowNums() << std::endl;
      std::cout << "TotalColNums:" << getTotalColNums() << std::endl;
   }  
+
+  size_t hash() const override{
+     if (partitionByCol)
+         return pdb::Hasher<int>::hash(meta->blockColIndex);  
+     else
+         return pdb::Hasher<int>::hash(meta->blockRowIndex);        
+  }
+
 
 };
 

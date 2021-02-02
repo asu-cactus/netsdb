@@ -123,7 +123,7 @@ int load_matrix_data(pdb::PDBClient &pdbClient, string path, pdb::String dbName,
 
 void loadMatrix(pdb::PDBClient &pdbClient, pdb::String dbName,
                 pdb::String setName, int totalX, int totalY, int blockX,
-                int blockY, bool dont_pad_x, bool dont_pad_y, string &errMsg) {
+                int blockY, bool dont_pad_x, bool dont_pad_y, string &errMsg, bool partitionByCol) {
 
   std::random_device rd;
 
@@ -154,7 +154,7 @@ void loadMatrix(pdb::PDBClient &pdbClient, pdb::String dbName,
             dont_pad_y ? min(blockY, totalY - j * blockY) : blockY;
 
         pdb::Handle<FFMatrixBlock> myData = pdb::makeObject<FFMatrixBlock>(
-            i, j, actual_blockX, actual_blockY, totalX, totalY);
+            i, j, actual_blockX, actual_blockY, totalX, totalY, partitionByCol);
 
         for (int ii = 0; ii < actual_blockX; ii++) {
           for (int jj = 0; jj < actual_blockY; jj++) {

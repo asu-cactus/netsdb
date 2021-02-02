@@ -161,11 +161,13 @@ void CatalogServer::registerHandlers(PDBServer &forMe) {
         bool res = true;
         std::string errMsg;
 
-        // if we are a worker not we simply register the node and that is it.
+        auto node = std::make_shared<pdb::PDBCatalogNode>(nodeID, address, port, type);
+
+        // if we are a worker, we simply register the node and that is it.
         if (!isManagerCatalogServer) {
 
           // add the guy that made the request as a registered node
-          res = pdbCatalog->registerNode(std::make_shared<pdb::PDBCatalogNode>(nodeID, address, port, type), errMsg);
+          res = pdbCatalog->nodeExists(nodeID) ? pdbCatalog->updateNode(node, errMsg) : pdbCatalog->registerNode(node, errMsg);
 
           // create an allocation block to hold the response
           const UseTemporaryAllocationBlock tempBlock{1024};
@@ -176,33 +178,45 @@ void CatalogServer::registerHandlers(PDBServer &forMe) {
           return make_pair(res, errMsg);
         }
 
-        // to get the results of each broadcast
-        map<string, pair<bool, string>> updateResults;
+        // add the guy that made the request as a registered node
+        res = pdbCatalog->nodeExists(nodeID);
 
-        // broadcast the update
-        broadcastRequest(request, updateResults, errMsg);
+        // this is a new node
+        if (res == false) {
 
-        for (auto &item : updateResults) {
+            // to get the results of each broadcast
+            map<string, pair<bool, string>> updateResults;
 
-          // if we failed res would be set to false
-          res = item.second.first && res;
+            // broadcast the update
+            broadcastRequest(request, updateResults, errMsg);
 
-          // log what is happening
-          PDB_COUT << "Node IP: " << item.first + (item.second.first ? " updated correctly!" : " couldn't be updated due to error: ") << item.second.second << "\n";
+            for (auto &item : updateResults) {
+
+               // if we failed res would be set to false
+               res = item.second.first && res;
+
+               // log what is happening
+               std::cout << "Node IP: " << item.first + (item.second.first ? " updated correctly!" : " couldn't be updated due to error: ") << item.second.second << "\n";
+            }
+ 
+            pdbCatalog->registerNode(node, errMsg);
+
+            // grab the catalog bytes
+            auto catalogDump = pdbCatalog->serializeToBytes();
+
+            // make an allocation block
+            const UseTemporaryAllocationBlock tempBlock{catalogDump.size() + 1024};
+            Handle<CatSyncResult> response = makeObject<CatSyncResult>(catalogDump);
+            res = sendUsingMe->sendObject(response, errMsg);
+        }
+        else {
+            std::vector<unsigned char> empty;
+            Handle<CatSyncResult> response = makeObject<CatSyncResult>(empty, true);
+            res = sendUsingMe->sendObject(response, errMsg);
+
         }
 
-        // add the guy that made the request as a registered node
-        res = pdbCatalog->registerNode(std::make_shared<pdb::PDBCatalogNode>(nodeID, address, port, type), errMsg);
-
-        // grab the catalog bytes
-        auto catalogDump = pdbCatalog->serializeToBytes();
-
-        // make an allocation block
-        const UseTemporaryAllocationBlock tempBlock{catalogDump.size() + 1024};
-        Handle<CatSyncResult> response = makeObject<CatSyncResult>(catalogDump);
-
         // sends result to requester
-        res = sendUsingMe->sendObject(response, errMsg);
         return make_pair(res, errMsg);
       }));
 
@@ -554,7 +568,9 @@ void CatalogServer::registerHandlers(PDBServer &forMe) {
 
         // register the set with the catalog
         res = pdbCatalog->registerSet(make_shared<PDBCatalogSet>(setName, dbName, internalTypeName), errMsg) && res;
-
+        if (res == false) {
+             std::cout << "Error in registering set: " << setName << ":" << dbName << std::endl;
+        }
         // after we added the set to the local catalog, if this is the
         // manager catalog iterate over all nodes in the cluster and broadcast the
         // request to the distributed copies of the catalog
@@ -572,13 +588,13 @@ void CatalogServer::registerHandlers(PDBServer &forMe) {
             res = item.second.first && res;
 
             // log what is happening
-            PDB_COUT << "Node IP: " << item.first + (item.second.first ? " updated correctly!" : " couldn't be updated due to error: ") << item.second.second << "\n";
+            std::cout << "Node IP: " << item.first + (item.second.first ? " updated correctly!" : " couldn't be updated due to error: ") << item.second.second << "\n";
           }
 
         } else {
 
           // log what happened
-          PDB_COUT << "This is not Manager Catalog Node, thus metadata was only registered locally!\n";
+          std::cout << "This is not Manager Catalog Node, thus metadata was only registered locally!\n";
         }
 
         // create an allocation block to hold the response
@@ -863,36 +879,44 @@ void CatalogServer::syncWithManager() {
         // if the result is something else null we got a response
         if (result != nullptr) {
 
-          // create the result vector
-          auto out = std::make_shared<std::vector<unsigned char>>();
+          if (result->restart == false) {
 
-          // copy the result to the return value
-          out->reserve(result->bytes->size());
-          out->assign(result->bytes->c_ptr(), result->bytes->c_ptr() + result->bytes->size());
+              // create the result vector
+              auto out = std::make_shared<std::vector<unsigned char>>();
 
-          return out;
+              // copy the result to the return value
+              out->reserve(result->bytes->size());
+              out->assign(result->bytes->c_ptr(), result->bytes->c_ptr() + result->bytes->size());
+
+              return out;
+          }
         }
 
         return (std::shared_ptr<std::vector<unsigned char>>) nullptr;
       }, nodeIP, nodePort, "worker");
 
-  ofstream file (catalogDirectory + "/catalog.sqlite", ios::trunc | ios::binary);
 
-  // check if the file is open
-  if(!file.is_open()) {
+  if (ret != nullptr) {
 
-    // log what happened
-    PDB_COUT << "Could not open out the catalog\n";
+      ofstream file (catalogDirectory + "/catalog.sqlite", ios::trunc | ios::binary);
 
-    // just end
-    return;
-  }
+      // check if the file is open
+      if(!file.is_open()) {
 
-  // write out the received catalog
-  file.write((char*) ret->data(), ret->size());
+           // log what happened
+           PDB_COUT << "Could not open out the catalog\n";
 
-  // close the file
-  file.close();
+           // just end
+           return;
+      }
+
+      // write out the received catalog
+      file.write((char*) ret->data(), ret->size());
+
+      // close the file
+      file.close();
+   }
+
 }
 
 // adds metadata and bytes of a shared library in the catalog and returns its typeId
