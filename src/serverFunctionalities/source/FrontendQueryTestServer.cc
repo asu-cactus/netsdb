@@ -843,8 +843,14 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
                         if (vecSize != 0) {
                             const UseTemporaryAllocationBlock tempBlock{2048};
 #ifdef ENABLE_COMPRESSION
+                            std::cout << "nextPage->getSize() = " << nextPage->getSize() << std::endl;
                             char* newRecord = (char*)calloc(nextPage->getSize(), 1);
-                            myRec = getRecord(inputVec, newRecord, nextPage->getSize());
+                            try {
+                                myRec = getRecord(inputVec, newRecord, nextPage->getSize());
+                            }
+                            catch (NotEnoughSpace e) {
+                               //do nothing, just don't change myRec
+                            } 
                             char* compressedBytes =
                                 new char[snappy::MaxCompressedLength(myRec->numBytes())];
                             size_t compressedSize;
