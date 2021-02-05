@@ -629,6 +629,9 @@ common_env.SharedLibrary('libraries/libRedditCommentLabelJoin.so', ['build/reddi
 common_env.SharedLibrary('libraries/libRedditLabelProjection.so', ['build/reddit/RedditLabelProjection.cc']+all)
 common_env.SharedLibrary('libraries/libRedditCommentFeatures.so', ['build/reddit/CommentFeatures.cc']+all)
 common_env.SharedLibrary('libraries/libRedditCommentsToFeatures.so', ['build/reddit/CommentsToFeatures.cc']+all)
+common_env.SharedLibrary('libraries/libLabelCommentsPartition.so', ['build/reddit/LabelCommentsPartition.cc']+all)
+common_env.SharedLibrary('libraries/libAuthorCommentsPartition.so', ['build/reddit/AuthorCommentsPartition.cc']+all)
+common_env.SharedLibrary('libraries/libSubsCommentsPartition.so', ['build/reddit/SubsCommentsPartition.cc']+all)
 
 common_env.SharedLibrary('libraries/libRedditCommentsToChunks.so', ['build/reddit/CommentsToChunks.cc']+all)
 common_env.SharedLibrary('libraries/libRedditCommentsChunk.so', ['build/reddit/CommentsChunk.cc']+all)
@@ -660,7 +663,9 @@ common_env.Program('bin/testScanSubs', ['build/tests/TestScanSubs.cc'] + all + p
 common_env.Program('bin/testRepartition', ['build/tests/TestRepartition.cc']+ all + pdb_client)
 common_env.Program('bin/testRepartition1', ['build/tests/TestRepartition1.cc']+ all + pdb_client)
 common_env.Program('bin/testRepartition3', ['build/tests/TestRepartition3.cc']+ all + pdb_client)
-common_env.Program('bin/redditSelectionParts', ['build/tests/PratikSelection.cc']+ all + pdb_client)
+common_env.Program('bin/redditSelectionParts', ['build/tests/RedditSelectionParts.cc']+ all + pdb_client)
+common_env.Program('bin/testRedditSelectionPartitions', ['build/tests/TestRedditSelectionPartitions.cc']+ all + pdb_client)
+
 # K-means
 common_env.SharedLibrary('libraries/libScanDoubleArraySet.so', ['build/libraries/ScanDoubleArraySet.cc'] + all)
 common_env.SharedLibrary('libraries/libKMeansAggregate.so', ['build/libraries/KMeansAggregate.cc'] + all)
@@ -1125,6 +1130,9 @@ reddit=common_env.Alias('reddit', [
   'libraries/libRedditJoinSubsAndComments.so',
   'libraries/libRedditLabelProjection.so',
   'libraries/libRedditCommentPartition.so',
+  'libraries/libLabelCommentsPartition.so',
+  'libraries/libAuthorCommentsPartition.so',
+  'libraries/libSubsCommentsPartition.so',
   'bin/loadRedditComments',
   'bin/loadRedditCommentsIndexPartition',
   'bin/loadRedditCommentsWithPartition',
@@ -1144,7 +1152,8 @@ reddit=common_env.Alias('reddit', [
   'bin/testRepartition',
   'bin/testRepartition1',
   'bin/testRepartition3',
-  'bin/redditSelectionParts'
+  'bin/redditSelectionParts',
+  'bin/testRedditSelectionPartitions'
 ])
 
 tpch=common_env.Alias('tpch', [
