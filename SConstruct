@@ -1152,12 +1152,8 @@ reddit=common_env.Alias('reddit', [
   'bin/testRepartition',
   'bin/testRepartition1',
   'bin/testRepartition3',
-<<<<<<< HEAD
   'bin/redditSelectionParts',
   'bin/testRedditSelectionPartitions'
-=======
-  'bin/redditSelectionParts'
->>>>>>> master
 ])
 
 tpch=common_env.Alias('tpch', [
