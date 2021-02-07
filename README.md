@@ -259,3 +259,9 @@ An example of this step is coded in:
 src/tpch/source/tpchTraining1.cc
 
 Run 'bin/tpchTraining1'
+
+Before executing the step, make sure you have started the RL server by:
+
+cd scripts/pangeaDeepRL
+
+python rlServer.py

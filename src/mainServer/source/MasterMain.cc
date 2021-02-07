@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
     std::string pemFile = "conf/pdb.key";
     bool pseudoClusterMode = false;
     double partitionToCoreRatio = 0.75;
-    bool trainingMode = false;
+    bool trainingMode = true;
     if (argc == 3) {
         masterIp = argv[1];
         port = atoi(argv[2]);
