@@ -31,7 +31,7 @@ public:
   // the neighbors of the url
   Handle<Vector<int>> neighbors;
 
-  size_t hash() const {
+  size_t hash() const override{
         return url;
   }
 

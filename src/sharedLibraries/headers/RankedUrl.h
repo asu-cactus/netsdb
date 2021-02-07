@@ -30,7 +30,7 @@ public:
     return rank;
   }
 
-  size_t hash() const {
+  size_t hash() const override {
     return url;
   }
 
