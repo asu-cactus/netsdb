@@ -237,7 +237,7 @@ int main(int argc, char* argv[]) {
   } else {
       run(pdbClient, 1, false, 0);
       repartition(pdbClient);
-      run(pdbClient, numIter-1, true, 1);
+      run(pdbClient, numIter, true, 1);
   }
   auto end = std::chrono::high_resolution_clock::now();
       std::cout << "End-to-End Time Duration: "
