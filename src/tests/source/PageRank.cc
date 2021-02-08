@@ -57,7 +57,7 @@ void repartition(PDBClient &pdbClient) {
       pdbClient.removeSet("db", "repartitionedRankings_1", errMsg);
       pdbClient.createSet<RankedUrl>("db", "repartitionedRankings_1", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "rankings_1", nullptr, myLambda1);
 
-      // now, create the output set
+      // n w, create the  utput set
       //
       pdbClient.removeSet("db", "repartitionedLinks", errMsg);
       Handle<LambdaIdentifier> myLambda = nullptr;
@@ -82,14 +82,68 @@ void repartition(PDBClient &pdbClient) {
       rankPartition3->setInput(input3);
       pdbClient.executeComputations(errMsg, "rank1_partitions", rankPartition3);
 
+     /* SetIterator<RankedUrl> result1 =
+            pdbClient.getSetIterator<RankedUrl>("db", "rankings_0");
+
+      int count = 0;
+      for (auto a : result1)
+          count ++;
+      std::cout << "Rankings_0:" << count << std::endl;
+
+
+      SetIterator<RankedUrl> partitionedResult1 =
+            pdbClient.getSetIterator<RankedUrl>("db", "repartitionedRankings_0");
+
+      count = 0;
+    
+      for (auto a : partitionedResult1)
+          count ++;
+      std::cout << "repartitionedRankings_0:" << count << std::endl;
+
+      SetIterator<RankedUrl> result2 =
+            pdbClient.getSetIterator<RankedUrl>("db", "rankings_1");
+
+      count = 0;
+      for (auto a : result2)
+          count ++;
+      std::cout << "Rankings_1:" << count << std::endl;
+
+      SetIterator<RankedUrl> partitionedResult2 =
+            pdbClient.getSetIterator<RankedUrl>("db", "repartitionedRankings_1");
+
+      count = 0;
+
+      for (auto a : partitionedResult2)
+          count ++;
+      std::cout << "repartitionedRankings_1:" << count << std::endl;
+
+
+      SetIterator<Link> result3 =
+            pdbClient.getSetIterator<Link>("db", "links");
+
+      count = 0;
+      for (auto a : result3)
+          count ++;
+      std::cout << "links:" << count << std::endl;
+      
+      SetIterator<Link> partitionedResult3 =
+            pdbClient.getSetIterator<Link>("db", "repartitionedLinks");
+
+      count = 0;
+
+      for (auto a : partitionedResult3)
+          count ++;
+      std::cout << "repartitionedLinks:" << count << std::endl;
+     */
+
 }
 
 
 
-void run(PDBClient &pdbClient, uint64_t numIter, bool repartitioned) {
+void run(PDBClient &pdbClient, uint64_t numIter, bool repartitioned, int index) {
 
   string errMsg;
-  for(uint64_t i = 0; i < numIter; ++i) {
+  for(uint64_t i = index; i < numIter; ++i) {
 
     pdb::makeObjectAllocatorBlock(64 * 1024 * 1024, true);
 
@@ -119,7 +173,11 @@ void run(PDBClient &pdbClient, uint64_t numIter, bool repartitioned) {
     multiSelection->setInput(0, join1);
 
     // aggregate them
-    Handle<RankUpdateAggregation> agg = makeObject<RankUpdateAggregation>("db", "rankings_" + std::to_string(1 - (i % 2)));
+    Handle<RankUpdateAggregation> agg = nullptr;
+    if (!repartitioned)
+        agg = makeObject<RankUpdateAggregation>("db", "rankings_" + std::to_string(1 - (i % 2)));
+    else
+        agg = makeObject<RankUpdateAggregation>("db", "repartitionedRankings_" + std::to_string(1 - (i % 2)));
     agg->setInput(multiSelection);
 
     // write it out
@@ -175,11 +233,11 @@ int main(int argc, char* argv[]) {
   // run one iteration
   auto begin = std::chrono::high_resolution_clock::now();
   if (!reactive) {
-      run(pdbClient, numIter, false);
+      run(pdbClient, numIter, false, 0);
   } else {
-      run(pdbClient, 1, false);
+      run(pdbClient, 1, false, 0);
       repartition(pdbClient);
-      run(pdbClient, numIter-1, true);
+      run(pdbClient, numIter-1, true, 1);
   }
   auto end = std::chrono::high_resolution_clock::now();
       std::cout << "End-to-End Time Duration: "

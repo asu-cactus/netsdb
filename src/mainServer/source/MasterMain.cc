@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
         exit(-1);
     }
     
-    bool isSelfLearning = false;
+    bool isSelfLearning = true;
 
     std::cout << "Starting up a distributed storage manager server\n";
     pdb::PDBLoggerPtr myLogger = make_shared<pdb::PDBLogger>("frontendLogFile.log");
