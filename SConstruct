@@ -17,6 +17,7 @@ elif common_env['PLATFORM'] == 'posix':
     os.system("sudo apt-get install libeigen3-dev")
     os.system("sudo apt-get install libgsl-dev")
     os.system("sudo apt-get install libsnappy1v5 libsnappy-dev")
+    os.system("sudo apt-get install libssl-dev")
 #common_env.Append(YACCFLAGS='-d')
 common_env.Append(CFLAGS='-std=c11')
 
@@ -49,6 +50,7 @@ elif  common_env['PLATFORM'] == 'posix':
     common_env.Append(LINKFLAGS = '-pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++ -lcrypto -lssl')
     common_env.Replace(CXX = "clang++")
 
+common_env.Append(CCFLAGS='-DDEBUG_SIMPLE_FF')
 #common_env.Append(CCFLAGS='-DDEBUG_VTABLE_FIXING')
 #common_env.Append(CCFLAGS='-DDEBUG_SHUFFLING')
 common_env.Append(CCFLAGS='-DINITIALIZE_ALLOCATOR_BLOCK')
@@ -859,6 +861,8 @@ common_env.Program('bin/LSTMDebug', ['build/tests/LSTMDebug.cc'] + all + pdb_cli
 
 common_env.Program('bin/PageRank', ['build/tests/PageRank.cc'] + all + pdb_client)
 common_env.Program('bin/StoreLinks', ['build/tests/StoreLinks.cc'] + all + pdb_client)
+common_env.SharedLibrary('libraries/libLinkPartition.so', ['build/libraries/LinkPartition.cc'] + all)
+common_env.SharedLibrary('libraries/libRankPartition.so', ['build/libraries/RankPartition.cc'] + all)
 common_env.SharedLibrary('libraries/libURLRankMultiSelection.so', ['build/libraries/URLRankMultiSelection.cc'] + all)
 common_env.SharedLibrary('libraries/libDistinctProjection.so', ['build/libraries/DistinctProjection.cc'] + all)
 common_env.SharedLibrary('libraries/libURLURLsRank.so', ['build/libraries/URLURLsRank.cc'] + all)
@@ -990,6 +994,8 @@ cgmm=common_env.Alias('pageRank', [
         'libraries/libURLURLsRank.so',
         'libraries/libJoinRankedUrlWithLink.so',
         'libraries/libLink.so',
+        'libraries/libLinkPartition.so',
+        'libraries/libRankPartition.so',
         'libraries/libLinkScanner.so',
         'libraries/libLinkWithValue.so',
         'libraries/libRankedUrl.so',

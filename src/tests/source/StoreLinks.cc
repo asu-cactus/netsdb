@@ -158,6 +158,8 @@ int main(int argc, char* argv[]) {
   CatalogClient catalogClient(port, managerIp, clientLogger);
   PDBClient pdbClient(port, managerIp, clientLogger, false, true);
       pdbClient.registerType("libraries/libLink.so", errMsg);
+      pdbClient.registerType("libraries/libLinkPartition.so", errMsg);
+      pdbClient.registerType("libraries/libRankPartition.so", errMsg);
       pdbClient.registerType("libraries/libURLRankMultiSelection.so", errMsg);
       pdbClient.registerType("libraries/libDistinctProjection.so", errMsg);
       pdbClient.registerType("libraries/libURLURLsRank.so", errMsg);

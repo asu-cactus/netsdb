@@ -45,7 +45,7 @@ public:
             pdb::Handle<FFMatrixBlock> resultFFMatrixBlock =
                 pdb::makeObject<FFMatrixBlock>(
                     in1->getBlockRowIndex(), in2->getBlockColIndex(), I, J,
-                    in1->getTotalRowNums(), in2->getTotalColNums());
+                    in1->getTotalRowNums(), in2->getTotalColNums(), false);
 
             // get the ptrs
             double *outData = resultFFMatrixBlock->getValue().rawData->c_ptr();

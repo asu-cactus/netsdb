@@ -22,7 +22,7 @@ class LinkWithValue : public pdb::Object {
   float rank = 0.0f;
 
 
-  size_t hash() const {
+  size_t hash() const override {
      return url;
   }
 
