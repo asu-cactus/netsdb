@@ -18,7 +18,7 @@ import struct
 import datetime
 
 #for each data, we only consider at most 2 candidate
-K = 2
+K = 2 
 
 #action space dimension: equivalent to the number of candidates plus 1 for no partition
 A_DIM = K + 1
@@ -30,7 +30,7 @@ S_DIM = 4 * K + 7
 ACTOR_LR_RATE = 0.0001
 
 #critic network learning rate
-CRITIC_LR_RATE = 0.001
+CRITIC_LR_RATE = 0.0001
 
 #log file
 LOG_FILE = "./rlLog"
@@ -40,7 +40,7 @@ MODEL_DIR = "."
 DEFAULT_LAMBDA = 0
 
 #size of a training batch
-TRAIN_SEQ_LEN = 96
+TRAIN_SEQ_LEN = 16
 
 #size of gradient batch
 GRADIENT_BATCH_SIZE = 16
@@ -49,14 +49,14 @@ GRADIENT_BATCH_SIZE = 16
 MODEL_SAVE_INTERVAL = 96
 
 #saved model for restoring
-#NN_MODEL = None
-NN_MODEL = './nn_model_ep_864.ckpt'
+NN_MODEL = None
+#NN_MODEL = './nn_model_ep_864.ckpt'
 
 #random seed
 RANDOM_SEED = 42
 RAND_RANGE = 1000
 
-MAX_EPOCH = 65535
+MAX_EPOCH = 1000
 
 
 def run(port=8333, log_file_path=LOG_FILE):

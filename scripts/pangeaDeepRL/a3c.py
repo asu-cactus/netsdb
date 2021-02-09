@@ -4,7 +4,7 @@ import tflearn
 import tensorflow.contrib.layers as tl
 
 #for each data, we only consider at most 2 candidate
-K = 2
+K = 2 
 
 #??
 GAMMA = 0.99
@@ -250,11 +250,11 @@ def compute_gradients(s_batch, a_batch, r_batch, terminal, actor, critic):
         R_batch[-1, 0] = v_batch[-1, 0]  # boot strap from last state
 
     for t in reversed(xrange(ba_size - 1)):
-         index = t+3
-         if index > 94:
-            index = t
-         R_batch[t, 0] = r_batch[index] + GAMMA * R_batch[t + 1, 0]#8 is hardcoded for TPCH
-         #R_batch[t, 0] = r_batch[t] + GAMMA * R_batch[t + 1, 0]
+         #index = t+3
+         #if index > 94:
+         #   index = t
+         #R_batch[t, 0] = r_batch[index] + GAMMA * R_batch[t + 1, 0]#8 is hardcoded for TPCH
+         R_batch[t, 0] = r_batch[t] + GAMMA * R_batch[t + 1, 0]
 
     td_batch = R_batch - v_batch
 

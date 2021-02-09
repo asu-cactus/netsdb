@@ -56,7 +56,7 @@ namespace pdb {
             (char *)&serv_addr.sin_addr.s_addr,
              server->h_length);
         serv_addr.sin_port = htons(this->port);
-        std::cout << "to connect to server" << std::endl;
+        std::cout << "to connect to server:" << this->address <<":" << this->port << std::endl;
         if (connect(sockFd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
             std::cout << "ERROR connecting" << std::endl;
             return -1;

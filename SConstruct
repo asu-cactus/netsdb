@@ -61,7 +61,7 @@ common_env.Append(CCFLAGS='-DPROFILING_CACHE')
 common_env.Append(CCFLAGS='-DUSE_LOCALITY_SET')
 #we need this for self learning, so that if no partition lambda is found we use random policy
 common_env.Append(CCFLAGS='-DRANDOME_DISPATCHER')
-common_env.Append(CCFLAGS='-DAPPLY_REINFORCEMENT_LEARNING')
+#common_env.Append(CCFLAGS='-DAPPLY_REINFORCEMENT_LEARNING')
 common_env.Append(CCFLAGS='-DPROFILING_CACHE')
 common_env.Append(CCFLAGS='-DENABLE_LARGE_GRAPH')
 #for nearest neighbor search, below flag should be set to large like 200 for 64MB page size

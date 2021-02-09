@@ -359,7 +359,7 @@ double getReward(const int& customerIndex,
 
 int main(int argc, char* argv[]) {
 
-    int numIterations = 2;
+    int numIterations = 10000000;
     if (argc == 2) {
         numIterations = atoi(argv[1]);
     }
@@ -375,7 +375,7 @@ int main(int argc, char* argv[]) {
     srand(time(NULL));
     double lastReward = 0;
     PDBLoggerPtr logger = std::make_shared<PDBLogger>("training.log");
-    std::shared_ptr<RLClient> rlClient = std::make_shared<RLClient> (8333, "54.242.17.255", logger); 
+    std::shared_ptr<RLClient> rlClient = std::make_shared<RLClient> (8333, "localhost", logger); 
 
     
     for (int iter = 0; iter < numIterations; iter++) {
