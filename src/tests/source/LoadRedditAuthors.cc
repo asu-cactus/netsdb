@@ -104,7 +104,7 @@ int main(int argc, char* argv[]) {
   Handle<LambdaIdentifier> myLambda1 = nullptr;
 
   if (whetherToPartitionData) {
-      myLambda1 = makeObject<LambdaIdentifier>("reddit-a", "JoinComp_3", "attAccess_1");
+      myLambda1 = makeObject<LambdaIdentifier>("reddit-a", "JoinComp_2", "attAccess_1");
   }
 
 

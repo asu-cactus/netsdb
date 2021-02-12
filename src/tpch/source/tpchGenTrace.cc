@@ -1446,21 +1446,21 @@ int main(int argc, char* argv[]) {
 
         //run all queries, and for each query, we collect stats and insert to run_stat table;
         float curLatency;
-        curLatency = runQuery01(pdbClient);
+        curLatency = runQuery04(pdbClient);
         std::string cmdString = "INSERT INTO RUN_STAT VALUES (" 
-                + std::to_string(runId) + ",'TPCHQuery01',"
+                + std::to_string(runId) + ",'TPCHQuery04',"
                 + std::to_string(partitionSchemeId) + ",0,"
                 + std::to_string(curLatency) +")";
         runId ++;
 
-        curLatency = runQuery02(pdbClient);
-        cmdString += ",(" + std::to_string(runId) + ",'TPCHQuery02',"
+        curLatency = runQuery12(pdbClient);
+        cmdString += ",(" + std::to_string(runId) + ",'TPCHQuery12',"
                           + std::to_string(partitionSchemeId) + ",0,"
                           + std::to_string(curLatency) +")";
         runId ++;
 
-        curLatency = runQuery04(pdbClient);
-        cmdString += ",(" + std::to_string(runId) + ",'TPCHQuery04',"
+        curLatency = runQuery17(pdbClient);
+        cmdString += ",(" + std::to_string(runId) + ",'TPCHQuery17',"
                           + std::to_string(partitionSchemeId) + ",0,"
                           + std::to_string(curLatency) +")";
         runId ++;
