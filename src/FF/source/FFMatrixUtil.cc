@@ -123,7 +123,7 @@ int load_matrix_data(pdb::PDBClient &pdbClient, string path, pdb::String dbName,
 
 void loadMatrix(pdb::PDBClient &pdbClient, pdb::String dbName,
                 pdb::String setName, int totalX, int totalY, int blockX,
-                int blockY, bool dont_pad_x, bool dont_pad_y, string &errMsg, bool partitionByCol) {
+                int blockY, bool dont_pad_x, bool dont_pad_y, string &errMsg, int size, bool partitionByCol) {
 
   std::random_device rd;
 
@@ -136,7 +136,7 @@ void loadMatrix(pdb::PDBClient &pdbClient, pdb::String dbName,
                        std::default_random_engine());
 
   int total = 0;
-  pdb::makeObjectAllocatorBlock(128 * 1024 * 1024, true);
+  pdb::makeObjectAllocatorBlock(size * 1024 * 1024, true);
 
   pdb::Handle<pdb::Vector<pdb::Handle<FFMatrixBlock>>> storeMatrix1 =
       pdb::makeObject<pdb::Vector<pdb::Handle<FFMatrixBlock>>>();
@@ -210,7 +210,7 @@ void loadMatrix(pdb::PDBClient &pdbClient, pdb::String dbName,
         exit(1);
       }
       std::cout << "Dispatched " << storeMatrix1->size() << " blocks." << std::endl;
-      pdb::makeObjectAllocatorBlock(128 * 1024 * 1024, true);
+      pdb::makeObjectAllocatorBlock(size * 1024 * 1024, true);
       storeMatrix1 = pdb::makeObject<pdb::Vector<pdb::Handle<FFMatrixBlock>>>();
     }
 
@@ -352,7 +352,7 @@ void print_stats(pdb::PDBClient &pdbClient, string dbName, string setName) {
 
   cout << "[STATS]: " << setName << endl;
   for (auto r : it) {
-    cout << r->getBlockRowIndex() << "," << r->getBlockColIndex() << ";";
+    // cout << r->getBlockRowIndex() << "," << r->getBlockColIndex() << ";";
     rows = r->getRowNums();
     cols = r->getColNums();
     totalRows = r->getTotalRowNums();

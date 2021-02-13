@@ -26,7 +26,7 @@ using namespace std;
 using namespace std::chrono;
 
 namespace reddit {
-int NUM_FEATURES = 100;
+int NUM_FEATURES = 200000;
 
 void long_to_time(long long_time, tm &time_struct) {
   time_t time = long_time;
