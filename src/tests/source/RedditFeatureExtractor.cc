@@ -142,35 +142,42 @@ int main(int argc, char *argv[]) {
       // std::string errMsg;
       // Handle<LambdaIdentifier> identifier = pdb::makeObject<LambdaIdentifier>(jobName, computationName, lambdaName);
       // pdbClient.createSet<FFMatrixBlock>(db, set, errMsg, 64*1024*1024, loadJobId, nullptr, identifier);//getBlockColIndex
-      ff::createSet(pdbClient, db, set, "CommentFeatures", "inference-1", "JoinComp_2", "methodCall_1", 4);
+      
+      //1000 comments 200000 features
+      ff::createSet(pdbClient, db, set, "CommentFeatures", "inference-1", "JoinComp_2", "methodCall_1", 64);
   }
   else
       ff::createSet(pdbClient, db, set, set, 4);
 
   if (!enablePartition) {
-      ff::createSet(pdbClient, db, "w1", "W1", 1);
+      //1000 hid1 200000 features
+      ff::createSet(pdbClient, db, "w1", "W1", 32);
+      //1000 x 1
       ff::createSet(pdbClient, db, "b1", "B1", 1);
-      ff::createSet(pdbClient, db, "y1", "Y1", 4);
-
-      ff::createSet(pdbClient, db, "w2", "W2", 1);
+      //200000 features 1000 comments
+      ff::createSet(pdbClient, db, "y1", "Y1", 32);
+      //2000 hid2 200000 features
+      ff::createSet(pdbClient, db, "w2", "W2", 64);
+      //2000 x 1
       ff::createSet(pdbClient, db, "b2", "B2", 1);
-      ff::createSet(pdbClient, db, "y2", "Y2", 4);
+      //200000 features 1000 comments
+      ff::createSet(pdbClient, db, "y2", "Y2", 32);
 
       ff::createSet(pdbClient, db, "wo", "WO", 1);
       ff::createSet(pdbClient, db, "bo", "BO", 1);
-      ff::createSet(pdbClient, db, "yo", "YO", 4);
+      ff::createSet(pdbClient, db, "yo", "YO", 1);
   } else {
-      ff::createSet(pdbClient, db, "w1", "W1", "inference-1", "JoinComp_2", "methodCall_0", 1);//getBlockColIndex
+      ff::createSet(pdbClient, db, "w1", "W1", "inference-1", "JoinComp_2", "methodCall_0", 32);//getBlockColIndex
       ff::createSet(pdbClient, db, "b1", "B1", "inference-1", "JoinComp_5", "methodCall_1", 1);//getBlockRowIndex
-      ff::createSet(pdbClient, db, "y1", "Y1", "inference-2", "JoinComp_2", "methodCall_1", 4);//getBlockRowIndex
+      ff::createSet(pdbClient, db, "y1", "Y1", "inference-2", "JoinComp_2", "methodCall_1", 32);//getBlockRowIndex
 
-      ff::createSet(pdbClient, db, "w2", "W2", "inference-2", "JoinComp_2", "methodCall_0", 1);//getBlockColIndex
+      ff::createSet(pdbClient, db, "w2", "W2", "inference-2", "JoinComp_2", "methodCall_0", 64);//getBlockColIndex
       ff::createSet(pdbClient, db, "b2", "B2", "inference-2", "JoinComp_5", "methodCall_1", 1);//getRowIndex
-      ff::createSet(pdbClient, db, "y2", "Y2", "inference-3", "JoinComp_2", "methodCall_1", 4);//getBlockRowIndex
+      ff::createSet(pdbClient, db, "y2", "Y2", "inference-3", "JoinComp_2", "methodCall_1", 32);//getBlockRowIndex
 
       ff::createSet(pdbClient, db, "wo", "WO", "inference-3", "JoinComp_2", "methodCall_0", 1);//getBlockColIndex
       ff::createSet(pdbClient, db, "bo", "BO", "inference-3", "JoinComp_5", "methodCall_1", 1);//getBlockRowIndex
-      ff::createSet(pdbClient, db, "yo", "YO", 4);
+      ff::createSet(pdbClient, db, "yo", "YO", 1);
   }
   //partitioning condition
   if (enablePartition) {
@@ -180,13 +187,13 @@ int main(int argc, char *argv[]) {
       std::string lambdaName = "methodCall_0";
       std::string errMsg;
       Handle<LambdaIdentifier> identifier = pdb::makeObject<LambdaIdentifier>(jobName, computationName, lambdaName);
-      pdbClient.createSet<InferenceResult>(db, "output", errMsg, 64*1024*1024, loadJobId, nullptr, identifier); //getKey
+      pdbClient.createSet<InferenceResult>(db, "output", errMsg, 1*1024*1024, loadJobId, nullptr, identifier); //getKey
   } else
-      ff::createSet(pdbClient, db, "output", "Output", 4);
+      ff::createSet(pdbClient, db, "output", "Output", 1);
 
-  ff::createSet(pdbClient, db, "inference", "Inference", 4);
+  ff::createSet(pdbClient, db, "inference", "Inference", 1);
 
-  ff::createSet(pdbClient, db, "labeled_comments", "LabeledComments", 4);//TO be partitioned
+  ff::createSet(pdbClient, db, "labeled_comments", "LabeledComments", 1);//TO be partitioned
 
   if (!generate) {
     string main_path = string(argv[6]);
@@ -212,25 +219,25 @@ int main(int argc, char *argv[]) {
     (void)ff::load_matrix_data(pdbClient, bo_path, db, "bo", block_x, block_y,
                                false, true, errMsg, false);
   } else {
-    int hid1_size = 10000;
-    int hid2_size = 20000;
+    int hid1_size = 1000;
+    int hid2_size = 2000;
     int num_labels = 2;
 
-    // 128 x 9 = 128 x 9
+    // 1000 x 200000 = 1000 x 200000
     ff::loadMatrix(pdbClient, db, "w1", hid1_size, total_features, block_x,
                    block_y, false, false, errMsg, true);
-    // 128 x 1
+    // 1000 x 1
     ff::loadMatrix(pdbClient, db, "b1", hid1_size, 1, block_x, block_y, false,
                    true, errMsg, false);
 
-    // 256 x 128
+    // 2000 x 200000
     ff::loadMatrix(pdbClient, db, "w2", hid2_size, hid1_size, block_x, block_y,
                    false, false, errMsg, true);
-    // 256 x 1
+    // 2000 x 1
     ff::loadMatrix(pdbClient, db, "b2", hid2_size, 1, block_x, block_y, false,
                    true, errMsg, false);
 
-    // 2 x 256
+    // 2 x 1000
     ff::loadMatrix(pdbClient, db, "wo", num_labels, hid2_size, block_x, block_y,
                    false, false, errMsg, true);
     // 2 x 1
