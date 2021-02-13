@@ -41,19 +41,19 @@ int main(int argc, char *argv[]) {
 
   ff::setup(pdbClient, "ff");
 
-  ff::createSet(pdbClient, "ff", "inputs", "inputs");
-  ff::createSet(pdbClient, "ff", "label", "label");
+  ff::createSet(pdbClient, "ff", "inputs", "inputs", 64);
+  ff::createSet(pdbClient, "ff", "label", "label", 64);
 
-  ff::createSet(pdbClient, "ff", "w1", "W1");
-  ff::createSet(pdbClient, "ff", "b1", "B1");
+  ff::createSet(pdbClient, "ff", "w1", "W1", 64);
+  ff::createSet(pdbClient, "ff", "b1", "B1", 64);
 
-  ff::createSet(pdbClient, "ff", "w2", "W2");
-  ff::createSet(pdbClient, "ff", "b2", "B2");
+  ff::createSet(pdbClient, "ff", "w2", "W2", 64);
+  ff::createSet(pdbClient, "ff", "b2", "B2", 64);
 
-  ff::createSet(pdbClient, "ff", "wo", "WO");
-  ff::createSet(pdbClient, "ff", "bo", "BO");
+  ff::createSet(pdbClient, "ff", "wo", "WO", 64);
+  ff::createSet(pdbClient, "ff", "bo", "BO", 64);
 
-  ff::createSet(pdbClient, "ff", "output", "Output");
+  ff::createSet(pdbClient, "ff", "output", "Output", 64);
 
   if (!generate) {
     input_path = string(argv[3]) + "/input.out";

@@ -50,7 +50,7 @@ elif  common_env['PLATFORM'] == 'posix':
     common_env.Append(LINKFLAGS = '-pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++ -lcrypto -lssl')
     common_env.Replace(CXX = "clang++")
 
-#common_env.Append(CCFLAGS='-DDEBUG_SIMPLE_FF')
+#common_env.Append(CCFLAGS='-DDEBUG_SIMPLE_FF_VERBOSE')
 #common_env.Append(CCFLAGS='-DDEBUG_VTABLE_FIXING')
 #common_env.Append(CCFLAGS='-DDEBUG_SHUFFLING')
 common_env.Append(CCFLAGS='-DINITIALIZE_ALLOCATOR_BLOCK')
@@ -63,7 +63,7 @@ common_env.Append(CCFLAGS='-DPROFILING_CACHE')
 common_env.Append(CCFLAGS='-DUSE_LOCALITY_SET')
 #we need this for self learning, so that if no partition lambda is found we use random policy
 common_env.Append(CCFLAGS='-DRANDOME_DISPATCHER')
-common_env.Append(CCFLAGS='-DAPPLY_REINFORCEMENT_LEARNING')
+# common_env.Append(CCFLAGS='-DAPPLY_REINFORCEMENT_LEARNING')
 common_env.Append(CCFLAGS='-DPROFILING_CACHE')
 common_env.Append(CCFLAGS='-DENABLE_LARGE_GRAPH')
 #for nearest neighbor search, below flag should be set to large like 200 for 64MB page size

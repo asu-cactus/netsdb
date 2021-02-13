@@ -528,7 +528,7 @@ void PipelineStage::executePipelineWork(int i,
                 std::cout << "We are probing PartitionedHashSet" << std::endl;
                 PartitionedHashSetPtr partitionedHashSet =
                         std::dynamic_pointer_cast<PartitionedHashSet>(hashSet);
-                if (!probePartitionedHashMap) {
+                if (!probePartitionedHashMap && !this->jobStage->isLocalJoinProbe()) {
                     std::cout << "info[key] = std::make_shared<JoinArg>(*newPlan, partitionedHashSet->getPage(i, true), nullptr);"<<std::endl;
                     info[key] = std::make_shared<JoinArg>(*newPlan, partitionedHashSet->getPage(i, true), nullptr);
                 } else {
