@@ -26,6 +26,7 @@ using namespace std;
 using namespace std::chrono;
 
 namespace reddit {
+int NUM_FEATURES = 1000;
 
 void long_to_time(long long_time, tm &time_struct) {
   time_t time = long_time;
@@ -95,12 +96,12 @@ public:
                          std::default_random_engine());
 
 
-    for (int i = 0; i < 59; i++) {
+    for (int i = 0; i < NUM_FEATURES - 41; i++) {
       double data = feature[gen()] * distp(e2);
       feature.push_back(data);
     }
 
-    assert(feature.size() == 100);
+    assert(feature.size() == NUM_FEATURES);
   }
 
   int getKey() { return this->index; }

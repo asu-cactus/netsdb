@@ -15,11 +15,11 @@ namespace ff {
 void loadLibrary(pdb::PDBClient &pdbClient, std::string path);
 
 void createSet(pdb::PDBClient &pdbClient, std::string dbName,
-               std::string setName, std::string setName1);
+               std::string setName, std::string setName1, int size);
 
 void createSet(pdb::PDBClient &pdbClient, std::string dbName,
                std::string setName, std::string setName1, std::string jobName,
-               std::string computationName, std::string lambdaName);
+               std::string computationName, std::string lambdaName, int size);
 
 
 

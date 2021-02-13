@@ -103,7 +103,7 @@ int main(int argc, char* argv[]) {
   string errMsg;
 
   // make sure we have the arguments
-  if(argc < 7) {
+  if(argc < 8) {
     std::cout << "Usage : ./LoadRedditComments managerIP managerPort inputFileName whetherToPartitionData, whetherToRegisterLibraries\n";
     std::cout << "managerIP - IP of the manager\n";
     std::cout << "managerPort - Port of the manager\n";
@@ -113,6 +113,7 @@ int main(int argc, char* argv[]) {
     std::cout << "partition on author or subs - A authors, S subs, L labeling\n";
     std::cout << "whetherToRemoveSet - Y yes, N no\n";
     std::cout << "totalCommentsToLoad - number of comments to load from inputFileName\n";
+    std::cout << "blockSizeInMB\n";
   }
   srand (time(NULL));
   //  get the manager address
@@ -134,6 +135,7 @@ int main(int argc, char* argv[]) {
   }
 
   int32_t totalCommentsToLoad = std::stoi(argv[8]);
+  int32_t blockSizeInMB = std::stoi(argv[9]);
 
   // make a client
   pdb::PDBLoggerPtr clientLogger = make_shared<pdb::PDBLogger>("clientLog");
@@ -166,7 +168,7 @@ int main(int argc, char* argv[]) {
   pdbClient.createSet<reddit::Comment>("redditDB", "comments", errMsg, (size_t)64*(size_t)1024*(size_t)1024, "comments", nullptr, myLambda1);
 
   // parse the input file 
-  parseInputJSONFile(pdbClient, inputFileName, 64, totalCommentsToLoad);
+  parseInputJSONFile(pdbClient, inputFileName, blockSizeInMB, totalCommentsToLoad);
 
 /*  SetIterator<reddit::Comment> result = pdbClient.getSetIterator<reddit::Comment>("redditDB", "comments");
   int count = 0;
