@@ -371,12 +371,15 @@ int main(int argc, char *argv[]) {
     ff::print(pdbClient, db, "yo");
     
     auto it = pdbClient.getSetIterator<InferenceResult>(db, "output");
+    int count = 0;
 
     for (auto r : it) {
       cout << "[PRINT] output : " << r->getKey() << ",0; Block Size: 1,2" << endl;
       r->print();
+      count++
     }
     cout << endl;
+    cout << "count: " << count << endl;
   }
 
   // Join the partitioned inference results with comments
