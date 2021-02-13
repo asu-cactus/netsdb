@@ -41,7 +41,7 @@ public:
       : chunk_size(chunk_size), chunk_index((int)(feature.index / chunk_size)) {
     feature_chunk = makeObject<Map<int, Vector<double>>>();
     (*feature_chunk)[feature.index] = *(feature.features);
-
+      std::cout << "[COMMENT FEATURE CHUNKS] Adding key " << feature.index << " to bucket " << chunk_index << std::endl;
     feature_count = feature.features->size();
   }
 
@@ -71,11 +71,9 @@ public:
     auto iter = rhs.begin();
     while (iter != rhs.end()) {
       int myKey = (*iter).key;
-      if (feature_chunk->count(myKey) != 0) {
-        std::cout << "[COMMENT FEATURE CHUNKS] Failed Aggregation! Expected count of " << myKey << " to be 0, but was " << feature_chunk->count(myKey) << std::endl;
-        exit(1);
+      if (feature_chunk->count(myKey) == 0) {
+        (*feature_chunk)[myKey] = (*iter).value;
       }
-      (*feature_chunk)[myKey] = (*iter).value;
       ++iter;
     }
     return *this;
