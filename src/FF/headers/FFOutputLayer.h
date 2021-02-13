@@ -31,7 +31,7 @@ public:
             uint32_t I = in1->getRowNums();
             uint32_t J = in1->getColNums();
 
-            if (in1->getRowNums() != in2->getRowNums() || in2->getColNums() != 1) {
+            if (in1->getRowNums() != in2->getRowNums()) {
               cout << "[FFOutputLayer] Cannot divide! Dimensions mismatch!"
                    << endl;
               exit(-1);
@@ -41,7 +41,7 @@ public:
             pdb::Handle<FFMatrixBlock> resultFFMatrixBlock =
                 pdb::makeObject<FFMatrixBlock>(
                     in1->getBlockRowIndex(), in1->getBlockColIndex(), I, J,
-                    in1->getTotalRowNums(), in1->getTotalColNums(), false);
+                    in1->getTotalRowNums(), in1->getTotalColNums());
 
             // get the ptrs
             double *outData = resultFFMatrixBlock->getValue().rawData->c_ptr();

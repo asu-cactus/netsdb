@@ -10,7 +10,7 @@ using namespace std;
 namespace ff {
 int load_matrix_data(pdb::PDBClient &pdbClient, string path, pdb::String dbName,
                      pdb::String setName, int blockX, int blockY,
-                     bool dont_pad_x, bool dont_pad_y, string &errMsg, bool partitionByCol) {
+                     bool dont_pad_x, bool dont_pad_y, string &errMsg) {
   if (path.size() == 0) {
     throw runtime_error("Invalid filepath: " + path);
   }
@@ -77,7 +77,7 @@ int load_matrix_data(pdb::PDBClient &pdbClient, string path, pdb::String dbName,
 
         pdb::Handle<FFMatrixBlock> myData =
             pdb::makeObject<FFMatrixBlock>(i, j, actual_blockX, actual_blockY,
-                                           matrix.size(), matrix[0].size(), partitionByCol);
+                                           matrix.size(), matrix[0].size());
 
         for (int ii = 0; ii < actual_blockX; ii++) {
           for (int jj = 0; jj < actual_blockY; jj++) {
@@ -234,38 +234,23 @@ void load_matrix_from_file(string path, vector<vector<double>> &matrix) {
   }
 }
 
-bool is_empty_set(pdb::PDBClient &pdbClient, pdb::CatalogClient &catalogClient, string dbName, string setName) {
-  if (!catalogClient.setExists(dbName, setName))
-    return true;
-
-  auto it = pdbClient.getSetIterator<FFMatrixBlock>(dbName, setName);
-  int count = 0;
-  for (auto r : it) {
-    count++;
-  }
-
-  if (count != 0)
-    cout << "[VALIDATE] Set " << setName << " exists!" << endl;
-
-  return count == 0;
-}
-
 void print(pdb::PDBClient &pdbClient, string dbName, string setName) {
   auto it = pdbClient.getSetIterator<FFMatrixBlock>(dbName, setName);
 
+  cout << setName << ": ";
+  bool done = false;
   for (auto r : it) {
-    double *ndata = r->getRawDataHandle()->c_ptr();
-    int x = r->getBlockRowIndex();
-    int y = r->getBlockColIndex();
-    int bx = r->getRowNums();
-    int by = r->getColNums();
-
-    cout << "[PRINT] " << setName << " : " << x << "," << y << "; Block Size: " << bx << "," << by << endl;
-    for (int i = 0; i < bx; i++) {
-      for (int j = 0; j < by; j++) {
-        cout << ndata[i * by + j] << ",";
-      }
-      cout << endl;
+    if (!done) {
+      done = true;
+      cout << "Actual dimensions: (" << r->getTotalRowNums() << ", "
+           << r->getTotalColNums()
+           << "), Block position: " << r->getBlockRowIndex() << ", "
+           << r->getBlockColIndex() << " : Block size: (" << r->getRowNums()
+           << ", " << r->getColNums() << ")" << endl;
+    }
+    double *data = r->getRawDataHandle()->c_ptr();
+    for (int i = 0; i < r->getRowNums() * r->getColNums(); i++) {
+      cout << data[i] << ",";
     }
     cout << endl;
   }
@@ -277,7 +262,6 @@ void print_stats(pdb::PDBClient &pdbClient, string dbName, string setName) {
   int blockRows = 0, blockCols = 0;
   auto it = pdbClient.getSetIterator<FFMatrixBlock>(dbName, setName);
 
-  cout << "[STATS]: " << setName << endl;
   for (auto r : it) {
     cout << r->getBlockRowIndex() << "," << r->getBlockColIndex() << ";";
     rows = r->getRowNums();

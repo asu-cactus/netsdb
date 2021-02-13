@@ -45,13 +45,6 @@ public:
     std::cout << (*inference)[0] << ", " << (*inference)[1] << std::endl;
   }
 
-  void print() {
-    for (int i = 0; i < inference->size(); i++) {
-      std::cout << (*inference)[i] << ",";
-    }
-    std::cout << std::endl;
-  }
-
   InferenceResult &getValue() { return *this; }
 
   size_t hash() const override{

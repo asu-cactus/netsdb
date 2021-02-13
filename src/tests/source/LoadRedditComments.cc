@@ -61,9 +61,8 @@ void parseInputJSONFile(PDBClient &pdbClient, std::string fileName, int blockSiz
           if (strcmp(comment->author.c_str(), "[deleted]") !=0){
               //classify_v1(comment);
               classify(comment);
-              comment->index = i;
-              storeMe->push_back(comment);
               i++;
+              storeMe->push_back(comment);
           }
       }
       catch (pdb::NotEnoughSpace &n) {
