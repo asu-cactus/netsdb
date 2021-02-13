@@ -144,51 +144,78 @@ void loadMatrix(pdb::PDBClient &pdbClient, pdb::String dbName,
   int numXBlocks = ceil(totalX / (double)blockX);
   int numYBlocks = ceil(totalY / (double)blockY);
 
-  try {
-    for (int i = 0; i < numXBlocks; i++) {
-      int actual_blockX =
-          dont_pad_x ? min(blockX, totalX - i * blockX) : blockX;
+  int i = 0;
+  int j = 0;
+  int ii = 0;
+  int jj = 0;
 
-      for (int j = 0; j < numYBlocks; j++) {
-        int actual_blockY =
-            dont_pad_y ? min(blockY, totalY - j * blockY) : blockY;
+  while (i < numXBlocks) {
 
-        pdb::Handle<FFMatrixBlock> myData = pdb::makeObject<FFMatrixBlock>(
-            i, j, actual_blockX, actual_blockY, totalX, totalY, partitionByCol);
+    try {
+      while (i < numXBlocks) {
+        int actual_blockX =
+            dont_pad_x ? min(blockX, totalX - i * blockX) : blockX;
 
-        for (int ii = 0; ii < actual_blockX; ii++) {
-          for (int jj = 0; jj < actual_blockY; jj++) {
-            int curX = (i * actual_blockX + ii);
-            int curY = (j * actual_blockY + jj);
+        while (j < numYBlocks) {
+          int actual_blockY =
+              dont_pad_y ? min(blockY, totalY - j * blockY) : blockY;
 
-            if ((dont_pad_x && curX >= totalX) ||
-                (dont_pad_y && curY >= totalY)) {
-              cout << "Shouldnt be here!" << endl;
-              exit(1);
+          pdb::Handle<FFMatrixBlock> myData = pdb::makeObject<FFMatrixBlock>(
+              i, j, actual_blockX, actual_blockY, totalX, totalY, partitionByCol);
+
+          while (ii < actual_blockX) {
+            while (jj < actual_blockY) {
+              int curX = (i * actual_blockX + ii);
+              int curY = (j * actual_blockY + jj);
+
+              if ((dont_pad_x && curX >= totalX) ||
+                  (dont_pad_y && curY >= totalY)) {
+                cout << "Shouldnt be here!" << endl;
+                exit(1);
+              }
+
+              // row = i * blockX + ii, col = j * blockY + jj
+              double data = curX >= totalX || curY >= totalY
+                                ? 0
+                                : (bool)gen() ? distn(e2) : distp(e2);
+              (*(myData->getRawDataHandle()))[ii * actual_blockY + jj] = data;
+              jj++;
             }
-
-            // row = i * blockX + ii, col = j * blockY + jj
-            double data = curX >= totalX || curY >= totalY
-                              ? 0
-                              : (bool)gen() ? distn(e2) : distp(e2);
-            (*(myData->getRawDataHandle()))[ii * actual_blockY + jj] = data;
+            ii++;
+            jj = 0;
           }
+
+          // cout << "New block: " << total << endl;
+          storeMatrix1->push_back(myData);
+          total++;
+          j++;
+          ii = 0;
+          jj = 0;
         }
 
-        // cout << "New block: " << total << endl;
-        storeMatrix1->push_back(myData);
-        total++;
+        i++;
+        j = 0;
+        ii = 0;
+        jj = 0;
       }
+      if (!pdbClient.sendData<FFMatrixBlock>(
+              pair<string, string>(setName, dbName), storeMatrix1, errMsg)) {
+        cout << "Failed to send data to dispatcher server" << endl;
+        exit(1);
+      }
+    } catch (pdb::NotEnoughSpace &e) {
+      if (!pdbClient.sendData<FFMatrixBlock>(
+              pair<string, string>(setName, dbName), storeMatrix1, errMsg)) {
+        cout << "Failed to send data to dispatcher server" << endl;
+        exit(1);
+      }
+      std::cout << "Dispatched " << storeMatrix1->size() << " blocks." << std::endl;
+      pdb::makeObjectAllocatorBlock(128 * 1024 * 1024, true);
+      storeMatrix1 = pdb::makeObject<pdb::Vector<pdb::Handle<FFMatrixBlock>>>();
     }
-    if (!pdbClient.sendData<FFMatrixBlock>(
-            pair<string, string>(setName, dbName), storeMatrix1, errMsg)) {
-      cout << "Failed to send data to dispatcher server" << endl;
-      exit(1);
-    }
-  } catch (pdb::NotEnoughSpace &e) {
-    cout << "Failed to send data to dispatcher server" << endl;
-    exit(1);
+
   }
+
   cout << setName << "(" << totalX << "x" << totalY << "): (" << numXBlocks
        << " x " << numYBlocks << ")" << total << " blocks = " << blockX << " x "
        << blockY << " each" << endl;
