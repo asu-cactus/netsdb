@@ -70,6 +70,7 @@ int main(int argc, char *argv[]) {
   block_x = atoi(argv[3]);
   block_y = atoi(argv[4]);
   batch_size = atoi(argv[5]);
+  cout << "Batch Size: " << batch_size << endl;
   cout << "Using block dimensions " << block_x << ", " << block_y << endl;
 
   bool generate = argc == 6;
@@ -93,16 +94,55 @@ int main(int argc, char *argv[]) {
   ff::loadLibrary(pdbClient, "libraries/libFFRowAggregate.so");
   ff::loadLibrary(pdbClient, "libraries/libFFOutputLayer.so");
 
+  pdbClient.removeSet(db, "w1", errMsg);
+  pdbClient.removeSet(db, "b1", errMsg);
+  pdbClient.removeSet(db, "y1", errMsg);
+  pdbClient.removeSet(db, "w2", errMsg);
+  pdbClient.removeSet(db, "b2", errMsg);
+  pdbClient.removeSet(db, "y2", errMsg);
+  pdbClient.removeSet(db, "wo", errMsg);
+  pdbClient.removeSet(db, "bo", errMsg);
+  pdbClient.removeSet(db, "yo", errMsg);
+  pdbClient.removeSet(db, "output", errMsg);
+  pdbClient.removeSet(db, "inference", errMsg);
+  pdbClient.removeSet(db, "labeled_comments", errMsg);
+  pdbClient.removeSet(db, "comment_features", errMsg);
+  pdbClient.flushData(errMsg);
+
+  ff::cleanup(pdbClient, db);
+
+  {
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+    if (!ff::is_empty_set(pdbClient, catalogClient, db, "w1") ||
+        !ff::is_empty_set(pdbClient, catalogClient, db, "b1") ||
+        !ff::is_empty_set(pdbClient, catalogClient, db, "y1") ||
+        !ff::is_empty_set(pdbClient, catalogClient, db, "w2") ||
+        !ff::is_empty_set(pdbClient, catalogClient, db, "b2") ||
+        !ff::is_empty_set(pdbClient, catalogClient, db, "y2") ||
+        !ff::is_empty_set(pdbClient, catalogClient, db, "wo") ||
+        !ff::is_empty_set(pdbClient, catalogClient, db, "bo") ||
+        !ff::is_empty_set(pdbClient, catalogClient, db, "yo") ||
+        !ff::is_empty_set(pdbClient, catalogClient, db, "output") ||
+        !ff::is_empty_set(pdbClient, catalogClient, db, "inference") ||
+        !ff::is_empty_set(pdbClient, catalogClient, db, "labeled_comments") ||
+        !ff::is_empty_set(pdbClient, catalogClient, db, "comment_features")) {
+          cout << "Old data exists!" << endl;
+          exit(1);
+        }
+  }
+
   //specify the partitioning condition here
   
   if (enablePartition) {
-      std::string loadJobId = set;
-      std::string jobName = "inference-1";
-      std::string computationName = "JoinComp_2";
-      std::string lambdaName = "methodCall_1"; 
-      std::string errMsg;
-      Handle<LambdaIdentifier> identifier = pdb::makeObject<LambdaIdentifier>(jobName, computationName, lambdaName);
-      pdbClient.createSet<FFMatrixBlock>(db, set, errMsg, 64*1024*1024, loadJobId, nullptr, identifier);//getBlockColIndex
+      // std::string loadJobId = set;
+      // std::string jobName = "inference-1";
+      // std::string computationName = "JoinComp_2";
+      // std::string lambdaName = "methodCall_1"; 
+      // std::string errMsg;
+      // Handle<LambdaIdentifier> identifier = pdb::makeObject<LambdaIdentifier>(jobName, computationName, lambdaName);
+      // pdbClient.createSet<FFMatrixBlock>(db, set, errMsg, 64*1024*1024, loadJobId, nullptr, identifier);//getBlockColIndex
+      ff::createSet(pdbClient, db, set, "CommentFeatures", "inference-1", "JoinComp_2", "methodCall_1");
   }
   else
       ff::createSet(pdbClient, db, set, set);
@@ -122,11 +162,11 @@ int main(int argc, char *argv[]) {
   } else {
       ff::createSet(pdbClient, db, "w1", "W1", "inference-1", "JoinComp_2", "methodCall_0");//getBlockColIndex
       ff::createSet(pdbClient, db, "b1", "B1", "inference-1", "JoinComp_5", "methodCall_1");//getBlockRowIndex
-      ff::createSet(pdbClient, db, "y1", "Y1", "inference-2", "JoinComp_2", "methodCall_1");//getBlockColIndex
+      ff::createSet(pdbClient, db, "y1", "Y1", "inference-2", "JoinComp_2", "methodCall_1");//getBlockRowIndex
 
       ff::createSet(pdbClient, db, "w2", "W2", "inference-2", "JoinComp_2", "methodCall_0");//getBlockColIndex
       ff::createSet(pdbClient, db, "b2", "B2", "inference-2", "JoinComp_5", "methodCall_1");//getRowIndex
-      ff::createSet(pdbClient, db, "y2", "Y2", "inference-3", "JoinComp_2", "methodCall_1");//getBlockColIndex
+      ff::createSet(pdbClient, db, "y2", "Y2", "inference-3", "JoinComp_2", "methodCall_1");//getBlockRowIndex
 
       ff::createSet(pdbClient, db, "wo", "WO", "inference-3", "JoinComp_2", "methodCall_0");//getBlockColIndex
       ff::createSet(pdbClient, db, "bo", "BO", "inference-3", "JoinComp_5", "methodCall_1");//getBlockRowIndex
@@ -160,17 +200,17 @@ int main(int argc, char *argv[]) {
 
     // load the input data
     (void)ff::load_matrix_data(pdbClient, w1_path, db, "w1", block_x, block_y,
-                               false, false, errMsg);
+                               false, false, errMsg, true);
     (void)ff::load_matrix_data(pdbClient, w2_path, db, "w2", block_x, block_y,
-                               false, false, errMsg);
+                               false, false, errMsg, true);
     (void)ff::load_matrix_data(pdbClient, wo_path, db, "wo", block_x, block_y,
-                               false, false, errMsg);
+                               false, false, errMsg, true);
     (void)ff::load_matrix_data(pdbClient, b1_path, db, "b1", block_x, block_y,
-                               false, true, errMsg);
+                               false, true, errMsg, false);
     (void)ff::load_matrix_data(pdbClient, b2_path, db, "b2", block_x, block_y,
-                               false, true, errMsg);
+                               false, true, errMsg, false);
     (void)ff::load_matrix_data(pdbClient, bo_path, db, "bo", block_x, block_y,
-                               false, true, errMsg);
+                               false, true, errMsg, false);
   } else {
     int hid1_size = 128;
     int hid2_size = 256;
@@ -178,24 +218,41 @@ int main(int argc, char *argv[]) {
 
     // 128 x 9 = 128 x 9
     ff::loadMatrix(pdbClient, db, "w1", hid1_size, total_features, block_x,
-                   block_y, false, false, errMsg);
+                   block_y, false, false, errMsg, true);
     // 128 x 1
     ff::loadMatrix(pdbClient, db, "b1", hid1_size, 1, block_x, block_y, false,
                    true, errMsg, false);
 
     // 256 x 128
     ff::loadMatrix(pdbClient, db, "w2", hid2_size, hid1_size, block_x, block_y,
-                   false, false, errMsg);
+                   false, false, errMsg, true);
     // 256 x 1
     ff::loadMatrix(pdbClient, db, "b2", hid2_size, 1, block_x, block_y, false,
                    true, errMsg, false);
 
     // 2 x 256
     ff::loadMatrix(pdbClient, db, "wo", num_labels, hid2_size, block_x, block_y,
-                   false, false, errMsg);
+                   false, false, errMsg, true);
     // 2 x 1
     ff::loadMatrix(pdbClient, db, "bo", num_labels, 1, block_x, block_y, false,
                    true, errMsg, false);
+  }
+
+  {
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+    ff::print_stats(pdbClient, db, "w1");
+    ff::print(pdbClient, db, "w1");
+    ff::print_stats(pdbClient, db, "w2");
+    ff::print(pdbClient, db, "w2");
+    ff::print_stats(pdbClient, db, "wo");
+    ff::print(pdbClient, db, "wo");
+    ff::print_stats(pdbClient, db, "b1");
+    ff::print(pdbClient, db, "b1");
+    ff::print_stats(pdbClient, db, "b2");
+    ff::print(pdbClient, db, "b2");
+    ff::print_stats(pdbClient, db, "bo");
+    ff::print(pdbClient, db, "bo");
   }
 
   ff::loadLibrary(pdbClient, "libraries/libRedditCommentFeatures.so");
@@ -240,7 +297,7 @@ int main(int argc, char *argv[]) {
 
     auto begin = std::chrono::high_resolution_clock::now();
     // run the computation
-    if (!pdbClient.executeComputations(errMsg, myWriter)) {
+    if (!pdbClient.executeComputations(errMsg, "blocking-0", myWriter)) {
       cout << "Computation failed. Message was: " << errMsg << "\n";
       exit(1);
     }
@@ -258,6 +315,8 @@ int main(int argc, char *argv[]) {
     std::cout << "count: " << count << std::endl;
   }
 
+  pdbClient.flushData (errMsg);
+
   ff::loadLibrary(pdbClient, "libraries/libRedditCommentInferenceJoin.so");
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixMultiSel.so");
   ff::loadLibrary(pdbClient, "libraries/libInferenceResult.so");
@@ -267,7 +326,7 @@ int main(int argc, char *argv[]) {
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 256};
 
-    double dropout_rate = 0.5;
+    double dropout_rate = 0;
     pdb::Handle<pdb::Computation> inference;
     auto begin = std::chrono::high_resolution_clock::now(); 
     ff::inference(pdbClient, db, "w1", "w2", "wo", set, "b1", "b2", "bo",
@@ -301,6 +360,23 @@ int main(int argc, char *argv[]) {
     std::cout << "Inference results flatterning Stage Time Duration: "
               << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
               << " secs." << std::endl;
+  }
+
+  pdbClient.flushData (errMsg);
+
+  {
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+    ff::print_stats(pdbClient, db, "yo");
+    ff::print(pdbClient, db, "yo");
+    
+    auto it = pdbClient.getSetIterator<InferenceResult>(db, "output");
+
+    for (auto r : it) {
+      cout << "[PRINT] output : " << r->getKey() << ",0; Block Size: 1,2" << endl;
+      r->print();
+    }
+    cout << endl;
   }
 
   // Join the partitioned inference results with comments
@@ -337,14 +413,6 @@ int main(int argc, char *argv[]) {
               << " secs." << std::endl;
   }
 
-  pdbClient.deleteSet(db, "w1");
-  pdbClient.deleteSet(db, "b1");
-  pdbClient.deleteSet(db, "w2");
-  pdbClient.deleteSet(db, "b2");
-  pdbClient.deleteSet(db, "wo");
-  pdbClient.deleteSet(db, "bo");
-  pdbClient.deleteSet(db, "output");
-
   pdbClient.flushData(errMsg);
 
    {
@@ -352,50 +420,50 @@ int main(int argc, char *argv[]) {
 
      auto it = pdbClient.getSetIterator<reddit::Comment>(db, "labeled_comments");
 
-//     int count = 0;
-//     for (auto r : it) {
-//       //cout << r->label << endl;
-//       count++;
-//     }
-//     std::cout << "count = " << count << std::endl;
+    int count = 0;
+    for (auto r : it) {
+      //cout << r->label << endl;
+      count++;
+    }
+    std::cout << "count = " << count << std::endl;
    }
 
-  pdbClient.registerType("libraries/libRedditComment.so", errMsg);
-  pdbClient.registerType("libraries/libRedditAuthor.so", errMsg);
-  pdbClient.registerType("libraries/libRedditFeatures.so", errMsg);
-  pdbClient.registerType("libraries/libRedditJoin.so", errMsg);
-  pdbClient.registerType("libraries/libRedditPositiveLabelSelection.so", errMsg);
+  // pdbClient.registerType("libraries/libRedditComment.so", errMsg);
+  // pdbClient.registerType("libraries/libRedditAuthor.so", errMsg);
+  // pdbClient.registerType("libraries/libRedditFeatures.so", errMsg);
+  // pdbClient.registerType("libraries/libRedditJoin.so", errMsg);
+  // pdbClient.registerType("libraries/libRedditPositiveLabelSelection.so", errMsg);
 
-  {
-    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+  // {
+  //   const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
 
-    // make the computation
-    pdb::Handle<pdb::Computation> readA =
-        makeObject<ScanUserSet<reddit::Comment>>(db, "labeled_comments");
+  //   // make the computation
+  //   pdb::Handle<pdb::Computation> readA =
+  //       makeObject<ScanUserSet<reddit::Comment>>(db, "labeled_comments");
 
-    pdb::Handle<pdb::Computation> readB =
-        makeObject<ScanUserSet<reddit::Author>>(db, "authors");
+  //   pdb::Handle<pdb::Computation> readB =
+  //       makeObject<ScanUserSet<reddit::Author>>(db, "authors");
 
-    pdb::Handle<pdb::Computation> join = makeObject<reddit::JoinAuthorsWithComments>();
-    join->setInput(0, readA);
-    join->setInput(1, readB);
+  //   pdb::Handle<pdb::Computation> join = makeObject<reddit::JoinAuthorsWithComments>();
+  //   join->setInput(0, readA);
+  //   join->setInput(1, readB);
 
-    Handle<Computation> myWriteSet = makeObject<WriteUserSet<reddit::Features>>("redditDB", "features");
-    myWriteSet->setInput(join);
+  //   Handle<Computation> myWriteSet = makeObject<WriteUserSet<reddit::Features>>("redditDB", "features");
+  //   myWriteSet->setInput(join);
 
-    auto begin = std::chrono::high_resolution_clock::now();
-    // run the computation
-    if (!pdbClient.executeComputations(errMsg, myWriteSet)) {
-      cout << "Computation failed. Message was: " << errMsg << "\n";
-      exit(1);
-    }
-    auto end = std::chrono::high_resolution_clock::now();
-    std::cout << "Adaptive Join Stage Time Duration: "
-              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
-              << " secs." << std::endl;
-    pdbClient.flushData(errMsg);
-  }
+  //   auto begin = std::chrono::high_resolution_clock::now();
+  //   // run the computation
+  //   if (!pdbClient.executeComputations(errMsg, myWriteSet)) {
+  //     cout << "Computation failed. Message was: " << errMsg << "\n";
+  //     exit(1);
+  //   }
+  //   auto end = std::chrono::high_resolution_clock::now();
+  //   std::cout << "Adaptive Join Stage Time Duration: "
+  //             << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
+  //             << " secs." << std::endl;
+  //   pdbClient.flushData(errMsg);
+  // }
 
   return 0;
 }

@@ -57,7 +57,7 @@ public:
                     : min(block_y, checkMe->feature_count - i * block_y);
         Handle<::FFMatrixBlock> myData = makeObject<::FFMatrixBlock>(
             checkMe->chunk_index, i, real_block_x, real_block_y, batch_size,
-            checkMe->feature_count);
+            checkMe->feature_count, true);
 
         Map<int, Vector<double>> &chunk = checkMe->getChunk();
 

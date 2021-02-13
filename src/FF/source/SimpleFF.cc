@@ -25,9 +25,21 @@ void loadLibrary(pdb::PDBClient &pdbClient, string path) {
   }
 }
 
+void createSet(pdb::PDBClient &pdbClient, string dbName, string setName, string setName1) {
+  string errMsg;
+  pdbClient.removeSet(dbName, setName, errMsg);
+  if (!pdbClient.createSet<FFMatrixBlock>(
+          dbName, setName, errMsg, (size_t)64 * (size_t)1024 * (size_t)1024,
+          setName1)) {
+    cout << "Not able to create set: " + errMsg;
+    //exit(-1); //It is possible that the set exists
+  } else {
+    cout << "Created set.\n";
+  }
+}
+
 void createSet(pdb::PDBClient &pdbClient, string dbName, string setName,
                string setName1, string jobName, string computationName, string lambdaName) {
-
   string errMsg;
   pdbClient.removeSet(dbName, setName, errMsg);
   Handle<LambdaIdentifier> identifier = pdb::makeObject<LambdaIdentifier>(jobName, computationName, lambdaName);
@@ -67,11 +79,29 @@ void setup(pdb::PDBClient &pdbClient, string database) {
   loadLibrary(pdbClient, "libraries/libFFRowAggregate.so");
   loadLibrary(pdbClient, "libraries/libFFOutputLayer.so");
 
-  createSet(pdbClient, database, "y1", "Y1");
+  // createSet(pdbClient, database, "y1", "Y1");
 
-  createSet(pdbClient, database, "y2", "Y2");
+  // createSet(pdbClient, database, "y2", "Y2");
 
-  createSet(pdbClient, database, "yo", "YO");
+  // createSet(pdbClient, database, "yo", "YO");
+
+  // {
+  //   const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+  //   if (!is_empty_set(pdbClient, database, "y1") ||
+  //       !is_empty_set(pdbClient, database, "y2") ||
+  //       !is_empty_set(pdbClient, database, "yo")) {
+  //         cout << "Old data exists!" << endl;
+  //         exit(1);
+  //       }
+  // }
+}
+
+void cleanup(pdb::PDBClient &pdblient, string database) {
+  string errMsg;
+  // pdblient.removeSet(database, "y1", errMsg);
+  // pdblient.removeSet(database, "y2", errMsg);
+  // pdblient.removeSet(database, "yo", errMsg);
 }
 
 void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
@@ -122,6 +152,21 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
     }
   }
 
+   pdbClient.flushData (errMsg);
+
+  {
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+    print_stats(pdbClient, database, w1);
+    print(pdbClient, database, w1);
+    print_stats(pdbClient, database, inputs);
+    print(pdbClient, database, inputs);
+    print_stats(pdbClient, database, b1);
+    print(pdbClient, database, b1);
+    print_stats(pdbClient, database, "y1");
+    print(pdbClient, database, "y1");
+  }
+
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
@@ -164,7 +209,20 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
     }
   }
 
-  pdbClient.deleteSet(database, "y1");
+   pdbClient.flushData (errMsg);
+
+  {
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+    print_stats(pdbClient, database, w2);
+    print(pdbClient, database, w2);
+    print_stats(pdbClient, database, "y1");
+    print(pdbClient, database, "y1");
+    print_stats(pdbClient, database, b2);
+    print(pdbClient, database, b2);
+    print_stats(pdbClient, database, "y2");
+    print(pdbClient, database, "y2");
+  }
 
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
@@ -204,7 +262,20 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
     }
   }
 
-  pdbClient.deleteSet(database, "y2");
+   pdbClient.flushData (errMsg);
+
+  {
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+    print_stats(pdbClient, database, wo);
+    print(pdbClient, database, wo);
+    print_stats(pdbClient, database, "y2");
+    print(pdbClient, database, "y2");
+    print_stats(pdbClient, database, bo);
+    print(pdbClient, database, bo);
+    print_stats(pdbClient, database, "yo");
+    print(pdbClient, database, "yo");
+  }
 }
 
 void inference(pdb::PDBClient &pdbClient, string database, string w1, string w2,
@@ -239,8 +310,6 @@ void inference(pdb::PDBClient &pdbClient, string database, string w1, string w2,
       exit(1);
     }
   }
-
-  pdbClient.deleteSet(database, "yo");
 }
 
 void inference(pdb::PDBClient &pdbClient, string database, string w1, string w2,
