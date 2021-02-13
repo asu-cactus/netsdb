@@ -242,17 +242,19 @@ int main(int argc, char *argv[]) {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
     ff::print_stats(pdbClient, db, "w1");
-    ff::print(pdbClient, db, "w1");
     ff::print_stats(pdbClient, db, "w2");
-    ff::print(pdbClient, db, "w2");
     ff::print_stats(pdbClient, db, "wo");
-    ff::print(pdbClient, db, "wo");
     ff::print_stats(pdbClient, db, "b1");
-    ff::print(pdbClient, db, "b1");
     ff::print_stats(pdbClient, db, "b2");
-    ff::print(pdbClient, db, "b2");
     ff::print_stats(pdbClient, db, "bo");
+#ifdef DEBUG_SIMPLE_FF_VERBOSE
+    ff::print(pdbClient, db, "w1");
+    ff::print(pdbClient, db, "w2");
+    ff::print(pdbClient, db, "wo");
+    ff::print(pdbClient, db, "b1");
+    ff::print(pdbClient, db, "b2");
     ff::print(pdbClient, db, "bo");
+#endif
   }
 
   ff::loadLibrary(pdbClient, "libraries/libRedditCommentFeatures.so");
@@ -309,7 +311,9 @@ int main(int argc, char *argv[]) {
     SetIterator<FFMatrixBlock> result = pdbClient.getSetIterator<FFMatrixBlock>(db, set);
     int count = 0;
     for (const auto &r : result) {
-      //r->print();  
+#ifdef DEBUG_SIMPLE_FF_VERBOSE
+      r->print();  
+#endif
       count++;
     }
     std::cout << "count: " << count << std::endl;
@@ -368,17 +372,19 @@ int main(int argc, char *argv[]) {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
     ff::print_stats(pdbClient, db, "yo");
+#ifdef DEBUG_SIMPLE_FF_VERBOSE
     ff::print(pdbClient, db, "yo");
+#endif
     
     auto it = pdbClient.getSetIterator<InferenceResult>(db, "output");
     int count = 0;
 
     for (auto r : it) {
+#ifdef DEBUG_SIMPLE_FF_VERBOSE
       cout << "[PRINT] output : " << r->getKey() << ",0; Block Size: 1,2" << endl;
-      r->print();
-      count++
+#endif
+      count++;
     }
-    cout << endl;
     cout << "count: " << count << endl;
   }
 
@@ -425,7 +431,9 @@ int main(int argc, char *argv[]) {
 
     int count = 0;
     for (auto r : it) {
-      //cout << r->label << endl;
+#ifdef DEBUG_SIMPLE_FF_VERBOSE
+      cout << r->label << endl;
+#endif
       count++;
     }
     std::cout << "count = " << count << std::endl;

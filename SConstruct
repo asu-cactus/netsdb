@@ -50,6 +50,7 @@ elif  common_env['PLATFORM'] == 'posix':
     common_env.Append(LINKFLAGS = '-pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++ -lcrypto -lssl')
     common_env.Replace(CXX = "clang++")
 
+#common_env.Append(CCFLAGS='-DDEBUG_SIMPLE_FF_VERBOSE')
 #common_env.Append(CCFLAGS='-DDEBUG_VTABLE_FIXING')
 #common_env.Append(CCFLAGS='-DDEBUG_SHUFFLING')
 common_env.Append(CCFLAGS='-DINITIALIZE_ALLOCATOR_BLOCK')

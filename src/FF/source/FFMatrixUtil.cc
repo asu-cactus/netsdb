@@ -328,19 +328,15 @@ void print_stats(pdb::PDBClient &pdbClient, string dbName, string setName) {
     cout << r->getBlockRowIndex() << "," << r->getBlockColIndex() << ";";
     rows = r->getRowNums();
     cols = r->getColNums();
-    if (r->getBlockRowIndex() == 0) {
-      totalRows += r->getRowNums();
-      blockRows += 1;
-    }
-    if (r->getBlockColIndex() == 0) {
-      totalCols += r->getColNums();
-      blockCols += 1;
-    }
+    totalRows = r->getTotalRowNums();
+    totalCols = r->getTotalColNums();
+    blockRows = max(r->getBlockRowIndex(), blockRows);
+    blockCols = max(r->getBlockColIndex(), blockCols);
     blocks++;
   }
 
   cout << "\n"
-       << setName << " (" << blockRows << " X " << blockCols << ") (" << blocks
+       << setName << " (" << (blockRows + 1) << " X " << (blockCols + 1) << ") (" << blocks
        << ") : (" << totalRows << " x " << totalCols
        << "), Each block size: " << rows << " x " << cols << endl;
 }

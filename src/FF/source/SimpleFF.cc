@@ -158,13 +158,15 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
     print_stats(pdbClient, database, w1);
-    print(pdbClient, database, w1);
     print_stats(pdbClient, database, inputs);
-    print(pdbClient, database, inputs);
     print_stats(pdbClient, database, b1);
-    print(pdbClient, database, b1);
     print_stats(pdbClient, database, "y1");
+#ifdef DEBUG_SIMPLE_FF_VERBOSE
+    print(pdbClient, database, w1);
+    print(pdbClient, database, inputs);
+    print(pdbClient, database, b1);
     print(pdbClient, database, "y1");
+#endif
   }
 
   {
@@ -215,13 +217,15 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
     print_stats(pdbClient, database, w2);
-    print(pdbClient, database, w2);
     print_stats(pdbClient, database, "y1");
-    print(pdbClient, database, "y1");
     print_stats(pdbClient, database, b2);
-    print(pdbClient, database, b2);
     print_stats(pdbClient, database, "y2");
+#ifdef DEBUG_SIMPLE_FF_VERBOSE
+    print(pdbClient, database, w2);
+    print(pdbClient, database, "y1");
+    print(pdbClient, database, b2);
     print(pdbClient, database, "y2");
+#endif
   }
 
   {
@@ -268,13 +272,15 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
     print_stats(pdbClient, database, wo);
-    print(pdbClient, database, wo);
     print_stats(pdbClient, database, "y2");
-    print(pdbClient, database, "y2");
     print_stats(pdbClient, database, bo);
-    print(pdbClient, database, bo);
     print_stats(pdbClient, database, "yo");
+#ifdef DEBUG_SIMPLE_FF_VERBOSE
+    print(pdbClient, database, wo);
+    print(pdbClient, database, "y2");
+    print(pdbClient, database, bo);
     print(pdbClient, database, "yo");
+#endif
   }
 }
 
