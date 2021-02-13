@@ -26,6 +26,7 @@ public:
   int chunk_index;
   int chunk_size;
   int feature_count;
+  int chunk_y_index;
   Handle<Map<int, Vector<double>>> feature_chunk = nullptr;
 
   ENABLE_DEEP_COPY
@@ -38,7 +39,7 @@ public:
 
   // Constructor with arguments:
   CommentFeatureChunks(CommentFeatures &feature, int chunk_size)
-      : chunk_size(chunk_size), chunk_index((int)(feature.index / chunk_size)) {
+      : chunk_size(chunk_size), chunk_y_index(feature.y_index), chunk_index((int)(feature.index / chunk_size)) {
     feature_chunk = makeObject<Map<int, Vector<double>>>();
     (*feature_chunk)[feature.index] = *(feature.features);
       std::cout << "[COMMENT FEATURE CHUNKS] Adding key " << feature.index << " to bucket " << chunk_index << std::endl;

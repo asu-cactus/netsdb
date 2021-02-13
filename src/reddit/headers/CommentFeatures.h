@@ -48,12 +48,17 @@ void push_time_features(tm &utc_tm, Vector<double> &feature) {
 class CommentFeatures : public Object {
 public:
   int index;
+  int y_index;
   Handle<Vector<double>> features = nullptr;
 
   ENABLE_DEEP_COPY
 
   // default constructor
   CommentFeatures() {}
+
+  CommentFeatures(int index) : index(index) {
+    features = makeObject<Vector<double>>();
+  }
 
   CommentFeatures(pdb::Handle<Comment> comment) : index(comment->index) {
     features = makeObject<Vector<double>>();
@@ -102,6 +107,10 @@ public:
     }
 
     assert(feature.size() == NUM_FEATURES);
+  }
+
+  int getFeatureCount() {
+    return NUM_FEATURES;
   }
 
   int getKey() { return this->index; }

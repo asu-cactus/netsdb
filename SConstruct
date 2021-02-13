@@ -640,6 +640,7 @@ common_env.SharedLibrary('libraries/libRedditCommentsChunk.so', ['build/reddit/C
 common_env.SharedLibrary('libraries/libRedditCommentFeatureChunks.so', ['build/reddit/CommentFeatureChunks.cc']+all)
 common_env.SharedLibrary('libraries/libRedditCommentFeaturesToChunks.so', ['build/reddit/CommentFeaturesToChunks.cc']+all)
 common_env.SharedLibrary('libraries/libRedditCommentChunksToBlocks.so', ['build/reddit/CommentChunksToBlocks.cc']+all)
+common_env.SharedLibrary('libraries/libRedditCommentBlockToMatrix.so', ['build/reddit/CommentBlockToMatrix.cc']+all)
 common_env.SharedLibrary('libraries/libRedditCommentChunkToComments.so', ['build/reddit/CommentChunkToComments.cc']+all)
 common_env.SharedLibrary('libraries/libRedditCommentPartition.so', ['build/reddit/CommentPartition.cc']+all)
 
@@ -1368,6 +1369,7 @@ libFFTest=common_env.Alias('libFFTest', [
   'libraries/libRedditCommentFeatureChunks.so',
   'libraries/libRedditCommentFeaturesToChunks.so',
   'libraries/libRedditCommentChunksToBlocks.so',
+  'libraries/libRedditCommentBlockToMatrix.so',
   'libraries/libRedditCommentChunkToComments.so',
   'libraries/libRedditMatrixBlockPartition.so',
 ])

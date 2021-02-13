@@ -26,6 +26,7 @@
 #include "CommentFeaturesToChunks.h"
 #include "CommentsToFeatures.h"
 #include "MatrixBlockPartition.h"
+#include "CommentBlockToMatrix.h"
 
 #include "FFMatrixMultiSel.h"
 #include "RedditCommentInferenceJoin.h"
@@ -263,6 +264,7 @@ int main(int argc, char *argv[]) {
   ff::loadLibrary(pdbClient, "libraries/libRedditCommentFeaturesToChunks.so");
   ff::loadLibrary(pdbClient, "libraries/libRedditCommentChunksToBlocks.so");
   ff::loadLibrary(pdbClient, "libraries/libRedditMatrixBlockPartition.so");
+  ff::loadLibrary(pdbClient, "libraries/libRedditCommentBlockToMatrix.so");
 
 
 
@@ -279,13 +281,17 @@ int main(int argc, char *argv[]) {
     sel->setInput(readB);
 
     pdb::Handle<pdb::Computation> chonk =
-        pdb::makeObject<reddit::CommentFeaturesToChunks>(block_x);
+        pdb::makeObject<reddit::CommentFeaturesToChunks>(block_y);
     chonk->setInput(sel);
 
     pdb::Handle<pdb::Computation> slice =
-        pdb::makeObject<reddit::CommentChunksToBlocks>(block_x, block_y, true,
-                                                       batch_size);
+        pdb::makeObject<reddit::CommentChunksToBlocks>(block_x);
     slice->setInput(chonk);
+
+    pdb::Handle<pdb::Computation> block =
+        pdb::makeObject<reddit::CommentBlockToMatrix>(block_x, block_y, true,
+                                                       batch_size, total_features);
+    block->setInput(slice);
 
     // make the writer
     pdb::Handle<pdb::Computation> myWriter = nullptr;
@@ -295,7 +301,7 @@ int main(int argc, char *argv[]) {
     else
         myWriter = pdb::makeObject<WriteUserSet<FFMatrixBlock>>(db, set);
 
-    myWriter->setInput(slice);
+    myWriter->setInput(block);
 
     auto begin = std::chrono::high_resolution_clock::now();
     // run the computation
