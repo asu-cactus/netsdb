@@ -12,6 +12,8 @@
 #include "CommentFeatureChunks.h"
 #include "CommentFeatures.h"
 
+#include <cassert>
+
 using namespace pdb;
 
 namespace reddit {
@@ -47,7 +49,7 @@ public:
         Vector<double> &feature_vec = features->getFeature();
         Vector<double> &src_feature_vec = checkMe->getFeature();
 
-        for (int j = i * num_y_blocks; j < block_y; j++) {
+        for (int j = i * block_y; j < i * block_y + block_y; j++) {
           if (j >= src_feature_vec.size()) {
             feature_vec.push_back(0);
           } else {
@@ -57,6 +59,8 @@ public:
 
         result.push_back(features);
       }
+
+      assert(result.size() == num_y_blocks);
 
       return result;
     });
