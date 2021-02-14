@@ -37,7 +37,7 @@ ENABLE_DEEP_COPY
     return makeLambda(aggMe, [this](Handle<CommentFeatures> &aggMe) {
       long a = (long)(aggMe->index / chunk_size);
       long b = aggMe->y_index;
-      long c = (a << 32) + b;
+      long c = a*10000 + b;
       return c;
     });
   }
