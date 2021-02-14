@@ -26,6 +26,7 @@
 #include "CommentFeaturesToChunks.h"
 #include "CommentsToFeatures.h"
 #include "MatrixBlockPartition.h"
+#include "CommentBlockToMatrix.h"
 
 #include "FFMatrixMultiSel.h"
 #include "RedditCommentInferenceJoin.h"
@@ -142,12 +143,14 @@ int main(int argc, char *argv[]) {
       // std::string errMsg;
       // Handle<LambdaIdentifier> identifier = pdb::makeObject<LambdaIdentifier>(jobName, computationName, lambdaName);
       // pdbClient.createSet<FFMatrixBlock>(db, set, errMsg, 64*1024*1024, loadJobId, nullptr, identifier);//getBlockColIndex
+
       
       //1000 comments 200000 features
+
       ff::createSet(pdbClient, db, set, "CommentFeatures", "inference-1", "JoinComp_2", "methodCall_1", 64);
   }
   else
-      ff::createSet(pdbClient, db, set, set, 4);
+      ff::createSet(pdbClient, db, set, set, 64);
 
   if (!enablePartition) {
       //1000 hid1 200000 features
@@ -189,11 +192,12 @@ int main(int argc, char *argv[]) {
       Handle<LambdaIdentifier> identifier = pdb::makeObject<LambdaIdentifier>(jobName, computationName, lambdaName);
       pdbClient.createSet<InferenceResult>(db, "output", errMsg, 1*1024*1024, loadJobId, nullptr, identifier); //getKey
   } else
-      ff::createSet(pdbClient, db, "output", "Output", 1);
+      ff::createSet(pdbClient, db, "output", "Output", 64);
 
-  ff::createSet(pdbClient, db, "inference", "Inference", 1);
+  ff::createSet(pdbClient, db, "inference", "Inference", 64);
 
-  ff::createSet(pdbClient, db, "labeled_comments", "LabeledComments", 1);//TO be partitioned
+  ff::createSet(pdbClient, db, "labeled_comments", "LabeledComments", 64);//TO be partitioned
+
 
   if (!generate) {
     string main_path = string(argv[6]);
@@ -225,24 +229,25 @@ int main(int argc, char *argv[]) {
 
     // 1000 x 200000 = 1000 x 200000
     ff::loadMatrix(pdbClient, db, "w1", hid1_size, total_features, block_x,
-                   block_y, false, false, errMsg, true);
+
+                   block_y, false, false, errMsg, 64, true);
     // 1000 x 1
     ff::loadMatrix(pdbClient, db, "b1", hid1_size, 1, block_x, block_y, false,
-                   true, errMsg, false);
+                   true, errMsg, 64, false);
 
-    // 2000 x 200000
+    // 2000 x 1000
     ff::loadMatrix(pdbClient, db, "w2", hid2_size, hid1_size, block_x, block_y,
-                   false, false, errMsg, true);
+                   false, false, errMsg, 32, true);
     // 2000 x 1
     ff::loadMatrix(pdbClient, db, "b2", hid2_size, 1, block_x, block_y, false,
-                   true, errMsg, false);
+                   true, errMsg, 8, false);
 
     // 2 x 1000
     ff::loadMatrix(pdbClient, db, "wo", num_labels, hid2_size, block_x, block_y,
-                   false, false, errMsg, true);
+                   false, false, errMsg, 8, true);
     // 2 x 1
     ff::loadMatrix(pdbClient, db, "bo", num_labels, 1, block_x, block_y, false,
-                   true, errMsg, false);
+                   true, errMsg, 8, false);
   }
 
   {
@@ -270,6 +275,7 @@ int main(int argc, char *argv[]) {
   ff::loadLibrary(pdbClient, "libraries/libRedditCommentFeaturesToChunks.so");
   ff::loadLibrary(pdbClient, "libraries/libRedditCommentChunksToBlocks.so");
   ff::loadLibrary(pdbClient, "libraries/libRedditMatrixBlockPartition.so");
+  ff::loadLibrary(pdbClient, "libraries/libRedditCommentBlockToMatrix.so");
 
 
 
@@ -286,13 +292,17 @@ int main(int argc, char *argv[]) {
     sel->setInput(readB);
 
     pdb::Handle<pdb::Computation> chonk =
-        pdb::makeObject<reddit::CommentFeaturesToChunks>(block_x);
+        pdb::makeObject<reddit::CommentFeaturesToChunks>(block_y);
     chonk->setInput(sel);
 
     pdb::Handle<pdb::Computation> slice =
-        pdb::makeObject<reddit::CommentChunksToBlocks>(block_x, block_y, true,
-                                                       batch_size);
+        pdb::makeObject<reddit::CommentChunksToBlocks>(block_x);
     slice->setInput(chonk);
+
+    pdb::Handle<pdb::Computation> block =
+        pdb::makeObject<reddit::CommentBlockToMatrix>(block_x, block_y, true,
+                                                       batch_size, total_features);
+    block->setInput(slice);
 
     // make the writer
     pdb::Handle<pdb::Computation> myWriter = nullptr;
@@ -302,7 +312,7 @@ int main(int argc, char *argv[]) {
     else
         myWriter = pdb::makeObject<WriteUserSet<FFMatrixBlock>>(db, set);
 
-    myWriter->setInput(slice);
+    myWriter->setInput(block);
 
     auto begin = std::chrono::high_resolution_clock::now();
     // run the computation

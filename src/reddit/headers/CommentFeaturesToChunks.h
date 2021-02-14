@@ -1,7 +1,7 @@
 #ifndef COMMENT_FEATURES_TO_CHUNKS_H
 #define COMMENT_FEATURES_TO_CHUNKS_H
 
-#include "ClusterAggregateComp.h"
+#include "MultiSelectionComp.h"
 
 #include "Lambda.h"
 #include "LambdaCreationFunctions.h"
@@ -19,32 +19,46 @@ namespace reddit {
 // template <class OutputClass, class InputClass, class KeyClass, class
 // ValueClass>
 class CommentFeaturesToChunks
-    : public ClusterAggregateComp<CommentFeatureChunks, CommentFeatures, int,
-                                  CommentFeatureChunks> {
+    : public MultiSelectionComp<CommentFeatures, CommentFeatures> {
 
 public:
   ENABLE_DEEP_COPY
 
-  int chunk_size;
+  int block_y;
 
-  CommentFeaturesToChunks() : chunk_size(100) {}
+  CommentFeaturesToChunks() : block_y(100) {}
 
-  CommentFeaturesToChunks(int chunk_size) : chunk_size(chunk_size) {}
+  CommentFeaturesToChunks(int block_y) : block_y(block_y) {}
 
-  // the key type must have == and size_t hash () defined
-  Lambda<int> getKeyProjection(Handle<CommentFeatures> aggMe) override {
-    return makeLambda(aggMe, [this](Handle<CommentFeatures> &aggMe) {
-      return (int)(aggMe->index / chunk_size);
-    });
+  Lambda<bool> getSelection(Handle<CommentFeatures> checkMe) override {
+    return makeLambda(
+        checkMe, [](Handle<CommentFeatures> &checkMe) { return true; });
   }
 
-  // the value type must have + defined
-  Lambda<CommentFeatureChunks>
-  getValueProjection(Handle<CommentFeatures> aggMe) override {
-    return makeLambda(aggMe, [this](Handle<CommentFeatures> &aggMe) {
-      Handle<CommentFeatureChunks> temp =
-          makeObject<CommentFeatureChunks>(*aggMe, chunk_size);
-      return *temp;
+  Lambda<Vector<Handle<CommentFeatures>>>
+  getProjection(Handle<CommentFeatures> checkMe) override {
+    return makeLambda(checkMe, [this](Handle<CommentFeatures> &checkMe) {
+      Vector<Handle<CommentFeatures>> result;
+      int num_y_blocks = ceil(checkMe->getFeatureCount() / (double)block_y);
+
+      for (int i = 0; i < num_y_blocks; i++) {
+        Handle<CommentFeatures> features = makeObject<CommentFeatures>(checkMe->index);
+        features->y_index = i;
+        Vector<double> &feature_vec = features->getFeature();
+        Vector<double> &src_feature_vec = checkMe->getFeature();
+
+        for (int j = i * num_y_blocks; j < block_y; j++) {
+          if (j >= src_feature_vec.size()) {
+            feature_vec.push_back(0);
+          } else {
+            feature_vec.push_back(src_feature_vec[j]);
+          }
+        }
+
+        result.push_back(features);
+      }
+
+      return result;
     });
   }
 };
