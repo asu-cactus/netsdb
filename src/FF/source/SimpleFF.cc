@@ -145,11 +145,16 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
         myWriter = pdb::makeObject<FFMatrixWriter>(database, "y1");
     myWriter->setInput(reluBias);
 
+    auto begin = std::chrono::high_resolution_clock::now();
     // run the computation
     if (!pdbClient.executeComputations(errMsg, "inference-1", myWriter)) {
       cout << "Computation failed. Message was: " << errMsg << "\n";
       exit(1);
     }
+    auto end = std::chrono::high_resolution_clock::now();
+    std::cout << "Inference-1 Stage Time Duration: "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
+              << " secs." << std::endl;
   }
 
    pdbClient.flushData (errMsg);
@@ -204,11 +209,16 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
         myWriter = pdb::makeObject<FFMatrixWriter>(database, "y2");
     myWriter->setInput(reluBias);
 
+    auto begin = std::chrono::high_resolution_clock::now();
     // run the computation
     if (!pdbClient.executeComputations(errMsg, "inference-2", myWriter)) {
       cout << "Computation failed. Message was: " << errMsg << "\n";
       exit(1);
     }
+    auto end = std::chrono::high_resolution_clock::now();
+    std::cout << "Inference-2 Stage Time Duration: "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
+              << " secs." << std::endl;
   }
 
    pdbClient.flushData (errMsg);
@@ -259,11 +269,16 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
         pdb::makeObject<FFMatrixWriter>(database, "yo");
     myWriter->setInput(reluBias);
 
+    auto begin = std::chrono::high_resolution_clock::now();
     // run the computation
     if (!pdbClient.executeComputations(errMsg, "inference-3", myWriter)) {
       cout << "Computation failed. Message was: " << errMsg << "\n";
       exit(1);
     }
+    auto end = std::chrono::high_resolution_clock::now();
+    std::cout << "Inference-3 Stage Time Duration: "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
+              << " secs." << std::endl;
   }
 
    pdbClient.flushData (errMsg);
@@ -310,11 +325,16 @@ void inference(pdb::PDBClient &pdbClient, string database, string w1, string w2,
         pdb::makeObject<FFMatrixWriter>(database, output);
     sumWriter->setInput(softmax);
 
+    auto begin = std::chrono::high_resolution_clock::now();
     // run the computation
-    if (!pdbClient.executeComputations(errMsg, "inference-4", sumWriter)) {
+    if (!pdbClient.executeComputations(errMsg, "inference-3", sumWriter)) {
       cout << "Computation failed. Message was: " << errMsg << "\n";
       exit(1);
     }
+    auto end = std::chrono::high_resolution_clock::now();
+    std::cout << "Inference-3 Stage Time Duration: "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
+              << " secs." << std::endl;
   }
 }
 
