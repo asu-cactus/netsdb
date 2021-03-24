@@ -592,6 +592,21 @@ common_env.SharedLibrary('libraries/libLSTMTwoSum.so', ['build/LSTM/LSTMTwoSum.c
 common_env.SharedLibrary('libraries/libLSTMHiddenState.so', ['build/LSTM/LSTMHiddenState.cc'] + all)
 
 
+# Conv2DMemFuse
+common_env.SharedLibrary('libraries/libConv2DMemFuseMatrix3D.so', ['build/conv2d_memory_fusion/Matrix3D.cc'] + all)
+common_env.SharedLibrary('libraries/libConv2DMemFuseImage.so', ['build/conv2d_memory_fusion/Image.cc'] + all)
+common_env.SharedLibrary('libraries/libConv2DMemFuseImageChunk.so', ['build/conv2d_memory_fusion/ImageChunk.cc'] + all)
+common_env.SharedLibrary('libraries/libConv2DMemFuseImageToChunks.so', ['build/conv2d_memory_fusion/ImageToChunks.cc'] + all)
+common_env.SharedLibrary('libraries/libConv2DMemFuseImageBlock.so', ['build/conv2d_memory_fusion/ImageBlock.cc'] + all)
+common_env.SharedLibrary('libraries/libConv2DMemFuseImageChunksToBlock.so', ['build/conv2d_memory_fusion/ImageChunksToBlock.cc'] + all)
+common_env.SharedLibrary('libraries/libConv2DMemFuseImageBlockToMatrix.so', ['build/conv2d_memory_fusion/ImageBlockToMatrix.cc'] + all)
+common_env.SharedLibrary('libraries/libConv2DMemFuseKernel.so', ['build/conv2d_memory_fusion/Kernel.cc'] + all)
+common_env.SharedLibrary('libraries/libConv2DMemFuseKernelToChunks.so', ['build/conv2d_memory_fusion/KernelToChunks.cc'] + all)
+common_env.SharedLibrary('libraries/libConv2DMemFuseKernelBiasJoin.so', ['build/conv2d_memory_fusion/KernelBiasJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libConv2DMemFuseConvResultToChunks.so', ['build/conv2d_memory_fusion/ConvResultToChunks.cc'] + all)
+common_env.SharedLibrary('libraries/libConv2DMemFuseConvChunksToImage.so', ['build/conv2d_memory_fusion/ConvChunksToImage.cc'] + all)
+
+
 #reddit
 common_env.SharedLibrary('libraries/libRedditComment.so', ['build/reddit/RedditComment.cc'] + all)
 common_env.SharedLibrary('libraries/libRedditAuthor.so', ['build/reddit/RedditAuthor.cc'] + all)
@@ -858,6 +873,8 @@ common_env.Program('bin/FFTest', ['build/tests/FFTest.cc', 'build/FF/SimpleFF.cc
 common_env.Program('bin/RedditFeatureExtractor', ['build/tests/RedditFeatureExtractor.cc', 'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
 common_env.Program('bin/LSTMTest', ['build/tests/LSTMTest.cc'] + all + pdb_client)
 common_env.Program('bin/LSTMDebug', ['build/tests/LSTMDebug.cc'] + all + pdb_client)
+common_env.Program('bin/Conv2dMemFuseTest', ['build/tests/Conv2dMemFuseTest.cc', 'build/conv2d_memory_fusion/ImageUtils.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
+
 #PageRank
 
 common_env.Program('bin/PageRank', ['build/tests/PageRank.cc'] + all + pdb_client)
@@ -1394,6 +1411,33 @@ libLSTMTest=common_env.Alias('libLSTMTest', [
   'libraries/libLSTMThreeWaySum.so',
   'libraries/libLSTMTwoSum.so',
   'libraries/libLSTMHiddenState.so',
+])
+
+libConv2DMemFuseTest=common_env.Alias('libConv2DMemFuseTest', [
+  'bin/pdb-cluster',
+  'bin/pdb-server', 
+
+  'bin/Conv2dMemFuseTest',
+
+  'libraries/libFFMatrixBlock.so',
+  'libraries/libFFMatrixData.so',
+  'libraries/libFFMatrixMeta.so',
+
+  'libraries/libConv2DMemFuseMatrix3D.so',
+  'libraries/libConv2DMemFuseImage.so',
+  'libraries/libConv2DMemFuseImageChunk.so',
+  'libraries/libConv2DMemFuseImageToChunks.so',
+  'libraries/libConv2DMemFuseImageBlock.so',
+  'libraries/libConv2DMemFuseImageChunksToBlock.so',
+  'libraries/libConv2DMemFuseImageBlockToMatrix.so',
+  'libraries/libConv2DMemFuseKernel.so',
+  'libraries/libConv2DMemFuseKernelToChunks.so',
+  'libraries/libConv2DMemFuseKernelBiasJoin.so',
+  'libraries/libConv2DMemFuseConvResultToChunks.so',
+  'libraries/libConv2DMemFuseConvChunksToImage.so',
+
+  'libraries/libFFTransposeMult.so',
+  'libraries/libFFAggMatrix.so',
 ])
 
 libLATest=common_env.Alias('libLATest', [

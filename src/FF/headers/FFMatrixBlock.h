@@ -68,6 +68,16 @@ public:
     return getBlockRowIndex() * getRowNums() + getRowNums();
   }
 
+  bool isLastColBlock() {
+    int numYBlocks = ceil(getTotalColNums() / (double)getColNums());
+    return getBlockColIndex() == numYBlocks - 1;
+  }
+
+  bool isLastRowBlock() {
+    int numXBlocks = ceil(getTotalRowNums() / (double)getRowNums());
+    return getBlockRowIndex() == numXBlocks - 1;
+  }
+
   int getColNums() { return data.colNums; }
 
   pdb::Handle<pdb::Vector<double>> &getRawDataHandle() { return data.rawData; }
@@ -85,6 +95,14 @@ public:
   int getTotalRowNums() { return meta->totalRows; }
 
   int getTotalColNums() { return meta->totalCols; }
+
+  int getNumRowBlocks() {
+      return ceil(getTotalRowNums() / (double)getRowNums());
+  }
+
+  int getNumColBlocks() {
+      return ceil(getTotalColNums() / (double)getColNums());
+  }
 
   // This is needed for row-wise computation
   pdb::Handle<FFMatrixMeta> getRowKey() {
