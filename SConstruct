@@ -9,7 +9,7 @@ import multiprocessing
 import glob
 from os import path
 
-common_env = Environment(CXX = 'clang++')
+common_env = Environment(CXX = 'clang++-4.0')
 #to install prerequisites
 if common_env['PLATFORM'] == 'darwin':
     os.system("brew install eigen")
@@ -48,7 +48,7 @@ elif  common_env['PLATFORM'] == 'posix':
     common_env.Append(CXXFLAGS = '-std=c++14 -g3 -O3 -fPIC -fno-tree-vectorize  -march=native -Winline -Winline-asm -Wno-deprecated-declarations')
     #common_env.Append(CXXFLAGS = '-std=c++14 -g  -Oz -ldl -lstdc++ -Wno-deprecated-declarations')
     common_env.Append(LINKFLAGS = '-pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++ -lcrypto -lssl')
-    common_env.Replace(CXX = "clang++")
+    common_env.Replace(CXX = "clang++-4.0")
 
 #common_env.Append(CCFLAGS='-DDEBUG_SIMPLE_FF_VERBOSE')
 #common_env.Append(CCFLAGS='-DDEBUG_VTABLE_FIXING')
@@ -297,6 +297,17 @@ for boost_src_subdir_path in boost_src_root_subdir_paths:
         allBoostSources = [abspath(join(join ('build/', boost_src_subdir_basename),f2)) for f2 in listdir(boost_source_folder) if isfile(join(boost_source_folder, f2)) and f2[-4:] == '.cpp']
         boost_component_dir_basename_to_cc_file_paths [boost_src_subdir_basename] = allBoostSources
 
+EIGEN3_ROOT = "/usr/include/eigen3"
+
+if os.path.exists(EIGEN3_ROOT):
+    headerpaths.append(EIGEN3_ROOT)
+else:
+    sys.exit("ERROR: EIGEN3_ROOT must be configured to the correct path to eigen3")
+
+LIBPYTORCH_ROOT = "/home/ubuntu/libtorch/include"
+
+if os.path.exists(LIBPYTORCH_ROOT):
+    headerpaths.append(LIBPYTORCH_ROOT)
 
 
 # append boost to headerpaths
@@ -593,6 +604,8 @@ common_env.SharedLibrary('libraries/libLSTMHiddenState.so', ['build/LSTM/LSTMHid
 
 
 # Conv2DMemFuse
+common_env.SharedLibrary('libraries/libConv2DSelect.so', ['build/conv2d_proj/Conv2DSelect.cc']+all)
+common_env.SharedLibrary('libraries/libTensorData.so', ['build/conv2d_proj/TensorData.cc']+all)
 common_env.SharedLibrary('libraries/libConv2DMemFuseMatrix3D.so', ['build/conv2d_memory_fusion/Matrix3D.cc'] + all)
 common_env.SharedLibrary('libraries/libConv2DMemFuseImage.so', ['build/conv2d_memory_fusion/Image.cc'] + all)
 common_env.SharedLibrary('libraries/libConv2DMemFuseImageChunk.so', ['build/conv2d_memory_fusion/ImageChunk.cc'] + all)
@@ -1413,6 +1426,11 @@ libLSTMTest=common_env.Alias('libLSTMTest', [
   'libraries/libLSTMHiddenState.so',
 ])
 
+libConv2DProjTest=common_env.Alias('libConv2DProjTest', [
+  'libraries/libConv2DSelect.so',
+  'libraries/libTensorData.so'
+])
+
 libConv2DMemFuseTest=common_env.Alias('libConv2DMemFuseTest', [
   'bin/pdb-cluster',
   'bin/pdb-server', 
@@ -1437,7 +1455,7 @@ libConv2DMemFuseTest=common_env.Alias('libConv2DMemFuseTest', [
   'libraries/libConv2DMemFuseConvChunksToImage.so',
 
   'libraries/libFFTransposeMult.so',
-  'libraries/libFFAggMatrix.so',
+  'libraries/libFFAggMatrix.so'
 ])
 
 libLATest=common_env.Alias('libLATest', [
