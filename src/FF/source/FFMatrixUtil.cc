@@ -8,7 +8,7 @@
 using namespace std;
 
 namespace ff {
-void load_matrix_data(pdb::PDBClient &pdbClient, string path,
+int load_matrix_data(pdb::PDBClient &pdbClient, string path,
                       pdb::String dbName, pdb::String setName, int blockX,
                       int blockY, bool dont_pad_x, bool dont_pad_y,
                       string &errMsg, int size, bool partitionByCol) {
@@ -128,6 +128,7 @@ void load_matrix_data(pdb::PDBClient &pdbClient, string path,
 
   // to write back all buffered records
   pdbClient.flushData(errMsg);
+  return totalX;
 }
 
 void load_matrix_data(pdb::PDBClient &pdbClient, string path,
