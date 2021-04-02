@@ -66,29 +66,43 @@ public:
 
         Eigen::TensorMap<Eigen::Tensor<float, 4>> b1(kernel->rawData->c_ptr(), nk, zk, yk, xk);
 
+
+        //NumDims of input: 3
+        //kernelFilters: nk
+        //kernelChannels: zk
+        //kernelRows: yk
+        //kernelCols: xk
+        //kernelRowsEff = kernelRows + (kernelRows-1)*(row_in_stride-1) = yk
+        //kernelColsEff = kernelCols + (kernelCols-1)*(col_in_stride-1) = xk
+        
+
         //contract_dims
         Eigen::array<Eigen::IndexPair<int>, 1> contract_dims;
         contract_dims[0] = Eigen::IndexPair<int>(1, 0);
 
-        /*
 
+        //out_height = inputRows - kernelRowsEff + 1 = y - yk + 1
+        //out_width = inputCols - kernelColsEff + 1 = x - xk + 1
+
+        
+       
         //pre_contract_dims
-        Eigen::DSizes<at::indexing::TensorIndex, 2> pre_contract_dims;
-        pre_contract_dims[1] = zk * yk * xk;
-        pre_contract_dims[0] = (y - yk + 1 ) * (x - xk + 1 )*z*y*x;
+        Eigen::array<int, 2> pre_contract_dims;
+        pre_contract_dims[0] = zk * yk * xk;
+        pre_contract_dims[1] = (y - yk + 1 ) * (x - xk + 1 );
 
         //post_contract_dims
-        Eigen::DSizes<at::indexing::TensorIndex, 3> post_contract_dims;
+        Eigen::array<int, 3> post_contract_dims;
         post_contract_dims[0] = nk;
         post_contract_dims[1] = (y - yk + 1 );
         post_contract_dims[2] = (x - xk + 1 );
 
         //kernel dims
-        Eigen::DSizes<at::indexing::TensorIndex, 2> kernel_dims;
-        kernel_dims[0] = zk * yk * xk;
-        kernel_dims[1] = nk;
+        Eigen::array<int, 2> kernel_dims;
+        kernel_dims[0] = nk;
+        kernel_dims[1] = zk * yk * xk;
 
-*/
+
         //create the output
         
         Handle<Vector<unsigned int>> dimensions = makeObject<Vector<unsigned int>>(3);
@@ -101,15 +115,27 @@ public:
 
         Handle<TensorData> out = makeObject<TensorData>(3, dimensions);
 
-        
+        float * mempool = (float *) malloc (nk * (y - yk + 1) * (x - xk + 1) * sizeof(float));
 
-        Eigen::TensorMap<Eigen::Tensor<float, 3>> c(out->rawData->c_ptr(), (x - xk + 1 ), (y - yk + 1 ), nk);
+        Eigen::TensorMap<Eigen::Tensor<float, 3>> c (mempool, nk, y - yk + 1, x - xk + 1); 
 
-        c = a.extract_image_patches(xk, yk, 1, 1, 1, 1, Eigen::PADDING_SAME)
-                                     .reshape(Eigen::array<int, 2>({(y - yk + 1 ) * (x - xk + 1 )*z*y*x, zk * yk * xk}))
-                                     .contract(b1.reshape(Eigen::array<int, 2>({zk * yk * xk, nk})), contract_dims)
+        c = b1.reshape(kernel_dims)
+              .contract(
+                 a.extract_image_patches(yk, xk, 1, 1, 1, 1, 
+                                             Eigen::PADDING_VALID)
+                  .reshape(pre_contract_dims), contract_dims)
+              .reshape(post_contract_dims);
+                 
+
+        /* 
+        c = a.extract_image_patches(yk, xk, 1, 1, 1, 1, Eigen::PADDING_VALID)
+
+                                     .reshape(Eigen::array<int, 2>({(y - yk + 1 ) * (x - xk + 1 ), zk * yk * xk}))
+                                     .contract(b1.reshape(Eigen::array<int, 2>({yk * xk, nk})), contract_dims)
                                      .reshape(Eigen::array<int, 3>({ (x - xk + 1 ), (y - yk + 1 ), nk }));
 
+        */
+        memcpy (out->rawData->c_ptr(), mempool, nk * (y - yk + 1) * (x - xk + 1) * sizeof(float));
 
         return out;
 

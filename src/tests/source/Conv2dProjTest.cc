@@ -73,6 +73,56 @@ void load_rnd_img(int x, int y, int z, int size, pdb::PDBClient &pdbClient,
 }
 
 int main(int argc, char *argv[]) {
+
+  bool addDataOrNot = true;
+
+  bool createSetOrNot = true;
+
+  int numImages = 1000000;
+
+  string mode = "aten-conv2d";
+  //string mode = "eigen-spatial";
+
+  if ( argc > 1 ) {
+
+      if ( strcmp( argv[1], "Y" ) == 0 ) {
+
+         addDataOrNot = true;
+
+      } else {
+
+         addDataOrNot = false;
+
+      }
+  }
+
+  if ( argc > 2 ) {
+
+      if ( strcmp( argv[2], "Y") == 0 ) {
+
+         createSetOrNot = true;
+
+      } else {
+
+         createSetOrNot = false;
+
+      }
+
+  }
+
+  if ( argc > 3 ) {
+
+     numImages = atoi(argv[3]);
+
+  }
+
+  if ( argc > 4 ) {
+
+     mode = argv[4]; 
+
+  }
+
+
   string masterIp = "localhost";
   pdb::PDBLoggerPtr clientLogger =
       make_shared<pdb::PDBLogger>("Conv2DclientLog");
@@ -88,11 +138,13 @@ int main(int argc, char *argv[]) {
   pdbClient.registerType("libraries/libTensorData.so", errMsg);
 
   //create input dataset
-  pdbClient.removeDatabase(dbName, errMsg);
-  if (!pdbClient.createDatabase(dbName, errMsg)) {
-    cout << "Not able to create database " << dbName << ": " << errMsg << endl;
-  } else {
-    cout << "Created database " << dbName << endl;
+  if (createSetOrNot == true) {
+      pdbClient.removeDatabase(dbName, errMsg);
+      if (!pdbClient.createDatabase(dbName, errMsg)) {
+          cout << "Not able to create database " << dbName << ": " << errMsg << endl;
+      } else {
+          cout << "Created database " << dbName << endl;
+      }
   }
 
   pdbClient.removeSet(dbName, img_set, errMsg);
@@ -105,8 +157,9 @@ int main(int argc, char *argv[]) {
 
 
   //load data
-  load_rnd_img(32, 32, 3, 5000, pdbClient, dbName, img_set);
-
+  if (addDataOrNot == true) {
+      load_rnd_img(32, 32, 3, numImages, pdbClient, dbName, img_set);
+  }
  
   //create output dataset
   string feature_out_set = "feature_map";    
@@ -118,6 +171,7 @@ int main(int argc, char *argv[]) {
       cout << "Created set " << feature_out_set << ".\n";
   }
 
+  pdb::makeObjectAllocatorBlock(64 * 1024 * 1024, true);
 
   //create scan computation
   pdb::Handle<pdb::Computation> imageScanner =
@@ -138,7 +192,8 @@ int main(int argc, char *argv[]) {
   }
 
   //create select computation
-  pdb::Handle<pdb::Computation> select = pdb::makeObject<Conv2DSelect>(kernel, "aten-conv2d");
+//  pdb::Handle<pdb::Computation> select = pdb::makeObject<Conv2DSelect>(kernel, "aten-conv2d");
+  pdb::Handle<pdb::Computation> select = pdb::makeObject<Conv2DSelect>(kernel, mode);
   select->setInput(0, imageScanner);
   std::cout << "select's output type: "<< select->getOutputType() << std::endl;
   //create write computation
@@ -147,13 +202,16 @@ int main(int argc, char *argv[]) {
   myWriteSet->setInput(0, select);
 
   bool res = false;
+
+  auto begin = std::chrono::high_resolution_clock::now();
+
   // run the computation
   if (!pdbClient.executeComputations(errMsg, "conv2d-proj", myWriteSet)) {
     cout << "Computation failed. Message was: " << errMsg << "\n";
     exit(1);
   }  
 
-
+  auto end = std::chrono::high_resolution_clock::now();
 
   //test the output
   bool printResult = true;
@@ -165,7 +223,7 @@ int main(int argc, char *argv[]) {
      int count = 0;
      for (auto a : result) {
          count++;
-         std::cout << count << ":" << (*(a->dimensions))[0] << "," << (*(a->dimensions))[1] << "," << (*(a->dimensions))[2];
+         //std::cout << count << ":" << (*(a->dimensions))[0] << "," << (*(a->dimensions))[1] << "," << (*(a->dimensions))[2] << ";";
      }
      std::cout << "output count:" << count << "\n";
   }
@@ -174,6 +232,10 @@ int main(int argc, char *argv[]) {
 
   //remove the output set
   pdbClient.removeSet(dbName, feature_out_set, errMsg);  
+
+  std::cout << "Time Duration: "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
+              << " secs." << std::endl;
 
 
   return 0;
