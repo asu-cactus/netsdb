@@ -1156,6 +1156,10 @@ public:
                             logger->writeLn(", mapSize=");
                             logger->writeInt(myMap.size());
 
+                            if (myMap.size() != 0) {
+                              myMaps.push_back(thisMap);
+                            }
+
                             return false;
                         }
                     } else {
@@ -1178,6 +1182,11 @@ public:
                             logger->writeInt(getMapIndex());
                             logger->writeLn(", mapSize=");
                             logger->writeInt(myMap.size());
+
+                            if (myMap.size() != 0) {
+                              myMaps.push_back(thisMap);
+                            }
+
                             return false;
                         }
                         try {
@@ -1198,6 +1207,10 @@ public:
                             logger->writeInt(getMapIndex());
                             logger->writeLn(", mapSize=");
                             logger->writeInt(myMap.size());
+
+                            if (myMap.size() != 0) {
+                              myMaps.push_back(thisMap);
+                            }
                             return false;
                         }
                     }
@@ -1207,8 +1220,10 @@ public:
             counter++;
             
         }
-        // We push back only when the whole map has been copied. If it throws exception earlier than
-        // this point, the whole map will be discarded and will not add to the vector of maps.
+        // Push back when the whole map has been copied. If it throws exception
+        // earlier than this point, we save the positions of the map and the
+        // index of the list where we stopped so that we can resume again on the
+        // next call.
         try {
              myMaps.push_back(thisMap);
              //myMaps[myMaps.size()-1]->print();
