@@ -18,14 +18,15 @@ using namespace pdb;
 
 //stride = 1
 
-class Conv2DSelect: public SelectionComp<pdb::TensorData, pdb::TensorData> {
+class Conv2DSelect: public SelectionComp<pdb::TensorData, pdb::TensorData>{
 
 public:
+
     ENABLE_DEEP_COPY
 
     Conv2DSelect() {}
 
-    Conv2DSelect(Handle<TensorData> filters, Handle<Vector<double>> biasVec, std::string convMode) {
+    Conv2DSelect(Handle<TensorData> filters, std::string convMode) {
 
         //make sure it's a 3D tensor
         assert(filters->numRanks = 4);
@@ -44,9 +45,6 @@ public:
 
         //W
         this->xk = (*(filters->dimensions))[3];
-
-        //set up the bias vector
-        this->bias = biasVec;
 
         //set up the mode of the convolutional operation
         this->conv2dMode = convMode;
@@ -119,7 +117,7 @@ public:
     }
 
     Handle<TensorData> runAtenConv2d(TensorData& input, int z, int y, int x) {
-/*
+
         //input data
         at::Tensor a = at::from_blob(input.rawData->c_ptr(), {1, z, y, x});
 
@@ -143,9 +141,7 @@ public:
         memcpy(out->rawData->c_ptr(), c.storage().data(), nk * (y - yk + 1 ) * (x - xk + 1 ) * sizeof(float));
 
         return out;
-*/
 
-        return nullptr;
     }
 
 
@@ -186,9 +182,6 @@ private:
 
     //multiple 2D-filters, each filter has many channels
     Handle<TensorData> kernel = nullptr;
-
-    //bias vector
-    Handle<Vector<double>> bias = nullptr;
 
     //conv2d-mode:
     //--"eigen-spatial": https://github.com/tensorflow/tensorflow/blob/v1.13.1/tensorflow/core/kernels/eigen_spatial_convolutions.h#L1688
