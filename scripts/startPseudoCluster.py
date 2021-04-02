@@ -23,7 +23,7 @@ if(len(sys.argv)==3) :
     threadNum = sys.argv[1]
     sharedMemorySize = sys.argv[2]
 else:
-    print bcolors.OKBLUE + "Usage: python scripts/startPseduoCluster.py numThreads (default: 1) sizeOfSharedMemoryPool (default: 2048 MB)"
+    print (bcolors.OKBLUE+"Usage: python scripts/startPseduoCluster.py numThreads (default: 1) sizeOfSharedMemoryPool (default: 2048 MB)")
 
 
 print("#################################")
@@ -32,28 +32,28 @@ print("#################################")
 
 try:
     #run bin/pdb-cluster
-    print bcolors.OKBLUE + "start a pdbServer as the coordinator" + bcolors.ENDC
+    print (bcolors.OKBLUE + "start a pdbServer as the coordinator" + bcolors.ENDC)
     serverProcess = subprocess.Popen(['bin/pdb-cluster', 'localhost', '8108', 'Y'])
-    print bcolors.OKBLUE + "waiting for 9 seconds for server to be fully started..." + bcolors.ENDC
+    print (bcolors.OKBLUE + "waiting for 9 seconds for server to be fully started..." + bcolors.ENDC)
     time.sleep(9)
     #strip shared libraries
-    print bcolors.OKBLUE + "strip shared libraries" + bcolors.ENDC
+    print (bcolors.OKBLUE + "strip shared libraries" + bcolors.ENDC)
     subprocess.call(['bash', 'strip libraries/*.so'])
 
     #run bin/pdb-server for worker
     num = 0;
     with open('conf/serverlist.test') as f:
         for each_line in f:
-            print bcolors.OKBLUE + "start a pdbServer at " + each_line + "as " + str(num) + "-th worker" + bcolors.ENDC
+            print (bcolors.OKBLUE + "start a pdbServer at " + each_line + "as " + str(num) + "-th worker" + bcolors.ENDC)
             num = num + 1
             serverProcess = subprocess.Popen(['bin/pdb-server', str(num-1), threadNum, sharedMemorySize, 'localhost:8108', each_line])
-            print bcolors.OKBLUE + "waiting for 9 seconds for server to be fully started..." + bcolors.ENDC
+            print (bcolors.OKBLUE + "waiting for 9 seconds for server to be fully started..." + bcolors.ENDC)
             time.sleep(9)
 
 
 except subprocess.CalledProcessError as e:
-    print bcolors.FAIL + "[ERROR] in starting peudo cluster" + bcolors.ENDC
-    print e.returncode
+    print (bcolors.FAIL + "[ERROR] in starting peudo cluster" + bcolors.ENDC)
+    print (e.returncode)
 
 
 

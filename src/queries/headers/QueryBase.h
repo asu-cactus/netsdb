@@ -120,7 +120,7 @@ public:
                           << toMe->getOutputType() << " to be the input";
                 std::cout << " of a query with input type " << getIthInputType(whichSlot) << ".\n";
                 isError = true;
-                return false;
+                exit(1);
             }
 
             (*inputs)[whichSlot] = toMe;

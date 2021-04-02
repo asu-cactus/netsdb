@@ -47,7 +47,12 @@ elif  common_env['PLATFORM'] == 'posix':
     #Needs to be turned on for KMeans and TPCH
     common_env.Append(CXXFLAGS = '-std=c++14 -g3 -O3 -fPIC -fno-tree-vectorize  -march=native -Winline -Winline-asm -Wno-deprecated-declarations')
     #common_env.Append(CXXFLAGS = '-std=c++14 -g  -Oz -ldl -lstdc++ -Wno-deprecated-declarations')
-    common_env.Append(LINKFLAGS = '-pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++ -lcrypto -lssl')
+    LIBPYTORCH_PATH = "/home/ubuntu/anaconda3/envs/py37_torch/lib/python3.7/site-packages/torch/lib"
+
+    if os.path.exists(LIBPYTORCH_PATH):
+         common_env.Append(LINKFLAGS = '-L/home/ubuntu/anaconda3/envs/py37_torch/lib/python3.7/site-packages/torch/lib -pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++ -lcrypto -lssl -ltorch -ltorch_cpu -lc10 -lgomp')
+    else:
+         common_env.Append(LINKFLAGS = '-pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++ -lcrypto -lssl')
     common_env.Replace(CXX = "clang++-4.0")
 
 #common_env.Append(CCFLAGS='-DDEBUG_SIMPLE_FF_VERBOSE')
@@ -304,7 +309,7 @@ if os.path.exists(EIGEN3_ROOT):
 else:
     sys.exit("ERROR: EIGEN3_ROOT must be configured to the correct path to eigen3")
 
-LIBPYTORCH_ROOT = "/home/ubuntu/libtorch/include"
+LIBPYTORCH_ROOT = "/home/ubuntu/anaconda3/envs/py37_torch/lib/python3.7/site-packages/torch/include"
 
 if os.path.exists(LIBPYTORCH_ROOT):
     headerpaths.append(LIBPYTORCH_ROOT)
@@ -887,6 +892,7 @@ common_env.Program('bin/RedditFeatureExtractor', ['build/tests/RedditFeatureExtr
 common_env.Program('bin/LSTMTest', ['build/tests/LSTMTest.cc'] + all + pdb_client)
 common_env.Program('bin/LSTMDebug', ['build/tests/LSTMDebug.cc'] + all + pdb_client)
 common_env.Program('bin/Conv2dMemFuseTest', ['build/tests/Conv2dMemFuseTest.cc', 'build/conv2d_memory_fusion/ImageUtils.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
+common_env.Program('bin/Conv2dProjTest', ['build/tests/Conv2dProjTest.cc'] + all + pdb_client)
 
 #PageRank
 
@@ -1427,8 +1433,11 @@ libLSTMTest=common_env.Alias('libLSTMTest', [
 ])
 
 libConv2DProjTest=common_env.Alias('libConv2DProjTest', [
+  'bin/pdb-cluster',
+  'bin/pdb-server',
   'libraries/libConv2DSelect.so',
-  'libraries/libTensorData.so'
+  'libraries/libTensorData.so',
+  'bin/Conv2dProjTest'
 ])
 
 libConv2DMemFuseTest=common_env.Alias('libConv2DMemFuseTest', [

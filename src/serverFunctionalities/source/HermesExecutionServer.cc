@@ -18,7 +18,6 @@
 #include "ExecuteQuery.h"
 #include "TestCopyWork.h"
 #include "DataProxy.h"
-#include "QueryBase.h"
 #include "TupleSetJobStage.h"
 #include "AggregationJobStage.h"
 #include "BroadcastJoinBuildHTJobStage.h"

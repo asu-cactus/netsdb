@@ -12,7 +12,6 @@
 #include "ResourceManagerServer.h"
 #include "SimpleSingleTableQueryProcessor.h"
 #include "InterfaceFunctions.h"
-#include "QueryBase.h"
 #include "PDBVector.h"
 #include "Handle.h"
 #include "ExecuteQuery.h"

@@ -18,7 +18,7 @@ using namespace pdb;
 
 //stride = 1
 
-class Conv2DSelect: public SelectionComp<TensorData, TensorData> {
+class Conv2DSelect: public SelectionComp<pdb::TensorData, pdb::TensorData> {
 
 public:
     ENABLE_DEEP_COPY
@@ -51,17 +51,6 @@ public:
         //set up the mode of the convolutional operation
         this->conv2dMode = convMode;
 
-        if(this->conv2dMode == "aten-cov2d") {
-
-           //setup the ATen kernel tensor for this class
-           this->b = at::from_blob(kernel->rawData->c_ptr(), {nk, zk, yk, xk});
-
-        } else if (this->conv2dMode == "eigen-spatial") {
-
-           Eigen::TensorMap<Eigen::Tensor<float, 4>> b1(kernel->rawData->c_ptr(), nk, zk, yk, xk);
-
-        }
-
     }
 
     Lambda<bool> getSelection(Handle<TensorData> checkMe) override {
@@ -71,12 +60,13 @@ public:
     }
 
 
-    Handle<TensorData> runEigenSpatial(TensorData& input, int z, int y, int x) {
+    Handle<TensorData> runEigenSpatial(TensorData& input,  int z, int y, int x) {
 
         Eigen::TensorMap<Eigen::Tensor<float, 3>> a (input.rawData->c_ptr(), z, y, x);
         
         //Eigen::Tensor<float, 3> c = a.convolve(b1)
 
+        Eigen::TensorMap<Eigen::Tensor<float, 4>> b1(kernel->rawData->c_ptr(), nk, zk, yk, xk);
 
         //contract_dims
         Eigen::array<Eigen::IndexPair<int>, 1> contract_dims;
@@ -129,9 +119,11 @@ public:
     }
 
     Handle<TensorData> runAtenConv2d(TensorData& input, int z, int y, int x) {
-
+/*
         //input data
         at::Tensor a = at::from_blob(input.rawData->c_ptr(), {1, z, y, x});
+
+        at::Tensor b = at::from_blob(kernel->rawData->c_ptr(), {nk, zk, yk, xk});
 
         //perform the convolutional operation
         auto c = at::conv2d(a, b);
@@ -151,7 +143,9 @@ public:
         memcpy(out->rawData->c_ptr(), c.storage().data(), nk * (y - yk + 1 ) * (x - xk + 1 ) * sizeof(float));
 
         return out;
+*/
 
+        return nullptr;
     }
 
 
@@ -159,6 +153,7 @@ public:
     Lambda<Handle<TensorData>> getProjection(Handle<TensorData> checkMe) override {
 
         return makeLambda(checkMe, [&](Handle<TensorData>& checkMe) {
+
 
             TensorData input = *checkMe;
 
@@ -201,11 +196,6 @@ private:
     //--"aten-conv2d": https://github.com/pytorch/pytorch/blob/master/aten/src/ATen/native/Convolution.cpp
     String conv2dMode = "aten-conv2d";
 
-    //kernel for aten-cov2d mode
-    at::Tensor b;
-
-    //kernel for eigen-spatial mode
-    Eigen::Tensor<float, 4> b1;
 
     int nk;
 

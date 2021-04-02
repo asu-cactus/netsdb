@@ -4,6 +4,6 @@
 #include "GetVTable.h"
 #include "TensorData.h"
 
-GET_V_TABLE(TensorData)
+GET_V_TABLE(pdb::TensorData)
 
 #endif

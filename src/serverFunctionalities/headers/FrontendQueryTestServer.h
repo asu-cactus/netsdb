@@ -3,7 +3,6 @@
 #define FRONTEND_QUERY_TEST_SERVER_H
 
 #include "ServerFunctionality.h"
-#include "QueryBase.h"
 #include "PDBServer.h"
 
 namespace pdb {

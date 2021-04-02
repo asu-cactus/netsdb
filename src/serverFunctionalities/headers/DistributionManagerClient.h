@@ -15,7 +15,6 @@
 #include "QueryDone.h"
 #include "PlaceOfQueryPlanner.h"
 #include "PDBVector.h"
-#include "QueryBase.h"
 #include "ListOfNodes.h"
 
 namespace pdb {

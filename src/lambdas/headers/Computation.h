@@ -172,13 +172,11 @@ public:
         // if we are adding this query to a valid slot
         if (whichSlot < getNumInputs()) {
 
-
             // make sure the output type of the guy we are accepting meets the input type
             if ((getIthInputType(whichSlot) != toMe->getOutputType()) && (getIthInputType(whichSlot) != "pdb::Object")) {
                 std::cout << "Cannot set output of query node with output of type "
                           << toMe->getOutputType() << " to be the input";
                 std::cout << " of a query with input type " << getIthInputType(whichSlot) << ".\n";
-                return false;
             }
             (*inputs)[whichSlot] = toMe;
             toMe->setNumConsumers(toMe->getNumConsumers() + 1);

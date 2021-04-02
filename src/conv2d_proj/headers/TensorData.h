@@ -5,6 +5,8 @@
 #include "Object.h"
 #include "PDBVector.h"
 
+namespace pdb {
+
 class TensorData : public pdb::Object {
 public:
 
@@ -45,5 +47,7 @@ public:
   TensorData() {}
 
 };
+
+}
 
 #endif

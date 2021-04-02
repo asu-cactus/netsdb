@@ -7,7 +7,6 @@
 #include "StandardResourceInfo.h"
 #include "Handle.h"
 #include "PDBVector.h"
-#include "QueryBase.h"
 #include "ResourceInfo.h"
 #include "SimpleSingleTableQueryProcessor.h"
 #include "PDBLogger.h"

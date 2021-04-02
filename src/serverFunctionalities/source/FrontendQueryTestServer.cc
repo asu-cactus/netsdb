@@ -17,7 +17,6 @@
 #include "SimpleRequestHandler.h"
 #include "BuiltInObjectTypeIDs.h"
 #include "SimpleRequestResult.h"
-#include "QueryBase.h"
 #include "ExecuteQuery.h"
 #include "InterfaceFunctions.h"
 #include "GenericWork.h"
