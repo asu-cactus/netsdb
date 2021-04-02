@@ -12,7 +12,7 @@ class String;
 } // namespace pdb
 
 namespace ff {
-void load_matrix_data(pdb::PDBClient &pdbClient, std::string path,
+int load_matrix_data(pdb::PDBClient &pdbClient, std::string path,
                       pdb::String dbName, pdb::String setName, int blockX,
                       int blockY, bool dont_pad_x, bool dont_pad_y,
                       std::string &errMsg, int size = 128, bool partitionByCol = true);
