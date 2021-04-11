@@ -8,7 +8,7 @@
 #include "FFMatrixMeta.h"
 #include "FFMatrixWriter.h"
 #include "FFOutputLayer.h"
-#include "FFReluBiasSum.h"
+#include "FFActivationBiasSum.h"
 #include "FFRowAggregate.h"
 #include "FFTransposeBiasSum.h"
 #include "FFTransposeMult.h"
@@ -73,7 +73,7 @@ void setup(pdb::PDBClient &pdbClient, string database) {
   loadLibrary(pdbClient, "libraries/libFFInputLayerJoin.so");
   loadLibrary(pdbClient, "libraries/libFFMatrixWriter.so");
   loadLibrary(pdbClient, "libraries/libFFAggMatrix.so");
-  loadLibrary(pdbClient, "libraries/libFFReluBiasSum.so");
+  loadLibrary(pdbClient, "libraries/libFFActivationBiasSum.so");
   loadLibrary(pdbClient, "libraries/libFFTransposeMult.so");
   loadLibrary(pdbClient, "libraries/libFFTransposeBiasSum.so");
   loadLibrary(pdbClient, "libraries/libFFRowAggregate.so");
@@ -131,7 +131,7 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
         makeObject<FFMatrixBlockScanner>(database, b1);
 
     pdb::Handle<pdb::Computation> reluBias =
-        pdb::makeObject<FFReluBiasSum>(dropout_rate);
+        pdb::makeObject<FFActivationBiasSum>(FFActivationBiasSum::SumActivation::Relu, dropout_rate);
     reluBias->setInput(0, myAggregation);
     reluBias->setInput(1, readC);
 
@@ -196,7 +196,7 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
         makeObject<FFMatrixBlockScanner>(database, b2);
 
     pdb::Handle<pdb::Computation> reluBias =
-        pdb::makeObject<FFReluBiasSum>(dropout_rate);
+        pdb::makeObject<FFActivationBiasSum>(FFActivationBiasSum::SumActivation::Relu, dropout_rate);
     reluBias->setInput(0, myAggregation);
     reluBias->setInput(1, readC);
 
