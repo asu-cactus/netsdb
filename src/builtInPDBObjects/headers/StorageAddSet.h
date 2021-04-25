@@ -24,8 +24,9 @@ public:
                   size_t pageSize = DEFAULT_PAGE_SIZE,
                   size_t desiredSize = 1,
                   bool isMRU = true,
-                  bool isTransient = true)
-        : dataBase(dataBase), setName(setName), typeName(typeName), pageSize(pageSize), desiredSize(desiredSize), isMRU(isMRU), isTransient(isTransient) {}
+                  bool isTransient = true,
+                  bool share = false)
+        : dataBase(dataBase), setName(setName), typeName(typeName), pageSize(pageSize), desiredSize(desiredSize), isMRU(isMRU), isTransient(isTransient), share(share) {}
 
     std::string getDatabase() {
         return dataBase;
@@ -55,7 +56,13 @@ public:
         return isTransient;
     }
 
+    bool getShare() {
+        return this->share;
+    }
 
+    void setShare(bool share) {
+        this->share = share;
+    }
 
     ENABLE_DEEP_COPY
 
@@ -67,6 +74,7 @@ private:
     size_t desiredSize;
     bool isMRU;
     bool isTransient;
+    bool share;
 };
 }
 

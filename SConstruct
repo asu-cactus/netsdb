@@ -31,7 +31,7 @@ SRC_ROOT = os.path.join(Dir('.').abspath, "src") # assume the root source dir is
 # OSX settings
 if common_env['PLATFORM'] == 'darwin':
     print 'Compiling on OSX'
-    common_env.Append(CXXFLAGS = '-std=c++1y -Wall -Oz  -g')
+    common_env.Append(CXXFLAGS = '-std=c++1y -Wall -O0  -g')
 
     common_env.Replace(CXX = "clang++")
 
@@ -45,7 +45,7 @@ elif  common_env['PLATFORM'] == 'posix':
 
     #for debugging
     #Needs to be turned on for KMeans and TPCH
-    common_env.Append(CXXFLAGS = '-std=c++14 -g3 -O3 -fPIC -fno-tree-vectorize  -march=native -Winline -Winline-asm -Wno-deprecated-declarations')
+    common_env.Append(CXXFLAGS = '-std=c++14 -g3 -O0 -fPIC -fno-tree-vectorize  -march=native -Winline -Winline-asm -Wno-deprecated-declarations')
     #common_env.Append(CXXFLAGS = '-std=c++14 -g  -Oz -ldl -lstdc++ -Wno-deprecated-declarations')
     LIBPYTORCH_PATH = "/home/ubuntu/anaconda3/envs/py37_torch/lib/python3.7/site-packages/torch/lib"
 
@@ -893,6 +893,7 @@ common_env.Program('bin/LSTMTest', ['build/tests/LSTMTest.cc'] + all + pdb_clien
 common_env.Program('bin/LSTMDebug', ['build/tests/LSTMDebug.cc'] + all + pdb_client)
 common_env.Program('bin/Conv2dMemFuseTest', ['build/tests/Conv2dMemFuseTest.cc', 'build/conv2d_memory_fusion/ImageUtils.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
 common_env.Program('bin/Conv2dProjTest', ['build/tests/Conv2dProjTest.cc'] + all + pdb_client)
+common_env.Program('bin/SharedPagesTest', ['build/tests/SharedPagesTest.cc', 'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
 
 #PageRank
 
@@ -1368,6 +1369,18 @@ KMeans=common_env.Alias('KMeans', [
   
 
 ])
+
+libSharedPagesTest=common_env.Alias('libSharedPagesTest', [
+  'bin/pdb-cluster',
+  'bin/pdb-server', 
+
+  'bin/SharedPagesTest',
+  # Other libraries from src/FF
+  'libraries/libFFMatrixBlock.so',
+  'libraries/libFFMatrixMeta.so',
+  'libraries/libFFMatrixData.so'
+])
+
 
 libFFTest=common_env.Alias('libFFTest', [
   'bin/pdb-cluster',

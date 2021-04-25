@@ -27,7 +27,7 @@ namespace pdb {
                                                     Handle<Computation> computationForDispatch,
                                                     Handle<LambdaIdentifier> lambdaForDispatch,
                                                     size_t desiredSize,
-                                                    bool isMRU) {
+                                                    bool isMRU, bool share) {
         std::string typeName = getTypeName<DataType>();
         int16_t typeId = getTypeID<DataType>();
         PDB_COUT << "typeName for set to create =" << typeName << ", typeId=" << typeId << std::endl;
@@ -46,7 +46,8 @@ namespace pdb {
             computationForDispatch,
             lambdaForDispatch,
             desiredSize,
-            isMRU);
+            isMRU,
+            share);
     }
 
     template <class DataType>
@@ -64,14 +65,14 @@ namespace pdb {
                                                     std::string lambdaName1, 
                                                     std::string lambdaName2,
                                                     size_t desiredSize,
-                                                    bool isMRU) {
+                                                    bool isMRU, bool share) {
         std::string typeName = getTypeName<DataType>();
         int16_t typeId = getTypeID<DataType>();
         PDB_COUT << "typeName for set to create =" << typeName << ", typeId=" << typeId << std::endl;
         std::cout << "to create set for " << databaseName << ":" << setName << std::endl;
         std::cout << "jobName is " << jobName << std::endl;
         Handle<DistributedStorageAddSetWithPartition> request = makeObject<DistributedStorageAddSetWithPartition> (databaseName,
-            setName, typeName, pageSize, createdJobId, computationsForDispatch, jobName, jobName1, jobName2, computationName1, computationName2, lambdaName1, lambdaName2, desiredSize, isMRU);
+            setName, typeName, pageSize, createdJobId, computationsForDispatch, jobName, jobName1, jobName2, computationName1, computationName2, lambdaName1, lambdaName2, desiredSize, isMRU, share);
         return simpleDoubleRequest<DistributedStorageAddSetWithPartition, Vector<Handle<Computation>>, SimpleRequestResult, bool>(
            logger,
            port,

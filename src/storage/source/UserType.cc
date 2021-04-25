@@ -1,5 +1,6 @@
 #include "UserType.h"
 #include "PartitionedFile.h"
+#include "ShareableUserSet.h"
 
 /**
  * Create a UserType instance.
@@ -93,7 +94,7 @@ int UserType::addSet(string setName, SetID setId, size_t pageSize, size_t desire
                                         dataFilePaths,
                                         this->logger,
                                         pageSize);
-
+    std::cout << "[USERTYPE] Added set '" << setName << "' with setId: " << setId << ", at node " << this->nodeId << std::endl;
     SetPtr set = nullptr;
     LocalitySetReplacementPolicy policy = LRU;
     if (isMRU) {
@@ -113,6 +114,58 @@ int UserType::addSet(string setName, SetID setId, size_t pageSize, size_t desire
     this->logger->writeLn("UserType: set added.");
     pthread_mutex_lock(&setLock);
     this->sets->insert(pair<SetID, SetPtr>(setId, set));
+    pthread_mutex_unlock(&setLock);
+    this->numSets++;
+    return 0;
+}
+
+// add new set
+// Not thread-safe
+int UserType::addShareableSet(string setName, SetID setId, size_t pageSize, size_t desiredSize, bool isMRU, bool isTransient) {
+    if (this->sets->find(setId) != this->sets->end()) {
+        this->logger->writeLn("UserType: set exists.");
+        return -1;
+    }
+
+    PartitionedShareableFileMetaDataPtr metainfo;
+    // Creates meta dirs
+    metainfo = make_shared<PartitionedShareableFileMetaData>(this->metaPath, setId, setName);
+
+    PartitionedFilePtr file;
+    string metaFilePath = metainfo->getMetaFile();
+    vector<string> dataFilePaths;
+    unsigned int i;
+    for (i = 0; i < this->dataPaths->size(); i++) {
+        dataFilePaths.push_back(this->encodePath(this->dataPaths->at(i), setId, setName));
+    }
+    file = make_shared<PartitionedFile>(this->nodeId,
+                                        this->dbId,
+                                        this->id,
+                                        setId,
+                                        metaFilePath,
+                                        dataFilePaths,
+                                        this->logger,
+                                        pageSize);
+    std::cout << "[USERTYPE] Added shareable set '" << setName << "' with setId: " << setId << ", at node " << this->nodeId << std::endl;
+    ShareableSetPtr set = nullptr;
+    LocalitySetReplacementPolicy policy = LRU;
+    if (isMRU) {
+        policy = MRU;
+    }
+    PersistenceType persistenceType = Persistent;
+    if (isTransient) {
+        persistenceType = Transient;
+    }
+    set = make_shared<ShareableUserSet>(
+          pageSize, logger, shm, nodeId, dbId, id, setId, setName, file, this->cache, metainfo, this->sets, JobData, policy, Write, TryCache, persistenceType, desiredSize);
+
+    if (set == 0) {
+        this->logger->writeLn("UserType: Out of Memory.");
+        return -1;
+    }
+    this->logger->writeLn("UserType: set added.");
+    pthread_mutex_lock(&setLock);
+    this->sets->insert(pair<SetID, SetPtr>(setId, static_pointer_cast<UserSet>(set)));
     pthread_mutex_unlock(&setLock);
     this->numSets++;
     return 0;
@@ -213,6 +266,59 @@ bool UserType::initializeFromMetaTypeDir(path metaTypeDir) {
                         exit(1);
                     }
                     this->sets->insert(pair<SetID, SetPtr>(setId, set));
+                    this->numSets++;
+                    this->logger->writeLn("UserType: set added.");
+                }
+
+                else if (is_directory(*iter) && iter->extension() == ".shared") {
+                    // find a set
+                    path = std::string(iter->stem().string());
+                    std::cout << "path to set file is " << path << std::endl;
+                    // parse set name
+                    name = path.substr(path.find('_') + 1, path.length() - 1);
+                    // parse set id
+                    setId = stoul(path.substr(0, path.find('_')));
+                    std::cout << "set name is " << name << ", setId is " << setId << std::endl;
+                    // check whether set exists
+                    if (this->sets->find(setId) != this->sets->end()) {
+                        this->logger->writeLn("UserType: set exists.");
+                        return false;
+                    }
+
+                    PartitionedShareableFileMetaDataPtr metainfo = make_shared<PartitionedShareableFileMetaData>(iter->string());
+                    metainfo->buildMetaDataFromMetaPartition();
+                    // TODO: Remove this
+                    metainfo->dump();
+                    std::cout << "create partitioned file instance" << std::endl;
+                    // create PartitionedFile instance
+                    PartitionedFilePtr partitionedFile = make_shared<PartitionedFile>(
+                        this->nodeId, this->dbId, this->id, setId, metainfo->getMetaFile(), this->logger);
+
+                    std::cout << "build metadata from meta partition" << std::endl;
+                    partitionedFile->buildMetaDataFromMetaPartition(nullptr);
+                    std::cout << "initialize data files" << std::endl;
+                    partitionedFile->initializeDataFiles();
+                    std::cout << "open data" << std::endl;
+                    partitionedFile->openData();
+                    std::cout << "create set" << std::endl;
+                    // create a Set instance from file
+                    ShareableSetPtr set = make_shared<ShareableUserSet>(partitionedFile->getPageSize(),
+                                                      logger,
+                                                      this->shm,
+                                                      nodeId,
+                                                      dbId,
+                                                      id,
+                                                      setId,
+                                                      name,
+                                                      partitionedFile,
+                                                      this->cache, metainfo, this->sets, JobData, LRU, Read, TryCache, Persistent);
+                    // add buffer to map
+                    if (set == 0) {
+                        this->logger->error("Fatal Error: UserType: out of memory.");
+                        exit(1);
+                    }
+
+                    this->sets->insert(pair<SetID, SetPtr>(setId, static_pointer_cast<UserSet>(set)));
                     this->numSets++;
                     this->logger->writeLn("UserType: set added.");
                 }

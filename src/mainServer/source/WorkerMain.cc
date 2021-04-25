@@ -87,6 +87,7 @@ int main(int argc, char* argv[]) {
         conf->setIsMaster(false);
         conf->setMasterNodeHostName(masterIp);
         conf->setMasterNodePort(masterPort);
+        conf->setNodeId(nodeId);
         std::cout << "Local IP:" << localIp << std::endl;
         std::cout << "Local Port:" << localPort << std::endl;
     }

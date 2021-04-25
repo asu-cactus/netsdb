@@ -90,4 +90,11 @@ typedef struct {
     SetID setId;
 } SetKey;
 
+typedef struct {
+    NodeID nodeId;
+    DatabaseID dbId;
+    PageID pageId;
+    SetID setId;
+} SharedPageID;
+
 #endif
