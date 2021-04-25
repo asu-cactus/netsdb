@@ -34,7 +34,8 @@ public:
                              std::string lambdaName1,
                              std::string lambdaName2,
                              size_t desiredSize = 1,
-                             bool isMRU = false)
+                             bool isMRU = false,
+                             bool share = false)
         : dataBase(dataBase), setName(setName), typeName(typeName), pageSize(pageSize), createdJobId(createdJobId) {
 
         this->dispatchComputations = dispatchComputations;
@@ -47,6 +48,7 @@ public:
         this->lambdaName2 = lambdaName2;
         this->desiredSize = desiredSize;
         this->isMRU = isMRU;
+        this->share = share;
     }
 
 
@@ -154,6 +156,14 @@ public:
         this->computationName2 = computationName2;
     }
 
+    bool getShare() {
+        return this->share;
+    }
+
+    void setShare(bool share) {
+        this->share = share;
+    }
+
     ENABLE_DEEP_COPY
 
 private:
@@ -172,6 +182,7 @@ private:
     String computationName2;
     String lambdaName1;
     String lambdaName2;
+    bool share;
 
 };
 }

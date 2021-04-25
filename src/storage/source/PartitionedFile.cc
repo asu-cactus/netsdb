@@ -278,7 +278,7 @@ int PartitionedFile::appendPage(FilePartitionID partitionId, PDBPagePtr page) {
 
     // update partition metadata
     int ret = (int)(this->metaData->getPartition(partitionId)->getNumPages());
-    this->metaData->addPageIndex(pageId, partitionId, ret);
+    this->metaData->addPageIndex(pageId, partitionId, ret);std::cout << "[PartitionedFile] Added page with setId: " << this->setId << ", at node: " << this->nodeId << ", at partition " << partitionId << std::endl;
     this->metaData->getPartition(partitionId)->incNumPages();
     pthread_mutex_unlock(&this->fileMutex);
     return ret;

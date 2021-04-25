@@ -8,10 +8,10 @@ namespace pdb {
 template <class DataType>
 bool PDBClient::createSet(const std::string &databaseName,
                           const std::string &setName, std::string &errMsg, 
-                          size_t pageSize, const std::string &createdJobId, Handle<Computation> dispatchComputation, Handle<LambdaIdentifier> lambda) {
+                          size_t pageSize, const std::string &createdJobId, Handle<Computation> dispatchComputation, Handle<LambdaIdentifier> lambda, bool share) {
 
   return distributedStorageClient.createSet<DataType>(
-        databaseName, setName, errMsg, pageSize, createdJobId, dispatchComputation, lambda);
+        databaseName, setName, errMsg, pageSize, createdJobId, dispatchComputation, lambda, 0, false, share);
 }
 
 
@@ -19,10 +19,10 @@ bool PDBClient::createSet(const std::string &databaseName,
 template <class DataType>
 bool PDBClient::createSet(const std::string &databaseName,
                           const std::string &setName, std::string &errMsg,
-                          size_t pageSize, const std::string &createdJobId, Handle<Vector<Handle<Computation>>> dispatchComputations, std::string jobName, std::string jobName1, std::string jobName2, std::string computationName1, std::string computationName2, std::string lambdaName1, std::string lambdaName2) {
+                          size_t pageSize, const std::string &createdJobId, Handle<Vector<Handle<Computation>>> dispatchComputations, std::string jobName, std::string jobName1, std::string jobName2, std::string computationName1, std::string computationName2, std::string lambdaName1, std::string lambdaName2, bool share) {
 
   return distributedStorageClient.createSet<DataType>(
-        databaseName, setName, errMsg, pageSize, createdJobId, dispatchComputations, jobName, jobName1, jobName2, computationName1, computationName2, lambdaName1, lambdaName2);
+        databaseName, setName, errMsg, pageSize, createdJobId, dispatchComputations, jobName, jobName1, jobName2, computationName1, computationName2, lambdaName1, lambdaName2, 0, false, share);
 }
 
 

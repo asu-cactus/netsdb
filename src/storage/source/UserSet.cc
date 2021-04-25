@@ -134,7 +134,7 @@ PDBPagePtr UserSet::addPage() {
     }
     page->preparePage();
     this->addPageToDirtyPageSet(page->getPageID());
-    numPages++;
+    numPages++;std::cout << "[USERSET] Added page to set " << this->setId << ", pageId: " << pageId << ", node: " << this->nodeId << std::endl;
     return page;
 }
 

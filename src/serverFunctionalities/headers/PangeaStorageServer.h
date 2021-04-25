@@ -181,7 +181,7 @@ public:
                 size_t pageSize = DEFAULT_PAGE_SIZE,
                 size_t desiredSize = 1,
                 bool isMRU = true,
-                bool isTransient = true);
+                bool isTransient = true, bool share=false);
 
 
     /**
@@ -193,7 +193,7 @@ public:
                 size_t pageSize = DEFAULT_PAGE_SIZE,
                 size_t desiredSize = 1,
                 bool isMRU = true,
-                bool isTransient = true);
+                bool isTransient = true, bool share=false);
 
     /**
      * Add a set using only database name and set name
@@ -203,8 +203,7 @@ public:
                 size_t pageSize = DEFAULT_PAGE_SIZE,
                 size_t desiredSize = 1,
                 bool isMRU = true,
-                bool isTransient = true);
-
+                bool isTransient = true, bool share=false);
 
     /**
      * Remove an existing set

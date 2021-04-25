@@ -406,8 +406,10 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                                                                          pageSize,
                                                                          desiredSize,
                                                                          request->getMRUorNot(),
-                                                                         request->getMRUorNot());
+                                                                         request->getMRUorNot(),
+                                                                         request->getShare());
             std::cout << "Page size is determined to be " << pageSize << std::endl;
+            std::cout << "with share=" << request->getShare() << std::endl;
             
 
             //there are five cases:
@@ -649,9 +651,11 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                                                                          pageSize,
                                                                          desiredSize,
                                                                          request->getMRUorNot(),
-                                                                         request->getMRUorNot());
+                                                                         request->getMRUorNot(),
+                                                                         request->getShare());
             std::cout << "Page size is determined to be " << pageSize << std::endl;
             std::cout << "jobName to match is " << jobName << std::endl; 
+            std::cout << "with share=" << request->getShare() << std::endl;
 
             std::pair<std::string, std::string> source;
             source.first = request->getDatabase();

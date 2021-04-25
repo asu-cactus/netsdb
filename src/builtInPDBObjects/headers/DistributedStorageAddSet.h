@@ -28,13 +28,14 @@ public:
                              Handle<Computation> dispatchComputation = nullptr,
                              Handle<LambdaIdentifier> lambdaIdentifier = nullptr,
                              size_t desiredSize = 1,
-                             bool isMRU = false)
+                             bool isMRU = false, bool share=false)
         : dataBase(dataBase), setName(setName), typeName(typeName), pageSize(pageSize), createdJobId(createdJobId) {
 
         this->dispatchComputation = dispatchComputation;
         this->lambdaIdentifier = lambdaIdentifier;
         this->desiredSize = desiredSize;
         this->isMRU = isMRU;
+        this->share = share;
     }
 
 
@@ -94,6 +95,14 @@ public:
         this->isMRU = isMRU;
     }
 
+    bool getShare() {
+        return this->share;
+    }
+
+    void setShare(bool share) {
+        this->share = share;
+    }
+
     ENABLE_DEEP_COPY
 
 private:
@@ -106,6 +115,7 @@ private:
     Handle<LambdaIdentifier> lambdaIdentifier;
     size_t desiredSize;
     bool isMRU;
+    bool share;
 };
 }
 
