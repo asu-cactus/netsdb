@@ -2,6 +2,10 @@
 #include "PartitionedFile.h"
 #include "ShareableUserSet.h"
 
+#include "PageIndexer.h"
+#include "FFPageIndexer.h"
+#include "InterfaceFunctions.h"
+
 /**
  * Create a UserType instance.
  */
@@ -126,6 +130,11 @@ int UserType::addShareableSet(string setName, SetID setId, size_t pageSize, size
         this->logger->writeLn("UserType: set exists.");
         return -1;
     }
+
+    // Handle<FFPageIndexer> midxr = makeObject<FFPageIndexer>();
+    // Handle<PageIndexer<Object>> idxr = unsafeCast<PageIndexer<Object>>(midxr);
+
+    // idxr->addSet(nullptr);
 
     PartitionedShareableFileMetaDataPtr metainfo;
     // Creates meta dirs

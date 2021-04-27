@@ -47,6 +47,8 @@ public:
     virtual void deleteObject(void* deleteMe);
     virtual size_t getSize(void* ofMe);
     virtual std::string toString() {return "";};
+    virtual void printString() {}
+    virtual void printStats() {}
 };
 }
 

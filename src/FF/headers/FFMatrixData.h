@@ -29,6 +29,15 @@ public:
                                                    rowNumsIn * colNumsIn);
   }
 
+  double getSum() {
+    double sum = 0;
+    double *myData = rawData->c_ptr();
+    for (size_t i = 0; i < rowNums * colNums; i++) {
+      sum += myData[i];
+    }
+    return sum;
+  }
+
   FFMatrixData() {}
 
   pdb::Handle<pdb::Vector<double>> rawData;

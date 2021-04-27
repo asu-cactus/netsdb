@@ -15,6 +15,9 @@
 // LA libraries:
 #include <eigen3/Eigen/Dense>
 
+#include <sstream>      // std::stringstream, std::stringbuf
+
+
 class FFMatrixBlock : public pdb::Object {
 private:
   FFMatrixData data;
@@ -24,6 +27,10 @@ public:
   const static int librayCode = EIGEN_CODE;
 
   ENABLE_DEEP_COPY
+
+  double getSum() {
+    return data.getSum();
+  }
 
   ~FFMatrixBlock() {}
 
@@ -147,7 +154,35 @@ public:
          return pdb::Hasher<int>::hash(meta->blockRowIndex);        
   }
 
+  std::string toString() override {
+    std::stringstream ss;
+    for (int i = 0; i < data.rowNums * data.colNums; i++) {
+      ss << data.rawData->c_ptr()[i] << ",";
+    }
+    return ss.str();
 
+  }
+
+  void printString() override {
+    double *ndata = getRawDataHandle()->c_ptr();
+    int x = getBlockRowIndex();
+    int y = getBlockColIndex();
+    int bx = getRowNums();
+    int by = getColNums();
+
+    std::cout << x << "," << y
+         << "; Block Size: " << bx << "," << by << std::endl;
+    for (int i = 0; i < bx; i++) {
+      for (int j = 0; j < by; j++) {
+        std::cout << ndata[i * by + j] << ",";
+      }
+      std::cout << std::endl;
+    }
+  }
+
+  void printStats() override {
+      std::cout << "(" << getBlockRowIndex() << "," << getBlockColIndex() << ")" << std::endl;
+  }
 };
 
 #endif

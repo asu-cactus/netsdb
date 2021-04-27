@@ -8,7 +8,6 @@
 #include "UserSet.h"
 #include <cstring>
 
-#include "SharedPageInfo.h"
 #include "SharedPageIterator.h"
 /**
  * Create a UserSet instance, need to set file, and open file later

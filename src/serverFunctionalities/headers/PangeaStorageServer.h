@@ -22,6 +22,8 @@
 #include <pthread.h>
 #include <memory>
 
+#include "AbstractIndexer.h"
+#include "ShareableUserSet.h"
 
 namespace pdb {
 
@@ -79,6 +81,8 @@ public:
 
     // this allocates a new page at the end of the indicated database/set combo
     PDBPagePtr getNewPage(pair<std::string, std::string> databaseAndSet);
+
+    bool checkAndSharePage(PDBPagePtr myPage, Handle<AbstractIndexer> indexer, CacheKey &key, ShareableSetPtr set, bool reuse);
 
     // returns a set object referencing the given database/set pair
     SetPtr getSet(std::pair<std::string, std::string> databaseAndSet);
@@ -204,6 +208,17 @@ public:
                 size_t desiredSize = 1,
                 bool isMRU = true,
                 bool isTransient = true, bool share=false);
+
+    bool addIndexer(std::string dbName, std::string typeName, Handle<AbstractIndexer> indexer);
+
+    Handle<AbstractIndexer> getIndexerForType(std::string dbName,
+                                              std::string typeName);
+
+    Handle<AbstractIndexer> getIndexerForType(std::string dbName,
+                                              UserTypeID typeId);
+
+    Handle<AbstractIndexer> getIndexerForType(DatabaseID dbId,
+                                              UserTypeID typeId);
 
     /**
      * Remove an existing set

@@ -7,6 +7,7 @@
 #include "SimpleRequestResult.h"
 #include "Computation.h"
 #include "LambdaIdentifier.h"
+#include "AbstractIndexer.h"
 
 namespace pdb {
 
@@ -70,6 +71,9 @@ public:
                        Handle<LambdaIdentifier> lambdaForDispatch = nullptr,
                        size_t desiredSize = 0,
                        bool isMRU = false);
+
+    template <class DataType> 
+    bool addTypeIndexer(const std::string &databaseName, Handle<AbstractIndexer> indexer);
 
     // templated createSet
     template <class DataType>

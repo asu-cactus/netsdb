@@ -44,6 +44,10 @@
 #include "RuleBasedDataPlacementOptimizerForLoadJob.h"
 #include "DRLBasedDataPlacementOptimizerForLoadJob.h"
 
+#include "DistributedStorageAddIndexer.h"
+#include "AbstractIndexer.h"
+#include "StorageAddIndexer.h"
+
 #include <chrono>
 #include <ctime>
 #include <unistd.h>
@@ -567,6 +571,58 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                 }
             }
 #endif
+
+            Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(res, errMsg);
+            res = sendUsingMe->sendObject(response, errMsg);
+            return make_pair(res, errMsg);
+        }));
+
+    forMe.registerHandler(
+        DistributedStorageAddIndexer_TYPEID,
+        make_shared<SimpleRequestHandler<DistributedStorageAddIndexer>>([&](
+            Handle<DistributedStorageAddIndexer> request, PDBCommunicatorPtr sendUsingMe) {
+            const UseTemporaryAllocationBlock tempBlock{8 * 1024 * 1024};
+            auto begin = std::chrono::high_resolution_clock::now();
+            auto beforeCreateSet = begin;
+            auto afterCreateSet = begin;
+
+            PDB_COUT << "received DistributedStorageAddIndexer message" << std::endl;
+            std::string errMsg;
+            mutex lock;
+
+            auto successfulNodes = std::vector<std::string>();
+            auto failureNodes = std::vector<std::string>();
+            auto nodesToBroadcast = std::vector<std::string>();
+
+            std::string database = request->getDatabaseName();
+            int typeId = request->getTypeId();
+            std::string typeName = request->getTypeName();
+            Handle<AbstractIndexer> indexer = request->getIndexer();
+
+            std::vector<std::string> allNodes;
+            const auto nodes = getFunctionality<ResourceManagerServer>().getAllNodes();
+            for (int i = 0; i < nodes->size(); i++) {
+                std::string address = static_cast<std::string>((*nodes)[i]->getAddress());
+                std::string port = std::to_string((*nodes)[i]->getPort());
+                allNodes.push_back(address + ":" + port);
+            }
+            nodesToBroadcast = allNodes;
+
+            Handle<StorageAddIndexer> storageCmd = makeObject<StorageAddIndexer>(database, typeName, typeId, indexer);
+
+            std::cout << "to broadcast StorageAddIndexer" << std::endl; 
+            getFunctionality<DistributedStorageManagerServer>()
+                .broadcast<StorageAddIndexer, Object, SimpleRequestResult>(
+                    storageCmd,
+                    nullptr,
+                    nodesToBroadcast,
+                    generateAckHandler(successfulNodes, failureNodes, lock));
+            std::cout << "broadcasted StorageAddSet" << std::endl;
+
+            bool res = true;
+            if (failureNodes.size() > 0) {
+                res = false;
+            }
 
             Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(res, errMsg);
             res = sendUsingMe->sendObject(response, errMsg);

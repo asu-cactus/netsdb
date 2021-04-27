@@ -600,6 +600,8 @@ common_env.SharedLibrary('libraries/libInferenceResult.so', ['build/FF/Inference
 common_env.SharedLibrary('libraries/libInferenceResultPartition.so', ['build/FF/InferenceResultPartition.cc'] + all)
 common_env.SharedLibrary('libraries/libFFMatrixPartitioner.so', ['build/FF/FFMatrixPartitioner.cc'] + all)
 
+common_env.SharedLibrary('libraries/libFFPageIndexer.so', ['build/FF/FFPageIndexer.cc'] + all)
+
 # LSTM
 
 # common_env.SharedLibrary('libraries/.so', ['build/LSTM/.cc'] + all)
@@ -1376,6 +1378,7 @@ libSharedPagesTest=common_env.Alias('libSharedPagesTest', [
 
   'bin/SharedPagesTest',
   # Other libraries from src/FF
+  'libraries/libFFPageIndexer.so',
   'libraries/libFFMatrixBlock.so',
   'libraries/libFFMatrixMeta.so',
   'libraries/libFFMatrixData.so'

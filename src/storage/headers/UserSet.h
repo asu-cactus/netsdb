@@ -275,6 +275,14 @@ public:
         unlockDirtyPageSet();
     }
 
+    void removePageFromDirtyPageSet(PageID pageId) {
+        lockDirtyPageSet();
+        dirtyPagesInPageCache->erase(pageId);
+        unlockDirtyPageSet();
+        return;
+    }
+
+
     /**
      * Not really remove dirty page from the Set's hash map for dirty pages;
      * Just label it as flushed, and set other fields of FileSearchKey.
