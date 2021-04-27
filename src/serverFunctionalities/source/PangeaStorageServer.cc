@@ -63,17 +63,18 @@
 #include <snappy.h>
 
 #include "FFMatrixBlock.h"
+#include "StorageAddIndexer.h"
+#include "PageIndexer.h"
+#include "AbstractIndexer.h"
 #include <sstream>      // std::stringstream, std::stringbuf
 
-#include "SharedPageInfo.h"
 #include "ShareableUserSet.h"
-#include "StorageAddSharedPageInfo.h"
+#include <unordered_map>
 
 #define FLUSH_BUFFER_SIZE 3
 
 
 namespace pdb {
-
 
 size_t PangeaStorageServer::bufferRecord(pair<std::string, std::string> databaseAndSet,
                                          Record<Vector<Handle<Object>>>* addMe) {
@@ -207,6 +208,25 @@ PDBPagePtr PangeaStorageServer::getNewPage(pair<std::string, std::string> databa
 }
 
 
+bool PangeaStorageServer::checkAndSharePage(PDBPagePtr myPage, Handle<AbstractIndexer> indexer, CacheKey &key, ShareableSetPtr set, bool discardPage) {
+    if (indexer == nullptr) return false;
+    
+    SharedPageID *pid = indexer->checkAndAddPage(myPage);
+    if (pid == nullptr) return false;
+
+    std::cout << "[WRITEBACKRECORDS] GOT DUPLICATE PAGE for " << myPage->getDbID() << "," << myPage->getSetID() << "," << myPage->getPageID() << " -> " << (*pid).dbId << "," << (*pid).setId << "," << (*pid).pageId << std::endl;
+    if (discardPage) {
+        myPage->resetRefCount();
+        myPage->setInFlush(false);
+        myPage->setDirty(false);
+        set->removePageFromDirtyPageSet(myPage->getPageID());
+        this->getCache()->evictPage(key, false);
+    }
+    set->addSharedPage(pid);
+
+    return true;
+}
+
 void PangeaStorageServer::writeBackRecords(pair<std::string, std::string> databaseAndSet,
                                            bool flushOrNot,
                                            bool directPutOrNot) {
@@ -236,6 +256,8 @@ void PangeaStorageServer::writeBackRecords(pair<std::string, std::string> databa
     // the number of items in the current record we are processing
     int numObjectsInRecord;
 
+    Handle<AbstractIndexer> indexer = getIndexerForType(myPage->getDbID(), myPage->getTypeID());
+    ShareableSetPtr set = dynamic_pointer_cast<ShareableUserSet>(getSet(databaseAndSet));
 
     // now, keep looping until we run out of records to process (in which case, we'll break)
     while (true) {
@@ -275,11 +297,19 @@ void PangeaStorageServer::writeBackRecords(pair<std::string, std::string> databa
             key.typeId = myPage->getTypeID();
             key.setId = myPage->getSetID();
             key.pageId = myPage->getPageID();
-            this->getCache()->decPageRefCount(key);
-            if (flushOrNot == true) {
-                std::cout << "to flush without eviction" << std::endl;
-                this->getCache()->flushPageWithoutEviction(key);
+
+            if (!checkAndSharePage(myPage, indexer, key, set, false)) {
+                std::cout << "[WRITEBACKRECORDS] NO DUPLICATE PAGE for " << myPage->getDbID() << "," << myPage->getSetID() << "," << myPage->getPageID() << std::endl;
+                // comment the following three lines of code to allow Pangea to manage pages
+                std::cout << "Write all of the bytes in the record.\n";
+                getRecord(data);
+                this->getCache()->decPageRefCount(key);
+                if (flushOrNot == true) {
+                    std::cout << "to flush without eviction" << std::endl;
+                    this->getCache()->flushPageWithoutEviction(key);
+                } 
             }
+
             break;
 
             // put the extra objects tht we could not store back in the record
@@ -295,28 +325,36 @@ void PangeaStorageServer::writeBackRecords(pair<std::string, std::string> databa
                 std::cout << "setName" << databaseAndSet.second << std::endl;
                 pos++;
             }
+
+            bool fillNewPage = numBytesToProcess + (((numObjectsInRecord - pos) / numObjectsInRecord) *
+                                     allRecs[allRecs.size() - 1]->numBytes()) > pageSize;
+
             CacheKey key;
             key.dbId = myPage->getDbID();
             key.typeId = myPage->getTypeID();
             key.setId = myPage->getSetID();
             key.pageId = myPage->getPageID();
-            this->getCache()->decPageRefCount(key);
-            if (flushOrNot == true) {
-                this->getCache()->flushPageWithoutEviction(key);
+
+            bool canShare = checkAndSharePage(myPage, indexer, key, set, !fillNewPage);
+            if (!canShare) {
+                std::cout << "[WRITEBACKRECORDS] NO DUPLICATE PAGE for " << myPage->getDbID() << "," << myPage->getSetID() << "," << myPage->getPageID() << std::endl;
+                this->getCache()->decPageRefCount(key);
+                if (flushOrNot == true) {
+                    this->getCache()->flushPageWithoutEviction(key);
+                } 
             }
+
             // there are two cases... in the first case, we can make another page out of this data,
             // since we have enough records to do so
-            if (numBytesToProcess + (((numObjectsInRecord - pos) / numObjectsInRecord) *
-                                     allRecs[allRecs.size() - 1]->numBytes()) >
-                pageSize) {
-
-                myPage = getNewPage(databaseAndSet);
+            if (fillNewPage) {
+                if (!canShare) {
+                    myPage = getNewPage(databaseAndSet);
+                }
                 pageSize = myPage->getSize();
                 continue;
 
                 // in this case, we have a small bit of data left
             } else {
-
                 // create the vector to hold these guys
                 void* myRAM = malloc(allRecs[allRecs.size() - 1]->numBytes());
                 if (myRAM == nullptr) {
@@ -349,6 +387,7 @@ void PangeaStorageServer::writeBackRecords(pair<std::string, std::string> databa
 
     std::cout << "Now all the records are back.\n";
     sizes[databaseAndSet] = numBytesToProcess;
+    set->flushSharedMeta();
 }
 
 
@@ -579,36 +618,40 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
             const UseTemporaryAllocationBlock tempBlock{1024};
             Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(res, errMsg);
 
-            // TODO: This is temporary. Remove this once pangeastorageserver can calcuate LSH of pages
-            // and match newly added pages.
-            if (request->getSetName().compare("w1") == 0) {
-                
-                ShareableSetPtr mySet = dynamic_pointer_cast<ShareableUserSet>(getFunctionality<PangeaStorageServer>().getSet(std::pair<std::string, std::string>(request->getDatabase(), request->getSetName())));
-                if (mySet == nullptr) {
-                   std::cout << "Set doesn't exist: " << request->getDatabase() << ":" << request->getSetName() << std::endl;
-                   exit(1);
-                }
+            // return the result
+            res = sendUsingMe->sendObject(response, errMsg);
+            return make_pair(res, errMsg);
+        }));
 
-                SharedPageID pid;
-                pid.dbId = 1;
-                pid.nodeId = 0;
-                pid.setId = 1;
 
-                PartitionedShareableFileMetaDataPtr metaPtr = mySet->getShareableMetaPtr();
-                for (int i = 0; i < 2; i++) {
-                    pid.pageId = i;
-                    metaPtr->addSharedPage(pid);
-                }
-                metaPtr->openMeta();
-                metaPtr->writeMeta();
-                metaPtr->dump();
 
-            }
+    // this handler accepts a request to add a set
+    forMe.registerHandler(
+        StorageAddIndexer_TYPEID,
+        make_shared<SimpleRequestHandler<StorageAddIndexer>>([&](Handle<StorageAddIndexer> request,
+                                                             PDBCommunicatorPtr sendUsingMe) {
+            std::cout << "received StorageAddIndexer" << std::endl;
+
+            std::string errMsg;
+            bool res = true;
+
+            int typeId = request->getTypeId();
+            std::string database = request->getDatabaseName();
+            std::string typeName = request->getTypeName();
+            Handle<AbstractIndexer> indexer = request->getIndexer();
+            
+
+            addIndexer(database, typeName, indexer);
+
+            // make the response
+            const UseTemporaryAllocationBlock tempBlock{1024};
+            Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(res, errMsg);
 
             // return the result
             res = sendUsingMe->sendObject(response, errMsg);
             return make_pair(res, errMsg);
         }));
+
 
 
     // this handler requests to add a temp set
@@ -1117,6 +1160,10 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                 } 
                 std::cout << "[PANGEASTORAGESERVER] ADD DATA to <dbid, setid> <" << mySet->getDbID() << ", " << mySet->getSetID() << ">" << std::endl;
                 size_t myPageSize = mySet->getPageSize();
+
+                Handle<AbstractIndexer> indexer = getIndexerForType(request->getDatabase(), mySet->getTypeID());
+                indexer->dump();
+
                 if (request->isDirectPut() == false) {
 
                     getFunctionality<PangeaStorageServer>().bufferRecord(
@@ -2030,6 +2077,44 @@ bool PangeaStorageServer::addSet(std::string dbName,
 // to add a set using only database name and set name
 bool PangeaStorageServer::addSet(std::string dbName, std::string setName, size_t pageSize, size_t desiredSize, bool isMRU, bool isTransient, bool share) {
     return addSet(dbName, "UnknownUserData", setName, pageSize, desiredSize, isMRU, isTransient, share);
+}
+
+bool PangeaStorageServer::addIndexer(std::string dbName, std::string typeName, Handle<AbstractIndexer> indexer) {
+    DatabaseID dbId = this->name2id->at(dbName);
+    DefaultDatabasePtr db = this->getDatabase(dbId);
+    UserTypeID typeId = this->typename2id->at(typeName);
+    TypePtr type = db->getType(typeId);
+
+    type->setIndexer(indexer);
+
+    return true;
+}
+
+Handle<AbstractIndexer>
+PangeaStorageServer::getIndexerForType(std::string dbName,
+                                       std::string typeName) {
+  DatabaseID dbId = this->name2id->at(dbName);
+  DefaultDatabasePtr db = this->getDatabase(dbId);
+  UserTypeID typeId = this->typename2id->at(typeName);
+  TypePtr type = db->getType(typeId);
+
+  return type->indexer;
+}
+
+Handle<AbstractIndexer>
+PangeaStorageServer::getIndexerForType(std::string dbName, UserTypeID typeId) {
+  DatabaseID dbId = this->name2id->at(dbName);
+  DefaultDatabasePtr db = this->getDatabase(dbId);
+  TypePtr type = db->getType(typeId);
+
+  return type->indexer;
+}
+
+Handle<AbstractIndexer>
+PangeaStorageServer::getIndexerForType(DatabaseID dbId, UserTypeID typeId) {
+  DefaultDatabasePtr db = this->getDatabase(dbId);
+  TypePtr type = db->getType(typeId);
+  return type->indexer;
 }
 
 bool PangeaStorageServer::removeSet(std::string dbName, std::string setName) {

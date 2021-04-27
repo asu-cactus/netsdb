@@ -40,6 +40,7 @@ private:
   pthread_mutex_t fileMutex;
 
   unsigned int total_shared_pages;
+  bool upToDate;
 
   bool cleared;
 
@@ -105,6 +106,7 @@ public:
     pthread_mutex_init(&sharedPageIdsMutex, nullptr);
     pthread_mutex_init(&fileMutex, nullptr);
     cleared = false;
+    upToDate = true;
 
     std::cout << "[PartitionedShareableFileMetaData] borrower metadata path: "
               << borrower_info_path
@@ -169,6 +171,8 @@ public:
    *      - ...
    */
   int writeMeta() {
+    if (upToDate) return 0;
+
     pthread_mutex_lock(&fileMutex);
     if (borrowing_info_file == nullptr) {
       pthread_mutex_unlock(&fileMutex);
@@ -227,6 +231,9 @@ public:
     pthread_mutex_unlock(&fileMutex);
     std::cout << "[PartitionedShareableFileMetaData] Wrote Meta files!"
               << std::endl;
+    if (ret == 0) {
+      upToDate = true;
+    }
     return ret;
   }
 
@@ -331,6 +338,7 @@ public:
   void addSharedPage(SharedPageID sharedPageID) {
     pthread_mutex_lock(&sharedPageIdsMutex);
     sharedPageIds->push_back(sharedPageID);
+    upToDate = false;
     pthread_mutex_unlock(&sharedPageIdsMutex);
   }
 
@@ -343,6 +351,7 @@ public:
     spid.setId = setID;
 
     sharedPageIds->push_back(spid);
+    upToDate = false;
     pthread_mutex_unlock(&sharedPageIdsMutex);
   }
 

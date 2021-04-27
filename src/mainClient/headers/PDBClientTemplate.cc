@@ -2,6 +2,7 @@
 #define PDB_CLIENT_TEMPLATE_CC
 
 #include "PDBClient.h"
+#include "AbstractIndexer.h"
 
 namespace pdb {
 
@@ -14,7 +15,11 @@ bool PDBClient::createSet(const std::string &databaseName,
         databaseName, setName, errMsg, pageSize, createdJobId, dispatchComputation, lambda, 0, false, share);
 }
 
-
+template <class DataType> 
+bool PDBClient::addTypeIndexer(const std::string &databaseName, Handle<AbstractIndexer> indexer) {
+  return distributedStorageClient.addTypeIndexer<DataType>(
+        databaseName, indexer);
+}
 
 template <class DataType>
 bool PDBClient::createSet(const std::string &databaseName,

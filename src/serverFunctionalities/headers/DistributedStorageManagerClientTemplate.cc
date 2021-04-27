@@ -8,6 +8,7 @@
 #include "SimpleRequest.h"
 #include "DistributedStorageAddSet.h"
 #include "DistributedStorageAddSetWithPartition.h"
+#include "DistributedStorageAddIndexer.h"
 #include "SimpleRequestResult.h"
 #include "DataTypes.h"
 #include <cstddef>
@@ -17,6 +18,24 @@
 
 namespace pdb {
 
+    template <class DataType> 
+    bool DistributedStorageManagerClient::addTypeIndexer(const std::string &databaseName, Handle<AbstractIndexer> indexer) {
+        std::string errMsg;
+        std::string typeName = getTypeName<DataType>();
+        int16_t typeId = getTypeID<DataType>();
+        PDB_COUT << "typeName for set to create =" << typeName << ", typeId=" << typeId << std::endl;
+        return simpleRequest<DistributedStorageAddIndexer, SimpleRequestResult, bool>(
+            logger,
+            port,
+            address,
+            false,
+            1024,
+            generateResponseHandler("Could not add set to distributed storage manager:", errMsg),
+            databaseName,
+            typeName,
+            typeId,
+            indexer);
+    }
 
     template <class DataType>
     bool DistributedStorageManagerClient::createSet(const std::string& databaseName,

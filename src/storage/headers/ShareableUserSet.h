@@ -60,8 +60,31 @@ public:
     sharedMetaPtr->open_shared_files(typeSets, logger, pageCache);
   }
 
+  void addSharedPage(DatabaseID dbId, NodeID nodeId, SetID setId, PageID pageId) {
+    SharedPageID pid;
+    pid.dbId = dbId;
+    pid.nodeId = nodeId;
+    pid.setId = setId;
+    pid.pageId = pageId;
+    sharedMetaPtr->addSharedPage(pid);
+  }
+
+  void addSharedPage(SharedPageID *opid) {
+    SharedPageID pid;
+    pid.dbId = opid->dbId;
+    pid.nodeId = opid->nodeId;
+    pid.setId = opid->setId;
+    pid.pageId = opid->pageId;
+    sharedMetaPtr->addSharedPage(pid);
+  }
+
   SetPtr getSharedSet(SetID setId);
 
+  void flushSharedMeta() {
+    sharedMetaPtr->openMeta();
+    sharedMetaPtr->writeMeta();
+    sharedMetaPtr->dump();
+  }
 
   vector<PageIteratorPtr>* getIterators() override;
 

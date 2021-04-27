@@ -41,6 +41,9 @@
 #include <ScanUserSet.h>
 #include <WriteUserSet.h>
 
+#include "FFPageIndexer.h"
+#include "AbstractIndexer.h"
+
 int main(int argc, char *argv[]) {
   string errMsg;
   string masterIp = "localhost";
@@ -84,6 +87,7 @@ int main(int argc, char *argv[]) {
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixMeta.so");
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixData.so");
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlock.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFPageIndexer.so");
 
   ff::createDatabase(pdbClient, db);
 
@@ -105,11 +109,32 @@ int main(int argc, char *argv[]) {
     cout << "Created set.\n";
   }
 
-  ff::loadMatrix(pdbClient, db, "w1", 12000, 1000, 10, 10, false, false, errMsg, 64, true);
-  ff::loadMatrix(pdbClient, db, "w2", 12000, 1000, 10, 10, false, false, errMsg, 64, true);
+  {
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+    pdb::Handle<pdb::AbstractIndexer> indexer = makeObject<FFPageIndexer>(10, 3);
+    indexer->dump();
+
+    if (!pdbClient.addTypeIndexer<FFMatrixBlock>(db, indexer)) {
+      cout << "Not able to create set: " + errMsg;
+      //exit(-1); //It is possible that the set exists
+    } else {
+      cout << "Created set.\n";
+    } 
+
+  }
+
+  bool block_padding = true;
+  block_x = 10;
+  block_y = 10;
+
+  ff::load_matrix_data(pdbClient, "/usr/data/shared_pages_test/w1.np", db, "w1", block_x, block_y, !block_padding, !block_padding, errMsg);
+  ff::load_matrix_data(pdbClient, "/usr/data/shared_pages_test/w2.np", db, "w2", block_x, block_y, !block_padding, !block_padding, errMsg);
 
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+    // ff::print(pdbClient, db, "w1");
+    // ff::print(pdbClient, db, "w2");
     ff::print_stats(pdbClient, db, "w1");
     ff::print_stats(pdbClient, db, "w2");
   }

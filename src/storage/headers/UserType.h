@@ -18,6 +18,9 @@
 #include <vector>
 #include <boost/filesystem.hpp>
 
+#include "AbstractIndexer.h"
+#include "InterfaceFunctions.h"
+
 using namespace std;
 
 // create a smart pointer for Type objects
@@ -123,6 +126,16 @@ public:
     }
 
 
+    bool setIndexer(pdb::Handle<pdb::AbstractIndexer> indexer) {
+        this->indexer = pdb::deepCopyToCurrentAllocationBlock<pdb::AbstractIndexer>(indexer);
+        this->indexer->initialize();
+        this->indexer->dump();
+
+        return true;
+    }
+
+
+    pdb::Handle<pdb::AbstractIndexer> indexer;
 protected:
     /**
      * Compute the path to store the UserType data for persistence.

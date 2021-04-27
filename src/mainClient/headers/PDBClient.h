@@ -14,6 +14,8 @@
 
 #include "SimpleRequest.h"
 
+#include "AbstractIndexer.h"
+
 /**
  * This class provides functionality so users can connect and access
  * different Server functionalities of PDB, such as:
@@ -75,6 +77,8 @@ public:
   /* Creates a database */
   bool createDatabase(const std::string &databaseName, std::string &errMsg);
 
+  template <class DataType> 
+  bool addTypeIndexer(const std::string &databaseName, Handle<AbstractIndexer> indexer);
 
 
   /* Creates a set with a given type for an existing database, which can be applied with lambda-based dispatching policy */
