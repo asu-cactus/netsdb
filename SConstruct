@@ -1411,6 +1411,7 @@ libFFTest=common_env.Alias('libFFTest', [
   'libraries/libInferenceResult.so',
   'libraries/libInferenceResultPartition.so',
   'libraries/libFFMatrixPartitioner.so',
+  'libraries/libFFPageIndexer.so',
   # Reddit libraries
   'libraries/libRedditComment.so',
   'libraries/libRedditCommentLabelJoin.so',

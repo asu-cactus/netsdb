@@ -209,7 +209,15 @@ PDBPagePtr PangeaStorageServer::getNewPage(pair<std::string, std::string> databa
 
 
 bool PangeaStorageServer::checkAndSharePage(PDBPagePtr myPage, Handle<AbstractIndexer> indexer, CacheKey &key, ShareableSetPtr set, bool discardPage) {
-    if (indexer == nullptr) return false;
+    if (set == nullptr) {
+        std::cout << "[WRITEBACKRECORDS] CANNOT SHARE: SET NOT SHAREABLE." << std::endl;
+        return false;
+    }
+    
+    if (indexer == nullptr) {
+        std::cout << "[WRITEBACKRECORDS] CANNOT SHARE: INDEXER NOT AVAILABLE." << std::endl;
+        return false;
+    }
     
     SharedPageID *pid = indexer->checkAndAddPage(myPage);
     if (pid == nullptr) return false;
