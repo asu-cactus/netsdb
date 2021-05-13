@@ -38,7 +38,7 @@ bool createSharedSet(pdb::PDBClient &pdbClient, string db, string setName,
 
 string getName(string name, string ver) { return name + "_" + ver; }
 
-void loadModel(pdb::PDBClient &pdbClient, string dbname, string modelVer,
+void loadModel(pdb::PDBClient &pdbClient, pdb::CatalogClient &catalogClient, string dbname, string modelVer,
                bool shareable, string path, int block_x, int block_y) {
   string errMsg;
   int batchSize;
@@ -52,30 +52,47 @@ void loadModel(pdb::PDBClient &pdbClient, string dbname, string modelVer,
   string inputName = getName("inputs", modelVer);
   string w1Name = getName("w1", modelVer);
   string b1Name = getName("b1", modelVer);
-  string y1Name = getName("y1", modelVer);
   string w2Name = getName("w2", modelVer);
   string b2Name = getName("b2", modelVer);
   string outputName = getName("output", modelVer);
 
-  ff::createDatabase(pdbClient, dbname);
+  pdbClient.removeSet(dbname, inputName, errMsg);
+  pdbClient.removeSet(dbname, w1Name, errMsg);
+  pdbClient.removeSet(dbname, b1Name, errMsg);
+  pdbClient.removeSet(dbname, w2Name, errMsg);
+  pdbClient.removeSet(dbname, b2Name, errMsg);
+  pdbClient.removeSet(dbname, outputName, errMsg);
+  pdbClient.flushData(errMsg);
 
-  ff::createSet(pdbClient, dbname, inputName, inputName, 64);
+  {
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
-  if (shareable)
+    if (!ff::is_empty_set(pdbClient, catalogClient, dbname, inputName) ||
+        !ff::is_empty_set(pdbClient, catalogClient, dbname, w1Name) ||
+        !ff::is_empty_set(pdbClient, catalogClient, dbname, b1Name) ||
+        !ff::is_empty_set(pdbClient, catalogClient, dbname, w2Name) ||
+        !ff::is_empty_set(pdbClient, catalogClient, dbname, b2Name) ||
+        !ff::is_empty_set(pdbClient, catalogClient, dbname, outputName)) {
+          cout << "Old data exists!" << endl;
+          exit(1);
+        }
+  }
+
+  if (shareable) {
+    createSharedSet(pdbClient, dbname, inputName, inputName, 64);
     createSharedSet(pdbClient, dbname, w1Name, w1Name, 64);
-  else
-    ff::createSet(pdbClient, dbname, w1Name, w1Name, 64);
-
-  ff::createSet(pdbClient, dbname, b1Name, b1Name, 64);
-  ff::createSet(pdbClient, dbname, y1Name, y1Name, 64);
-
-  if (shareable)
+    createSharedSet(pdbClient, dbname, b1Name, b1Name, 64);
     createSharedSet(pdbClient, dbname, w2Name, w2Name, 64);
-  else
+    createSharedSet(pdbClient, dbname, b2Name, b2Name, 64);
+    createSharedSet(pdbClient, dbname, outputName, outputName, 64);
+  } else {
+    ff::createSet(pdbClient, dbname, inputName, inputName, 64);
+    ff::createSet(pdbClient, dbname, w1Name, w1Name, 64);
+    ff::createSet(pdbClient, dbname, b1Name, b1Name, 64);
     ff::createSet(pdbClient, dbname, w2Name, w2Name, 64);
-
-  ff::createSet(pdbClient, dbname, b2Name, b2Name, 64);
-  ff::createSet(pdbClient, dbname, outputName, outputName, 64);
+    ff::createSet(pdbClient, dbname, b2Name, b2Name, 64);
+    ff::createSet(pdbClient, dbname, outputName, outputName, 64);
+  }
 
   // load the input data
   // batch_size x features_size = 1000 x 597540
@@ -101,7 +118,6 @@ void executeModel(pdb::PDBClient &pdbClient, string dbname, string modelVer) {
   string inputName = getName("inputs", modelVer);
   string w1Name = getName("w1", modelVer);
   string b1Name = getName("b1", modelVer);
-  string y1Name = getName("y1", modelVer);
   string w2Name = getName("w2", modelVer);
   string b2Name = getName("b2", modelVer);
   string outputName = getName("output", modelVer);
@@ -177,19 +193,27 @@ void executeModel(pdb::PDBClient &pdbClient, string dbname, string modelVer) {
   }
 
   pdbClient.flushData(errMsg);
+
+  {
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+    ff::print_stats(pdbClient, dbname, inputName);
+    ff::print_stats(pdbClient, dbname, w1Name);
+    ff::print_stats(pdbClient, dbname, w2Name);
+    ff::print_stats(pdbClient, dbname, outputName);
+  }
 }
 
 void loadLibraries(pdb::PDBClient &pdbClient) {
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixMeta.so");
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixData.so");
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlock.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFPageIndexer.so");
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlockScanner.so");
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixWriter.so");
   ff::loadLibrary(pdbClient, "libraries/libFFInputLayerJoin.so");
   ff::loadLibrary(pdbClient, "libraries/libFFAggMatrix.so");
   ff::loadLibrary(pdbClient, "libraries/libFFActivationBiasSum.so");
   ff::loadLibrary(pdbClient, "libraries/libFFTransposeMult.so");
-  ff::loadLibrary(pdbClient, "libraries/libFFPageIndexer.so");
 }
 
 int main(int argc, char *argv[]) {
@@ -204,7 +228,7 @@ int main(int argc, char *argv[]) {
 
   string dbname = "amazon14k";
 
-  if ((argc - 2) % 3 != 0) {
+  if ((argc - 2 - 1) % 3 != 0) {
     cout << "Usage: blockDimensionX blockDimensionY [(modelVersion share "
             "path/to/weights/and/bias), ...]"
          << endl;
@@ -223,16 +247,7 @@ int main(int argc, char *argv[]) {
   // Assume user manually cleaned before running this code
   ff::createDatabase(pdbClient, dbname);
 
-  for (int i = 0; i < model_count; i++) {
-    int pos = 3 + i * 3;
-    string path = string(argv[pos + 2]);
-    string modelVersion = string(argv[pos]);
-    bool shareable = atoi(argv[pos + 1]) == 1;
-
-    loadModel(pdbClient, dbname, modelVersion, shareable, path, block_x,
-              block_y);
-  }
-
+  // Load the page indexer
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
@@ -248,6 +263,18 @@ int main(int argc, char *argv[]) {
     }
   }
 
+  // Load the models
+  for (int i = 0; i < model_count; i++) {
+    int pos = 3 + i * 3;
+    string path = string(argv[pos + 2]);
+    string modelVersion = string(argv[pos]);
+    bool shareable = atoi(argv[pos + 1]) == 1;
+
+    loadModel(pdbClient, catalogClient, dbname, modelVersion, shareable, path, block_x,
+              block_y);
+  }
+
+  // Execute the models
   for (int i = 0; i < model_count; i++) {
     int pos = 3 + i * 3;
     string modelVersion = string(argv[pos]);

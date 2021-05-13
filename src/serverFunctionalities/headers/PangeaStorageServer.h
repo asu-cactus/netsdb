@@ -209,7 +209,7 @@ public:
                 bool isMRU = true,
                 bool isTransient = true, bool share=false);
 
-    bool addIndexer(std::string dbName, std::string typeName, Handle<AbstractIndexer> indexer);
+    bool addIndexer(std::string dbName, std::string typeName, Handle<AbstractIndexer> indexer, std::string &errMsg);
 
     Handle<AbstractIndexer> getIndexerForType(std::string dbName,
                                               std::string typeName);
