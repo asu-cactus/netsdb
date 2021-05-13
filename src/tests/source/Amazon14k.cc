@@ -219,6 +219,10 @@ void loadLibraries(pdb::PDBClient &pdbClient) {
 int main(int argc, char *argv[]) {
   string errMsg;
   int block_x, block_y;
+  bool loadLibs, createDb;
+  int otherArgs = 4;
+  int modelArgsStart = otherArgs + 1;
+  int modelArgs = 3;
 
   string masterIp = "localhost";
   pdb::PDBLoggerPtr clientLogger =
@@ -228,8 +232,8 @@ int main(int argc, char *argv[]) {
 
   string dbname = "amazon14k";
 
-  if ((argc - 2 - 1) % 3 != 0) {
-    cout << "Usage: blockDimensionX blockDimensionY [(modelVersion share "
+  if ((argc - otherArgs - 1) % modelArgs != 0) {
+    cout << "Usage: blockDimensionX blockDimensionY loadLibraries createDB [(modelVersion share "
             "path/to/weights/and/bias), ...]"
          << endl;
     exit(-1);
@@ -239,13 +243,17 @@ int main(int argc, char *argv[]) {
   block_y = atoi(argv[2]);
   cout << "Using block dimensions " << block_x << ", " << block_y << endl;
 
-  int model_count = (argc - 2) / 3;
+  int model_count = (argc - otherArgs - 1) / modelArgs;
   cout << "Loading " << model_count << " Models..." << endl;
 
-  loadLibraries(pdbClient);
+  loadLibs = atoi(argv[3]) == 1;
+  createDb = atoi(argv[4]) == 1;
 
-  // Assume user manually cleaned before running this code
-  ff::createDatabase(pdbClient, dbname);
+  if (loadLibs)
+    loadLibraries(pdbClient);
+
+  if (createDb)
+    ff::createDatabase(pdbClient, dbname);
 
   // Load the page indexer
   {
@@ -265,7 +273,7 @@ int main(int argc, char *argv[]) {
 
   // Load the models
   for (int i = 0; i < model_count; i++) {
-    int pos = 3 + i * 3;
+    int pos = modelArgsStart + i * modelArgs;
     string path = string(argv[pos + 2]);
     string modelVersion = string(argv[pos]);
     bool shareable = atoi(argv[pos + 1]) == 1;
@@ -276,7 +284,7 @@ int main(int argc, char *argv[]) {
 
   // Execute the models
   for (int i = 0; i < model_count; i++) {
-    int pos = 3 + i * 3;
+    int pos = modelArgsStart + i * modelArgs;
     string modelVersion = string(argv[pos]);
     executeModel(pdbClient, dbname, modelVersion);
   }
