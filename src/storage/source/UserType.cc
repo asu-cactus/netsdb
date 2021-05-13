@@ -43,6 +43,7 @@ UserType::UserType(NodeID nodeId,
     numSets = 0;
     this->cache = cache;
     this->flushBuffer = flushBuffer;
+    this->indexer = nullptr;
 }
 
 /**
