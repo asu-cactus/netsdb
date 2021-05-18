@@ -39,15 +39,20 @@ bool createSharedSet(pdb::PDBClient &pdbClient, string db, string setName,
 string getName(string name, string ver) { return name + "_" + ver; }
 
 void loadModel(pdb::PDBClient &pdbClient, pdb::CatalogClient &catalogClient, string dbname, string modelVer,
-               bool shareable, string path, int block_x, int block_y) {
+               bool shareable, string path, int block_x, int block_y, string sharedVer) {
   string errMsg;
   int batchSize;
 
-  string input_path = path + "/input.out";
-  string w1_path = path + "/w1.out";
-  string w2_path = path + "/w2.out";
-  string b1_path = path + "/b1.out";
-  string b2_path = path + "/b2.out";
+  string input_path = path + "/input_" + modelVer + ".out";
+  cout << "[" << modelVer << "] input file: " << input_path << endl; 
+  string w1_path = path + "/w1_" + modelVer + ".out";
+  cout << "[" << modelVer << "] w1 file: " << w1_path << endl; 
+  string w2_path = path + "/w2_" + (shareable ? sharedVer : modelVer) + ".out";
+  cout << "[" << modelVer << "] w2 file: " << w2_path << endl; 
+  string b1_path = path + "/b1_" + modelVer + ".out";
+  cout << "[" << modelVer << "] b1 file: " << b1_path << endl; 
+  string b2_path = path + "/b2_" + modelVer + ".out";
+  cout << "[" << modelVer << "] b2 file: " << b1_path << endl; 
 
   string inputName = getName("inputs", modelVer);
   string w1Name = getName("w1", modelVer);
@@ -194,13 +199,13 @@ void executeModel(pdb::PDBClient &pdbClient, string dbname, string modelVer) {
 
   pdbClient.flushData(errMsg);
 
-  {
-    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
-    ff::print_stats(pdbClient, dbname, inputName);
-    ff::print_stats(pdbClient, dbname, w1Name);
-    ff::print_stats(pdbClient, dbname, w2Name);
-    ff::print_stats(pdbClient, dbname, outputName);
-  }
+  // {
+  //   const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+  //   ff::print_stats(pdbClient, dbname, inputName);
+  //   ff::print_stats(pdbClient, dbname, w1Name);
+  //   ff::print_stats(pdbClient, dbname, w2Name);
+  //   ff::print_stats(pdbClient, dbname, outputName);
+  // }
 }
 
 void loadLibraries(pdb::PDBClient &pdbClient) {
@@ -218,11 +223,12 @@ void loadLibraries(pdb::PDBClient &pdbClient) {
 
 int main(int argc, char *argv[]) {
   string errMsg;
+  string dataPath, sharedVer;
   int block_x, block_y;
-  bool loadLibs, createDb;
-  int otherArgs = 4;
+  bool loadLibs, createDb, shareable;
+  int otherArgs = 6;
   int modelArgsStart = otherArgs + 1;
-  int modelArgs = 3;
+  int modelArgs = 1;
 
   string masterIp = "localhost";
   pdb::PDBLoggerPtr clientLogger =
@@ -233,8 +239,7 @@ int main(int argc, char *argv[]) {
   string dbname = "amazon14k";
 
   if ((argc - otherArgs - 1) % modelArgs != 0) {
-    cout << "Usage: blockDimensionX blockDimensionY loadLibraries createDB [(modelVersion share "
-            "path/to/weights/and/bias), ...]"
+    cout << "Usage: blockDimensionX blockDimensionY loadLibraries createDB dataPath sharedVer [modelVersion1, ...]"
          << endl;
     exit(-1);
   }
@@ -248,6 +253,15 @@ int main(int argc, char *argv[]) {
 
   loadLibs = atoi(argv[3]) == 1;
   createDb = atoi(argv[4]) == 1;
+  dataPath = string(argv[5]);
+  sharedVer = string(argv[6]);
+  shareable = sharedVer.compare("N") != 0;
+
+  if (!shareable)
+    cout << "NOT SHARING!" << endl;
+  else
+    cout << "SHARING!" << endl;
+
 
   if (loadLibs)
     loadLibraries(pdbClient);
@@ -274,12 +288,9 @@ int main(int argc, char *argv[]) {
   // Load the models
   for (int i = 0; i < model_count; i++) {
     int pos = modelArgsStart + i * modelArgs;
-    string path = string(argv[pos + 2]);
     string modelVersion = string(argv[pos]);
-    bool shareable = atoi(argv[pos + 1]) == 1;
-
-    loadModel(pdbClient, catalogClient, dbname, modelVersion, shareable, path, block_x,
-              block_y);
+    loadModel(pdbClient, catalogClient, dbname, modelVersion, shareable, dataPath, block_x,
+              block_y, sharedVer);
   }
 
   // Execute the models
