@@ -32,87 +32,13 @@ bool createSharedSet(pdb::PDBClient &pdbClient, string db, string setName,
     // exit(-1); //It is possible that the set exists
     return false;
   }
-  cout << "Created set.\n";
+  cout << "Created set " << setName << endl;
   return true;
 }
 
-string getName(string name, string ver) { return name + "_" + ver; }
+string getName(string name, int ver) { return name + "_m" + to_string(ver); }
 
-void loadModel(pdb::PDBClient &pdbClient, pdb::CatalogClient &catalogClient, string dbname, string modelVer,
-               bool shareable, string path, int block_x, int block_y, string sharedVer) {
-  string errMsg;
-  int batchSize;
-
-  string input_path = path + "/input.out";
-  cout << "[" << modelVer << "] input file: " << input_path << endl; 
-  string w1_path = path + "/w1.out";
-  cout << "[" << modelVer << "] w1 file: " << w1_path << endl; 
-  string w2_path = path + "/w2.out";
-  cout << "[" << modelVer << "] w2 file: " << w2_path << endl; 
-  string b1_path = path + "/b1.out";
-  cout << "[" << modelVer << "] b1 file: " << b1_path << endl; 
-  string b2_path = path + "/b2.out";
-  cout << "[" << modelVer << "] b2 file: " << b1_path << endl; 
-
-  string inputName = getName("inputs", modelVer);
-  string w1Name = getName("w1", modelVer);
-  string b1Name = getName("b1", modelVer);
-  string w2Name = getName("w2", modelVer);
-  string b2Name = getName("b2", modelVer);
-  string outputName = getName("output", modelVer);
-
-  pdbClient.removeSet(dbname, inputName, errMsg);
-  pdbClient.removeSet(dbname, w1Name, errMsg);
-  pdbClient.removeSet(dbname, b1Name, errMsg);
-  pdbClient.removeSet(dbname, w2Name, errMsg);
-  pdbClient.removeSet(dbname, b2Name, errMsg);
-  pdbClient.removeSet(dbname, outputName, errMsg);
-  pdbClient.flushData(errMsg);
-
-  {
-    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
-
-    if (!ff::is_empty_set(pdbClient, catalogClient, dbname, inputName) ||
-        !ff::is_empty_set(pdbClient, catalogClient, dbname, w1Name) ||
-        !ff::is_empty_set(pdbClient, catalogClient, dbname, b1Name) ||
-        !ff::is_empty_set(pdbClient, catalogClient, dbname, w2Name) ||
-        !ff::is_empty_set(pdbClient, catalogClient, dbname, b2Name) ||
-        !ff::is_empty_set(pdbClient, catalogClient, dbname, outputName)) {
-          cout << "Old data exists!" << endl;
-          exit(1);
-        }
-  }
-
-  ff::createSet(pdbClient, dbname, inputName, inputName, 64);
-  ff::createSet(pdbClient, dbname, w1Name, w1Name, 64);
-  ff::createSet(pdbClient, dbname, b1Name, b1Name, 64);
-  ff::createSet(pdbClient, dbname, b2Name, b2Name, 64);
-  ff::createSet(pdbClient, dbname, outputName, outputName, 64);
-  if (shareable) {
-    createSharedSet(pdbClient, dbname, w2Name, w2Name, 64);
-  } else {
-    ff::createSet(pdbClient, dbname, w2Name, w2Name, 64);
-  }
-
-  // load the input data
-  // batch_size x features_size = 1000 x 597540
-  batchSize = ff::load_matrix_data(pdbClient, input_path, dbname, inputName,
-                                   block_x, block_y, false, false, errMsg);
-  // hidden_layer_1 size x features_size = <1k, 3k, 5k, 7k> x 597540
-  ff::load_matrix_data(pdbClient, w1_path, dbname, w1Name, block_x, block_y,
-                       false, false, errMsg);
-  // labels_size x hidden_layer_1 = 14588 X <1k, 3k, 5k, 7k>
-  ff::load_matrix_data(pdbClient, w2_path, dbname, w2Name, block_x, block_y,
-                       false, false, errMsg);
-  // hidden_layer_1 x 1
-  ff::load_matrix_data(pdbClient, b1_path, dbname, b1Name, block_x, block_y,
-                       false, true, errMsg);
-  // labels_size x 1
-  ff::load_matrix_data(pdbClient, b2_path, dbname, b2Name, block_x, block_y,
-                       false, true, errMsg);
-}
-
-void executeModel(pdb::PDBClient &pdbClient, string dbname, string modelVer) {
+void executeModel(pdb::PDBClient &pdbClient, string dbname, int modelVer) {
   string errMsg;
 
   string inputName = getName("inputs", modelVer);
@@ -216,14 +142,90 @@ void loadLibraries(pdb::PDBClient &pdbClient) {
   ff::loadLibrary(pdbClient, "libraries/libFFTransposeMult.so");
 }
 
+void loadModels(pdb::PDBClient &pdbClient, pdb::CatalogClient &catalogClient,
+                string dbname, int block_x, int block_y, int num_models,
+                int batch_size, int label_size, int feature_size, int hd1size,
+                bool share) {
+  string errMsg;
+
+  for (int i = 0; i < num_models; i++) {
+    string inputName = getName("inputs", i);
+    string w1Name = getName("w1", i);
+    string b1Name = getName("b1", i);
+    string w2Name = getName("w2", i);
+    string b2Name = getName("b2", i);
+    string outputName = getName("output", i);
+
+    pdbClient.removeSet(dbname, inputName, errMsg);
+    pdbClient.removeSet(dbname, w1Name, errMsg);
+    pdbClient.removeSet(dbname, b1Name, errMsg);
+    pdbClient.removeSet(dbname, w2Name, errMsg);
+    pdbClient.removeSet(dbname, b2Name, errMsg);
+    pdbClient.removeSet(dbname, outputName, errMsg);
+    pdbClient.flushData(errMsg);
+
+    {
+      const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+      if (!ff::is_empty_set(pdbClient, catalogClient, dbname, inputName) ||
+          !ff::is_empty_set(pdbClient, catalogClient, dbname, w1Name) ||
+          !ff::is_empty_set(pdbClient, catalogClient, dbname, b1Name) ||
+          !ff::is_empty_set(pdbClient, catalogClient, dbname, w2Name) ||
+          !ff::is_empty_set(pdbClient, catalogClient, dbname, b2Name) ||
+          !ff::is_empty_set(pdbClient, catalogClient, dbname, outputName)) {
+        cout << "Old data exists!" << endl;
+        exit(1);
+      }
+    }
+
+    ff::createSet(pdbClient, dbname, inputName, inputName, 64);
+    ff::createSet(pdbClient, dbname, w1Name, w1Name, 64);
+    ff::createSet(pdbClient, dbname, b1Name, b1Name, 64);
+    ff::createSet(pdbClient, dbname, b2Name, b2Name, 64);
+    ff::createSet(pdbClient, dbname, outputName, outputName, 64);
+    if (share) {
+      createSharedSet(pdbClient, dbname, w2Name, w2Name, 64);
+    } else {
+      ff::createSet(pdbClient, dbname, w2Name, w2Name, 64);
+    }
+  }
+
+  if (share) {
+    vector<string> setNames;
+    for (int i = 0; i < num_models; i++) {
+      setNames.push_back(getName("w2", i));
+    }
+    ff::loadMatrix(pdbClient, dbname, setNames, label_size, hd1size, block_x,
+                   block_y, false, false, errMsg);
+  }
+
+  for (int i = 0; i < num_models; i++) {
+    string inputName = getName("inputs", i);
+    string w1Name = getName("w1", i);
+    string b1Name = getName("b1", i);
+    string w2Name = getName("w2", i);
+    string b2Name = getName("b2", i);
+    string outputName = getName("output", i);
+
+    ff::loadMatrix(pdbClient, dbname, inputName, batch_size, feature_size,
+                   block_x, block_y, false, false, errMsg);
+    ff::loadMatrix(pdbClient, dbname, w1Name, hd1size, feature_size, block_x,
+                   block_y, false, false, errMsg);
+    if (!share) {
+      ff::loadMatrix(pdbClient, dbname, w2Name, label_size, hd1size, block_x,
+                     block_y, false, false, errMsg);
+    }
+    ff::loadMatrix(pdbClient, dbname, b1Name, hd1size, 1, block_x, block_y,
+                   false, true, errMsg);
+    ff::loadMatrix(pdbClient, dbname, b2Name, label_size, 1, block_x, block_y,
+                   false, true, errMsg);
+  }
+}
+
 int main(int argc, char *argv[]) {
   string errMsg;
-  string dataPath, sharedVer;
-  int block_x, block_y;
+  int block_x, block_y, numModels, batchSize, labelSize, featureSize, hd1Size;
   bool loadLibs, createDb, shareable;
-  int otherArgs = 6;
-  int modelArgsStart = otherArgs + 1;
-  int modelArgs = 1;
 
   string masterIp = "localhost";
   pdb::PDBLoggerPtr clientLogger =
@@ -233,8 +235,9 @@ int main(int argc, char *argv[]) {
 
   string dbname = "amazon14k";
 
-  if ((argc - otherArgs - 1) % modelArgs != 0) {
-    cout << "Usage: blockDimensionX blockDimensionY loadLibraries createDB dataPath sharedVer [modelVersion1, ...]"
+  if (argc < 10) {
+    cout << "Usage: blockDimensionX blockDimensionY loadLibraries createDB "
+            "share numModels batchSize labelSize featureSize hiddenLayerSize"
          << endl;
     exit(-1);
   }
@@ -243,20 +246,23 @@ int main(int argc, char *argv[]) {
   block_y = atoi(argv[2]);
   cout << "Using block dimensions " << block_x << ", " << block_y << endl;
 
-  int model_count = (argc - otherArgs - 1) / modelArgs;
-  cout << "Loading " << model_count << " Models..." << endl;
-
   loadLibs = atoi(argv[3]) == 1;
   createDb = atoi(argv[4]) == 1;
-  dataPath = string(argv[5]);
-  sharedVer = string(argv[6]);
-  shareable = sharedVer.compare("N") != 0;
+  shareable = atoi(argv[5]) == 1;
+  numModels = atoi(argv[6]);
+  batchSize = atoi(argv[7]);
+  labelSize = atoi(argv[8]);
+  featureSize = atoi(argv[9]);
+  hd1Size = atoi(argv[10]);
+
+  cout << "Loading " << numModels << " Models with batchSize: " << batchSize
+       << ", labelsSize: " << labelSize << ", featureSize: " << featureSize
+       << ", hiddenLayerSize: " << hd1Size << endl;
 
   if (!shareable)
     cout << "NOT SHARING!" << endl;
   else
     cout << "SHARING!" << endl;
-
 
   if (loadLibs)
     loadLibraries(pdbClient);
@@ -281,18 +287,12 @@ int main(int argc, char *argv[]) {
   }
 
   // Load the models
-  for (int i = 0; i < model_count; i++) {
-    int pos = modelArgsStart + i * modelArgs;
-    string modelVersion = string(argv[pos]);
-    loadModel(pdbClient, catalogClient, dbname, modelVersion, shareable, dataPath, block_x,
-              block_y, sharedVer);
-  }
+  loadModels(pdbClient, catalogClient, dbname, block_x, block_y, numModels,
+             batchSize, labelSize, featureSize, hd1Size, shareable);
 
   // Execute the models
-  for (int i = 0; i < model_count; i++) {
-    int pos = modelArgsStart + i * modelArgs;
-    string modelVersion = string(argv[pos]);
-    executeModel(pdbClient, dbname, modelVersion);
+  for (int i = 0; i < numModels; i++) {
+    executeModel(pdbClient, dbname, i);
   }
 
   return 0;

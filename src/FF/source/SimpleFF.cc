@@ -34,7 +34,7 @@ void createSet(pdb::PDBClient &pdbClient, string dbName, string setName, string 
     cout << "Not able to create set: " + errMsg;
     //exit(-1); //It is possible that the set exists
   } else {
-    cout << "Created set.\n";
+    cout << "Created set: " << setName << endl;
   }
 }
 
