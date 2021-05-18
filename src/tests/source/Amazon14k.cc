@@ -235,8 +235,10 @@ int main(int argc, char *argv[]) {
 
   string dbname = "amazon14k";
 
-  if (argc == 1) {
-    loadLibs = atoi(argv[1]) == 1;
+  cout << argc << endl;
+
+  if (argc == 2) {
+    loadLibs = string(argv[1]).compare("1") == 0;
     if (loadLibs) {
       cout << "Loading Libraries and exiting..." << endl;
       loadLibraries(pdbClient);
@@ -244,7 +246,7 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  if (argc < 10) {
+  if (argc != 11) {
     cout << "Usage: (blockDimensionX blockDimensionY loadLibraries createDB "
             "share numModels batchSize labelSize featureSize hiddenLayerSize) | loadLibraries"
          << endl;
