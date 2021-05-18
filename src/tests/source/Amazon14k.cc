@@ -43,15 +43,15 @@ void loadModel(pdb::PDBClient &pdbClient, pdb::CatalogClient &catalogClient, str
   string errMsg;
   int batchSize;
 
-  string input_path = path + "/input_" + modelVer + ".out";
+  string input_path = path + "/input.out";
   cout << "[" << modelVer << "] input file: " << input_path << endl; 
-  string w1_path = path + "/w1_" + modelVer + ".out";
+  string w1_path = path + "/w1.out";
   cout << "[" << modelVer << "] w1 file: " << w1_path << endl; 
-  string w2_path = path + "/w2_" + (shareable ? sharedVer : modelVer) + ".out";
+  string w2_path = path + "/w2.out";
   cout << "[" << modelVer << "] w2 file: " << w2_path << endl; 
-  string b1_path = path + "/b1_" + modelVer + ".out";
+  string b1_path = path + "/b1.out";
   cout << "[" << modelVer << "] b1 file: " << b1_path << endl; 
-  string b2_path = path + "/b2_" + modelVer + ".out";
+  string b2_path = path + "/b2.out";
   cout << "[" << modelVer << "] b2 file: " << b1_path << endl; 
 
   string inputName = getName("inputs", modelVer);
@@ -83,20 +83,15 @@ void loadModel(pdb::PDBClient &pdbClient, pdb::CatalogClient &catalogClient, str
         }
   }
 
+  ff::createSet(pdbClient, dbname, inputName, inputName, 64);
+  ff::createSet(pdbClient, dbname, w1Name, w1Name, 64);
+  ff::createSet(pdbClient, dbname, b1Name, b1Name, 64);
+  ff::createSet(pdbClient, dbname, b2Name, b2Name, 64);
+  ff::createSet(pdbClient, dbname, outputName, outputName, 64);
   if (shareable) {
-    createSharedSet(pdbClient, dbname, inputName, inputName, 64);
-    createSharedSet(pdbClient, dbname, w1Name, w1Name, 64);
-    createSharedSet(pdbClient, dbname, b1Name, b1Name, 64);
     createSharedSet(pdbClient, dbname, w2Name, w2Name, 64);
-    createSharedSet(pdbClient, dbname, b2Name, b2Name, 64);
-    createSharedSet(pdbClient, dbname, outputName, outputName, 64);
   } else {
-    ff::createSet(pdbClient, dbname, inputName, inputName, 64);
-    ff::createSet(pdbClient, dbname, w1Name, w1Name, 64);
-    ff::createSet(pdbClient, dbname, b1Name, b1Name, 64);
     ff::createSet(pdbClient, dbname, w2Name, w2Name, 64);
-    ff::createSet(pdbClient, dbname, b2Name, b2Name, 64);
-    ff::createSet(pdbClient, dbname, outputName, outputName, 64);
   }
 
   // load the input data
