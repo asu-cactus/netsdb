@@ -268,22 +268,22 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  if (argc != 10 && argc != 5) {
-    cout << "Usage: (blockDimensionX blockDimensionY loadLibraries numModels ["
+  if (argc != 10 && argc != 3) {
+    cout << "Usage: (loadLibraries numModels [blockDimensionX blockDimensionY "
             "share batchSize labelSize featureSize hiddenLayerSize]) | loadLibraries"
          << endl;
     exit(-1);
   }
 
-  block_x = atoi(argv[1]);
-  block_y = atoi(argv[2]);
-  cout << "Using block dimensions " << block_x << ", " << block_y << endl;
-
-  loadLibs = atoi(argv[3]) == 1;
+  loadLibs = atoi(argv[1]) == 1;
   createDb = argc == 10;
-  numModels = atoi(argv[4]);
+  numModels = atoi(argv[2]);
 
   if (argc == 10) {
+    block_x = atoi(argv[3]);
+    block_y = atoi(argv[4]);
+    cout << "Using block dimensions " << block_x << ", " << block_y << endl;
+
     shareable = atoi(argv[5]) == 1;
     batchSize = atoi(argv[6]);
     labelSize = atoi(argv[7]);
