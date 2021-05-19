@@ -303,7 +303,7 @@ int main(int argc, char *argv[]) {
   if (loadLibs)
     loadLibraries(pdbClient);
 
-  if (createDb) {
+  if (createDb && !catalogClient.databaseExists(dbname)) {
     cout << "Re-creating Database" << endl;
     ff::createDatabase(pdbClient, dbname);
   }
