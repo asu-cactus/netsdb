@@ -197,20 +197,20 @@ void loadModels(pdb::PDBClient &pdbClient, pdb::CatalogClient &catalogClient,
     }
 
     ff::createSet(pdbClient, dbname, inputName, inputName, 64);
-    ff::createSet(pdbClient, dbname, w1Name, w1Name, 64);
+    if (share) {
+      createSharedSet(pdbClient, dbname, w1Name, w1Name, 64);
+    } else {
+      ff::createSet(pdbClient, dbname, w1Name, w1Name, 64);
+    }
+    ff::createSet(pdbClient, dbname, w2Name, w2Name, 64);
     ff::createSet(pdbClient, dbname, b1Name, b1Name, 64);
     ff::createSet(pdbClient, dbname, b2Name, b2Name, 64);
-    if (share) {
-      createSharedSet(pdbClient, dbname, w2Name, w2Name, 64);
-    } else {
-      ff::createSet(pdbClient, dbname, w2Name, w2Name, 64);
-    }
   }
 
   if (share) {
     vector<string> setNames;
     for (int i = 0; i < num_models; i++) {
-      setNames.push_back(getName("w2", i));
+      setNames.push_back(getName("w1", i));
     }
     ff::loadMatrix(pdbClient, dbname, setNames, label_size, hd1size, block_x,
                    block_y, false, false, errMsg);
@@ -228,13 +228,13 @@ void loadModels(pdb::PDBClient &pdbClient, pdb::CatalogClient &catalogClient,
     ff::loadMatrix(pdbClient, dbname, inputName, batch_size, feature_size,
                    block_x, block_y, false, false, errMsg);
     // hidden_layer_1 size x features_size = <1k, 3k, 5k, 7k> x 597540
-    ff::loadMatrix(pdbClient, dbname, w1Name, hd1size, feature_size, block_x,
-                   block_y, false, false, errMsg);
-    // labels_size x hidden_layer_1 = 14588 X <1k, 3k, 5k, 7k>
     if (!share) {
-      ff::loadMatrix(pdbClient, dbname, w2Name, label_size, hd1size, block_x,
-                     block_y, false, false, errMsg);
+      ff::loadMatrix(pdbClient, dbname, w1Name, hd1size, feature_size, block_x,
+                    block_y, false, false, errMsg);
     }
+    // labels_size x hidden_layer_1 = 14588 X <1k, 3k, 5k, 7k>
+    ff::loadMatrix(pdbClient, dbname, w2Name, label_size, hd1size, block_x,
+                     block_y, false, false, errMsg);
     // hidden_layer_1 x 1
     ff::loadMatrix(pdbClient, dbname, b1Name, hd1size, 1, block_x, block_y,
                    false, true, errMsg);
