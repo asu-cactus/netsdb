@@ -212,8 +212,10 @@ void loadModels(pdb::PDBClient &pdbClient, pdb::CatalogClient &catalogClient,
     for (int i = 0; i < num_models; i++) {
       setNames.push_back(getName("w1", i));
     }
-    ff::loadMatrix(pdbClient, dbname, setNames, label_size, hd1size, block_x,
-                   block_y, false, false, errMsg);
+
+    // hidden_layer_1 size x features_size = <1k, 3k, 5k, 7k> x 597540
+    ff::loadMatrix(pdbClient, dbname, setNames, hd1size, feature_size, block_x,
+                  block_y, false, false, errMsg);
   }
 
   for (int i = 0; i < num_models; i++) {
