@@ -143,7 +143,7 @@ void loadLibraries(pdb::PDBClient &pdbClient) {
 }
 
 void clearOutput(pdb::PDBClient &pdbClient, pdb::CatalogClient &catalogClient,
-                string dbname, int num_models) {
+                 string dbname, int num_models, bool create_op) {
   string errMsg;
 
   for (int i = 0; i < num_models; i++) {
@@ -156,18 +156,16 @@ void clearOutput(pdb::PDBClient &pdbClient, pdb::CatalogClient &catalogClient,
       exit(1);
     }
 
-    ff::createSet(pdbClient, dbname, outputName, outputName, 64);
+    if (create_op)
+      ff::createSet(pdbClient, dbname, outputName, outputName, 64);
   }
 
 }
 
-void loadModels(pdb::PDBClient &pdbClient, pdb::CatalogClient &catalogClient,
-                string dbname, int block_x, int block_y, int num_models,
-                int batch_size, int label_size, int feature_size, int hd1size,
-                bool share) {
+void clearModels(pdb::PDBClient &pdbClient, pdb::CatalogClient &catalogClient, string dbname, int num_models) {
   string errMsg;
 
-  clearOutput(pdbClient, catalogClient, dbname, num_models);
+  clearOutput(pdbClient, catalogClient, dbname, num_models, false);
 
   for (int i = 0; i < num_models; i++) {
     string inputName = getName("inputs", i);
@@ -195,6 +193,22 @@ void loadModels(pdb::PDBClient &pdbClient, pdb::CatalogClient &catalogClient,
         exit(1);
       }
     }
+  }
+}
+
+void loadModels(pdb::PDBClient &pdbClient, pdb::CatalogClient &catalogClient,
+                string dbname, int block_x, int block_y, int num_models,
+                int batch_size, int label_size, int feature_size, int hd1size,
+                bool share) {
+  string errMsg;
+
+  for (int i = 0; i < num_models; i++) {
+    string inputName = getName("inputs", i);
+    string w1Name = getName("w1", i);
+    string b1Name = getName("b1", i);
+    string w2Name = getName("w2", i);
+    string b2Name = getName("b2", i);
+    string outputName = getName("output", i);
 
     ff::createSet(pdbClient, dbname, inputName, inputName, 64);
     if (share) {
@@ -205,6 +219,7 @@ void loadModels(pdb::PDBClient &pdbClient, pdb::CatalogClient &catalogClient,
     ff::createSet(pdbClient, dbname, w2Name, w2Name, 64);
     ff::createSet(pdbClient, dbname, b1Name, b1Name, 64);
     ff::createSet(pdbClient, dbname, b2Name, b2Name, 64);
+    ff::createSet(pdbClient, dbname, outputName, outputName, 64);
   }
 
   if (share) {
@@ -219,6 +234,7 @@ void loadModels(pdb::PDBClient &pdbClient, pdb::CatalogClient &catalogClient,
   }
 
   for (int i = 0; i < num_models; i++) {
+    auto begin = std::chrono::high_resolution_clock::now();
     string inputName = getName("inputs", i);
     string w1Name = getName("w1", i);
     string b1Name = getName("b1", i);
@@ -236,15 +252,48 @@ void loadModels(pdb::PDBClient &pdbClient, pdb::CatalogClient &catalogClient,
     }
     // labels_size x hidden_layer_1 = 14588 X <1k, 3k, 5k, 7k>
     ff::loadMatrix(pdbClient, dbname, w2Name, label_size, hd1size, block_x,
-                     block_y, false, false, errMsg);
+                   block_y, false, false, errMsg);
     // hidden_layer_1 x 1
     ff::loadMatrix(pdbClient, dbname, b1Name, hd1size, 1, block_x, block_y,
                    false, true, errMsg);
     // labels_size x 1
     ff::loadMatrix(pdbClient, dbname, b2Name, label_size, 1, block_x, block_y,
                    false, true, errMsg);
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::cout << "Amazon 14k model load time for model version "
+              << i << ": "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end -
+                                                                          begin)
+                     .count()
+              << " secs." << std::endl;
   }
 }
+
+
+void createDbAndIndexer(PDBClient &pdbClient, CatalogClient &catalogClient, string dbname) {
+  string errMsg;
+  if (catalogClient.databaseExists(dbname)) return;
+
+  ff::createDatabase(pdbClient, dbname);
+
+  // Load the page indexer
+  {
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+    pdb::Handle<pdb::AbstractIndexer> indexer =
+	makeObject<FFPageIndexer>(10, 3);
+    indexer->dump();
+
+    if (!pdbClient.addTypeIndexer<FFMatrixBlock>(dbname, indexer)) {
+      cout << "Not able to create indexer: " + errMsg;
+      exit(-1);
+    } else {
+      cout << "Created indexer.\n";
+    }
+  }
+}
+
 
 int main(int argc, char *argv[]) {
   string errMsg;
@@ -270,7 +319,7 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  if (argc != 10 && argc != 3) {
+  if (argc < 10 && argc != 3) {
     cout << "Usage: (loadLibraries numModels [blockDimensionX blockDimensionY "
             "share batchSize labelSize featureSize hiddenLayerSize]) | loadLibraries"
          << endl;
@@ -278,10 +327,10 @@ int main(int argc, char *argv[]) {
   }
 
   loadLibs = atoi(argv[1]) == 1;
-  createDb = argc == 10;
+  createDb = argc >= 10;
   numModels = atoi(argv[2]);
 
-  if (argc == 10) {
+  if (argc >= 10) {
     block_x = atoi(argv[3]);
     block_y = atoi(argv[4]);
     cout << "Using block dimensions " << block_x << ", " << block_y << endl;
@@ -305,40 +354,37 @@ int main(int argc, char *argv[]) {
   if (loadLibs)
     loadLibraries(pdbClient);
 
-  if (createDb && !catalogClient.databaseExists(dbname)) {
+  if (createDb) {
     cout << "Re-creating Database" << endl;
-    ff::createDatabase(pdbClient, dbname);
-  }
-
-  // Load the page indexer
-  {
-    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
-
-    pdb::Handle<pdb::AbstractIndexer> indexer =
-        makeObject<FFPageIndexer>(10, 3);
-    indexer->dump();
-
-    if (!pdbClient.addTypeIndexer<FFMatrixBlock>(dbname, indexer)) {
-      cout << "Not able to create indexer: " + errMsg;
-      exit(-1);
-    } else {
-      cout << "Created indexer.\n";
+    if (catalogClient.databaseExists(dbname)) {
+      clearModels(pdbClient, catalogClient, dbname, numModels);
+      pdbClient.removeDatabase(dbname, errMsg);
     }
+    createDbAndIndexer(pdbClient, catalogClient, dbname);
   }
 
   if (createDb) {
+    // Expect db is already empty
     cout << "Generating models..." << endl;
     // Load the models
     loadModels(pdbClient, catalogClient, dbname, block_x, block_y, numModels,
               batchSize, labelSize, featureSize, hd1Size, shareable);
   } else {
+    // Expect Models already loaded
     cout << "Clearing output..." << endl;
-    clearOutput(pdbClient, catalogClient, dbname, numModels);
+    clearOutput(pdbClient, catalogClient, dbname, numModels, true);
   }
 
-  // Execute the models
-  for (int i = 0; i < numModels; i++) {
-    executeModel(pdbClient, dbname, i);
+  if (argc >= 11) {
+    for (int i = 10; i < argc; i++) {
+      int model_id = atoi(argv[i]);
+      executeModel(pdbClient, dbname, model_id);
+    } 
+  } else {
+    // Execute the models
+    for (int i = 0; i < numModels; i++) {
+      executeModel(pdbClient, dbname, i);
+    }
   }
 
   return 0;

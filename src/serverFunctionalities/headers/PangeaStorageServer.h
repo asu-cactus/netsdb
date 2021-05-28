@@ -82,7 +82,7 @@ public:
     // this allocates a new page at the end of the indicated database/set combo
     PDBPagePtr getNewPage(pair<std::string, std::string> databaseAndSet);
 
-    bool checkAndSharePage(PDBPagePtr myPage, Handle<AbstractIndexer> indexer, CacheKey &key, ShareableSetPtr set, bool reuse);
+    bool checkAndSharePage(PDBPagePtr myPage, Handle<AbstractIndexer> indexer, ShareableSetPtr set);
 
     // returns a set object referencing the given database/set pair
     SetPtr getSet(std::pair<std::string, std::string> databaseAndSet);
