@@ -592,7 +592,7 @@ common_env.SharedLibrary('libraries/libFFMatrixWriter.so', ['build/FF/FFMatrixWr
 common_env.SharedLibrary('libraries/libFFAggMatrix.so', ['build/FF/FFAggMatrix.cc'] + all)
 common_env.SharedLibrary('libraries/libFFTransposeMult.so', ['build/FF/FFTransposeMult.cc'] + all)
 common_env.SharedLibrary('libraries/libFFTransposeBiasSum.so', ['build/FF/FFTransposeBiasSum.cc'] + all)
-common_env.SharedLibrary('libraries/libFFReluBiasSum.so', ['build/FF/FFReluBiasSum.cc'] + all)
+common_env.SharedLibrary('libraries/libFFActivationBiasSum.so', ['build/FF/FFActivationBiasSum.cc'] + all)
 common_env.SharedLibrary('libraries/libFFRowAggregate.so', ['build/FF/FFRowAggregate.cc'] + all)
 common_env.SharedLibrary('libraries/libFFOutputLayer.so', ['build/FF/FFOutputLayer.cc'] + all)
 common_env.SharedLibrary('libraries/libFFMatrixMultiSel.so', ['build/FF/FFMatrixMultiSel.cc'] + all)
@@ -888,6 +888,7 @@ common_env.Program('bin/TestLDA', ['build/tests/TestLDA.cc'] + all + pdb_client)
 common_env.Program('bin/TestMatrix', ['build/tests/TestMatrix.cc'] + all)
 
 common_env.Program('bin/FFTest', ['build/tests/FFTest.cc', 'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
+common_env.Program('bin/Amazon14k', ['build/tests/Amazon14k.cc', 'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
 common_env.Program('bin/RedditFeatureExtractor', ['build/tests/RedditFeatureExtractor.cc', 'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
 common_env.Program('bin/LSTMTest', ['build/tests/LSTMTest.cc'] + all + pdb_client)
 common_env.Program('bin/LSTMDebug', ['build/tests/LSTMDebug.cc'] + all + pdb_client)
@@ -989,7 +990,7 @@ common_env.Depends(pdbTest, [
   'libraries/libFFAggMatrix.so',
   'libraries/libFFTransposeBiasSum.so',
   'libraries/libFFTransposeMult.so',
-  'libraries/libFFReluBiasSum.so',
+  'libraries/libFFActivationBiasSum.so',
   'libraries/libFFRowAggregate.so',
   'libraries/libFFOutputLayer.so',
 
@@ -1374,6 +1375,7 @@ libFFTest=common_env.Alias('libFFTest', [
   'bin/pdb-server', 
 
   'bin/FFTest',
+  'bin/Amazon14k',
   'bin/RedditFeatureExtractor',
   'bin/loadRedditCommentsIndexPartition',  
   # Other libraries from src/FF
@@ -1386,7 +1388,7 @@ libFFTest=common_env.Alias('libFFTest', [
   'libraries/libFFAggMatrix.so',
   'libraries/libFFTransposeBiasSum.so',
   'libraries/libFFTransposeMult.so',
-  'libraries/libFFReluBiasSum.so',
+  'libraries/libFFActivationBiasSum.so',
   'libraries/libFFRowAggregate.so',
   'libraries/libFFOutputLayer.so',
   'libraries/libFFMatrixMultiSel.so',
