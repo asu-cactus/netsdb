@@ -99,7 +99,10 @@ PDBPagePtr SharedPageIterator::next() {
   // TODO: should we pass original set to cache or the shared set? 
   pageToReturn =
       cache->getPage(set->getFile(), pidx.partitionId, pidx.pageSeqInPartition,
-                     pid.pageId, false, set.get());
+                     pid.pageId, false, 
+                     set.get()
+                    //  sharedSet
+                     );
 
   PDB_COUT << "SharedPageIterator: got page" << std::endl;
   this->numIteratedPages++;

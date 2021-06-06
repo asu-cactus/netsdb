@@ -143,6 +143,7 @@ char* PageCache::tryAllocateBufferFromSharedMemory(size_t size, int& alignOffset
         this->evict();
         data = (char*)this->shm->mallocAlign(size, 512, alignOffset);
     }
+    memset (data, 0, size);
     return data;
 }
 
