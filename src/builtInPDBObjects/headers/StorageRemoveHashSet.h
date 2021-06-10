@@ -18,27 +18,19 @@ public:
     StorageRemoveHashSet() {}
     ~StorageRemoveHashSet() {}
 
-    StorageRemoveHashSet(std::string dataBase, std::string setName, SetType setType)
-        : dataBase(dataBase), setName(setName), setType(setType) {}
+    StorageRemoveHashSet(std::string hashSetName)
+        : hashSetName(hashSetName) {}
 
-    std::string getDatabase() {
-        return dataBase;
+
+    std::string getHashSetName() {
+        return hashSetName;
     }
 
-    std::string getSetName() {
-        return setName;
-    }
-
-    SetType getSetType() {
-        return setType;
-    }
 
     ENABLE_DEEP_COPY
 
 private:
-    String dataBase;
-    String setName;
-    SetType setType;
+    String hashSetName;
 };
 }
 

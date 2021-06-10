@@ -9,7 +9,7 @@ import multiprocessing
 import glob
 from os import path
 
-common_env = Environment(CXX = 'clang++-4.0')
+common_env = Environment(CXX = 'clang++')
 #to install prerequisites
 if common_env['PLATFORM'] == 'darwin':
     os.system("brew install eigen")
@@ -53,7 +53,7 @@ elif  common_env['PLATFORM'] == 'posix':
          common_env.Append(LINKFLAGS = '-L/home/ubuntu/anaconda3/envs/py37_torch/lib/python3.7/site-packages/torch/lib -pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++ -lcrypto -lssl -ltorch -ltorch_cpu -lc10 -lgomp')
     else:
          common_env.Append(LINKFLAGS = '-pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++ -lcrypto -lssl')
-    common_env.Replace(CXX = "clang++-4.0")
+    common_env.Replace(CXX = "clang++")
 
 #common_env.Append(CCFLAGS='-DDEBUG_SIMPLE_FF_VERBOSE')
 #common_env.Append(CCFLAGS='-DDEBUG_VTABLE_FIXING')

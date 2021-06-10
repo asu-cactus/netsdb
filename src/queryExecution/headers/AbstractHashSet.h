@@ -27,6 +27,28 @@ public:
 
     // get size
     virtual size_t getSize() = 0;
+
+    
+    // set materialized
+    void setMaterialized(bool materialized) {
+        this->materialized = materialized;
+    }
+
+    //return materialized
+    bool isMaterialized() {
+        return materialized;
+    }
+
+
+private:
+
+    //is this HashSet materialized?
+    bool materialized = false;
+
+
+
+
+
 };
 }
 

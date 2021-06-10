@@ -10,6 +10,7 @@
 #include "DistributedStorageAddTempSet.h"
 #include "DistributedStorageRemoveDatabase.h"
 #include "DistributedStorageRemoveSet.h"
+#include "DistributedStorageRemoveHashSet.h"
 #include "DistributedStorageRemoveTempSet.h"
 #include "DistributedStorageExportSet.h"
 #include "DistributedStorageClearSet.h"
@@ -183,6 +184,9 @@ bool DistributedStorageManagerClient::removeSet(const std::string& databaseName,
         setName);
 }
 
+
+
+
 bool DistributedStorageManagerClient::removeTempSet(const std::string& databaseName,
                                                     const std::string& setName,
                                                     const std::string& typeName,
@@ -197,6 +201,19 @@ bool DistributedStorageManagerClient::removeTempSet(const std::string& databaseN
         databaseName,
         setName,
         typeName);
+}
+
+
+bool DistributedStorageManagerClient::removeHashSet(const std::string& hashSetName,
+                                                    std::string& errMsg) {
+    return simpleRequest<DistributedStorageRemoveHashSet, SimpleRequestResult, bool>(
+        logger,
+        port,
+        address,
+        false,
+        1024,
+        generateResponseHandler("Could not remove hash set to distributed storage manager", errMsg),
+        hashSetName);
 }
 
 

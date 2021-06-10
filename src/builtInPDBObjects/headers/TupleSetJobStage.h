@@ -464,6 +464,7 @@ public:
         return this->allocatorPolicy;
     }
 
+
     ENABLE_DEEP_COPY
 
 
@@ -570,6 +571,7 @@ private:
 
     //Does this stage has local join probe
     bool localJoinProbeOrNot = false;
+
 
 
 };

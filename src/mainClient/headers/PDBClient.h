@@ -121,6 +121,11 @@ public:
   bool removeSet(const std::string &databaseName, const std::string &setName,
                  std::string &errMsg);
 
+
+  /* Removes a hash set from HermesExecutionServer. */
+  bool removeHashSet(const std::string &hashSetName, std::string &errMsg);
+
+
   /* Removes a set given a type from an existing database. */
   bool clearSet(const std::string &databaseName, const std::string &setName,
                 const std::string &typeName, std::string &errMsg);

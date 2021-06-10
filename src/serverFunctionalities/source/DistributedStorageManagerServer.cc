@@ -17,6 +17,7 @@
 #include "DistributedStorageRemoveDatabase.h"
 #include "DistributedStorageRemoveSet.h"
 #include "DistributedStorageRemoveTempSet.h"
+#include "DistributedStorageRemoveHashSet.h"
 #include "DistributedStorageExportSet.h"
 #include "DistributedStorageClearSet.h"
 #include "DistributedStorageCleanup.h"
@@ -33,6 +34,7 @@
 #include "StorageAddTempSet.h"
 #include "StorageRemoveDatabase.h"
 #include "StorageRemoveUserSet.h"
+#include "StorageRemoveHashSet.h"
 #include "StorageExportSet.h"
 #include "StorageClearSet.h"
 #include "StorageCleanup.h"
@@ -1100,6 +1102,57 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
 
             }
 
+            ));
+
+    // Below handler is to force to remove a hash set from the HermesExecutionServer by forwarding the
+    // DistributedStorageRemoveHashSet
+
+    forMe.registerHandler(
+        DistributedStorageRemoveHashSet_TYPEID,
+        make_shared<SimpleRequestHandler<DistributedStorageRemoveHashSet>>(
+            
+            [&](Handle<DistributedStorageRemoveHashSet> request, PDBCommunicatorPtr sendUsingMe) {
+                const UseTemporaryAllocationBlock tempBlock{1 * 1024 * 1024};
+                std::cout << "received DistributedStorageRemoveHashSet" << std::endl;
+                std::string errMsg;
+                mutex lock;
+                auto successfulNodes = std::vector<std::string>();
+                auto failureNodes = std::vector<std::string>();
+                
+                std::vector<std::string> allNodes;
+                std::cout << "All data requests have been served" << std::endl;
+                const auto nodes = getFunctionality<ResourceManagerServer>().getAllNodes();
+                for (int i = 0; i < nodes->size(); i++) {
+                    std::string address = static_cast<std::string>((*nodes)[i]->getAddress());
+                    std::string port = std::to_string((*nodes)[i]->getPort());
+                    allNodes.push_back(address + ":" + port);
+                }
+                
+                Handle<StorageRemoveHashSet> storageCmd = makeObject<StorageRemoveHashSet>(request->getHashSetName());
+                
+                getFunctionality<DistributedStorageManagerServer>()
+                    .broadcast<StorageRemoveHashSet, Object, SimpleRequestResult>(
+                        storageCmd,
+                        nullptr,
+                        allNodes,
+                        generateAckHandler(successfulNodes, failureNodes, lock));
+                
+                bool res = true;
+                if (failureNodes.size() > 0) {
+                    res = false; 
+                    errMsg = ""; 
+                    for (int i = 0; i < failureNodes.size(); i++) {
+                        errMsg += failureNodes[i] + std::string(";");
+                    }
+                }
+                
+                Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(res, errMsg);
+                res = sendUsingMe->sendObject(response, errMsg);
+                return make_pair(res, errMsg);
+
+            
+            }
+            
             ));
 
     // JiaNote: Below handler is to process DistributedStorageExportSet message, this handler is to

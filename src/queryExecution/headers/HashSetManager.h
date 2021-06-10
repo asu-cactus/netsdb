@@ -42,6 +42,17 @@ public:
         }
     }
 
+    //to know whether a set is materialized
+    bool isMaterialized(std::string name) {
+        if (hashSets.count(name) == 0) {
+            std::cout << "Error: hash set doesn't exist: " << name << std::endl;
+            return false;
+        } else {
+            return hashSets[name]->isMaterialized();
+        }
+
+    }
+
     // to remove a hash set
     bool removeHashSet(std::string name) {
         if (hashSets.count(name) == 0) {
@@ -53,6 +64,8 @@ public:
             return true;
         }
     }
+
+
 
     // get total size
     size_t getTotalSize() {
