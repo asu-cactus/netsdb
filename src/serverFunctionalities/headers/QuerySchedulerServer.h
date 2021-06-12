@@ -17,6 +17,7 @@
 #include "SequenceID.h"
 #include "TCAPAnalyzer.h"
 #include "ShuffleInfo.h"
+#include "PreCompiledWorkload.h"
 #include <vector>
 
 namespace pdb {
@@ -163,6 +164,19 @@ public:
 
     std::shared_ptr<ShuffleInfo> getShuffleInfo (); 
 
+
+    bool whetherToMaterialize (Handle<AbstractJobStage> jobStage);
+
+
+    bool checkMaterialize(bool materializeThisWorkloadOrNot,
+                        std::vector<Handle<SetIdentifier>> & setsToMaterialize,
+                        Handle<SetIdentifier> sourceSetIdentifier,
+                        std::vector<Handle<AbstractJobStage>> jobStages, 
+                        std::vector<Handle<AbstractJobStage>> & stagesToMaterialize,
+                        std::vector<Handle<SetIdentifier>> intermediateSets,
+                        std::vector<Handle<SetIdentifier>> & intermediateSetIdentifiersToMaterialize);
+
+
 protected:
 
     // current resources
@@ -218,6 +232,11 @@ protected:
     std::shared_ptr<ShuffleInfo> shuffleInfo = nullptr;
 
     bool selfLearningOrNot;
+
+    std::unordered_map<std::string, PreCompiledWorkloadPtr> materializedWorkloads;
+
+
+    
 
 
 };

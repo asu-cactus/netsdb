@@ -126,6 +126,15 @@ public:
         return this->desiredSize;
     }
 
+    void setDatabase(std::string database){
+        dataBase = database;
+
+    }
+
+    void setSetName (std::string setName) {
+        setName = setName;
+    }
+
 private:
     String dataBase;
     String setName;

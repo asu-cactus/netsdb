@@ -603,6 +603,14 @@ void QuerySchedulerServer::scheduleStages(std::vector<Handle<AbstractJobStage>>&
     }
 }
 
+bool QuerySchedulerServer::whetherToMaterialize(Handle<AbstractJobStage> stage) {
+
+    //the rule is that if the source of the stage is a long living set, it should be materialized
+    //here, we temporarily hardcode it to always return false;
+    return false;
+
+}
+
 
 
 
@@ -971,6 +979,131 @@ std::shared_ptr<ShuffleInfo> QuerySchedulerServer::getShuffleInfo () {
 }
 
 
+bool QuerySchedulerServer::checkMaterialize(bool materializeThisWorkloadOrNot,
+                        std::vector<Handle<SetIdentifier>> & setsToMaterialize,
+                        Handle<SetIdentifier> sourceSetIdentifier,
+                        std::vector<Handle<AbstractJobStage>> jobStages,
+                        std::vector<Handle<AbstractJobStage>> & stagesToMaterialize,
+                        std::vector<Handle<SetIdentifier>> intermediateSets,
+                        std::vector<Handle<SetIdentifier>> & intermediateSetIdentifierToMaterialize) {
+
+
+    // stages from the source to a pipeline breaker
+    // if the materializeThisWorkloadOrNot is false and the output of the stages should be materialized: 
+    //    1.1 we set the output of the last stage to be materialized
+    //    1.2 all these stages can be skipped and do not need to be push to the stagesToMaterialize vector
+    //    1.3 materializeThisWorkloadOrNot should be set to true
+    //    1.4 record the output set that is to be materialized
+    // otherwise if materializeThisWorkloadOrNot is false and the output of the stages should NOT be materialized:
+    //    2.1 simply push the stages to stagesToMaterialize
+    // otherwise if materializeThisWorkloadOrNot is true
+    //    3.1 whether the source of these stages consume the materialized set
+    //    3.2 if yes, we need set the first stage's source or hashContext to materialized
+    //    3.3 if no, we simply push the stages to stagesToMaterialize
+
+    bool ret = false;
+
+    if (materializeThisWorkloadOrNot == false) {
+
+        for (int i = 0; i < jobStages.size(); i++) {
+
+           if (whetherToMaterialize(jobStages[i]) == true) {
+
+               Handle<AbstractJobStage> curStage = jobStages[i];
+
+               curStage->setMaterializeOutput(true);
+               ret = true;
+               Handle<SetIdentifier> sinkSetIdentifier = makeObject<SetIdentifier>();
+
+               std::string stageType = curStage->getJobStageType();
+
+               if (stageType == "TupleSetJobStage") {
+                   Handle<TupleSetJobStage> castedStage = unsafeCast<TupleSetJobStage>(curStage);
+                   sinkSetIdentifier = castedStage->getSinkContext();           
+               } else if (stageType == "AggregationJobStage") {
+                   Handle<AggregationJobStage> castedStage = unsafeCast<AggregationJobStage>(curStage);
+                   sinkSetIdentifier = castedStage->getSinkContext();
+               } else if (stageType == "BroadcastJoinBuildHTJobStage") {
+                   Handle<BroadcastJoinBuildHTJobStage> castedStage = unsafeCast<BroadcastJoinBuildHTJobStage>(curStage);
+                   sinkSetIdentifier->setDatabase("");
+                   sinkSetIdentifier->setSetName (castedStage->getHashSetName());
+               } else if (stageType == "HashPartitionedJoinBuildHTJobStage") {
+                   Handle<HashPartitionedJoinBuildHTJobStage> castedStage = unsafeCast<HashPartitionedJoinBuildHTJobStage>(curStage);
+                   sinkSetIdentifier->setDatabase("");
+                   sinkSetIdentifier->setSetName (castedStage->getHashSetName());
+               } else {
+                   //do nothing
+               }
+
+               setsToMaterialize.push_back(sinkSetIdentifier);
+               break;
+
+           } 
+
+        }
+
+        if (!ret) {
+             
+             for (int i = 0; i < jobStages.size(); i++) {
+
+                stagesToMaterialize.push_back(jobStages[i]);
+
+             }
+
+        }        
+
+
+    } else {
+
+        std::string hashSetName = "";
+
+        for (int i = 0; i < jobStages.size(); i++) {
+        
+
+           Handle<AbstractJobStage> curStage = jobStages[i];
+           std::string stageType = curStage->getJobStageType();
+           if (stageType == "BroadcastJoinBuildHTJobStage") {
+               Handle<BroadcastJoinBuildHTJobStage> castedStage = unsafeCast<BroadcastJoinBuildHTJobStage>(curStage);
+               hashSetName = castedStage->getHashSetName();
+           } else if (stageType == "HashPartitionedJoinBuildHTJobStage") {
+               Handle<HashPartitionedJoinBuildHTJobStage> castedStage = unsafeCast<HashPartitionedJoinBuildHTJobStage>(curStage);
+               hashSetName = castedStage->getHashSetName();
+           }
+
+        }
+        for (int i = 0; i < setsToMaterialize.size(); i++) {
+
+            Handle<SetIdentifier> curSet = setsToMaterialize[i];
+            if ((curSet->getDatabase() == sourceSetIdentifier->getDatabase()) &&
+               (curSet->getSetName() == sourceSetIdentifier->getSetName())) {
+
+                jobStages[0]->setSourceMaterialized(true);
+                break;
+
+            }
+
+            if (hashSetName != "") { 
+
+                if (curSet->getSetName() == hashSetName) {
+
+                    jobStages[0]->setHashMaterialized(true);
+                    break;
+
+                }
+
+            }
+
+        }
+        for (int j = 0; j < jobStages.size(); j++) {
+        
+            stagesToMaterialize.push_back(jobStages[j]);
+
+        }
+    }
+
+    return ret;
+
+}
 
 void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
 
@@ -1111,6 +1244,24 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                             getFunctionality<SelfLearningServer>().getDB(), true);
                         this->tcapAnalyzerPtr->setNumNodes(this->standardResources->size());
                         int jobStageId = 0;
+
+                        // this is to specify whether we should materialize all stages regarding the current workload
+                        // in order to save time for future executions
+                        bool materializeThisWorkloadOrNot = false;
+
+
+                        // a sequence of stages to be materialized for this workload
+                        // at the end, if materializeThisWorkloadOrNot = false, we need clear this vector,
+                        // otherwise, we need add all these stages to a PreCompiledWorkload instance, and add this instance to the hashmap
+                        std::vector<Handle<AbstractJobStage>> stagesToMaterialize;
+
+                        // intermediate set identifiers to materialize together with stages
+                        std::vector<Handle<SetIdentifier>> setIdentifiersToMaterialize;
+
+                        // materialized sets
+                        std::vector<Handle<SetIdentifier>> setsToMaterialize;
+
+
                         while (this->tcapAnalyzerPtr->getNumSources() > 0) {
                             std::vector<Handle<AbstractJobStage>> jobStages;
                             std::vector<Handle<SetIdentifier>> intermediateSets;
@@ -1120,6 +1271,7 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
 #endif
                             while ((jobStages.size() == 0) &&
                                    (this->tcapAnalyzerPtr->getNumSources() > 0)) {
+
                                 // analyze all sources and select a source based on cost model
                                 int indexOfBestSource = this->tcapAnalyzerPtr->getBestSource(
                                     this->statsForOptimization);
@@ -1152,9 +1304,34 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                                         this->tcapAnalyzerPtr->removeSource(sourceName);
                                     }
                                 }
-                            }
 
+
+                                // stages from the source to a pipeline breaker
+                                // if the materializeThisWorkloadOrNot is false and the output of the stages should be materialized: 
+                                //    1.1 we set the output of the last stage to be materialized
+                                //    1.2 all these stages can be skipped and do not need to be push to the stagesToMaterialize vector
+                                //    1.3 materializeThisWorkloadOrNot should be set to true
+                                //    1.4 record the output set that is to be materialized
+                                // otherwise if materializeThisWorkloadOrNot is false and the output of the stages should NOT be materialized:
+                                //    2.1 simply push the stages to stagesToMaterialize
+                                // otherwise if materializeThisWorkloadOrNot is true
+                                //    3.1 whether the source of these stages consume the materialized set
+                                //    3.2 if yes, we need set the first stage's source or hashContext to materialized
+                                //    3.3 if no, we simply push the stages to stagesToMaterialize
+
+
+                                checkMaterialize(materializeThisWorkloadOrNot, setsToMaterialize, sourceSet, 
+                                                 jobStages, stagesToMaterialize,
+                                                 intermediateSets, setIdentifiersToMaterialize);
+
+
+                            }
+                            
                             this->statsForOptimization->clearPenalizedCosts();
+
+
+                            
+
 
 #ifdef PROFILING
                             auto dynamicPlanEnd = std::chrono::high_resolution_clock::now();
@@ -1291,6 +1468,8 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                                          << ", set=" << intermediateSet->getSetName() << std::endl;
                             }
                         }
+                        // create a PreCompiledWorkload from materializeThisWorkloadOrNot, stagesToMaterialize, intermediateSetsToMaterialize
+                        // insert the PreCompiledWorkload to a hashmap
                     }
                 }
                 if (selfLearningOrNot == true) {
