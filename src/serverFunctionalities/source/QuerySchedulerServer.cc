@@ -1055,19 +1055,17 @@ bool QuerySchedulerServer::checkMaterialize(bool materializeThisWorkloadOrNot,
 
     } else {
 
-        std::string hashSetName = "";
+        Handle<Map<String, String>> hashSetsToProbe = nullptr;
 
         for (int i = 0; i < jobStages.size(); i++) {
         
 
            Handle<AbstractJobStage> curStage = jobStages[i];
            std::string stageType = curStage->getJobStageType();
-           if (stageType == "BroadcastJoinBuildHTJobStage") {
-               Handle<BroadcastJoinBuildHTJobStage> castedStage = unsafeCast<BroadcastJoinBuildHTJobStage>(curStage);
-               hashSetName = castedStage->getHashSetName();
-           } else if (stageType == "HashPartitionedJoinBuildHTJobStage") {
-               Handle<HashPartitionedJoinBuildHTJobStage> castedStage = unsafeCast<HashPartitionedJoinBuildHTJobStage>(curStage);
-               hashSetName = castedStage->getHashSetName();
+           if (stageType == "TupleSetJobStage") {
+               Handle<TupleSetJobStage> castedStage = unsafeCast<TupleSetJobStage>(curStage);
+               hashSetsToProbe = castedStage->getHashSets();
+               break;
            }
 
         }
@@ -1082,13 +1080,20 @@ bool QuerySchedulerServer::checkMaterialize(bool materializeThisWorkloadOrNot,
 
             }
 
-            if (hashSetName != "") { 
+            if (hashSetsToProbe != nullptr) { 
 
-                if (curSet->getSetName() == hashSetName) {
 
-                    jobStages[0]->setHashMaterialized(true);
-                    break;
-
+               for (PDBMapIterator<String, String> mapIter = hashSetsToProbe->begin();
+                   mapIter != hashSetsToProbe->end();
+                   ++mapIter) {
+                    std::string key = (*mapIter).key;
+                    std::string hashSetName = (*mapIter).value;
+                    for (int j = 0; j < jobStages.size(); j++) {
+                        if (curSet->getSetName() == hashSetName) {
+                             jobStages[0]->setHashMaterialized(true);
+                             break;
+                        }
+                    }
                 }
 
             }
