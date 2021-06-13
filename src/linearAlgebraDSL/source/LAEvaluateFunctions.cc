@@ -497,7 +497,7 @@ void LAStatementNode::evaluateQuery(LAPDBInstance& instance) {
         writeSet->setInput(statementQuery);
         auto begin = std::chrono::high_resolution_clock::now();
         std::cout << "job name is " << instance.getJobName() << std::endl;
-        if (!instance.getQueryClient().executeComputations(instance.instanceErrMsg(), instance.getJobName()+std::to_string(instance.getDispatchCount()), writeSet)) {
+        if (!instance.getQueryClient().executeComputations(instance.instanceErrMsg(), instance.getJobName()+std::to_string(instance.getDispatchCount()), false, writeSet)) {
             std::cout << "Query failed. Message was: " << instance.instanceErrMsg() << "\n";
             exit(1);
             ;

@@ -47,9 +47,10 @@ bool PDBClient::executeComputations(std::string &errMsg,
 template <class... Types>
 bool PDBClient::executeComputations(std::string &errMsg,
 		                    std::string jobName,
+                                    bool preCompile,
                                     Handle<Computation> firstParam,
                                     Handle<Types>... args) {
-  return queryClient.executeComputations(errMsg, jobName, firstParam, args...);
+  return queryClient.executeComputations(errMsg, jobName, preCompile, firstParam, args...);
 }
 
 

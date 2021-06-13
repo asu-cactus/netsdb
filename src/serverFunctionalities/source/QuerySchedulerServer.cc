@@ -1030,7 +1030,22 @@ bool QuerySchedulerServer::whetherToMaterialize(Handle<AbstractJobStage> stage) 
 
     //the rule is that if the source of the stage is a long living set, it should be materialized
     //here, we temporarily hardcode it to always return false;
-    return false;
+    //TODO
+
+    //the rule is that if the stage is a hash table building stage, we materialize it
+    std::string stageType = stage->getJobStageType();
+
+    if ((stageType == "BroadcastJoinBuildHTJobStage") ||
+       (stageType == "HashPartitionedJoinBuildHTJobStage")) {
+
+         return true;
+
+    } else {
+
+         return false;
+
+    }
+
 
 }
 
