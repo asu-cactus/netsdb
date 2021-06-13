@@ -603,16 +603,6 @@ void QuerySchedulerServer::scheduleStages(std::vector<Handle<AbstractJobStage>>&
     }
 }
 
-bool QuerySchedulerServer::whetherToMaterialize(Handle<AbstractJobStage> stage) {
-
-    //the rule is that if the source of the stage is a long living set, it should be materialized
-    //here, we temporarily hardcode it to always return false;
-    return false;
-
-}
-
-
-
 
 // JiaNote TODO: consolidate below three functions into a template function
 // to replace: schedule(Handle<JobStage>& stage, PDBCommunicatorPtr communicator, ObjectCreationMode
@@ -979,6 +969,72 @@ std::shared_ptr<ShuffleInfo> QuerySchedulerServer::getShuffleInfo () {
 }
 
 
+void QuerySchedulerServer::createIntermediateSets(DistributedStorageManagerClient & dsmClient, 
+                        std::vector<Handle<SetIdentifier>> & intermediateSets, std::string & errMsg) {
+
+    for (int i = 0; i < intermediateSets.size(); i++) {
+
+         Handle<SetIdentifier> intermediateSet = intermediateSets[i];
+         bool res = dsmClient.createTempSet(intermediateSet->getDatabase(),
+                           intermediateSet->getSetName(),
+                           "IntermediateData",
+                           errMsg,
+                           intermediateSet->getPageSize(),
+                           this->jobId,
+                           nullptr,
+                           nullptr,
+                           intermediateSet->getDesiredSize()
+                           /*1*/
+                           /*1000*/);
+         if (res != true) {
+             std::cout << "can't create temp set: " << errMsg << std::endl;
+         } else {
+             PDB_COUT << "Created set with database="
+                      << intermediateSet->getDatabase()
+                      << ", set=" << intermediateSet->getSetName()
+                      << std::endl;
+        }
+    }
+
+
+
+}
+
+
+void QuerySchedulerServer::removeIntermediateSets(DistributedStorageManagerClient & dsmClient,
+                        std::vector<Handle<SetIdentifier>> & intermediateSets, std::string & errMsg) {
+
+    for (int i = 0; i < intermediateSets.size(); i++) {
+        Handle<SetIdentifier> intermediateSet = intermediateSets[i];
+        bool res = dsmClient.removeTempSet(intermediateSet->getDatabase(),
+                          intermediateSet->getSetName(),
+                          "IntermediateData",
+                          errMsg);
+        if (res != true) {
+            std::cout << "can't remove temp set: " << errMsg << std::endl;
+        } else {
+            PDB_COUT << "Removed set with database="
+                     << intermediateSet->getDatabase()
+                     << ", set=" << intermediateSet->getSetName()
+                     << std::endl;
+        }
+   }
+
+
+}
+
+
+
+
+bool QuerySchedulerServer::whetherToMaterialize(Handle<AbstractJobStage> stage) {
+
+    //the rule is that if the source of the stage is a long living set, it should be materialized
+    //here, we temporarily hardcode it to always return false;
+    return false;
+
+}
+
+
 bool QuerySchedulerServer::checkMaterialize(bool materializeThisWorkloadOrNot,
                         std::vector<Handle<SetIdentifier>> & setsToMaterialize,
                         Handle<SetIdentifier> sourceSetIdentifier,
@@ -1124,6 +1180,8 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
 
                 // parse the query
                 const UseTemporaryAllocationBlock block{256 * 1024 * 1024};
+
+
                 std::cout << "Got the ExecuteComputation object" << std::endl;
                 Handle<Vector<Handle<Computation>>> computations =
                     sendUsingMe->getNextObject<Vector<Handle<Computation>>>(success, errMsg);
@@ -1159,7 +1217,27 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                 success = dsmClient.createDatabase(this->jobId, errMsg);
 
 
-                if (success == true) {
+                if (materializedWorkloads.count(request->getJobName())) {
+
+                    getFunctionality<QuerySchedulerServer>().initialize(true);
+                    this->shuffleInfo = std::make_shared<ShuffleInfo>(
+                            this->standardResources, this->partitionToCoreRatio);
+
+
+                    PreCompiledWorkloadPtr workload = materializedWorkloads[request->getJobName()];
+                    std::vector<Handle<AbstractJobStage>> jobStages = workload->getStages();
+                    std::vector<Handle<SetIdentifier>> intermediateSets = workload->getIntermediateSets();
+
+                    std::string errMsg;
+                    createIntermediateSets(dsmClient, intermediateSets, errMsg);
+                    // schedule this job stages
+                    PDB_COUT << "To schedule the query to run on the cluster" << std::endl;
+                    getFunctionality<QuerySchedulerServer>().scheduleStages(
+                                jobStages, intermediateSets, shuffleInfo, instanceId);
+                    removeIntermediateSets(dsmClient, intermediateSets, errMsg);
+
+                }
+                else if (success == true) {
                     // we do not use dynamic planning
                     if (this->dynamicPlanningOrNot == false) {
                         success = parseTCAPString(computations, tcapString);
@@ -1171,32 +1249,8 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                             // create intermediate sets:
                             PDB_COUT << "to create intermediate sets" << std::endl;
                             if (success == true) {
-                                for (int i = 0; i < this->interGlobalSets.size(); i++) {
-                                    std::string errMsg;
-                                    Handle<SetIdentifier> aggregationSet = this->interGlobalSets[i];
-                                    bool res =
-                                        dsmClient.createTempSet(aggregationSet->getDatabase(),
-                                                                aggregationSet->getSetName(),
-                                                                "IntermediateSet",
-                                                                errMsg,
-                                                                aggregationSet->getPageSize(),
-                                                                this->jobId,
-                                                                nullptr,
-                                                                nullptr,
-                                                                aggregationSet->getDesiredSize()
-                                                                /*1*/ 
-                                                                /*1000*/);
-                                    if (res != true) {
-                                        std::cout << "can't create temp set: " << errMsg
-                                                  << std::endl;
-                                    } else {
-                                        PDB_COUT << "Created set with database="
-                                                 << aggregationSet->getDatabase()
-                                                 << ", set=" << aggregationSet->getSetName()
-                                                 << std::endl;
-                                    }
-                                }
-
+                                std::string errMsg;
+                                createIntermediateSets(dsmClient, this->interGlobalSets, errMsg);
                                 getFunctionality<QuerySchedulerServer>().printStages();
                                 PDB_COUT << "To get the resource object from the resource manager"
                                          << std::endl;
@@ -1206,31 +1260,14 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                                 getFunctionality<QuerySchedulerServer>().scheduleQuery();
 
                                 PDB_COUT << "to remove intermediate sets" << std::endl;
-                                for (int i = 0; i < this->interGlobalSets.size(); i++) {
-                                    std::string errMsg;
-                                    Handle<SetIdentifier> intermediateSet =
-                                        this->interGlobalSets[i];
-                                    bool res =
-                                        dsmClient.removeTempSet(intermediateSet->getDatabase(),
-                                                                intermediateSet->getSetName(),
-                                                                "IntermediateData",
-                                                                errMsg);
-                                    if (res != true) {
-                                        std::cout << "can't remove temp set: " << errMsg
-                                                  << std::endl;
-                                    } else {
-                                        PDB_COUT << "Removed set with database="
-                                                 << intermediateSet->getDatabase()
-                                                 << ", set=" << intermediateSet->getSetName()
-                                                 << std::endl;
-                                    }
-                                }
+                                removeIntermediateSets(dsmClient, this->interGlobalSets, errMsg);
                             }
                         }
 
                     } else {
 
                         // analyze resources
+                       
                         PDB_COUT << "To get the resource object from the resource manager"
                                  << std::endl;
                         getFunctionality<QuerySchedulerServer>().initialize(true);
@@ -1310,7 +1347,7 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                                     }
                                 }
 
-
+                      
                                 // stages from the source to a pipeline breaker
                                 // if the materializeThisWorkloadOrNot is false and the output of the stages should be materialized: 
                                 //    1.1 we set the output of the last stage to be materialized
@@ -1348,29 +1385,9 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                             auto createSetBegin = std::chrono::high_resolution_clock::now();
 #endif
                             // create intermediate sets
-                            for (int i = 0; i < intermediateSets.size(); i++) {
-                                std::string errMsg;
-                                Handle<SetIdentifier> intermediateSet = intermediateSets[i];
-                                bool res = dsmClient.createTempSet(intermediateSet->getDatabase(),
-                                                                   intermediateSet->getSetName(),
-                                                                   "IntermediateData",
-                                                                   errMsg,
-                                                                   intermediateSet->getPageSize(),
-                                                                   this->jobId, 
-                                                                   nullptr, 
-                                                                   nullptr,
-                                                                   intermediateSet->getDesiredSize()
-                                                                   /*1*/
-                                                                   /*1000*/);
-                                if (res != true) {
-                                    std::cout << "can't create temp set: " << errMsg << std::endl;
-                                } else {
-                                    PDB_COUT << "Created set with database="
-                                             << intermediateSet->getDatabase()
-                                             << ", set=" << intermediateSet->getSetName()
-                                             << std::endl;
-                                }
-                            }
+                            std::string errMsg;
+                            createIntermediateSets(dsmClient,intermediateSets, errMsg);
+
 #ifdef PROFILING
                             auto createSetEnd = std::chrono::high_resolution_clock::now();
                             std::cout << "Time Duration for Creating intermdiate sets: "
@@ -1458,23 +1475,16 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                         }
                         // to remove remaining intermediate sets:
                         PDB_COUT << "to remove intermediate sets" << std::endl;
-                        for (int i = 0; i < this->interGlobalSets.size(); i++) {
-                            std::string errMsg;
-                            Handle<SetIdentifier> intermediateSet = this->interGlobalSets[i];
-                            bool res = dsmClient.removeTempSet(intermediateSet->getDatabase(),
-                                                               intermediateSet->getSetName(),
-                                                               "IntermediateData",
-                                                               errMsg);
-                            if (res != true) {
-                                std::cout << "can't remove temp set: " << errMsg << std::endl;
-                            } else {
-                                PDB_COUT << "Removed set with database="
-                                         << intermediateSet->getDatabase()
-                                         << ", set=" << intermediateSet->getSetName() << std::endl;
-                            }
-                        }
+
+                        removeIntermediateSets(dsmClient, this->interGlobalSets, errMsg);
+
                         // create a PreCompiledWorkload from materializeThisWorkloadOrNot, stagesToMaterialize, intermediateSetsToMaterialize
                         // insert the PreCompiledWorkload to a hashmap
+
+                        PreCompiledWorkloadPtr workload = std::make_shared<PreCompiledWorkload>(stagesToMaterialize, setIdentifiersToMaterialize);
+                        materializedWorkloads[request->getJobName()] = workload;                        
+
+
                     }
                 }
                 if (selfLearningOrNot == true) {

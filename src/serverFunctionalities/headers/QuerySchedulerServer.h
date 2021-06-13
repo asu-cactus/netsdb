@@ -18,6 +18,7 @@
 #include "TCAPAnalyzer.h"
 #include "ShuffleInfo.h"
 #include "PreCompiledWorkload.h"
+#include "DistributedStorageManagerClient.h"
 #include <vector>
 
 namespace pdb {
@@ -175,6 +176,17 @@ public:
                         std::vector<Handle<AbstractJobStage>> & stagesToMaterialize,
                         std::vector<Handle<SetIdentifier>> intermediateSets,
                         std::vector<Handle<SetIdentifier>> & intermediateSetIdentifiersToMaterialize);
+
+
+    void createIntermediateSets(DistributedStorageManagerClient & dsmClient, 
+                        std::vector<Handle<SetIdentifier>> & intermediateSets,
+                        std::string & errMsg);
+
+
+    void removeIntermediateSets(DistributedStorageManagerClient & dsmClient, 
+                        std::vector<Handle<SetIdentifier>> & intermediateSets,
+                        std::string & errMsg);
+
 
 
 protected:
