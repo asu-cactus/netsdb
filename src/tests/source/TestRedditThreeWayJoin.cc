@@ -39,7 +39,7 @@ void run(PDBClient &pdbClient) {
 
     // execute the computation
     auto begin = std::chrono::high_resolution_clock::now();
-    pdbClient.executeComputations(errMsg, "reddit", myWriteSet);
+    pdbClient.executeComputations(errMsg, "reddit", false, myWriteSet);
     auto end = std::chrono::high_resolution_clock::now();
           std::cout << "Time Duration for Run: "
               << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()

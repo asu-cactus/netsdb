@@ -44,7 +44,7 @@ void run(PDBClient &pdbClient, bool whetherToAdaptiveJoin) {
 
     // execute the computation
     auto begin = std::chrono::high_resolution_clock::now();
-    pdbClient.executeComputations(errMsg, "reddit-a", myWriteSet);
+    pdbClient.executeComputations(errMsg, "reddit-a", true, myWriteSet);
     auto end = std::chrono::high_resolution_clock::now();
           std::cout << "Time Duration for Run: "
               << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()

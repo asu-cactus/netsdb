@@ -52,7 +52,7 @@ int main(int argc, char* argv[]) {
     writeNegativeSet->setInput(negativeLabel);
     writePositiveSet->setInput(positiveLabel);
     // Execute write operation for both the set
-    pdbClient.executeComputations(errMsg, "RedditSelectionParts",
+    pdbClient.executeComputations(errMsg, "RedditSelectionParts", false,
         writeNegativeSet, writePositiveSet);
     // Count the number of rows in both the sets
     SetIterator<reddit::Comment> negativeIter =

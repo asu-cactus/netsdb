@@ -151,7 +151,7 @@ int main(int argc, char *argv[]) {
       sel->setInput(readA);
 
       // run the computation
-      if (!pdbClient.executeComputations(errMsg, "reddit-comments-index",
+      if (!pdbClient.executeComputations(errMsg, "reddit-comments-index", false,
                                           sel)) {
         cout << "Computation failed. Message was: " << errMsg << "\n";
         exit(1);
