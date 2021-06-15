@@ -233,6 +233,7 @@ void QuerySchedulerServer::scheduleStages(std::vector<Handle<AbstractJobStage>>&
             Handle<AbstractJobStage> curStage = stagesToSchedule[i];
             int jobStageId =  curStage->getStageId();
             std::string stageType = curStage->getJobStageType();
+            std::cout << "To schedule a job stage of the type " << stageType << std::endl;
             std::string sourceType = "";
             std::string sinkType = "";
             std::string probeType = "";
@@ -611,6 +612,7 @@ bool QuerySchedulerServer::scheduleStage(int index,
                                          Handle<TupleSetJobStage>& stage,
                                          PDBCommunicatorPtr communicator,
                                          ObjectCreationMode mode) {
+
     bool success;
     std::string errMsg;
     PDB_COUT << "to send the job stage with id=" << stage->getStageId() << " to the " << index
@@ -1037,7 +1039,7 @@ bool QuerySchedulerServer::whetherToMaterialize(Handle<AbstractJobStage> stage) 
 
     if ((stageType == "BroadcastJoinBuildHTJobStage") ||
        (stageType == "HashPartitionedJoinBuildHTJobStage")) {
-
+         std::cout << "Identified a stage to materialize: " << stageType << std::endl;
          return true;
 
     } else {
@@ -1072,11 +1074,17 @@ bool QuerySchedulerServer::checkMaterialize(bool materializeThisWorkloadOrNot,
     //    3.2 if yes, we need set the first stage's source or hashContext to materialized
     //    3.3 if no, we simply push the stages to stagesToMaterialize
 
+    std::cout << "to check whether to materialize this workload" << std::endl;
+
     bool ret = false;
 
     if (materializeThisWorkloadOrNot == false) {
 
+        std::cout << "we check whether any of the " << jobStages.size() << " stages should trigger a materialization" << std::endl;
+
         for (int i = 0; i < jobStages.size(); i++) {
+
+           std::cout << "to check the " << i << "-th stage" << std::endl;
 
            if (whetherToMaterialize(jobStages[i]) == true) {
 
@@ -1087,7 +1095,7 @@ bool QuerySchedulerServer::checkMaterialize(bool materializeThisWorkloadOrNot,
                Handle<SetIdentifier> sinkSetIdentifier = makeObject<SetIdentifier>();
 
                std::string stageType = curStage->getJobStageType();
-
+               std::cout << "the stageType is " << stageType << std::endl;
                if (stageType == "TupleSetJobStage") {
                    Handle<TupleSetJobStage> castedStage = unsafeCast<TupleSetJobStage>(curStage);
                    sinkSetIdentifier = castedStage->getSinkContext();           
@@ -1127,7 +1135,7 @@ bool QuerySchedulerServer::checkMaterialize(bool materializeThisWorkloadOrNot,
     } else {
 
         Handle<Map<String, String>> hashSetsToProbe = nullptr;
-
+        int stageIndex = -1;
         for (int i = 0; i < jobStages.size(); i++) {
         
 
@@ -1136,6 +1144,7 @@ bool QuerySchedulerServer::checkMaterialize(bool materializeThisWorkloadOrNot,
            if (stageType == "TupleSetJobStage") {
                Handle<TupleSetJobStage> castedStage = unsafeCast<TupleSetJobStage>(curStage);
                hashSetsToProbe = castedStage->getHashSets();
+               stageIndex = i;
                break;
            }
 
@@ -1153,17 +1162,15 @@ bool QuerySchedulerServer::checkMaterialize(bool materializeThisWorkloadOrNot,
 
             if (hashSetsToProbe != nullptr) { 
 
-
+               
                for (PDBMapIterator<String, String> mapIter = hashSetsToProbe->begin();
                    mapIter != hashSetsToProbe->end();
                    ++mapIter) {
                     std::string key = (*mapIter).key;
                     std::string hashSetName = (*mapIter).value;
-                    for (int j = 0; j < jobStages.size(); j++) {
-                        if (curSet->getSetName() == hashSetName) {
-                             jobStages[0]->setHashMaterialized(true);
-                             break;
-                        }
+                    if (curSet->getSetName() == hashSetName) {
+                        jobStages[stageIndex]->setHashMaterialized(true);
+                        break;
                     }
                 }
 
@@ -1234,12 +1241,15 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
 
                 if (materializedWorkloads.count(request->getJobName())) {
 
+
+                    std::cout << "We find precompiled stages for " << request->getJobName() << std::endl;
                     getFunctionality<QuerySchedulerServer>().initialize(true);
                     this->shuffleInfo = std::make_shared<ShuffleInfo>(
                             this->standardResources, this->partitionToCoreRatio);
 
 
                     PreCompiledWorkloadPtr workload = materializedWorkloads[request->getJobName()];
+                    workload->print();
                     std::vector<Handle<AbstractJobStage>> jobStages = workload->getStages();
                     std::vector<Handle<SetIdentifier>> intermediateSets = workload->getIntermediateSets();
 
@@ -1322,6 +1332,7 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                         while (this->tcapAnalyzerPtr->getNumSources() > 0) {
                             std::vector<Handle<AbstractJobStage>> jobStages;
                             std::vector<Handle<SetIdentifier>> intermediateSets;
+                            Handle<SetIdentifier> sourceSet;
 #ifdef PROFILING
                             auto dynamicPlanBegin = std::chrono::high_resolution_clock::now();
                             std::cout << "JobStageId " << jobStageId << "============>";
@@ -1337,7 +1348,7 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                                 std::string sourceName =
                                     this->tcapAnalyzerPtr->getSourceSetName(indexOfBestSource);
                                 std::cout << "best source is " << sourceName << std::endl;
-                                Handle<SetIdentifier> sourceSet =
+                                sourceSet =
                                     this->tcapAnalyzerPtr->getSourceSetIdentifier(sourceName);
                                 AtomicComputationPtr sourceAtomicComp =
                                     this->tcapAnalyzerPtr->getSourceComputation(sourceName);
@@ -1350,6 +1361,7 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                                     sourceSet,
                                     sourceConsumerIndex,
                                     jobStageId);
+                                std::cout << "jobStages have " << jobStages.size() << " stages" << std::endl;
                                 if (jobStages.size() > 0) {
                                     this->tcapAnalyzerPtr->incrementConsumerIndex(sourceName);
                                     break;
@@ -1362,31 +1374,38 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                                     }
                                 }
 
-                      
-                                // stages from the source to a pipeline breaker
-                                // if the materializeThisWorkloadOrNot is false and the output of the stages should be materialized: 
-                                //    1.1 we set the output of the last stage to be materialized
-                                //    1.2 all these stages can be skipped and do not need to be push to the stagesToMaterialize vector
-                                //    1.3 materializeThisWorkloadOrNot should be set to true
-                                //    1.4 record the output set that is to be materialized
-                                // otherwise if materializeThisWorkloadOrNot is false and the output of the stages should NOT be materialized:
-                                //    2.1 simply push the stages to stagesToMaterialize
-                                // otherwise if materializeThisWorkloadOrNot is true
-                                //    3.1 whether the source of these stages consume the materialized set
-                                //    3.2 if yes, we need set the first stage's source or hashContext to materialized
-                                //    3.3 if no, we simply push the stages to stagesToMaterialize
-
-
-                                checkMaterialize(materializeThisWorkloadOrNot, setsToMaterialize, sourceSet, 
-                                                 jobStages, stagesToMaterialize,
-                                                 intermediateSets, setIdentifiersToMaterialize);
-
-
                             }
                             
                             this->statsForOptimization->clearPenalizedCosts();
 
 
+
+                            // stages from the source to a pipeline breaker
+                            // if the materializeThisWorkloadOrNot is false and the output of the stages should be materialized: 
+                            //    1.1 we set the output of the last stage to be materialized
+                            //    1.2 all these stages can be skipped and do not need to be push to the stagesToMaterialize vector
+                            //    1.3 materializeThisWorkloadOrNot should be set to true
+                            //    1.4 record the output set that is to be materialized
+                            // otherwise if materializeThisWorkloadOrNot is false and the output of the stages should NOT be materialized:
+                            //    2.1 simply push the stages to stagesToMaterialize
+                            // otherwise if materializeThisWorkloadOrNot is true
+                            //    3.1 whether the source of these stages consume the materialized set
+                            //    3.2 if yes, we need set the first stage's source or hashContext to materialized
+                            //    3.3 if no, we simply push the stages to stagesToMaterialize
+
+                            if (request->getWhetherToPreCompile() == true) {
+                                std::cout << "invoking checkMaterialize" << std::endl;
+                                bool ret = checkMaterialize(materializeThisWorkloadOrNot, setsToMaterialize, sourceSet,
+                                                 jobStages, stagesToMaterialize,
+                                                 intermediateSets, setIdentifiersToMaterialize);
+                                materializeThisWorkloadOrNot = ret;
+                                if (ret) {
+                                    std::cout << "We need to materialize the workload" << std::endl;
+                                    std::cout << "there are " << stagesToMaterialize.size() << " stages to materialize" << std::endl;
+                                    std::cout << "there are " << setIdentifiersToMaterialize.size() << " intermediate set identifiers to materialize" << std::endl;
+                                    std::cout << "there are " << setsToMaterialize.size() << " sets to materialize" << std::endl;
+                                }
+                            }
                             
 
 
@@ -1496,9 +1515,10 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                         // create a PreCompiledWorkload from materializeThisWorkloadOrNot, stagesToMaterialize, intermediateSetsToMaterialize
                         // insert the PreCompiledWorkload to a hashmap
 
-                        PreCompiledWorkloadPtr workload = std::make_shared<PreCompiledWorkload>(stagesToMaterialize, setIdentifiersToMaterialize);
-                        materializedWorkloads[request->getJobName()] = workload;                        
-
+                        if (request->getWhetherToPreCompile() == true) {
+                            PreCompiledWorkloadPtr workload = std::make_shared<PreCompiledWorkload>(stagesToMaterialize, setIdentifiersToMaterialize);
+                            materializedWorkloads[request->getJobName()] = workload;                        
+                        }
 
                     }
                 }

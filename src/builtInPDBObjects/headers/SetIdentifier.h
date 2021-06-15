@@ -37,6 +37,15 @@ public:
           isAggregationResultOrNot(isProbingAggregationResult) {}
 
 
+    void print() {
+
+        std::cout << "database:" << dataBase;
+        std::cout << ", set:" << setName << std::endl;
+
+    }
+
+
+
     std::string getDatabase() {
         return dataBase;
     }

@@ -47,6 +47,26 @@ public:
 
   }
 
+  //print all stages and intermediate sets
+  void print() {
+
+     std::cout << "this workload has " << stages.size() << " stages" << std::endl;
+     std::cout << "this workload has " << intermediateSets.size() << " sets" << std::endl;
+
+     for (int i = 0; i < stages.size(); i++) {
+
+         stages[i]->print();
+
+     }
+
+     for (int i = 0; i < intermediateSets.size(); i++) {
+
+         intermediateSets[i]->print();
+
+     }
+
+  }
+
   // constructor
   PreCompiledWorkload( std::vector<Handle<AbstractJobStage>> inputStages,
               std::vector<Handle<SetIdentifier>> inputIntermediateSets) {
