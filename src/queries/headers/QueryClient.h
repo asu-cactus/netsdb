@@ -135,6 +135,17 @@ if (typeName != getTypeName <Type> ()) {
         return executeComputations(errMsg, args...);
     }
 
+
+    template <class... Types>
+    bool executeComputations(std::string& errMsg,
+                             std::string jobName,
+                             Handle<Computation> firstParam,
+                             Handle<Types>... args) {
+        queryGraph->push_back(firstParam);
+        return executeComputations(errMsg, jobName, args...);
+    }
+
+
     template <class... Types>
     bool executeComputations(std::string& errMsg,
                              std::string jobName,

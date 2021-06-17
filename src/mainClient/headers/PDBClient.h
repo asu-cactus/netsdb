@@ -213,6 +213,11 @@ public:
 
 
   template <class... Types>
+  bool executeComputations(std::string &errMsg, std::string jobName, Handle<Computation> firstParam,
+                           Handle<Types>... args);
+
+
+  template <class... Types>
   bool executeComputations(std::string &errMsg, std::string jobName, bool preCompile, Handle<Computation> firstParam,
                            Handle<Types>... args);
 
