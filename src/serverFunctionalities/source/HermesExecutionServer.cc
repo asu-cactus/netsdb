@@ -216,6 +216,9 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                     << std::endl;
           sharedHashSet = make_shared<SharedHashSet>(request->getHashSetName(), hashSetSize);
         }
+        if (request->getMaterializeOutput()) {
+            sharedHashSet->setMaterialized(true);
+        }
         if (sharedHashSet->isValid() == false) {
           success = false;
           errMsg = "Error: heap memory becomes insufficient";
@@ -936,6 +939,9 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
         std::cout << "hashSetSize is tuned to" << hashSetSize << std::endl;
         std::string hashSetName = request->getHashSetName();
         PartitionedHashSetPtr partitionedSet = make_shared<PartitionedHashSet>(hashSetName, hashSetSize);
+        if (request->getMaterializeOutput()) {
+            partitionedSet->setMaterialized(true);
+        }
         this->addHashSet(hashSetName, partitionedSet);
         std::cout << "Added hash set for HashPartitionedJoin to probe " << hashSetName << std::endl;
         for (int i = 0; i < numPartitions; i++) {
@@ -1273,13 +1279,13 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
             std::string hashSetName =
                 sourceContext->getDatabase() + ":" + sourceContext->getSetName();
             AbstractHashSetPtr hashSet = this->getHashSet(hashSetName);
-            if (hashSet != nullptr) {
+            if ((hashSet != nullptr)&&(!hashSet->isMaterialized())) {
               hashSet->cleanup();
               this->removeHashSet(hashSetName);
               std::cout << "removed hash set " << hashSetName << std::endl;
             } else {
               std::cout << "Can't remove hash set " << hashSetName
-                        << ": set doesn't exist" << std::endl;
+                        << ": set doesn't exist or set is materialized" << std::endl;
             }
           }
 
@@ -1295,13 +1301,13 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                 std::string hashSetName = (*mapIter).value;
                 std::cout << "remove " << key << ":" << hashSetName << std::endl;
                 AbstractHashSetPtr hashSet = this->getHashSet(hashSetName);
-                if (hashSet != nullptr) {
+                if ((hashSet != nullptr)&&(!hashSet->isMaterialized())) {
                   hashSet->cleanup();
                   this->removeHashSet(hashSetName);
                   std::cout << "removed hash set " << hashSetName << std::endl;
                 } else {
                   std::cout << "Can't remove hash set " << hashSetName
-                            << ": set doesn't exist" << std::endl;
+                            << ": set doesn't exist or set is materialized" << std::endl;
                 }
               }
             }
@@ -1330,7 +1336,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
           Handle<StorageRemoveHashSet> request, PDBCommunicatorPtr sendUsingMe) {
         std::string errMsg;
         bool success = true;
-        std::string hashSetName = request->getDatabase() + ":" + request->getSetName();
+        std::string hashSetName = request->getHashSetName();
         AbstractHashSetPtr hashSet = this->getHashSet(hashSetName);
         if (hashSet != nullptr) {
           hashSet->cleanup();

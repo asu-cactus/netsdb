@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
     partCompNeg->setInput(redditNegData);
     // Measure the time required for partition computation.
     auto startTimePart = std::chrono::high_resolution_clock::now();
-    pdbClient.executeComputations(errMsg, "NegativeLabelPartition", partCompNeg);
+    pdbClient.executeComputations(errMsg, "NegativeLabelPartition", false, partCompNeg);
     auto endTimePart = std::chrono::high_resolution_clock::now();
     auto totalSecs = std::chrono::duration_cast<
         std::chrono::duration<float>>(endTimePart - startTimePart).count();
@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
     partPosAuthor->setInput(redditPosData);
 
     auto startPosAuthor = std::chrono::high_resolution_clock::now();
-    pdbClient.executeComputations(errMsg, "PositiveAuthorPartition", partPosAuthor);
+    pdbClient.executeComputations(errMsg, "PositiveAuthorPartition", false, partPosAuthor);
     auto endPosAuthor = std::chrono::high_resolution_clock::now();
     auto totalPosAuthor = std::chrono::duration_cast<
         std::chrono::duration<float>>(endPosAuthor - startPosAuthor).count();
@@ -77,7 +77,7 @@ int main(int argc, char* argv[]) {
     partNegAuthor->setInput(redditNegData);
 
     auto startNegAuthor = std::chrono::high_resolution_clock::now();
-    pdbClient.executeComputations(errMsg, "NegativeAuthorPartition", partNegAuthor);
+    pdbClient.executeComputations(errMsg, "NegativeAuthorPartition", false, partNegAuthor);
     auto endNegAuthor = std::chrono::high_resolution_clock::now();
     auto totalNegAuthor = std::chrono::duration_cast<
         std::chrono::duration<float>>(endNegAuthor - startNegAuthor).count();
@@ -94,7 +94,7 @@ int main(int argc, char* argv[]) {
     partNegSubs->setInput(redditNegData);
 
     auto startNegSubs = std::chrono::high_resolution_clock::now();
-    pdbClient.executeComputations(errMsg, "NegativeSubsPartition", partNegSubs);
+    pdbClient.executeComputations(errMsg, "NegativeSubsPartition", false, partNegSubs);
     auto endNegSubs = std::chrono::high_resolution_clock::now();
     auto totalNegSubs = std::chrono::duration_cast<
         std::chrono::duration<float>>(endNegSubs - startNegSubs).count();

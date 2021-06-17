@@ -44,7 +44,7 @@ void run(PDBClient &pdbClient, bool whetherToAdaptiveJoin) {
 
     // execute the computation
     auto begin = std::chrono::high_resolution_clock::now();
-    pdbClient.executeComputations(errMsg, "reddit-a", myWriteSet);
+    pdbClient.executeComputations(errMsg, "reddit-a", true, myWriteSet);
     auto end = std::chrono::high_resolution_clock::now();
           std::cout << "Time Duration for Run: "
               << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
@@ -102,14 +102,14 @@ int main(int argc, char* argv[]) {
               << " secs." << std::endl;
 
   // print the results
-/*  std::cout << "Features: \n";
+  std::cout << "Features: \n";
   SetIterator<reddit::Features> result = pdbClient.getSetIterator<reddit::Features>("redditDB", "features");
   int count = 0;
   for (const auto &r : result) {
      count++;
   }
   std::cout << "count: " << count << std::endl;
-*/
+
   pdbClient.removeSet("redditDB", "features", errMsg);
 
 }

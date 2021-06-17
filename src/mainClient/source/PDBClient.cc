@@ -105,6 +105,13 @@ bool PDBClient::removeTempSet(const std::string &databaseName,
                                                 errMsg);
 }
 
+bool PDBClient::removeHashSet(const std::string &hashSetName,
+                              std::string &errMsg) {
+
+  return distributedStorageClient.removeHashSet(hashSetName,
+                                                errMsg);
+}
+
 bool PDBClient::exportSet(const std::string &databaseName,
                           const std::string &setName,
                           const std::string &outputFilePath,

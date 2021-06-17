@@ -121,6 +121,11 @@ public:
   bool removeSet(const std::string &databaseName, const std::string &setName,
                  std::string &errMsg);
 
+
+  /* Removes a hash set from HermesExecutionServer. */
+  bool removeHashSet(const std::string &hashSetName, std::string &errMsg);
+
+
   /* Removes a set given a type from an existing database. */
   bool clearSet(const std::string &databaseName, const std::string &setName,
                 const std::string &typeName, std::string &errMsg);
@@ -209,6 +214,11 @@ public:
 
   template <class... Types>
   bool executeComputations(std::string &errMsg, std::string jobName, Handle<Computation> firstParam,
+                           Handle<Types>... args);
+
+
+  template <class... Types>
+  bool executeComputations(std::string &errMsg, std::string jobName, bool preCompile, Handle<Computation> firstParam,
                            Handle<Types>... args);
 
 

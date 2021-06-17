@@ -233,6 +233,7 @@ void QuerySchedulerServer::scheduleStages(std::vector<Handle<AbstractJobStage>>&
             Handle<AbstractJobStage> curStage = stagesToSchedule[i];
             int jobStageId =  curStage->getStageId();
             std::string stageType = curStage->getJobStageType();
+            std::cout << "To schedule a job stage of the type " << stageType << std::endl;
             std::string sourceType = "";
             std::string sinkType = "";
             std::string probeType = "";
@@ -604,8 +605,6 @@ void QuerySchedulerServer::scheduleStages(std::vector<Handle<AbstractJobStage>>&
 }
 
 
-
-
 // JiaNote TODO: consolidate below three functions into a template function
 // to replace: schedule(Handle<JobStage>& stage, PDBCommunicatorPtr communicator, ObjectCreationMode
 // mode)
@@ -613,6 +612,7 @@ bool QuerySchedulerServer::scheduleStage(int index,
                                          Handle<TupleSetJobStage>& stage,
                                          PDBCommunicatorPtr communicator,
                                          ObjectCreationMode mode) {
+
     bool success;
     std::string errMsg;
     PDB_COUT << "to send the job stage with id=" << stage->getStageId() << " to the " << index
@@ -971,6 +971,234 @@ std::shared_ptr<ShuffleInfo> QuerySchedulerServer::getShuffleInfo () {
 }
 
 
+void QuerySchedulerServer::createIntermediateSets(DistributedStorageManagerClient & dsmClient, 
+                        std::vector<Handle<SetIdentifier>> & intermediateSets, std::string & errMsg) {
+
+    for (int i = 0; i < intermediateSets.size(); i++) {
+
+         Handle<SetIdentifier> intermediateSet = intermediateSets[i];
+         bool res = dsmClient.createTempSet(intermediateSet->getDatabase(),
+                           intermediateSet->getSetName(),
+                           "IntermediateData",
+                           errMsg,
+                           intermediateSet->getPageSize(),
+                           this->jobId,
+                           nullptr,
+                           nullptr,
+                           intermediateSet->getDesiredSize()
+                           /*1*/
+                           /*1000*/);
+         if (res != true) {
+             std::cout << "can't create temp set: " << errMsg << std::endl;
+         } else {
+             PDB_COUT << "Created set with database="
+                      << intermediateSet->getDatabase()
+                      << ", set=" << intermediateSet->getSetName()
+                      << std::endl;
+        }
+    }
+
+
+
+}
+
+
+void QuerySchedulerServer::removeIntermediateSets(DistributedStorageManagerClient & dsmClient,
+                        std::vector<Handle<SetIdentifier>> & intermediateSets, std::string & errMsg) {
+
+    for (int i = 0; i < intermediateSets.size(); i++) {
+        Handle<SetIdentifier> intermediateSet = intermediateSets[i];
+        bool res = dsmClient.removeTempSet(intermediateSet->getDatabase(),
+                          intermediateSet->getSetName(),
+                          "IntermediateData",
+                          errMsg);
+        if (res != true) {
+            std::cout << "can't remove temp set: " << errMsg << std::endl;
+        } else {
+            PDB_COUT << "Removed set with database="
+                     << intermediateSet->getDatabase()
+                     << ", set=" << intermediateSet->getSetName()
+                     << std::endl;
+        }
+   }
+
+
+}
+
+
+
+
+bool QuerySchedulerServer::whetherToMaterialize(Handle<AbstractJobStage> stage) {
+
+    //the rule is that if the source of the stage is a long living set, it should be materialized
+    //here, we temporarily hardcode it to always return false;
+    //TODO
+
+    //the rule is that if the stage is a hash table building stage, we materialize it
+    std::string stageType = stage->getJobStageType();
+
+    if ((stageType == "BroadcastJoinBuildHTJobStage") ||
+       (stageType == "HashPartitionedJoinBuildHTJobStage")) {
+         std::cout << "Identified a stage to materialize: " << stageType << std::endl;
+         return true;
+
+    } else {
+
+         return false;
+
+    }
+
+
+}
+
+
+bool QuerySchedulerServer::checkMaterialize(bool materializeThisWorkloadOrNot,
+                        std::vector<Handle<SetIdentifier>> & setsToMaterialize,
+                        Handle<SetIdentifier> sourceSetIdentifier,
+                        std::vector<Handle<AbstractJobStage>> jobStages,
+                        std::vector<Handle<AbstractJobStage>> & stagesToMaterialize,
+                        std::vector<Handle<SetIdentifier>> intermediateSets,
+                        std::vector<Handle<SetIdentifier>> & intermediateSetIdentifierToMaterialize) {
+
+
+    // stages from the source to a pipeline breaker
+    // if the materializeThisWorkloadOrNot is false and the output of the stages should be materialized: 
+    //    1.1 we set the output of the last stage to be materialized
+    //    1.2 all these stages can be skipped and do not need to be push to the stagesToMaterialize vector
+    //    1.3 materializeThisWorkloadOrNot should be set to true
+    //    1.4 record the output set that is to be materialized
+    // otherwise if materializeThisWorkloadOrNot is false and the output of the stages should NOT be materialized:
+    //    2.1 simply push the stages to stagesToMaterialize
+    // otherwise if materializeThisWorkloadOrNot is true
+    //    3.1 whether the source of these stages consume the materialized set
+    //    3.2 if yes, we need set the first stage's source or hashContext to materialized
+    //    3.3 if no, we simply push the stages to stagesToMaterialize
+
+    std::cout << "to check whether to materialize this workload" << std::endl;
+
+    bool ret = false;
+
+    if (materializeThisWorkloadOrNot == false) {
+
+        std::cout << "we check whether any of the " << jobStages.size() << " stages should trigger a materialization" << std::endl;
+
+        for (int i = 0; i < jobStages.size(); i++) {
+
+           std::cout << "to check the " << i << "-th stage" << std::endl;
+
+           if (whetherToMaterialize(jobStages[i]) == true) {
+
+               Handle<AbstractJobStage> curStage = jobStages[i];
+
+               curStage->setMaterializeOutput(true);
+               ret = true;
+               Handle<SetIdentifier> sinkSetIdentifier = makeObject<SetIdentifier>();
+
+               std::string stageType = curStage->getJobStageType();
+               std::cout << "the stageType is " << stageType << std::endl;
+               if (stageType == "TupleSetJobStage") {
+                   Handle<TupleSetJobStage> castedStage = unsafeCast<TupleSetJobStage>(curStage);
+                   sinkSetIdentifier = castedStage->getSinkContext();           
+               } else if (stageType == "AggregationJobStage") {
+                   Handle<AggregationJobStage> castedStage = unsafeCast<AggregationJobStage>(curStage);
+                   sinkSetIdentifier = castedStage->getSinkContext();
+               } else if (stageType == "BroadcastJoinBuildHTJobStage") {
+                   Handle<BroadcastJoinBuildHTJobStage> castedStage = unsafeCast<BroadcastJoinBuildHTJobStage>(curStage);
+                   sinkSetIdentifier->setDatabase("");
+                   sinkSetIdentifier->setSetName (castedStage->getHashSetName());
+               } else if (stageType == "HashPartitionedJoinBuildHTJobStage") {
+                   Handle<HashPartitionedJoinBuildHTJobStage> castedStage = unsafeCast<HashPartitionedJoinBuildHTJobStage>(curStage);
+                   sinkSetIdentifier->setDatabase("");
+                   sinkSetIdentifier->setSetName (castedStage->getHashSetName());
+               } else {
+                   //do nothing
+               }
+
+               setsToMaterialize.push_back(sinkSetIdentifier);
+               break;
+
+           } 
+
+        }
+
+        if (!ret) {
+             
+             for (int i = 0; i < jobStages.size(); i++) {
+
+                stagesToMaterialize.push_back(jobStages[i]);
+
+             }
+
+             for (int i = 0; i < intermediateSets.size(); i++) {
+
+                intermediateSetIdentifierToMaterialize.push_back(intermediateSets[i]);
+
+             }
+
+        }        
+
+
+    } else {
+
+        Handle<Map<String, String>> hashSetsToProbe = nullptr;
+        int stageIndex = -1;
+        for (int i = 0; i < jobStages.size(); i++) {
+        
+
+           Handle<AbstractJobStage> curStage = jobStages[i];
+           std::string stageType = curStage->getJobStageType();
+           if (stageType == "TupleSetJobStage") {
+               Handle<TupleSetJobStage> castedStage = unsafeCast<TupleSetJobStage>(curStage);
+               hashSetsToProbe = castedStage->getHashSets();
+               stageIndex = i;
+               break;
+           }
+
+        }
+        for (int i = 0; i < setsToMaterialize.size(); i++) {
+
+            Handle<SetIdentifier> curSet = setsToMaterialize[i];
+            if ((curSet->getDatabase() == sourceSetIdentifier->getDatabase()) &&
+               (curSet->getSetName() == sourceSetIdentifier->getSetName())) {
+
+                jobStages[0]->setSourceMaterialized(true);
+                break;
+
+            }
+
+            if (hashSetsToProbe != nullptr) { 
+
+               
+               for (PDBMapIterator<String, String> mapIter = hashSetsToProbe->begin();
+                   mapIter != hashSetsToProbe->end();
+                   ++mapIter) {
+                    std::string key = (*mapIter).key;
+                    std::string hashSetName = (*mapIter).value;
+                    if (curSet->getSetName() == hashSetName) {
+                        jobStages[stageIndex]->setHashMaterialized(true);
+                        break;
+                    }
+                }
+
+            }
+
+        }
+        for (int i = 0; i < jobStages.size(); i++) {
+        
+            stagesToMaterialize.push_back(jobStages[i]);
+
+        }
+
+        for (int i = 0; i < intermediateSets.size(); i++) {
+
+            intermediateSetIdentifierToMaterialize.push_back(intermediateSets[i]);
+
+        }
+    }
+
+    return ret;
+
+}
 
 void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
 
@@ -986,6 +1214,8 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
 
                 // parse the query
                 const UseTemporaryAllocationBlock block{256 * 1024 * 1024};
+
+
                 std::cout << "Got the ExecuteComputation object" << std::endl;
                 Handle<Vector<Handle<Computation>>> computations =
                     sendUsingMe->getNextObject<Vector<Handle<Computation>>>(success, errMsg);
@@ -1021,7 +1251,30 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                 success = dsmClient.createDatabase(this->jobId, errMsg);
 
 
-                if (success == true) {
+                if (materializedWorkloads.count(request->getJobName())) {
+
+
+                    std::cout << "We find precompiled stages for " << request->getJobName() << std::endl;
+                    getFunctionality<QuerySchedulerServer>().initialize(true);
+                    this->shuffleInfo = std::make_shared<ShuffleInfo>(
+                            this->standardResources, this->partitionToCoreRatio);
+
+
+                    PreCompiledWorkloadPtr workload = materializedWorkloads[request->getJobName()];
+                    workload->print();
+                    std::vector<Handle<AbstractJobStage>> jobStages = workload->getStages();
+                    std::vector<Handle<SetIdentifier>> intermediateSets = workload->getIntermediateSets();
+
+                    std::string errMsg;
+                    createIntermediateSets(dsmClient, intermediateSets, errMsg);
+                    // schedule this job stages
+                    PDB_COUT << "To schedule the query to run on the cluster" << std::endl;
+                    getFunctionality<QuerySchedulerServer>().scheduleStages(
+                                jobStages, intermediateSets, shuffleInfo, instanceId);
+                    removeIntermediateSets(dsmClient, intermediateSets, errMsg);
+
+                }
+                else if (success == true) {
                     // we do not use dynamic planning
                     if (this->dynamicPlanningOrNot == false) {
                         success = parseTCAPString(computations, tcapString);
@@ -1033,32 +1286,8 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                             // create intermediate sets:
                             PDB_COUT << "to create intermediate sets" << std::endl;
                             if (success == true) {
-                                for (int i = 0; i < this->interGlobalSets.size(); i++) {
-                                    std::string errMsg;
-                                    Handle<SetIdentifier> aggregationSet = this->interGlobalSets[i];
-                                    bool res =
-                                        dsmClient.createTempSet(aggregationSet->getDatabase(),
-                                                                aggregationSet->getSetName(),
-                                                                "IntermediateSet",
-                                                                errMsg,
-                                                                aggregationSet->getPageSize(),
-                                                                this->jobId,
-                                                                nullptr,
-                                                                nullptr,
-                                                                aggregationSet->getDesiredSize()
-                                                                /*1*/ 
-                                                                /*1000*/);
-                                    if (res != true) {
-                                        std::cout << "can't create temp set: " << errMsg
-                                                  << std::endl;
-                                    } else {
-                                        PDB_COUT << "Created set with database="
-                                                 << aggregationSet->getDatabase()
-                                                 << ", set=" << aggregationSet->getSetName()
-                                                 << std::endl;
-                                    }
-                                }
-
+                                std::string errMsg;
+                                createIntermediateSets(dsmClient, this->interGlobalSets, errMsg);
                                 getFunctionality<QuerySchedulerServer>().printStages();
                                 PDB_COUT << "To get the resource object from the resource manager"
                                          << std::endl;
@@ -1068,31 +1297,14 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                                 getFunctionality<QuerySchedulerServer>().scheduleQuery();
 
                                 PDB_COUT << "to remove intermediate sets" << std::endl;
-                                for (int i = 0; i < this->interGlobalSets.size(); i++) {
-                                    std::string errMsg;
-                                    Handle<SetIdentifier> intermediateSet =
-                                        this->interGlobalSets[i];
-                                    bool res =
-                                        dsmClient.removeTempSet(intermediateSet->getDatabase(),
-                                                                intermediateSet->getSetName(),
-                                                                "IntermediateData",
-                                                                errMsg);
-                                    if (res != true) {
-                                        std::cout << "can't remove temp set: " << errMsg
-                                                  << std::endl;
-                                    } else {
-                                        PDB_COUT << "Removed set with database="
-                                                 << intermediateSet->getDatabase()
-                                                 << ", set=" << intermediateSet->getSetName()
-                                                 << std::endl;
-                                    }
-                                }
+                                removeIntermediateSets(dsmClient, this->interGlobalSets, errMsg);
                             }
                         }
 
                     } else {
 
                         // analyze resources
+                       
                         PDB_COUT << "To get the resource object from the resource manager"
                                  << std::endl;
                         getFunctionality<QuerySchedulerServer>().initialize(true);
@@ -1111,15 +1323,35 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                             getFunctionality<SelfLearningServer>().getDB(), true);
                         this->tcapAnalyzerPtr->setNumNodes(this->standardResources->size());
                         int jobStageId = 0;
+
+                        // this is to specify whether we should materialize all stages regarding the current workload
+                        // in order to save time for future executions
+                        bool materializeThisWorkloadOrNot = false;
+
+
+                        // a sequence of stages to be materialized for this workload
+                        // at the end, if materializeThisWorkloadOrNot = false, we need clear this vector,
+                        // otherwise, we need add all these stages to a PreCompiledWorkload instance, and add this instance to the hashmap
+                        std::vector<Handle<AbstractJobStage>> stagesToMaterialize;
+
+                        // intermediate set identifiers to materialize together with stages
+                        std::vector<Handle<SetIdentifier>> setIdentifiersToMaterialize;
+
+                        // materialized sets
+                        std::vector<Handle<SetIdentifier>> setsToMaterialize;
+
+
                         while (this->tcapAnalyzerPtr->getNumSources() > 0) {
                             std::vector<Handle<AbstractJobStage>> jobStages;
                             std::vector<Handle<SetIdentifier>> intermediateSets;
+                            Handle<SetIdentifier> sourceSet;
 #ifdef PROFILING
                             auto dynamicPlanBegin = std::chrono::high_resolution_clock::now();
                             std::cout << "JobStageId " << jobStageId << "============>";
 #endif
                             while ((jobStages.size() == 0) &&
                                    (this->tcapAnalyzerPtr->getNumSources() > 0)) {
+
                                 // analyze all sources and select a source based on cost model
                                 int indexOfBestSource = this->tcapAnalyzerPtr->getBestSource(
                                     this->statsForOptimization);
@@ -1128,7 +1360,7 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                                 std::string sourceName =
                                     this->tcapAnalyzerPtr->getSourceSetName(indexOfBestSource);
                                 std::cout << "best source is " << sourceName << std::endl;
-                                Handle<SetIdentifier> sourceSet =
+                                sourceSet =
                                     this->tcapAnalyzerPtr->getSourceSetIdentifier(sourceName);
                                 AtomicComputationPtr sourceAtomicComp =
                                     this->tcapAnalyzerPtr->getSourceComputation(sourceName);
@@ -1141,6 +1373,7 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                                     sourceSet,
                                     sourceConsumerIndex,
                                     jobStageId);
+                                std::cout << "jobStages have " << jobStages.size() << " stages" << std::endl;
                                 if (jobStages.size() > 0) {
                                     this->tcapAnalyzerPtr->incrementConsumerIndex(sourceName);
                                     break;
@@ -1152,9 +1385,41 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                                         this->tcapAnalyzerPtr->removeSource(sourceName);
                                     }
                                 }
-                            }
 
+                            }
+                            
                             this->statsForOptimization->clearPenalizedCosts();
+
+
+
+                            // stages from the source to a pipeline breaker
+                            // if the materializeThisWorkloadOrNot is false and the output of the stages should be materialized: 
+                            //    1.1 we set the output of the last stage to be materialized
+                            //    1.2 all these stages can be skipped and do not need to be push to the stagesToMaterialize vector
+                            //    1.3 materializeThisWorkloadOrNot should be set to true
+                            //    1.4 record the output set that is to be materialized
+                            // otherwise if materializeThisWorkloadOrNot is false and the output of the stages should NOT be materialized:
+                            //    2.1 simply push the stages to stagesToMaterialize
+                            // otherwise if materializeThisWorkloadOrNot is true
+                            //    3.1 whether the source of these stages consume the materialized set
+                            //    3.2 if yes, we need set the first stage's source or hashContext to materialized
+                            //    3.3 if no, we simply push the stages to stagesToMaterialize
+
+                            if (request->getWhetherToPreCompile() == true) {
+                                std::cout << "invoking checkMaterialize" << std::endl;
+                                bool ret = checkMaterialize(materializeThisWorkloadOrNot, setsToMaterialize, sourceSet,
+                                                 jobStages, stagesToMaterialize,
+                                                 intermediateSets, setIdentifiersToMaterialize);
+                                materializeThisWorkloadOrNot = ret;
+                                if (ret) {
+                                    std::cout << "We need to materialize the workload" << std::endl;
+                                    std::cout << "there are " << stagesToMaterialize.size() << " stages to materialize" << std::endl;
+                                    std::cout << "there are " << setIdentifiersToMaterialize.size() << " intermediate set identifiers to materialize" << std::endl;
+                                    std::cout << "there are " << setsToMaterialize.size() << " sets to materialize" << std::endl;
+                                }
+                            }
+                            
+
 
 #ifdef PROFILING
                             auto dynamicPlanEnd = std::chrono::high_resolution_clock::now();
@@ -1166,29 +1431,9 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                             auto createSetBegin = std::chrono::high_resolution_clock::now();
 #endif
                             // create intermediate sets
-                            for (int i = 0; i < intermediateSets.size(); i++) {
-                                std::string errMsg;
-                                Handle<SetIdentifier> intermediateSet = intermediateSets[i];
-                                bool res = dsmClient.createTempSet(intermediateSet->getDatabase(),
-                                                                   intermediateSet->getSetName(),
-                                                                   "IntermediateData",
-                                                                   errMsg,
-                                                                   intermediateSet->getPageSize(),
-                                                                   this->jobId, 
-                                                                   nullptr, 
-                                                                   nullptr,
-                                                                   intermediateSet->getDesiredSize()
-                                                                   /*1*/
-                                                                   /*1000*/);
-                                if (res != true) {
-                                    std::cout << "can't create temp set: " << errMsg << std::endl;
-                                } else {
-                                    PDB_COUT << "Created set with database="
-                                             << intermediateSet->getDatabase()
-                                             << ", set=" << intermediateSet->getSetName()
-                                             << std::endl;
-                                }
-                            }
+                            std::string errMsg;
+                            createIntermediateSets(dsmClient,intermediateSets, errMsg);
+
 #ifdef PROFILING
                             auto createSetEnd = std::chrono::high_resolution_clock::now();
                             std::cout << "Time Duration for Creating intermdiate sets: "
@@ -1273,26 +1518,24 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                                              .count()
                                       << " seconds." << std::endl;
 #endif
-                        }
+                        }//while
                         // to remove remaining intermediate sets:
-                        PDB_COUT << "to remove intermediate sets" << std::endl;
-                        for (int i = 0; i < this->interGlobalSets.size(); i++) {
-                            std::string errMsg;
-                            Handle<SetIdentifier> intermediateSet = this->interGlobalSets[i];
-                            bool res = dsmClient.removeTempSet(intermediateSet->getDatabase(),
-                                                               intermediateSet->getSetName(),
-                                                               "IntermediateData",
-                                                               errMsg);
-                            if (res != true) {
-                                std::cout << "can't remove temp set: " << errMsg << std::endl;
-                            } else {
-                                PDB_COUT << "Removed set with database="
-                                         << intermediateSet->getDatabase()
-                                         << ", set=" << intermediateSet->getSetName() << std::endl;
-                            }
+                        std::cout << "to remove remaining intermediate sets" << std::endl;
+
+                        removeIntermediateSets(dsmClient, this->interGlobalSets, errMsg);
+
+                        // create a PreCompiledWorkload from materializeThisWorkloadOrNot, stagesToMaterialize, intermediateSetsToMaterialize
+                        // insert the PreCompiledWorkload to a hashmap
+
+                        if (request->getWhetherToPreCompile() == true) {
+                            std::cout << "to create precompiled stages" << std::endl;
+                            PreCompiledWorkloadPtr workload = std::make_shared<PreCompiledWorkload>(stagesToMaterialize, setIdentifiersToMaterialize);
+                            workload->print();
+                            materializedWorkloads[request->getJobName()] = workload;
                         }
-                    }
-                }
+
+                    }//if dynamic scheduling is false
+                }//if database is successfully created
                 if (selfLearningOrNot == true) {
                     std::string status;
                     if (success == true) {

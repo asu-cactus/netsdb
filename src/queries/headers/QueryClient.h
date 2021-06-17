@@ -135,6 +135,7 @@ if (typeName != getTypeName <Type> ()) {
         return executeComputations(errMsg, args...);
     }
 
+
     template <class... Types>
     bool executeComputations(std::string& errMsg,
                              std::string jobName,
@@ -145,7 +146,18 @@ if (typeName != getTypeName <Type> ()) {
     }
 
 
-    bool executeComputations(std::string& errMsg, std::string jobName = "") {
+    template <class... Types>
+    bool executeComputations(std::string& errMsg,
+                             std::string jobName,
+                             bool preCompile,
+                             Handle<Computation> firstParam,
+                             Handle<Types>... args) {
+        queryGraph->push_back(firstParam);
+        return executeComputations(errMsg, jobName, preCompile, args...);
+    }
+
+
+    bool executeComputations(std::string& errMsg, std::string jobName = "", bool preCompile = true) {
 
         // this is the request
         const UseTemporaryAllocationBlock myBlock{256 * 1024 * 1024};
@@ -165,7 +177,7 @@ if (typeName != getTypeName <Type> ()) {
         }
         std::cout << "jobName is " << jobName << std::endl;
         Handle<ExecuteComputation> executeComputation = makeObject<ExecuteComputation>(
-            jobName, tcapString);
+            jobName, tcapString, preCompile);
 
         // this call asks the database to execute the query, and then it inserts the result set name
         // within each of the results, as well as the database connection information

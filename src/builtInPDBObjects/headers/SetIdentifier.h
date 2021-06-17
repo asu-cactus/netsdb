@@ -37,6 +37,15 @@ public:
           isAggregationResultOrNot(isProbingAggregationResult) {}
 
 
+    void print() {
+
+        std::cout << "database:" << dataBase;
+        std::cout << ", set:" << setName << std::endl;
+
+    }
+
+
+
     std::string getDatabase() {
         return dataBase;
     }
@@ -124,6 +133,15 @@ public:
 
     size_t getDesiredSize () {
         return this->desiredSize;
+    }
+
+    void setDatabase(std::string database){
+        dataBase = database;
+
+    }
+
+    void setSetName (std::string setName) {
+        setName = setName;
     }
 
 private:

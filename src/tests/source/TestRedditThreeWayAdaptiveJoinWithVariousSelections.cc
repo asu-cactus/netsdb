@@ -142,7 +142,7 @@ void run(PDBClient &pdbClient, bool whetherToAdaptiveJoin, int threshold) {
 
     // execute the computation
     auto begin = std::chrono::high_resolution_clock::now();
-    pdbClient.executeComputations(errMsg, "reddit-three-way#"+std::to_string(threshold), myWriteSet, myWriteSet1);
+    pdbClient.executeComputations(errMsg, "reddit-three-way#"+std::to_string(threshold), false, myWriteSet, myWriteSet1);
     auto end = std::chrono::high_resolution_clock::now();
           std::cout << "Time Duration for Run: "
               << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()

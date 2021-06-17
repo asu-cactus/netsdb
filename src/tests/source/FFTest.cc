@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
     bo_path = string(argv[3]) + "/bo.out";
 
     // load the input data
-    batch_size = ff::load_matrix_data(pdbClient, input_path, "ff", "inputs",
+    ff::load_matrix_data(pdbClient, input_path, "ff", "inputs",
                                       block_x, block_y, false, false, errMsg);
     (void)ff::load_matrix_data(pdbClient, w1_path, "ff", "w1", block_x, block_y,
                                false, false, errMsg);

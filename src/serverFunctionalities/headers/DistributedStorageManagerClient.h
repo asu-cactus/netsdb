@@ -113,6 +113,10 @@ public:
                    const std::string& setName,
                    std::string& errMsg);
 
+    bool removeHashSet(const std::string& hashSetName,
+                       std::string& errMsg);
+
+
     // clean up all set by removing both in-memory and on-disk data
     bool clearSet(const std::string& databaseName,
                   const std::string& setName,

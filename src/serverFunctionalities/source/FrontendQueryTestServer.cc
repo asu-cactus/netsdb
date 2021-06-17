@@ -611,7 +611,7 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
                 success = getFunctionality<PangeaStorageServer>().addSet(
                     outDatabaseName, request->getOutputTypeName(), outSetName);
                 outputSet = getFunctionality<PangeaStorageServer>().getSet(outDatabaseAndSet);
-                PDB_COUT << "Output set is created in storage with database=" << outDatabaseName
+                std::cout << "Output set is created in storage with database=" << outDatabaseName
                          << ", set=" << outSetName << ", type=IntermediateData" << std::endl;
             }
 

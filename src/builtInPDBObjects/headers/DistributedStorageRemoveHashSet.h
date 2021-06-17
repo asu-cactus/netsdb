@@ -6,7 +6,6 @@
 #include "Object.h"
 #include "Handle.h"
 #include "PDBString.h"
-#include "DataTypes.h"
 
 // PRELOAD %DistributedStorageRemoveHashSet%
 
@@ -19,27 +18,20 @@ public:
     DistributedStorageRemoveHashSet() {}
     ~DistributedStorageRemoveHashSet() {}
 
-    DistributedStorageRemoveHashSet(std::string dataBase, std::string setName, SetType setType)
-        : dataBase(dataBase), setName(setName), setType(setType) {}
+    DistributedStorageRemoveHashSet(std::string hashSetName)
+        : hashSetName(hashSetName) {}
 
-    std::string getDatabase() {
-        return dataBase;
+    std::string getHashSetName() {
+        return hashSetName;
     }
 
-    std::string getSetName() {
-        return setName;
-    }
+    
 
-    SetType getSetType() {
-        return setType;
-    }
 
     ENABLE_DEEP_COPY
 
 private:
-    String dataBase;
-    String setName;
-    SetType setType;
+    String hashSetName;
 };
 }
 
