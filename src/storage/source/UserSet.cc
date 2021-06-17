@@ -130,6 +130,7 @@ PDBPagePtr UserSet::addPage() {
     key.pageId = pageId;
     PDBPagePtr page = this->pageCache->getNewPage(this->nodeId, key, this, this->pageSize);
     if (page == nullptr) {
+        std::cout << "Fatal Error: Cannot get new page" << std::endl;
         return nullptr;
     }
     page->preparePage();

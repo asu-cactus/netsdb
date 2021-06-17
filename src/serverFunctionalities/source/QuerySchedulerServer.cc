@@ -1129,6 +1129,12 @@ bool QuerySchedulerServer::checkMaterialize(bool materializeThisWorkloadOrNot,
 
              }
 
+             for (int i = 0; i < intermediateSets.size(); i++) {
+
+                intermediateSetIdentifierToMaterialize.push_back(intermediateSets[i]);
+
+             }
+
         }        
 
 
@@ -1177,9 +1183,15 @@ bool QuerySchedulerServer::checkMaterialize(bool materializeThisWorkloadOrNot,
             }
 
         }
-        for (int j = 0; j < jobStages.size(); j++) {
+        for (int i = 0; i < jobStages.size(); i++) {
         
-            stagesToMaterialize.push_back(jobStages[j]);
+            stagesToMaterialize.push_back(jobStages[i]);
+
+        }
+
+        for (int i = 0; i < intermediateSets.size(); i++) {
+
+            intermediateSetIdentifierToMaterialize.push_back(intermediateSets[i]);
 
         }
     }
@@ -1506,9 +1518,9 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                                              .count()
                                       << " seconds." << std::endl;
 #endif
-                        }
+                        }//while
                         // to remove remaining intermediate sets:
-                        PDB_COUT << "to remove intermediate sets" << std::endl;
+                        std::cout << "to remove remaining intermediate sets" << std::endl;
 
                         removeIntermediateSets(dsmClient, this->interGlobalSets, errMsg);
 
@@ -1516,12 +1528,14 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                         // insert the PreCompiledWorkload to a hashmap
 
                         if (request->getWhetherToPreCompile() == true) {
+                            std::cout << "to create precompiled stages" << std::endl;
                             PreCompiledWorkloadPtr workload = std::make_shared<PreCompiledWorkload>(stagesToMaterialize, setIdentifiersToMaterialize);
-                            materializedWorkloads[request->getJobName()] = workload;                        
+                            workload->print();
+                            materializedWorkloads[request->getJobName()] = workload;
                         }
 
-                    }
-                }
+                    }//if dynamic scheduling is false
+                }//if database is successfully created
                 if (selfLearningOrNot == true) {
                     std::string status;
                     if (success == true) {

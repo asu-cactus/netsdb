@@ -54,13 +54,14 @@ public:
      std::cout << "this workload has " << intermediateSets.size() << " sets" << std::endl;
 
      for (int i = 0; i < stages.size(); i++) {
-
+         std::cout << "to print the " << i << "-th stage" << std::endl;
          stages[i]->print();
 
      }
 
      for (int i = 0; i < intermediateSets.size(); i++) {
 
+         std::cout << "to print the " << i << "-th set" << std::endl;
          intermediateSets[i]->print();
 
      }
@@ -76,6 +77,7 @@ public:
 
       for (int i = 0; i < inputStages.size(); i++) {
            Handle<AbstractJobStage> curStage = inputStages[i];
+           curStage->print();
            std::string stageType = curStage->getJobStageType();
            if (stageType == "TupleSetJobStage") {
                 Handle<AbstractJobStage> copiedStage = makeObject<TupleSetJobStage>();
@@ -100,6 +102,7 @@ public:
 
       for (int i = 0; i < inputIntermediateSets.size(); i++) {
           Handle<SetIdentifier> copiedSet = makeObject<SetIdentifier> ();
+          copiedSet->print();
           copiedSet = inputIntermediateSets[i];
           intermediateSets.push_back(copiedSet);
       }
