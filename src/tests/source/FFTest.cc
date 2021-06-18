@@ -14,13 +14,15 @@
 using namespace std;
 
 int main(int argc, char *argv[]) {
+
+  bool reloadData = true;
   string errMsg;
   string input_path, labels_path, w1_path, w2_path, wo_path, b1_path, b2_path,
       bo_path;
   int block_x, block_y, batch_size;
 
-  if (argc < 2) {
-    cout << "Usage: blockDimensionX blockDimensionY "
+  if (argc < 3) {
+    cout << "Usage: blockDimensionX blockDimensionY Y"
             "path/to/weights/and/bias(leave empty if generate random)"
          << endl;
     exit(-1);
@@ -28,42 +30,60 @@ int main(int argc, char *argv[]) {
 
   block_x = atoi(argv[1]);
   block_y = atoi(argv[2]);
+
+  if (argc >= 4) {
+      if (strcmp(argv[3], "N")==0) {
+          reloadData = false;
+          std::cout << "WARNING: we do not reload data!" << std::endl;
+      }
+  }
   cout << "Using block dimensions " << block_x << ", " << block_y << endl;
 
-  bool generate = argc == 3;
+  bool generate = argc == 4;
 
   string masterIp = "localhost";
   pdb::PDBLoggerPtr clientLogger = make_shared<pdb::PDBLogger>("FFclientLog");
   pdb::PDBClient pdbClient(8108, masterIp, clientLogger, false, true);
   pdb::CatalogClient catalogClient(8108, masterIp, clientLogger);
 
-  ff::createDatabase(pdbClient, "ff");
 
-  ff::setup(pdbClient, "ff");
 
-  ff::createSet(pdbClient, "ff", "inputs", "inputs", 64);
-  ff::createSet(pdbClient, "ff", "label", "label", 64);
+  if (reloadData) {
 
-  ff::createSet(pdbClient, "ff", "w1", "W1", 64);
-  ff::createSet(pdbClient, "ff", "b1", "B1", 64);
+      ff::createDatabase(pdbClient, "ff");
+      ff::setup(pdbClient, "ff");
 
-  ff::createSet(pdbClient, "ff", "w2", "W2", 64);
-  ff::createSet(pdbClient, "ff", "b2", "B2", 64);
+      ff::createSet(pdbClient, "ff", "inputs", "inputs", 64);
+      ff::createSet(pdbClient, "ff", "label", "label", 64);
 
-  ff::createSet(pdbClient, "ff", "wo", "WO", 64);
-  ff::createSet(pdbClient, "ff", "bo", "BO", 64);
+      ff::createSet(pdbClient, "ff", "w1", "W1", 64);
+      ff::createSet(pdbClient, "ff", "b1", "B1", 64);
+
+      ff::createSet(pdbClient, "ff", "w2", "W2", 64);
+      ff::createSet(pdbClient, "ff", "b2", "B2", 64);
+
+      ff::createSet(pdbClient, "ff", "wo", "WO", 64);
+      ff::createSet(pdbClient, "ff", "bo", "BO", 64);
+
+  }
 
   ff::createSet(pdbClient, "ff", "output", "Output", 64);
 
-  if (!generate) {
-    input_path = string(argv[3]) + "/input.out";
-    labels_path = string(argv[3]) + "/labels.out";
-    w1_path = string(argv[3]) + "/w1.out";
-    w2_path = string(argv[3]) + "/w2.out";
-    wo_path = string(argv[3]) + "/wo.out";
-    b1_path = string(argv[3]) + "/b1.out";
-    b2_path = string(argv[3]) + "/b2.out";
-    bo_path = string(argv[3]) + "/bo.out";
+  ff::createSet(pdbClient, "ff", "y1", "Y1", 64);
+
+  ff::createSet(pdbClient, "ff", "y2", "Y2", 64);
+
+  ff::createSet(pdbClient, "ff", "yo", "YO", 64);
+
+  if (!generate && reloadData) {
+    input_path = string(argv[4]) + "/input.out";
+    labels_path = string(argv[4]) + "/labels.out";
+    w1_path = string(argv[4]) + "/w1.out";
+    w2_path = string(argv[4]) + "/w2.out";
+    wo_path = string(argv[4]) + "/wo.out";
+    b1_path = string(argv[4]) + "/b1.out";
+    b2_path = string(argv[4]) + "/b2.out";
+    bo_path = string(argv[4]) + "/bo.out";
 
     // load the input data
     ff::load_matrix_data(pdbClient, input_path, "ff", "inputs",
@@ -80,12 +100,12 @@ int main(int argc, char *argv[]) {
                                false, true, errMsg);
     (void)ff::load_matrix_data(pdbClient, bo_path, "ff", "bo", block_x, block_y,
                                false, true, errMsg);
-  } else {
-    batch_size = 400;
+  } else if (reloadData) {
+    batch_size = 100;
     // block_x = 20;
     // block_y = 20;
 
-    int features = 5000;
+    int features = 100;
     int hid1_size = 128;
     int hid2_size = 256;
     int num_labels = 2;

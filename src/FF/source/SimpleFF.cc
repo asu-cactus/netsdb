@@ -147,7 +147,7 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
 
     auto begin = std::chrono::high_resolution_clock::now();
     // run the computation
-    if (!pdbClient.executeComputations(errMsg, "inference-1", false, myWriter)) {
+    if (!pdbClient.executeComputations(errMsg, "inference-1", true, myWriter)) {
       cout << "Computation failed. Message was: " << errMsg << "\n";
       exit(1);
     }
@@ -211,7 +211,7 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
 
     auto begin = std::chrono::high_resolution_clock::now();
     // run the computation
-    if (!pdbClient.executeComputations(errMsg, "inference-2", false, myWriter)) {
+    if (!pdbClient.executeComputations(errMsg, "inference-2", true, myWriter)) {
       cout << "Computation failed. Message was: " << errMsg << "\n";
       exit(1);
     }
@@ -271,7 +271,7 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
 
     auto begin = std::chrono::high_resolution_clock::now();
     // run the computation
-    if (!pdbClient.executeComputations(errMsg, "inference-3", false, myWriter)) {
+    if (!pdbClient.executeComputations(errMsg, "inference-3", true, myWriter)) {
       cout << "Computation failed. Message was: " << errMsg << "\n";
       exit(1);
     }
@@ -327,7 +327,7 @@ void inference(pdb::PDBClient &pdbClient, string database, string w1, string w2,
 
     auto begin = std::chrono::high_resolution_clock::now();
     // run the computation
-    if (!pdbClient.executeComputations(errMsg, "inference-3", false, sumWriter)) {
+    if (!pdbClient.executeComputations(errMsg, "inference-3", true, sumWriter)) {
       cout << "Computation failed. Message was: " << errMsg << "\n";
       exit(1);
     }
