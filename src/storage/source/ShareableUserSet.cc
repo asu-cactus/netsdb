@@ -21,7 +21,9 @@ ShareableUserSet::ShareableUserSet(
     : UserSet(logger, shm, nodeId, dbId, typeId, setId, setName, pageCache,
               localityType, policy, operation, durability, persistence,
               pageSize, desiredSize),
-      sharedMetaPtr(nullptr), typeSets(typeSets) {}
+      sharedMetaPtr(nullptr), typeSets(typeSets) {
+  shared = true;
+}
 
 /**
  * Create a UserSet instance.
@@ -37,7 +39,9 @@ ShareableUserSet::ShareableUserSet(
     : UserSet(pageSize, logger, shm, nodeId, dbId, typeId, setId, setName, file,
               pageCache, localityType, policy, operation, durability,
               persistence, desiredSize),
-      sharedMetaPtr(sharedMetaPtr), typeSets(typeSets) {}
+      sharedMetaPtr(sharedMetaPtr), typeSets(typeSets) {
+  shared = true;
+}
 
 PartitionedShareableFileMetaDataPtr ShareableUserSet::getShareableMetaPtr() {
   return sharedMetaPtr;

@@ -136,6 +136,7 @@ public:
                    const std::string& format,
                    std::string& errMsg);
 
+  bool printStorageStats(std::string &errMsg);
 
 private:
     std::function<bool(Handle<SimpleRequestResult>)> generateResponseHandler(

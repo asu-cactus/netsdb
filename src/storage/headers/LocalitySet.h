@@ -149,6 +149,10 @@ public:
         return this->accessSequenceId - lastAccessSequenceId;
     }
 
+    bool isShared() {
+        return shared;
+    }
+
 protected:
     /**
      * Cached pages in the set, ordered by access sequenceId;
@@ -156,6 +160,7 @@ protected:
      */
     list<PDBPagePtr>* cachedPages;
 
+    bool shared = false;
 
     /*
      * Types of the data in the set:

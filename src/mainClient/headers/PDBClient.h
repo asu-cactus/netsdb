@@ -187,6 +187,8 @@ public:
   bool registerSet(std::pair<std::string, std::string> setAndDatabase,
                    PartitionPolicy::Policy policy, std::string &errMsg);
 
+  bool printStorageStats(std::string &errMsg);
+
   /**
    *
    * @param setAndDatabase

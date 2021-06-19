@@ -22,21 +22,29 @@ public:
         pthread_mutex_destroy(&cachedLock);
     }
 
-    void incHits() {
+    void incHits(bool shared=false) {
         pthread_mutex_lock(&hitLock);
         numHits ++;
+        if (shared) numSharedHits++;
         pthread_mutex_unlock(&hitLock);
     }
 
-    void incMisses() {
+    void incMisses(bool shared=false) {
         pthread_mutex_lock(&missLock);
         numMisses ++;
+        if (shared) numSharedMisses++;
         pthread_mutex_unlock(&missLock);
     }
 
     void incEvicted() {
         pthread_mutex_lock(&evictedLock);
         numEvicted ++;
+        pthread_mutex_unlock(&evictedLock);
+    }
+
+    void incShared() {
+        pthread_mutex_lock(&evictedLock);
+        numShared ++;
         pthread_mutex_unlock(&evictedLock);
     }
 
@@ -50,17 +58,22 @@ public:
         std::cout << "*****************" << std::endl;
         std::cout << "numHits: " << numHits << std::endl;
         std::cout << "numMisses: " << numMisses << std::endl;
+        std::cout << "numSharedHits: " << numSharedHits << std::endl;
+        std::cout << "numSharedMisses: " << numSharedMisses << std::endl;
         std::cout << "numEvicted: " << numEvicted << std::endl;
         std::cout << "numCached: " << numCached << std::endl;
+        std::cout << "numShared: " << numShared << std::endl;
         std::cout << "*****************" << std::endl;
     }
-
 
 private:
     int numHits = 0;
     int numMisses = 0;
     int numEvicted = 0;
     int numCached = 0;
+    int numSharedHits = 0;
+    int numSharedMisses = 0;
+    int numShared = 0;
     pthread_mutex_t hitLock;
     pthread_mutex_t missLock;
     pthread_mutex_t evictedLock;

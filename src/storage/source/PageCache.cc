@@ -377,7 +377,7 @@ PDBPagePtr PageCache::getPage(PartitionedFilePtr file,
     this->evictionLock();
     pthread_mutex_lock(&this->cacheMutex);
     if (this->containsPage(key) != true) {
-        this->stats.incMisses();
+        this->stats.incMisses(set->isShared());
         pthread_mutex_unlock(&this->cacheMutex);
         this->evictionUnlock();
         pthread_mutex_unlock(&this->evictionMutex);
@@ -417,7 +417,7 @@ PDBPagePtr PageCache::getPage(PartitionedFilePtr file,
         if (set != nullptr) {
             set->updateCachedPage(page);
         }
-        this->stats.incHits();
+        this->stats.incHits(set->isShared());
     }
 
     return page;
@@ -771,6 +771,10 @@ bool PageCache::evictPage(CacheKey key, bool tryFlushOrNot) {
     }
     stats.incEvicted();
     return true;
+}
+
+void PageCache::incSharedPages() {
+    this->stats.incShared();
 }
 
 bool PageCache::evictPage(PDBPagePtr page, LocalitySetPtr set) {

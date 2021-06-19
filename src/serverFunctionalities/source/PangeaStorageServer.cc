@@ -221,6 +221,7 @@ bool PangeaStorageServer::checkAndSharePage(PDBPagePtr myPage, Handle<AbstractIn
     if (pid == nullptr) return false;
 
     set->addSharedPage(pid);
+    this->getCache()->incSharedPages();
 
     return true;
 }

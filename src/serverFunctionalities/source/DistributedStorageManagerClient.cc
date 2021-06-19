@@ -14,6 +14,7 @@
 #include "DistributedStorageExportSet.h"
 #include "DistributedStorageClearSet.h"
 #include "DistributedStorageCleanup.h"
+#include "StorageGetStats.h"
 
 namespace pdb {
 
@@ -32,6 +33,16 @@ DistributedStorageManagerClient::~DistributedStorageManagerClient() {
 
 void DistributedStorageManagerClient::registerHandlers(PDBServer& forMe) {
     // no-op
+}
+
+bool DistributedStorageManagerClient::printStorageStats(std::string &errMsg) {
+    return simpleRequest<StorageGetStats, SimpleRequestResult, bool>(
+        logger,
+        port,
+        address,
+        false,
+        1024,
+        generateResponseHandler("Could not send StorageGetStats to distributed storage manager", errMsg));
 }
 
 bool DistributedStorageManagerClient::createDatabase(const std::string& databaseName,

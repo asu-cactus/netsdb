@@ -54,6 +54,9 @@ bool PDBClient::createDatabase(const std::string &databaseName,
   return distributedStorageClient.createDatabase(databaseName, errMsg);
 }
 
+bool PDBClient::printStorageStats(std::string &errMsg) {
+  return distributedStorageClient.printStorageStats(errMsg);
+}
 
 bool PDBClient::createSet(const std::string &databaseName,
                           const std::string &setName,

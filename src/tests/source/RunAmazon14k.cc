@@ -165,5 +165,7 @@ int main(int argc, char *argv[]) {
     } 
   }
 
+  pdbClient.printStorageStats(errMsg);
+
   return 0;
 }

@@ -36,6 +36,7 @@
 #include "StorageExportSet.h"
 #include "StorageClearSet.h"
 #include "StorageCleanup.h"
+#include "StorageGetStats.h"
 #include "Configuration.h"
 #include "SelfLearningServer.h"
 #include "SetScan.h"
@@ -571,6 +572,53 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                 }
             }
 #endif
+
+            Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(res, errMsg);
+            res = sendUsingMe->sendObject(response, errMsg);
+            return make_pair(res, errMsg);
+        }));
+
+    forMe.registerHandler(
+        StorageGetStats_TYPEID,
+        make_shared<SimpleRequestHandler<StorageGetStats>>([&](
+            Handle<StorageGetStats> request, PDBCommunicatorPtr sendUsingMe) {
+            const UseTemporaryAllocationBlock tempBlock{8 * 1024 * 1024};
+            auto begin = std::chrono::high_resolution_clock::now();
+            auto beforeCreateSet = begin;
+            auto afterCreateSet = begin;
+
+            PDB_COUT << "received StorageGetStats message" << std::endl;
+            std::string errMsg;
+            mutex lock;
+
+            auto successfulNodes = std::vector<std::string>();
+            auto failureNodes = std::vector<std::string>();
+            auto nodesToBroadcast = std::vector<std::string>();
+
+            std::vector<std::string> allNodes;
+            const auto nodes = getFunctionality<ResourceManagerServer>().getAllNodes();
+            for (int i = 0; i < nodes->size(); i++) {
+                std::string address = static_cast<std::string>((*nodes)[i]->getAddress());
+                std::string port = std::to_string((*nodes)[i]->getPort());
+                allNodes.push_back(address + ":" + port);
+            }
+            nodesToBroadcast = allNodes;
+
+            Handle<StorageGetStats> storageCmd = makeObject<StorageGetStats>();
+
+            std::cout << "to broadcast StorageGetStats" << std::endl; 
+            getFunctionality<DistributedStorageManagerServer>()
+                .broadcast<StorageGetStats, Object, SimpleRequestResult>(
+                    storageCmd,
+                    nullptr,
+                    nodesToBroadcast,
+                    generateAckHandler(successfulNodes, failureNodes, lock));
+            std::cout << "broadcasted StorageAddSet" << std::endl;
+
+            bool res = true;
+            if (failureNodes.size() > 0) {
+                res = false;
+            }
 
             Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(res, errMsg);
             res = sendUsingMe->sendObject(response, errMsg);

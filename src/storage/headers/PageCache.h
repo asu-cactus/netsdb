@@ -186,6 +186,7 @@ public:
     // otherwise, return false.
     bool containsPage(CacheKey key);
 
+    void incSharedPages();
 
     // Evict all dirty pages
     int evictAllDirtyPages();
