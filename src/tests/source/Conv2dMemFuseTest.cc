@@ -32,6 +32,9 @@
 #include "WriteUserSet.h"
 using namespace std;
 
+
+
+
 void load_rnd_img(int x, int y, int z, int size, pdb::PDBClient &pdbClient,
                   pdb::String dbName, pdb::String setName) {
   std::string errMsg;
@@ -87,17 +90,18 @@ void load_rnd_img(int x, int y, int z, int size, pdb::PDBClient &pdbClient,
 
 namespace test_common {
 void create_database(pdb::PDBClient &pdbClient, std::string dbName,
-                     std::vector<std::string> sets) {
+                     std::vector<std::string> sets, bool whetherToCreateDatabase=true) {
   std::string errMsg;
   std::cout << "Setting up database..." << std::endl;
 
-  pdbClient.removeDatabase(dbName, errMsg);
-  if (!pdbClient.createDatabase(dbName, errMsg)) {
-    cout << "Not able to create database " << dbName << ": " << errMsg << endl;
-  } else {
-    cout << "Created database " << dbName << endl;
+  if (whetherToCreateDatabase) {
+      pdbClient.removeDatabase(dbName, errMsg);
+      if (!pdbClient.createDatabase(dbName, errMsg)) {
+          cout << "Not able to create database " << dbName << ": " << errMsg << endl;
+      } else {
+          cout << "Created database " << dbName << endl;
+      }
   }
-
   for (auto &s : sets) {
     pdbClient.removeSet(dbName, s, errMsg);
     if (!pdbClient.createSet<conv2d_memory_fusion::Image>(
@@ -133,12 +137,12 @@ void conv2d_op(pdb::PDBClient &pdbClient, std::string dbName, std::string image,
   myWriteSet->setInput(myAggregation);
 
   // run the computation
-  if (!pdbClient.executeComputations(errMsg, res, myWriteSet)) {
+  if (!pdbClient.executeComputations(errMsg, "conv2d", false, myWriteSet)) {
     cout << "Computation failed. Message was: " << errMsg << "\n";
     exit(1);
   }
 
-  pdbClient.flushData(errMsg);
+  //pdbClient.flushData(errMsg);
 }
 
 void conv2d_result_to_chunks(pdb::PDBClient &pdbClient, int images, std::string dbName, std::string result, std::string to) {
@@ -162,7 +166,7 @@ void conv2d_result_to_chunks(pdb::PDBClient &pdbClient, int images, std::string 
     exit(1);
   }
 
-  pdbClient.flushData(errMsg);
+  //pdbClient.flushData(errMsg);
 }
 } // namespace test_common
 
@@ -255,7 +259,7 @@ void img_to_chunks(pdb::PDBClient &pdbClient, std::string dbName,
     exit(1);
   }
 
-  pdbClient.flushData(errMsg);
+  //pdbClient.flushData(errMsg);
 }
 
 void chunks_to_blocks(pdb::PDBClient &pdbClient, std::string dbName,
@@ -281,7 +285,7 @@ void chunks_to_blocks(pdb::PDBClient &pdbClient, std::string dbName,
     exit(1);
   }
 
-  pdbClient.flushData(errMsg);
+  //pdbClient.flushData(errMsg);
 }
 
 void blocks_to_matrix(pdb::PDBClient &pdbClient, std::string dbName,
@@ -308,7 +312,7 @@ void blocks_to_matrix(pdb::PDBClient &pdbClient, std::string dbName,
     cout << "Computation failed. Message was: " << errMsg << "\n";
     exit(1);
   }
-  pdbClient.flushData(errMsg);
+  //pdbClient.flushData(errMsg);
 }
 } // namespace img_conv_flatten
 
@@ -337,7 +341,7 @@ void kernel_to_chunks(pdb::PDBClient &pdbClient, std::string dbName,
     exit(1);
   }
 
-  pdbClient.flushData(errMsg);
+  //pdbClient.flushData(errMsg);
 }
 
 void kernel_bias_join(pdb::PDBClient &pdbClient, std::string dbName,
@@ -366,7 +370,7 @@ void kernel_bias_join(pdb::PDBClient &pdbClient, std::string dbName,
     exit(1);
   }
 
-  pdbClient.flushData(errMsg);
+  //pdbClient.flushData(errMsg);
 }
 } // namespace kernel_conv_flatten
 
@@ -481,11 +485,13 @@ void test_kernel_conv_flatten(pdb::PDBClient &pdbClient, std::string dbName,
 
 void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
                           std::string imageset, std::string kernelset,
-                          std::string biasset) {
-  std::vector<std::string> sets{imageset,      kernelset,       biasset,
-                                "temp_image",  "temp_image1",   "temp_image2",
-                                "temp_kernel", "temp_kernel1", "temp_kernel2",
-                                "kernel_flat", "result", "result_chunked", "result_chunked1", "result_chunked2"};
+                          std::string biasset, bool reloadData) {
+  std::vector<std::string> allSets{imageset,      kernelset,       biasset,  "temp_kernel", "temp_kernel1", "temp_kernel2", "kernel_flat", "temp_image",  "temp_image1",   "temp_image2",
+                                "result", "result_chunked", "result_chunked1", "result_chunked2"};
+
+  std::vector<std::string> intermediateSets{"temp_image",  "temp_image1",   "temp_image2",
+                                "result", "result_chunked", "result_chunked1", "result_chunked2"};
+
   std::string errMsg;
 
   int block_x = 10;
@@ -496,78 +502,139 @@ void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
   bool block_padding = true;
   int channels = 2;
 
-  test_common::create_database(pdbClient, dbName, sets);
+  if (reloadData) {
 
-  std::cout << "Loading image data..." << std::endl;
-  conv2d_memory_fusion::load_imgs_from_file<conv2d_memory_fusion::Image>(
-      pdbClient, "/usr/data/conv2d/images_1.np", dbName, imageset);
-  img_conv_flatten::verify_data(pdbClient, dbName, imageset);
+      test_common::create_database(pdbClient, dbName, allSets, reloadData);
 
-  std::cout << "Loading kernel data..." << std::endl;
-  conv2d_memory_fusion::load_imgs_from_file<conv2d_memory_fusion::Kernel>(
-      pdbClient, "/usr/data/conv2d/kernel_3.np", dbName, kernelset);
-  img_conv_flatten::verify_data(pdbClient, dbName, kernelset);
+      std::cout << "Loading image data..." << std::endl;
+      conv2d_memory_fusion::load_imgs_from_file<conv2d_memory_fusion::Image>(
+          pdbClient, "/home/ubuntu/conv2d/images_1.np", dbName, imageset);
 
-  std::cout << "Loading bias data..." << std::endl;
-  ff::load_matrix_data(pdbClient, "/usr/data/conv2d/bias_3.np", dbName, biasset,
-                       block_x, 1, !block_padding, !block_padding, errMsg);
-  ff::print(pdbClient, dbName, biasset);
+#ifdef PROFILING_CONV2D
+      img_conv_flatten::verify_data(pdbClient, dbName, imageset);
+#endif
+
+      std::cout << "Loading kernel data..." << std::endl;
+      conv2d_memory_fusion::load_imgs_from_file<conv2d_memory_fusion::Kernel>(
+          pdbClient, "/home/ubuntu/conv2d/kernel_3.np", dbName, kernelset);
+
+#ifdef PROFILING_CONV2D
+      img_conv_flatten::verify_data(pdbClient, dbName, kernelset);
+#endif
+      std::cout << "Loading bias data..." << std::endl;
+      ff::load_matrix_data(pdbClient, "/home/ubuntu/conv2d/bias_3.np", dbName, biasset,
+          block_x, 1, !block_padding, !block_padding, errMsg);
+#ifdef PROFILING_CONV2D
+      ff::print(pdbClient, dbName, biasset);
+#endif
+  }
+  else {
+
+      test_common::create_database(pdbClient, dbName, intermediateSets, reloadData);
+  }
 
   // Image ops
   std::cout << "Running image ops..." << std::endl;
 
+  auto image_begin = std::chrono::high_resolution_clock::now();
   img_conv_flatten::img_to_chunks(pdbClient, dbName, imageset, "temp_image",
                                   block_x, block_y, strides, kernel, padding);
+
+
+#ifdef PROFILING_CONV2D
   img_conv_flatten::verify_chunks(pdbClient, dbName, "temp_image");
+#endif
 
   img_conv_flatten::chunks_to_blocks(pdbClient, dbName, "temp_image",
                                      "temp_image1", block_x);
+
+#ifdef PROFILING_CONV2D
   img_conv_flatten::verify_blocks(pdbClient, dbName, "temp_image1");
+#endif
 
   img_conv_flatten::blocks_to_matrix(pdbClient, dbName, "temp_image1",
                                      "temp_image2", block_x, block_y,
                                      block_padding, 16, 18 + 1);
+
+#ifdef PROFILING_CONV2D
   ff::print(pdbClient, dbName, "temp_image2");
+#endif
+  auto image_end = std::chrono::high_resolution_clock::now();
+  auto kernel_flat_begin = std::chrono::high_resolution_clock::now();
+  if (reloadData) {
+  //if (true) {
+      // kernel ops
+      std::cout << "Running kernel ops..." << std::endl;
 
-  // kernel ops
-  std::cout << "Running kernel ops..." << std::endl;
 
-  kernel_conv_flatten::kernel_to_chunks(pdbClient, dbName, kernelset,
+      kernel_conv_flatten::kernel_to_chunks(pdbClient, dbName, kernelset,
                                         "temp_kernel", block_x, block_y);
-  img_conv_flatten::verify_chunks(pdbClient, dbName, "temp_kernel");
 
-  img_conv_flatten::chunks_to_blocks(pdbClient, dbName, "temp_kernel",
+  #ifdef PROFILING_CONV2D
+      img_conv_flatten::verify_chunks(pdbClient, dbName, "temp_kernel");
+  #endif
+
+      img_conv_flatten::chunks_to_blocks(pdbClient, dbName, "temp_kernel",
                                      "temp_kernel1", block_x);
-  img_conv_flatten::verify_blocks(pdbClient, dbName, "temp_kernel1");
 
-  img_conv_flatten::blocks_to_matrix(pdbClient, dbName, "temp_kernel1",
+  #ifdef PROFILING_CONV2D
+      img_conv_flatten::verify_blocks(pdbClient, dbName, "temp_kernel1");
+  #endif
+
+      img_conv_flatten::blocks_to_matrix(pdbClient, dbName, "temp_kernel1",
                                      "temp_kernel2", block_x, block_y,
                                      block_padding, 3, 18 + 1);
-  img_conv_flatten::verify_matrices(pdbClient, dbName, "temp_kernel2");
 
-  // kernel bias join
-  std::cout << "Running kernel bias join..." << std::endl;
+  #ifdef PROFILING_CONV2D
+      img_conv_flatten::verify_matrices(pdbClient, dbName, "temp_kernel2");
+  #endif
 
-  kernel_conv_flatten::kernel_bias_join(pdbClient, dbName, "temp_kernel2",
+      // kernel bias join
+      std::cout << "Running kernel bias join..." << std::endl;
+
+
+      kernel_conv_flatten::kernel_bias_join(pdbClient, dbName, "temp_kernel2",
                                         biasset, "kernel_flat");
-  ff::print(pdbClient, dbName, "kernel_flat");
+  
+  #ifdef PROFILING_CONV2D
+      ff::print(pdbClient, dbName, "kernel_flat");
+  #endif
+
+
+  }
+  auto kernel_flat_end = std::chrono::high_resolution_clock::now();
+
 
   // multiply
   std::cout << "Running conv2d op..." << std::endl;
 
+  auto conv2d_begin = std::chrono::high_resolution_clock::now();
+
   test_common::conv2d_op(pdbClient, dbName, "temp_image2", "kernel_flat", "result");
+
+  auto conv2d_end = std::chrono::high_resolution_clock::now();
+
+#ifdef PROFILING_CONV2D
   ff::print(pdbClient, dbName, "result");
+#endif
 
   // result gather
   std::cout << "gathering results..." << std::endl;
 
+  auto result_begin = std::chrono::high_resolution_clock::now();
+
   test_common::conv2d_result_to_chunks(pdbClient, 1, dbName, "result", "result_chunked");
+
+#ifdef PROFILING_CONV2D
   img_conv_flatten::verify_chunks(pdbClient, dbName, "result_chunked");
+#endif
 
   img_conv_flatten::chunks_to_blocks(pdbClient, dbName, "result_chunked",
                                      "result_chunked1", 16);
-  img_conv_flatten::verify_blocks(pdbClient, dbName, "result_chunked1");
 
+#ifdef PROFILING_CONV2D
+  img_conv_flatten::verify_blocks(pdbClient, dbName, "result_chunked1");
+#endif
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
@@ -589,12 +656,39 @@ void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
     }
 
   }
+
+#ifdef PROFILING_CONV2D
   pdbClient.flushData(errMsg);
 
   img_conv_flatten::verify_data(pdbClient, dbName, "result_chunked2");
+#endif
+
+  auto result_end = std::chrono::high_resolution_clock::now();
+
+
+
+  std::cout << "Time Duration for image ops: "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(image_end - image_begin).count()
+              << " secs." << std::endl;
+
+  std::cout << "Time Duration for kernel flatterning ops: "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(kernel_flat_end - kernel_flat_begin).count()
+              << " secs." << std::endl;
+
+  std::cout << "Time Duration for conv2d: "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(conv2d_end - conv2d_begin).count()
+              << " secs." << std::endl;
+
+  std::cout << "Time Duration for result gathering: "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(result_end - result_begin).count()
+              << " secs." << std::endl;
+
 }
 
 int main(int argc, char *argv[]) {
+
+  
+
   string masterIp = "localhost";
   pdb::PDBLoggerPtr clientLogger =
       make_shared<pdb::PDBLogger>("Conv2DclientLog");
@@ -606,9 +700,16 @@ int main(int argc, char *argv[]) {
   string img_set = "img";
   string kernel_set = "kernel";
 
+  bool reloadData = true;
+  if (argc > 1) {
+      if (strcmp(argv[1], "N")==0) {
+          reloadData = false;
+      }
+  }
   // Load Libraries
 
-  {
+  if (reloadData) {
+
     if (!pdbClient.registerType("libraries/libFFMatrixData.so", errMsg)) {
       cout << "Couldnt include "
            << "libraries/libFFMatrixData.so"
@@ -741,7 +842,7 @@ int main(int argc, char *argv[]) {
   // test_single_img_conv_flatten(pdbClient, dbName, img_set);
   // test_multiple_img_conv_flatten(pdbClient, dbName, img_set);
   // test_kernel_conv_flatten(pdbClient, dbName, kernel_set);
-  test_conv2d_multiply(pdbClient, dbName, img_set, kernel_set, "bias");
+  test_conv2d_multiply(pdbClient, dbName, img_set, kernel_set, "bias", reloadData);
 
   return 0;
 }

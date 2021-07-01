@@ -104,6 +104,8 @@ void cleanup(pdb::PDBClient &pdblient, string database) {
   // pdblient.removeSet(database, "yo", errMsg);
 }
 
+static bool materializeHash = true;
+
 void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
                        string w2, string wo, string inputs, string b1,
                        string b2, string bo, double dropout_rate, bool enablePartition) {
@@ -147,7 +149,7 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
 
     auto begin = std::chrono::high_resolution_clock::now();
     // run the computation
-    if (!pdbClient.executeComputations(errMsg, "inference-1", true, myWriter)) {
+    if (!pdbClient.executeComputations(errMsg, "inference-1", materializeHash, myWriter)) {
       cout << "Computation failed. Message was: " << errMsg << "\n";
       exit(1);
     }
@@ -157,15 +159,16 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
               << " secs." << std::endl;
   }
 
-   pdbClient.flushData (errMsg);
+   //pdbClient.flushData (errMsg);
 
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
-
+#ifdef DEBUG_SIMPLE_FF
     print_stats(pdbClient, database, w1);
     print_stats(pdbClient, database, inputs);
     print_stats(pdbClient, database, b1);
     print_stats(pdbClient, database, "y1");
+#endif
 #ifdef DEBUG_SIMPLE_FF_VERBOSE
     print(pdbClient, database, w1);
     print(pdbClient, database, inputs);
@@ -211,7 +214,7 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
 
     auto begin = std::chrono::high_resolution_clock::now();
     // run the computation
-    if (!pdbClient.executeComputations(errMsg, "inference-2", true, myWriter)) {
+    if (!pdbClient.executeComputations(errMsg, "inference-2", materializeHash, myWriter)) {
       cout << "Computation failed. Message was: " << errMsg << "\n";
       exit(1);
     }
@@ -221,15 +224,16 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
               << " secs." << std::endl;
   }
 
-   pdbClient.flushData (errMsg);
+   //pdbClient.flushData (errMsg);
 
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
-
+#ifdef DEBUG_SIMPLE_FF
     print_stats(pdbClient, database, w2);
     print_stats(pdbClient, database, "y1");
     print_stats(pdbClient, database, b2);
     print_stats(pdbClient, database, "y2");
+#endif
 #ifdef DEBUG_SIMPLE_FF_VERBOSE
     print(pdbClient, database, w2);
     print(pdbClient, database, "y1");
@@ -271,7 +275,7 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
 
     auto begin = std::chrono::high_resolution_clock::now();
     // run the computation
-    if (!pdbClient.executeComputations(errMsg, "inference-3", true, myWriter)) {
+    if (!pdbClient.executeComputations(errMsg, "inference-3", materializeHash, myWriter)) {
       cout << "Computation failed. Message was: " << errMsg << "\n";
       exit(1);
     }
@@ -281,15 +285,16 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
               << " secs." << std::endl;
   }
 
-   pdbClient.flushData (errMsg);
+   //pdbClient.flushData (errMsg);
 
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
-
+#ifdef DEBUG_SIMPLE_FF
     print_stats(pdbClient, database, wo);
     print_stats(pdbClient, database, "y2");
     print_stats(pdbClient, database, bo);
     print_stats(pdbClient, database, "yo");
+#endif
 #ifdef DEBUG_SIMPLE_FF_VERBOSE
     print(pdbClient, database, wo);
     print(pdbClient, database, "y2");
@@ -327,7 +332,7 @@ void inference(pdb::PDBClient &pdbClient, string database, string w1, string w2,
 
     auto begin = std::chrono::high_resolution_clock::now();
     // run the computation
-    if (!pdbClient.executeComputations(errMsg, "inference-3", true, sumWriter)) {
+    if (!pdbClient.executeComputations(errMsg, "inference-3", materializeHash, sumWriter)) {
       cout << "Computation failed. Message was: " << errMsg << "\n";
       exit(1);
     }

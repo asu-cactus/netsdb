@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
   }
   cout << "Using block dimensions " << block_x << ", " << block_y << endl;
 
-  bool generate = argc == 4;
+  bool generate = true;
 
   string masterIp = "localhost";
   pdb::PDBLoggerPtr clientLogger = make_shared<pdb::PDBLogger>("FFclientLog");
@@ -111,37 +111,55 @@ int main(int argc, char *argv[]) {
     int num_labels = 2;
 
     // X x features_size = None x 5000
+    std::cout << "To load matrix for ff:inputs" << std::endl;
     ff::loadMatrix(pdbClient, "ff", "inputs", batch_size, features, block_x,
                    block_y, false, false, errMsg);
     // X x labels_size = ???
     // ff::loadMatrix(pdbClient, "ff", "label", 64, null, 1, 100, 2, errMsg);
 
     // 128 x features_size = 128 x 5000
+    std::cout << "To load matrix for ff:w1" << std::endl;
     ff::loadMatrix(pdbClient, "ff", "w1", hid1_size, features, block_x, block_y,
                    false, false, errMsg);
     // 128 x 1
+    std::cout << "To load matrix for ff:b1" << std::endl;
     ff::loadMatrix(pdbClient, "ff", "b1", hid1_size, 1, block_x,
                    block_y, false, true, errMsg);
 
     // 256 x 128
+    std::cout << "To load matrix for ff:w2" << std::endl;
     ff::loadMatrix(pdbClient, "ff", "w2", hid2_size, hid1_size, block_x,
                    block_y, false, false, errMsg);
     // 256 x 1
+    std::cout << "To load matrix for ff:b2" << std::endl;
     ff::loadMatrix(pdbClient, "ff", "b2", hid2_size, 1, block_x, block_y, false,
                    true, errMsg);
 
     // 2 x 256
+    std::cout << "To load matrix for ff:wo" << std::endl;
     ff::loadMatrix(pdbClient, "ff", "wo", num_labels, hid2_size, block_x,
                    block_y, false, false, errMsg);
     // 2 x 1
+    std::cout << "To load matrix for ff:bo" << std::endl;
     ff::loadMatrix(pdbClient, "ff", "bo", num_labels, 1, block_x, block_y,
                    false, true, errMsg);
   }
 
   double dropout_rate = 0.5;
 
+
+
+  auto begin = std::chrono::high_resolution_clock::now();
+
   ff::inference(pdbClient, "ff", "w1", "w2", "wo", "inputs", "b1", "b2", "bo",
                 "output", dropout_rate);
+
+  auto end = std::chrono::high_resolution_clock::now();
+  std::cout << "*****FFTest End-to-End Time Duration: ****"
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
+              << " secs." << std::endl;
+
+
 
   vector<vector<double>> labels_test;
 

@@ -263,6 +263,8 @@ inline PipelinePtr ComputePlan::buildPipeline(std::vector<std::string> buildThes
                                               std::function<void(void*)> discardTempPage,
                                               std::function<void(void*)> writeBackPage) {
 
+
+    auto begin = std::chrono::high_resolution_clock::now();
     std::map<std::string, ComputeInfoPtr> params;
     return buildPipeline(buildTheseTupleSets,
                          sourceTupleSetName,
@@ -271,6 +273,10 @@ inline PipelinePtr ComputePlan::buildPipeline(std::vector<std::string> buildThes
                          discardTempPage,
                          writeBackPage,
                          params);
+    auto end = std::chrono::high_resolution_clock::now();
+    std::cout << "BuildPipeline Duration for : " << sourceTupleSetName << "-" << targetComputationName 
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
+              << " secs." << std::endl;
 }
 
 
@@ -301,6 +307,7 @@ inline PipelinePtr ComputePlan::buildPipeline(std::vector<std::string> buildThes
                                               std::function<void(void*)> writeBackPage,
                                               std::map<std::string, ComputeInfoPtr>& params) {
 
+    auto begin = std::chrono::high_resolution_clock::now();
 
     // build the plan if it is not already done
     if (myPlan == nullptr)
@@ -566,6 +573,10 @@ inline PipelinePtr ComputePlan::buildPipeline(std::vector<std::string> buildThes
         lastOne = a;
     }
     // std :: cout << "Sink: " << targetSpec << " [" << targetProjection << "]\n";
+    auto end = std::chrono::high_resolution_clock::now();
+    std::cout << "BuildPipeline Duration for : " << sourceTupleSetName << "-" << targetComputationName
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
+              << " secs." << std::endl;
     return returnVal;
 }
 
