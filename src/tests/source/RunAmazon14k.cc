@@ -32,6 +32,7 @@ void executeModel(pdb::PDBClient &pdbClient, string dbname, int modelVer) {
   string inputName = getName("inputs", modelVer);
   string w1Name = getName("w1", modelVer);
   string b1Name = getName("b1", modelVer);
+  string y1Name = getName("y1", modelVer);
   string w2Name = getName("w2", modelVer);
   string b2Name = getName("b2", modelVer);
   string outputName = getName("output", modelVer);
@@ -63,6 +64,34 @@ void executeModel(pdb::PDBClient &pdbClient, string dbname, int modelVer) {
     reluBias->setInput(0, aggW1Inp);
     reluBias->setInput(1, readB1);
 
+    // make the writer
+    pdb::Handle<pdb::Computation> myWriter =
+        pdb::makeObject<pdb::WriteUserSet<FFMatrixBlock>>(dbname, y1Name);
+    myWriter->setInput(reluBias);
+
+    auto begin = std::chrono::high_resolution_clock::now();
+    // run the computation
+    if (!pdbClient.executeComputations(errMsg, getName("inference-1", modelVer),
+                                       myWriter)) {
+      cout << "Computation failed. Message was: " << errMsg << "\n";
+      exit(1);
+    }
+    auto end = std::chrono::high_resolution_clock::now();
+    std::cout << "Amazon 14k Inference Stage 1 Time Duration for model version "
+              << modelVer << ": "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end -
+                                                                          begin)
+                     .count()
+              << " secs." << std::endl;
+
+  }
+
+  {
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+    // make the computation
+    pdb::Handle<pdb::Computation> readY1 =
+        pdb::makeObject<pdb::ScanUserSet<FFMatrixBlock>>(dbname, y1Name);
     // make the computation
     pdb::Handle<pdb::Computation> readW2 =
         pdb::makeObject<pdb::ScanUserSet<FFMatrixBlock>>(dbname, w2Name);
@@ -70,7 +99,7 @@ void executeModel(pdb::PDBClient &pdbClient, string dbname, int modelVer) {
     pdb::Handle<pdb::Computation> joinW2A1 =
         pdb::makeObject<FFInputLayerJoin>();
     joinW2A1->setInput(0, readW2);
-    joinW2A1->setInput(1, reluBias);
+    joinW2A1->setInput(1, readY1);
 
     // make the aggregation
     pdb::Handle<pdb::Computation> aggW2A1 = pdb::makeObject<FFAggMatrix>();
@@ -92,13 +121,13 @@ void executeModel(pdb::PDBClient &pdbClient, string dbname, int modelVer) {
 
     auto begin = std::chrono::high_resolution_clock::now();
     // run the computation
-    if (!pdbClient.executeComputations(errMsg, getName("inference", modelVer),
+    if (!pdbClient.executeComputations(errMsg, getName("inference-2", modelVer),
                                        myWriter)) {
       cout << "Computation failed. Message was: " << errMsg << "\n";
       exit(1);
     }
     auto end = std::chrono::high_resolution_clock::now();
-    std::cout << "Amazon 14k Inference Time Duration for model version "
+    std::cout << "Amazon 14k Inference State 2 Time Duration for model version "
               << modelVer << ": "
               << std::chrono::duration_cast<std::chrono::duration<float>>(end -
                                                                           begin)
@@ -134,13 +163,16 @@ int main(int argc, char *argv[]) {
   ff::loadLibrary(pdbClient, "libraries/libFFTransposeMult.so");
 
   for (int i = 0; i < numModels; i++) {
-      string setName = getName("output", i);
-      pdbClient.removeSet(dbName, setName, errMsg);
+      string outputName = getName("output", i);
+      string y1Name = getName("y1", i);
+      pdbClient.removeSet(dbName, y1Name, errMsg);
+      pdbClient.removeSet(dbName, outputName, errMsg);
 
     {
         const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
-        if (!ff::is_empty_set(pdbClient, catalogClient, dbName, setName)) {
+        if (!ff::is_empty_set(pdbClient, catalogClient, dbName, outputName) ||
+            !ff::is_empty_set(pdbClient, catalogClient, dbName, y1Name)) {
             cout << "Old data exists!" << endl;
             exit(1);
         }
@@ -148,10 +180,14 @@ int main(int argc, char *argv[]) {
   }
 
   for (int i = 0; i < numModels; i++) {
-      string setName = getName("output", i);
-      string setName1 = getName1("output", i);
-      if (!catalogClient.setExists(dbName, setName))
-        ff::createSet(pdbClient, dbName, setName, setName1, 64);
+      string outputName = getName("output", i);
+      string outputName1 = getName1("output", i);
+      string y1Name = getName("y1", i);
+      string y1Name1 = getName1("y1", i);
+      if (!catalogClient.setExists(dbName, outputName))
+        ff::createSet(pdbClient, dbName, outputName, outputName1, 64);
+      if (!catalogClient.setExists(dbName, y1Name))
+        ff::createSet(pdbClient, dbName, y1Name, y1Name1, 64);
   }
 
   if (argc == 3) {
