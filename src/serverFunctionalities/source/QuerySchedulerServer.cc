@@ -1078,67 +1078,65 @@ bool QuerySchedulerServer::checkMaterialize(bool materializeThisWorkloadOrNot,
 
     bool ret = false;
 
-    if (materializeThisWorkloadOrNot == false) {
 
-        std::cout << "we check whether any of the " << jobStages.size() << " stages should trigger a materialization" << std::endl;
+    std::cout << "we check whether any of the " << jobStages.size() << " stages should trigger a materialization" << std::endl;
 
-        for (int i = 0; i < jobStages.size(); i++) {
+    for (int i = 0; i < jobStages.size(); i++) {
 
-           std::cout << "to check the " << i << "-th stage" << std::endl;
+        std::cout << "to check the " << i << "-th stage" << std::endl;
 
-           if (whetherToMaterialize(jobStages[i]) == true) {
+        if (whetherToMaterialize(jobStages[i]) == true) {
 
-               Handle<AbstractJobStage> curStage = jobStages[i];
+           Handle<AbstractJobStage> curStage = jobStages[i];
 
-               curStage->setMaterializeOutput(true);
-               ret = true;
-               Handle<SetIdentifier> sinkSetIdentifier = makeObject<SetIdentifier>();
+           curStage->setMaterializeOutput(true);
+           ret = true;
+           Handle<SetIdentifier> sinkSetIdentifier = makeObject<SetIdentifier>();
 
-               std::string stageType = curStage->getJobStageType();
-               std::cout << "the stageType is " << stageType << std::endl;
-               if (stageType == "TupleSetJobStage") {
-                   Handle<TupleSetJobStage> castedStage = unsafeCast<TupleSetJobStage>(curStage);
-                   sinkSetIdentifier = castedStage->getSinkContext();           
-               } else if (stageType == "AggregationJobStage") {
-                   Handle<AggregationJobStage> castedStage = unsafeCast<AggregationJobStage>(curStage);
-                   sinkSetIdentifier = castedStage->getSinkContext();
-               } else if (stageType == "BroadcastJoinBuildHTJobStage") {
-                   Handle<BroadcastJoinBuildHTJobStage> castedStage = unsafeCast<BroadcastJoinBuildHTJobStage>(curStage);
-                   sinkSetIdentifier->setDatabase("");
-                   sinkSetIdentifier->setSetName (castedStage->getHashSetName());
-               } else if (stageType == "HashPartitionedJoinBuildHTJobStage") {
-                   Handle<HashPartitionedJoinBuildHTJobStage> castedStage = unsafeCast<HashPartitionedJoinBuildHTJobStage>(curStage);
-                   sinkSetIdentifier->setDatabase("");
-                   sinkSetIdentifier->setSetName (castedStage->getHashSetName());
-               } else {
+           std::string stageType = curStage->getJobStageType();
+           std::cout << "the stageType is " << stageType << std::endl;
+           if (stageType == "TupleSetJobStage") {
+               Handle<TupleSetJobStage> castedStage = unsafeCast<TupleSetJobStage>(curStage);
+               sinkSetIdentifier = castedStage->getSinkContext();           
+           } else if (stageType == "AggregationJobStage") {
+               Handle<AggregationJobStage> castedStage = unsafeCast<AggregationJobStage>(curStage);
+               sinkSetIdentifier = castedStage->getSinkContext();
+           } else if (stageType == "BroadcastJoinBuildHTJobStage") {
+               Handle<BroadcastJoinBuildHTJobStage> castedStage = unsafeCast<BroadcastJoinBuildHTJobStage>(curStage);
+               sinkSetIdentifier->setDatabase("");
+               sinkSetIdentifier->setSetName (castedStage->getHashSetName());
+           } else if (stageType == "HashPartitionedJoinBuildHTJobStage") {
+               Handle<HashPartitionedJoinBuildHTJobStage> castedStage = unsafeCast<HashPartitionedJoinBuildHTJobStage>(curStage);
+               sinkSetIdentifier->setDatabase("");
+               sinkSetIdentifier->setSetName (castedStage->getHashSetName());
+           } else {
                    //do nothing
-               }
+           }
 
-               setsToMaterialize.push_back(sinkSetIdentifier);
-               break;
+           setsToMaterialize.push_back(sinkSetIdentifier);
+           break;
 
-           } 
+       } 
+    }
 
-        }
-
-        if (!ret) {
+    if (!ret) {
              
-             for (int i = 0; i < jobStages.size(); i++) {
+       for (int i = 0; i < jobStages.size(); i++) {
 
-                stagesToMaterialize.push_back(jobStages[i]);
+           stagesToMaterialize.push_back(jobStages[i]);
 
-             }
+       }
 
-             for (int i = 0; i < intermediateSets.size(); i++) {
+       for (int i = 0; i < intermediateSets.size(); i++) {
 
-                intermediateSetIdentifierToMaterialize.push_back(intermediateSets[i]);
+           intermediateSetIdentifierToMaterialize.push_back(intermediateSets[i]);
 
-             }
+       }
 
-        }        
+    }        
 
 
-    } else {
+    if ( materializeThisWorkloadOrNot == true ) {
 
         Handle<Map<String, String>> hashSetsToProbe = nullptr;
         int stageIndex = -1;
@@ -1183,20 +1181,10 @@ bool QuerySchedulerServer::checkMaterialize(bool materializeThisWorkloadOrNot,
             }
 
         }
-        for (int i = 0; i < jobStages.size(); i++) {
-        
-            stagesToMaterialize.push_back(jobStages[i]);
 
-        }
-
-        for (int i = 0; i < intermediateSets.size(); i++) {
-
-            intermediateSetIdentifierToMaterialize.push_back(intermediateSets[i]);
-
-        }
     }
 
-    return ret;
+    return (ret || materializeThisWorkloadOrNot);
 
 }
 

@@ -23,32 +23,38 @@ void load_imgs_from_file(PDBClient &pdbClient, string path, String dbName,
 
   int img_count, channels, x, y;
 
-  ifstream is(path);
-  while (is.peek() == '#' || is.peek() == ' ')
+  ifstream is;
+  is.open(path);
+/*  while (is.peek() == '#' || is.peek() == ' ')
     is.ignore();
 
   is >> img_count;
-
+  std::cout << "img_count=" << img_count << std::endl;
   while (is.peek() == ',' || is.peek() == ' ')
     is.ignore();
 
   is >> channels;
-
+  std::cout << "channels=" << channels << std::endl;
   while (is.peek() == ',' || is.peek() == ' ')
     is.ignore();
 
   is >> x;
-
+  std::cout << "x=" << x << std::endl;
   while (is.peek() == ',' || is.peek() == ' ')
     is.ignore();
 
   is >> y;
-
+  std::cout << "y=" << y << std::endl;
   cout << img_count << ", " << channels << ", " << x << ", " << y << endl;
+*/
 
+  img_count = 100;
+  channels = 3;
+  x = 112;
+  y = 112;
   int total = 0;
   double val;
-  pdb::makeObjectAllocatorBlock(128 * 1024 * 1024, true);
+  pdb::makeObjectAllocatorBlock(64 * 1024 * 1024, true);
 
   pdb::Handle<pdb::Vector<pdb::Handle<M>>> images =
       pdb::makeObject<pdb::Vector<pdb::Handle<M>>>();
@@ -92,6 +98,7 @@ void load_imgs_from_file(PDBClient &pdbClient, string path, String dbName,
       images = pdb::makeObject<pdb::Vector<pdb::Handle<M>>>();
     }
   }
+  is.close();
 
   if (!pdbClient.sendData<M>(pair<string, string>(setName, dbName), images,
                              errMsg)) {

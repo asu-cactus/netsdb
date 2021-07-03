@@ -213,7 +213,8 @@ void loadMatrix(pdb::PDBClient &pdbClient, pdb::String dbName,
                 pdb::String setName, int totalX, int totalY, int blockX,
                 int blockY, bool dont_pad_x, bool dont_pad_y, string &errMsg,
                 int size, bool partitionByCol) {
-
+  std::cout << "totalX=" << totalX << ", totalY=" << totalY
+            << ",blockX=" << blockX << ", blockY=" << blockY << std::endl;
   std::random_device rd;
 
   std::mt19937 e2(rd());
@@ -275,7 +276,7 @@ void loadMatrix(pdb::PDBClient &pdbClient, pdb::String dbName,
             jj = 0;
           }
 
-          // cout << "New block: " << total << endl;
+          std::cout << "New block: " << total << endl;
           storeMatrix1->push_back(myData);
           total++;
           j++;

@@ -621,6 +621,7 @@ void PipelineStage::executePipelineWork(int i,
 
     newPlan->nullifyPlanPointer();
     PDBPagePtr output = nullptr;
+    auto begin = std::chrono::high_resolution_clock::now();
     PipelinePtr curPipeline = newPlan->buildPipeline(
         buildTheseTupleSets,
         this->jobStage->getSourceTupleSetSpecifier(),
@@ -906,6 +907,11 @@ void PipelineStage::executePipelineWork(int i,
         },
 
         info);
+    auto end = std::chrono::high_resolution_clock::now();
+    std::cout << "BuildPipeline Duration for : " << this->jobStage->getSourceTupleSetSpecifier()
+              << "-" << this->jobStage->getTargetComputationSpecifier()
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
+              << " secs." << std::endl;
     std::cout << i<<": Running Pipeline\n";
     curPipeline->id = i;
     curPipeline->run();
