@@ -494,13 +494,13 @@ void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
 
   std::string errMsg;
 
-  int block_x = 10;
-  int block_y = 10;
-  int kernel = 3;
+  int block_x = 1000;
+  int block_y = 100;
+  int kernel = 7;//kernel shape should be $kernelx$kernel (e.g., 7x7)
   int strides = 1;
   int padding = 0;
   bool block_padding = true;
-  int channels = 2;
+  int channels = 3;
 
   if (reloadData) {
 
@@ -508,21 +508,26 @@ void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
 
       std::cout << "Loading image data..." << std::endl;
       conv2d_memory_fusion::load_imgs_from_file<conv2d_memory_fusion::Image>(
-          pdbClient, "/home/ubuntu/conv2d/images_1.np", dbName, imageset);
-
+     //     pdbClient, "/home/ubuntu/conv2d/images_1.np", dbName, imageset);
+     //     pdbClient, "/home/ubuntu/images_10_3_112_112.np", dbName, imageset);
+            pdbClient, "/home/ubuntu/images_100_3_112_112.np", dbName, imageset);
+     //     pdbClient, "/home/ubuntu/images_100.np", dbName, imageset);
+     //     pdbClient, "/home/ubuntu/images_100_3_224_224.np", dbName, imageset);
+     
 #ifdef PROFILING_CONV2D
       img_conv_flatten::verify_data(pdbClient, dbName, imageset);
 #endif
 
       std::cout << "Loading kernel data..." << std::endl;
       conv2d_memory_fusion::load_imgs_from_file<conv2d_memory_fusion::Kernel>(
-          pdbClient, "/home/ubuntu/conv2d/kernel_3.np", dbName, kernelset);
-
+      //    pdbClient, "/home/ubuntu/conv2d/kernel_3.np", dbName, kernelset);
+            pdbClient, "/home/ubuntu/conv2d/kernel_64_3_7_7.np", dbName, kernelset);
 #ifdef PROFILING_CONV2D
       img_conv_flatten::verify_data(pdbClient, dbName, kernelset);
 #endif
       std::cout << "Loading bias data..." << std::endl;
-      ff::load_matrix_data(pdbClient, "/home/ubuntu/conv2d/bias_3.np", dbName, biasset,
+      //ff::load_matrix_data(pdbClient, "/home/ubuntu/conv2d/bias_3.np", dbName, biasset,
+      ff::load_matrix_data(pdbClient, "/home/ubuntu/conv2d/bias_64.np", dbName, biasset,
           block_x, 1, !block_padding, !block_padding, errMsg);
 #ifdef PROFILING_CONV2D
       ff::print(pdbClient, dbName, biasset);
@@ -552,9 +557,12 @@ void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
   img_conv_flatten::verify_blocks(pdbClient, dbName, "temp_image1");
 #endif
 
+  //X: num_rows per flattened image  (112-7+1)(112-7+1)
+  //Y: num_cols per flattened image (7*7*3+1) why +1?
   img_conv_flatten::blocks_to_matrix(pdbClient, dbName, "temp_image1",
                                      "temp_image2", block_x, block_y,
-                                     block_padding, 16, 18 + 1);
+                                     block_padding, 1123600, 147 + 1);
+ 
 
 #ifdef PROFILING_CONV2D
   ff::print(pdbClient, dbName, "temp_image2");
@@ -583,7 +591,7 @@ void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
 
       img_conv_flatten::blocks_to_matrix(pdbClient, dbName, "temp_kernel1",
                                      "temp_kernel2", block_x, block_y,
-                                     block_padding, 3, 18 + 1);
+                                     block_padding, 64, 147 + 1);
 
   #ifdef PROFILING_CONV2D
       img_conv_flatten::verify_matrices(pdbClient, dbName, "temp_kernel2");
@@ -630,7 +638,7 @@ void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
 #endif
 
   img_conv_flatten::chunks_to_blocks(pdbClient, dbName, "result_chunked",
-                                     "result_chunked1", 16);
+                                     "result_chunked1", 11236);
 
 #ifdef PROFILING_CONV2D
   img_conv_flatten::verify_blocks(pdbClient, dbName, "result_chunked1");
@@ -642,7 +650,7 @@ void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
     pdb::Handle<pdb::Computation> readA =
         makeObject<ScanUserSet<conv2d_memory_fusion::ImageBlock>>(dbName, "result_chunked1");
 
-    pdb::Handle<pdb::Computation> chonk = pdb::makeObject<conv2d_memory_fusion::ConvChunksToImage>(4, 4, 3);
+    pdb::Handle<pdb::Computation> chonk = pdb::makeObject<conv2d_memory_fusion::ConvChunksToImage>(106, 106, 64);
     chonk->setInput(readA);
 
     Handle<Computation> myWriteSet =
