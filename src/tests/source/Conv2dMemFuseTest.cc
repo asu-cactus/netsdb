@@ -105,7 +105,7 @@ void create_database(pdb::PDBClient &pdbClient, std::string dbName,
   for (auto &s : sets) {
     pdbClient.removeSet(dbName, s, errMsg);
     if (!pdbClient.createSet<conv2d_memory_fusion::Image>(
-            dbName, s, errMsg, (size_t)128 * (size_t)1024 * (size_t)1024, s)) {
+            dbName, s, errMsg, (size_t)64 * (size_t)1024 * (size_t)1024, s)) {
       cout << "Not able to create set " + s + ": " + errMsg;
     } else {
       cout << "Created set " << s << ".\n";
@@ -486,7 +486,7 @@ void test_kernel_conv_flatten(pdb::PDBClient &pdbClient, std::string dbName,
 void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
                           std::string imageset, std::string kernelset,
                           std::string biasset, bool reloadData) {
-  std::vector<std::string> allSets{imageset,      kernelset,       biasset,  "temp_kernel", "temp_kernel1", "temp_kernel2", "kernel_flat", "temp_image",  "temp_image1",   "temp_image2",
+  std::vector<std::string> allSets{kernelset,       biasset,  "temp_kernel", "temp_kernel1", "temp_kernel2", "kernel_flat", "temp_image",  "temp_image1",   "temp_image2",
                                 "result", "result_chunked", "result_chunked1", "result_chunked2"};
 
   std::vector<std::string> intermediateSets{"temp_image",  "temp_image1",   "temp_image2",
@@ -494,7 +494,7 @@ void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
 
   std::string errMsg;
 
-  int block_x = 1000;
+  int block_x = 100;
   int block_y = 100;
   int kernel = 7;//kernel shape should be $kernelx$kernel (e.g., 7x7)
   int strides = 1;
@@ -505,6 +505,16 @@ void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
   if (reloadData) {
 
       test_common::create_database(pdbClient, dbName, allSets, reloadData);
+
+      pdbClient.removeSet(dbName, imageset, errMsg);
+      if (!pdbClient.createSet<conv2d_memory_fusion::Image>(
+            dbName, imageset, errMsg, (size_t)4 * (size_t)1024 * (size_t)1024, imageset)) {
+            cout << "Not able to create set " + imageset + ": " + errMsg;
+      } else {
+            cout << "Created set " << imageset << ".\n";
+      }
+
+
 
       std::cout << "Loading image data..." << std::endl;
       conv2d_memory_fusion::load_imgs_from_file<conv2d_memory_fusion::Image>(

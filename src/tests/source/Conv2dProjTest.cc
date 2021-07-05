@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
 
   bool createSetOrNot = true;
 
-  int numImages = 1000000;
+  int numImages = 100;
 
   string mode = "aten-conv2d";
   //string mode = "eigen-spatial";
@@ -133,32 +133,31 @@ int main(int argc, char *argv[]) {
   string dbName = "conv2d";
   string img_set = "img";
 
-  // Load Libraries
-  pdbClient.registerType("libraries/libConv2DSelect.so", errMsg);
-  pdbClient.registerType("libraries/libTensorData.so", errMsg);
-
-  //create input dataset
   if (createSetOrNot == true) {
+      // Load Libraries
+      pdbClient.registerType("libraries/libConv2DSelect.so", errMsg);
+      pdbClient.registerType("libraries/libTensorData.so", errMsg);
+
+      //create input dataset
       pdbClient.removeDatabase(dbName, errMsg);
       if (!pdbClient.createDatabase(dbName, errMsg)) {
           cout << "Not able to create database " << dbName << ": " << errMsg << endl;
       } else {
           cout << "Created database " << dbName << endl;
       }
-  }
 
-  pdbClient.removeSet(dbName, img_set, errMsg);
-  if (!pdbClient.createSet<pdb::TensorData>(
+      pdbClient.removeSet(dbName, img_set, errMsg);
+      if (!pdbClient.createSet<pdb::TensorData>(
             dbName, img_set, errMsg, (size_t)128 * (size_t)1024 * (size_t)1024)) {
-      cout << "Not able to create set " + img_set + ": " + errMsg;
-  } else {
-      cout << "Created set " << img_set << ".\n";
+          cout << "Not able to create set " + img_set + ": " + errMsg;
+      } else {
+          cout << "Created set " << img_set << ".\n";
+      }
   }
-
 
   //load data
   if (addDataOrNot == true) {
-      load_rnd_img(32, 32, 3, numImages, pdbClient, dbName, img_set);
+      load_rnd_img(112, 112, 3, numImages, pdbClient, dbName, img_set);
   }
  
   //create output dataset
@@ -171,6 +170,7 @@ int main(int argc, char *argv[]) {
       cout << "Created set " << feature_out_set << ".\n";
   }
 
+  auto begin1 = std::chrono::high_resolution_clock::now();
   pdb::makeObjectAllocatorBlock(64 * 1024 * 1024, true);
 
   //create scan computation
@@ -178,7 +178,7 @@ int main(int argc, char *argv[]) {
       pdb::makeObject<pdb::ScanUserSet<pdb::TensorData>>(dbName, img_set);
 
   pdb::Handle<pdb::Vector<unsigned int>> dimensions = pdb::makeObject<pdb::Vector<unsigned int>>(4);
-  unsigned int x=3, y=3, z=3, n=1;
+  unsigned int x=7, y=7, z=3, n=64;
   dimensions->push_back(n);
   dimensions->push_back(z);
   dimensions->push_back(y);
@@ -190,6 +190,7 @@ int main(int argc, char *argv[]) {
      (*(kernel->rawData))[i] = 0.5;
 
   }
+
 
   //create select computation
 //  pdb::Handle<pdb::Computation> select = pdb::makeObject<Conv2DSelect>(kernel, "aten-conv2d");
@@ -237,6 +238,9 @@ int main(int argc, char *argv[]) {
               << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
               << " secs." << std::endl;
 
+  std::cout << "Translation Overhead: "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(begin - begin1).count()
+              << " secs." << std::endl;
 
   return 0;
 }
