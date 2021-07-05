@@ -54,7 +54,7 @@ void load_imgs_from_file(PDBClient &pdbClient, string path, String dbName,
   y = 112;
   int total = 0;
   double val;
-  pdb::makeObjectAllocatorBlock(64 * 1024 * 1024, true);
+  pdb::makeObjectAllocatorBlock(4 * 1024 * 1024, true);
 
   pdb::Handle<pdb::Vector<pdb::Handle<M>>> images =
       pdb::makeObject<pdb::Vector<pdb::Handle<M>>>();
@@ -94,7 +94,7 @@ void load_imgs_from_file(PDBClient &pdbClient, string path, String dbName,
         exit(1);
       }
       std::cout << "Dispatched " << images->size() << " images." << std::endl;
-      pdb::makeObjectAllocatorBlock(128 * 1024 * 1024, true);
+      pdb::makeObjectAllocatorBlock(4 * 1024 * 1024, true);
       images = pdb::makeObject<pdb::Vector<pdb::Handle<M>>>();
     }
   }
