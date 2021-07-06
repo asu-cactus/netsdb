@@ -105,7 +105,7 @@ void create_database(pdb::PDBClient &pdbClient, std::string dbName,
   for (auto &s : sets) {
     pdbClient.removeSet(dbName, s, errMsg);
     if (!pdbClient.createSet<conv2d_memory_fusion::Image>(
-            dbName, s, errMsg, (size_t)64 * (size_t)1024 * (size_t)1024, s)) {
+            dbName, s, errMsg, (size_t)128 * (size_t)1024 * (size_t)1024, s)) {
       cout << "Not able to create set " + s + ": " + errMsg;
     } else {
       cout << "Created set " << s << ".\n";
@@ -137,7 +137,7 @@ void conv2d_op(pdb::PDBClient &pdbClient, std::string dbName, std::string image,
   myWriteSet->setInput(myAggregation);
 
   // run the computation
-  if (!pdbClient.executeComputations(errMsg, "conv2d", false, myWriteSet)) {
+  if (!pdbClient.executeComputations(errMsg, "conv2d", true, myWriteSet)) {
     cout << "Computation failed. Message was: " << errMsg << "\n";
     exit(1);
   }
@@ -494,7 +494,7 @@ void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
 
   std::string errMsg;
 
-  int block_x = 100;
+  int block_x = 1000;
   int block_y = 100;
   int kernel = 7;//kernel shape should be $kernelx$kernel (e.g., 7x7)
   int strides = 1;
@@ -508,7 +508,7 @@ void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
 
       pdbClient.removeSet(dbName, imageset, errMsg);
       if (!pdbClient.createSet<conv2d_memory_fusion::Image>(
-            dbName, imageset, errMsg, (size_t)4 * (size_t)1024 * (size_t)1024, imageset)) {
+            dbName, imageset, errMsg, (size_t)2 * (size_t)1024 * (size_t)1024, imageset)) {
             cout << "Not able to create set " + imageset + ": " + errMsg;
       } else {
             cout << "Created set " << imageset << ".\n";
@@ -579,8 +579,8 @@ void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
 #endif
   auto image_end = std::chrono::high_resolution_clock::now();
   auto kernel_flat_begin = std::chrono::high_resolution_clock::now();
-  if (reloadData) {
-  //if (true) {
+  //if (reloadData) {
+  if (true) {
       // kernel ops
       std::cout << "Running kernel ops..." << std::endl;
 

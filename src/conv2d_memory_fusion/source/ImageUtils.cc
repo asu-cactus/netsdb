@@ -54,20 +54,36 @@ void load_imgs_from_file(PDBClient &pdbClient, string path, String dbName,
   y = 112;
   int total = 0;
   double val;
-  pdb::makeObjectAllocatorBlock(4 * 1024 * 1024, true);
+  pdb::makeObjectAllocatorBlock(2 * 1024 * 1024, true);
 
   pdb::Handle<pdb::Vector<pdb::Handle<M>>> images =
       pdb::makeObject<pdb::Vector<pdb::Handle<M>>>();
 
   int im = 0;
   int c = 0;
-
+  int c_created = 0;
+  int image_created = 0;
+  bool rollback = false;
+  pdb::Handle<M> myData = nullptr;
+  pdb::Handle<FFMatrixBlock> chan = nullptr;
   while (im < img_count) {
     try {
-      pdb::Handle<M> myData = pdb::makeObject<M>(im, x, y, channels);
+      if (!rollback)
+          myData = pdb::makeObject<M>(im, x, y, channels);
 
+      if (rollback && (c_created > c)) {
+          myData->addChannel(chan);
+          c++;
+      }
+       
+      if (rollback && (image_created > im)) {
+          images->push_back(myData);
+          im++;
+          myData = pdb::makeObject<M>(im, x, y, channels);
+      }
+      rollback = false;
       while (c < channels) {
-        pdb::Handle<FFMatrixBlock> chan =
+        chan =
             pdb::makeObject<FFMatrixBlock>(0, 0, x, y, x, y);
 
         // Cant error out after this line, since all memory needed is already
@@ -81,12 +97,15 @@ void load_imgs_from_file(PDBClient &pdbClient, string path, String dbName,
               is.ignore();
           }
         }
+        c_created++;
         myData->addChannel(chan);
         c++;
       }
+      image_created++;
       images->push_back(myData);
       im++;
       c = 0;
+      c_created=0;
     } catch (pdb::NotEnoughSpace &e) {
       if (!pdbClient.sendData<M>(pair<string, string>(setName, dbName), images,
                                  errMsg)) {
@@ -94,8 +113,9 @@ void load_imgs_from_file(PDBClient &pdbClient, string path, String dbName,
         exit(1);
       }
       std::cout << "Dispatched " << images->size() << " images." << std::endl;
-      pdb::makeObjectAllocatorBlock(4 * 1024 * 1024, true);
+      pdb::makeObjectAllocatorBlock(2 * 1024 * 1024, true);
       images = pdb::makeObject<pdb::Vector<pdb::Handle<M>>>();
+      rollback = true;
     }
   }
   is.close();
