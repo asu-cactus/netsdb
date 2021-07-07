@@ -32,9 +32,6 @@
 #include "WriteUserSet.h"
 using namespace std;
 
-
-
-
 void load_rnd_img(int x, int y, int z, int size, pdb::PDBClient &pdbClient,
                   pdb::String dbName, pdb::String setName) {
   std::string errMsg;
@@ -579,8 +576,8 @@ void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
 #endif
   auto image_end = std::chrono::high_resolution_clock::now();
   auto kernel_flat_begin = std::chrono::high_resolution_clock::now();
-  //if (reloadData) {
-  if (true) {
+  if (reloadData) {
+  //if (true) {
       // kernel ops
       std::cout << "Running kernel ops..." << std::endl;
 
@@ -641,7 +638,7 @@ void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
 
   auto result_begin = std::chrono::high_resolution_clock::now();
 
-  test_common::conv2d_result_to_chunks(pdbClient, 1, dbName, "result", "result_chunked");
+  test_common::conv2d_result_to_chunks(pdbClient, 100, dbName, "result", "result_chunked");
 
 #ifdef PROFILING_CONV2D
   img_conv_flatten::verify_chunks(pdbClient, dbName, "result_chunked");

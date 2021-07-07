@@ -78,11 +78,11 @@ public:
       int myKey = (*iter).key;
       if (chunks.count(myKey) == 0) {
         chunks[myKey] = (*iter).value;
-        std::cout << "[ImageBlock] Merging bucket " << key << " adding key "
-                  << myKey << std::endl;
+        //std::cout << "[ImageBlock] Merging bucket " << key << " adding key "
+                  //<< myKey << std::endl;
       } else {
-        std::cout << "[ImageBlock] Merging bucket " << key << " NOT adding key "
-                  << myKey << std::endl;
+        //std::cout << "[ImageBlock] Merging bucket " << key << " NOT adding key "
+                  //<< myKey << std::endl;
       }
       ++iter;
     }
