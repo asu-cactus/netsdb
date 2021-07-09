@@ -372,7 +372,7 @@ bool is_empty_set(pdb::PDBClient &pdbClient, pdb::CatalogClient &catalogClient,
 void print(pdb::PDBClient &pdbClient, string dbName, string setName) {
   auto it = pdbClient.getSetIterator<FFMatrixBlock>(dbName, setName);
   bool first = true;
-
+  int count = 0;
   for (auto r : it) {
     double *ndata = r->getRawDataHandle()->c_ptr();
     int x = r->getBlockRowIndex();
@@ -385,7 +385,7 @@ void print(pdb::PDBClient &pdbClient, string dbName, string setName) {
       cout << "[STATS] " << setName << " : " << r->getTotalRowNums() << " X " << r->getTotalColNums() << endl;
     }
 
-    cout << "[PRINT] " << setName << " : " << x << "," << y
+    /*cout << "[PRINT] " << setName << " : " << x << "," << y
          << "; Block Size: " << bx << "," << by << endl;
     for (int i = 0; i < bx; i++) {
       for (int j = 0; j < by; j++) {
@@ -393,8 +393,10 @@ void print(pdb::PDBClient &pdbClient, string dbName, string setName) {
       }
       cout << endl;
     }
-    cout << endl;
+    cout << endl;*/
+    count++;
   }
+  std::cout << "count = " << count << std::endl;
 }
 
 void print_old(pdb::PDBClient &pdbClient, string dbName, string setName) {

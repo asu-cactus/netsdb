@@ -14,5 +14,5 @@ class String;
 namespace conv2d_memory_fusion {
 template <typename M>
 void load_imgs_from_file(pdb::PDBClient &pdbClient, std::string path,
-                         pdb::String dbName, pdb::String setName);
+                         pdb::String dbName, pdb::String setName, int img_count, int channels, int x, int y);
 } // namespace conv2d_memory_fusion

@@ -892,6 +892,8 @@ common_env.Program('bin/RedditFeatureExtractor', ['build/tests/RedditFeatureExtr
 common_env.Program('bin/LSTMTest', ['build/tests/LSTMTest.cc'] + all + pdb_client)
 common_env.Program('bin/LSTMDebug', ['build/tests/LSTMDebug.cc'] + all + pdb_client)
 common_env.Program('bin/Conv2dMemFuseTest', ['build/tests/Conv2dMemFuseTest.cc', 'build/conv2d_memory_fusion/ImageUtils.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
+common_env.Program('bin/Conv2dMemFuseTest1', ['build/tests/Conv2dMemFuseTest1.cc', 'build/conv2d_memory_fusion/ImageUtils.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
+common_env.Program('bin/PipelinedConv2dMemFuseTest', ['build/tests/PipelinedConv2dMemFuseTest.cc', 'build/conv2d_memory_fusion/ImageUtils.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
 common_env.Program('bin/Conv2dProjTest', ['build/tests/Conv2dProjTest.cc'] + all + pdb_client)
 
 #PageRank
@@ -1445,7 +1447,8 @@ libConv2DMemFuseTest=common_env.Alias('libConv2DMemFuseTest', [
   'bin/pdb-server', 
 
   'bin/Conv2dMemFuseTest',
-
+  'bin/Conv2dMemFuseTest1',
+  'bin/PipelinedConv2dMemFuseTest',
   'libraries/libFFMatrixBlock.so',
   'libraries/libFFMatrixData.so',
   'libraries/libFFMatrixMeta.so',

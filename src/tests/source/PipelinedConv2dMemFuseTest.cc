@@ -61,21 +61,21 @@ void create_database(pdb::PDBClient &pdbClient, std::string dbName,
 
 void pipelined_test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
                           std::string imageset, std::string kernelset,
-                          std::string biasset, bool reloadData) {
+                          std::string biasset, bool reloadData, bool materializeModel) {
 
-  std::vector<std::string> allSets{kernelset, biasset, "kernel_flat"};
+  std::vector<std::string> allSets{kernelset, biasset, "kernel_flat", "image_flat", "result"};
 
+  std::vector<std::string> intermediateSets{"image_flat", "result"};
 
   std::string errMsg;
 
-  int block_x = 1000;
+  int block_x = 100;
   int block_y = 100;
   int kernel = 7;//kernel shape should be $kernelx$kernel (e.g., 7x7)
   int strides = 1;
   int padding = 0;
   bool block_padding = true;
   int channels = 3;
-
 
 
   if (reloadData) {
@@ -96,7 +96,7 @@ void pipelined_test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbNam
       conv2d_memory_fusion::load_imgs_from_file<conv2d_memory_fusion::Image>(
      //     pdbClient, "/home/ubuntu/conv2d/images_1.np", dbName, imageset);
      //     pdbClient, "/home/ubuntu/images_10_3_112_112.np", dbName, imageset);
-            pdbClient, "/home/ubuntu/images_100_3_112_112.np", dbName, imageset);
+            pdbClient, "/home/ubuntu/images_100_3_112_112.np", dbName, imageset, 100, 3, 112, 112);
      //     pdbClient, "/home/ubuntu/images_100.np", dbName, imageset);
      //     pdbClient, "/home/ubuntu/images_100_3_224_224.np", dbName, imageset);
      
@@ -104,22 +104,28 @@ void pipelined_test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbNam
       std::cout << "Loading kernel data..." << std::endl;
       conv2d_memory_fusion::load_imgs_from_file<conv2d_memory_fusion::Kernel>(
       //    pdbClient, "/home/ubuntu/conv2d/kernel_3.np", dbName, kernelset);
-            pdbClient, "/home/ubuntu/conv2d/kernel_64_3_7_7.np", dbName, kernelset);
+            pdbClient, "/home/ubuntu/conv2d/kernel_64_3_7_7.np", dbName, kernelset, 64, 3, 7, 7);
       std::cout << "Loading bias data..." << std::endl;
       //ff::load_matrix_data(pdbClient, "/home/ubuntu/conv2d/bias_3.np", dbName, biasset,
       ff::load_matrix_data(pdbClient, "/home/ubuntu/conv2d/bias_64.np", dbName, biasset,
           block_x, 1, !block_padding, !block_padding, errMsg);
+  } else {
+
+      //test_common1::create_database(pdbClient, dbName, intermediateSets, reloadData);
+      pdbClient.clearSet(dbName, "image_flat", "FFMatrixBlock", errMsg);
+      pdbClient.clearSet(dbName, "result", "FFMatrixBlock", errMsg);
+
+      if (materializeModel == false)
+          pdbClient.clearSet(dbName, "kernel_flat", "FFMatrixBlock", errMsg);
   }
 
-  // Image ops
-  std::cout << "Running image ops..." << std::endl;
 
   auto begin = std::chrono::high_resolution_clock::now();
 
   const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 1024};  
 
 
-  if (reloadData) {
+  if (!materializeModel) {
 
       std::cout << "Running kernel ops..." << std::endl;
 
@@ -163,14 +169,14 @@ void pipelined_test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbNam
       pdb::Handle<pdb::Computation> readB =
           makeObject<ScanUserSet<::FFMatrixBlock>>(dbName, biasset);
 
-      pdb::Handle<pdb::Computation> join =
+      pdb::Handle<pdb::Computation> join1 =
           pdb::makeObject<conv2d_memory_fusion::KernelBiasJoin>();
-      join->setInput(0, kernel_matrix);
-      join->setInput(1, readB);
+      join1->setInput(0, kernel_matrix);
+      join1->setInput(1, readB);
 
       Handle<Computation> myWriteSet =
           makeObject<WriteUserSet<::FFMatrixBlock>>(dbName, "kernel_flat");
-      myWriteSet->setInput(join);
+      myWriteSet->setInput(join1);
 
       // run the computation
       if (!pdbClient.executeComputations(errMsg, "kernel_bias_join", myWriteSet)) {
@@ -179,7 +185,12 @@ void pipelined_test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbNam
       }
 
   }
+
   auto kernel_flat_end = std::chrono::high_resolution_clock::now();
+
+
+  std::cout << "Running image op..." << std::endl;
+
 
   //img_conv_flatten::img_to_chunks(pdbClient, dbName, imageset, "temp_image",
                                   //block_x, block_y, strides, kernel, padding);
@@ -214,31 +225,65 @@ void pipelined_test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbNam
   matrix->setInput(block);
 
 
+  Handle<Computation> myWriteSet2 =
+          makeObject<WriteUserSet<::FFMatrixBlock>>(dbName, "image_flat");
+  
+
+  myWriteSet2->setInput(matrix);
+
+  // run the computation
+  if (!pdbClient.executeComputations(errMsg, "image_ops", myWriteSet2)) {
+      cout << "Computation failed. Message was: " << errMsg << "\n";
+      exit(1);
+  }
+
+  auto image_flat_end = std::chrono::high_resolution_clock::now();
+
+
   // multiply
   std::cout << "Running conv2d op..." << std::endl;
 
 
   //test_common::conv2d_op(pdbClient, dbName, "temp_image2", "kernel_flat", "result");
 
+  pdb::Handle<pdb::Computation> readD =
+      makeObject<ScanUserSet<FFMatrixBlock>>(dbName, "image_flat");
+
+
   pdb::Handle<pdb::Computation> readC =
       makeObject<ScanUserSet<FFMatrixBlock>>(dbName, "kernel_flat");
 
-
   pdb::Handle<pdb::Computation> join = pdb::makeObject<FFTransposeMult>();
-  join->setInput(0, matrix);
+  join->setInput(0, readD);
   join->setInput(1, readC);
 
   // make the aggregation
   pdb::Handle<pdb::Computation> myAggregation = pdb::makeObject<FFAggMatrix>();
   myAggregation->setInput(join);
 
-  std::cout << "gathering results..." << std::endl;
 
+  Handle<Computation> myWriteSet3 =
+      makeObject<WriteUserSet<FFMatrixBlock>>(dbName, "result");
+  myWriteSet3->setInput(myAggregation);
+
+    // run the computation
+  if (!pdbClient.executeComputations(errMsg, "conv2d", materializeModel, myWriteSet3)) {
+    cout << "Computation failed. Message was: " << errMsg << "\n";
+    exit(1);
+  }
+
+  auto conv2d_end = std::chrono::high_resolution_clock::now();
+
+/*  std::cout << "gathering results..." << std::endl;
 
   //test_common::conv2d_result_to_chunks(pdbClient, 100, dbName, "result", "result_chunked");
 
+  pdb::Handle<pdb::Computation> readE =
+      makeObject<ScanUserSet<FFMatrixBlock>>(dbName, "result");
+
   pdb::Handle<pdb::Computation> chonk = pdb::makeObject<conv2d_memory_fusion::ConvResultToChunks>(100);
-  chonk->setInput(myAggregation);
+
+  chonk->setInput(readE);
   //img_conv_flatten::chunks_to_blocks(pdbClient, dbName, "result_chunked",
                                      //"result_chunked1", 11236);
   
@@ -261,15 +306,19 @@ void pipelined_test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbNam
   }
 
   auto result_end = std::chrono::high_resolution_clock::now();
-
-  std::cout << "Time Duration for image and kernel ops: "
+*/
+  std::cout << "Time Duration for kernel ops: "
               << std::chrono::duration_cast<std::chrono::duration<float>>(kernel_flat_end - begin).count()
               << " secs." << std::endl;
 
-  std::cout << "Time Duration for conv2d: "
-              << std::chrono::duration_cast<std::chrono::duration<float>>(result_end - kernel_flat_end).count()
+  std::cout << "Time Duration for image ops: "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(image_flat_end - kernel_flat_end).count()
               << " secs." << std::endl;
 
+
+  std::cout << "Time Duration for conv2d: "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(conv2d_end - image_flat_end).count()
+              << " secs." << std::endl;
 
 }
 
@@ -292,6 +341,13 @@ int main(int argc, char *argv[]) {
   if (argc > 1) {
       if (strcmp(argv[1], "N")==0) {
           reloadData = false;
+      }
+  }
+
+  bool materializeModel = false;
+  if (argc > 2) {
+      if (strcmp(argv[2], "Y")==0) {
+          materializeModel = true;
       }
   }
   // Load Libraries
@@ -430,7 +486,7 @@ int main(int argc, char *argv[]) {
   // test_single_img_conv_flatten(pdbClient, dbName, img_set);
   // test_multiple_img_conv_flatten(pdbClient, dbName, img_set);
   // test_kernel_conv_flatten(pdbClient, dbName, kernel_set);
-  pipelined_test_conv2d_multiply(pdbClient, dbName, img_set, kernel_set, "bias", reloadData);
+  pipelined_test_conv2d_multiply(pdbClient, dbName, img_set, kernel_set, "bias", reloadData, materializeModel);
 
   return 0;
 }

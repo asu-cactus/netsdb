@@ -12,7 +12,7 @@ namespace conv2d_memory_fusion {
 
 template <typename M>
 void load_imgs_from_file(PDBClient &pdbClient, string path, String dbName,
-                         String setName) {
+                         String setName, int img_count, int channels, int x, int y) {
   static_assert(std::is_base_of<conv2d_memory_fusion::Matrix3D, M>::value,
                 "M must be a descendant of conv2d_memory_fusion::Matrix3D");
 
@@ -21,7 +21,6 @@ void load_imgs_from_file(PDBClient &pdbClient, string path, String dbName,
     throw runtime_error("Invalid filepath: " + path);
   }
 
-  int img_count, channels, x, y;
 
   ifstream is;
   is.open(path);
@@ -48,10 +47,10 @@ void load_imgs_from_file(PDBClient &pdbClient, string path, String dbName,
   cout << img_count << ", " << channels << ", " << x << ", " << y << endl;
 */
 
-  img_count = 100;
-  channels = 3;
-  x = 112;
-  y = 112;
+  //img_count = 100;
+  //channels = 3;
+  //x = 112;
+  //y = 112;
   int total = 0;
   double val;
   pdb::makeObjectAllocatorBlock(2 * 1024 * 1024, true);
@@ -134,8 +133,8 @@ void load_imgs_from_file(PDBClient &pdbClient, string path, String dbName,
 
 template void load_imgs_from_file<conv2d_memory_fusion::Image>(PDBClient &pdbClient,
                                                  string path, String dbName,
-                                                 String setName);
+                                                 String setName, int img_count = 100, int channels=3, int x=112, int y=112);
 template void load_imgs_from_file<conv2d_memory_fusion::Kernel>(PDBClient &pdbClient,
                                                   string path, String dbName,
-                                                  String setName);
+                                                  String setName, int img_count=64, int channels=3, int x=7, int y=7);
 } // namespace conv2d_memory_fusion

@@ -157,7 +157,7 @@ if (typeName != getTypeName <Type> ()) {
     }
 
 
-    bool executeComputations(std::string& errMsg, std::string jobName = "", bool preCompile = true) {
+    bool executeComputations(std::string& errMsg, std::string jobName = "", bool preCompile = false) {
 
         // this is the request
         const UseTemporaryAllocationBlock myBlock{256 * 1024 * 1024};

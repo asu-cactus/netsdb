@@ -1239,7 +1239,7 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                 success = dsmClient.createDatabase(this->jobId, errMsg);
 
 
-                if (materializedWorkloads.count(request->getJobName())) {
+                if ((request->getWhetherToPreCompile() == true) && (materializedWorkloads.count(request->getJobName()))) {
 
 
                     std::cout << "We find precompiled stages for " << request->getJobName() << std::endl;
