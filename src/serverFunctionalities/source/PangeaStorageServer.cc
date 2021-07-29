@@ -209,6 +209,7 @@ PDBPagePtr PangeaStorageServer::getNewPage(pair<std::string, std::string> databa
 
 
 bool PangeaStorageServer::checkAndSharePage(PDBPagePtr myPage, Handle<AbstractIndexer> indexer, ShareableSetPtr set) {
+    auto start = std::chrono::high_resolution_clock::now();
     if (set == nullptr) {
         return false;
     }
@@ -218,11 +219,19 @@ bool PangeaStorageServer::checkAndSharePage(PDBPagePtr myPage, Handle<AbstractIn
     }
     
     SharedPageID *pid = indexer->checkAndAddPage(myPage);
-    if (pid == nullptr) return false;
+    if (pid == nullptr) {
+        set->numOwned++;
+        return false;
+    }
 
     set->addSharedPage(pid);
     this->getCache()->incSharedPages();
 
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> diff = end-start;
+    this->total_index_build_time += diff.count();
+    this->total_shared_pages++;
+    set->numShared++;
     return true;
 }
 
@@ -257,6 +266,7 @@ void PangeaStorageServer::writeBackRecords(pair<std::string, std::string> databa
 
     Handle<AbstractIndexer> indexer = getIndexerForType(myPage->getDbID(), myPage->getTypeID());
     ShareableSetPtr set = dynamic_pointer_cast<ShareableUserSet>(getSet(databaseAndSet));
+    SetPtr nset = getSet(databaseAndSet);
     bool flushMeta = true;
     bool myPageIsDup = false;
 
@@ -300,6 +310,7 @@ void PangeaStorageServer::writeBackRecords(pair<std::string, std::string> databa
             key.pageId = myPage->getPageID();
 
             myPageIsDup = checkAndSharePage(myPage, indexer, set);
+            if (set == nullptr) nset->numOwned++;
             if (!myPageIsDup) {
                 this->getCache()->decPageRefCount(key);
                 if (flushOrNot == true) {
@@ -336,6 +347,7 @@ void PangeaStorageServer::writeBackRecords(pair<std::string, std::string> databa
             key.pageId = myPage->getPageID();
 
             myPageIsDup = checkAndSharePage(myPage, indexer, set);
+            if (set == nullptr) nset->numOwned++;
             if (!myPageIsDup) {
                 this->getCache()->decPageRefCount(key);
                 if (flushOrNot == true) {
@@ -786,8 +798,28 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                                                                PDBCommunicatorPtr sendUsingMe) {
              std::string errMsg="";
              bool res=true;
+             if (request->isClient) {
+                    std::cout << "-----------------------CLIENT REQUEST-----------------------" <<std::endl;
+             }
+
              this->cache->printStats();
+             if (!request->isClient)
              this->printSets();
+
+             if (request->isClient) {
+                    std::cout << "-----------------------PANGEA STATS-----------------------" <<std::endl;
+                    std::cout << "Total Pages shared: " << this->total_shared_pages << std::endl;
+                    std::cout << "Total time to share pages: " << this->total_index_build_time << std::endl;
+                    std::cout << "Average page to index time: " << (this->total_index_build_time / this->total_shared_pages) << std::endl;
+                    std::cout << "-----------------------PANGEA STATS-----------------------" <<std::endl;
+                     for (auto set : *userSets) {
+                        set.second->printRunStats();
+                    }
+             }
+
+             if (request->isClient) {
+                    std::cout << "-----------------------CLIENT REQUEST-----------------------" <<std::endl;
+             }
              // make the response
              const UseTemporaryAllocationBlock tempBlock{1024};
              Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(res, errMsg);

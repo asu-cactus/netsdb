@@ -441,6 +441,7 @@ void * addRemainBytes(size_t& size) {
         return this->internalOffset;
     }
 
+    bool cached;
 private:
     char* rawBytes;
     size_t offset;  // used in shared memory

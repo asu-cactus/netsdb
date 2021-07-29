@@ -135,6 +135,7 @@ void executeModel(pdb::PDBClient &pdbClient, string dbname, int modelVer) {
               << " secs." << std::endl;
   }
 
+  pdbClient.printStorageStats(errMsg);
 }
 
 int main(int argc, char *argv[]) {
@@ -200,8 +201,6 @@ int main(int argc, char *argv[]) {
       executeModel(pdbClient, dbName, model_id);
     } 
   }
-
-  pdbClient.printStorageStats(errMsg);
 
   return 0;
 }

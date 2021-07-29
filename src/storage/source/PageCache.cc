@@ -385,6 +385,7 @@ PDBPagePtr PageCache::getPage(PartitionedFilePtr file,
         if (page == nullptr) {
             return nullptr;
         }
+        page->cached = false;
         pthread_mutex_lock(&this->countLock);
         page->setAccessSequenceId(this->accessCount);
         this->accessCount++;
@@ -406,6 +407,7 @@ PDBPagePtr PageCache::getPage(PartitionedFilePtr file,
             pthread_mutex_unlock(&this->evictionMutex);
             return nullptr;
         }
+        page->cached = true;
         page->setPinned(true);
         page->incRefCount();
         this->evictionUnlock();

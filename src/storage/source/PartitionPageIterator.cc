@@ -1,6 +1,7 @@
 
 #include "PDBDebug.h"
 #include "PartitionPageIterator.h"
+#include <chrono>
 
 /**
  * To create a new PartitionPageIterator instance
@@ -29,6 +30,8 @@ PartitionPageIterator::PartitionPageIterator(PageCachePtr cache,
  * To return the next page. If there is no more page, return nullptr.
  */
 PDBPagePtr PartitionPageIterator::next() {
+    auto start = std::chrono::high_resolution_clock::now();
+
     PDBPagePtr pageToReturn;
     if (this->numIteratedPages >= this->numPages) {
         return nullptr;
@@ -62,6 +65,18 @@ PDBPagePtr PartitionPageIterator::next() {
             this->numIteratedPages++;
         }
     }
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> diff = end-start;
+
+    if (pageToReturn->cached) {
+        this->set->numOwnedHits++;
+        cache->addCachedPageAccessTime(diff.count());
+    } else {
+        this->set->numOwnedMisses++;
+        cache->addPageAccessTime(diff.count());
+    }
+
     return pageToReturn;
 }
 

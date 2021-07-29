@@ -188,6 +188,22 @@ public:
 
     void incSharedPages();
 
+    void addCachedSharedPageAccessTime(double time) {
+        this->stats.addCachedSharedPageAccessTime(time);
+    }
+
+    void addSharedPageAccessTime(double time) {
+        this->stats.addSharedPageAccessTime(time);
+    }
+
+    void addCachedPageAccessTime(double time) {
+        this->stats.addCachedPageAccessTime(time);
+    }
+
+    void addPageAccessTime(double time) {
+        this->stats.addPageAccessTime(time);
+    }
+
     // Evict all dirty pages
     int evictAllDirtyPages();
 

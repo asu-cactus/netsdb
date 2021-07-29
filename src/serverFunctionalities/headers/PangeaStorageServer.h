@@ -25,6 +25,8 @@
 #include "AbstractIndexer.h"
 #include "ShareableUserSet.h"
 
+#include <chrono>
+
 namespace pdb {
 
 
@@ -465,6 +467,8 @@ private:
     pthread_mutex_t counterMutex;
     int numWaitingBufferDataRequests;
     double inflationFactor = 40.0;
+    double total_index_build_time = 0.0;
+    int total_shared_pages = 0;
 };
 }
 

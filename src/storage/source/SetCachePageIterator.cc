@@ -5,6 +5,8 @@
 
 #include "PDBDebug.h"
 #include "SetCachePageIterator.h"
+#include <chrono>
+
 // TODO using snapshot and reference count to support multiple concurrent iterators for one same
 // buffer
 // Argument: why do we need multiple concurrent iterators for the same buffer?
@@ -35,6 +37,7 @@ PDBPagePtr SetCachePageIterator::end() {
 }
 
 PDBPagePtr SetCachePageIterator::next() {
+    auto start = std::chrono::high_resolution_clock::now();
     this->cache->evictionLock();
     if (this->iter != this->set->getDirtyPageSet()->end()) {
         if (this->iter->second.inCache == true) {
@@ -51,6 +54,13 @@ PDBPagePtr SetCachePageIterator::next() {
 #endif
             ++iter;
             this->cache->evictionUnlock();
+
+            auto end = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> diff = end-start;
+
+            cache->addCachedPageAccessTime(diff.count());
+            this->set->numOwnedHits++;
+
             return page;
         } else {
             // the page is already flushed to file, so load from file
@@ -78,6 +88,12 @@ PDBPagePtr SetCachePageIterator::next() {
             this->set->lockDirtyPageSet();
             this->iter = this->set->getDirtyPageSet()->erase(this->iter);
             this->set->unlockDirtyPageSet();
+
+            auto end = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> diff = end-start;
+
+            cache->addPageAccessTime(diff.count());
+            this->set->numOwnedMisses++;
             return page;
         }
     }

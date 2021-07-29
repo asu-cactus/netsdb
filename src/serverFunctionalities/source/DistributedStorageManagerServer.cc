@@ -605,6 +605,7 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
             nodesToBroadcast = allNodes;
 
             Handle<StorageGetStats> storageCmd = makeObject<StorageGetStats>();
+            storageCmd->isClient = true;
 
             std::cout << "to broadcast StorageGetStats" << std::endl; 
             getFunctionality<DistributedStorageManagerServer>()

@@ -13,6 +13,7 @@ public:
         pthread_mutex_init(&missLock, nullptr);
         pthread_mutex_init(&evictedLock, nullptr);
         pthread_mutex_init(&cachedLock, nullptr);
+        pthread_mutex_init(&accessLock, nullptr);
     }
 
     ~CacheStats() {
@@ -20,13 +21,45 @@ public:
         pthread_mutex_destroy(&missLock);
         pthread_mutex_destroy(&evictedLock);
         pthread_mutex_destroy(&cachedLock);
+        pthread_mutex_destroy(&accessLock);
     }
 
     void incHits(bool shared=false) {
         pthread_mutex_lock(&hitLock);
         numHits ++;
-        if (shared) numSharedHits++;
+        if (shared) {
+            std::cout << "[CACHESTATS] SHARED PAGE CACHE HIT!" << std::endl;
+            numSharedHits++;
+        }
         pthread_mutex_unlock(&hitLock);
+    }
+
+    void addCachedSharedPageAccessTime(double time) {
+        pthread_mutex_lock(&accessLock);
+        cachedSharedPageAccessTime += time;
+        totalCachedSharedPagesAccessed++;
+        pthread_mutex_unlock(&accessLock);
+    }
+
+    void addSharedPageAccessTime(double time) {
+        pthread_mutex_lock(&accessLock);
+        sharedPageAccessTime += time;
+        totalSharedPagesAccessed++;
+        pthread_mutex_unlock(&accessLock);
+    }
+
+    void addCachedPageAccessTime(double time) {
+        pthread_mutex_lock(&accessLock);
+        cachedPageAccessTime += time;
+        totalCachedPagesAccessed++;
+        pthread_mutex_unlock(&accessLock);
+    }
+
+    void addPageAccessTime(double time) {
+        pthread_mutex_lock(&accessLock);
+        pageAccessTime += time;
+        totalPagesAccessed++;
+        pthread_mutex_unlock(&accessLock);
     }
 
     void incMisses(bool shared=false) {
@@ -63,6 +96,15 @@ public:
         std::cout << "numEvicted: " << numEvicted << std::endl;
         std::cout << "numCached: " << numCached << std::endl;
         std::cout << "numShared: " << numShared << std::endl;
+        std::cout << "*******************" << std::endl;
+        std::cout << "total Cached Shared Page Access Time: " << cachedSharedPageAccessTime << std::endl;
+        std::cout << "total Cached Shared Pages Accessed: " << totalCachedSharedPagesAccessed << std::endl;
+        std::cout << "total Uncached Shared Page Access Time: " << sharedPageAccessTime << std::endl;
+        std::cout << "total Uncached Shared Pages Accessed: " << totalSharedPagesAccessed << std::endl;
+        std::cout << "total Cached Non-Shared Page Access Time: " << cachedPageAccessTime << std::endl;
+        std::cout << "total Cached Non-Shared Pages Accessed: " << totalCachedPagesAccessed << std::endl;
+        std::cout << "total Uncached Non-Shared Page Access Time: " << pageAccessTime << std::endl;
+        std::cout << "total Uncached Non-Shared Pages Accessed: " << totalPagesAccessed << std::endl;
         std::cout << "*****************" << std::endl;
     }
 
@@ -74,10 +116,21 @@ private:
     int numSharedHits = 0;
     int numSharedMisses = 0;
     int numShared = 0;
+
+    double cachedSharedPageAccessTime = 0.0;
+    long totalCachedSharedPagesAccessed = 0;
+    double sharedPageAccessTime = 0.0;
+    long totalSharedPagesAccessed = 0;
+    double cachedPageAccessTime = 0.0;
+    long totalCachedPagesAccessed = 0;
+    double pageAccessTime = 0.0;
+    long totalPagesAccessed = 0;
+
     pthread_mutex_t hitLock;
     pthread_mutex_t missLock;
     pthread_mutex_t evictedLock;
     pthread_mutex_t cachedLock;
+    pthread_mutex_t accessLock;
 
 
 };

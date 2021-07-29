@@ -16,6 +16,8 @@ public:
     StorageGetStats() {}
     ~StorageGetStats() {}
 
+    bool isClient;
+
     ENABLE_DEEP_COPY
 
 };

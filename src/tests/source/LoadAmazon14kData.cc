@@ -214,4 +214,6 @@ int main(int argc, char* argv[]) {
   createSet(pdbClient, dbName, numModels, enableSharing);
 
   loadSet(pdbClient, dbName, blockX, blockY, numModels, batchSize, labelSize, featureSize, hiddenLayerSize, enableSharing);
+
+  pdbClient.printStorageStats(errMsg);
 }

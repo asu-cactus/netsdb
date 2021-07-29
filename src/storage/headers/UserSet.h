@@ -440,10 +440,35 @@ public:
             std::cout << "lifetimeEnded: false" << std::endl;
         }
         std::cout << "numCachedPages: " << numCachedPages << std::endl;
-        std::cout << "################################" << std::endl;
-
     }
 
+    void printRunStats() {
+        std::cout << "################################" << std::endl;
+        std::cout << "setName:" << setName << std::endl;
+        std::cout << "pageSize:" << pageSize << std::endl;
+        std::cout << "numCachedPages: " << numCachedPages << std::endl;
+        std::cout << "############SET STATS####################" << std::endl;
+        std::cout << "numShared: " << numShared << std::endl;
+        std::cout << "numOwned: " << numOwned << std::endl;
+        std::cout << "numSharedHits: " << numSharedHits << std::endl;
+        std::cout << "numSharedMisses: " << numSharedMisses << std::endl;
+        std::cout << "numOwnedHits: " << numOwnedHits << std::endl;
+        std::cout << "numOwnedMisses: " << numOwnedMisses << std::endl;
+        std::cout << "##############SET STATS##################" << std::endl;
+
+        // Reset counters
+        numSharedHits = 0;
+        numSharedMisses = 0;
+        numOwnedHits = 0;
+        numOwnedMisses = 0;
+    }
+
+    int numShared = 0;
+    int numOwned = 0;
+    int numSharedHits = 0;
+    int numSharedMisses = 0;
+    int numOwnedHits = 0;
+    int numOwnedMisses = 0;
 
 protected:
     PartitionedFilePtr file;
