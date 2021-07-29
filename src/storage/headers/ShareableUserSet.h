@@ -83,10 +83,14 @@ public:
   void flushSharedMeta() {
     sharedMetaPtr->openMeta();
     sharedMetaPtr->writeMeta();
-    sharedMetaPtr->dump();
   }
 
   vector<PageIteratorPtr>* getIterators() override;
+
+  void clear() {
+    sharedMetaPtr->clear();
+    getFile()->clear();
+  }
 
 private:
   PartitionedShareableFileMetaDataPtr sharedMetaPtr;

@@ -249,9 +249,7 @@ void createDbAndIndexer(PDBClient &pdbClient, CatalogClient &catalogClient, stri
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
-    pdb::Handle<pdb::AbstractIndexer> indexer =
-	makeObject<FFPageIndexer>(10, 3);
-    indexer->dump();
+    pdb::Handle<pdb::AbstractIndexer> indexer = makeObject<FFPageIndexer>(10, 3);
 
     if (!pdbClient.addTypeIndexer<FFMatrixBlock>(dbname, indexer)) {
       cout << "Not able to create indexer: " + errMsg;

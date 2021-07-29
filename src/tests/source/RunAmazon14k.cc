@@ -106,7 +106,6 @@ void executeModel(pdb::PDBClient &pdbClient, string dbname, int modelVer) {
               << " secs." << std::endl;
   }
 
-  pdbClient.flushData(errMsg);
 }
 
 int main(int argc, char *argv[]) {
@@ -151,7 +150,8 @@ int main(int argc, char *argv[]) {
   for (int i = 0; i < numModels; i++) {
       string setName = getName("output", i);
       string setName1 = getName1("output", i);
-      ff::createSet(pdbClient, dbName, setName, setName1, 64);
+      if (!catalogClient.setExists(dbName, setName))
+        ff::createSet(pdbClient, dbName, setName, setName1, 64);
   }
 
   if (argc == 3) {

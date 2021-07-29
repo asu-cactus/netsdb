@@ -20,6 +20,8 @@ using namespace pdb;
 
 #include "UserSet.h"
 
+#include <boost/filesystem.hpp>
+
 class PartitionedShareableFileMetaData;
 typedef shared_ptr<PartitionedShareableFileMetaData>
     PartitionedShareableFileMetaDataPtr;
@@ -132,6 +134,19 @@ public:
     int res = fclose(borrowing_info_file);
     borrowing_info_file = nullptr;
     return res;
+  }
+
+  void clear() {
+    pthread_mutex_lock(&this->fileMutex);
+    if (this->cleared == true) {
+        pthread_mutex_unlock(&this->fileMutex);
+        return;
+    }
+    this->closeMeta();
+    remove(borrowing_info_path.c_str());
+    boost::filesystem::remove_all(meta_path);
+    this->cleared = true;
+    pthread_mutex_unlock(&this->fileMutex);
   }
 
   bool openMeta() {
@@ -281,8 +296,8 @@ public:
     size_t sizeRead =
         fread((size_t *)(&(size)), sizeof(size_t), 1, borrowing_info_file);
     if (sizeRead == 0) {
-      std::cout << "PartitionedFile: Read meta size failed" << std::endl;
-      exit(-1);
+      std::cout << "SharedPartitionedFile: no shared metadata found!" << std::endl;
+      return;
     }
     // load meta partition to memory
     fseek(borrowing_info_file, sizeof(size_t), SEEK_SET);

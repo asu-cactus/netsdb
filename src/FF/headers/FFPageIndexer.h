@@ -38,7 +38,6 @@ public:
   }
 
   void dump() override {
-    std::cout << "Called FFINDEXER DUMP: " << std::endl;
     for (int i = 0; i < dim * num_hashes; i++) {
       std::cout << rawData[i] << ", ";
     }
@@ -46,8 +45,6 @@ public:
   }
 
   long hashSet(Vector<Handle<FFMatrixBlock>> &objects) override {
-    std::cout << "Called FFINDEXER!" << std::endl;
-
     double sum = 0;
     long total = 0;
     for (size_t i = 0; i < objects.size(); i++) {

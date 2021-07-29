@@ -57,7 +57,6 @@ public:
     Handle<Vector<Handle<ValueType>>> inputVec1 = myRec1->getRootObject();
 
     KeyType key = hashSet(*inputVec1);
-    std::cout << "[PAGEINDEXER] GENERATED KEY: " << key << std::endl;
 
     if (pageMap->count(key) == 0) {
       SharedPageID pid;
@@ -84,7 +83,6 @@ public:
     Handle<Vector<Handle<ValueType>>> inputVec1 = myRec1->getRootObject();
 
     KeyType key = hashSet(*inputVec1);
-    std::cout << "[PAGEINDEXER] GENERATED KEY: " << key << std::endl;
 
     if (pageMap->count(key) == 0)
       return nullptr;
@@ -93,9 +91,7 @@ public:
 
   virtual KeyType hashSet(Vector<Handle<ValueType>> &objects) = 0;
 
-  virtual void dump() override {
-    std::cout << "Called PageIndexer dump: " << std::endl;
-  }
+  virtual void dump() override {}
 };
 } // namespace pdb
 

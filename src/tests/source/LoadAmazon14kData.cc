@@ -39,7 +39,6 @@ void clearSet(pdb::PDBClient &pdbClient, string dbname, int num_models) {
     pdbClient.removeSet(dbname, b1Name, errMsg);
     pdbClient.removeSet(dbname, w2Name, errMsg);
     pdbClient.removeSet(dbname, b2Name, errMsg);
-    pdbClient.flushData(errMsg);
   }
 }
 
@@ -197,7 +196,6 @@ int main(int argc, char* argv[]) {
       const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
       pdb::Handle<pdb::AbstractIndexer> indexer = makeObject<FFPageIndexer>(10, 3);
-      indexer->dump();
 
       if (!pdbClient.addTypeIndexer<FFMatrixBlock>(dbName, indexer)) {
         cout << "Not able to create indexer: " + errMsg;

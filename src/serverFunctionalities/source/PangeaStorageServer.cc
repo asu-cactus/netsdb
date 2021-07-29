@@ -210,19 +210,16 @@ PDBPagePtr PangeaStorageServer::getNewPage(pair<std::string, std::string> databa
 
 bool PangeaStorageServer::checkAndSharePage(PDBPagePtr myPage, Handle<AbstractIndexer> indexer, ShareableSetPtr set) {
     if (set == nullptr) {
-        std::cout << "[WRITEBACKRECORDS] CANNOT SHARE: SET NOT SHAREABLE." << std::endl;
         return false;
     }
     
     if (indexer == nullptr) {
-        std::cout << "[WRITEBACKRECORDS] CANNOT SHARE: INDEXER NOT AVAILABLE." << std::endl;
         return false;
     }
     
     SharedPageID *pid = indexer->checkAndAddPage(myPage);
     if (pid == nullptr) return false;
 
-    std::cout << "[WRITEBACKRECORDS] GOT DUPLICATE PAGE for " << myPage->getDbID() << "," << myPage->getSetID() << "," << myPage->getPageID() << " -> " << (*pid).dbId << "," << (*pid).setId << "," << (*pid).pageId << std::endl;
     set->addSharedPage(pid);
 
     return true;
@@ -303,7 +300,6 @@ void PangeaStorageServer::writeBackRecords(pair<std::string, std::string> databa
 
             myPageIsDup = checkAndSharePage(myPage, indexer, set);
             if (!myPageIsDup) {
-                std::cout << "[WRITEBACKRECORDS] NO DUPLICATE PAGE for " << myPage->getDbID() << "," << myPage->getSetID() << "," << myPage->getPageID() << std::endl;
                 this->getCache()->decPageRefCount(key);
                 if (flushOrNot == true) {
                     std::cout << "to flush without eviction" << std::endl;
@@ -340,7 +336,6 @@ void PangeaStorageServer::writeBackRecords(pair<std::string, std::string> databa
 
             myPageIsDup = checkAndSharePage(myPage, indexer, set);
             if (!myPageIsDup) {
-                std::cout << "[WRITEBACKRECORDS] NO DUPLICATE PAGE for " << myPage->getDbID() << "," << myPage->getSetID() << "," << myPage->getPageID() << std::endl;
                 this->getCache()->decPageRefCount(key);
                 if (flushOrNot == true) {
                     this->getCache()->flushPageWithoutEviction(key);

@@ -190,7 +190,14 @@ int UserType::removeSet(SetID setId) {
         this->logger->writeLn("UserType: removing input buffer for set:");
         this->logger->writeInt(setId);
         this->logger->writeLn("\n");
-        setIter->second->getFile()->clear();
+
+        ShareableSetPtr sset = dynamic_pointer_cast<ShareableUserSet>(setIter->second);
+        if (sset != nullptr) {
+            sset->clear();
+        } else {
+            setIter->second->getFile()->clear();
+        }
+
         pthread_mutex_lock(&setLock);
         this->sets->erase(setIter);
         pthread_mutex_unlock(&setLock);
@@ -297,8 +304,7 @@ bool UserType::initializeFromMetaTypeDir(path metaTypeDir) {
 
                     PartitionedShareableFileMetaDataPtr metainfo = make_shared<PartitionedShareableFileMetaData>(iter->string());
                     metainfo->buildMetaDataFromMetaPartition();
-                    // TODO: Remove this
-                    metainfo->dump();
+
                     std::cout << "create partitioned file instance" << std::endl;
                     // create PartitionedFile instance
                     PartitionedFilePtr partitionedFile = make_shared<PartitionedFile>(

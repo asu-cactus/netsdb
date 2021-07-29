@@ -133,7 +133,6 @@ public:
 
         this->indexer = pdb::deepCopyToCurrentAllocationBlock<pdb::AbstractIndexer>(indexer);
         this->indexer->initialize();
-        this->indexer->dump();
 
         return true;
     }

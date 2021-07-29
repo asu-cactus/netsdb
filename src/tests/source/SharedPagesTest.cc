@@ -113,7 +113,6 @@ int main(int argc, char *argv[]) {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
     pdb::Handle<pdb::AbstractIndexer> indexer = makeObject<FFPageIndexer>(10, 3);
-    indexer->dump();
 
     if (!pdbClient.addTypeIndexer<FFMatrixBlock>(db, indexer)) {
       cout << "Not able to create set: " + errMsg;
