@@ -27,6 +27,12 @@ void loadMatrix(pdb::PDBClient &pdbClient, pdb::String dbName,
                 std::string &errMsg, int size = 128,
                 bool partitionByCol = true);
 
+void loadMatrix(pdb::PDBClient &pdbClient, pdb::String dbName,
+                std::vector<std::string> &setNames, int totalX, int totalY, int blockX,
+                int blockY, bool dont_pad_x, bool dont_pad_y,
+                std::string &errMsg, int size = 128,
+                bool partitionByCol = true);
+
 void load_matrix_from_file(std::string path,
                            std::vector<std::vector<double>> &matrix);
 

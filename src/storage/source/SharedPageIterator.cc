@@ -25,7 +25,17 @@ PDBPagePtr SharedPageIterator::next() {
   SharedPageID pid = sharedSet->getShareableMetaPtr()->loadSharedPageId(this->numIteratedPages);
   SetPtr set = sharedSet->getSharedSet(pid.setId);
 
-  assert(set != nullptr);
+  /*
+  * In case where the set we are borrowing from is removed, set can be null.
+  * This assertion was hit when a set s2 was removed then the current set was
+  * being evicted for removal too.
+  * */
+  // assert(set != nullptr);
+  if (set == nullptr) {
+    std::cout << "SharedPageIterator: WARNING: Set ID " << pid.setId << " is missing. Ignoring this page." << std::endl;
+    this->numIteratedPages++;
+    return nullptr;
+  }
 
   PageIndex pidx = set->getFile()->getMetaData()->getPageIndex(pid.pageId);
 

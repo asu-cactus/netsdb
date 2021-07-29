@@ -127,6 +127,10 @@ public:
 
 
     bool setIndexer(pdb::Handle<pdb::AbstractIndexer> indexer) {
+        if (this->indexer != nullptr) {
+            this->indexer = nullptr;
+        }
+
         this->indexer = pdb::deepCopyToCurrentAllocationBlock<pdb::AbstractIndexer>(indexer);
         this->indexer->initialize();
         this->indexer->dump();

@@ -1,5 +1,5 @@
-#ifndef FF_RELU_BIAS_SUM_H
-#define FF_RELU_BIAS_SUM_H
+#ifndef FF_ACTIVATION_BIAS_SUM_H
+#define FF_ACTIVATION_BIAS_SUM_H
 
 #include "FFMatrixBlock.h"
 #include "JoinComp.h"
@@ -11,26 +11,24 @@
 
 using namespace pdb;
 
-class FFReluBiasSum
+class FFActivationBiasSum
     : public JoinComp<FFMatrixBlock, FFMatrixBlock, FFMatrixBlock> {
 
 public:
   ENABLE_DEEP_COPY
 
-  FFReluBiasSum() : dropout_rate(0){};
+enum class SumActivation { Relu = 1, Sigmod };
 
-  FFReluBiasSum(double dropout_rate_in) : dropout_rate(dropout_rate_in){};
+  SumActivation modifier;
+
+  FFActivationBiasSum() : modifier(SumActivation::Relu), dropout_rate(0) {};
+
+  FFActivationBiasSum(SumActivation modifier, double dropout_rate_in=0) : modifier(modifier), dropout_rate(dropout_rate_in){};
 
   double dropout_rate;
 
   Lambda<bool> getSelection(Handle<FFMatrixBlock> in1,
                             Handle<FFMatrixBlock> in2) override {
-    // return makeLambda(
-
-    //     in1, in2, [](Handle<FFMatrixBlock> &in1, Handle<FFMatrixBlock> &in2)
-    //     {
-    //       return in1->getBlockRowIndex() == in2->getBlockRowIndex();
-    //     });
     return makeLambdaFromMethod(in1, getBlockRowIndex) ==
            makeLambdaFromMethod(in2, getBlockRowIndex);
 
@@ -48,7 +46,7 @@ public:
 
             if (in1->getRowNums() != in2->getRowNums() ||
                 in2->getColNums() != 1) {
-              std::cout << "[ReluBiasSum] IN1 : " << I << " X " << J
+              std::cout << "[FFActivationBiasSum] IN1 : " << I << " X " << J
                         << ", IN2: " << in2->getRowNums() << " X "
                         << in2->getColNums() << std::endl;
               std::cerr << "Block dimemsions mismatch!" << std::endl;
@@ -68,7 +66,20 @@ public:
             for (int32_t i = 0; i < I; i++) {
               for (int32_t j = 0; j < J; j++) {
                 int32_t pos = i * J + j;
-                outData[pos] = max(0.0, in1Data[pos] + in2Data[i]);
+
+              switch (modifier) {
+              case SumActivation::Sigmod:
+                outData[pos] = 1 / (1 + exp(-1 * (in1Data[pos] + in2Data[i])));
+                break;
+
+              case SumActivation::Relu:
+                outData[i] = max(0.0, in1Data[pos] + in2Data[i]);
+                break;
+
+              default:
+                std::cerr << "Invalid modifier!" << std::endl;
+                exit(1);
+              }
 
                 if (dropout_rate != 0) {
                   bool zero = (rand() % 100) < (dropout_rate * 100);

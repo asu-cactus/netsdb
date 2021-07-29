@@ -151,7 +151,7 @@ public:
      if (partitionByCol)
          return pdb::Hasher<int>::hash(meta->blockColIndex);  
      else
-         return pdb::Hasher<int>::hash(meta->blockRowIndex);        
+         return pdb::Hasher<int>::hash(meta->blockRowIndex); 
   }
 
   std::string toString() override {

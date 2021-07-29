@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixWriter.so");
   ff::loadLibrary(pdbClient, "libraries/libFFInputLayerJoin.so");
   ff::loadLibrary(pdbClient, "libraries/libFFAggMatrix.so");
-  ff::loadLibrary(pdbClient, "libraries/libFFReluBiasSum.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFActivationBiasSum.so");
   ff::loadLibrary(pdbClient, "libraries/libFFTransposeMult.so");
   ff::loadLibrary(pdbClient, "libraries/libFFTransposeBiasSum.so");
   ff::loadLibrary(pdbClient, "libraries/libFFRowAggregate.so");
