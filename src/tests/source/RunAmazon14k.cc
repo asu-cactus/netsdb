@@ -14,7 +14,7 @@
 #include "FFTransposeMult.h"
 #include "FFActivationBiasSum.h"
 #include "FFInputLayerJoin.h"
-// #include "FFMatrixWriter.h"
+#include "FFMatrixPartitioner.h"
 
 #include <ScanUserSet.h>
 #include <WriteUserSet.h>
@@ -26,7 +26,7 @@
 string getName(string name, int ver) { return name + "_m" + to_string(ver); }
 string getName1(string name, int ver) { return name + "1_m" + to_string(ver); }
 
-void executeModel(pdb::PDBClient &pdbClient, string dbname, int modelVer) {
+void executeModel(pdb::PDBClient &pdbClient, string dbname, int modelVer, bool enablePartition) {
   string errMsg;
 
   string inputName = getName("inputs", modelVer);
@@ -65,8 +65,11 @@ void executeModel(pdb::PDBClient &pdbClient, string dbname, int modelVer) {
     reluBias->setInput(1, readB1);
 
     // make the writer
-    pdb::Handle<pdb::Computation> myWriter =
-        pdb::makeObject<pdb::WriteUserSet<FFMatrixBlock>>(dbname, y1Name);
+    pdb::Handle<pdb::Computation> myWriter;
+    if (enablePartition) 
+        myWriter = pdb::makeObject<FFMatrixPartitioner>(dbname, y1Name);
+    else
+        myWriter = pdb::makeObject<pdb::WriteUserSet<FFMatrixBlock>>(dbname, y1Name);
     myWriter->setInput(reluBias);
 
     auto begin = std::chrono::high_resolution_clock::now();
@@ -115,8 +118,12 @@ void executeModel(pdb::PDBClient &pdbClient, string dbname, int modelVer) {
     sigmodBias->setInput(1, readB2);
 
     // make the writer
-    pdb::Handle<pdb::Computation> myWriter =
-        pdb::makeObject<pdb::WriteUserSet<FFMatrixBlock>>(dbname, outputName);
+    pdb::Handle<pdb::Computation> myWriter;
+    // Dont need to partition since this wont be used in further computations?
+    // if (enablePartition) 
+    //     myWriter = pdb::makeObject<FFMatrixPartitioner>(dbname, outputName);
+    // else
+        myWriter = pdb::makeObject<pdb::WriteUserSet<FFMatrixBlock>>(dbname, outputName);
     myWriter->setInput(sigmodBias);
 
     auto begin = std::chrono::high_resolution_clock::now();
@@ -147,21 +154,21 @@ int main(int argc, char *argv[]) {
   pdb::CatalogClient catalogClient(8108, masterIp, clientLogger);
 
   if (argc < 3) {
-    cout << "Usage: ./RunAmazon14k loadLibraries NumModels [Model execution sequence]"
+    cout << "Usage: ./RunAmazon14k loadLibraries NumModels enablePartition [Model execution sequence]"
          << endl;
     exit(-1);
   }
 
   bool loadLibraries = strcmp(argv[1], "Y") == 0;
   int numModels = atoi(argv[2]);
+  bool enablePartition = strcmp(argv[3], "Y") == 0;
   string dbName = "amazon14k";
 
-//   ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlockScanner.so");
-//   ff::loadLibrary(pdbClient, "libraries/libFFMatrixWriter.so");
   ff::loadLibrary(pdbClient, "libraries/libFFInputLayerJoin.so");
   ff::loadLibrary(pdbClient, "libraries/libFFAggMatrix.so");
   ff::loadLibrary(pdbClient, "libraries/libFFActivationBiasSum.so");
   ff::loadLibrary(pdbClient, "libraries/libFFTransposeMult.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFMatrixPartitioner.so");
 
   for (int i = 0; i < numModels; i++) {
       string outputName = getName("output", i);
@@ -185,20 +192,31 @@ int main(int argc, char *argv[]) {
       string outputName1 = getName1("output", i);
       string y1Name = getName("y1", i);
       string y1Name1 = getName1("y1", i);
-      if (!catalogClient.setExists(dbName, outputName))
+      string compName1 = getName("inference-1", i);
+      string compName2 = getName("inference-2", i);
+      if (!catalogClient.setExists(dbName, outputName)) {
+        // Dont need to partition since this wont be used in further computations?
         ff::createSet(pdbClient, dbName, outputName, outputName1, 64);
-      if (!catalogClient.setExists(dbName, y1Name))
-        ff::createSet(pdbClient, dbName, y1Name, y1Name1, 64);
+      }
+      if (!catalogClient.setExists(dbName, y1Name)) {
+
+        if (enablePartition) {
+          ff::createSet(pdbClient, dbName, y1Name, y1Name1, compName2, "JoinComp_2", "methodCall_1", 64);
+        } else  {
+          ff::createSet(pdbClient, dbName, y1Name, y1Name1, 64);
+        }
+
+      }
   }
 
-  if (argc == 3) {
+  if (argc == 4) {
     for (int i = 0; i < numModels; i++) {
-      executeModel(pdbClient, dbName, i);
+      executeModel(pdbClient, dbName, i, enablePartition);
     } 
   } else {
-    for (int i = 3; i < argc; i++) {
+    for (int i = 4; i < argc; i++) {
       int model_id = atoi(argv[i]);
-      executeModel(pdbClient, dbName, model_id);
+      executeModel(pdbClient, dbName, model_id, enablePartition);
     } 
   }
 

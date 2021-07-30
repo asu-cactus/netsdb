@@ -42,7 +42,7 @@ void clearSet(pdb::PDBClient &pdbClient, string dbname, int num_models) {
   }
 }
 
-void createSet(pdb::PDBClient &pdbClient, string dbname, int num_models, bool share) {
+void createSet(pdb::PDBClient &pdbClient, string dbname, int num_models, bool share, bool enablePartition) {
   string errMsg;
   int size = 128;
 
@@ -58,17 +58,45 @@ void createSet(pdb::PDBClient &pdbClient, string dbname, int num_models, bool sh
     string w2Name1 = getName1("w2", i);
     string b2Name1 = getName1("b2", i);
 
-    pdbClient.createSet<FFMatrixBlock>(dbname, inputName, errMsg, (size_t)size * (size_t)1024 * (size_t)1024, inputName1);
+    string compName1 = getName("inference-1", i);
+    string compName2 = getName("inference-2", i);
 
-    if (share) {
-      pdbClient.createSet<FFMatrixBlock>(dbname, w1Name, errMsg, (size_t)size * (size_t)1024 * (size_t)1024, w1Name1, nullptr, nullptr, true);
+    if (enablePartition) {
+      pdb::makeObjectAllocatorBlock((size_t)128 * (size_t)1024 * (size_t)1024, true);
+      Handle<LambdaIdentifier> inputLambda = pdb::makeObject<LambdaIdentifier>(compName1, "JoinComp_2", "methodCall_1");
+      pdbClient.createSet<FFMatrixBlock>(dbname, inputName, errMsg, (size_t)size * (size_t)1024 * (size_t)1024, inputName1, nullptr, inputLambda);
+
+      Handle<LambdaIdentifier> w1Lambda = pdb::makeObject<LambdaIdentifier>(compName1, "JoinComp_2", "methodCall_0");
+
+      if (share) {
+        pdbClient.createSet<FFMatrixBlock>(dbname, w1Name, errMsg, (size_t)size * (size_t)1024 * (size_t)1024, w1Name1, nullptr, w1Lambda, true);
+      } else {
+        pdbClient.createSet<FFMatrixBlock>(dbname, w1Name, errMsg, (size_t)size * (size_t)1024 * (size_t)1024, w1Name1, nullptr, w1Lambda);
+      }
+
+      Handle<LambdaIdentifier> b1Lambda = pdb::makeObject<LambdaIdentifier>(compName1, "JoinComp_5", "methodCall_0");
+      pdbClient.createSet<FFMatrixBlock>(dbname, b1Name, errMsg, (size_t)size * (size_t)1024 * (size_t)1024, b1Name1, nullptr, b1Lambda);
+
+      Handle<LambdaIdentifier> w2Lambda = pdb::makeObject<LambdaIdentifier>(compName1, "JoinComp_2", "methodCall_0");
+      pdbClient.createSet<FFMatrixBlock>(dbname, w2Name, errMsg, (size_t)size * (size_t)1024 * (size_t)1024, w2Name1, nullptr, w2Lambda);
+
+      Handle<LambdaIdentifier> b2Lambda = pdb::makeObject<LambdaIdentifier>(compName1, "JoinComp_5", "methodCall_0");
+      pdbClient.createSet<FFMatrixBlock>(dbname, b2Name, errMsg, (size_t)size * (size_t)1024 * (size_t)1024, b2Name1, nullptr, b2Lambda);
+
     } else {
-      pdbClient.createSet<FFMatrixBlock>(dbname, w1Name, errMsg, (size_t)size * (size_t)1024 * (size_t)1024, w1Name1);
+
+      pdbClient.createSet<FFMatrixBlock>(dbname, inputName, errMsg, (size_t)size * (size_t)1024 * (size_t)1024, inputName1);
+      if (share) {
+        pdbClient.createSet<FFMatrixBlock>(dbname, w1Name, errMsg, (size_t)size * (size_t)1024 * (size_t)1024, w1Name1, nullptr, nullptr, true);
+      } else {
+        pdbClient.createSet<FFMatrixBlock>(dbname, w1Name, errMsg, (size_t)size * (size_t)1024 * (size_t)1024, w1Name1);
+      }
+      pdbClient.createSet<FFMatrixBlock>(dbname, b1Name, errMsg, (size_t)size * (size_t)1024 * (size_t)1024, b1Name1);
+      pdbClient.createSet<FFMatrixBlock>(dbname, w2Name, errMsg, (size_t)size * (size_t)1024 * (size_t)1024, w2Name1);
+      pdbClient.createSet<FFMatrixBlock>(dbname, b2Name, errMsg, (size_t)size * (size_t)1024 * (size_t)1024, b2Name1);
+
     }
 
-    pdbClient.createSet<FFMatrixBlock>(dbname, b1Name, errMsg, (size_t)size * (size_t)1024 * (size_t)1024, b1Name1);
-    pdbClient.createSet<FFMatrixBlock>(dbname, w2Name, errMsg, (size_t)size * (size_t)1024 * (size_t)1024, w2Name1);
-    pdbClient.createSet<FFMatrixBlock>(dbname, b2Name, errMsg, (size_t)size * (size_t)1024 * (size_t)1024, b2Name1);
   }
 }
 
@@ -96,23 +124,22 @@ void loadSet(pdb::PDBClient &pdbClient, string dbname, int block_x, int block_y,
 
     // batch_size x features_size = 1000 x 597540
     ff::loadMatrix(pdbClient, dbname, inputName, batch_size, feature_size,
-                   block_x, block_y, false, false, errMsg);
-
+                   block_x, block_y, false, false, errMsg, 64, true);
     if (!share) {
       // hidden_layer_1 size x features_size = <1k, 3k, 5k, 7k> x 597540
       ff::loadMatrix(pdbClient, dbname, w1Name, hd1size, feature_size, block_x,
-                    block_y, false, false, errMsg);
+                    block_y, false, false, errMsg, 64, true);
     }
 
     // labels_size x hidden_layer_1 = 14588 X <1k, 3k, 5k, 7k>
     ff::loadMatrix(pdbClient, dbname, w2Name, label_size, hd1size, block_x,
-                   block_y, false, false, errMsg);
+                   block_y, false, false, errMsg, 64, true);
     // hidden_layer_1 x 1
     ff::loadMatrix(pdbClient, dbname, b1Name, hd1size, 1, block_x, block_y,
-                   false, true, errMsg);
+                   false, true, errMsg, 64, false);
     // labels_size x 1
     ff::loadMatrix(pdbClient, dbname, b2Name, label_size, 1, block_x, block_y,
-                   false, true, errMsg);
+                   false, true, errMsg, 64, false);
   }
 }
 
@@ -122,8 +149,8 @@ int main(int argc, char* argv[]) {
   string errMsg;
 
   // make sure we have the arguments
-  if(argc < 11) {
-    std::cout << "Usage : ./LoadAmazon14kData managerIP managerPort whetherToRegisterLibraries whetherToRemoveSet numModels blockDimensionX blockDimensionY share batchSize labelSize featureSize hiddenLayerSize\n";
+  if(argc < 12) {
+    std::cout << "Usage : ./LoadAmazon14kData managerIP managerPort whetherToRegisterLibraries whetherToRemoveSet numModels blockDimensionX blockDimensionY share batchSize labelSize featureSize hiddenLayerSize enablePartition\n";
     std::cout << "managerIP - IP of the manager\n";
     std::cout << "managerPort - Port of the manager\n";
     std::cout << "whetherToRegisterLibraries - Y yes, N no\n";
@@ -171,6 +198,8 @@ int main(int argc, char* argv[]) {
   int featureSize = std::atoi(argv[11]);
   int hiddenLayerSize = std::atoi(argv[12]);
 
+  bool enablePartition = strcmp(argv[13], "Y") == 0; 
+
   cout << "Loading " << numModels << " Models with batchSize: " << batchSize
       << ", labelsSize: " << labelSize << ", featureSize: " << featureSize
       << ", hiddenLayerSize: " << hiddenLayerSize << endl;
@@ -211,7 +240,7 @@ int main(int argc, char* argv[]) {
       clearSet(pdbClient, dbName, numModels);
   }
 
-  createSet(pdbClient, dbName, numModels, enableSharing);
+  createSet(pdbClient, dbName, numModels, enableSharing, enablePartition);
 
   loadSet(pdbClient, dbName, blockX, blockY, numModels, batchSize, labelSize, featureSize, hiddenLayerSize, enableSharing);
 
