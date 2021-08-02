@@ -9,10 +9,10 @@ master="172.31.19.173"
 
 # -----------------------------------------------------------------
 
-mems=(8192 9216 10240 11264 12288 13312 14336)
-# mems=(13312 14336 15360)
-thds=(4 8)
-mods=(2 3 4)
+# mems=(8192 9216 10240 11264 12288 13312 14336)
+mems=(13312)
+thds=(4)
+mods=(2)
 
 for mem in "${mems[@]}"
 do
@@ -28,9 +28,9 @@ do
             ./scripts/startWorkers.sh ../amitab.pem $master $threads $mem &
             sleep 10
 
-            ./bin/LoadAmazon14kData localhost 8108 Y N $models 500 500 Y 1000 14588 597540 1000 > share_${models}_1_server_${mem}_${threads}.log 2>&1
-            ./bin/RunAmazon14k Y $models >> share_${models}_1_server_${mem}_${threads}.log 2>&1
-            ./bin/RunAmazon14k Y $models >> share_${models}_1_server_${mem}_${threads}.log 2>&1
+            ./bin/LoadAmazon14kData localhost 8108 Y N $models 500 500 Y 1000 14588 597540 1000 N > share_${models}_1_server_${mem}_${threads}.log 2>&1
+            ./bin/RunAmazon14k Y $models N >> share_${models}_1_server_${mem}_${threads}.log 2>&1
+            ./bin/RunAmazon14k Y $models N >> share_${models}_1_server_${mem}_${threads}.log 2>&1
 
             sleep 2
 
@@ -41,9 +41,9 @@ do
             echo "### 2nd Run of shared ${models} models with ${mem}"
             echo "### 2nd Run of shared ${models} models with ${mem}" >> share_${models}_1_server_${mem}_${threads}.log
 
-            ./bin/LoadAmazon14kData localhost 8108 N Y $models 500 500 Y 1000 14588 597540 1000 >> share_${models}_1_server_${mem}_${threads}.log 2>&1
-            ./bin/RunAmazon14k N $models >> share_${models}_1_server_${mem}_${threads}.log 2>&1
-            ./bin/RunAmazon14k N $models >> share_${models}_1_server_${mem}_${threads}.log 2>&1
+            ./bin/LoadAmazon14kData localhost 8108 N Y $models 500 500 Y 1000 14588 597540 1000 Y >> share_${models}_1_server_${mem}_${threads}.log 2>&1
+            ./bin/RunAmazon14k N $models Y >> share_${models}_1_server_${mem}_${threads}.log 2>&1
+            ./bin/RunAmazon14k N $models Y >> share_${models}_1_server_${mem}_${threads}.log 2>&1
 
 
             sleep 2
@@ -67,9 +67,9 @@ do
             ./scripts/startWorkers.sh ../amitab.pem $master $threads $mem &
             sleep 10
 
-            ./bin/LoadAmazon14kData localhost 8108 Y N $models 500 500 N 1000 14588 597540 1000 > no_share_${models}_1_server_${mem}_${threads}.log 2>&1
-            ./bin/RunAmazon14k Y $models >> no_share_${models}_1_server_${mem}_${threads}.log 2>&1
-            ./bin/RunAmazon14k Y $models >> no_share_${models}_1_server_${mem}_${threads}.log 2>&1
+            ./bin/LoadAmazon14kData localhost 8108 Y N $models 500 500 N 1000 14588 597540 1000 N > no_share_${models}_1_server_${mem}_${threads}.log 2>&1
+            ./bin/RunAmazon14k Y $models N >> no_share_${models}_1_server_${mem}_${threads}.log 2>&1
+            ./bin/RunAmazon14k Y $models N >> no_share_${models}_1_server_${mem}_${threads}.log 2>&1
 
             sleep 2
 
@@ -80,9 +80,9 @@ do
             echo "### 2nd Run of not shared ${models} models with ${mem}"
             echo "### 2nd Run of not shared ${models} models with ${mem}" >> no_share_${models}_1_server_${mem}_${threads}.log
 
-            ./bin/LoadAmazon14kData localhost 8108 N Y $models 500 500 N 1000 14588 597540 1000 >> no_share_${models}_1_server_${mem}_${threads}.log 2>&1
-            ./bin/RunAmazon14k N $models >> no_share_${models}_1_server_${mem}_${threads}.log 2>&1
-            ./bin/RunAmazon14k N $models >> no_share_${models}_1_server_${mem}_${threads}.log 2>&1
+            ./bin/LoadAmazon14kData localhost 8108 N Y $models 500 500 N 1000 14588 597540 1000 Y >> no_share_${models}_1_server_${mem}_${threads}.log 2>&1
+            ./bin/RunAmazon14k N $models Y >> no_share_${models}_1_server_${mem}_${threads}.log 2>&1
+            ./bin/RunAmazon14k N $models Y >> no_share_${models}_1_server_${mem}_${threads}.log 2>&1
 
             sleep 2
 
