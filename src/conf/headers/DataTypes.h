@@ -27,7 +27,8 @@ typedef enum {
     PersistentLifetimeNotEnded,
     TransientLifetimeNotEndedPartialData,
     TransientLifetimeNotEndedShuffleData,
-    TransientLifetimeNotEndedHashData
+    TransientLifetimeNotEndedHashData,
+    PersistentSharedData
 } PriorityLevel;
 
 typedef enum { JobData, ShuffleData, HashPartitionData, PartialAggregationData } LocalityType;

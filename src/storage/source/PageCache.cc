@@ -17,6 +17,7 @@ using namespace std;
 #ifndef EVICT_STOP_THRESHOLD
 #define EVICT_STOP_THRESHOLD 0.9
 #endif
+#define NUM_PAGE_TYPES 7
 
 PageCache::PageCache(ConfigurationPtr conf,
                      pdb::PDBWorkerQueuePtr workers,
@@ -43,8 +44,8 @@ PageCache::PageCache(ConfigurationPtr conf,
 
     std::cout << "evictStopSize=" << evictStopSize << std::endl;
 
-    if (this->evictStopSize >= (shm->getShmSize() - 6 * conf->getMaxPageSize())) {
-        this->evictStopSize = shm->getShmSize() - 6 * conf->getMaxPageSize();
+    if (this->evictStopSize >= (shm->getShmSize() - NUM_PAGE_TYPES * conf->getMaxPageSize())) {
+        this->evictStopSize = shm->getShmSize() - NUM_PAGE_TYPES * conf->getMaxPageSize();
         std::cout << "evictStopSize=" << evictStopSize << std::endl;
         if (this->evictStopSize <= conf->getMaxPageSize()) {
             this->evictStopSize = conf->getMaxPageSize();
@@ -59,7 +60,7 @@ PageCache::PageCache(ConfigurationPtr conf,
     this->strategy = strategy;
     this->priorityList = new vector<list<LocalitySetPtr>*>();
     int i;
-    for (i = 0; i < 6; i++) {
+    for (i = 0; i < NUM_PAGE_TYPES; i++) {
         list<LocalitySetPtr>* curList = new list<LocalitySetPtr>();
         this->priorityList->push_back(curList);
     }
@@ -853,8 +854,21 @@ void PageCache::evict() {
      */
         std::cout << "to evict pages using a cost model" << std::endl;
 
-        double profiledWriteCosts[6] = {0, 0, 0, 6.30, 6.30, 12.82};
-        double profiledReadCosts[6] = {0, 0, 4.26, 4.26, 4.26, 8.07};
+        double write_cost = 0;
+        double read_cost = 0;
+
+#ifdef SHARED_WRITE_COST
+    write_cost = SHARED_WRITE_COST;
+    std::cout << "[CCFLAGS_VAR] WRITE_COST=" << write_cost << std::endl;
+#endif
+
+#ifdef SHARED_READ_COST
+    read_cost = SHARED_READ_COST;
+    std::cout << "[CCFLAGS_VAR] READ_COST=" << read_cost << std::endl;
+#endif
+
+        double profiledWriteCosts[NUM_PAGE_TYPES] = {0, 0, 0, 6.30, 6.30, 12.82, write_cost};
+        double profiledReadCosts[NUM_PAGE_TYPES] = {0, 0, 4.26, 4.26, 4.26, 8.07, read_cost};
  
 
         priority_queue<LocalitySetPtr, vector<LocalitySetPtr>, CompareLocalitySets> * localitySets =
@@ -863,7 +877,7 @@ void PageCache::evict() {
         list<LocalitySetPtr>* curList;
 
         int i, j;
-        for ( i = 0; i < 6; i++) {
+        for ( i = 0; i < NUM_PAGE_TYPES; i++) {
             curList = this->priorityList->at(i);
             for (list<LocalitySetPtr>::reverse_iterator it = curList->rbegin();
                  it != curList->rend();
@@ -918,7 +932,7 @@ void PageCache::evict() {
         int i, j;
         int numEvicted = 0;
         list<LocalitySetPtr>* curList;
-        for (i = 0; i < 6; i++) {
+        for (i = 0; i < NUM_PAGE_TYPES; i++) {
             curList = this->priorityList->at(i);
             /*for (list<LocalitySetPtr>::reverse_iterator it = curList->rbegin();
                  it != curList->rend();
@@ -1052,7 +1066,11 @@ void PageCache::pin(LocalitySetPtr set,
             this->addLocalitySetToPriorityList(set, TransientLifetimeNotEndedPartialData);
         }
     } else {
-        this->addLocalitySetToPriorityList(set, PersistentLifetimeNotEnded);
+        if (set->isShared()) {
+            this->addLocalitySetToPriorityList(set, PersistentSharedData);
+        } else {
+            this->addLocalitySetToPriorityList(set, PersistentLifetimeNotEnded);
+        }
     }
 }
 
