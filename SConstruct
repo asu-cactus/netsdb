@@ -55,11 +55,8 @@ elif  common_env['PLATFORM'] == 'posix':
          common_env.Append(LINKFLAGS = '-pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++ -lcrypto -lssl')
     common_env.Replace(CXX = "clang++-4.0")
 
-print("USING SHARED_WRITE_COST={}".format(os.environ['SHARED_WRITE_COST']))
-print("USING SHARED_READ_COST={}".format(os.environ['SHARED_READ_COST']))
-
-common_env.Append(CCFLAGS='-DSHARED_WRITE_COST={}'.format(os.environ['SHARED_WRITE_COST']))
-common_env.Append(CCFLAGS='-DSHARED_READ_COST={}'.format(os.environ['SHARED_READ_COST']))
+common_env.Append(CCFLAGS='-DSHARED_WRITE_COST={}'.format(os.environ.get('SHARED_WRITE_COST', "0.0")))
+common_env.Append(CCFLAGS='-DSHARED_READ_COST={}'.format(os.environ.get('SHARED_READ_COST', "0.0")))
 #common_env.Append(CCFLAGS='-DDEBUG_SIMPLE_FF_VERBOSE')
 #common_env.Append(CCFLAGS='-DDEBUG_VTABLE_FIXING')
 #common_env.Append(CCFLAGS='-DDEBUG_SHUFFLING')
