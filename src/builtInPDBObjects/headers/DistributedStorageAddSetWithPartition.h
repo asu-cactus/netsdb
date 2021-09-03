@@ -126,7 +126,7 @@ public:
         return this->lambdaName1;
     }
 
-    void setLambdaName1(std::string LambdaName1) {
+    void setLambdaName1(std::string lambdaName1) {
         this->lambdaName1 = lambdaName1;
     }
 
@@ -134,7 +134,7 @@ public:
         return this->lambdaName2;
     }
 
-    void setLambdaName2(std::string LambdaName2) {
+    void setLambdaName2(std::string lambdaName2) {
         this->lambdaName2 = lambdaName2;
     }
 

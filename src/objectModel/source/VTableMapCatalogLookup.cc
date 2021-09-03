@@ -69,7 +69,7 @@ void* VTableMap::getVTablePtrUsingCatalog(int16_t objectTypeID) {
                   << std::endl;
         std::cout << "   2) a shared library for that type has not been registered in the catalog"
                   << std::endl;
-        return nullptr;
+        exit(1);
     }
 
     // open up the shared library

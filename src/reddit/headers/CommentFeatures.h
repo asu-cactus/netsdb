@@ -1,6 +1,7 @@
 #ifndef COMMENT_FEATURES_H
 #define COMMENT_FEATURES_H
 
+#include <random>
 #include <algorithm>
 #include <cstdlib>
 #include <iostream>

@@ -2,6 +2,8 @@
 # for PDB
 
 
+from os.path import isfile, isdir, join, abspath
+from os import listdir
 import os
 import re
 import platform
@@ -9,81 +11,88 @@ import multiprocessing
 import glob
 from os import path
 
-common_env = Environment(CXX = 'clang++')
-#to install prerequisites
+common_env = Environment(CXX='clang++')
+# to install prerequisites
 if common_env['PLATFORM'] == 'darwin':
     os.system("brew install eigen")
 elif common_env['PLATFORM'] == 'posix':
+    os.system("sudo apt-get install flex bison")
+    os.system("sudo apt-get install build-essential checkinstall zlib1g-dev")
+    os.system("sudo apt-get install -y openssl")
     os.system("sudo apt-get install libeigen3-dev")
     os.system("sudo apt-get install libgsl-dev")
     os.system("sudo apt-get install libsnappy1v5 libsnappy-dev")
     os.system("sudo apt-get install libssl-dev")
-#common_env.Append(YACCFLAGS='-d')
+# common_env.Append(YACCFLAGS='-d')
 common_env.Append(CFLAGS='-std=c11')
 
 
 # the following variables are used for output coloring to see errors and warnings better.
-common_env = Environment(ENV = {'PATH' : os.environ['PATH'],
-                         'TERM' : os.environ['TERM'],
-                         'HOME' : os.environ['HOME']})
-SRC_ROOT = os.path.join(Dir('.').abspath, "src") # assume the root source dir is in the working dir named as "src"
+common_env = Environment(ENV={'PATH': os.environ['PATH'],
+                              'TERM': os.environ['TERM'],
+                              'HOME': os.environ['HOME']})
+# assume the root source dir is in the working dir named as "src"
+SRC_ROOT = os.path.join(Dir('.').abspath, "src")
 
 # OSX settings
 if common_env['PLATFORM'] == 'darwin':
-    print 'Compiling on OSX'
-    common_env.Append(CXXFLAGS = '-std=c++1y -Wall -Oz  -g')
+    print('Compiling on OSX')
+    common_env.Append(CXXFLAGS='-std=c++1y -Wall -Oz  -g')
 
-    common_env.Replace(CXX = "clang++")
+    common_env.Replace(CXX="clang++")
 
 # Linux settings
-elif  common_env['PLATFORM'] == 'posix':
-    print 'Compiling on Linux'
-    common_env.Append(LIBS = ['libdl.so', 'uuid'])
+elif common_env['PLATFORM'] == 'posix':
+    print('Compiling on Linux')
+    common_env.Append(LIBS=['libdl.so'])
 
-    #for optimization (TODO: O3 not good for Join now)
+    # for optimization (TODO: O3 not good for Join now)
     #common_env.Append(CXXFLAGS = '-std=c++14 -g -ftree-slp-vectorize -Oz -ldl -fPIC -lstdc++ -Wno-deprecated-declarations')
 
-    #for debugging
-    #Needs to be turned on for KMeans and TPCH
-    common_env.Append(CXXFLAGS = '-std=c++14 -g3 -O3 -fPIC -fno-tree-vectorize  -march=native -Winline  -Wno-deprecated-declarations')
+    # for debugging
+    # Needs to be turned on for KMeans and TPCH
+    common_env.Append(
+        CXXFLAGS='-std=c++14 -g3 -O3 -fPIC -fno-tree-vectorize  -march=native -Winline  -Wno-deprecated-declarations')
     #common_env.Append(CXXFLAGS = '-std=c++14 -g  -Oz -ldl -lstdc++ -Wno-deprecated-declarations')
     #LIBPYTORCH_PATH = "/home/ubuntu/anaconda3/envs/py37_torch/lib/python3.7/site-packages/torch/lib"
     LIBPYTORCH_PATH = "/home/ubuntu/pytorch/torch/lib"
     if os.path.exists(LIBPYTORCH_PATH):
-         common_env.Append(LINKFLAGS = '-L/home/ubuntu/pytorch/torch/lib -pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++ -lcrypto -lssl -ltorch -ltorch_cpu -lc10')
+        common_env.Append(
+            LINKFLAGS='-L/home/ubuntu/pytorch/torch/lib -pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++ -lcrypto -lssl -ltorch -ltorch_cpu -lc10')
     else:
-         common_env.Append(LINKFLAGS = '-pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++ -lcrypto -lssl')
+        common_env.Append(
+            LINKFLAGS='-pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++ -lcrypto -lssl')
 
-common_env.Replace(CXX = "clang++-4.0")
-#common_env.Append(CCFLAGS='-DDEBUG_SIMPLE_FF_VERBOSE')
-#common_env.Append(CCFLAGS='-DDEBUG_VTABLE_FIXING')
-#common_env.Append(CCFLAGS='-DDEBUG_SHUFFLING')
+common_env.Replace(CXX="clang++")
+# common_env.Append(CCFLAGS='-DDEBUG_SIMPLE_FF_VERBOSE')
+# common_env.Append(CCFLAGS='-DDEBUG_VTABLE_FIXING')
+# common_env.Append(CCFLAGS='-DDEBUG_SHUFFLING')
 common_env.Append(CCFLAGS='-DINITIALIZE_ALLOCATOR_BLOCK')
-#common_env.Append(CCFLAGS='-DENABLE_SHALLOW_COPY')
+# common_env.Append(CCFLAGS='-DENABLE_SHALLOW_COPY')
 common_env.Append(CCFLAGS='-DDEFAULT_BATCH_SIZE=1')
 common_env.Append(CCFLAGS='-DREMOVE_SET_WITH_EVICTION')
 common_env.Append(CCFLAGS='-DAUTO_TUNING')
 common_env.Append(CCFLAGS='-DPROFILING')
 common_env.Append(CCFLAGS='-DPROFILING_CACHE')
 common_env.Append(CCFLAGS='-DUSE_LOCALITY_SET')
-#we need this for self learning, so that if no partition lambda is found we use random policy
+# we need this for self learning, so that if no partition lambda is found we use random policy
 common_env.Append(CCFLAGS='-DRANDOME_DISPATCHER')
 # common_env.Append(CCFLAGS='-DAPPLY_REINFORCEMENT_LEARNING')
 common_env.Append(CCFLAGS='-DPROFILING_CACHE')
 common_env.Append(CCFLAGS='-DENABLE_LARGE_GRAPH')
-#for nearest neighbor search, below flag should be set to large like 200 for 64MB page size
+# for nearest neighbor search, below flag should be set to large like 200 for 64MB page size
 common_env.Append(CCFLAGS='-DJOIN_HASH_TABLE_SIZE_RATIO=1.5')
 common_env.Append(CCFLAGS='-DHASH_PARTITIONED_JOIN_SIZE_RATIO=2.0')
 common_env.Append(CCFLAGS='-DPROFILING')
 common_env.Append(CCFLAGS='-DJOIN_COST_THRESHOLD=0')
 common_env.Append(CCFLAGS='-DENABLE_COMPRESSION')
-#common_env.Append(CCFLAGS='-DPDB_DEBUG')
+# common_env.Append(CCFLAGS='-DPDB_DEBUG')
 common_env.Append(CCFLAGS='-DEVICT_STOP_THRESHOLD=0.90')
-#uncomment following for KMeans
-#common_env.Append(CCFLAGS='-DHASH_FOR_TPCH')
+# uncomment following for KMeans
+# common_env.Append(CCFLAGS='-DHASH_FOR_TPCH')
 common_env.Append(CCFLAGS='-DNUM_KMEANS_DIMENSIONS=10')
-#common_env.Append(CCFLAGS='-DUSE_MEMCACHED_SLAB_ALLOCATOR')
-#common_env.Append(CCFLAGS='-DCOLLECT_RESULTS_AS_ONE_PARTITION')
+# common_env.Append(CCFLAGS='-DUSE_MEMCACHED_SLAB_ALLOCATOR')
+# common_env.Append(CCFLAGS='-DCOLLECT_RESULTS_AS_ONE_PARTITION')
 # Make the build multithreaded
 num_cpu = int(multiprocessing.cpu_count())
 SetOption('num_jobs', num_cpu)
@@ -91,109 +100,121 @@ SetOption('num_jobs', num_cpu)
 # two code files that will be included by the VTableMap to pre-load all of the
 # built-in object types into the map
 objectTargetDir = os.path.join(SRC_ROOT, 'objectModel', 'headers')
+
+
 def writeIncludeFile(includes):
-	#
-	# print objectTargetDir + 'BuiltinPDBObjects.h'
-	#
-	# this is the file where the produced list of includes goes
-	includeFile = open(os.path.join(objectTargetDir, 'BuiltinPDBObjects.h'), 'w+')
-	includeFile.write ("// Auto-generated by code in SConstruct\n")
-	for fileName in includes:
-		includeFile.write ('#include "' + fileName + '"\n')
+    #
+    # print objectTargetDir + 'BuiltinPDBObjects.h'
+    #
+    # this is the file where the produced list of includes goes
+    includeFile = open(os.path.join(
+        objectTargetDir, 'BuiltinPDBObjects.h'), 'w+')
+    includeFile.write("// Auto-generated by code in SConstruct\n")
+    for fileName in includes:
+        includeFile.write('#include "' + fileName + '"\n')
+
 
 def writeCodeFile(classes):
-	#
-	# this is the file where the produced code goes
-	codeFile = open(os.path.join(objectTargetDir,'BuiltinPDBObjects.cc'), 'w+')
-	codeFile.write ("// Auto-generated by code in SConstruct\n\n")
-	codeFile.write ("// first, record all of the type codes\n")
+    #
+    # this is the file where the produced code goes
+    codeFile = open(os.path.join(objectTargetDir,
+                                 'BuiltinPDBObjects.cc'), 'w+')
+    codeFile.write("// Auto-generated by code in SConstruct\n\n")
+    codeFile.write("// first, record all of the type codes\n")
 
-	for counter, classname in enumerate(classes, 1):
-		codeFile.write ('objectTypeNamesList [getTypeName <' + classname + '> ()] = ' + str(2 + counter) + ';\n')
+    for counter, classname in enumerate(classes, 1):
+        codeFile.write(
+            'objectTypeNamesList [getTypeName <' + classname + '> ()] = ' + str(2 + counter) + ';\n')
 
-	codeFile.write ('\n// now, record all of the vTables\n')
+    codeFile.write('\n// now, record all of the vTables\n')
 
-	for counter, classname in enumerate(classes, 1):
-		codeFile.write ('{\n\tconst UseTemporaryAllocationBlock tempBlock{1024 * 24};');
-		codeFile.write ('\n\ttry {\n\t\t')
-		codeFile.write (classname + ' tempObject;\n')
-		codeFile.write ('\t\tallVTables [' + str(2 + counter) + '] = tempObject.getVTablePtr ();\n')
-		codeFile.write ('\t} catch (NotEnoughSpace &e) {\n\t\t')
-		codeFile.write ('std :: cout << "Not enough memory to allocate ' + classname + ' to extract the vTable.\\n";\n\t}\n}\n\n');
+    for counter, classname in enumerate(classes, 1):
+        codeFile.write(
+            '{\n\tconst UseTemporaryAllocationBlock tempBlock{1024 * 24};')
+        codeFile.write('\n\ttry {\n\t\t')
+        codeFile.write(classname + ' tempObject;\n')
+        codeFile.write(
+            '\t\tallVTables [' + str(2 + counter) + '] = tempObject.getVTablePtr ();\n')
+        codeFile.write('\t} catch (NotEnoughSpace &e) {\n\t\t')
+        codeFile.write('std :: cout << "Not enough memory to allocate ' +
+                       classname + ' to extract the vTable.\\n";\n\t}\n}\n\n')
+
 
 def writeTypeCodesFile(classes):
-	#
-	# this is the file where all of the built-in type codes goes
-	typeCodesFile = open(os.path.join(objectTargetDir, 'BuiltInObjectTypeIDs.h'), 'w+')
-	typeCodesFile.write ("// Auto-generated by code in SConstruct\n")
- 	typeCodesFile.write ('#define NoMsg_TYPEID 0\n')
+    typeCodesFile = open(os.path.join(
+        objectTargetDir, 'BuiltInObjectTypeIDs.h'), 'w+')
+    typeCodesFile.write('// Auto-generated by code in SConstruct\n')
+    typeCodesFile.write('#define NoMsg_TYPEID 0\n')
+    # write out the String and Handle types, since they are not PDB Objects (an optimization)
+    typeCodesFile.write('#define String_TYPEID 1\n')
+    typeCodesFile.write('#define Handle_TYPEID 2\n')
 
-	# write out the String and Handle types, since they are not PDB Objects (an optimization)
-	typeCodesFile.write('#define String_TYPEID 1\n')
-	typeCodesFile.write('#define Handle_TYPEID 2\n')
+    for counter, classname in enumerate(classes, 1):
+        pattern = re.compile('\<[\w\s\<\>]*\>')
+        if pattern.search(classname):
+            templateArg = pattern.search(classname)
+            classname = classname.replace(templateArg.group(), "").strip()
+            #
+        # Remove the namespace if any
+        classname = classname.rsplit("::")[-1]
+        typeCodesFile.write('#define ' + classname +
+                            '_TYPEID ' + str(2 + counter) + '\n')
 
-	for counter, classname in enumerate(classes, 1):
-		pattern = re.compile('\<[\w\s\<\>]*\>')
-		if pattern.search (classname):
-			templateArg = pattern.search (classname)
-			classname = classname.replace (templateArg.group (), "").strip ()
-			#
-		# Remove the namespace if any
-		classname = classname.rsplit("::")[-1]
-		typeCodesFile.write('#define ' + classname + '_TYPEID ' + str(2 + counter) + '\n')
 
 def writeFiles(includes, classes):
-	writeIncludeFile(includes)
-	writeCodeFile(classes)
-	writeTypeCodesFile(classes)
+    writeIncludeFile(includes)
+    writeCodeFile(classes)
+    writeTypeCodesFile(classes)
+
 
 def scanClassNames(includes):
-	for counter, fileName in enumerate(includes, 1):
-		datafile = file(fileName)
-		# search for a line like:
-		# // PRELOAD %ObjectTwo%
-		p = re.compile('//\s*PRELOAD\s*%[\w\s\<\>]*%')
-		for line in datafile:
-			# if we found the line
-			if p.search(line):
-				# extract the text between the two '%' symbols
-				m = p.search(line)
-				instance = m.group ()
-				p = re.compile('%[\w\s\<\>]*%')
-				m = p.search(instance)
-				yield (m.group ())[1:-1]
+    for counter, fileName in enumerate(includes, 1):
+        datafile = open(fileName)
+        # search for a line like:
+        # // PRELOAD %ObjectTwo%
+        p = re.compile('//\s*PRELOAD\s*%[\w\s\<\>]*%')
+        for line in datafile:
+            # if we found the line
+            if p.search(line):
+                # extract the text between the two '%' symbols
+                m = p.search(line)
+                instance = m.group()
+                p = re.compile('%[\w\s\<\>]*%')
+                m = p.search(instance)
+                yield (m.group())[1:-1]
 
-def extractCode (common_env, targets, sources, extra_includes=[], extra_classes=[]):
+
+def extractCode(common_env, targets, sources, extra_includes=[], extra_classes=[]):
     # Sort the class names so that we have consistent type ids
-	scanned = list(scanClassNames(sources))
-	scanned.sort()
-	writeFiles(
-		includes=map(path.abspath, list(extra_includes)) + sources,
-		classes=list(extra_classes) + scanned)
+    scanned = list(scanClassNames(sources))
+    scanned.sort()
+    writeFiles(
+        includes=list(map(path.abspath, list(extra_includes))) + sources,
+        classes=list(extra_classes)+scanned)
+
 
 # here we get a list of all of the .h files in the 'headers' directory
-from os import listdir
-from os.path import isfile, isdir, join, abspath
 objectheaders = os.path.join(SRC_ROOT, 'builtInPDBObjects', 'headers')
-onlyfiles = [abspath(join(objectheaders, f)) for f in listdir(objectheaders) if isfile(join(objectheaders, f)) and f[-2:] == '.h']
+onlyfiles = [abspath(join(objectheaders, f)) for f in listdir(
+    objectheaders) if isfile(join(objectheaders, f)) and f[-2:] == '.h']
 
 # tell scons that the two files 'BuiltinPDBObjects.h' and 'BuiltinPDBObjects.cc' depend on everything in
 # the 'headers' directory
-common_env.Depends (objectTargetDir + 'BuiltinPDBObjects.h', onlyfiles)
-common_env.Depends (objectTargetDir + 'BuiltinPDBObjects.cc', onlyfiles)
-common_env.Depends (objectTargetDir + 'BuiltInObjectTypeIDs.h', onlyfiles)
+common_env.Depends(objectTargetDir + 'BuiltinPDBObjects.h', onlyfiles)
+common_env.Depends(objectTargetDir + 'BuiltinPDBObjects.cc', onlyfiles)
+common_env.Depends(objectTargetDir + 'BuiltInObjectTypeIDs.h', onlyfiles)
 
 # tell scons that the way to build 'BuiltinPDBObjects.h' and 'BuiltinPDBObjects.cc' is to run extractCode
-builtInObjectBuilder = Builder (action = extractCode)
-common_env.Append (BUILDERS = {'ExtactCode' : extractCode})
-common_env.ExtactCode (
-    [ # Target files
+builtInObjectBuilder = Builder(action=extractCode)
+common_env.Append(BUILDERS={'ExtactCode': extractCode})
+common_env.ExtactCode(
+    [  # Target files
         objectTargetDir + 'BuiltinPDBObjects.h',
         objectTargetDir + 'BuiltinPDBObjects.cc',
         objectTargetDir + 'BuiltInObjectTypeIDs.h'
     ],
-    onlyfiles, # sources
-    )
+    onlyfiles,  # sources
+)
 
 # Construct a dictionary where each key is the directory basename of a PDB system component folder and each value
 # is a list of .cc files used to implement that component.
@@ -222,14 +243,15 @@ common_env.ExtactCode (
 #    'compB':[SRC_ROOT + "/compB/source/file3.cc", SRC_ROOT + "/compB/source/file3.cc"]}
 #
 # on a Linux system.
-component_dir_basename_to_lexer_c_file_paths = dict ()
-component_dir_basename_to_cc_file_paths = dict ()
-component_dir_basename_to_lexer_file_paths = dict ()
-src_root_subdir_paths = [path for path in  map(lambda s: join(SRC_ROOT, s), listdir(SRC_ROOT)) if isdir(path)]
+component_dir_basename_to_lexer_c_file_paths = dict()
+component_dir_basename_to_cc_file_paths = dict()
+component_dir_basename_to_lexer_file_paths = dict()
+src_root_subdir_paths = [path for path in map(
+    lambda s: join(SRC_ROOT, s), listdir(SRC_ROOT)) if isdir(path)]
 for src_subdir_path in src_root_subdir_paths:
 
     source_folder = join(src_subdir_path, 'source/')
-    if(not isdir(source_folder)): # if no source folder lives under the subdir_path, skip this folder
+    if(not isdir(source_folder)):  # if no source folder lives under the subdir_path, skip this folder
         continue
 
     src_subdir_basename = os.path.basename(src_subdir_path)
@@ -237,70 +259,85 @@ for src_subdir_path in src_root_subdir_paths:
     # first, map build output folders (on the left) to source folders (on the right)
     if src_subdir_basename == 'logicalPlan':
         # maps .y and .l source files used by flex and bison
-        lexerSources = [abspath(join(join (source_folder),f2)) for f2 in listdir(source_folder) if isfile(join(source_folder, f2)) and (f2[-2:] == '.y' or f2[-2:] == '.l')]
-        component_dir_basename_to_lexer_file_paths [src_subdir_basename] = lexerSources
-        
+        lexerSources = [abspath(join(join(source_folder), f2)) for f2 in listdir(
+            source_folder) if isfile(join(source_folder, f2)) and (f2[-2:] == '.y' or f2[-2:] == '.l')]
+        component_dir_basename_to_lexer_file_paths[src_subdir_basename] = lexerSources
+
         # maps .cc source files
-        common_env.VariantDir(join('build/', src_subdir_basename), [source_folder], duplicate = 0)        
-        ccSources = [abspath(join(join ('build/', src_subdir_basename),f2)) for f2 in listdir(source_folder) if isfile(join(source_folder, f2)) and (f2[-3:] == '.cc')]        
+        common_env.VariantDir(
+            join('build/', src_subdir_basename), [source_folder], duplicate=0)
+        ccSources = [abspath(join(join('build/', src_subdir_basename), f2)) for f2 in listdir(
+            source_folder) if isfile(join(source_folder, f2)) and (f2[-3:] == '.cc')]
 
-        component_dir_basename_to_cc_file_paths [src_subdir_basename] = ccSources
+        component_dir_basename_to_cc_file_paths[src_subdir_basename] = ccSources
 
-        # maps .c files        
-        cSources = [(abspath(join(join ('build/', src_subdir_basename),'Parser.c'))), (abspath(join(join ('build/', src_subdir_basename),'Lexer.c')))]
-        
+        # maps .c files
+        cSources = [(abspath(join(join('build/', src_subdir_basename), 'Parser.c'))),
+                    (abspath(join(join('build/', src_subdir_basename), 'Lexer.c')))]
+
         #component_dir_basename_to_lexer_c_file_paths [src_subdir_basename] = cSources
-    
+
     # Added for LinearAlgebraDSL
     elif src_subdir_basename == 'linearAlgebraDSL':
         # maps .y and .l source files used by flex and bison
-        lexerSources = [abspath(join(join (source_folder),f2)) for f2 in listdir(source_folder) if isfile(join(source_folder, f2)) and (f2[-2:] == '.y' or f2[-2:] == '.l')]
-        component_dir_basename_to_lexer_file_paths [src_subdir_basename] = lexerSources
-        
+        lexerSources = [abspath(join(join(source_folder), f2)) for f2 in listdir(
+            source_folder) if isfile(join(source_folder, f2)) and (f2[-2:] == '.y' or f2[-2:] == '.l')]
+        component_dir_basename_to_lexer_file_paths[src_subdir_basename] = lexerSources
+
         # maps .cc source files
-        common_env.VariantDir(join('build/', src_subdir_basename), [source_folder], duplicate = 0)        
-        ccSources = [abspath(join(join ('build/', src_subdir_basename),f2)) for f2 in listdir(source_folder) if isfile(join(source_folder, f2)) and (f2[-3:] == '.cc')]        
+        common_env.VariantDir(
+            join('build/', src_subdir_basename), [source_folder], duplicate=0)
+        ccSources = [abspath(join(join('build/', src_subdir_basename), f2)) for f2 in listdir(
+            source_folder) if isfile(join(source_folder, f2)) and (f2[-3:] == '.cc')]
 
-        component_dir_basename_to_cc_file_paths [src_subdir_basename] = ccSources
+        component_dir_basename_to_cc_file_paths[src_subdir_basename] = ccSources
 
-        # maps .c files        
-        cSources = [(abspath(join(join ('build/', src_subdir_basename),'LAParser.c'))), (abspath(join(join ('build/', src_subdir_basename),'LALexer.c')))]
-        
-        component_dir_basename_to_lexer_c_file_paths [src_subdir_basename] = cSources
+        # maps .c files
+        cSources = [(abspath(join(join('build/', src_subdir_basename), 'LAParser.c'))),
+                    (abspath(join(join('build/', src_subdir_basename), 'LALexer.c')))]
+
+        component_dir_basename_to_lexer_c_file_paths[src_subdir_basename] = cSources
 
     else:
-        common_env.VariantDir(join('build/', src_subdir_basename), [source_folder], duplicate = 0)
+        common_env.VariantDir(
+            join('build/', src_subdir_basename), [source_folder], duplicate=0)
 
         # next, add all of the sources in
-        allSources = [abspath(join(join ('build/', src_subdir_basename),f2)) for f2 in listdir(source_folder) if isfile(join(source_folder, f2)) and (f2[-3:] == '.cc' or f2[-2:] == '.y' or f2[-2:] == '.l')]
-        component_dir_basename_to_cc_file_paths [src_subdir_basename] = allSources
+        allSources = [abspath(join(join('build/', src_subdir_basename), f2)) for f2 in listdir(source_folder)
+                      if isfile(join(source_folder, f2)) and (f2[-3:] == '.cc' or f2[-2:] == '.y' or f2[-2:] == '.l')]
+        component_dir_basename_to_cc_file_paths[src_subdir_basename] = allSources
 
 # second, map build output folders (on the left) to source folders (on the right) for .so libraries
-common_env.VariantDir('build/libraries/', 'src/sharedLibraries/source/', duplicate = 0)
+common_env.VariantDir('build/libraries/',
+                      'src/sharedLibraries/source/', duplicate=0)
 
 # List of folders with headers
-headerpaths = [abspath(join(join(SRC_ROOT, f), 'headers/')) for f in listdir(SRC_ROOT) if os.path.isdir (join(join(SRC_ROOT, f), 'headers/'))]
+headerpaths = [abspath(join(join(SRC_ROOT, f), 'headers/'))
+               for f in listdir(SRC_ROOT) if os.path.isdir(join(join(SRC_ROOT, f), 'headers/'))]
 
-#boost has its own folder structure, which is difficult to be converted to our headers/source structure --Jia
+# boost has its own folder structure, which is difficult to be converted to our headers/source structure --Jia
 # set BOOST_ROOT and BOOST_SRC_ROOT
 BOOST_ROOT = os.path.join(Dir('.').abspath, "src/boost")
 BOOST_SRC_ROOT = os.path.join(Dir('.').abspath, "src/boost/libs")
 # map all boost source files to a list
-boost_component_dir_basename_to_cc_file_paths = dict ()
-boost_src_root_subdir_paths = [path for path in  map(lambda s: join(BOOST_SRC_ROOT, s), listdir(BOOST_SRC_ROOT)) if isdir(path)]
+boost_component_dir_basename_to_cc_file_paths = dict()
+boost_src_root_subdir_paths = [path for path in map(lambda s: join(
+    BOOST_SRC_ROOT, s), listdir(BOOST_SRC_ROOT)) if isdir(path)]
 for boost_src_subdir_path in boost_src_root_subdir_paths:
-        boost_source_folder = join(boost_src_subdir_path, 'src/')
-        if(not isdir(boost_source_folder)): # if no source folder lives under the subdir_path, skip this folder
-                continue
+    boost_source_folder = join(boost_src_subdir_path, 'src/')
+    if(not isdir(boost_source_folder)):  # if no source folder lives under the subdir_path, skip this folder
+        continue
 
-        boost_src_subdir_basename = os.path.basename(boost_src_subdir_path)
+    boost_src_subdir_basename = os.path.basename(boost_src_subdir_path)
 
-        # first, map build output folders (on the left) to source folders (on the right)
-        common_env.VariantDir(join('build/', boost_src_subdir_basename), [boost_source_folder], duplicate = 0)
+    # first, map build output folders (on the left) to source folders (on the right)
+    common_env.VariantDir(
+        join('build/', boost_src_subdir_basename), [boost_source_folder], duplicate=0)
 
-        # next, add all of the sources in
-        allBoostSources = [abspath(join(join ('build/', boost_src_subdir_basename),f2)) for f2 in listdir(boost_source_folder) if isfile(join(boost_source_folder, f2)) and f2[-4:] == '.cpp']
-        boost_component_dir_basename_to_cc_file_paths [boost_src_subdir_basename] = allBoostSources
+    # next, add all of the sources in
+    allBoostSources = [abspath(join(join('build/', boost_src_subdir_basename), f2)) for f2 in listdir(
+        boost_source_folder) if isfile(join(boost_source_folder, f2)) and f2[-4:] == '.cpp']
+    boost_component_dir_basename_to_cc_file_paths[boost_src_subdir_basename] = allBoostSources
 
 EIGEN3_ROOT = "/usr/include/eigen3"
 
@@ -319,14 +356,13 @@ if os.path.exists(LIBPYTORCH_ROOT):
 headerpaths.append(BOOST_ROOT)
 
 
-
 # Adds header folders and required libraries
-common_env.Append(CPPPATH = headerpaths)
+common_env.Append(CPPPATH=headerpaths)
 
-print 'Platform: ' + platform.platform()
-print 'System: ' + platform.system()
-print 'Release: ' + platform.release()
-print 'Version: ' + platform.version()
+print('Platform: ', platform.platform())
+print('System: ', platform.system())
+print('Release: ', platform.release())
+print('Version: ', platform.version())
 
 all = ['build/sqlite/sqlite3.c',
        component_dir_basename_to_cc_file_paths['serverFunctionalities'],
@@ -349,424 +385,791 @@ all = ['build/sqlite/sqlite3.c',
        boost_component_dir_basename_to_cc_file_paths['filesystem'],
        boost_component_dir_basename_to_cc_file_paths['program_options'],
        boost_component_dir_basename_to_cc_file_paths['system'],
-      ]
+       ]
 
 pdb_client = component_dir_basename_to_cc_file_paths['mainClient']
 
-common_env.SharedLibrary('libraries/libAllSelection.so', ['build/libraries/AllSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libEmpWithVector.so', ['build/libraries/EmpWithVector.cc'] + all)
-common_env.SharedLibrary('libraries/libTopKTest.so', ['build/libraries/TopKTest.cc'] + all)
-common_env.SharedLibrary('libraries/libScanEmpWithVector.so', ['build/libraries/ScanEmpWithVector.cc'] + all)
-common_env.SharedLibrary('libraries/libWriteEmpWithVector.so', ['build/libraries/WriteEmpWithVector.cc'] + all)
-common_env.SharedLibrary('libraries/libAllSelectionWithCreation.so', ['build/libraries/AllSelectionWithCreation.cc'] + all)
-common_env.SharedLibrary('libraries/libCartesianJoin.so', ['build/libraries/CartesianJoin.cc'] + all)
-common_env.SharedLibrary('libraries/libEmployeeBuiltInIdentitySelection.so', ['build/libraries/EmployeeBuiltInIdentitySelection.cc'] + all)
-common_env.SharedLibrary('libraries/libEmployeeIdentitySelection.so', ['build/libraries/EmployeeIdentitySelection.cc'] + all)
-common_env.SharedLibrary('libraries/libEmployeeSelection.so', ['build/libraries/EmployeeSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libFinalSelection.so', ['build/libraries/FinalSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libIntAggregation.so', ['build/libraries/IntAggregation.cc'] + all)
-common_env.SharedLibrary('libraries/libIntSelectionOfStringIntPair.so', ['build/libraries/IntSelectionOfStringIntPair.cc'] + all)
-common_env.SharedLibrary('libraries/libIntSillyJoin.so', ['build/libraries/IntSillyJoin.cc'] + all)
-common_env.SharedLibrary('libraries/libMethodJoin.so', ['build/libraries/MethodJoin.cc'] + all)
-common_env.SharedLibrary('libraries/libOptimizedMethodJoin.so', ['build/libraries/OptimizedMethodJoin.cc'] + all)
-common_env.SharedLibrary('libraries/libKMeansQuery.so', ['build/libraries/KMeansQuery.cc'] + all)
+common_env.SharedLibrary('libraries/libAllSelection.so',
+                         ['build/libraries/AllSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libEmpWithVector.so',
+                         ['build/libraries/EmpWithVector.cc'] + all)
+common_env.SharedLibrary('libraries/libTopKTest.so',
+                         ['build/libraries/TopKTest.cc'] + all)
+common_env.SharedLibrary('libraries/libScanEmpWithVector.so',
+                         ['build/libraries/ScanEmpWithVector.cc'] + all)
+common_env.SharedLibrary('libraries/libWriteEmpWithVector.so',
+                         ['build/libraries/WriteEmpWithVector.cc'] + all)
+common_env.SharedLibrary('libraries/libAllSelectionWithCreation.so',
+                         ['build/libraries/AllSelectionWithCreation.cc'] + all)
+common_env.SharedLibrary('libraries/libCartesianJoin.so',
+                         ['build/libraries/CartesianJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libEmployeeBuiltInIdentitySelection.so',
+                         ['build/libraries/EmployeeBuiltInIdentitySelection.cc'] + all)
+common_env.SharedLibrary('libraries/libEmployeeIdentitySelection.so',
+                         ['build/libraries/EmployeeIdentitySelection.cc'] + all)
+common_env.SharedLibrary('libraries/libEmployeeSelection.so',
+                         ['build/libraries/EmployeeSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libFinalSelection.so',
+                         ['build/libraries/FinalSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libIntAggregation.so',
+                         ['build/libraries/IntAggregation.cc'] + all)
+common_env.SharedLibrary('libraries/libIntSelectionOfStringIntPair.so',
+                         ['build/libraries/IntSelectionOfStringIntPair.cc'] + all)
+common_env.SharedLibrary('libraries/libIntSillyJoin.so',
+                         ['build/libraries/IntSillyJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libMethodJoin.so',
+                         ['build/libraries/MethodJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libOptimizedMethodJoin.so',
+                         ['build/libraries/OptimizedMethodJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libKMeansQuery.so',
+                         ['build/libraries/KMeansQuery.cc'] + all)
 
-common_env.SharedLibrary('libraries/libLAMaxElementOutputType.so', ['build/libraries/LAMaxElementOutputType.cc'] + all)
-common_env.SharedLibrary('libraries/libLAMaxElementValueType.so', ['build/libraries/LAMaxElementValueType.cc'] + all)
-common_env.SharedLibrary('libraries/libLAMinElementOutputType.so', ['build/libraries/LAMinElementOutputType.cc'] + all)
-common_env.SharedLibrary('libraries/libLAMinElementValueType.so', ['build/libraries/LAMinElementValueType.cc'] + all)
-common_env.SharedLibrary('libraries/libLAScanMatrixBlockSet.so', ['build/libraries/LAScanMatrixBlockSet.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyAddJoin.so', ['build/libraries/LASillyAddJoin.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyColMaxAggregate.so', ['build/libraries/LASillyColMaxAggregate.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyColMinAggregate.so', ['build/libraries/LASillyColMinAggregate.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyColSumAggregate.so', ['build/libraries/LASillyColSumAggregate.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyDuplicateColMultiSelection.so', ['build/libraries/LASillyDuplicateColMultiSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyDuplicateRowMultiSelection.so', ['build/libraries/LASillyDuplicateRowMultiSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyInverse1Aggregate.so', ['build/libraries/LASillyInverse1Aggregate.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyInverse2Selection.so', ['build/libraries/LASillyInverse2Selection.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyInverse3MultiSelection.so', ['build/libraries/LASillyInverse3MultiSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyMaxElementAggregate.so', ['build/libraries/LASillyMaxElementAggregate.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyMinElementAggregate.so', ['build/libraries/LASillyMinElementAggregate.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyMultiply1Join.so', ['build/libraries/LASillyMultiply1Join.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyMultiply2Aggregate.so', ['build/libraries/LASillyMultiply2Aggregate.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyRowMaxAggregate.so', ['build/libraries/LASillyRowMaxAggregate.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyRowMinAggregate.so', ['build/libraries/LASillyRowMinAggregate.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyRowSumAggregate.so', ['build/libraries/LASillyRowSumAggregate.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyScaleMultiplyJoin.so', ['build/libraries/LASillyScaleMultiplyJoin.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillySubstractJoin.so', ['build/libraries/LASillySubstractJoin.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyTransposeMultiply1Join.so', ['build/libraries/LASillyTransposeMultiply1Join.cc'] + all)
-common_env.SharedLibrary('libraries/libLASillyTransposeSelection.so', ['build/libraries/LASillyTransposeSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libLASingleMatrix.so', ['build/libraries/LASingleMatrix.cc'] + all)
-common_env.SharedLibrary('libraries/libLAWriteMatrixBlockSet.so', ['build/libraries/LAWriteMatrixBlockSet.cc'] + all)
-common_env.SharedLibrary('libraries/libLAWriteMaxElementSet.so', ['build/libraries/LAWriteMaxElementSet.cc'] + all)
-common_env.SharedLibrary('libraries/libLAWriteMinElementSet.so', ['build/libraries/LAWriteMinElementSet.cc'] + all)
-common_env.SharedLibrary('libraries/libMatrixBlock.so', ['build/libraries/MatrixBlock.cc'] + all)
-common_env.SharedLibrary('libraries/libMatrixData.so', ['build/libraries/MatrixData.cc'] + all)
-common_env.SharedLibrary('libraries/libMatrixMeta.so', ['build/libraries/MatrixMeta.cc'] + all)
+common_env.SharedLibrary('libraries/libLAMaxElementOutputType.so',
+                         ['build/libraries/LAMaxElementOutputType.cc'] + all)
+common_env.SharedLibrary('libraries/libLAMaxElementValueType.so',
+                         ['build/libraries/LAMaxElementValueType.cc'] + all)
+common_env.SharedLibrary('libraries/libLAMinElementOutputType.so',
+                         ['build/libraries/LAMinElementOutputType.cc'] + all)
+common_env.SharedLibrary('libraries/libLAMinElementValueType.so',
+                         ['build/libraries/LAMinElementValueType.cc'] + all)
+common_env.SharedLibrary('libraries/libLAScanMatrixBlockSet.so',
+                         ['build/libraries/LAScanMatrixBlockSet.cc'] + all)
+common_env.SharedLibrary('libraries/libLASillyAddJoin.so',
+                         ['build/libraries/LASillyAddJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libLASillyColMaxAggregate.so',
+                         ['build/libraries/LASillyColMaxAggregate.cc'] + all)
+common_env.SharedLibrary('libraries/libLASillyColMinAggregate.so',
+                         ['build/libraries/LASillyColMinAggregate.cc'] + all)
+common_env.SharedLibrary('libraries/libLASillyColSumAggregate.so',
+                         ['build/libraries/LASillyColSumAggregate.cc'] + all)
+common_env.SharedLibrary('libraries/libLASillyDuplicateColMultiSelection.so',
+                         ['build/libraries/LASillyDuplicateColMultiSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libLASillyDuplicateRowMultiSelection.so',
+                         ['build/libraries/LASillyDuplicateRowMultiSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libLASillyInverse1Aggregate.so',
+                         ['build/libraries/LASillyInverse1Aggregate.cc'] + all)
+common_env.SharedLibrary('libraries/libLASillyInverse2Selection.so',
+                         ['build/libraries/LASillyInverse2Selection.cc'] + all)
+common_env.SharedLibrary('libraries/libLASillyInverse3MultiSelection.so',
+                         ['build/libraries/LASillyInverse3MultiSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libLASillyMaxElementAggregate.so',
+                         ['build/libraries/LASillyMaxElementAggregate.cc'] + all)
+common_env.SharedLibrary('libraries/libLASillyMinElementAggregate.so',
+                         ['build/libraries/LASillyMinElementAggregate.cc'] + all)
+common_env.SharedLibrary('libraries/libLASillyMultiply1Join.so',
+                         ['build/libraries/LASillyMultiply1Join.cc'] + all)
+common_env.SharedLibrary('libraries/libLASillyMultiply2Aggregate.so',
+                         ['build/libraries/LASillyMultiply2Aggregate.cc'] + all)
+common_env.SharedLibrary('libraries/libLASillyRowMaxAggregate.so',
+                         ['build/libraries/LASillyRowMaxAggregate.cc'] + all)
+common_env.SharedLibrary('libraries/libLASillyRowMinAggregate.so',
+                         ['build/libraries/LASillyRowMinAggregate.cc'] + all)
+common_env.SharedLibrary('libraries/libLASillyRowSumAggregate.so',
+                         ['build/libraries/LASillyRowSumAggregate.cc'] + all)
+common_env.SharedLibrary('libraries/libLASillyScaleMultiplyJoin.so',
+                         ['build/libraries/LASillyScaleMultiplyJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libLASillySubstractJoin.so',
+                         ['build/libraries/LASillySubstractJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libLASillyTransposeMultiply1Join.so',
+                         ['build/libraries/LASillyTransposeMultiply1Join.cc'] + all)
+common_env.SharedLibrary('libraries/libLASillyTransposeSelection.so',
+                         ['build/libraries/LASillyTransposeSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libLASingleMatrix.so',
+                         ['build/libraries/LASingleMatrix.cc'] + all)
+common_env.SharedLibrary('libraries/libLAWriteMatrixBlockSet.so',
+                         ['build/libraries/LAWriteMatrixBlockSet.cc'] + all)
+common_env.SharedLibrary('libraries/libLAWriteMaxElementSet.so',
+                         ['build/libraries/LAWriteMaxElementSet.cc'] + all)
+common_env.SharedLibrary('libraries/libLAWriteMinElementSet.so',
+                         ['build/libraries/LAWriteMinElementSet.cc'] + all)
+common_env.SharedLibrary('libraries/libMatrixBlock.so',
+                         ['build/libraries/MatrixBlock.cc'] + all)
+common_env.SharedLibrary('libraries/libMatrixData.so',
+                         ['build/libraries/MatrixData.cc'] + all)
+common_env.SharedLibrary('libraries/libMatrixMeta.so',
+                         ['build/libraries/MatrixMeta.cc'] + all)
 
 
-common_env.SharedLibrary('libraries/libPartialResult.so', ['build/libraries/PartialResult.cc'] + all)
-common_env.SharedLibrary('libraries/libScanBuiltinEmployeeSet.so', ['build/libraries/ScanBuiltinEmployeeSet.cc'] + all)
-common_env.SharedLibrary('libraries/libScanEmployeeSet.so', ['build/libraries/ScanEmployeeSet.cc'] + all)
-common_env.SharedLibrary('libraries/libScanIntSet.so', ['build/libraries/ScanIntSet.cc'] + all)
-common_env.SharedLibrary('libraries/libScanSimpleEmployeeSet.so', ['build/libraries/ScanSimpleEmployeeSet.cc'] + all)
-common_env.SharedLibrary('libraries/libScanStringIntPairSet.so', ['build/libraries/ScanStringIntPairSet.cc'] + all)
-common_env.SharedLibrary('libraries/libScanStringSet.so', ['build/libraries/ScanStringSet.cc'] + all)
-common_env.SharedLibrary('libraries/libScanSupervisorSet.so', ['build/libraries/ScanSupervisorSet.cc'] + all)
-common_env.SharedLibrary('libraries/libScanOptimizedSupervisorSet.so', ['build/libraries/ScanOptimizedSupervisorSet.cc'] + all)
-common_env.SharedLibrary('libraries/libSharedEmployee.so', ['build/libraries/SharedEmployee.cc'] + all)
-common_env.SharedLibrary('libraries/libSillyAggregation.so', ['build/libraries/SillyAggregation.cc'] + all)
-common_env.SharedLibrary('libraries/libSillyJoin.so', ['build/libraries/SillyJoin.cc'] + all)
-common_env.SharedLibrary('libraries/libSillySelection.so', ['build/libraries/SillySelection.cc'] + all)
-common_env.SharedLibrary('libraries/libSimpleAggregation.so', ['build/libraries/SimpleAggregation.cc'] + all)
-common_env.SharedLibrary('libraries/libSimpleEmployee.so', ['build/libraries/SimpleEmployee.cc'] + all)
-common_env.SharedLibrary('libraries/libStringIntPairMultiSelection.so', ['build/libraries/StringIntPairMultiSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libStringSelectionOfStringIntPair.so', ['build/libraries/StringSelectionOfStringIntPair.cc'] + all)
-common_env.SharedLibrary('libraries/libWriteBuiltinEmployeeSet.so', ['build/libraries/WriteBuiltinEmployeeSet.cc'] + all)
-common_env.SharedLibrary('libraries/libWriteDoubleSet.so', ['build/libraries/WriteDoubleSet.cc'] + all)
-common_env.SharedLibrary('libraries/libWriteEmployeeSet.so', ['build/libraries/WriteEmployeeSet.cc'] + all)
-common_env.SharedLibrary('libraries/libWriteIntSet.so', ['build/libraries/WriteIntSet.cc'] + all)
-common_env.SharedLibrary('libraries/libWriteStringIntPairSet.so', ['build/libraries/WriteStringIntPairSet.cc'] + all)
-common_env.SharedLibrary('libraries/libWriteStringSet.so', ['build/libraries/WriteStringSet.cc'] + all)
-common_env.SharedLibrary('libraries/libWriteSumResultSet.so', ['build/libraries/WriteSumResultSet.cc'] + all)
-common_env.SharedLibrary('libraries/libDoubleVectorAggregation.so', ['build/libraries/DoubleVectorAggregation.cc'] + all)
-common_env.SharedLibrary('libraries/libSupervisorMultiSelection.so', ['build/libraries/SupervisorMultiSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libSillyGroupBy.so', ['build/libraries/SillyGroupBy.cc'] + all)
-common_env.SharedLibrary('libraries/libEmployeeGroupBy.so', ['build/libraries/EmployeeGroupBy.cc'] + all)
-common_env.SharedLibrary('libraries/libOptimizedEmployeeGroupBy.so', ['build/libraries/OptimizedEmployeeGroupBy.cc'] + all)
+common_env.SharedLibrary('libraries/libPartialResult.so',
+                         ['build/libraries/PartialResult.cc'] + all)
+common_env.SharedLibrary('libraries/libScanBuiltinEmployeeSet.so',
+                         ['build/libraries/ScanBuiltinEmployeeSet.cc'] + all)
+common_env.SharedLibrary('libraries/libScanEmployeeSet.so',
+                         ['build/libraries/ScanEmployeeSet.cc'] + all)
+common_env.SharedLibrary('libraries/libScanIntSet.so',
+                         ['build/libraries/ScanIntSet.cc'] + all)
+common_env.SharedLibrary('libraries/libScanSimpleEmployeeSet.so',
+                         ['build/libraries/ScanSimpleEmployeeSet.cc'] + all)
+common_env.SharedLibrary('libraries/libScanStringIntPairSet.so',
+                         ['build/libraries/ScanStringIntPairSet.cc'] + all)
+common_env.SharedLibrary('libraries/libScanStringSet.so',
+                         ['build/libraries/ScanStringSet.cc'] + all)
+common_env.SharedLibrary('libraries/libScanSupervisorSet.so',
+                         ['build/libraries/ScanSupervisorSet.cc'] + all)
+common_env.SharedLibrary('libraries/libScanOptimizedSupervisorSet.so',
+                         ['build/libraries/ScanOptimizedSupervisorSet.cc'] + all)
+common_env.SharedLibrary('libraries/libSharedEmployee.so',
+                         ['build/libraries/SharedEmployee.cc'] + all)
+common_env.SharedLibrary('libraries/libSillyAggregation.so',
+                         ['build/libraries/SillyAggregation.cc'] + all)
+common_env.SharedLibrary('libraries/libSillyJoin.so',
+                         ['build/libraries/SillyJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libSillySelection.so',
+                         ['build/libraries/SillySelection.cc'] + all)
+common_env.SharedLibrary('libraries/libSimpleAggregation.so',
+                         ['build/libraries/SimpleAggregation.cc'] + all)
+common_env.SharedLibrary('libraries/libSimpleEmployee.so',
+                         ['build/libraries/SimpleEmployee.cc'] + all)
+common_env.SharedLibrary('libraries/libStringIntPairMultiSelection.so',
+                         ['build/libraries/StringIntPairMultiSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libStringSelectionOfStringIntPair.so',
+                         ['build/libraries/StringSelectionOfStringIntPair.cc'] + all)
+common_env.SharedLibrary('libraries/libWriteBuiltinEmployeeSet.so',
+                         ['build/libraries/WriteBuiltinEmployeeSet.cc'] + all)
+common_env.SharedLibrary('libraries/libWriteDoubleSet.so',
+                         ['build/libraries/WriteDoubleSet.cc'] + all)
+common_env.SharedLibrary('libraries/libWriteEmployeeSet.so',
+                         ['build/libraries/WriteEmployeeSet.cc'] + all)
+common_env.SharedLibrary('libraries/libWriteIntSet.so',
+                         ['build/libraries/WriteIntSet.cc'] + all)
+common_env.SharedLibrary('libraries/libWriteStringIntPairSet.so',
+                         ['build/libraries/WriteStringIntPairSet.cc'] + all)
+common_env.SharedLibrary('libraries/libWriteStringSet.so',
+                         ['build/libraries/WriteStringSet.cc'] + all)
+common_env.SharedLibrary('libraries/libWriteSumResultSet.so',
+                         ['build/libraries/WriteSumResultSet.cc'] + all)
+common_env.SharedLibrary('libraries/libDoubleVectorAggregation.so',
+                         ['build/libraries/DoubleVectorAggregation.cc'] + all)
+common_env.SharedLibrary('libraries/libSupervisorMultiSelection.so',
+                         ['build/libraries/SupervisorMultiSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libSillyGroupBy.so',
+                         ['build/libraries/SillyGroupBy.cc'] + all)
+common_env.SharedLibrary('libraries/libEmployeeGroupBy.so',
+                         ['build/libraries/EmployeeGroupBy.cc'] + all)
+common_env.SharedLibrary('libraries/libOptimizedEmployeeGroupBy.so',
+                         ['build/libraries/OptimizedEmployeeGroupBy.cc'] + all)
 
 # TPCH Benchmakr Libraries
-common_env.SharedLibrary('libraries/libTpchPartSupp.so', ['build/tpch/PartSupp.cc'] + all)
-common_env.SharedLibrary('libraries/libTpchNation.so', ['build/tpch/Nation.cc'] + all)
-common_env.SharedLibrary('libraries/libTpchRegion.so', ['build/tpch/Region.cc'] + all)
-common_env.SharedLibrary('libraries/libTpchPart.so', ['build/tpch/Part.cc'] + all)
-common_env.SharedLibrary('libraries/libTpchSupplier.so', ['build/tpch/Supplier.cc'] + all)
-common_env.SharedLibrary('libraries/libTpchLineItem.so', ['build/tpch/LineItem.cc'] + all)
-common_env.SharedLibrary('libraries/libTpchOrder.so', ['build/tpch/Order.cc'] + all)
-common_env.SharedLibrary('libraries/libTpchCustomer.so', ['build/tpch/Customer.cc'] + all)
-common_env.SharedLibrary('libraries/libQ01Agg.so', ['build/tpch/Query01/Q01Agg.cc'] + all)
-common_env.SharedLibrary('libraries/libQ01AggOut.so', ['build/tpch/Query01/Q01AggOut.cc'] + all)
-common_env.SharedLibrary('libraries/libQ01KeyClass.so', ['build/tpch/Query01/Q01KeyClass.cc'] + all)
-common_env.SharedLibrary('libraries/libQ01ValueClass.so', ['build/tpch/Query01/Q01ValueClass.cc'] + all)
+common_env.SharedLibrary('libraries/libTpchPartSupp.so',
+                         ['build/tpch/PartSupp.cc'] + all)
+common_env.SharedLibrary('libraries/libTpchNation.so',
+                         ['build/tpch/Nation.cc'] + all)
+common_env.SharedLibrary('libraries/libTpchRegion.so',
+                         ['build/tpch/Region.cc'] + all)
+common_env.SharedLibrary('libraries/libTpchPart.so',
+                         ['build/tpch/Part.cc'] + all)
+common_env.SharedLibrary('libraries/libTpchSupplier.so',
+                         ['build/tpch/Supplier.cc'] + all)
+common_env.SharedLibrary('libraries/libTpchLineItem.so',
+                         ['build/tpch/LineItem.cc'] + all)
+common_env.SharedLibrary('libraries/libTpchOrder.so',
+                         ['build/tpch/Order.cc'] + all)
+common_env.SharedLibrary('libraries/libTpchCustomer.so',
+                         ['build/tpch/Customer.cc'] + all)
+common_env.SharedLibrary('libraries/libQ01Agg.so',
+                         ['build/tpch/Query01/Q01Agg.cc'] + all)
+common_env.SharedLibrary('libraries/libQ01AggOut.so',
+                         ['build/tpch/Query01/Q01AggOut.cc'] + all)
+common_env.SharedLibrary('libraries/libQ01KeyClass.so',
+                         ['build/tpch/Query01/Q01KeyClass.cc'] + all)
+common_env.SharedLibrary('libraries/libQ01ValueClass.so',
+                         ['build/tpch/Query01/Q01ValueClass.cc'] + all)
 
-common_env.SharedLibrary('libraries/libMinDouble.so', ['build/tpch/Query02/MinDouble.cc'] + all)
-common_env.SharedLibrary('libraries/libQ02MinAgg.so', ['build/tpch/Query02/Q02MinAgg.cc'] + all)
-common_env.SharedLibrary('libraries/libQ02MinCostJoin.so', ['build/tpch/Query02/Q02MinCostJoin.cc'] + all)
-common_env.SharedLibrary('libraries/libQ02MinCostJoinOutput.so', ['build/tpch/Query02/Q02MinCostJoinOutput.cc'] + all)
-common_env.SharedLibrary('libraries/libQ02MinCostPerPart.so', ['build/tpch/Query02/Q02MinCostPerPart.cc'] + all)
-common_env.SharedLibrary('libraries/libQ02MinCostSelection.so', ['build/tpch/Query02/Q02MinCostSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libQ02MinCostSelectionOutput.so', ['build/tpch/Query02/Q02MinCostSelectionOutput.cc'] + all)
-common_env.SharedLibrary('libraries/libQ02NationJoin.so', ['build/tpch/Query02/Q02NationJoin.cc'] + all)
-common_env.SharedLibrary('libraries/libQ02PartJoin.so', ['build/tpch/Query02/Q02PartJoin.cc'] + all)
-common_env.SharedLibrary('libraries/libQ02PartJoinOutput.so', ['build/tpch/Query02/Q02PartJoinOutput.cc'] + all)
-common_env.SharedLibrary('libraries/libQ02PartSelection.so', ['build/tpch/Query02/Q02PartSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libQ02PartSuppJoin.so', ['build/tpch/Query02/Q02PartSuppJoin.cc'] + all)
-common_env.SharedLibrary('libraries/libQ02PartSuppJoinOutput.so', ['build/tpch/Query02/Q02PartSuppJoinOutput.cc'] + all)
-common_env.SharedLibrary('libraries/libQ02RegionSelection.so', ['build/tpch/Query02/Q02RegionSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libQ02SupplierJoin.so', ['build/tpch/Query02/Q02SupplierJoin.cc'] + all)
-common_env.SharedLibrary('libraries/libQ02SupplierJoinOutput.so', ['build/tpch/Query02/Q02SupplierJoinOutput.cc'] + all)
-common_env.SharedLibrary('libraries/libQ02PartJoinOutputIdentitySelection.so', ['build/tpch/Query02/Q02PartJoinOutputIdentitySelection.cc'] + all)
+common_env.SharedLibrary('libraries/libMinDouble.so',
+                         ['build/tpch/Query02/MinDouble.cc'] + all)
+common_env.SharedLibrary('libraries/libQ02MinAgg.so',
+                         ['build/tpch/Query02/Q02MinAgg.cc'] + all)
+common_env.SharedLibrary('libraries/libQ02MinCostJoin.so',
+                         ['build/tpch/Query02/Q02MinCostJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libQ02MinCostJoinOutput.so',
+                         ['build/tpch/Query02/Q02MinCostJoinOutput.cc'] + all)
+common_env.SharedLibrary('libraries/libQ02MinCostPerPart.so',
+                         ['build/tpch/Query02/Q02MinCostPerPart.cc'] + all)
+common_env.SharedLibrary('libraries/libQ02MinCostSelection.so',
+                         ['build/tpch/Query02/Q02MinCostSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libQ02MinCostSelectionOutput.so',
+                         ['build/tpch/Query02/Q02MinCostSelectionOutput.cc'] + all)
+common_env.SharedLibrary('libraries/libQ02NationJoin.so',
+                         ['build/tpch/Query02/Q02NationJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libQ02PartJoin.so',
+                         ['build/tpch/Query02/Q02PartJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libQ02PartJoinOutput.so',
+                         ['build/tpch/Query02/Q02PartJoinOutput.cc'] + all)
+common_env.SharedLibrary('libraries/libQ02PartSelection.so',
+                         ['build/tpch/Query02/Q02PartSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libQ02PartSuppJoin.so',
+                         ['build/tpch/Query02/Q02PartSuppJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libQ02PartSuppJoinOutput.so',
+                         ['build/tpch/Query02/Q02PartSuppJoinOutput.cc'] + all)
+common_env.SharedLibrary('libraries/libQ02RegionSelection.so',
+                         ['build/tpch/Query02/Q02RegionSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libQ02SupplierJoin.so',
+                         ['build/tpch/Query02/Q02SupplierJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libQ02SupplierJoinOutput.so',
+                         ['build/tpch/Query02/Q02SupplierJoinOutput.cc'] + all)
+common_env.SharedLibrary('libraries/libQ02PartJoinOutputIdentitySelection.so',
+                         ['build/tpch/Query02/Q02PartJoinOutputIdentitySelection.cc'] + all)
 
-common_env.SharedLibrary('libraries/libQ03Agg.so', ['build/tpch/Query03/Q03Agg.cc'] + all)
-common_env.SharedLibrary('libraries/libQ03AggOut.so', ['build/tpch/Query03/Q03AggOut.cc'] + all)
-common_env.SharedLibrary('libraries/libQ03Join.so', ['build/tpch/Query03/Q03Join.cc'] + all)
-common_env.SharedLibrary('libraries/libQ03JoinOut.so', ['build/tpch/Query03/Q03JoinOut.cc'] + all)
-common_env.SharedLibrary('libraries/libQ03CustomerSelection.so', ['build/tpch/Query03/Q03CustomerSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libQ03OrderSelection.so', ['build/tpch/Query03/Q03OrderSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libQ03LineItemSelection.so', ['build/tpch/Query03/Q03LineItemSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libQ03KeyClass.so', ['build/tpch/Query03/Q03KeyClass.cc'] + all)
+common_env.SharedLibrary('libraries/libQ03Agg.so',
+                         ['build/tpch/Query03/Q03Agg.cc'] + all)
+common_env.SharedLibrary('libraries/libQ03AggOut.so',
+                         ['build/tpch/Query03/Q03AggOut.cc'] + all)
+common_env.SharedLibrary('libraries/libQ03Join.so',
+                         ['build/tpch/Query03/Q03Join.cc'] + all)
+common_env.SharedLibrary('libraries/libQ03JoinOut.so',
+                         ['build/tpch/Query03/Q03JoinOut.cc'] + all)
+common_env.SharedLibrary('libraries/libQ03CustomerSelection.so',
+                         ['build/tpch/Query03/Q03CustomerSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libQ03OrderSelection.so',
+                         ['build/tpch/Query03/Q03OrderSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libQ03LineItemSelection.so',
+                         ['build/tpch/Query03/Q03LineItemSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libQ03KeyClass.so',
+                         ['build/tpch/Query03/Q03KeyClass.cc'] + all)
 
-common_env.SharedLibrary('libraries/libQ04Agg.so', ['build/tpch/Query04/Q04Agg.cc'] + all)
-common_env.SharedLibrary('libraries/libQ04AggOut.so', ['build/tpch/Query04/Q04AggOut.cc'] + all)
-common_env.SharedLibrary('libraries/libQ04Join.so', ['build/tpch/Query04/Q04Join.cc'] + all)
-common_env.SharedLibrary('libraries/libQ04OrderSelection.so', ['build/tpch/Query04/Q04OrderSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libQ04Agg.so',
+                         ['build/tpch/Query04/Q04Agg.cc'] + all)
+common_env.SharedLibrary('libraries/libQ04AggOut.so',
+                         ['build/tpch/Query04/Q04AggOut.cc'] + all)
+common_env.SharedLibrary('libraries/libQ04Join.so',
+                         ['build/tpch/Query04/Q04Join.cc'] + all)
+common_env.SharedLibrary('libraries/libQ04OrderSelection.so',
+                         ['build/tpch/Query04/Q04OrderSelection.cc'] + all)
 
-common_env.SharedLibrary('libraries/libQ06LineItemSelection.so', ['build/tpch/Query06/Q06LineItemSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libQ06Agg.so', ['build/tpch/Query06/Q06Agg.cc'] + all)
+common_env.SharedLibrary('libraries/libQ06LineItemSelection.so',
+                         ['build/tpch/Query06/Q06LineItemSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libQ06Agg.so',
+                         ['build/tpch/Query06/Q06Agg.cc'] + all)
 
-common_env.SharedLibrary('libraries/libQ12Agg.so', ['build/tpch/Query12/Q12Agg.cc'] + all)
-common_env.SharedLibrary('libraries/libQ12AggOut.so', ['build/tpch/Query12/Q12AggOut.cc'] + all)
-common_env.SharedLibrary('libraries/libQ12Join.so', ['build/tpch/Query12/Q12Join.cc'] + all)
-common_env.SharedLibrary('libraries/libQ12JoinOut.so', ['build/tpch/Query12/Q12JoinOut.cc'] + all)
-common_env.SharedLibrary('libraries/libQ12ValueClass.so', ['build/tpch/Query12/Q12ValueClass.cc'] + all)
-common_env.SharedLibrary('libraries/libQ12LineItemSelection.so', ['build/tpch/Query12/Q12LineItemSelection.cc'] + all)
-
-
-common_env.SharedLibrary('libraries/libQ13CountResult.so', ['build/tpch/Query13/Q13CountResult.cc'] + all)
-common_env.SharedLibrary('libraries/libQ13CustomerOrderJoin.so', ['build/tpch/Query13/Q13CustomerOrderJoin.cc'] + all)
-common_env.SharedLibrary('libraries/libQ13OrderSelection.so', ['build/tpch/Query13/Q13OrderSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libQ13CustomerDistribution.so', ['build/tpch/Query13/Q13CustomerDistribution.cc'] + all)
-common_env.SharedLibrary('libraries/libQ13CustomerOrders.so', ['build/tpch/Query13/Q13CustomerOrders.cc'] + all)
-common_env.SharedLibrary('libraries/libQ13OrdersPerCustomer.so', ['build/tpch/Query13/Q13OrdersPerCustomer.cc'] + all)
-
-common_env.SharedLibrary('libraries/libQ14Agg.so', ['build/tpch/Query14/Q14Agg.cc'] + all)
-common_env.SharedLibrary('libraries/libQ14AggOut.so', ['build/tpch/Query14/Q14AggOut.cc'] + all)
-common_env.SharedLibrary('libraries/libQ14Join.so', ['build/tpch/Query14/Q14Join.cc'] + all)
-common_env.SharedLibrary('libraries/libQ14JoinOut.so', ['build/tpch/Query14/Q14JoinOut.cc'] + all)
-common_env.SharedLibrary('libraries/libQ14ValueClass.so', ['build/tpch/Query14/Q14ValueClass.cc'] + all)
-common_env.SharedLibrary('libraries/libQ14LineItemSelection.so', ['build/tpch/Query14/Q14LineItemSelection.cc'] + all)
-
-
-common_env.SharedLibrary('libraries/libQ17JoinedPartLineItem.so', ['build/tpch/Query17/Q17JoinedPartLineItem.cc'] + all)
-common_env.SharedLibrary('libraries/libQ17PartLineItemAvgJoin.so', ['build/tpch/Query17/Q17PartLineItemAvgJoin.cc'] + all)
-common_env.SharedLibrary('libraries/libQ17PartSelection.so', ['build/tpch/Query17/Q17PartSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libQ17LineItemAvgQuantity.so', ['build/tpch/Query17/Q17LineItemAvgQuantity.cc'] + all)
-common_env.SharedLibrary('libraries/libQ17PartLineItemJoin.so', ['build/tpch/Query17/Q17PartLineItemJoin.cc'] + all)
-common_env.SharedLibrary('libraries/libQ17PriceSum.so', ['build/tpch/Query17/Q17PriceSum.cc'] + all)
-common_env.SharedLibrary('libraries/libQ17PartLineItemIdentitySelection.so', ['build/tpch/Query17/Q17PartLineItemIdentitySelection.cc'] + all)
-common_env.SharedLibrary('libraries/libQ22AggregatedCntryBal.so', ['build/tpch/Query22/Q22AggregatedCntryBal.cc'] + all)
-common_env.SharedLibrary('libraries/libQ22CustomerAccbalAvg.so', ['build/tpch/Query22/Q22CustomerAccbalAvg.cc'] + all)
-common_env.SharedLibrary('libraries/libQ22OrderCountSelection.so', ['build/tpch/Query22/Q22OrderCountSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libQ22CntryBalAgg.so', ['build/tpch/Query22/Q22CntryBalAgg.cc'] + all)
-common_env.SharedLibrary('libraries/libQ22JoinedCntryBal.so', ['build/tpch/Query22/Q22JoinedCntryBal.cc'] + all)
-common_env.SharedLibrary('libraries/libQ22CntryBalJoin.so', ['build/tpch/Query22/Q22CntryBalJoin.cc'] + all)
-common_env.SharedLibrary('libraries/libQ22OrderCountPerCustomer.so', ['build/tpch/Query22/Q22OrderCountPerCustomer.cc'] + all)
-
-common_env.Program('bin/tpchPrepareTraining', ['build/tpch/tpchPrepareTraining.cc'] + all + pdb_client)
-common_env.Program('bin/tpchTraining1', ['build/tpch/tpchTraining1.cc'] + all + pdb_client)
-common_env.Program('bin/tpchGenTrace', ['build/tpch/tpchGenTrace.cc'] + all + pdb_client)
-
-common_env.Program('bin/sequentialReadWrite', ['build/tests/SequentialReadWriteTest.cc'] + all + pdb_client)
-common_env.Program('bin/tpchDataLoader', ['build/tpch/tpchDataLoader.cc'] + all + pdb_client)
-common_env.Program('bin/runQuery01', ['build/tpch/Query01/RunQuery01.cc'] + all + pdb_client)
-common_env.Program('bin/runQuery02', ['build/tpch/Query02/RunQuery02.cc'] + all + pdb_client)
-common_env.Program('bin/runQuery03', ['build/tpch/Query03/RunQuery03.cc'] + all + pdb_client)
-common_env.Program('bin/runQuery04', ['build/tpch/Query04/RunQuery04.cc'] + all + pdb_client)
-common_env.Program('bin/runQuery06', ['build/tpch/Query06/RunQuery06.cc'] + all + pdb_client)
-common_env.Program('bin/runQuery12', ['build/tpch/Query12/RunQuery12.cc'] + all + pdb_client)
-common_env.Program('bin/runQuery13', ['build/tpch/Query13/RunQuery13.cc'] + all + pdb_client)
-common_env.Program('bin/runQuery14', ['build/tpch/Query14/RunQuery14.cc'] + all + pdb_client)
-common_env.Program('bin/runQuery17', ['build/tpch/Query17/RunQuery17.cc'] + all + pdb_client)
-common_env.Program('bin/runQuery22', ['build/tpch/Query22/RunQuery22.cc'] + all + pdb_client)
-common_env.Program('bin/sequentialReadWrite', ['build/tests/SequentialReadWriteTest.cc'] + all + pdb_client)
+common_env.SharedLibrary('libraries/libQ12Agg.so',
+                         ['build/tpch/Query12/Q12Agg.cc'] + all)
+common_env.SharedLibrary('libraries/libQ12AggOut.so',
+                         ['build/tpch/Query12/Q12AggOut.cc'] + all)
+common_env.SharedLibrary('libraries/libQ12Join.so',
+                         ['build/tpch/Query12/Q12Join.cc'] + all)
+common_env.SharedLibrary('libraries/libQ12JoinOut.so',
+                         ['build/tpch/Query12/Q12JoinOut.cc'] + all)
+common_env.SharedLibrary('libraries/libQ12ValueClass.so',
+                         ['build/tpch/Query12/Q12ValueClass.cc'] + all)
+common_env.SharedLibrary('libraries/libQ12LineItemSelection.so',
+                         ['build/tpch/Query12/Q12LineItemSelection.cc'] + all)
 
 
-common_env.SharedLibrary('libraries/libPart.so', ['build/tpchBench/Part.cc'] + all)
-common_env.SharedLibrary('libraries/libSupplier.so', ['build/tpchBench/Supplier.cc'] + all)
-common_env.SharedLibrary('libraries/libLineItem.so', ['build/tpchBench/LineItem.cc'] + all)
-common_env.SharedLibrary('libraries/libOrder.so', ['build/tpchBench/Order.cc'] + all)
-common_env.SharedLibrary('libraries/libCustomer.so', ['build/tpchBench/Customer.cc'] + all)
-common_env.SharedLibrary('libraries/libVirtualCustomer.so', ['build/tpchBench/VirtualCustomer.cc'] + all)
-common_env.SharedLibrary('libraries/libTopJaccard.so', ['build/tpchBench/TopJaccard.cc'] + all)
-common_env.SharedLibrary('libraries/libAllParts.so', ['build/tpchBench/AllParts.cc'] + all)
-common_env.SharedLibrary('libraries/libJaccardResultWriter.so', ['build/tpchBench/JaccardResultWriter.cc'] + all)
-common_env.SharedLibrary('libraries/libSumResultWriteSet.so', ['build/tpchBench/SumResultWriteSet.cc'] + all)
-common_env.SharedLibrary('libraries/libSupplierInfoWriteSet.so', ['build/tpchBench/SupplierInfoWriteSet.cc'] + all)
-common_env.SharedLibrary('libraries/libScanCustomerSet.so', ['build/tpchBench/ScanCustomerSet.cc'] + all)
-common_env.SharedLibrary('libraries/libCustomerSupplierPartFlat.so', ['build/tpchBench/CustomerSupplierPartFlat.cc'] + all)
-common_env.SharedLibrary('libraries/libCustomerWriteSet.so', ['build/tpchBench/CustomerWriteSet.cc'] + all)
-common_env.SharedLibrary('libraries/libSupplierData.so', ['build/tpchBench/SupplierData.cc'] + all)
-common_env.SharedLibrary('libraries/libCustomerMultiSelection.so', ['build/tpchBench/CustomerMultiSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libCustomerSupplierPartGroupBy.so', ['build/tpchBench/CustomerSupplierPartGroupBy.cc'] + all)
-common_env.SharedLibrary('libraries/libCountAggregation.so', ['build/tpchBench/CountAggregation.cc'] + all)
-common_env.SharedLibrary('libraries/libCountCustomer.so', ['build/tpchBench/CountCustomer.cc'] + all)
-common_env.SharedLibrary('libraries/libSupplierInfo.so', ['build/tpchBench/SupplierInfo.cc'] + all)
-common_env.SharedLibrary('libraries/libCustomerStringSelection.so', ['build/tpchBench/CustomerStringSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libCustomerStringSelectionVirtual.so', ['build/tpchBench/CustomerStringSelectionVirtual.cc'] + all)
-common_env.SharedLibrary('libraries/libCustomerIntegerSelection.so', ['build/tpchBench/CustomerIntegerSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libCustomerIntegerSelectionVirtual.so', ['build/tpchBench/CustomerIntegerSelectionVirtual.cc'] + all)
-common_env.SharedLibrary('libraries/libCustomerStringSelectionNot.so', ['build/tpchBench/CustomerStringSelectionNot.cc'] + all)
-common_env.SharedLibrary('libraries/libCustomerStringSelectionVirtualNot.so', ['build/tpchBench/CustomerStringSelectionVirtualNot.cc'] + all)
-common_env.SharedLibrary('libraries/libCustomerIntegerSelectionNot.so', ['build/tpchBench/CustomerIntegerSelectionNot.cc'] + all)
-common_env.SharedLibrary('libraries/libCustomerIntegerSelectionVirtualNot.so', ['build/tpchBench/CustomerIntegerSelectionVirtualNot.cc'] + all)
+common_env.SharedLibrary('libraries/libQ13CountResult.so',
+                         ['build/tpch/Query13/Q13CountResult.cc'] + all)
+common_env.SharedLibrary('libraries/libQ13CustomerOrderJoin.so',
+                         ['build/tpch/Query13/Q13CustomerOrderJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libQ13OrderSelection.so',
+                         ['build/tpch/Query13/Q13OrderSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libQ13CustomerDistribution.so',
+                         ['build/tpch/Query13/Q13CustomerDistribution.cc'] + all)
+common_env.SharedLibrary('libraries/libQ13CustomerOrders.so',
+                         ['build/tpch/Query13/Q13CustomerOrders.cc'] + all)
+common_env.SharedLibrary('libraries/libQ13OrdersPerCustomer.so',
+                         ['build/tpch/Query13/Q13OrdersPerCustomer.cc'] + all)
 
-common_env.Program('bin/tpchDataGenerator', ['build/tpchBench/tpchDataGenerator.cc'] + all + pdb_client)
-common_env.Program('bin/tpchDataGeneratorNew', ['build/tpchBench/tpchDataGeneratorNew.cc'] + all + pdb_client)
-common_env.Program('bin/tpchQuery', ['build/tpchBench/tpchQuery.cc'] + all + pdb_client)
-common_env.Program('bin/tpchJaccard', ['build/tpchBench/JaccardMain.cc'] + all + pdb_client)
-common_env.Program('bin/tpchGetCustomerCount', ['build/tpchBench/tpchGetCustomerCount.cc'] + all + pdb_client)
-common_env.Program('bin/tpchRegisterAndCreateSets', ['build/tpchBench/tpchRegisterAndCreateSets.cc'] + all + pdb_client)
-common_env.Program('bin/tpchDataGeneratorAll', ['build/tpchBench/tpchDataGeneratorAll.cc'] + all + pdb_client)
-common_env.Program('bin/tpchFlushToDisk', ['build/tpchBench/tpchFlushToDisk.cc'] + all + pdb_client)
-common_env.Program('bin/pipelineBench', ['build/tpchBench/PipelineBench.cc'] + all + pdb_client)
+common_env.SharedLibrary('libraries/libQ14Agg.so',
+                         ['build/tpch/Query14/Q14Agg.cc'] + all)
+common_env.SharedLibrary('libraries/libQ14AggOut.so',
+                         ['build/tpch/Query14/Q14AggOut.cc'] + all)
+common_env.SharedLibrary('libraries/libQ14Join.so',
+                         ['build/tpch/Query14/Q14Join.cc'] + all)
+common_env.SharedLibrary('libraries/libQ14JoinOut.so',
+                         ['build/tpch/Query14/Q14JoinOut.cc'] + all)
+common_env.SharedLibrary('libraries/libQ14ValueClass.so',
+                         ['build/tpch/Query14/Q14ValueClass.cc'] + all)
+common_env.SharedLibrary('libraries/libQ14LineItemSelection.so',
+                         ['build/tpch/Query14/Q14LineItemSelection.cc'] + all)
+
+
+common_env.SharedLibrary('libraries/libQ17JoinedPartLineItem.so',
+                         ['build/tpch/Query17/Q17JoinedPartLineItem.cc'] + all)
+common_env.SharedLibrary('libraries/libQ17PartLineItemAvgJoin.so',
+                         ['build/tpch/Query17/Q17PartLineItemAvgJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libQ17PartSelection.so',
+                         ['build/tpch/Query17/Q17PartSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libQ17LineItemAvgQuantity.so',
+                         ['build/tpch/Query17/Q17LineItemAvgQuantity.cc'] + all)
+common_env.SharedLibrary('libraries/libQ17PartLineItemJoin.so',
+                         ['build/tpch/Query17/Q17PartLineItemJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libQ17PriceSum.so',
+                         ['build/tpch/Query17/Q17PriceSum.cc'] + all)
+common_env.SharedLibrary('libraries/libQ17PartLineItemIdentitySelection.so',
+                         ['build/tpch/Query17/Q17PartLineItemIdentitySelection.cc'] + all)
+common_env.SharedLibrary('libraries/libQ22AggregatedCntryBal.so',
+                         ['build/tpch/Query22/Q22AggregatedCntryBal.cc'] + all)
+common_env.SharedLibrary('libraries/libQ22CustomerAccbalAvg.so',
+                         ['build/tpch/Query22/Q22CustomerAccbalAvg.cc'] + all)
+common_env.SharedLibrary('libraries/libQ22OrderCountSelection.so',
+                         ['build/tpch/Query22/Q22OrderCountSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libQ22CntryBalAgg.so',
+                         ['build/tpch/Query22/Q22CntryBalAgg.cc'] + all)
+common_env.SharedLibrary('libraries/libQ22JoinedCntryBal.so',
+                         ['build/tpch/Query22/Q22JoinedCntryBal.cc'] + all)
+common_env.SharedLibrary('libraries/libQ22CntryBalJoin.so',
+                         ['build/tpch/Query22/Q22CntryBalJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libQ22OrderCountPerCustomer.so',
+                         ['build/tpch/Query22/Q22OrderCountPerCustomer.cc'] + all)
+
+common_env.Program('bin/tpchPrepareTraining',
+                   ['build/tpch/tpchPrepareTraining.cc'] + all + pdb_client)
+common_env.Program('bin/tpchTraining1',
+                   ['build/tpch/tpchTraining1.cc'] + all + pdb_client)
+common_env.Program('bin/tpchGenTrace',
+                   ['build/tpch/tpchGenTrace.cc'] + all + pdb_client)
+
+common_env.Program('bin/sequentialReadWrite',
+                   ['build/tests/SequentialReadWriteTest.cc'] + all + pdb_client)
+common_env.Program('bin/tpchDataLoader',
+                   ['build/tpch/tpchDataLoader.cc'] + all + pdb_client)
+common_env.Program(
+    'bin/runQuery01', ['build/tpch/Query01/RunQuery01.cc'] + all + pdb_client)
+common_env.Program(
+    'bin/runQuery02', ['build/tpch/Query02/RunQuery02.cc'] + all + pdb_client)
+common_env.Program(
+    'bin/runQuery03', ['build/tpch/Query03/RunQuery03.cc'] + all + pdb_client)
+common_env.Program(
+    'bin/runQuery04', ['build/tpch/Query04/RunQuery04.cc'] + all + pdb_client)
+common_env.Program(
+    'bin/runQuery06', ['build/tpch/Query06/RunQuery06.cc'] + all + pdb_client)
+common_env.Program(
+    'bin/runQuery12', ['build/tpch/Query12/RunQuery12.cc'] + all + pdb_client)
+common_env.Program(
+    'bin/runQuery13', ['build/tpch/Query13/RunQuery13.cc'] + all + pdb_client)
+common_env.Program(
+    'bin/runQuery14', ['build/tpch/Query14/RunQuery14.cc'] + all + pdb_client)
+common_env.Program(
+    'bin/runQuery17', ['build/tpch/Query17/RunQuery17.cc'] + all + pdb_client)
+common_env.Program(
+    'bin/runQuery22', ['build/tpch/Query22/RunQuery22.cc'] + all + pdb_client)
+common_env.Program('bin/sequentialReadWrite',
+                   ['build/tests/SequentialReadWriteTest.cc'] + all + pdb_client)
+
+
+common_env.SharedLibrary('libraries/libPart.so',
+                         ['build/tpchBench/Part.cc'] + all)
+common_env.SharedLibrary('libraries/libSupplier.so',
+                         ['build/tpchBench/Supplier.cc'] + all)
+common_env.SharedLibrary('libraries/libLineItem.so',
+                         ['build/tpchBench/LineItem.cc'] + all)
+common_env.SharedLibrary('libraries/libOrder.so',
+                         ['build/tpchBench/Order.cc'] + all)
+common_env.SharedLibrary('libraries/libCustomer.so',
+                         ['build/tpchBench/Customer.cc'] + all)
+common_env.SharedLibrary('libraries/libVirtualCustomer.so',
+                         ['build/tpchBench/VirtualCustomer.cc'] + all)
+common_env.SharedLibrary('libraries/libTopJaccard.so',
+                         ['build/tpchBench/TopJaccard.cc'] + all)
+common_env.SharedLibrary('libraries/libAllParts.so',
+                         ['build/tpchBench/AllParts.cc'] + all)
+common_env.SharedLibrary('libraries/libJaccardResultWriter.so',
+                         ['build/tpchBench/JaccardResultWriter.cc'] + all)
+common_env.SharedLibrary('libraries/libSumResultWriteSet.so',
+                         ['build/tpchBench/SumResultWriteSet.cc'] + all)
+common_env.SharedLibrary('libraries/libSupplierInfoWriteSet.so',
+                         ['build/tpchBench/SupplierInfoWriteSet.cc'] + all)
+common_env.SharedLibrary('libraries/libScanCustomerSet.so',
+                         ['build/tpchBench/ScanCustomerSet.cc'] + all)
+common_env.SharedLibrary('libraries/libCustomerSupplierPartFlat.so',
+                         ['build/tpchBench/CustomerSupplierPartFlat.cc'] + all)
+common_env.SharedLibrary('libraries/libCustomerWriteSet.so',
+                         ['build/tpchBench/CustomerWriteSet.cc'] + all)
+common_env.SharedLibrary('libraries/libSupplierData.so',
+                         ['build/tpchBench/SupplierData.cc'] + all)
+common_env.SharedLibrary('libraries/libCustomerMultiSelection.so',
+                         ['build/tpchBench/CustomerMultiSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libCustomerSupplierPartGroupBy.so',
+                         ['build/tpchBench/CustomerSupplierPartGroupBy.cc'] + all)
+common_env.SharedLibrary('libraries/libCountAggregation.so',
+                         ['build/tpchBench/CountAggregation.cc'] + all)
+common_env.SharedLibrary('libraries/libCountCustomer.so',
+                         ['build/tpchBench/CountCustomer.cc'] + all)
+common_env.SharedLibrary('libraries/libSupplierInfo.so',
+                         ['build/tpchBench/SupplierInfo.cc'] + all)
+common_env.SharedLibrary('libraries/libCustomerStringSelection.so',
+                         ['build/tpchBench/CustomerStringSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libCustomerStringSelectionVirtual.so',
+                         ['build/tpchBench/CustomerStringSelectionVirtual.cc'] + all)
+common_env.SharedLibrary('libraries/libCustomerIntegerSelection.so',
+                         ['build/tpchBench/CustomerIntegerSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libCustomerIntegerSelectionVirtual.so',
+                         ['build/tpchBench/CustomerIntegerSelectionVirtual.cc'] + all)
+common_env.SharedLibrary('libraries/libCustomerStringSelectionNot.so',
+                         ['build/tpchBench/CustomerStringSelectionNot.cc'] + all)
+common_env.SharedLibrary('libraries/libCustomerStringSelectionVirtualNot.so',
+                         ['build/tpchBench/CustomerStringSelectionVirtualNot.cc'] + all)
+common_env.SharedLibrary('libraries/libCustomerIntegerSelectionNot.so',
+                         ['build/tpchBench/CustomerIntegerSelectionNot.cc'] + all)
+common_env.SharedLibrary('libraries/libCustomerIntegerSelectionVirtualNot.so',
+                         ['build/tpchBench/CustomerIntegerSelectionVirtualNot.cc'] + all)
+
+common_env.Program('bin/tpchDataGenerator',
+                   ['build/tpchBench/tpchDataGenerator.cc'] + all + pdb_client)
+common_env.Program('bin/tpchDataGeneratorNew',
+                   ['build/tpchBench/tpchDataGeneratorNew.cc'] + all + pdb_client)
+common_env.Program(
+    'bin/tpchQuery', ['build/tpchBench/tpchQuery.cc'] + all + pdb_client)
+common_env.Program('bin/tpchJaccard',
+                   ['build/tpchBench/JaccardMain.cc'] + all + pdb_client)
+common_env.Program('bin/tpchGetCustomerCount',
+                   ['build/tpchBench/tpchGetCustomerCount.cc'] + all + pdb_client)
+common_env.Program('bin/tpchRegisterAndCreateSets',
+                   ['build/tpchBench/tpchRegisterAndCreateSets.cc'] + all + pdb_client)
+common_env.Program('bin/tpchDataGeneratorAll',
+                   ['build/tpchBench/tpchDataGeneratorAll.cc'] + all + pdb_client)
+common_env.Program('bin/tpchFlushToDisk',
+                   ['build/tpchBench/tpchFlushToDisk.cc'] + all + pdb_client)
+common_env.Program('bin/pipelineBench',
+                   ['build/tpchBench/PipelineBench.cc'] + all + pdb_client)
 
 # FF
 
 # common_env.SharedLibrary('libraries/.so', ['build/FF/.cc'] + all)
-common_env.SharedLibrary('libraries/libFFMatrixBlock.so', ['build/FF/FFMatrixBlock.cc'] + all)
-common_env.SharedLibrary('libraries/libFFMatrixData.so', ['build/FF/FFMatrixData.cc'] + all)
-common_env.SharedLibrary('libraries/libFFMatrixMeta.so', ['build/FF/FFMatrixMeta.cc'] + all)
-common_env.SharedLibrary('libraries/libFFMatrixBlockScanner.so', ['build/FF/FFMatrixBlockScanner.cc'] + all)
-common_env.SharedLibrary('libraries/libFFInputLayerJoin.so', ['build/FF/FFInputLayerJoin.cc'] + all)
-common_env.SharedLibrary('libraries/libFFMatrixWriter.so', ['build/FF/FFMatrixWriter.cc'] + all)
-common_env.SharedLibrary('libraries/libFFAggMatrix.so', ['build/FF/FFAggMatrix.cc'] + all)
-common_env.SharedLibrary('libraries/libFFTransposeMult.so', ['build/FF/FFTransposeMult.cc'] + all)
-common_env.SharedLibrary('libraries/libFFTransposeBiasSum.so', ['build/FF/FFTransposeBiasSum.cc'] + all)
-common_env.SharedLibrary('libraries/libFFReluBiasSum.so', ['build/FF/FFReluBiasSum.cc'] + all)
-common_env.SharedLibrary('libraries/libFFRowAggregate.so', ['build/FF/FFRowAggregate.cc'] + all)
-common_env.SharedLibrary('libraries/libFFOutputLayer.so', ['build/FF/FFOutputLayer.cc'] + all)
-common_env.SharedLibrary('libraries/libFFMatrixMultiSel.so', ['build/FF/FFMatrixMultiSel.cc'] + all)
-common_env.SharedLibrary('libraries/libInferenceResult.so', ['build/FF/InferenceResult.cc'] + all)
-common_env.SharedLibrary('libraries/libInferenceResultPartition.so', ['build/FF/InferenceResultPartition.cc'] + all)
-common_env.SharedLibrary('libraries/libFFMatrixPartitioner.so', ['build/FF/FFMatrixPartitioner.cc'] + all)
+common_env.SharedLibrary('libraries/libFFMatrixBlock.so',
+                         ['build/FF/FFMatrixBlock.cc'] + all)
+common_env.SharedLibrary('libraries/libFFMatrixData.so',
+                         ['build/FF/FFMatrixData.cc'] + all)
+common_env.SharedLibrary('libraries/libFFMatrixMeta.so',
+                         ['build/FF/FFMatrixMeta.cc'] + all)
+common_env.SharedLibrary('libraries/libFFMatrixBlockScanner.so',
+                         ['build/FF/FFMatrixBlockScanner.cc'] + all)
+common_env.SharedLibrary('libraries/libFFInputLayerJoin.so',
+                         ['build/FF/FFInputLayerJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libFFMatrixWriter.so',
+                         ['build/FF/FFMatrixWriter.cc'] + all)
+common_env.SharedLibrary('libraries/libFFAggMatrix.so',
+                         ['build/FF/FFAggMatrix.cc'] + all)
+common_env.SharedLibrary('libraries/libFFTransposeMult.so',
+                         ['build/FF/FFTransposeMult.cc'] + all)
+common_env.SharedLibrary('libraries/libFFTransposeBiasSum.so',
+                         ['build/FF/FFTransposeBiasSum.cc'] + all)
+common_env.SharedLibrary('libraries/libFFReluBiasSum.so',
+                         ['build/FF/FFReluBiasSum.cc'] + all)
+common_env.SharedLibrary('libraries/libFFRowAggregate.so',
+                         ['build/FF/FFRowAggregate.cc'] + all)
+common_env.SharedLibrary('libraries/libFFOutputLayer.so',
+                         ['build/FF/FFOutputLayer.cc'] + all)
+common_env.SharedLibrary('libraries/libFFMatrixMultiSel.so',
+                         ['build/FF/FFMatrixMultiSel.cc'] + all)
+common_env.SharedLibrary('libraries/libInferenceResult.so',
+                         ['build/FF/InferenceResult.cc'] + all)
+common_env.SharedLibrary('libraries/libInferenceResultPartition.so',
+                         ['build/FF/InferenceResultPartition.cc'] + all)
+common_env.SharedLibrary('libraries/libFFMatrixPartitioner.so',
+                         ['build/FF/FFMatrixPartitioner.cc'] + all)
 
 # LSTM
 
 # common_env.SharedLibrary('libraries/.so', ['build/LSTM/.cc'] + all)
-common_env.SharedLibrary('libraries/libLSTMThreeWaySum.so', ['build/LSTM/LSTMThreeWaySum.cc'] + all)
-common_env.SharedLibrary('libraries/libLSTMTwoSum.so', ['build/LSTM/LSTMTwoSum.cc'] + all)
-common_env.SharedLibrary('libraries/libLSTMHiddenState.so', ['build/LSTM/LSTMHiddenState.cc'] + all)
+common_env.SharedLibrary('libraries/libLSTMThreeWaySum.so',
+                         ['build/LSTM/LSTMThreeWaySum.cc'] + all)
+common_env.SharedLibrary('libraries/libLSTMTwoSum.so',
+                         ['build/LSTM/LSTMTwoSum.cc'] + all)
+common_env.SharedLibrary('libraries/libLSTMHiddenState.so',
+                         ['build/LSTM/LSTMHiddenState.cc'] + all)
 
 
 # Conv2DMemFuse
-common_env.SharedLibrary('libraries/libConv2DSelect.so', ['build/conv2d_proj/Conv2DSelect.cc']+all)
-common_env.SharedLibrary('libraries/libTensorData.so', ['build/conv2d_proj/TensorData.cc']+all)
-common_env.SharedLibrary('libraries/libConv2DMemFuseMatrix3D.so', ['build/conv2d_memory_fusion/Matrix3D.cc'] + all)
-common_env.SharedLibrary('libraries/libConv2DMemFuseImage.so', ['build/conv2d_memory_fusion/Image.cc'] + all)
-common_env.SharedLibrary('libraries/libConv2DMemFuseImageChunk.so', ['build/conv2d_memory_fusion/ImageChunk.cc'] + all)
-common_env.SharedLibrary('libraries/libConv2DMemFuseImageToChunks.so', ['build/conv2d_memory_fusion/ImageToChunks.cc'] + all)
-common_env.SharedLibrary('libraries/libConv2DMemFuseImageBlock.so', ['build/conv2d_memory_fusion/ImageBlock.cc'] + all)
-common_env.SharedLibrary('libraries/libConv2DMemFuseImageChunksToBlock.so', ['build/conv2d_memory_fusion/ImageChunksToBlock.cc'] + all)
-common_env.SharedLibrary('libraries/libConv2DMemFuseImageBlockToMatrix.so', ['build/conv2d_memory_fusion/ImageBlockToMatrix.cc'] + all)
-common_env.SharedLibrary('libraries/libConv2DMemFuseKernel.so', ['build/conv2d_memory_fusion/Kernel.cc'] + all)
-common_env.SharedLibrary('libraries/libConv2DMemFuseKernelToChunks.so', ['build/conv2d_memory_fusion/KernelToChunks.cc'] + all)
-common_env.SharedLibrary('libraries/libConv2DMemFuseKernelBiasJoin.so', ['build/conv2d_memory_fusion/KernelBiasJoin.cc'] + all)
-common_env.SharedLibrary('libraries/libConv2DMemFuseConvResultToChunks.so', ['build/conv2d_memory_fusion/ConvResultToChunks.cc'] + all)
-common_env.SharedLibrary('libraries/libConv2DMemFuseConvChunksToImage.so', ['build/conv2d_memory_fusion/ConvChunksToImage.cc'] + all)
+common_env.SharedLibrary('libraries/libConv2DSelect.so',
+                         ['build/conv2d_proj/Conv2DSelect.cc']+all)
+common_env.SharedLibrary('libraries/libTensorData.so',
+                         ['build/conv2d_proj/TensorData.cc']+all)
+common_env.SharedLibrary('libraries/libConv2DMemFuseMatrix3D.so',
+                         ['build/conv2d_memory_fusion/Matrix3D.cc'] + all)
+common_env.SharedLibrary('libraries/libConv2DMemFuseImage.so',
+                         ['build/conv2d_memory_fusion/Image.cc'] + all)
+common_env.SharedLibrary('libraries/libConv2DMemFuseImageChunk.so',
+                         ['build/conv2d_memory_fusion/ImageChunk.cc'] + all)
+common_env.SharedLibrary('libraries/libConv2DMemFuseImageToChunks.so',
+                         ['build/conv2d_memory_fusion/ImageToChunks.cc'] + all)
+common_env.SharedLibrary('libraries/libConv2DMemFuseImageBlock.so',
+                         ['build/conv2d_memory_fusion/ImageBlock.cc'] + all)
+common_env.SharedLibrary('libraries/libConv2DMemFuseImageChunksToBlock.so',
+                         ['build/conv2d_memory_fusion/ImageChunksToBlock.cc'] + all)
+common_env.SharedLibrary('libraries/libConv2DMemFuseImageBlockToMatrix.so',
+                         ['build/conv2d_memory_fusion/ImageBlockToMatrix.cc'] + all)
+common_env.SharedLibrary('libraries/libConv2DMemFuseKernel.so',
+                         ['build/conv2d_memory_fusion/Kernel.cc'] + all)
+common_env.SharedLibrary('libraries/libConv2DMemFuseKernelToChunks.so',
+                         ['build/conv2d_memory_fusion/KernelToChunks.cc'] + all)
+common_env.SharedLibrary('libraries/libConv2DMemFuseKernelBiasJoin.so',
+                         ['build/conv2d_memory_fusion/KernelBiasJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libConv2DMemFuseConvResultToChunks.so',
+                         ['build/conv2d_memory_fusion/ConvResultToChunks.cc'] + all)
+common_env.SharedLibrary('libraries/libConv2DMemFuseConvChunksToImage.so',
+                         ['build/conv2d_memory_fusion/ConvChunksToImage.cc'] + all)
 
 
-#reddit
-common_env.SharedLibrary('libraries/libRedditComment.so', ['build/reddit/RedditComment.cc'] + all)
-common_env.SharedLibrary('libraries/libRedditAuthor.so', ['build/reddit/RedditAuthor.cc'] + all)
-common_env.SharedLibrary('libraries/libRedditSub.so', ['build/reddit/RedditSub.cc'] + all)
-common_env.SharedLibrary('libraries/libRedditFeatures.so', ['build/reddit/RedditFeatures.cc'] + all)
-common_env.SharedLibrary('libraries/libRedditFullFeatures.so', ['build/reddit/RedditFullFeatures.cc'] + all)
-common_env.SharedLibrary('libraries/libRedditJoin.so', ['build/reddit/RedditJoin.cc'] + all)
-common_env.SharedLibrary('libraries/libRedditPositiveLabelSelection.so', ['build/reddit/RedditPositiveLabelSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libRedditNegativeLabelSelection.so', ['build/reddit/RedditNegativeLabelSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libRedditLabelSelection0_0.so', ['build/reddit/RedditLabelSelection0_0.cc'] + all)
-common_env.SharedLibrary('libraries/libRedditLabelSelection0_1.so', ['build/reddit/RedditLabelSelection0_1.cc'] + all)
-common_env.SharedLibrary('libraries/libRedditLabelSelection0_2.so', ['build/reddit/RedditLabelSelection0_2.cc'] + all)
-common_env.SharedLibrary('libraries/libRedditLabelSelection0_3.so', ['build/reddit/RedditLabelSelection0_3.cc'] + all)
-common_env.SharedLibrary('libraries/libRedditLabelSelection0_4.so', ['build/reddit/RedditLabelSelection0_4.cc'] + all)
-common_env.SharedLibrary('libraries/libRedditLabelSelection0_5.so', ['build/reddit/RedditLabelSelection0_5.cc'] + all)
-common_env.SharedLibrary('libraries/libRedditLabelSelection0_6.so', ['build/reddit/RedditLabelSelection0_6.cc'] + all)
-common_env.SharedLibrary('libraries/libRedditLabelSelection0_7.so', ['build/reddit/RedditLabelSelection0_7.cc'] + all)
-common_env.SharedLibrary('libraries/libRedditLabelSelection0_8.so', ['build/reddit/RedditLabelSelection0_8.cc'] + all)
-common_env.SharedLibrary('libraries/libRedditLabelSelection0_9.so', ['build/reddit/RedditLabelSelection0_9.cc'] + all)
-common_env.SharedLibrary('libraries/libRedditLabelSelection0_10.so', ['build/reddit/RedditLabelSelection0_10.cc'] + all)
-common_env.SharedLibrary('libraries/libRedditLabelSelection1_0.so', ['build/reddit/RedditLabelSelection1_0.cc'] + all)
-common_env.SharedLibrary('libraries/libRedditLabelSelection1_1.so', ['build/reddit/RedditLabelSelection1_1.cc'] + all)
-common_env.SharedLibrary('libraries/libRedditLabelSelection1_2.so', ['build/reddit/RedditLabelSelection1_2.cc'] + all)
-common_env.SharedLibrary('libraries/libRedditLabelSelection1_3.so', ['build/reddit/RedditLabelSelection1_3.cc'] + all)
-common_env.SharedLibrary('libraries/libRedditLabelSelection1_4.so', ['build/reddit/RedditLabelSelection1_4.cc'] + all)
-common_env.SharedLibrary('libraries/libRedditLabelSelection1_5.so', ['build/reddit/RedditLabelSelection1_5.cc'] + all)
-common_env.SharedLibrary('libraries/libRedditLabelSelection1_6.so', ['build/reddit/RedditLabelSelection1_6.cc'] + all)
-common_env.SharedLibrary('libraries/libRedditLabelSelection1_7.so', ['build/reddit/RedditLabelSelection1_7.cc'] + all)
-common_env.SharedLibrary('libraries/libRedditLabelSelection1_8.so', ['build/reddit/RedditLabelSelection1_8.cc'] + all)
-common_env.SharedLibrary('libraries/libRedditLabelSelection1_9.so', ['build/reddit/RedditLabelSelection1_9.cc'] + all)
-common_env.SharedLibrary('libraries/libRedditLabelSelection1_10.so', ['build/reddit/RedditLabelSelection1_10.cc'] + all)
-common_env.SharedLibrary('libraries/libRedditThreeWayJoin.so', ['build/reddit/RedditThreeWayJoin.cc'] + all)
-common_env.SharedLibrary('libraries/libRedditThreeWayAdaptiveJoin.so', ['build/reddit/RedditThreeWayAdaptiveJoin.cc'] + all)
-common_env.SharedLibrary('libraries/libRedditJoinSubsAndComments.so', ['build/reddit/RedditJoinSubsAndComments.cc']+all)
-common_env.SharedLibrary('libraries/libRedditSubsAndComments.so', ['build/reddit/RedditSubsAndComments.cc']+all)
-common_env.SharedLibrary('libraries/libRedditCommentLabelJoin.so', ['build/reddit/RedditCommentLabelJoin.cc']+all)
-common_env.SharedLibrary('libraries/libRedditLabelProjection.so', ['build/reddit/RedditLabelProjection.cc']+all)
-common_env.SharedLibrary('libraries/libRedditCommentFeatures.so', ['build/reddit/CommentFeatures.cc']+all)
-common_env.SharedLibrary('libraries/libRedditCommentsToFeatures.so', ['build/reddit/CommentsToFeatures.cc']+all)
-common_env.SharedLibrary('libraries/libLabelCommentsPartition.so', ['build/reddit/LabelCommentsPartition.cc']+all)
-common_env.SharedLibrary('libraries/libAuthorCommentsPartition.so', ['build/reddit/AuthorCommentsPartition.cc']+all)
-common_env.SharedLibrary('libraries/libSubsCommentsPartition.so', ['build/reddit/SubsCommentsPartition.cc']+all)
+# reddit
+common_env.SharedLibrary('libraries/libRedditComment.so',
+                         ['build/reddit/RedditComment.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditAuthor.so',
+                         ['build/reddit/RedditAuthor.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditSub.so',
+                         ['build/reddit/RedditSub.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditFeatures.so',
+                         ['build/reddit/RedditFeatures.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditFullFeatures.so',
+                         ['build/reddit/RedditFullFeatures.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditJoin.so',
+                         ['build/reddit/RedditJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditPositiveLabelSelection.so',
+                         ['build/reddit/RedditPositiveLabelSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditNegativeLabelSelection.so',
+                         ['build/reddit/RedditNegativeLabelSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection0_0.so',
+                         ['build/reddit/RedditLabelSelection0_0.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection0_1.so',
+                         ['build/reddit/RedditLabelSelection0_1.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection0_2.so',
+                         ['build/reddit/RedditLabelSelection0_2.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection0_3.so',
+                         ['build/reddit/RedditLabelSelection0_3.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection0_4.so',
+                         ['build/reddit/RedditLabelSelection0_4.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection0_5.so',
+                         ['build/reddit/RedditLabelSelection0_5.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection0_6.so',
+                         ['build/reddit/RedditLabelSelection0_6.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection0_7.so',
+                         ['build/reddit/RedditLabelSelection0_7.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection0_8.so',
+                         ['build/reddit/RedditLabelSelection0_8.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection0_9.so',
+                         ['build/reddit/RedditLabelSelection0_9.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection0_10.so',
+                         ['build/reddit/RedditLabelSelection0_10.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection1_0.so',
+                         ['build/reddit/RedditLabelSelection1_0.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection1_1.so',
+                         ['build/reddit/RedditLabelSelection1_1.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection1_2.so',
+                         ['build/reddit/RedditLabelSelection1_2.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection1_3.so',
+                         ['build/reddit/RedditLabelSelection1_3.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection1_4.so',
+                         ['build/reddit/RedditLabelSelection1_4.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection1_5.so',
+                         ['build/reddit/RedditLabelSelection1_5.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection1_6.so',
+                         ['build/reddit/RedditLabelSelection1_6.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection1_7.so',
+                         ['build/reddit/RedditLabelSelection1_7.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection1_8.so',
+                         ['build/reddit/RedditLabelSelection1_8.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection1_9.so',
+                         ['build/reddit/RedditLabelSelection1_9.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditLabelSelection1_10.so',
+                         ['build/reddit/RedditLabelSelection1_10.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditThreeWayJoin.so',
+                         ['build/reddit/RedditThreeWayJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditThreeWayAdaptiveJoin.so',
+                         ['build/reddit/RedditThreeWayAdaptiveJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libRedditJoinSubsAndComments.so',
+                         ['build/reddit/RedditJoinSubsAndComments.cc']+all)
+common_env.SharedLibrary('libraries/libRedditSubsAndComments.so',
+                         ['build/reddit/RedditSubsAndComments.cc']+all)
+common_env.SharedLibrary('libraries/libRedditCommentLabelJoin.so',
+                         ['build/reddit/RedditCommentLabelJoin.cc']+all)
+common_env.SharedLibrary('libraries/libRedditLabelProjection.so',
+                         ['build/reddit/RedditLabelProjection.cc']+all)
+common_env.SharedLibrary('libraries/libRedditCommentFeatures.so',
+                         ['build/reddit/CommentFeatures.cc']+all)
+common_env.SharedLibrary('libraries/libRedditCommentsToFeatures.so',
+                         ['build/reddit/CommentsToFeatures.cc']+all)
+common_env.SharedLibrary('libraries/libLabelCommentsPartition.so',
+                         ['build/reddit/LabelCommentsPartition.cc']+all)
+common_env.SharedLibrary('libraries/libAuthorCommentsPartition.so',
+                         ['build/reddit/AuthorCommentsPartition.cc']+all)
+common_env.SharedLibrary('libraries/libSubsCommentsPartition.so',
+                         ['build/reddit/SubsCommentsPartition.cc']+all)
 
-common_env.SharedLibrary('libraries/libRedditCommentsToChunks.so', ['build/reddit/CommentsToChunks.cc']+all)
-common_env.SharedLibrary('libraries/libRedditCommentsChunk.so', ['build/reddit/CommentsChunk.cc']+all)
-common_env.SharedLibrary('libraries/libRedditCommentFeatureChunks.so', ['build/reddit/CommentFeatureChunks.cc']+all)
-common_env.SharedLibrary('libraries/libRedditCommentFeaturesToChunks.so', ['build/reddit/CommentFeaturesToChunks.cc']+all)
-common_env.SharedLibrary('libraries/libRedditCommentChunksToBlocks.so', ['build/reddit/CommentChunksToBlocks.cc']+all)
-common_env.SharedLibrary('libraries/libRedditCommentBlockToMatrix.so', ['build/reddit/CommentBlockToMatrix.cc']+all)
-common_env.SharedLibrary('libraries/libRedditCommentChunkToComments.so', ['build/reddit/CommentChunkToComments.cc']+all)
-common_env.SharedLibrary('libraries/libRedditCommentPartition.so', ['build/reddit/CommentPartition.cc']+all)
+common_env.SharedLibrary('libraries/libRedditCommentsToChunks.so',
+                         ['build/reddit/CommentsToChunks.cc']+all)
+common_env.SharedLibrary(
+    'libraries/libRedditCommentsChunk.so', ['build/reddit/CommentsChunk.cc']+all)
+common_env.SharedLibrary('libraries/libRedditCommentFeatureChunks.so',
+                         ['build/reddit/CommentFeatureChunks.cc']+all)
+common_env.SharedLibrary('libraries/libRedditCommentFeaturesToChunks.so',
+                         ['build/reddit/CommentFeaturesToChunks.cc']+all)
+common_env.SharedLibrary('libraries/libRedditCommentChunksToBlocks.so',
+                         ['build/reddit/CommentChunksToBlocks.cc']+all)
+common_env.SharedLibrary('libraries/libRedditCommentBlockToMatrix.so',
+                         ['build/reddit/CommentBlockToMatrix.cc']+all)
+common_env.SharedLibrary('libraries/libRedditCommentChunkToComments.so',
+                         ['build/reddit/CommentChunkToComments.cc']+all)
+common_env.SharedLibrary('libraries/libRedditCommentPartition.so',
+                         ['build/reddit/CommentPartition.cc']+all)
 
-common_env.SharedLibrary('libraries/libRedditMatrixBlockPartition.so', ['build/reddit/MatrixBlockPartition.cc']+all)
-common_env.SharedLibrary('libraries/libRedditCommentInferenceJoin.so', ['build/reddit/RedditCommentInferenceJoin.cc']+all)
+common_env.SharedLibrary('libraries/libRedditMatrixBlockPartition.so',
+                         ['build/reddit/MatrixBlockPartition.cc']+all)
+common_env.SharedLibrary('libraries/libRedditCommentInferenceJoin.so',
+                         ['build/reddit/RedditCommentInferenceJoin.cc']+all)
 
-common_env.Program('bin/loadRedditComments', ['build/tests/LoadRedditComments.cc'] + all + pdb_client)
-common_env.Program('bin/loadRedditCommentsIndexPartition', ['build/tests/LoadRedditCommentsIndexPartition.cc'] + all + pdb_client)
-common_env.Program('bin/loadRedditCommentsWithPartition', ['build/tests/LoadRedditCommentsWithPartition.cc'] + all + pdb_client)
-common_env.Program('bin/loadRedditCommentsWithPartitionWithVariousSelections', ['build/tests/LoadRedditCommentsWithPartitionWithVariousSelections.cc'] + all + pdb_client)
-common_env.Program('bin/createRedditComments', ['build/tests/CreateRedditComments.cc'] + all + pdb_client)
-common_env.Program('bin/loadRedditAuthors', ['build/tests/LoadRedditAuthors.cc'] + all + pdb_client)
-common_env.Program('bin/loadRedditSubs', ['build/tests/LoadRedditSubs.cc'] + all + pdb_client)
-common_env.Program('bin/testRedditJoin', ['build/tests/TestRedditJoin.cc'] + all + pdb_client)
-common_env.Program('bin/testRedditThreeWayJoin', ['build/tests/TestRedditThreeWayJoin.cc'] + all + pdb_client)
-common_env.Program('bin/testRedditThreeWayAdaptiveJoin', ['build/tests/TestRedditThreeWayAdaptiveJoin.cc'] + all + pdb_client)
-common_env.Program('bin/testRedditThreeWayAdaptiveJoinWithVariousSelections', ['build/tests/TestRedditThreeWayAdaptiveJoinWithVariousSelections.cc'] + all + pdb_client)
-common_env.Program('bin/testRedditRandomLabels', ['build/tests/TestRedditRandomLabels.cc'] + all + pdb_client)
-common_env.Program('bin/testRedditJoinSubsAndComments', ['build/tests/TestRedditJoinSubsWithComments.cc']+all+pdb_client)
-common_env.Program('bin/testRedditAuthors', ['build/tests/TestRedditAuthors.cc'] + all + pdb_client)
-common_env.Program('bin/testScanAuthors', ['build/tests/TestScanAuthors.cc'] + all + pdb_client)
-common_env.Program('bin/testScanSubs', ['build/tests/TestScanSubs.cc'] + all + pdb_client)
-common_env.Program('bin/testRepartition', ['build/tests/TestRepartition.cc']+ all + pdb_client)
-common_env.Program('bin/testRepartition1', ['build/tests/TestRepartition1.cc']+ all + pdb_client)
-common_env.Program('bin/testRepartition3', ['build/tests/TestRepartition3.cc']+ all + pdb_client)
-common_env.Program('bin/redditSelectionParts', ['build/tests/RedditSelectionParts.cc']+ all + pdb_client)
-common_env.Program('bin/testRedditSelectionPartitions', ['build/tests/TestRedditSelectionPartitions.cc']+ all + pdb_client)
+common_env.Program('bin/loadRedditComments',
+                   ['build/tests/LoadRedditComments.cc'] + all + pdb_client)
+common_env.Program('bin/loadRedditCommentsIndexPartition',
+                   ['build/tests/LoadRedditCommentsIndexPartition.cc'] + all + pdb_client)
+common_env.Program('bin/loadRedditCommentsWithPartition',
+                   ['build/tests/LoadRedditCommentsWithPartition.cc'] + all + pdb_client)
+common_env.Program('bin/loadRedditCommentsWithPartitionWithVariousSelections',
+                   ['build/tests/LoadRedditCommentsWithPartitionWithVariousSelections.cc'] + all + pdb_client)
+common_env.Program('bin/createRedditComments',
+                   ['build/tests/CreateRedditComments.cc'] + all + pdb_client)
+common_env.Program('bin/loadRedditAuthors',
+                   ['build/tests/LoadRedditAuthors.cc'] + all + pdb_client)
+common_env.Program('bin/loadRedditSubs',
+                   ['build/tests/LoadRedditSubs.cc'] + all + pdb_client)
+common_env.Program('bin/testRedditJoin',
+                   ['build/tests/TestRedditJoin.cc'] + all + pdb_client)
+common_env.Program('bin/testRedditThreeWayJoin',
+                   ['build/tests/TestRedditThreeWayJoin.cc'] + all + pdb_client)
+common_env.Program('bin/testRedditThreeWayAdaptiveJoin',
+                   ['build/tests/TestRedditThreeWayAdaptiveJoin.cc'] + all + pdb_client)
+common_env.Program('bin/testRedditThreeWayAdaptiveJoinWithVariousSelections',
+                   ['build/tests/TestRedditThreeWayAdaptiveJoinWithVariousSelections.cc'] + all + pdb_client)
+common_env.Program('bin/testRedditRandomLabels',
+                   ['build/tests/TestRedditRandomLabels.cc'] + all + pdb_client)
+common_env.Program('bin/testRedditJoinSubsAndComments',
+                   ['build/tests/TestRedditJoinSubsWithComments.cc']+all+pdb_client)
+common_env.Program('bin/testRedditAuthors',
+                   ['build/tests/TestRedditAuthors.cc'] + all + pdb_client)
+common_env.Program('bin/testScanAuthors',
+                   ['build/tests/TestScanAuthors.cc'] + all + pdb_client)
+common_env.Program('bin/testScanSubs',
+                   ['build/tests/TestScanSubs.cc'] + all + pdb_client)
+common_env.Program('bin/testRepartition',
+                   ['build/tests/TestRepartition.cc'] + all + pdb_client)
+common_env.Program('bin/testRepartition1',
+                   ['build/tests/TestRepartition1.cc'] + all + pdb_client)
+common_env.Program('bin/testRepartition3',
+                   ['build/tests/TestRepartition3.cc'] + all + pdb_client)
+common_env.Program('bin/redditSelectionParts',
+                   ['build/tests/RedditSelectionParts.cc'] + all + pdb_client)
+common_env.Program('bin/testRedditSelectionPartitions',
+                   ['build/tests/TestRedditSelectionPartitions.cc'] + all + pdb_client)
 
 # K-means
-common_env.SharedLibrary('libraries/libScanDoubleArraySet.so', ['build/libraries/ScanDoubleArraySet.cc'] + all)
-common_env.SharedLibrary('libraries/libKMeansAggregate.so', ['build/libraries/KMeansAggregate.cc'] + all)
-common_env.SharedLibrary('libraries/libScanDoubleVectorSet.so', ['build/libraries/ScanDoubleVectorSet.cc'] + all)
-common_env.SharedLibrary('libraries/libScanKMeansDoubleVectorSet.so', ['build/libraries/ScanKMeansDoubleVectorSet.cc'] + all)
-common_env.SharedLibrary('libraries/libWriteKMeansSet.so', ['build/libraries/WriteKMeansSet.cc'] + all)
-common_env.SharedLibrary('libraries/libKMeansAggregateOutputType.so', ['build/libraries/KMeansAggregateOutputType.cc'] + all)
-common_env.SharedLibrary('libraries/libKMeansCentroid.so', ['build/libraries/KMeansCentroid.cc'] + all)
-common_env.SharedLibrary('libraries/libKMeansDataCountAggregate.so', ['build/libraries/KMeansDataCountAggregate.cc'] + all)
-common_env.SharedLibrary('libraries/libKMeansSampleSelection.so', ['build/libraries/KMeansSampleSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libKMeansNormVectorMap.so', ['build/libraries/KMeansNormVectorMap.cc'] + all)
-common_env.SharedLibrary('libraries/libWriteDoubleVectorSet.so', ['build/libraries/WriteDoubleVectorSet.cc'] + all)
-common_env.SharedLibrary('libraries/libWriteKMeansDoubleVectorSet.so', ['build/libraries/WriteKMeansDoubleVectorSet.cc'] + all)
+common_env.SharedLibrary('libraries/libScanDoubleArraySet.so',
+                         ['build/libraries/ScanDoubleArraySet.cc'] + all)
+common_env.SharedLibrary('libraries/libKMeansAggregate.so',
+                         ['build/libraries/KMeansAggregate.cc'] + all)
+common_env.SharedLibrary('libraries/libScanDoubleVectorSet.so',
+                         ['build/libraries/ScanDoubleVectorSet.cc'] + all)
+common_env.SharedLibrary('libraries/libScanKMeansDoubleVectorSet.so',
+                         ['build/libraries/ScanKMeansDoubleVectorSet.cc'] + all)
+common_env.SharedLibrary('libraries/libWriteKMeansSet.so',
+                         ['build/libraries/WriteKMeansSet.cc'] + all)
+common_env.SharedLibrary('libraries/libKMeansAggregateOutputType.so',
+                         ['build/libraries/KMeansAggregateOutputType.cc'] + all)
+common_env.SharedLibrary('libraries/libKMeansCentroid.so',
+                         ['build/libraries/KMeansCentroid.cc'] + all)
+common_env.SharedLibrary('libraries/libKMeansDataCountAggregate.so',
+                         ['build/libraries/KMeansDataCountAggregate.cc'] + all)
+common_env.SharedLibrary('libraries/libKMeansSampleSelection.so',
+                         ['build/libraries/KMeansSampleSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libKMeansNormVectorMap.so',
+                         ['build/libraries/KMeansNormVectorMap.cc'] + all)
+common_env.SharedLibrary('libraries/libWriteDoubleVectorSet.so',
+                         ['build/libraries/WriteDoubleVectorSet.cc'] + all)
+common_env.SharedLibrary('libraries/libWriteKMeansDoubleVectorSet.so',
+                         ['build/libraries/WriteKMeansDoubleVectorSet.cc'] + all)
 
 # LDA
-common_env.SharedLibrary('libraries/libLDADocIDAggregate.so', ['build/libraries/LDADocIDAggregate.cc'] + all)
-common_env.SharedLibrary('libraries/libScanTopicsPerWord.so', ['build/libraries/LDA/ScanTopicsPerWord.cc'] + all)
-common_env.SharedLibrary('libraries/libWriteLDADocWordTopicAssignment.so', ['build/libraries/LDA/WriteLDADocWordTopicAssignment.cc'] + all)
-common_env.SharedLibrary('libraries/libScanLDADocumentSet.so', ['build/libraries/ScanLDADocumentSet.cc'] + all)
-common_env.SharedLibrary('libraries/libScanIntDoubleVectorPairSet.so', ['build/libraries/ScanIntDoubleVectorPairSet.cc'] + all)
-common_env.SharedLibrary('libraries/libLDAInitialTopicProbSelection.so', ['build/libraries/LDAInitialTopicProbSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libIntDoubleVectorPair.so', ['build/libraries/IntDoubleVectorPair.cc'] + all)
-common_env.SharedLibrary('libraries/libIntIntVectorPair.so', ['build/libraries/IntIntVectorPair.cc'] + all)
-common_env.SharedLibrary('libraries/libWriteIntDoubleVectorPairSet.so', ['build/libraries/WriteIntDoubleVectorPairSet.cc'] + all)
-common_env.SharedLibrary('libraries/libLDAInitialWordTopicProbSelection.so', ['build/libraries/LDA/LDAInitialWordTopicProbSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libLDADocWordTopicAssignment.so', ['build/libraries/LDADocWordTopicAssignment.cc'] + all)
-common_env.SharedLibrary('libraries/libLDADocWordTopicAssignmentIdentity.so', ['build/libraries/LDA/LDADocWordTopicAssignmentIdentity.cc'] + all)
-common_env.SharedLibrary('libraries/libLDADocWordTopicJoin.so', ['build/libraries/LDA/LDADocWordTopicJoin.cc'] + all)
-common_env.SharedLibrary('libraries/libLDADocTopicAggregate.so', ['build/libraries/LDA/LDADocTopicAggregate.cc'] + all)
-common_env.SharedLibrary('libraries/libWriteTopicsPerWord.so', ['build/libraries/LDA/WriteTopicsPerWord.cc'] + all)
-common_env.SharedLibrary('libraries/libLDADocTopicProbSelection.so', ['build/libraries/LDA/LDADocTopicProbSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libLDADocWordTopicMultiSelection.so', ['build/libraries/LDA/LDADocWordTopicMultiSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libLDATopicWordAggregate.so', ['build/libraries/LDA/LDATopicWordAggregate.cc'] + all)
-common_env.SharedLibrary('libraries/libLDATopicWordProbMultiSelection.so', ['build/libraries/LDA/LDATopicWordProbMultiSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libLDAWordTopicAggregate.so', ['build/libraries/LDA/LDAWordTopicAggregate.cc'] + all)
-common_env.SharedLibrary('libraries/libLDADocWordTopicCount.so', ['build/libraries/LDA/LDADocWordTopicCount.cc'] + all)
-common_env.SharedLibrary('libraries/libLDATopicWordProb.so', ['build/libraries/LDA/LDATopicWordProb.cc'] + all)
-common_env.SharedLibrary('libraries/libLDADocument.so', ['build/libraries/LDADocument.cc'] + all)
-common_env.SharedLibrary('libraries/libWriteLDADocWordTopicAssignmentSet.so', ['build/libraries/LDA/WriteLDADocWordTopicAssignmentSet.cc'] + all)
-common_env.SharedLibrary('libraries/libTopicsPerWord.so', ['build/libraries/LDA/TopicsPerWord.cc'] + all)
-common_env.SharedLibrary('libraries/libLDADocAssignmentMultiSelection.so', ['build/libraries/LDA/LDADocAssignmentMultiSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libLDATopicAssignmentMultiSelection.so', ['build/libraries/LDA/LDATopicAssignmentMultiSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libDocAssignment.so', ['build/libraries/LDA/DocAssignment.cc'] + all)
-common_env.SharedLibrary('libraries/libTopicAssignment.so', ['build/libraries/LDA/TopicAssignment.cc'] + all)
+common_env.SharedLibrary('libraries/libLDADocIDAggregate.so',
+                         ['build/libraries/LDADocIDAggregate.cc'] + all)
+common_env.SharedLibrary('libraries/libScanTopicsPerWord.so',
+                         ['build/libraries/LDA/ScanTopicsPerWord.cc'] + all)
+common_env.SharedLibrary('libraries/libWriteLDADocWordTopicAssignment.so',
+                         ['build/libraries/LDA/WriteLDADocWordTopicAssignment.cc'] + all)
+common_env.SharedLibrary('libraries/libScanLDADocumentSet.so',
+                         ['build/libraries/ScanLDADocumentSet.cc'] + all)
+common_env.SharedLibrary('libraries/libScanIntDoubleVectorPairSet.so',
+                         ['build/libraries/ScanIntDoubleVectorPairSet.cc'] + all)
+common_env.SharedLibrary('libraries/libLDAInitialTopicProbSelection.so',
+                         ['build/libraries/LDAInitialTopicProbSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libIntDoubleVectorPair.so',
+                         ['build/libraries/IntDoubleVectorPair.cc'] + all)
+common_env.SharedLibrary('libraries/libIntIntVectorPair.so',
+                         ['build/libraries/IntIntVectorPair.cc'] + all)
+common_env.SharedLibrary('libraries/libWriteIntDoubleVectorPairSet.so',
+                         ['build/libraries/WriteIntDoubleVectorPairSet.cc'] + all)
+common_env.SharedLibrary('libraries/libLDAInitialWordTopicProbSelection.so',
+                         ['build/libraries/LDA/LDAInitialWordTopicProbSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libLDADocWordTopicAssignment.so',
+                         ['build/libraries/LDADocWordTopicAssignment.cc'] + all)
+common_env.SharedLibrary('libraries/libLDADocWordTopicAssignmentIdentity.so',
+                         ['build/libraries/LDA/LDADocWordTopicAssignmentIdentity.cc'] + all)
+common_env.SharedLibrary('libraries/libLDADocWordTopicJoin.so',
+                         ['build/libraries/LDA/LDADocWordTopicJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libLDADocTopicAggregate.so',
+                         ['build/libraries/LDA/LDADocTopicAggregate.cc'] + all)
+common_env.SharedLibrary('libraries/libWriteTopicsPerWord.so',
+                         ['build/libraries/LDA/WriteTopicsPerWord.cc'] + all)
+common_env.SharedLibrary('libraries/libLDADocTopicProbSelection.so',
+                         ['build/libraries/LDA/LDADocTopicProbSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libLDADocWordTopicMultiSelection.so',
+                         ['build/libraries/LDA/LDADocWordTopicMultiSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libLDATopicWordAggregate.so',
+                         ['build/libraries/LDA/LDATopicWordAggregate.cc'] + all)
+common_env.SharedLibrary('libraries/libLDATopicWordProbMultiSelection.so',
+                         ['build/libraries/LDA/LDATopicWordProbMultiSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libLDAWordTopicAggregate.so',
+                         ['build/libraries/LDA/LDAWordTopicAggregate.cc'] + all)
+common_env.SharedLibrary('libraries/libLDADocWordTopicCount.so',
+                         ['build/libraries/LDA/LDADocWordTopicCount.cc'] + all)
+common_env.SharedLibrary('libraries/libLDATopicWordProb.so',
+                         ['build/libraries/LDA/LDATopicWordProb.cc'] + all)
+common_env.SharedLibrary('libraries/libLDADocument.so',
+                         ['build/libraries/LDADocument.cc'] + all)
+common_env.SharedLibrary('libraries/libWriteLDADocWordTopicAssignmentSet.so',
+                         ['build/libraries/LDA/WriteLDADocWordTopicAssignmentSet.cc'] + all)
+common_env.SharedLibrary('libraries/libTopicsPerWord.so',
+                         ['build/libraries/LDA/TopicsPerWord.cc'] + all)
+common_env.SharedLibrary('libraries/libLDADocAssignmentMultiSelection.so',
+                         ['build/libraries/LDA/LDADocAssignmentMultiSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libLDATopicAssignmentMultiSelection.so',
+                         ['build/libraries/LDA/LDATopicAssignmentMultiSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libDocAssignment.so',
+                         ['build/libraries/LDA/DocAssignment.cc'] + all)
+common_env.SharedLibrary('libraries/libTopicAssignment.so',
+                         ['build/libraries/LDA/TopicAssignment.cc'] + all)
 #common_env.SharedLibrary('libraries/libWriteLDATopicWordProbSet.so', ['build/libraries/LDA/WriteLDATopicWordProbSet.cc'] + all)
-common_env.SharedLibrary('libraries/libLDADocTopicFromCountAggregate.so', ['build/libraries/LDA/LDADocTopicFromCountAggregate.cc'] + all)
+common_env.SharedLibrary('libraries/libLDADocTopicFromCountAggregate.so',
+                         ['build/libraries/LDA/LDADocTopicFromCountAggregate.cc'] + all)
 
-common_env.SharedLibrary('libraries/libGmmSampleSelection.so', ['build/libraries/GMM/GmmSampleSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libGmmDataCountAggregate.so', ['build/libraries/GMM/GmmDataCountAggregate.cc'] + all)
-common_env.SharedLibrary('libraries/libGmmAggregateLazy.so', ['build/libraries/GMM/GmmAggregateLazy.cc'] + all)
-common_env.SharedLibrary('libraries/libGmmAggregateOutputLazy.so', ['build/libraries/GMM/GmmAggregateOutputLazy.cc'] + all)
-common_env.SharedLibrary('libraries/libGmmAggregateDatapoint.so', ['build/libraries/GMM/GmmAggregateDatapoint.cc'] + all)
-common_env.SharedLibrary('libraries/libGmmAggregateNewComp.so', ['build/libraries/GMM/GmmAggregateNewComp.cc'] + all)
+common_env.SharedLibrary('libraries/libGmmSampleSelection.so',
+                         ['build/libraries/GMM/GmmSampleSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libGmmDataCountAggregate.so',
+                         ['build/libraries/GMM/GmmDataCountAggregate.cc'] + all)
+common_env.SharedLibrary('libraries/libGmmAggregateLazy.so',
+                         ['build/libraries/GMM/GmmAggregateLazy.cc'] + all)
+common_env.SharedLibrary('libraries/libGmmAggregateOutputLazy.so',
+                         ['build/libraries/GMM/GmmAggregateOutputLazy.cc'] + all)
+common_env.SharedLibrary('libraries/libGmmAggregateDatapoint.so',
+                         ['build/libraries/GMM/GmmAggregateDatapoint.cc'] + all)
+common_env.SharedLibrary('libraries/libGmmAggregateNewComp.so',
+                         ['build/libraries/GMM/GmmAggregateNewComp.cc'] + all)
 
-common_env.Program('bin/TestGmmLoadData', ['build/tests/TestGmmLoadData.cc'] + all + pdb_client)
-common_env.Program('bin/TestGmmLazy', ['build/tests/TestGmmLazy.cc'] + all + pdb_client)
+common_env.Program('bin/TestGmmLoadData',
+                   ['build/tests/TestGmmLoadData.cc'] + all + pdb_client)
+common_env.Program('bin/TestGmmLazy',
+                   ['build/tests/TestGmmLazy.cc'] + all + pdb_client)
 
-common_env.Program('bin/getListNodesTest', ['build/tests/GetListNodesTest.cc'] + all)
-common_env.Program('bin/MasterServerTest', ['build/tests/MasterServerTest.cc'] + all)
-common_env.Program('bin/objectModelTest1', ['build/tests/ObjectModelTest1.cc'] + all)
+common_env.Program('bin/getListNodesTest',
+                   ['build/tests/GetListNodesTest.cc'] + all)
+common_env.Program('bin/MasterServerTest',
+                   ['build/tests/MasterServerTest.cc'] + all)
+common_env.Program('bin/objectModelTest1',
+                   ['build/tests/ObjectModelTest1.cc'] + all)
 common_env.Program('bin/pdb-cluster', ['build/mainServer/MasterMain.cc'] + all)
 common_env.Program('bin/pdb-server', ['build/mainServer/WorkerMain.cc']+all)
-common_env.Program('bin/registerTypeAndCreateDatabaseTest', ['build/tests/RegisterTypeAndCreateDatabaseTest.cc'] + all)
-common_env.Program('bin/storeLotsOfEmployee', ['build/tests/StoreLotsOfEmployee.cc'] + all)
-common_env.Program('bin/storeSharedEmployeeInDBTest', ['build/tests/StoreSharedEmployeeInDBTest.cc'] + all)
+common_env.Program('bin/registerTypeAndCreateDatabaseTest',
+                   ['build/tests/RegisterTypeAndCreateDatabaseTest.cc'] + all)
+common_env.Program('bin/storeLotsOfEmployee',
+                   ['build/tests/StoreLotsOfEmployee.cc'] + all)
+common_env.Program('bin/storeSharedEmployeeInDBTest',
+                   ['build/tests/StoreSharedEmployeeInDBTest.cc'] + all)
 common_env.Program('bin/test1', ['build/tests/Test1.cc'] + all)
 common_env.Program('bin/test2', ['build/tests/Test2.cc'] + all)
 common_env.Program('bin/topK', ['build/tests/TopK.cc'] + all + pdb_client)
@@ -812,7 +1215,8 @@ common_env.Program('bin/test400', ['build/tests/Test400.cc'] + all)
 common_env.Program('bin/test401', ['build/tests/Test401.cc'] + all)
 common_env.Program('bin/test402', ['build/tests/Test402.cc'] + all)
 common_env.Program('bin/test403', ['build/tests/Test403.cc'] + all)
-common_env.Program('bin/test405', ['build/tests/Test405.cc'] + all + pdb_client)
+common_env.Program(
+    'bin/test405', ['build/tests/Test405.cc'] + all + pdb_client)
 common_env.Program('bin/test42', ['build/tests/Test42.cc'] + all)
 common_env.Program('bin/test43', ['build/tests/Test43.cc'] + all)
 common_env.Program('bin/test45', ['build/tests/Test45.cc'] + all)
@@ -843,8 +1247,10 @@ common_env.Program('bin/test77', ['build/tests/Test77.cc'] + all + pdb_client)
 common_env.Program('bin/test78', ['build/tests/Test78.cc'] + all + pdb_client)
 common_env.Program('bin/test79', ['build/tests/Test79.cc'] + all + pdb_client)
 common_env.Program('bin/test80', ['build/tests/Test80.cc'] + all + pdb_client)
-common_env.Program('bin/test81builtIn', ['build/tests/Test81builtIn.cc'] + all + pdb_client)
-common_env.Program('bin/test81shared', ['build/tests/Test81shared.cc'] + all + pdb_client)
+common_env.Program('bin/test81builtIn',
+                   ['build/tests/Test81builtIn.cc'] + all + pdb_client)
+common_env.Program('bin/test81shared',
+                   ['build/tests/Test81shared.cc'] + all + pdb_client)
 #common_env.Program('bin/test82', ['build/tests/Test82.cc'] + all)
 common_env.Program('bin/test83', ['build/tests/Test83.cc'] + all + pdb_client)
 common_env.Program('bin/test84', ['build/tests/Test84.cc'] + all + pdb_client)
@@ -860,762 +1266,835 @@ common_env.Program('bin/test94', ['build/tests/Test94.cc'] + all + pdb_client)
 common_env.Program('bin/test95', ['build/tests/Test95.cc'] + all + pdb_client)
 common_env.Program('bin/test96', ['build/tests/Test96.cc'] + all)
 common_env.Program('bin/test97', ['build/tests/Test97.cc'] + all + pdb_client)
-common_env.Program('bin/testLA01_Transpose', ['build/tests/TestLA01_Transpose.cc'] + all + pdb_client)
-common_env.Program('bin/testLA02_Add', ['build/tests/TestLA02_Add.cc'] + all + pdb_client)
-common_env.Program('bin/testLA03_Substract', ['build/tests/TestLA03_Substract.cc'] + all + pdb_client)
-common_env.Program('bin/testLA04_Multiply', ['build/tests/TestLA04_Multiply.cc'] + all + pdb_client)
-common_env.Program('bin/testLA05_MaxElement', ['build/tests/TestLA05_MaxElement.cc'] + all + pdb_client)
-common_env.Program('bin/testLA06_MinElement', ['build/tests/TestLA06_MinElement.cc'] + all + pdb_client)
-common_env.Program('bin/testLA07_TransposeMultiply', ['build/tests/TestLA07_TransposeMultiply.cc'] + all + pdb_client)
-common_env.Program('bin/testLA07_TransposeMultiply_Gram', ['build/tests/TestLA07_TransposeMultiply_Gram.cc'] + all + pdb_client)
-common_env.Program('bin/testLA08_RowMax', ['build/tests/TestLA08_RowMax.cc'] + all + pdb_client)
-common_env.Program('bin/testLA09_RowMin', ['build/tests/TestLA09_RowMin.cc'] + all + pdb_client)
-common_env.Program('bin/testLA10_ColMax', ['build/tests/TestLA10_ColMax.cc'] + all + pdb_client)
-common_env.Program('bin/testLA11_ColMin', ['build/tests/TestLA11_ColMin.cc'] + all + pdb_client)
-common_env.Program('bin/testLA12_DuplicateRow', ['build/tests/TestLA12_DuplicateRow.cc'] + all + pdb_client)
-common_env.Program('bin/testLA13_DuplicateCol', ['build/tests/TestLA13_DuplicateCol.cc'] + all + pdb_client)
-common_env.Program('bin/testLA14_Inverse', ['build/tests/TestLA14_Inverse.cc'] + all + pdb_client)
-common_env.Program('bin/testLA15_ScaleMultiply', ['build/tests/TestLA15_ScaleMultiply.cc'] + all + pdb_client)
-common_env.Program('bin/testLA16_RowSum', ['build/tests/TestLA16_RowSum.cc'] + all + pdb_client)
-common_env.Program('bin/testLA17_ColSum', ['build/tests/TestLA17_ColSum.cc'] + all + pdb_client)
-common_env.Program('bin/testLA20_Parser', ['build/tests/TestLA20_Parser.cc'] + all + pdb_client)
-common_env.Program('bin/testLA21_Instance', ['build/tests/TestLA21_Instance.cc'] + all + pdb_client)
+common_env.Program('bin/testLA01_Transpose',
+                   ['build/tests/TestLA01_Transpose.cc'] + all + pdb_client)
+common_env.Program('bin/testLA02_Add',
+                   ['build/tests/TestLA02_Add.cc'] + all + pdb_client)
+common_env.Program('bin/testLA03_Substract',
+                   ['build/tests/TestLA03_Substract.cc'] + all + pdb_client)
+common_env.Program('bin/testLA04_Multiply',
+                   ['build/tests/TestLA04_Multiply.cc'] + all + pdb_client)
+common_env.Program('bin/testLA05_MaxElement',
+                   ['build/tests/TestLA05_MaxElement.cc'] + all + pdb_client)
+common_env.Program('bin/testLA06_MinElement',
+                   ['build/tests/TestLA06_MinElement.cc'] + all + pdb_client)
+common_env.Program('bin/testLA07_TransposeMultiply',
+                   ['build/tests/TestLA07_TransposeMultiply.cc'] + all + pdb_client)
+common_env.Program('bin/testLA07_TransposeMultiply_Gram',
+                   ['build/tests/TestLA07_TransposeMultiply_Gram.cc'] + all + pdb_client)
+common_env.Program('bin/testLA08_RowMax',
+                   ['build/tests/TestLA08_RowMax.cc'] + all + pdb_client)
+common_env.Program('bin/testLA09_RowMin',
+                   ['build/tests/TestLA09_RowMin.cc'] + all + pdb_client)
+common_env.Program('bin/testLA10_ColMax',
+                   ['build/tests/TestLA10_ColMax.cc'] + all + pdb_client)
+common_env.Program('bin/testLA11_ColMin',
+                   ['build/tests/TestLA11_ColMin.cc'] + all + pdb_client)
+common_env.Program('bin/testLA12_DuplicateRow',
+                   ['build/tests/TestLA12_DuplicateRow.cc'] + all + pdb_client)
+common_env.Program('bin/testLA13_DuplicateCol',
+                   ['build/tests/TestLA13_DuplicateCol.cc'] + all + pdb_client)
+common_env.Program('bin/testLA14_Inverse',
+                   ['build/tests/TestLA14_Inverse.cc'] + all + pdb_client)
+common_env.Program('bin/testLA15_ScaleMultiply',
+                   ['build/tests/TestLA15_ScaleMultiply.cc'] + all + pdb_client)
+common_env.Program('bin/testLA16_RowSum',
+                   ['build/tests/TestLA16_RowSum.cc'] + all + pdb_client)
+common_env.Program('bin/testLA17_ColSum',
+                   ['build/tests/TestLA17_ColSum.cc'] + all + pdb_client)
+common_env.Program('bin/testLA20_Parser',
+                   ['build/tests/TestLA20_Parser.cc'] + all + pdb_client)
+common_env.Program('bin/testLA21_Instance',
+                   ['build/tests/TestLA21_Instance.cc'] + all + pdb_client)
 
-common_env.Program('bin/tpchTestData', ['build/tpchBench/TestTPCHData.cc'] + all + pdb_client)
-common_env.Program('bin/TestKMeans1', ['build/tests/TestKMeansMLLibCompliant.cc'] + all + pdb_client)
-common_env.Program('bin/KMeansDataLoader', ['build/tests/TestKMeansLoadData.cc'] + all + pdb_client)
-common_env.Program('bin/TestLDA', ['build/tests/TestLDA.cc'] + all + pdb_client)
+common_env.Program('bin/tpchTestData',
+                   ['build/tpchBench/TestTPCHData.cc'] + all + pdb_client)
+common_env.Program('bin/TestKMeans1',
+                   ['build/tests/TestKMeansMLLibCompliant.cc'] + all + pdb_client)
+common_env.Program('bin/KMeansDataLoader',
+                   ['build/tests/TestKMeansLoadData.cc'] + all + pdb_client)
+common_env.Program(
+    'bin/TestLDA', ['build/tests/TestLDA.cc'] + all + pdb_client)
 common_env.Program('bin/TestMatrix', ['build/tests/TestMatrix.cc'] + all)
 
-common_env.Program('bin/FFTest', ['build/tests/FFTest.cc', 'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
-common_env.Program('bin/RedditFeatureExtractor', ['build/tests/RedditFeatureExtractor.cc', 'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
-common_env.Program('bin/LSTMTest', ['build/tests/LSTMTest.cc'] + all + pdb_client)
-common_env.Program('bin/LSTMDebug', ['build/tests/LSTMDebug.cc'] + all + pdb_client)
-common_env.Program('bin/Conv2dMemFuseTest', ['build/tests/Conv2dMemFuseTest.cc', 'build/conv2d_memory_fusion/ImageUtils.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
-common_env.Program('bin/Conv2dMemFuseTest1', ['build/tests/Conv2dMemFuseTest1.cc', 'build/conv2d_memory_fusion/ImageUtils.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
-common_env.Program('bin/PipelinedConv2dMemFuseTest', ['build/tests/PipelinedConv2dMemFuseTest.cc', 'build/conv2d_memory_fusion/ImageUtils.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
-common_env.Program('bin/Conv2dProjTest', ['build/tests/Conv2dProjTest.cc'] + all + pdb_client)
+common_env.Program('bin/word2vec', ['build/word2vec/Word2Vec.cc',
+                                    'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
+common_env.Program('bin/FFTest', ['build/tests/FFTest.cc',
+                                  'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
+common_env.Program('bin/RedditFeatureExtractor', ['build/tests/RedditFeatureExtractor.cc',
+                                                  'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
+common_env.Program(
+    'bin/LSTMTest', ['build/tests/LSTMTest.cc'] + all + pdb_client)
+common_env.Program(
+    'bin/LSTMDebug', ['build/tests/LSTMDebug.cc'] + all + pdb_client)
+common_env.Program('bin/Conv2dMemFuseTest', ['build/tests/Conv2dMemFuseTest.cc',
+                                             'build/conv2d_memory_fusion/ImageUtils.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
+common_env.Program('bin/Conv2dMemFuseTest1', ['build/tests/Conv2dMemFuseTest1.cc',
+                                              'build/conv2d_memory_fusion/ImageUtils.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
+common_env.Program('bin/PipelinedConv2dMemFuseTest', ['build/tests/PipelinedConv2dMemFuseTest.cc',
+                                                      'build/conv2d_memory_fusion/ImageUtils.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
+common_env.Program('bin/Conv2dProjTest',
+                   ['build/tests/Conv2dProjTest.cc'] + all + pdb_client)
 
-#PageRank
+# PageRank
 
-common_env.Program('bin/PageRank', ['build/tests/PageRank.cc'] + all + pdb_client)
-common_env.Program('bin/StoreLinks', ['build/tests/StoreLinks.cc'] + all + pdb_client)
-common_env.SharedLibrary('libraries/libLinkPartition.so', ['build/libraries/LinkPartition.cc'] + all)
-common_env.SharedLibrary('libraries/libRankPartition.so', ['build/libraries/RankPartition.cc'] + all)
-common_env.SharedLibrary('libraries/libURLRankMultiSelection.so', ['build/libraries/URLRankMultiSelection.cc'] + all)
-common_env.SharedLibrary('libraries/libDistinctProjection.so', ['build/libraries/DistinctProjection.cc'] + all)
-common_env.SharedLibrary('libraries/libURLURLsRank.so', ['build/libraries/URLURLsRank.cc'] + all)
-common_env.SharedLibrary('libraries/libJoinRankedUrlWithLink.so', ['build/libraries/JoinRankedUrlWithLink.cc'] + all)
-common_env.SharedLibrary('libraries/libLink.so', ['build/libraries/Link.cc'] + all)
-common_env.SharedLibrary('libraries/libLinkScanner.so', ['build/libraries/LinkScanner.cc'] + all)
-common_env.SharedLibrary('libraries/libLinkWithValue.so', ['build/libraries/LinkWithValue.cc'] + all)
-common_env.SharedLibrary('libraries/libRankedUrl.so', ['build/libraries/RankedUrl.cc'] + all)
-common_env.SharedLibrary('libraries/libRankedUrlScanner.so', ['build/libraries/RankedUrlScanner.cc'] + all)
-common_env.SharedLibrary('libraries/libRankedUrlWriter.so', ['build/libraries/RankedUrlWriter.cc'] + all)
-common_env.SharedLibrary('libraries/libRankUpdateAggregation.so', ['build/libraries/RankUpdateAggregation.cc'] + all)
+common_env.Program(
+    'bin/PageRank', ['build/tests/PageRank.cc'] + all + pdb_client)
+common_env.Program(
+    'bin/StoreLinks', ['build/tests/StoreLinks.cc'] + all + pdb_client)
+common_env.SharedLibrary('libraries/libLinkPartition.so',
+                         ['build/libraries/LinkPartition.cc'] + all)
+common_env.SharedLibrary('libraries/libRankPartition.so',
+                         ['build/libraries/RankPartition.cc'] + all)
+common_env.SharedLibrary('libraries/libURLRankMultiSelection.so',
+                         ['build/libraries/URLRankMultiSelection.cc'] + all)
+common_env.SharedLibrary('libraries/libDistinctProjection.so',
+                         ['build/libraries/DistinctProjection.cc'] + all)
+common_env.SharedLibrary('libraries/libURLURLsRank.so',
+                         ['build/libraries/URLURLsRank.cc'] + all)
+common_env.SharedLibrary('libraries/libJoinRankedUrlWithLink.so',
+                         ['build/libraries/JoinRankedUrlWithLink.cc'] + all)
+common_env.SharedLibrary('libraries/libLink.so',
+                         ['build/libraries/Link.cc'] + all)
+common_env.SharedLibrary('libraries/libLinkScanner.so',
+                         ['build/libraries/LinkScanner.cc'] + all)
+common_env.SharedLibrary('libraries/libLinkWithValue.so',
+                         ['build/libraries/LinkWithValue.cc'] + all)
+common_env.SharedLibrary('libraries/libRankedUrl.so',
+                         ['build/libraries/RankedUrl.cc'] + all)
+common_env.SharedLibrary('libraries/libRankedUrlScanner.so',
+                         ['build/libraries/RankedUrlScanner.cc'] + all)
+common_env.SharedLibrary('libraries/libRankedUrlWriter.so',
+                         ['build/libraries/RankedUrlWriter.cc'] + all)
+common_env.SharedLibrary('libraries/libRankUpdateAggregation.so',
+                         ['build/libraries/RankUpdateAggregation.cc'] + all)
 
-common_env.Program('bin/removeSet', ['build/tests/RemoveSet.cc'] + all + pdb_client)
+common_env.Program(
+    'bin/removeSet', ['build/tests/RemoveSet.cc'] + all + pdb_client)
 
 
-#Testing
-pdbTest=common_env.Command('test', 'scripts/integratedTests.py', 'python $SOURCE -o $TARGET')
+# Testing
+pdbTest = common_env.Command(
+    'test', 'scripts/integratedTests.py', 'python3 $SOURCE -o $TARGET')
 common_env.Depends(pdbTest, [
-  'bin/pdb-cluster',
-  'bin/pdb-server', 
-  'bin/test46', 
-  'bin/test74', 
-  'bin/test79', 
-  'bin/test78',
-  'bin/test90', 
-  'bin/TestLDA',
-  'bin/FFTest',
-  'bin/LSTMTest',
-  'libraries/libCartesianJoin.so', 
-  'libraries/libEmployeeSelection.so',
-  'libraries/libFinalSelection.so', 
-  'libraries/libIntAggregation.so', 
-  'libraries/libIntSelectionOfStringIntPair.so', 
-  'libraries/libIntSillyJoin.so', 
-  'libraries/libScanEmployeeSet.so',
-  'libraries/libScanIntSet.so', 
-  'libraries/libScanSimpleEmployeeSet.so', 
-  'libraries/libScanStringIntPairSet.so', 
-  'libraries/libScanStringSet.so', 
-  'libraries/libScanSupervisorSet.so', 
-  'libraries/libSharedEmployee.so', 
-  'libraries/libSillyAggregation.so', 
-  'libraries/libSillyJoin.so', 
-  'libraries/libSillySelection.so', 
-  'libraries/libSimpleEmployee.so', 
-  'libraries/libStringSelectionOfStringIntPair.so', 
-  'libraries/libWriteIntSet.so', 
-  'libraries/libWriteStringIntPairSet.so', 
-  'libraries/libWriteStringSet.so',
-  'libraries/libWriteSumResultSet.so',
-  'libraries/libWriteDoubleSet.so',
-  'libraries/libOptimizedEmployeeGroupBy.so',
-  'libraries/libScanOptimizedSupervisorSet.so',
-  'libraries/libWriteIntDoubleVectorPairSet.so',
-  'libraries/libScanIntSet.so',
-  'libraries/libLDADocument.so',
-  'libraries/libScanLDADocumentSet.so',
-  'libraries/libLDADocIDAggregate.so',
-  'libraries/libLDAInitialTopicProbSelection.so',
-  'libraries/libLDAInitialWordTopicProbSelection.so',
-  'libraries/libLDADocWordTopicJoin.so',
-  'libraries/libLDADocAssignmentMultiSelection.so',
-  'libraries/libLDADocTopicAggregate.so',
-  'libraries/libLDADocTopicProbSelection.so',
-  'libraries/libIntDoubleVectorPair.so',
-  'libraries/libLDATopicAssignmentMultiSelection.so',
-  'libraries/libLDATopicWordAggregate.so',
-  'libraries/libLDATopicWordProbMultiSelection.so',
-  'libraries/libLDAWordTopicAggregate.so',
-  'libraries/libWriteTopicsPerWord.so',
-  'libraries/libDocAssignment.so',
-  'libraries/libTopicAssignment.so',
-  'libraries/libLDATopicWordProb.so',
-  'libraries/libWriteLDADocWordTopicAssignment.so',
-  'libraries/libLDADocWordTopicAssignment.so',
-  'libraries/libLDADocWordTopicAssignmentIdentity.so',
-  'libraries/libScanTopicsPerWord.so',
-  'libraries/libScanIntDoubleVectorPairSet.so',
+    'bin/pdb-cluster',
+    'bin/pdb-server',
+    'bin/test46',
+    'bin/test74',
+    'bin/test79',
+    'bin/test78',
+    'bin/test90',
+    'bin/TestLDA',
+    'bin/FFTest',
+    'bin/LSTMTest',
+    'libraries/libCartesianJoin.so',
+    'libraries/libEmployeeSelection.so',
+    'libraries/libFinalSelection.so',
+    'libraries/libIntAggregation.so',
+    'libraries/libIntSelectionOfStringIntPair.so',
+    'libraries/libIntSillyJoin.so',
+    'libraries/libScanEmployeeSet.so',
+    'libraries/libScanIntSet.so',
+    'libraries/libScanSimpleEmployeeSet.so',
+    'libraries/libScanStringIntPairSet.so',
+    'libraries/libScanStringSet.so',
+    'libraries/libScanSupervisorSet.so',
+    'libraries/libSharedEmployee.so',
+    'libraries/libSillyAggregation.so',
+    'libraries/libSillyJoin.so',
+    'libraries/libSillySelection.so',
+    'libraries/libSimpleEmployee.so',
+    'libraries/libStringSelectionOfStringIntPair.so',
+    'libraries/libWriteIntSet.so',
+    'libraries/libWriteStringIntPairSet.so',
+    'libraries/libWriteStringSet.so',
+    'libraries/libWriteSumResultSet.so',
+    'libraries/libWriteDoubleSet.so',
+    'libraries/libOptimizedEmployeeGroupBy.so',
+    'libraries/libScanOptimizedSupervisorSet.so',
+    'libraries/libWriteIntDoubleVectorPairSet.so',
+    'libraries/libScanIntSet.so',
+    'libraries/libLDADocument.so',
+    'libraries/libScanLDADocumentSet.so',
+    'libraries/libLDADocIDAggregate.so',
+    'libraries/libLDAInitialTopicProbSelection.so',
+    'libraries/libLDAInitialWordTopicProbSelection.so',
+    'libraries/libLDADocWordTopicJoin.so',
+    'libraries/libLDADocAssignmentMultiSelection.so',
+    'libraries/libLDADocTopicAggregate.so',
+    'libraries/libLDADocTopicProbSelection.so',
+    'libraries/libIntDoubleVectorPair.so',
+    'libraries/libLDATopicAssignmentMultiSelection.so',
+    'libraries/libLDATopicWordAggregate.so',
+    'libraries/libLDATopicWordProbMultiSelection.so',
+    'libraries/libLDAWordTopicAggregate.so',
+    'libraries/libWriteTopicsPerWord.so',
+    'libraries/libDocAssignment.so',
+    'libraries/libTopicAssignment.so',
+    'libraries/libLDATopicWordProb.so',
+    'libraries/libWriteLDADocWordTopicAssignment.so',
+    'libraries/libLDADocWordTopicAssignment.so',
+    'libraries/libLDADocWordTopicAssignmentIdentity.so',
+    'libraries/libScanTopicsPerWord.so',
+    'libraries/libScanIntDoubleVectorPairSet.so',
 
-  # FF Test libraries
-  'libraries/libFFMatrixBlock.so',
-  'libraries/libFFMatrixMeta.so',
-  'libraries/libFFMatrixData.so',
-  'libraries/libFFMatrixBlockScanner.so',
-  'libraries/libFFInputLayerJoin.so',
-  'libraries/libFFMatrixWriter.so',
-  'libraries/libFFAggMatrix.so',
-  'libraries/libFFTransposeBiasSum.so',
-  'libraries/libFFTransposeMult.so',
-  'libraries/libFFReluBiasSum.so',
-  'libraries/libFFRowAggregate.so',
-  'libraries/libFFOutputLayer.so',
+    # FF Test libraries
+    'libraries/libFFMatrixBlock.so',
+    'libraries/libFFMatrixMeta.so',
+    'libraries/libFFMatrixData.so',
+    'libraries/libFFMatrixBlockScanner.so',
+    'libraries/libFFInputLayerJoin.so',
+    'libraries/libFFMatrixWriter.so',
+    'libraries/libFFAggMatrix.so',
+    'libraries/libFFTransposeBiasSum.so',
+    'libraries/libFFTransposeMult.so',
+    'libraries/libFFReluBiasSum.so',
+    'libraries/libFFRowAggregate.so',
+    'libraries/libFFOutputLayer.so',
 
-  # LSTM Test libraries
-  'libraries/libLSTMThreeWaySum.so',
-  'libraries/libLSTMTwoSum.so',
-  'libraries/libLSTMHiddenState.so',
-  
+    # LSTM Test libraries
+    'libraries/libLSTMThreeWaySum.so',
+    'libraries/libLSTMTwoSum.so',
+    'libraries/libLSTMHiddenState.so',
+
 ])
 
 
-#GMM
+# GMM
 
-cgmm=common_env.Alias('cgmm', [
-  'bin/pdb-cluster',
-  'bin/pdb-server',  
-  'bin/TestGmmLoadData',
-  'bin/TestGmmLazy',
+cgmm = common_env.Alias('cgmm', [
+    'bin/pdb-cluster',
+    'bin/pdb-server',
+    'bin/TestGmmLoadData',
+    'bin/TestGmmLazy',
 
-  'libraries/libGmmModel.so',
-  'libraries/libGmmSampleSelection.so',	
-  #'libraries/libGmmDataCountAggregate.so',
-  'libraries/libGmmAggregateLazy.so',
-  'libraries/libGmmAggregateOutputLazy.so',
-  'libraries/libGmmAggregateNewComp.so',
-  'libraries/libGmmAggregateDatapoint.so'
+    'libraries/libGmmModel.so',
+    'libraries/libGmmSampleSelection.so',
+    # 'libraries/libGmmDataCountAggregate.so',
+    'libraries/libGmmAggregateLazy.so',
+    'libraries/libGmmAggregateOutputLazy.so',
+    'libraries/libGmmAggregateNewComp.so',
+    'libraries/libGmmAggregateDatapoint.so'
 ])
 
 
-#PageRank
+# PageRank
 
-cgmm=common_env.Alias('pageRank', [
-        'bin/PageRank',
-        'bin/StoreLinks',
-        'bin/pdb-cluster',
-        'bin/pdb-server',
-        'libraries/libURLRankMultiSelection.so',
-        'libraries/libDistinctProjection.so',
-        'libraries/libURLURLsRank.so',
-        'libraries/libJoinRankedUrlWithLink.so',
-        'libraries/libLink.so',
-        'libraries/libLinkPartition.so',
-        'libraries/libRankPartition.so',
-        'libraries/libLinkScanner.so',
-        'libraries/libLinkWithValue.so',
-        'libraries/libRankedUrl.so',
-        'libraries/libRankedUrlScanner.so',
-        'libraries/libRankedUrlWriter.so',
-        'libraries/libRankUpdateAggregation.so',
+cgmm = common_env.Alias('pageRank', [
+    'bin/PageRank',
+    'bin/StoreLinks',
+    'bin/pdb-cluster',
+    'bin/pdb-server',
+    'libraries/libURLRankMultiSelection.so',
+    'libraries/libDistinctProjection.so',
+    'libraries/libURLURLsRank.so',
+    'libraries/libJoinRankedUrlWithLink.so',
+    'libraries/libLink.so',
+    'libraries/libLinkPartition.so',
+    'libraries/libRankPartition.so',
+    'libraries/libLinkScanner.so',
+    'libraries/libLinkWithValue.so',
+    'libraries/libRankedUrl.so',
+    'libraries/libRankedUrlScanner.so',
+    'libraries/libRankedUrlWriter.so',
+    'libraries/libRankUpdateAggregation.so',
 ])
 
 
-tpchNormal=common_env.Alias('tpchNormal', [
-  'bin/pdb-cluster',
-  'bin/pdb-server',
-  'libraries/libTpchPart.so',
-  'libraries/libTpchSupplier.so',
-  'libraries/libTpchLineItem.so',
-  'libraries/libTpchOrder.so',
-  'libraries/libTpchCustomer.so',
-  'libraries/libTpchPartSupp.so',
-  'libraries/libTpchRegion.so',
-  'libraries/libTpchNation.so',
-  'libraries/libQ01Agg.so',
-  'libraries/libQ01AggOut.so',
-  'libraries/libQ01KeyClass.so',
-  'libraries/libQ01ValueClass.so',
-  'libraries/libMinDouble.so',
-  'libraries/libQ02MinAgg.so',
-  'libraries/libQ02MinCostJoin.so',
-  'libraries/libQ02MinCostJoinOutput.so',
-  'libraries/libQ02MinCostPerPart.so',
-  'libraries/libQ02MinCostSelection.so',
-  'libraries/libQ02MinCostSelectionOutput.so',
-  'libraries/libQ02NationJoin.so',
-  'libraries/libQ02PartJoin.so',
-  'libraries/libQ02PartJoinOutput.so',
-  'libraries/libQ02PartSelection.so',
-  'libraries/libQ02PartSuppJoin.so',
-  'libraries/libQ02PartSuppJoinOutput.so',
-  'libraries/libQ02RegionSelection.so',
-  'libraries/libQ02SupplierJoin.so',
-  'libraries/libQ02SupplierJoinOutput.so',
-  'libraries/libQ02PartJoinOutputIdentitySelection.so',
-  'libraries/libQ03Agg.so',
-  'libraries/libQ03AggOut.so',
-  'libraries/libQ03Join.so',
-  'libraries/libQ03JoinOut.so',
-  'libraries/libQ03CustomerSelection.so',
-  'libraries/libQ03OrderSelection.so',
-  'libraries/libQ03LineItemSelection.so',
-  'libraries/libQ03KeyClass.so',
-  'libraries/libQ04Agg.so',
-  'libraries/libQ04AggOut.so',
-  'libraries/libQ04Join.so',
-  'libraries/libQ04OrderSelection.so',
-  'libraries/libQ06LineItemSelection.so',
-  'libraries/libQ06Agg.so',
-  'libraries/libQ12Agg.so',
-  'libraries/libQ12AggOut.so',
-  'libraries/libQ12Join.so',
-  'libraries/libQ12JoinOut.so', 
-  'libraries/libQ12LineItemSelection.so',
-  'libraries/libQ12ValueClass.so', 
-  'libraries/libQ13CountResult.so',
-  'libraries/libQ13CustomerOrderJoin.so',
-  'libraries/libQ13OrderSelection.so',
-  'libraries/libQ13CustomerDistribution.so',
-  'libraries/libQ13CustomerOrders.so',
-  'libraries/libQ13OrdersPerCustomer.so',
-  'libraries/libQ14Agg.so',
-  'libraries/libQ14AggOut.so',
-  'libraries/libQ14Join.so',
-  'libraries/libQ14JoinOut.so',
-  'libraries/libQ14LineItemSelection.so',
-  'libraries/libQ14ValueClass.so',
-  'libraries/libQ17JoinedPartLineItem.so',
-  'libraries/libQ17PartLineItemAvgJoin.so',
-  'libraries/libQ17PartSelection.so',
-  'libraries/libQ17LineItemAvgQuantity.so',
-  'libraries/libQ17PartLineItemJoin.so',
-  'libraries/libQ17PriceSum.so',
-  'libraries/libQ17PartLineItemIdentitySelection.so',
-  'libraries/libQ22AggregatedCntryBal.so',
-  'libraries/libQ22CustomerAccbalAvg.so',
-  'libraries/libQ22OrderCountSelection.so',
-  'libraries/libQ22CntryBalAgg.so',
-  'libraries/libQ22JoinedCntryBal.so',
-  'libraries/libQ22CntryBalJoin.so',
-  'libraries/libQ22OrderCountPerCustomer.so',
-  'bin/tpchDataLoader',
-  'bin/runQuery01',
-  'bin/runQuery02',
-  'bin/runQuery03',
-  'bin/runQuery04',
-  'bin/runQuery06',
-  'bin/runQuery12',
-  'bin/runQuery13',
-  'bin/runQuery14',
-  'bin/runQuery17',
-  'bin/runQuery22',
-  'bin/tpchPrepareTraining',
-  'bin/tpchGenTrace',
-  'bin/tpchTraining1'
+tpchNormal = common_env.Alias('tpchNormal', [
+    'bin/pdb-cluster',
+    'bin/pdb-server',
+    'libraries/libTpchPart.so',
+    'libraries/libTpchSupplier.so',
+    'libraries/libTpchLineItem.so',
+    'libraries/libTpchOrder.so',
+    'libraries/libTpchCustomer.so',
+    'libraries/libTpchPartSupp.so',
+    'libraries/libTpchRegion.so',
+    'libraries/libTpchNation.so',
+    'libraries/libQ01Agg.so',
+    'libraries/libQ01AggOut.so',
+    'libraries/libQ01KeyClass.so',
+    'libraries/libQ01ValueClass.so',
+    'libraries/libMinDouble.so',
+    'libraries/libQ02MinAgg.so',
+    'libraries/libQ02MinCostJoin.so',
+    'libraries/libQ02MinCostJoinOutput.so',
+    'libraries/libQ02MinCostPerPart.so',
+    'libraries/libQ02MinCostSelection.so',
+    'libraries/libQ02MinCostSelectionOutput.so',
+    'libraries/libQ02NationJoin.so',
+    'libraries/libQ02PartJoin.so',
+    'libraries/libQ02PartJoinOutput.so',
+    'libraries/libQ02PartSelection.so',
+    'libraries/libQ02PartSuppJoin.so',
+    'libraries/libQ02PartSuppJoinOutput.so',
+    'libraries/libQ02RegionSelection.so',
+    'libraries/libQ02SupplierJoin.so',
+    'libraries/libQ02SupplierJoinOutput.so',
+    'libraries/libQ02PartJoinOutputIdentitySelection.so',
+    'libraries/libQ03Agg.so',
+    'libraries/libQ03AggOut.so',
+    'libraries/libQ03Join.so',
+    'libraries/libQ03JoinOut.so',
+    'libraries/libQ03CustomerSelection.so',
+    'libraries/libQ03OrderSelection.so',
+    'libraries/libQ03LineItemSelection.so',
+    'libraries/libQ03KeyClass.so',
+    'libraries/libQ04Agg.so',
+    'libraries/libQ04AggOut.so',
+    'libraries/libQ04Join.so',
+    'libraries/libQ04OrderSelection.so',
+    'libraries/libQ06LineItemSelection.so',
+    'libraries/libQ06Agg.so',
+    'libraries/libQ12Agg.so',
+    'libraries/libQ12AggOut.so',
+    'libraries/libQ12Join.so',
+    'libraries/libQ12JoinOut.so',
+    'libraries/libQ12LineItemSelection.so',
+    'libraries/libQ12ValueClass.so',
+    'libraries/libQ13CountResult.so',
+    'libraries/libQ13CustomerOrderJoin.so',
+    'libraries/libQ13OrderSelection.so',
+    'libraries/libQ13CustomerDistribution.so',
+    'libraries/libQ13CustomerOrders.so',
+    'libraries/libQ13OrdersPerCustomer.so',
+    'libraries/libQ14Agg.so',
+    'libraries/libQ14AggOut.so',
+    'libraries/libQ14Join.so',
+    'libraries/libQ14JoinOut.so',
+    'libraries/libQ14LineItemSelection.so',
+    'libraries/libQ14ValueClass.so',
+    'libraries/libQ17JoinedPartLineItem.so',
+    'libraries/libQ17PartLineItemAvgJoin.so',
+    'libraries/libQ17PartSelection.so',
+    'libraries/libQ17LineItemAvgQuantity.so',
+    'libraries/libQ17PartLineItemJoin.so',
+    'libraries/libQ17PriceSum.so',
+    'libraries/libQ17PartLineItemIdentitySelection.so',
+    'libraries/libQ22AggregatedCntryBal.so',
+    'libraries/libQ22CustomerAccbalAvg.so',
+    'libraries/libQ22OrderCountSelection.so',
+    'libraries/libQ22CntryBalAgg.so',
+    'libraries/libQ22JoinedCntryBal.so',
+    'libraries/libQ22CntryBalJoin.so',
+    'libraries/libQ22OrderCountPerCustomer.so',
+    'bin/tpchDataLoader',
+    'bin/runQuery01',
+    'bin/runQuery02',
+    'bin/runQuery03',
+    'bin/runQuery04',
+    'bin/runQuery06',
+    'bin/runQuery12',
+    'bin/runQuery13',
+    'bin/runQuery14',
+    'bin/runQuery17',
+    'bin/runQuery22',
+    'bin/tpchPrepareTraining',
+    'bin/tpchGenTrace',
+    'bin/tpchTraining1'
 ])
 
-reddit=common_env.Alias('reddit', [
-  'libraries/libRedditComment.so',
-  'libraries/libRedditAuthor.so',
-  'libraries/libRedditSub.so',
-  'libraries/libRedditFeatures.so',
-  'libraries/libRedditFullFeatures.so',
-  'libraries/libRedditJoin.so',
-  'libraries/libRedditPositiveLabelSelection.so',
-  'libraries/libRedditNegativeLabelSelection.so',
-  'libraries/libRedditLabelSelection0_0.so',
-  'libraries/libRedditLabelSelection0_1.so',
-  'libraries/libRedditLabelSelection0_2.so',
-  'libraries/libRedditLabelSelection0_3.so',
-  'libraries/libRedditLabelSelection0_4.so',
-  'libraries/libRedditLabelSelection0_5.so',
-  'libraries/libRedditLabelSelection0_6.so',
-  'libraries/libRedditLabelSelection0_7.so',
-  'libraries/libRedditLabelSelection0_8.so',
-  'libraries/libRedditLabelSelection0_9.so',
-  'libraries/libRedditLabelSelection0_10.so',
-  'libraries/libRedditLabelSelection1_0.so',
-  'libraries/libRedditLabelSelection1_1.so',
-  'libraries/libRedditLabelSelection1_2.so',
-  'libraries/libRedditLabelSelection1_3.so',
-  'libraries/libRedditLabelSelection1_4.so',
-  'libraries/libRedditLabelSelection1_5.so',
-  'libraries/libRedditLabelSelection1_6.so',
-  'libraries/libRedditLabelSelection1_7.so',
-  'libraries/libRedditLabelSelection1_8.so',
-  'libraries/libRedditLabelSelection1_9.so',
-  'libraries/libRedditLabelSelection1_10.so',
-  'libraries/libRedditThreeWayJoin.so',
-  'libraries/libRedditThreeWayAdaptiveJoin.so',
-  'libraries/libRedditSubsAndComments.so',
-  'libraries/libRedditJoinSubsAndComments.so',
-  'libraries/libRedditLabelProjection.so',
-  'libraries/libRedditCommentPartition.so',
-  'libraries/libLabelCommentsPartition.so',
-  'libraries/libAuthorCommentsPartition.so',
-  'libraries/libSubsCommentsPartition.so',
-  'bin/loadRedditComments',
-  'bin/loadRedditCommentsIndexPartition',
-  'bin/loadRedditCommentsWithPartition',
-  'bin/loadRedditCommentsWithPartitionWithVariousSelections',
-  'bin/loadRedditAuthors',
-  'bin/loadRedditSubs',
-  'bin/testRedditAuthors',
-  'bin/testScanAuthors',
-  'bin/testScanSubs',
-  'bin/testRedditJoin',
-  'bin/testRedditThreeWayJoin',
-  'bin/testRedditThreeWayAdaptiveJoin',
-  'bin/testRedditThreeWayAdaptiveJoinWithVariousSelections',
-  'bin/testRedditJoinSubsAndComments',
-  'bin/testRedditRandomLabels',
-  'bin/createRedditComments',
-  'bin/testRepartition',
-  'bin/testRepartition1',
-  'bin/testRepartition3',
-  'bin/redditSelectionParts',
-  'bin/testRedditSelectionPartitions'
+reddit = common_env.Alias('reddit', [
+    'libraries/libRedditComment.so',
+    'libraries/libRedditAuthor.so',
+    'libraries/libRedditSub.so',
+    'libraries/libRedditFeatures.so',
+    'libraries/libRedditFullFeatures.so',
+    'libraries/libRedditJoin.so',
+    'libraries/libRedditPositiveLabelSelection.so',
+    'libraries/libRedditNegativeLabelSelection.so',
+    'libraries/libRedditLabelSelection0_0.so',
+    'libraries/libRedditLabelSelection0_1.so',
+    'libraries/libRedditLabelSelection0_2.so',
+    'libraries/libRedditLabelSelection0_3.so',
+    'libraries/libRedditLabelSelection0_4.so',
+    'libraries/libRedditLabelSelection0_5.so',
+    'libraries/libRedditLabelSelection0_6.so',
+    'libraries/libRedditLabelSelection0_7.so',
+    'libraries/libRedditLabelSelection0_8.so',
+    'libraries/libRedditLabelSelection0_9.so',
+    'libraries/libRedditLabelSelection0_10.so',
+    'libraries/libRedditLabelSelection1_0.so',
+    'libraries/libRedditLabelSelection1_1.so',
+    'libraries/libRedditLabelSelection1_2.so',
+    'libraries/libRedditLabelSelection1_3.so',
+    'libraries/libRedditLabelSelection1_4.so',
+    'libraries/libRedditLabelSelection1_5.so',
+    'libraries/libRedditLabelSelection1_6.so',
+    'libraries/libRedditLabelSelection1_7.so',
+    'libraries/libRedditLabelSelection1_8.so',
+    'libraries/libRedditLabelSelection1_9.so',
+    'libraries/libRedditLabelSelection1_10.so',
+    'libraries/libRedditThreeWayJoin.so',
+    'libraries/libRedditThreeWayAdaptiveJoin.so',
+    'libraries/libRedditSubsAndComments.so',
+    'libraries/libRedditJoinSubsAndComments.so',
+    'libraries/libRedditLabelProjection.so',
+    'libraries/libRedditCommentPartition.so',
+    'libraries/libLabelCommentsPartition.so',
+    'libraries/libAuthorCommentsPartition.so',
+    'libraries/libSubsCommentsPartition.so',
+    'bin/loadRedditComments',
+    'bin/loadRedditCommentsIndexPartition',
+    'bin/loadRedditCommentsWithPartition',
+    'bin/loadRedditCommentsWithPartitionWithVariousSelections',
+    'bin/loadRedditAuthors',
+    'bin/loadRedditSubs',
+    'bin/testRedditAuthors',
+    'bin/testScanAuthors',
+    'bin/testScanSubs',
+    'bin/testRedditJoin',
+    'bin/testRedditThreeWayJoin',
+    'bin/testRedditThreeWayAdaptiveJoin',
+    'bin/testRedditThreeWayAdaptiveJoinWithVariousSelections',
+    'bin/testRedditJoinSubsAndComments',
+    'bin/testRedditRandomLabels',
+    'bin/createRedditComments',
+    'bin/testRepartition',
+    'bin/testRepartition1',
+    'bin/testRepartition3',
+    'bin/redditSelectionParts',
+    'bin/testRedditSelectionPartitions'
 ])
 
-tpch=common_env.Alias('tpch', [
-  'bin/pdb-cluster',
-  'bin/pdb-server',
-  # TPCH Benchamrk 
-  'libraries/libPart.so',
-  'libraries/libSupplier.so',
-  'libraries/libLineItem.so',
-  'libraries/libOrder.so',
-  'libraries/libCustomer.so',
-  'libraries/libVirtualCustomer.so',
-  'libraries/libSumResultWriteSet.so',
-  'libraries/libScanCustomerSet.so',
-  'libraries/libCustomerSupplierPartFlat.so',
-  'libraries/libSupplierData.so',
-  'libraries/libSupplierInfo.so',
-  'libraries/libCustomerSupplierPartGroupBy.so',
-  'libraries/libCustomerMultiSelection.so',
-  'libraries/libCustomerStringSelection.so',
-  'libraries/libCustomerStringSelectionVirtual.so',
-  'libraries/libCustomerStringSelectionNot.so',
-  'libraries/libCustomerStringSelectionVirtualNot.so',
-  'libraries/libCustomerIntegerSelection.so',
-  'libraries/libCustomerIntegerSelectionVirtual.so',
-  'libraries/libCustomerIntegerSelectionNot.so',
-  'libraries/libCustomerIntegerSelectionVirtualNot.so',
-  'libraries/libCustomerWriteSet.so',
-  'libraries/libSupplierInfoWriteSet.so',
-  'libraries/libCountAggregation.so',
-  'libraries/libCountCustomer.so',
-  'bin/tpchQuery',
-#  'bin/tpchDataGenerator',
-  'bin/tpchDataGeneratorNew',
-  'bin/tpchGetCustomerCount',
-  'bin/tpchRegisterAndCreateSets',
-#  'bin/tpchDataGeneratorAll',
-  'bin/tpchFlushToDisk',
-  'bin/pipelineBench'
-  
+tpch = common_env.Alias('tpch', [
+    'bin/pdb-cluster',
+    'bin/pdb-server',
+    # TPCH Benchamrk
+    'libraries/libPart.so',
+    'libraries/libSupplier.so',
+    'libraries/libLineItem.so',
+    'libraries/libOrder.so',
+    'libraries/libCustomer.so',
+    'libraries/libVirtualCustomer.so',
+    'libraries/libSumResultWriteSet.so',
+    'libraries/libScanCustomerSet.so',
+    'libraries/libCustomerSupplierPartFlat.so',
+    'libraries/libSupplierData.so',
+    'libraries/libSupplierInfo.so',
+    'libraries/libCustomerSupplierPartGroupBy.so',
+    'libraries/libCustomerMultiSelection.so',
+    'libraries/libCustomerStringSelection.so',
+    'libraries/libCustomerStringSelectionVirtual.so',
+    'libraries/libCustomerStringSelectionNot.so',
+    'libraries/libCustomerStringSelectionVirtualNot.so',
+    'libraries/libCustomerIntegerSelection.so',
+    'libraries/libCustomerIntegerSelectionVirtual.so',
+    'libraries/libCustomerIntegerSelectionNot.so',
+    'libraries/libCustomerIntegerSelectionVirtualNot.so',
+    'libraries/libCustomerWriteSet.so',
+    'libraries/libSupplierInfoWriteSet.so',
+    'libraries/libCountAggregation.so',
+    'libraries/libCountCustomer.so',
+    'bin/tpchQuery',
+    #  'bin/tpchDataGenerator',
+    'bin/tpchDataGeneratorNew',
+    'bin/tpchGetCustomerCount',
+    'bin/tpchRegisterAndCreateSets',
+    #  'bin/tpchDataGeneratorAll',
+    'bin/tpchFlushToDisk',
+    'bin/pipelineBench'
+
 ])
-
-
 
 
 common_env.Alias('tests', pdbTest)
 
-mainTests=common_env.Alias('mainTests', [
-  'bin/pdb-cluster',
-  'bin/pdb-server',
-  'bin/test47',
-  'bin/test47Join',
-  'bin/test47JoinB',
-  'bin/test47JoinC',
-  'bin/test47JoinD',
-#  'bin/test52', 
-#  'bin/test53', 
-#  'bin/test54', 
-#  'bin/test56', 
-#  'bin/test57', 
-#  'bin/test58', 
-#  'bin/test60', 
-#  'bin/test62', 
-#  'bin/test63', 
-#  'bin/test64', 
-#  'bin/test65', 
-  'bin/test66',
-  'bin/test67',
-#  'bin/test68',
-  'bin/test69',
-  'bin/test70',
-#  'bin/test71', 
-#  'bin/test72', 
-#  'bin/test73', 
-  'bin/test74',
-#  'bin/test75', 
-  'bin/test76',
-  'bin/test77',
-  'bin/test78',
-  'bin/test79',
-  'bin/test80',
-  'bin/test81builtIn',
-  'bin/test81shared',
-  #'bin/test82',
-  'bin/test83',
-  'bin/test84',
-  'bin/test85',
-  'bin/test86',
-  'bin/test87',
-  'bin/test88',
-  'bin/test89',
-  'bin/test90',
-  'bin/test92',
-  'bin/test93',
-  'bin/test94',
-  'bin/test95',
-  'bin/test96',
-  'bin/test97',
-  'libraries/libStringIntPairMultiSelection.so',
-  'libraries/libAllSelection.so',
-  'libraries/libAllSelectionWithCreation.so',
-  'libraries/libCartesianJoin.so',
-  'libraries/libDoubleVectorAggregation.so',
-  'libraries/libEmployeeSelection.so',
-  'libraries/libEmployeeBuiltInIdentitySelection.so',
-  'libraries/libEmployeeIdentitySelection.so',
-  'libraries/libFinalSelection.so',
-  'libraries/libIntAggregation.so',
-  'libraries/libIntSelectionOfStringIntPair.so',
-  'libraries/libIntSillyJoin.so',
-  'libraries/libMethodJoin.so',
-  'libraries/libOptimizedMethodJoin.so',
-  'libraries/libSillyGroupBy.so',
-  'libraries/libEmployeeGroupBy.so',
-  'libraries/libOptimizedEmployeeGroupBy.so',
- # 'libraries/libPartialResult.so', 
-  'libraries/libScanBuiltinEmployeeSet.so',
-  'libraries/libScanEmployeeSet.so',
-  'libraries/libScanIntSet.so',
-  'libraries/libScanSimpleEmployeeSet.so',
-  'libraries/libScanStringIntPairSet.so',
-  'libraries/libScanStringSet.so',
-  'libraries/libScanSupervisorSet.so',
-  'libraries/libScanOptimizedSupervisorSet.so',
-  'libraries/libSharedEmployee.so',
-  'libraries/libSillyAggregation.so',
-  'libraries/libSillyJoin.so',
-  'libraries/libSillySelection.so',
-  'libraries/libSimpleAggregation.so',
-  'libraries/libSimpleEmployee.so',
-  'libraries/libStringSelectionOfStringIntPair.so',
-  'libraries/libSupervisorMultiSelection.so',
-  'libraries/libWriteBuiltinEmployeeSet.so',
-  'libraries/libWriteDoubleSet.so',
-  'libraries/libWriteEmployeeSet.so',
-  'libraries/libWriteIntSet.so',
-  'libraries/libWriteStringIntPairSet.so',
-  'libraries/libWriteStringSet.so',
-  'libraries/libWriteSumResultSet.so'
+mainTests = common_env.Alias('mainTests', [
+    'bin/pdb-cluster',
+    'bin/pdb-server',
+    'bin/test47',
+    'bin/test47Join',
+    'bin/test47JoinB',
+    'bin/test47JoinC',
+    'bin/test47JoinD',
+    #  'bin/test52',
+    #  'bin/test53',
+    #  'bin/test54',
+    #  'bin/test56',
+    #  'bin/test57',
+    #  'bin/test58',
+    #  'bin/test60',
+    #  'bin/test62',
+    #  'bin/test63',
+    #  'bin/test64',
+    #  'bin/test65',
+    'bin/test66',
+    'bin/test67',
+    #  'bin/test68',
+    'bin/test69',
+    'bin/test70',
+    #  'bin/test71',
+    #  'bin/test72',
+    #  'bin/test73',
+    'bin/test74',
+    #  'bin/test75',
+    'bin/test76',
+    'bin/test77',
+    'bin/test78',
+    'bin/test79',
+    'bin/test80',
+    'bin/test81builtIn',
+    'bin/test81shared',
+    # 'bin/test82',
+    'bin/test83',
+    'bin/test84',
+    'bin/test85',
+    'bin/test86',
+    'bin/test87',
+    'bin/test88',
+    'bin/test89',
+    'bin/test90',
+    'bin/test92',
+    'bin/test93',
+    'bin/test94',
+    'bin/test95',
+    'bin/test96',
+    'bin/test97',
+    'libraries/libStringIntPairMultiSelection.so',
+    'libraries/libAllSelection.so',
+    'libraries/libAllSelectionWithCreation.so',
+    'libraries/libCartesianJoin.so',
+    'libraries/libDoubleVectorAggregation.so',
+    'libraries/libEmployeeSelection.so',
+    'libraries/libEmployeeBuiltInIdentitySelection.so',
+    'libraries/libEmployeeIdentitySelection.so',
+    'libraries/libFinalSelection.so',
+    'libraries/libIntAggregation.so',
+    'libraries/libIntSelectionOfStringIntPair.so',
+    'libraries/libIntSillyJoin.so',
+    'libraries/libMethodJoin.so',
+    'libraries/libOptimizedMethodJoin.so',
+    'libraries/libSillyGroupBy.so',
+    'libraries/libEmployeeGroupBy.so',
+    'libraries/libOptimizedEmployeeGroupBy.so',
+    # 'libraries/libPartialResult.so',
+    'libraries/libScanBuiltinEmployeeSet.so',
+    'libraries/libScanEmployeeSet.so',
+    'libraries/libScanIntSet.so',
+    'libraries/libScanSimpleEmployeeSet.so',
+    'libraries/libScanStringIntPairSet.so',
+    'libraries/libScanStringSet.so',
+    'libraries/libScanSupervisorSet.so',
+    'libraries/libScanOptimizedSupervisorSet.so',
+    'libraries/libSharedEmployee.so',
+    'libraries/libSillyAggregation.so',
+    'libraries/libSillyJoin.so',
+    'libraries/libSillySelection.so',
+    'libraries/libSimpleAggregation.so',
+    'libraries/libSimpleEmployee.so',
+    'libraries/libStringSelectionOfStringIntPair.so',
+    'libraries/libSupervisorMultiSelection.so',
+    'libraries/libWriteBuiltinEmployeeSet.so',
+    'libraries/libWriteDoubleSet.so',
+    'libraries/libWriteEmployeeSet.so',
+    'libraries/libWriteIntSet.so',
+    'libraries/libWriteStringIntPairSet.so',
+    'libraries/libWriteStringSet.so',
+    'libraries/libWriteSumResultSet.so'
 ])
 
 
-main=common_env.Alias('main', [
-  'bin/pdb-cluster', 
-  'bin/pdb-server',
-  'bin/removeSet'
+main = common_env.Alias('main', [
+    'bin/pdb-cluster',
+    'bin/pdb-server',
+    'bin/removeSet'
 ])
 
-KMeans=common_env.Alias('KMeans', [
-# K-means
-  'bin/pdb-cluster',
-  'bin/pdb-server',
-  'bin/TestKMeans1',
-  'bin/KMeansDataLoader',
-  'libraries/libKMeansDataCountAggregate.so',
-  'libraries/libKMeansSampleSelection.so',
-  'libraries/libKMeansNormVectorMap.so',
-  'libraries/libWriteDoubleVectorSet.so',
-  'libraries/libWriteKMeansDoubleVectorSet.so',
-  'libraries/libKMeansAggregate.so',
-  'libraries/libScanDoubleVectorSet.so',
-  'libraries/libScanKMeansDoubleVectorSet.so',
-  'libraries/libScanDoubleArraySet.so',
-  'libraries/libWriteKMeansSet.so',
-  'libraries/libKMeansAggregateOutputType.so',
-  'libraries/libKMeansCentroid.so',
-  
-  'libraries/libWriteSumResultSet.so'
-  
+KMeans = common_env.Alias('KMeans', [
+    # K-means
+    'bin/pdb-cluster',
+    'bin/pdb-server',
+    'bin/TestKMeans1',
+    'bin/KMeansDataLoader',
+    'libraries/libKMeansDataCountAggregate.so',
+    'libraries/libKMeansSampleSelection.so',
+    'libraries/libKMeansNormVectorMap.so',
+    'libraries/libWriteDoubleVectorSet.so',
+    'libraries/libWriteKMeansDoubleVectorSet.so',
+    'libraries/libKMeansAggregate.so',
+    'libraries/libScanDoubleVectorSet.so',
+    'libraries/libScanKMeansDoubleVectorSet.so',
+    'libraries/libScanDoubleArraySet.so',
+    'libraries/libWriteKMeansSet.so',
+    'libraries/libKMeansAggregateOutputType.so',
+    'libraries/libKMeansCentroid.so',
+
+    'libraries/libWriteSumResultSet.so'
+
 
 ])
 
-libFFTest=common_env.Alias('libFFTest', [
-  'bin/pdb-cluster',
-  'bin/pdb-server', 
-
-  'bin/FFTest',
-  'bin/RedditFeatureExtractor',
-  'bin/loadRedditCommentsIndexPartition',  
-  # Other libraries from src/FF
-  'libraries/libFFMatrixBlock.so',
-  'libraries/libFFMatrixMeta.so',
-  'libraries/libFFMatrixData.so',
-  'libraries/libFFMatrixBlockScanner.so',
-  'libraries/libFFInputLayerJoin.so',
-  'libraries/libFFMatrixWriter.so',
-  'libraries/libFFAggMatrix.so',
-  'libraries/libFFTransposeBiasSum.so',
-  'libraries/libFFTransposeMult.so',
-  'libraries/libFFReluBiasSum.so',
-  'libraries/libFFRowAggregate.so',
-  'libraries/libFFOutputLayer.so',
-  'libraries/libFFMatrixMultiSel.so',
-  'libraries/libInferenceResult.so',
-  'libraries/libInferenceResultPartition.so',
-  'libraries/libFFMatrixPartitioner.so',
-  # Reddit libraries
-  'libraries/libRedditComment.so',
-  'libraries/libRedditCommentLabelJoin.so',
-  'libraries/libRedditCommentInferenceJoin.so',
-
-  'libraries/libRedditCommentFeatures.so',
-  'libraries/libRedditCommentsToFeatures.so',
-  'libraries/libRedditCommentsChunk.so',
-  'libraries/libRedditCommentsToChunks.so',
-  'libraries/libRedditCommentFeatureChunks.so',
-  'libraries/libRedditCommentFeaturesToChunks.so',
-  'libraries/libRedditCommentChunksToBlocks.so',
-  'libraries/libRedditCommentBlockToMatrix.so',
-  'libraries/libRedditCommentChunkToComments.so',
-  'libraries/libRedditMatrixBlockPartition.so',
+libFFTest = common_env.Alias('libword2vec', [
+    'bin/pdb-cluster',
+    'bin/pdb-server',
+    'bin/word2vec',
+    # Other libraries from src/FF
+    'libraries/libFFMatrixBlock.so',
+    'libraries/libFFMatrixMeta.so',
+    'libraries/libFFMatrixData.so',
+    'libraries/libFFMatrixBlockScanner.so',
+    'libraries/libFFInputLayerJoin.so',
+    'libraries/libFFMatrixWriter.so',
+    'libraries/libFFAggMatrix.so',
+    'libraries/libFFTransposeBiasSum.so',
+    'libraries/libFFTransposeMult.so',
+    'libraries/libFFReluBiasSum.so',
+    'libraries/libFFRowAggregate.so',
+    'libraries/libFFOutputLayer.so',
+    'libraries/libFFMatrixMultiSel.so',
+    'libraries/libInferenceResult.so',
+    'libraries/libInferenceResultPartition.so',
+    'libraries/libFFMatrixPartitioner.so',
 ])
 
-libLSTMTest=common_env.Alias('libLSTMTest', [
-  'bin/pdb-cluster',
-  'bin/pdb-server', 
 
-  'bin/LSTMTest',
-  'bin/LSTMDebug', 
-  # Other libraries from src/LSTM
-  'libraries/libFFMatrixBlock.so',
-  'libraries/libFFMatrixData.so',
-  'libraries/libFFMatrixMeta.so',
+libFFTest = common_env.Alias('libFFTest', [
+    'bin/pdb-cluster',
+    'bin/pdb-server',
 
-  'libraries/libFFMatrixBlockScanner.so',
-  'libraries/libFFMatrixWriter.so',
+    'bin/FFTest',
+    'bin/RedditFeatureExtractor',
+    'bin/loadRedditCommentsIndexPartition',
+    # Other libraries from src/FF
+    'libraries/libFFMatrixBlock.so',
+    'libraries/libFFMatrixMeta.so',
+    'libraries/libFFMatrixData.so',
+    'libraries/libFFMatrixBlockScanner.so',
+    'libraries/libFFInputLayerJoin.so',
+    'libraries/libFFMatrixWriter.so',
+    'libraries/libFFAggMatrix.so',
+    'libraries/libFFTransposeBiasSum.so',
+    'libraries/libFFTransposeMult.so',
+    'libraries/libFFReluBiasSum.so',
+    'libraries/libFFRowAggregate.so',
+    'libraries/libFFOutputLayer.so',
+    'libraries/libFFMatrixMultiSel.so',
+    'libraries/libInferenceResult.so',
+    'libraries/libInferenceResultPartition.so',
+    'libraries/libFFMatrixPartitioner.so',
+    # Reddit libraries
+    'libraries/libRedditComment.so',
+    'libraries/libRedditCommentLabelJoin.so',
+    'libraries/libRedditCommentInferenceJoin.so',
 
-  'libraries/libFFInputLayerJoin.so',
-  'libraries/libFFAggMatrix.so',
-
-  'libraries/libLSTMThreeWaySum.so',
-  'libraries/libLSTMTwoSum.so',
-  'libraries/libLSTMHiddenState.so',
+    'libraries/libRedditCommentFeatures.so',
+    'libraries/libRedditCommentsToFeatures.so',
+    'libraries/libRedditCommentsChunk.so',
+    'libraries/libRedditCommentsToChunks.so',
+    'libraries/libRedditCommentFeatureChunks.so',
+    'libraries/libRedditCommentFeaturesToChunks.so',
+    'libraries/libRedditCommentChunksToBlocks.so',
+    'libraries/libRedditCommentBlockToMatrix.so',
+    'libraries/libRedditCommentChunkToComments.so',
+    'libraries/libRedditMatrixBlockPartition.so',
 ])
 
-libConv2DProjTest=common_env.Alias('libConv2DProjTest', [
-  'bin/pdb-cluster',
-  'bin/pdb-server',
-  'libraries/libConv2DSelect.so',
-  'libraries/libTensorData.so',
-  'bin/Conv2dProjTest'
+libLSTMTest = common_env.Alias('libLSTMTest', [
+    'bin/pdb-cluster',
+    'bin/pdb-server',
+
+    'bin/LSTMTest',
+    'bin/LSTMDebug',
+    # Other libraries from src/LSTM
+    'libraries/libFFMatrixBlock.so',
+    'libraries/libFFMatrixData.so',
+    'libraries/libFFMatrixMeta.so',
+
+    'libraries/libFFMatrixBlockScanner.so',
+    'libraries/libFFMatrixWriter.so',
+
+    'libraries/libFFInputLayerJoin.so',
+    'libraries/libFFAggMatrix.so',
+
+    'libraries/libLSTMThreeWaySum.so',
+    'libraries/libLSTMTwoSum.so',
+    'libraries/libLSTMHiddenState.so',
 ])
 
-libConv2DMemFuseTest=common_env.Alias('libConv2DMemFuseTest', [
-  'bin/pdb-cluster',
-  'bin/pdb-server', 
-
-  'bin/Conv2dMemFuseTest',
-  'bin/Conv2dMemFuseTest1',
-  'bin/PipelinedConv2dMemFuseTest',
-  'libraries/libFFMatrixBlock.so',
-  'libraries/libFFMatrixData.so',
-  'libraries/libFFMatrixMeta.so',
-
-  'libraries/libConv2DMemFuseMatrix3D.so',
-  'libraries/libConv2DMemFuseImage.so',
-  'libraries/libConv2DMemFuseImageChunk.so',
-  'libraries/libConv2DMemFuseImageToChunks.so',
-  'libraries/libConv2DMemFuseImageBlock.so',
-  'libraries/libConv2DMemFuseImageChunksToBlock.so',
-  'libraries/libConv2DMemFuseImageBlockToMatrix.so',
-  'libraries/libConv2DMemFuseKernel.so',
-  'libraries/libConv2DMemFuseKernelToChunks.so',
-  'libraries/libConv2DMemFuseKernelBiasJoin.so',
-  'libraries/libConv2DMemFuseConvResultToChunks.so',
-  'libraries/libConv2DMemFuseConvChunksToImage.so',
-
-  'libraries/libFFTransposeMult.so',
-  'libraries/libFFAggMatrix.so'
+libConv2DProjTest = common_env.Alias('libConv2DProjTest', [
+    'bin/pdb-cluster',
+    'bin/pdb-server',
+    'libraries/libConv2DSelect.so',
+    'libraries/libTensorData.so',
+    'bin/Conv2dProjTest'
 ])
 
-libLATest=common_env.Alias('libLATest', [
-  'bin/pdb-cluster',
-  'bin/pdb-server', 
+libConv2DMemFuseTest = common_env.Alias('libConv2DMemFuseTest', [
+    'bin/pdb-cluster',
+    'bin/pdb-server',
 
-  'bin/testLA01_Transpose',
-  'bin/testLA02_Add',
-  'bin/testLA03_Substract',
-  'bin/testLA04_Multiply',
-  'bin/testLA05_MaxElement',
-  'bin/testLA06_MinElement',
-  'bin/testLA07_TransposeMultiply',
-  'bin/testLA07_TransposeMultiply_Gram',
-  'bin/testLA08_RowMax',
-  'bin/testLA09_RowMin',
-  'bin/testLA10_ColMax',
-  'bin/testLA11_ColMin',
-  'bin/testLA12_DuplicateRow',
-  'bin/testLA13_DuplicateCol',
-  'bin/testLA14_Inverse',
-  'bin/testLA15_ScaleMultiply',
-  'bin/testLA16_RowSum',
-  'bin/testLA17_ColSum',
-  'bin/testLA20_Parser',
-  'bin/testLA21_Instance',
-  
-  'libraries/libLAMaxElementOutputType.so',
-  'libraries/libLAMaxElementValueType.so',
-  'libraries/libLAMinElementOutputType.so',
-  'libraries/libLAMinElementValueType.so',
-  'libraries/libLAScanMatrixBlockSet.so',
-  'libraries/libLASillyAddJoin.so',
-  'libraries/libLASillyColMaxAggregate.so',
-  'libraries/libLASillyColMinAggregate.so',
-  'libraries/libLASillyColSumAggregate.so',
-  'libraries/libLASillyDuplicateColMultiSelection.so',
-  'libraries/libLASillyDuplicateRowMultiSelection.so',
-  'libraries/libLASillyInverse1Aggregate.so',
-  'libraries/libLASillyInverse2Selection.so',
-  'libraries/libLASillyInverse3MultiSelection.so',
-  'libraries/libLASillyMaxElementAggregate.so',
-  'libraries/libLASillyMinElementAggregate.so',
-  'libraries/libLASillyMultiply1Join.so',
-  'libraries/libLASillyMultiply2Aggregate.so',
-  'libraries/libLASillyRowMaxAggregate.so',
-  'libraries/libLASillyRowMinAggregate.so',
-  'libraries/libLASillyRowSumAggregate.so',
-  'libraries/libLASillyScaleMultiplyJoin.so',
-  'libraries/libLASillySubstractJoin.so',
-  'libraries/libLASillyTransposeMultiply1Join.so',
-  'libraries/libLASillyTransposeSelection.so',
-  'libraries/libLASingleMatrix.so',
-  'libraries/libLAWriteMatrixBlockSet.so',
-  'libraries/libLAWriteMaxElementSet.so',
-  'libraries/libLAWriteMinElementSet.so',
-  'libraries/libMatrixBlock.so',
-  'libraries/libMatrixData.so',
-  'libraries/libMatrixMeta.so',
+    'bin/Conv2dMemFuseTest',
+    'bin/Conv2dMemFuseTest1',
+    'bin/PipelinedConv2dMemFuseTest',
+    'libraries/libFFMatrixBlock.so',
+    'libraries/libFFMatrixData.so',
+    'libraries/libFFMatrixMeta.so',
+
+    'libraries/libConv2DMemFuseMatrix3D.so',
+    'libraries/libConv2DMemFuseImage.so',
+    'libraries/libConv2DMemFuseImageChunk.so',
+    'libraries/libConv2DMemFuseImageToChunks.so',
+    'libraries/libConv2DMemFuseImageBlock.so',
+    'libraries/libConv2DMemFuseImageChunksToBlock.so',
+    'libraries/libConv2DMemFuseImageBlockToMatrix.so',
+    'libraries/libConv2DMemFuseKernel.so',
+    'libraries/libConv2DMemFuseKernelToChunks.so',
+    'libraries/libConv2DMemFuseKernelBiasJoin.so',
+    'libraries/libConv2DMemFuseConvResultToChunks.so',
+    'libraries/libConv2DMemFuseConvChunksToImage.so',
+
+    'libraries/libFFTransposeMult.so',
+    'libraries/libFFAggMatrix.so'
 ])
 
-jaccard=common_env.Alias('jaccard', [
-  'libraries/libCustomer.so', 'libraries/libLineItem.so', 'libraries/libOrder.so', 'libraries/libPart.so', 'libraries/libSupplier.so', 'libraries/libScanCustomerSet.so', 'libraries/libTopJaccard.so', 'libraries/libAllParts.so', 'libraries/libJaccardResultWriter.so', 'bin/tpchJaccard'])
+libLATest = common_env.Alias('libLATest', [
+    'bin/pdb-cluster',
+    'bin/pdb-server',
 
-test76=common_env.Alias('test76', [  
-  'bin/pdb-cluster',
-  'bin/pdb-server',
-  'bin/test76',
-  'libraries/libSillyJoin.so',
-  'libraries/libScanIntSet.so',
-  'libraries/libScanStringIntPairSet.so',
-  'libraries/libScanStringSet.so',
-  'libraries/libWriteStringSet.so'])
+    'bin/testLA01_Transpose',
+    'bin/testLA02_Add',
+    'bin/testLA03_Substract',
+    'bin/testLA04_Multiply',
+    'bin/testLA05_MaxElement',
+    'bin/testLA06_MinElement',
+    'bin/testLA07_TransposeMultiply',
+    'bin/testLA07_TransposeMultiply_Gram',
+    'bin/testLA08_RowMax',
+    'bin/testLA09_RowMin',
+    'bin/testLA10_ColMax',
+    'bin/testLA11_ColMin',
+    'bin/testLA12_DuplicateRow',
+    'bin/testLA13_DuplicateCol',
+    'bin/testLA14_Inverse',
+    'bin/testLA15_ScaleMultiply',
+    'bin/testLA16_RowSum',
+    'bin/testLA17_ColSum',
+    'bin/testLA20_Parser',
+    'bin/testLA21_Instance',
 
-
-lda=common_env.Alias('lda', [
-  'bin/pdb-cluster',
-  'bin/pdb-server',
-  'bin/TestLDA', 
-  'libraries/libWriteIntDoubleVectorPairSet.so', 
-  'libraries/libScanIntSet.so', 
-  'libraries/libLDADocument.so', 
-  'libraries/libScanLDADocumentSet.so', 
-  'libraries/libLDADocIDAggregate.so', 
-  'libraries/libLDAInitialTopicProbSelection.so', 
-  'libraries/libLDAInitialWordTopicProbSelection.so', 
-  'libraries/libLDADocWordTopicJoin.so', 
-  'libraries/libLDADocAssignmentMultiSelection.so', 
-  'libraries/libLDADocTopicAggregate.so', 
-  'libraries/libLDADocTopicProbSelection.so', 
-  'libraries/libIntDoubleVectorPair.so', 
-  'libraries/libLDATopicAssignmentMultiSelection.so', 
-  'libraries/libLDATopicWordAggregate.so', 
-  'libraries/libLDATopicWordProbMultiSelection.so', 
-  'libraries/libLDAWordTopicAggregate.so', 
-  'libraries/libWriteTopicsPerWord.so', 
-  'libraries/libDocAssignment.so', 
-  'libraries/libTopicAssignment.so', 
-  'libraries/libLDATopicWordProb.so', 
-  'libraries/libWriteLDADocWordTopicAssignment.so', 
-  'libraries/libLDADocWordTopicAssignment.so', 
-  'libraries/libLDADocWordTopicAssignmentIdentity.so', 
-  'libraries/libScanTopicsPerWord.so', 
-  'libraries/libScanIntDoubleVectorPairSet.so'
+    'libraries/libLAMaxElementOutputType.so',
+    'libraries/libLAMaxElementValueType.so',
+    'libraries/libLAMinElementOutputType.so',
+    'libraries/libLAMinElementValueType.so',
+    'libraries/libLAScanMatrixBlockSet.so',
+    'libraries/libLASillyAddJoin.so',
+    'libraries/libLASillyColMaxAggregate.so',
+    'libraries/libLASillyColMinAggregate.so',
+    'libraries/libLASillyColSumAggregate.so',
+    'libraries/libLASillyDuplicateColMultiSelection.so',
+    'libraries/libLASillyDuplicateRowMultiSelection.so',
+    'libraries/libLASillyInverse1Aggregate.so',
+    'libraries/libLASillyInverse2Selection.so',
+    'libraries/libLASillyInverse3MultiSelection.so',
+    'libraries/libLASillyMaxElementAggregate.so',
+    'libraries/libLASillyMinElementAggregate.so',
+    'libraries/libLASillyMultiply1Join.so',
+    'libraries/libLASillyMultiply2Aggregate.so',
+    'libraries/libLASillyRowMaxAggregate.so',
+    'libraries/libLASillyRowMinAggregate.so',
+    'libraries/libLASillyRowSumAggregate.so',
+    'libraries/libLASillyScaleMultiplyJoin.so',
+    'libraries/libLASillySubstractJoin.so',
+    'libraries/libLASillyTransposeMultiply1Join.so',
+    'libraries/libLASillyTransposeSelection.so',
+    'libraries/libLASingleMatrix.so',
+    'libraries/libLAWriteMatrixBlockSet.so',
+    'libraries/libLAWriteMaxElementSet.so',
+    'libraries/libLAWriteMinElementSet.so',
+    'libraries/libMatrixBlock.so',
+    'libraries/libMatrixData.so',
+    'libraries/libMatrixMeta.so',
 ])
 
-matrixBench=common_env.Alias('matrixBench', ['bin/TestMatrix'])
+jaccard = common_env.Alias('jaccard', [
+    'libraries/libCustomer.so', 'libraries/libLineItem.so', 'libraries/libOrder.so', 'libraries/libPart.so', 'libraries/libSupplier.so', 'libraries/libScanCustomerSet.so', 'libraries/libTopJaccard.so', 'libraries/libAllParts.so', 'libraries/libJaccardResultWriter.so', 'bin/tpchJaccard'])
 
-mlBench=common_env.Alias('mlBench', [
-  'bin/pdb-cluster',
-  'bin/pdb-server',
-  'bin/TestKMeans',
-  'bin/KMeansDataLoader',
-  'bin/TestLDA',
-# K-means
-  'libraries/libKMeansDataCountAggregate.so',
-  'libraries/libKMeansSampleSelection.so',
-  'libraries/libWriteDoubleVectorSet.so',
-  'libraries/libKMeansAggregate.so',
-  'libraries/libScanDoubleVectorSet.so',
-  'libraries/libWriteKMeansSet.so',
-  'libraries/libKMeansAggregateOutputType.so',
-  'libraries/libKMeansCentroid.so',
-#LDA
-  'libraries/libWriteIntDoubleVectorPairSet.so', 
-  'libraries/libScanIntSet.so', 
-  'libraries/libLDADocument.so', 
-  'libraries/libScanLDADocumentSet.so', 
-  'libraries/libLDADocIDAggregate.so', 
-  'libraries/libLDAInitialTopicProbSelection.so', 
-  'libraries/libLDAInitialWordTopicProbSelection.so', 
-  'libraries/libLDADocWordTopicJoin.so', 
-  'libraries/libLDADocAssignmentMultiSelection.so', 
-  'libraries/libLDADocTopicAggregate.so', 
-  'libraries/libLDADocTopicProbSelection.so', 
-  'libraries/libIntDoubleVectorPair.so', 
-  'libraries/libLDATopicAssignmentMultiSelection.so', 
-  'libraries/libLDATopicWordAggregate.so', 
-  'libraries/libLDATopicWordProbMultiSelection.so', 
-  'libraries/libLDAWordTopicAggregate.so', 
-  'libraries/libWriteTopicsPerWord.so', 
-  'libraries/libDocAssignment.so', 
-  'libraries/libTopicAssignment.so', 
-  'libraries/libLDATopicWordProb.so', 
-  'libraries/libWriteLDADocWordTopicAssignment.so', 
-  'libraries/libLDADocWordTopicAssignment.so', 
-  'libraries/libLDADocWordTopicAssignmentIdentity.so', 
-  'libraries/libScanTopicsPerWord.so', 
-  'libraries/libScanIntDoubleVectorPairSet.so'
+test76 = common_env.Alias('test76', [
+    'bin/pdb-cluster',
+    'bin/pdb-server',
+    'bin/test76',
+    'libraries/libSillyJoin.so',
+    'libraries/libScanIntSet.so',
+    'libraries/libScanStringIntPairSet.so',
+    'libraries/libScanStringSet.so',
+    'libraries/libWriteStringSet.so'])
+
+
+lda = common_env.Alias('lda', [
+    'bin/pdb-cluster',
+    'bin/pdb-server',
+    'bin/TestLDA',
+    'libraries/libWriteIntDoubleVectorPairSet.so',
+    'libraries/libScanIntSet.so',
+    'libraries/libLDADocument.so',
+    'libraries/libScanLDADocumentSet.so',
+    'libraries/libLDADocIDAggregate.so',
+    'libraries/libLDAInitialTopicProbSelection.so',
+    'libraries/libLDAInitialWordTopicProbSelection.so',
+    'libraries/libLDADocWordTopicJoin.so',
+    'libraries/libLDADocAssignmentMultiSelection.so',
+    'libraries/libLDADocTopicAggregate.so',
+    'libraries/libLDADocTopicProbSelection.so',
+    'libraries/libIntDoubleVectorPair.so',
+    'libraries/libLDATopicAssignmentMultiSelection.so',
+    'libraries/libLDATopicWordAggregate.so',
+    'libraries/libLDATopicWordProbMultiSelection.so',
+    'libraries/libLDAWordTopicAggregate.so',
+    'libraries/libWriteTopicsPerWord.so',
+    'libraries/libDocAssignment.so',
+    'libraries/libTopicAssignment.so',
+    'libraries/libLDATopicWordProb.so',
+    'libraries/libWriteLDADocWordTopicAssignment.so',
+    'libraries/libLDADocWordTopicAssignment.so',
+    'libraries/libLDADocWordTopicAssignmentIdentity.so',
+    'libraries/libScanTopicsPerWord.so',
+    'libraries/libScanIntDoubleVectorPairSet.so'
+])
+
+matrixBench = common_env.Alias('matrixBench', ['bin/TestMatrix'])
+
+mlBench = common_env.Alias('mlBench', [
+    'bin/pdb-cluster',
+    'bin/pdb-server',
+    'bin/TestKMeans',
+    'bin/KMeansDataLoader',
+    'bin/TestLDA',
+    # K-means
+    'libraries/libKMeansDataCountAggregate.so',
+    'libraries/libKMeansSampleSelection.so',
+    'libraries/libWriteDoubleVectorSet.so',
+    'libraries/libKMeansAggregate.so',
+    'libraries/libScanDoubleVectorSet.so',
+    'libraries/libWriteKMeansSet.so',
+    'libraries/libKMeansAggregateOutputType.so',
+    'libraries/libKMeansCentroid.so',
+    # LDA
+    'libraries/libWriteIntDoubleVectorPairSet.so',
+    'libraries/libScanIntSet.so',
+    'libraries/libLDADocument.so',
+    'libraries/libScanLDADocumentSet.so',
+    'libraries/libLDADocIDAggregate.so',
+    'libraries/libLDAInitialTopicProbSelection.so',
+    'libraries/libLDAInitialWordTopicProbSelection.so',
+    'libraries/libLDADocWordTopicJoin.so',
+    'libraries/libLDADocAssignmentMultiSelection.so',
+    'libraries/libLDADocTopicAggregate.so',
+    'libraries/libLDADocTopicProbSelection.so',
+    'libraries/libIntDoubleVectorPair.so',
+    'libraries/libLDATopicAssignmentMultiSelection.so',
+    'libraries/libLDATopicWordAggregate.so',
+    'libraries/libLDATopicWordProbMultiSelection.so',
+    'libraries/libLDAWordTopicAggregate.so',
+    'libraries/libWriteTopicsPerWord.so',
+    'libraries/libDocAssignment.so',
+    'libraries/libTopicAssignment.so',
+    'libraries/libLDATopicWordProb.so',
+    'libraries/libWriteLDADocWordTopicAssignment.so',
+    'libraries/libLDADocWordTopicAssignment.so',
+    'libraries/libLDADocWordTopicAssignmentIdentity.so',
+    'libraries/libScanTopicsPerWord.so',
+    'libraries/libScanIntDoubleVectorPairSet.so'
 ])
 Default(main)
