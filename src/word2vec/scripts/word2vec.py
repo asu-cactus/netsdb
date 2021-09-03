@@ -144,6 +144,6 @@ if __name__ == "__main__":
     word2vec.compile(optimizer='adam',
                      loss=tf.keras.losses.CategoricalCrossentropy(from_logits=True),
                      metrics=['accuracy'])
-    num_epochs = 5
+    num_epochs = 1
     word2vec.fit(dataset, epochs=num_epochs)
     word2vec.save("word2vec") 
