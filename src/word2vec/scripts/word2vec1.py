@@ -14,21 +14,30 @@ SEED = 42
 AUTOTUNE = tf.data.AUTOTUNE
 
 class Word2Vec(tf.keras.Model):
-  def __init__(self, vocab_size, embedding_dim):
+  def __init__(self, vocab_size, embedding_dim, finetune):
     super(Word2Vec, self).__init__()
-    hub_layer = hub.KerasLayer("https://tfhub.dev/google/Wiki-words-500/2", trainable=True, input_shape=[], dtype=tf.string)
-    layer_weights = hub_layer.get_weights()
-    self.target_embedding = layers.Embedding(vocab_size,
-                                      embedding_dim,
-                                      weights=layer_weights,
-                                      input_length=1,
-                                      name="w2v_embedding",
-                                      trainable=True)
-    self.context_embedding = layers.Embedding(vocab_size,
-                                       embedding_dim,
-                                       weights=layer_weights,
-                                       input_length=num_ns+1,
-                                       trainable=True)
+    if finetune:
+        hub_layer = hub.KerasLayer("https://tfhub.dev/google/Wiki-words-500/2", trainable=True, input_shape=[], dtype=tf.string)
+        layer_weights = hub_layer.get_weights()
+        self.target_embedding = layers.Embedding(vocab_size,
+                                          embedding_dim,
+                                          weights=layer_weights,
+                                          input_length=1,
+                                          name="w2v_embedding",
+                                          trainable=True)
+        self.context_embedding = layers.Embedding(vocab_size,
+                                           embedding_dim,
+                                           weights=layer_weights,
+                                           input_length=num_ns+1,
+                                           trainable=True)
+    else:
+        self.target_embedding = layers.Embedding(vocab_size,
+                                          embedding_dim,
+                                          input_length=1,
+                                          name="w2v_embedding")
+        self.context_embedding = layers.Embedding(vocab_size,
+                                          embedding_dim,
+                                          input_length=num_ns+1)
   def call(self, pair):
     target, context = pair
     if len(target.shape) == 2:
@@ -102,16 +111,33 @@ def custom_standardization(input_data):
 
 if __name__ == "__main__":
 
+    # Define the path to the text corpus to be trained
     path_to_file = tf.keras.utils.get_file('shakespeare.txt', 'https://storage.googleapis.com/download.tensorflow.org/data/shakespeare.txt')
+
+    # Define the path to a vocabulary file, in which each word is placed in one line.
+    # Such vocabulary file can be found as tokens.txt in the saved model of a pre-trained word embedding, under the folder called as assets
+    path_to_vocab = "/home/ubuntu/saved_model/assets/tokens.txt"
+
+    # Define the vocabulary size
+    vocab_size = 1009375
+
+    # Define the dimension of an embedding vector
+    embedding_dim = 500
+
+    # Define the number of words in a sequence
+    sequence_length = 10
+
+    # Define the number of negative samples for each target
+    num_ns = 4
+
+    # Define whether to use the text corpus to finetune the pretrained model or to train a new model from scratch
+    finetune = True
+
+    # load the text corpus
     with open(path_to_file) as f:
         lines = f.read().splitlines()
     text_ds = tf.data.TextLineDataset(path_to_file).filter(lambda x: tf.cast(tf.strings.length(x), bool))
 
-    # Define the vocabulary size and number of words in a sequence.
-    vocab_size = 1009375
-    embedding_dim = 500
-    sequence_length = 10
-    num_ns = 4
 
     # Use the text vectorization layer to normalize, split, and map strings to
     # integers. Set output_sequence_length length to pad all samples to same length.
@@ -120,7 +146,7 @@ if __name__ == "__main__":
         max_tokens=vocab_size,
         output_mode='int',
         output_sequence_length=sequence_length,
-        vocabulary="/home/ubuntu/saved_model/assets/tokens.txt")
+        vocabulary=path_to_vocab)
 
     #vectorize_layer.adapt(text_ds.batch(1024))
     text_vector_ds = text_ds.batch(1024).prefetch(AUTOTUNE).map(vectorize_layer).unbatch()
@@ -144,7 +170,7 @@ if __name__ == "__main__":
     dataset = dataset.shuffle(BUFFER_SIZE).batch(BATCH_SIZE, drop_remainder=True)
     dataset = dataset.cache().prefetch(buffer_size=AUTOTUNE)
 
-    word2vec = Word2Vec(vocab_size, embedding_dim)
+    word2vec = Word2Vec(vocab_size, embedding_dim, finetune)
     word2vec.compile(optimizer='adam',
                      loss=tf.keras.losses.CategoricalCrossentropy(from_logits=True),
                      metrics=['accuracy'])

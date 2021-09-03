@@ -1,0 +1,16 @@
+# Prerequisite
+
+## Install following packages (Ubuntu 20.04)
+sudo apt update
+sudo apt -y upgrade
+sudo apt install python3-pip
+pip3 install "tensorflow>=2.0.0"
+pip3 install --upgrade tensorflow-hub
+pip3 install tqdm
+
+## Download the pre-trained word2vec embedding model
+
+wget https://tfhub.dev/google/Wiki-words-500/2?tf-hub-format=compressed
+mkdir saved_model
+tar xvf 2\?tf-hub-format\=compressed -C saved_model/
+
