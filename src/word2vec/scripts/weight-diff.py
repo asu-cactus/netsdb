@@ -2,8 +2,8 @@ import tensorflow as tf
 import numpy as np
 import tensorflow_hub as hub
 
-model_dir = '/home/ubuntu/word2vec-finetune'
-
+#model_dir = '/home/ubuntu/word2vec-finetune'
+model_dir = '/home/ubuntu/word2vec_finetune_2epochs'
 hub_layer = hub.KerasLayer("https://tfhub.dev/google/Wiki-words-500/2", input_shape=[], dtype=tf.string)
 layer1_weights = hub_layer.get_weights()
 
@@ -20,7 +20,11 @@ for i in range(len(model_diff)):
   current_layer_size = 0
   total_nonzero = 0
   max = 0
+  count = 0
   for cell in np.nditer(model_diff[i]):
+    count = count + 1
+    if count % 100000 == 0:
+        print(count,":", total_nonzero)
     current_layer_size += 1
     if abs(cell) > 0.001:
       total_nonzero += 1
