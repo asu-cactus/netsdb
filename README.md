@@ -17,7 +17,7 @@ bison
 
 flex
 
-LLVM/clang++3.8
+LLVM/clang++3.8 or above
 
 Snappy	libsnappy1v5, libsnappy-dev
 
@@ -25,11 +25,8 @@ GSL	     libgsl-dev
 
 Boost	libboost-dev, libboost-program-options-dev, libboost-filesystem-dev, libboost-system-dev
 
-UUID      sudo apt-get install libuuid1 uuid-dev
 
-
-
-OS: Ubuntu-16, MacOS
+OS: Ubuntu-16, MacOS, Ubuntu-20
 
 Run: scons 
 
@@ -64,7 +61,7 @@ Step (1.3) Next, configure PDB_INSTALL to be the location that you want pangea t
 
   Then run following command in shell to make sure these variables are set: source ~/.bashrc
 
-Step (1.4) In rice cloud, find at least one different ubuntu servers as your Slaves, make sure those slaves can be accessed by Master through network and vice versa, and also make sure you have only one PEM file to log on to all slaves. Then add only IPs of those slaves to the file: $PDB_HOME/conf/serverlist. For example, my serverlist looks like following:
+Step (1.4) Find at least one different ubuntu servers as your Workers, make sure those Workers can be accessed by Master through network and vice versa, and also make sure you have only one PEM file to log on to all slaves. Then add only IPs of those slaves to the file: $PDB_HOME/conf/serverlist. For example, my serverlist looks like following:
 10.134.96.184
 10.134.96.153  
 
