@@ -3,7 +3,7 @@
 
 ## Credits
 
-Lachesis++ is built on top of an earlier version of the open source project PlinyCompute (https://github.com/riceplinygroup/plinycompute).
+netsDB is built on top of an earlier version of the open source project PlinyCompute (https://github.com/riceplinygroup/plinycompute).
 
 
 ## Building
