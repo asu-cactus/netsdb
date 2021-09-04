@@ -1,4 +1,4 @@
-# Lachesis++ - An AI-assisted Data Integration and UDF-Centric Analytics System
+# netsDB - An AI-assisted Data Integration and UDF-Centric Analytics System
 
 
 ## Credits
