@@ -64,6 +64,7 @@ int main(int argc, char *argv[]) {
 
   ff::createSet(pdbClient, "word2vec", "outputs", "outputs", 64);
 
+  const UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
   if (!generate && reloadData) {
     input_path = string(argv[4]) + "/inputs.txt";
