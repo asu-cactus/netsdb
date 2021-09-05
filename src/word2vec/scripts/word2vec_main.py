@@ -112,7 +112,9 @@ def custom_standardization(input_data):
 if __name__ == "__main__":
 
     # Define the path to the text corpus to be trained
-    path_to_file = tf.keras.utils.get_file('shakespeare.txt', 'https://storage.googleapis.com/download.tensorflow.org/data/shakespeare.txt')
+    #path_to_file = tf.keras.utils.get_file('shakespeare.txt', 'https://storage.googleapis.com/download.tensorflow.org/data/shakespeare.txt')
+
+    path_to_file = '/home/ubuntu/webtext/webtext/singles.txt'
 
     # Define the path to a vocabulary file, in which each word is placed in one line.
     # Such vocabulary file can be found as tokens.txt in the saved model of a pre-trained word embedding, under the folder called as assets
@@ -174,6 +176,6 @@ if __name__ == "__main__":
     word2vec.compile(optimizer='adam',
                      loss=tf.keras.losses.CategoricalCrossentropy(from_logits=True),
                      metrics=['accuracy'])
-    num_epochs = 2
+    num_epochs = 20
     word2vec.fit(dataset, epochs=num_epochs)
-    word2vec.save("word2vec_finetune_2epochs")
+    word2vec.save("word2vec_finetune_20epochs_singles")

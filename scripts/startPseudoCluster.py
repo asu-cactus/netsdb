@@ -1,4 +1,4 @@
-#!python
+#!/usr/bin/python3
 #to run pseudo cluster on single node
 
 
