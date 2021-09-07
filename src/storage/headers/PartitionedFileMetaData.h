@@ -54,10 +54,12 @@ public:
         this->partitions = nullptr;
         this->pageSize = 0;
         this->numFlushedPages = 0;
+	this->numSharedPages = 0;
         this->pageIndexes = new unordered_map<PageID, PageIndex>();
         this->pageIds = new unordered_map<PageIndex, PageID, PageIndexHash, PageIndexEqual>();
         pthread_mutex_init(&(this->metaMutex), nullptr);
         pthread_mutex_init(&(this->indexMutex), nullptr);
+	pthread_mutex_init(&(this->sharedPageIndexMutex), nullptr);
     }
 
     // Destructor, it will NOT delete the meta partition or any other file partitions.
@@ -74,6 +76,10 @@ public:
             pageIds->clear();
             delete pageIds;
         }
+	if (sharedPageIndexes != nullptr) {
+	    sharedPageIndexes->clear();
+	    delete sharedPageIndexes;
+	}
     }
 
     // Return total number of flushed pages in all data partitions of this PartitionedFile instance
@@ -187,6 +193,77 @@ public:
         return pageIndexes;
     }
 
+    // APIs related to shared page set 
+    
+    /**
+     * Get the number of shared pages
+     */
+    int getNumSharedPages() const {
+        return numSharedPages;
+    }
+
+    /**
+     * Set the number of shared pages
+     */
+    void setNumSharedPages(int numSharedPages) {
+       this->numSharedPages = numSharedPages;
+    } 
+
+    /**
+     * Get the path to shared pages
+     */
+    SetKey getSharedSetKey() const {
+         return sharedSetKey;
+    }
+
+    /**
+     * Set the path to shared pages
+     */
+    void setSharedSetKey(DatabaseID dbId, UserTypeID typeId, SetID setId) {
+        this->sharedSetKey.dbId = dbId;
+	this->sharedSetKey.typeId = typeId;
+	this->sharedSetKey.setId = setId;
+    }
+
+    /**
+     * Get the shared page indexes
+     */
+    std::vector<PageIndex> * getSharedPageIndexes() {
+        return sharedPageIndexes;
+    }
+
+    /**
+     * Add a shared page index
+     */ 
+    void addSharedPageIndex(FilePartitionID partitionId, unsigned int pageSeqInPartition) {
+	pthread_mutex_lock(&sharedPageIndexMutex);
+        if (sharedPageIndexes == nullptr) {
+	    this->sharedPageIndexes = new std::vector<PageIndex>();
+	}
+        PageIndex pageIndex;
+        pageIndex.partitionId = partitionId;
+        pageIndex.pageSeqInPartition = pageSeqInPartition;
+        this->sharedPageIndexes->push_back(pageIndex);
+        pthread_mutex_unlock(&sharedPageIndexMutex);
+    }
+
+    /**
+     * Remove a shared page index
+     */
+    void removeSharedPageIndex (FilePartitionID partitionId, unsigned int pageSeqInPartition) {
+        pthread_mutex_lock(&sharedPageIndexMutex);
+	if (sharedPageIndexes == nullptr) {
+	    pthread_mutex_unlock(&sharedPageIndexMutex);
+	    return;
+	}
+        for (auto r=(this->sharedPageIndexes)->begin(); r!=(this->sharedPageIndexes)->end();r++) {
+	    if (((*r).partitionId == partitionId)&&((*r).pageSeqInPartition == pageSeqInPartition)){
+	        r= sharedPageIndexes->erase(r);
+	    } 
+	}
+	pthread_mutex_unlock(&sharedPageIndexMutex);
+    } 
+
 private:
     // Metadata version
     unsigned short version;
@@ -203,6 +280,23 @@ private:
     unordered_map<PageIndex, PageID, PageIndexHash, PageIndexEqual>* pageIds = nullptr;
     pthread_mutex_t metaMutex;
     pthread_mutex_t indexMutex;
+    pthread_mutex_t sharedPageIndexMutex;
+
+    //metadata regarding shared pages
+   
+    //number of shared pages
+    int numSharedPages;
+
+    /**
+     * Index to the set of external shared pages of this partitioned file instances;
+     */
+    SetKey sharedSetKey; //currently, the design is to store all shared pages in one set, but not all pages in that set is related
+
+    /**
+     * A list of PageIndexes that index the external shared pages
+     */
+    std::vector<PageIndex>* sharedPageIndexes = nullptr;
+
 };
 
 /**
@@ -286,6 +380,8 @@ private:
      * Path of this partition;
      */
     string path;
+
+
 };
 
 #endif /* SRC_CPP_MAIN_DATABASE_HEADERS_PARTITIONEDFILEMETADATA_H_ */

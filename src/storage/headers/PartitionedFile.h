@@ -41,6 +41,15 @@ typedef shared_ptr<PartitionedFile> PartitionedFilePtr;
  * - PartitionID for PageID 3
  * - PageSeqIDInPartition for PageID 3
  * ...
+ * - DatabaseID of the shared page set
+ * - TypeID of the shared page set
+ * - SetID of the shared page set
+ * - PartitionID for the 1st shared page
+ * - PageSeqID in the partition for the 1st shared page
+ * - PartitionID for the 2nd shared page
+ * - PageSeqID in the partition for the 2nd shared page
+ * ...
+ *
  *
  * Data partition format:
  * - 1st pageId
@@ -51,7 +60,8 @@ typedef shared_ptr<PartitionedFile> PartitionedFilePtr;
  */
 class PartitionedFile : public PDBFileInterface {
 public:
-    /**
+
+    /** 
      * Create a new PartitionedFile instance.
      */
     PartitionedFile(NodeID nodeId,
@@ -62,6 +72,7 @@ public:
                     vector<string> dataPartitionPaths,
                     pdb::PDBLoggerPtr logger,
                     size_t pageSize);
+
 
     /**
      * Initialize a partitionedFile instance from existing meta data.
@@ -123,6 +134,39 @@ public:
      * Append page using direct I/O
      */
     int appendPageDirect(FilePartitionID partitionId, PDBPagePtr page);
+
+
+    /**
+     * Set the shared page set that is related to this partitioned file instance
+     */
+    void setSharedSet(SetKey sharedSet);
+
+    /**
+     * Get the shared set
+     */
+    SetKey getSharedSet();
+
+
+    /**
+     * Add a shared page to this partitioned file instance
+     */
+    void addSharedPage(FilePartitionID partitionId, unsigned int pageSequentialID);
+
+
+    /**
+     * Get the shared page indexes
+     */
+    std::vector<PageIndex> * getSharedPages();
+
+    /**
+     * Set the number of shared pages
+     */
+    void setNumSharedPages(int numSharedPages);
+
+    /**
+     * Get the number of shared pages
+     */
+    int getNumSharedPages();
 
     /**
      * Initialize the meta partition

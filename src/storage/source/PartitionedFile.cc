@@ -1,5 +1,6 @@
 
 #include "PartitionedFile.h"
+#include "DataTypes.h"
 #include <stdio.h>
 #include <vector>
 #include <string>
@@ -318,6 +319,44 @@ int PartitionedFile::appendPageDirect(FilePartitionID partitionId, PDBPagePtr pa
 
 
 /**
+  * Set the shared page set that is related to this partitioned file instance
+  */
+void PartitionedFile::setSharedSet(SetKey sharedSet) {
+    this->metaData->setSharedSetKey(sharedSet.dbId, sharedSet.typeId, sharedSet.setId);
+}
+
+/**
+ * Get shared set key
+ */
+SetKey PartitionedFile::getSharedSet() {
+    return this->metaData->getSharedSetKey();
+}
+
+
+/**
+  * Add a shared page to this partitioned file instance
+  */
+void PartitionedFile::addSharedPage(FilePartitionID partitionId, unsigned int pageSequentialID) {
+    this->metaData->addSharedPageIndex(partitionId, pageSequentialID);
+}
+
+/**
+ * Get shared pages
+ */
+std::vector<PageIndex> * PartitionedFile::getSharedPages() {
+    return this->metaData->getSharedPageIndexes();
+}
+
+
+void PartitionedFile::setNumSharedPages(int numSharedPages) {
+    this->metaData->setNumSharedPages(numSharedPages);
+}
+
+int PartitionedFile::getNumSharedPages() {
+    return this->metaData->getNumSharedPages();
+}
+
+/**
  * Initialize the meta partition, with following format:
  * - Metadata Size
  * - FileType
@@ -336,6 +375,14 @@ int PartitionedFile::appendPageDirect(FilePartitionID partitionId, PDBPagePtr pa
  * - Path to 2nd partition
  * - ...
  * - PageId for the 1st page
+ * - PartitionId for the 1st page
+ * - PageSeqIdInPartition for the 1st page
+ * - ...
+ * - DatabaseID of the shared page set
+ * - TypeID of the shared page set
+ * - SetID of the shared page set
+ * - Number of shared pages
+ * - ...
  * - PartitionId for the 1st page
  * - PageSeqIdInPartition for the 1st page
  * - ...
@@ -413,6 +460,29 @@ int PartitionedFile::writeMeta() {
         PageIndex pageIndex = iter->second;
         *((PageID*)cur) = pageId;
         cur = cur + sizeof(PageID);
+        *((FilePartitionID*)cur) = pageIndex.partitionId;
+        cur = cur + sizeof(FilePartitionID);
+        *((unsigned int*)cur) = pageIndex.pageSeqInPartition;
+        cur = cur + sizeof(unsigned int);
+    }
+
+        // write information for shared pages
+    SetKey sharedSet = this->metaData->getSharedSetKey();
+    *((DatabaseID*)cur) = sharedSet.dbId;
+    cur = cur + sizeof(DatabaseID);
+    *((UserTypeID*)cur) = sharedSet.typeId;
+    cur = cur + sizeof(UserTypeID);
+    *((SetID*)cur) = sharedSet.setId;
+    cur = cur + sizeof(SetID);
+    *((unsigned int*)cur) = this->metaData->getNumSharedPages();
+    cur = cur + sizeof(unsigned int);
+
+    std::vector<PageIndex> * sharedPageIndexes = this->metaData->getSharedPageIndexes();
+
+    for (auto iter = sharedPageIndexes->begin();
+         iter != sharedPageIndexes->end();
+         iter++) {
+        PageIndex pageIndex = *iter;
         *((FilePartitionID*)cur) = pageIndex.partitionId;
         cur = cur + sizeof(FilePartitionID);
         *((unsigned int*)cur) = pageIndex.pageSeqInPartition;
@@ -682,6 +752,15 @@ void PartitionedFile::buildMetaDataFromMetaPartition(SharedMemPtr shm) {
          * - FilePartitionID for the 1st page
          * - PageSeqIdInPartition for the 1st page
          * - ...
+	 *    * - ...
+     * - DatabaseID of the shared page set
+     * - TypeID of the shared page set
+     * - SetID of the shared page set
+     * - Number of shared pages
+     * - ...
+     * - PartitionId for the 1st page
+     * - PageSeqIdInPartition for the 1st page
+     * - ...
      */
     // Open meta partition for reading
     if (this->openMeta() == false) {
@@ -788,6 +867,25 @@ void PartitionedFile::buildMetaDataFromMetaPartition(SharedMemPtr shm) {
         this->metaData->addPageIndex(pageId, partitionId, pageSeqInPartition);
     }
 
+    //reconstruct shared page information
+    DatabaseID dbId = (DatabaseID)(*(DatabaseID*)cur);
+    cur = cur + sizeof(DatabaseID);
+    UserTypeID typeId = (UserTypeID)(*(UserTypeID*)cur);
+    cur = cur + sizeof(UserTypeID);
+    SetID setId = (SetID)(*(SetID*)cur);
+    cur = cur + sizeof(SetID);
+    this->metaData->setSharedSetKey(dbId, typeId, setId);
+    unsigned int numSharedPages = (unsigned int)(*(unsigned int*)cur);
+    this->metaData->setNumSharedPages(numSharedPages);
+    cur = cur + sizeof(unsigned int);
+
+    for (i = 0; i < numSharedPages; i++) {
+        partitionId = (FilePartitionID)(*(FilePartitionID*)cur);
+	cur = cur + sizeof(FilePartitionID);
+	pageSeqInPartition = (unsigned int)(*(unsigned int*)cur);
+	cur = cur + sizeof(unsigned int);
+	this->metaData->addSharedPageIndex(partitionId, pageSeqInPartition);
+    }
     free(buf);
 }
 
