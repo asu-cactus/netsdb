@@ -92,9 +92,7 @@ public:
             [&](void* freeMe) -> void {
                 
                 if (this->proxy != nullptr) {
-                    char* pageRawBytes = (char*)freeMe -
-                        (sizeof(NodeID) + sizeof(DatabaseID) + sizeof(UserTypeID) + sizeof(SetID) +
-                         sizeof(PageID) + sizeof(int) + sizeof(size_t));
+                    char* pageRawBytes = (char*)freeMe - DEFAULT_PAGE_HEADER_SIZE;
 
                     PDBPagePtr page = make_shared<PDBPage>(pageRawBytes, 0, 0);
                     NodeID nodeId = page->getNodeID();

@@ -15,6 +15,10 @@
 
 using namespace std;
 
+#define DEFAULT_PAGE_HEADER_SIZE (sizeof(NodeID) + sizeof(DatabaseID) + sizeof(UserTypeID) + \
+                         sizeof(SetID) + sizeof(PageID) + sizeof(int) + sizeof(size_t) +\
+                         sizeof(unsigned int))
+
 #ifndef DEFAULT_PAGE_SIZE
 #define DEFAULT_PAGE_SIZE ((size_t)(256) * (size_t)(1024) * (size_t)(1024))
 #endif
@@ -25,8 +29,7 @@ using namespace std;
 
 #ifndef DEFAULT_NET_PAGE_SIZE
 #define DEFAULT_NET_PAGE_SIZE                                                       \
-    DEFAULT_PAGE_SIZE - (sizeof(NodeID) + sizeof(DatabaseID) + sizeof(UserTypeID) + \
-                         sizeof(SetID) + sizeof(PageID) + sizeof(int) + sizeof(size_t))
+    DEFAULT_PAGE_SIZE - DEFAULT_PAGE_HEADER_SIZE
 #endif
 
 #ifndef DEFAULT_SHUFFLE_PAGE_SIZE
@@ -178,8 +181,7 @@ public:
     }
 
     size_t getNetPageSize() const {
-        return pageSize - (sizeof(NodeID) + sizeof(DatabaseID) + sizeof(UserTypeID) +
-                           sizeof(SetID) + sizeof(PageID) + sizeof(int) + sizeof(size_t));
+        return pageSize - DEFAULT_PAGE_HEADER_SIZE;
     }
 
 
@@ -192,8 +194,7 @@ public:
     }
 
     size_t getNetShufflePageSize() const {
-        return shufflePageSize - (sizeof(NodeID) + sizeof(DatabaseID) + sizeof(UserTypeID) +
-                                  sizeof(SetID) + sizeof(PageID) + sizeof(int) + sizeof(size_t));
+        return shufflePageSize - DEFAULT_PAGE_HEADER_SIZE;
     }
 
     size_t getBroadcastPageSize() const {
@@ -201,8 +202,7 @@ public:
     }
 
     size_t getNetBroadcastPageSize() const {
-        return broadcastPageSize - (sizeof(NodeID) + sizeof(DatabaseID) + sizeof(UserTypeID) +
-                                    sizeof(SetID) + sizeof(PageID) + sizeof(int) + sizeof(size_t));
+        return broadcastPageSize - DEFAULT_PAGE_HEADER_SIZE;
     }
 
 

@@ -47,7 +47,8 @@ public:
             size_t dataSize,
             size_t offset,
             int internalOffset = 0,
-            int numObjects = 0);
+            int numObjects = 0,
+	    unsigned int sharedCounts = 0);
 
     /**
      * Create a PDBPage instance from a non-empty page.
@@ -130,6 +131,13 @@ public:
         return *((int*)refCountBytes);
     }
 
+    inline unsigned int getEmbeddedNumOwners() {
+        char* sharedCountBytes =
+            this->rawBytes + (sizeof(NodeID) + sizeof(DatabaseID) + sizeof(UserTypeID) +
+                              sizeof(SetID) + sizeof(PageID) + sizeof(int) + sizeof(size_t));
+        return *((unsigned int*)sharedCountBytes);
+    }
+
     inline void setNumObjects(int numObjects) {
         this->numObjects = numObjects;
     }
@@ -138,6 +146,13 @@ public:
         return this->numObjects;
     }
 
+    inline void setNumOwners (unsigned int numOwners) {
+        this->numOwners = numOwners;
+    }
+
+    inline unsigned int getNumOwners() {
+        return numOwners;
+    }
 
     /**
  * Allocate an empty fixed size memory area from the current offset as a special object, that can be used to implement fixed-size small pages.
@@ -456,6 +471,7 @@ private:
     PageID pageID;
     size_t size;
     int refCount;
+    unsigned int numOwners = 0;
     bool pinned;
     bool dirty;
     pthread_mutex_t refCountMutex;

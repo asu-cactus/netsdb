@@ -1172,9 +1172,7 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                         request->getDatabase(),
                         request->getSetName(),
                         set->getPageSize(),
-                        set->getPageSize() -
-                            (sizeof(NodeID) + sizeof(DatabaseID) + sizeof(UserTypeID) +
-                             sizeof(SetID) + sizeof(PageID) + sizeof(int) + sizeof(size_t)),
+                        set->getPageSize() - DEFAULT_PAGE_HEADER_SIZE,
                         res,
                         errMsg);
                     res = sendUsingMe->sendObject(response, errMsg);

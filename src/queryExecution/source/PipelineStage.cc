@@ -627,8 +627,7 @@ void PipelineStage::executePipelineWork(int i,
         this->jobStage->getSourceTupleSetSpecifier(),
         this->jobStage->getTargetComputationSpecifier(),
         [&]() -> std::pair<void*, size_t> {
-            size_t headerSize = (sizeof(NodeID) + sizeof(DatabaseID) + sizeof(UserTypeID) +
-                                 sizeof(SetID) + sizeof(PageID) + sizeof(int) + sizeof(size_t));
+            size_t headerSize = DEFAULT_PAGE_HEADER_SIZE;
             if (this->jobStage->isLocalJoinSink()) {
                 void * bytes = partitionedHashSetForSink->getPage(i);
                 if (bytes == nullptr) {
@@ -701,15 +700,13 @@ void PipelineStage::executePipelineWork(int i,
 
             } else {
                 if (!this->jobStage->isLocalJoinSink()) {
-                    free((char*)page - (sizeof(NodeID) + sizeof(DatabaseID) + sizeof(UserTypeID) +
-                                    sizeof(SetID) + sizeof(PageID) + sizeof(int) + sizeof(size_t)));
+                    free((char*)page - DEFAULT_PAGE_HEADER_SIZE);
                 }
             }
         },
 
         [&](void* page) {
-            size_t headerSize = (sizeof(NodeID) + sizeof(DatabaseID) + sizeof(UserTypeID) +
-                                 sizeof(SetID) + sizeof(PageID) + sizeof(int) + sizeof(size_t));
+            size_t headerSize = DEFAULT_PAGE_HEADER_SIZE;
             if (this->jobStage->isLocalJoinSink()) {
                 std::cout << "we have built one hashmap partition-" << i << " for local join" << std::endl;
                 Record<Object>* record = (Record<Object>*)page;
@@ -807,8 +804,7 @@ void PipelineStage::executePipelineWork(int i,
                        (this->jobStage->isCombining() == true)) {
                 // to handle an aggregation
                 PDBPagePtr output = make_shared<PDBPage>(
-                    (char*)page - (sizeof(NodeID) + sizeof(DatabaseID) + sizeof(UserTypeID) +
-                                   sizeof(SetID) + sizeof(PageID) + sizeof(int) + sizeof(size_t)),
+                    (char*)page - DEFAULT_PAGE_HEADER_SIZE,
                     0,
                     0,
                     0,
@@ -882,8 +878,7 @@ void PipelineStage::executePipelineWork(int i,
             } else {
                 if (sourceContext->getSetType() == UserSetType) {
                     PDBPagePtr pageToUnpin = make_shared<PDBPage>((char*)page -
-                             (sizeof(NodeID) + sizeof(DatabaseID) + sizeof(UserTypeID) +
-                              sizeof(SetID) + sizeof(PageID) + sizeof(int) + sizeof(size_t)), 0, 0);
+                             DEFAULT_PAGE_HEADER_SIZE, 0, 0);
                     std::cout << i << ": 2- to unpin page with id=" << pageToUnpin->getPageID() << ", setId=" << pageToUnpin->getSetID() << std::endl;
                     proxy->unpinUserPage(nodeId, pageToUnpin->getDbID(), pageToUnpin->getTypeID(), pageToUnpin->getSetID(), pageToUnpin);
                     /*

@@ -16,7 +16,8 @@ PDBPage::PDBPage(char* dataIn,
                  size_t dataSize,
                  size_t shmOffset,
                  int internalOffset,
-                 int numObjectsIn) {
+                 int numObjectsIn,
+		 unsigned int sharedCounts) {
     rawBytes = dataIn;
     nodeID = dataNodeID;
     dbID = dataDbID;
@@ -25,9 +26,10 @@ PDBPage::PDBPage(char* dataIn,
     pageID = dataPageID;
     size = dataSize;
     offset = shmOffset;
+    numOwners = sharedCounts;
     this->numObjects = numObjectsIn;
     this->curAppendOffset = sizeof(NodeID) + sizeof(DatabaseID) + sizeof(UserTypeID) +
-        sizeof(SetID) + sizeof(PageID) + sizeof(int) + sizeof(size_t);
+        sizeof(SetID) + sizeof(PageID) + sizeof(int) + sizeof(size_t)+ sizeof(unsigned int);
     this->refCount = 0;
     this->pinned = true;
     this->dirty = false;
@@ -42,6 +44,8 @@ PDBPage::PDBPage(char* dataIn,
     *((int*)refCountBytes) = numObjectsIn;
     char* pageSizeBytes = refCountBytes + sizeof(int);
     *((size_t*)pageSizeBytes) = dataSize;
+    char* sharedCountBytes = pageSizeBytes + sizeof(size_t);
+    *((unsigned int*)sharedCountBytes) = numOwners;
 }
 
 
@@ -51,7 +55,7 @@ PDBPage::PDBPage(char* dataIn, size_t offset, int internalOffset) {
     this->offset = offset;
     this->internalOffset = internalOffset;
     this->curAppendOffset = sizeof(NodeID) + sizeof(DatabaseID) + sizeof(UserTypeID) +
-        sizeof(SetID) + sizeof(PageID) + sizeof(int) + sizeof(size_t);
+        sizeof(SetID) + sizeof(PageID) + sizeof(int) + sizeof(size_t) + sizeof(unsigned int);
     char* cur = this->rawBytes;
     this->nodeID = *((NodeID*)cur);
     cur = cur + sizeof(NodeID);
@@ -66,6 +70,8 @@ PDBPage::PDBPage(char* dataIn, size_t offset, int internalOffset) {
     this->numObjects = *((int*)cur);
     cur = cur + sizeof(int);
     this->size = *((size_t*)cur);
+    cur = cur + sizeof(unsigned int);
+    this->numOwners = *((unsigned int*)cur);
     this->refCount = 0;
     this->pinned = true;
     this->dirty = false;
@@ -102,8 +108,10 @@ void PDBPage::preparePage() {
     *((int*)cur) = 0;
     cur = cur + sizeof(int);
     *((size_t*)cur) = this->size;
+    cur = cur + sizeof(size_t);
+    *((unsigned int *)cur) = this->numOwners;
     this->curAppendOffset = sizeof(NodeID) + sizeof(DatabaseID) + sizeof(UserTypeID) +
-        sizeof(SetID) + sizeof(PageID) + sizeof(int) + sizeof(size_t);
+        sizeof(SetID) + sizeof(PageID) + sizeof(int) + sizeof(size_t)+sizeof(unsigned int);
     return;
 }
 
@@ -127,13 +135,13 @@ void PDBPage::writeUnlock() {
 void* PDBPage::getBytes() {
 
     return this->rawBytes + sizeof(NodeID) + sizeof(DatabaseID) + sizeof(UserTypeID) +
-        sizeof(SetID) + sizeof(PageID) + sizeof(int) + sizeof(size_t);
+        sizeof(SetID) + sizeof(PageID) + sizeof(int) + sizeof(size_t) + sizeof(unsigned int);
 }
 
 size_t PDBPage::getSize() {
 
     return this->size - (sizeof(NodeID) + sizeof(DatabaseID) + sizeof(UserTypeID) + sizeof(SetID) +
-                         sizeof(PageID) + sizeof(int) + sizeof(size_t));
+                         sizeof(PageID) + sizeof(int) + sizeof(size_t) + sizeof(unsigned int));
 }
 
 void PDBPage::unpin() {
@@ -158,6 +166,7 @@ void PDBPage::freePage() {
     size = 0;
     numObjects = 0;
     internalOffset = 0;
+    numOwners = 0;
 }
 
 #endif
