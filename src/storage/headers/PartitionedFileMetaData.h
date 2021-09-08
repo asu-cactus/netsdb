@@ -285,7 +285,7 @@ private:
     //metadata regarding shared pages
    
     //number of shared pages
-    int numSharedPages;
+    int numSharedPages = 0;
 
     /**
      * Index to the set of external shared pages of this partitioned file instances;

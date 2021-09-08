@@ -410,6 +410,11 @@ int PartitionedFile::writeMeta() {
     for (i = 0; i < numPages; i++) {
         metaSize += sizeof(PageID) + sizeof(FilePartitionID) + sizeof(unsigned int);
     }
+    metaSize += sizeof(DatabaseID)+sizeof(UserTypeID)+sizeof(SetID)+sizeof(unsigned int);
+    unsigned int numSharedPages = this->metaData->getNumSharedPages();
+    for (i = 0; i < numSharedPages; i++) {
+	 metaSize += sizeof(FilePartitionID) + sizeof(unsigned int);
+    }
     // write meta size to meta partition
     fseek(this->metaFile, 0, SEEK_SET);
     fwrite((size_t*)(&metaSize), sizeof(size_t), 1, this->metaFile);
@@ -453,7 +458,8 @@ int PartitionedFile::writeMeta() {
         cur = cur + this->dataPartitionPaths.at(i).length() + 1;
     }
 
-    for (auto iter = this->getMetaData()->getPageIndexes()->begin();
+    if (this->getMetaData()->getPageIndexes() != nullptr) {
+      for (auto iter = this->getMetaData()->getPageIndexes()->begin();
          iter != this->getMetaData()->getPageIndexes()->end();
          iter++) {
         PageID pageId = iter->first;
@@ -464,8 +470,8 @@ int PartitionedFile::writeMeta() {
         cur = cur + sizeof(FilePartitionID);
         *((unsigned int*)cur) = pageIndex.pageSeqInPartition;
         cur = cur + sizeof(unsigned int);
+      }
     }
-
         // write information for shared pages
     SetKey sharedSet = this->metaData->getSharedSetKey();
     *((DatabaseID*)cur) = sharedSet.dbId;
@@ -479,7 +485,8 @@ int PartitionedFile::writeMeta() {
 
     std::vector<PageIndex> * sharedPageIndexes = this->metaData->getSharedPageIndexes();
 
-    for (auto iter = sharedPageIndexes->begin();
+    if (sharedPageIndexes != nullptr) {
+      for (auto iter = sharedPageIndexes->begin();
          iter != sharedPageIndexes->end();
          iter++) {
         PageIndex pageIndex = *iter;
@@ -487,8 +494,8 @@ int PartitionedFile::writeMeta() {
         cur = cur + sizeof(FilePartitionID);
         *((unsigned int*)cur) = pageIndex.pageSeqInPartition;
         cur = cur + sizeof(unsigned int);
+      }
     }
-
     // write meta data
     fseek(this->metaFile, sizeof(size_t), SEEK_SET);
     int ret = this->writeData(this->metaFile, (void*)buffer, metaSize);
