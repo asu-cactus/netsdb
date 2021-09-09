@@ -1266,6 +1266,7 @@ common_env.Program('bin/test94', ['build/tests/Test94.cc'] + all + pdb_client)
 common_env.Program('bin/test95', ['build/tests/Test95.cc'] + all + pdb_client)
 common_env.Program('bin/test96', ['build/tests/Test96.cc'] + all)
 common_env.Program('bin/test97', ['build/tests/Test97.cc'] + all + pdb_client)
+common_env.Program('bin/testTensorBlockIndex', ['build/tests/TestTensorBlockIndex.cc'] + all + pdb_client)
 common_env.Program('bin/testLA01_Transpose',
                    ['build/tests/TestLA01_Transpose.cc'] + all + pdb_client)
 common_env.Program('bin/testLA02_Add',
@@ -1830,6 +1831,7 @@ libFFTest = common_env.Alias('libword2vec', [
     'bin/pdb-cluster',
     'bin/pdb-server',
     'bin/word2vec',
+    'bin/testTensorBlockIndex',
     # Other libraries from src/FF
     'libraries/libFFMatrixBlock.so',
     'libraries/libFFMatrixMeta.so',

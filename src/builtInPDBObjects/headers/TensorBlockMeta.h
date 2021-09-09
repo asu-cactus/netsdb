@@ -7,6 +7,7 @@
 #include "Handle.h"
 #include "DataTypes.h"
 #include "PDBVector.h"
+#include <cmath>
 
 // PRELOAD %TensorBlockMeta%
 
@@ -52,6 +53,17 @@ public:
 	}
 	return value;	
 
+    }
+
+    bool operator==(const TensorBlockMeta& toMe) {
+        if (this->dimensions->size() == toMe.dimensions->size()) {
+	   for (int i = 0; i < this->dimensions->size(); i++) {
+	       if ((*dimensions)[i] != (*(toMe.dimensions))[i])
+		       break;
+	   }
+	   return true;
+	}
+	return false;
     }
 
 private:
