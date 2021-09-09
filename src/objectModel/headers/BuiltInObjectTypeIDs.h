@@ -128,9 +128,10 @@
 #define StringIntPair_TYPEID 126
 #define SumResult_TYPEID 127
 #define Supervisor_TYPEID 128
-#define TopKQueue_TYPEID 129
-#define TupleSetExecuteQuery_TYPEID 130
-#define TupleSetJobStage_TYPEID 131
-#define Vector_TYPEID 132
-#define WriteUserSet_TYPEID 133
-#define ZB_Company_TYPEID 134
+#define TensorBlockIdentifier_TYPEID 129
+#define TopKQueue_TYPEID 130
+#define TupleSetExecuteQuery_TYPEID 131
+#define TupleSetJobStage_TYPEID 132
+#define Vector_TYPEID 133
+#define WriteUserSet_TYPEID 134
+#define ZB_Company_TYPEID 135

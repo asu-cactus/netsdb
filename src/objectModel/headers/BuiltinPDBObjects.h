@@ -132,3 +132,4 @@
 #include "/home/ubuntu/netsdb/src/builtInPDBObjects/headers/QueryPermit.h"
 #include "/home/ubuntu/netsdb/src/builtInPDBObjects/headers/GetListOfNodes.h"
 #include "/home/ubuntu/netsdb/src/builtInPDBObjects/headers/CatCreateSetRequest.h"
+#include "/home/ubuntu/netsdb/src/builtInPDBObjects/headers/TensorBlockIdentifier.h"
