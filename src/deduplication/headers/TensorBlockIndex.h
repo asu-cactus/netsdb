@@ -93,6 +93,15 @@ public:
 	return false;
     }
 
+    bool removeIndex(int setKey, TensorBlockMeta sourceBlockMeta) {
+       if (indexes->count(setKey) > 0) {
+            Handle<Map<TensorBlockMeta, Handle<TensorBlockMeta>>>  metaMap = (*indexes)[setKey];
+            metaMap->setUnused(sourceBlockMeta);
+            return true;
+        }
+        return false;
+    }
+
     size_t getSetKey(DatabaseID dbId, UserTypeID typeId, SetID setId) {
         size_t code = (size_t)typeId + (size_t)setId * (size_t)100000 + (size_t)dbId * (size_t)100000000;
 	std::cout << "code = " << code << std::endl;

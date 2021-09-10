@@ -38,7 +38,7 @@ typedef shared_ptr<UserSet> SetPtr;
 class UserSet : public LocalitySet {
 public:
     /**
-     * Create a UserSet instance, need to set file, page cache, and open file later
+     * Create a UserSet instance, file needs to be set later
      */
     UserSet(pdb::PDBLoggerPtr logger,
             SharedMemPtr shm,
@@ -57,7 +57,7 @@ public:
             size_t desiredSize = 1);
 
     /**
-     * Create a UserSet instance, file needs to be set here
+     * Create a UserSet instance, file is set now
      */
     UserSet(size_t pageSize,
             pdb::PDBLoggerPtr logger,
@@ -258,6 +258,7 @@ public:
     }
 
     /**
+     *
      * Add dirty page to the Set's hash map for dirty pages
      */
     void addPageToDirtyPageSet(PageID pageId) {
