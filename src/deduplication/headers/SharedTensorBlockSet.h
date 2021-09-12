@@ -11,34 +11,38 @@
 #include "PDBLogger.h"
 #include "DataTypes.h"
 #include "UserSet.h"
+#include "TensorBlockMeta.h"
+#include "TensorBlockIndex.h"
 #include <memory>
 #include <string>
 using namespace std;
+
+namespace pdb{
 
 class SharedTensorBlockSet;
 typedef shared_ptr<SharedTensorBlockSet> SharedTensorBlockSetPtr;
 
 class SharedTensorBlockSet : public UserSet {
 public:
-    SharedTensorBlockSet(pdb::PDBLoggerPtr logger,
+
+
+    SharedTensorBlockSet(size_t pageSize, pdb::PDBLoggerPtr logger,
             SharedMemPtr shm,
             NodeID nodeId,
             DatabaseID dbId,
             UserTypeID typeId,
             SetID setId,
             string setName,
+	    PartitionedFilePtr file,
             PageCachePtr pageCache,
             LocalityType localityType = JobData,
             LocalitySetReplacementPolicy policy = LRU,
             OperationType operation = Read,
             DurabilityType durability = TryCache,
             PersistenceType persistence = Persistent,
-            size_t pageSize = DEFAULT_PAGE_SIZE,
-            size_t desiredSize = 1){
-    
-       super(logger, shim, nodeId, dbId, typeId, setId, setName,
-		       pageCache, localityType, policy, operation, durability,
-		       persistence, pageSize, desiredSize);
+            size_t desiredSize = 1): UserSet(pageSize, logger, shm, nodeId, dbId, typeId, setId, setName,
+		       file, pageCache, localityType, policy, operation, durability,
+		       persistence, desiredSize) {
         
     }
 
@@ -58,11 +62,9 @@ public:
             OperationType operation = Read,
             DurabilityType durability = TryCache,
             PersistenceType persistence = Persistent,
-            size_t desiredSize = 1) {
-    
-       super(pageSize, logger, shm, nodeId, dbId, typeId, setId, setName,
+            size_t desiredSize = 1) : UserSet(pageSize, logger, shm, nodeId, dbId, typeId, setId, setName,
 		       file, pageCache, localityType, policy, operation, durability, 
-		       persistence, desiredSize);
+		       persistence, desiredSize) {
        indexes.deserializeIndex(pathToIndexFile);
     }
 
@@ -81,12 +83,12 @@ public:
     }
 
     bool insertIndex(DatabaseID dbId, UserTypeID typeId, SetID setId, TensorBlockMeta sourceBlockMeta, Handle<TensorBlockMeta> targetBlockMeta) {
-	SetKey key = indexes.getSetKey(dbId, typeId, setId);
+	size_t key = indexes.getSetKey(dbId, typeId, setId);
 	return indexes.insertIndex(key, sourceBlockMeta, targetBlockMeta);
     }
 
     bool removeIndex(DatabaseID dbId, UserTypeID typeId, SetID setId, TensorBlockMeta sourceBlockMeta) {
-        SetKey key = indexes.getSetKey(dbId, typeId, setId);
+        size_t key = indexes.getSetKey(dbId, typeId, setId);
 	return indexes.removeIndex(key, sourceBlockMeta);
     }
 
@@ -94,5 +96,7 @@ private:
     TensorBlockIndex indexes;
 
 };
+
+}
 
 #endif

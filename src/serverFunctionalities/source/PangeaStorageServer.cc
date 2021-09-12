@@ -515,7 +515,8 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                                                                          request->getPageSize(),
                                                                          request->getDesiredSize(),
                                                                          request->getMRUorNot(),
-                                                                         request->getTransientOrNot());
+                                                                         request->getTransientOrNot(),
+									 request->getSharedTensorBlockSet());
                     if (res == false) {
                         errMsg = "Set " + request->getDatabase() + ":" + request->getSetName() +
                             ":" + request->getTypeName() + " already exists\n";
@@ -547,7 +548,8 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                              request->getPageSize(),
                              request->getDesiredSize(),
                              request->getMRUorNot(),
-                             request->getTransientOrNot())) == false) {
+                             request->getTransientOrNot(),
+			     request->getSharedTensorBlockSet())) == false) {
                         errMsg = "Set " + request->getDatabase() + ":" + request->getSetName() +
                             ":" + request->getTypeName() + " already exists\n";
                         cout << errMsg << endl;
@@ -1890,7 +1892,7 @@ bool PangeaStorageServer::removeType(std::string typeName) {
 
 // to add a new and empty set
 bool PangeaStorageServer::addSet(
-    std::string dbName, std::string typeName, std::string setName, SetID setId, size_t pageSize, size_t desiredSize, bool isMRU, bool isTransient) {
+    std::string dbName, std::string typeName, std::string setName, SetID setId, size_t pageSize, size_t desiredSize, bool isMRU, bool isTransient, bool isSharedTensorBlockSet) {
     SetPtr set = getSet(std::pair<std::string, std::string>(dbName, setName));
     if (set != nullptr) {
         // set exists
@@ -1935,7 +1937,7 @@ bool PangeaStorageServer::addSet(
             return false;
         }
     }
-    type->addSet(setName, setId, pageSize, desiredSize, isMRU, isTransient);
+    type->addSet(setName, setId, pageSize, desiredSize, isMRU, isTransient, isSharedTensorBlockSet);
     std::cout << "to add set with dbName=" << dbName << ", typeName=" << typeName
               << ", setName=" << setName << ", setId=" << setId << ", pageSize=" << pageSize
               << std::endl;
@@ -1966,7 +1968,8 @@ bool PangeaStorageServer::addSet(std::string dbName,
                                  size_t pageSize,
                                  size_t desiredSize,
                                  bool isMRU,
-                                 bool isTransient) {
+                                 bool isTransient,
+				 bool isSharedTensorBlockSet) {
     pthread_mutex_lock(&this->usersetLock);
     if (usersetSeqIds->count(dbName) == 0) {
         // database doesn't exist
@@ -1977,13 +1980,13 @@ bool PangeaStorageServer::addSet(std::string dbName,
     std::cout << "to add set with dbName=" << dbName << ", typeName=" << typeName
              << ", setName=" << setName << ", setId=" << setId << ", pageSize=" << pageSize << std::endl;
     pthread_mutex_unlock(&this->usersetLock);
-    return addSet(dbName, typeName, setName, setId, pageSize, desiredSize, isMRU, isTransient);
+    return addSet(dbName, typeName, setName, setId, pageSize, desiredSize, isMRU, isTransient, isSharedTensorBlockSet);
 }
 
 
 // to add a set using only database name and set name
-bool PangeaStorageServer::addSet(std::string dbName, std::string setName, size_t pageSize, size_t desiredSize, bool isMRU, bool isTransient) {
-    return addSet(dbName, "UnknownUserData", setName, pageSize, desiredSize, isMRU, isTransient);
+bool PangeaStorageServer::addSet(std::string dbName, std::string setName, size_t pageSize, size_t desiredSize, bool isMRU, bool isTransient, bool isSharedTensorBlockSet) {
+    return addSet(dbName, "UnknownUserData", setName, pageSize, desiredSize, isMRU, isTransient, isSharedTensorBlockSet);
 }
 
 bool PangeaStorageServer::removeSet(std::string dbName, std::string setName) {
