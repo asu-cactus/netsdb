@@ -348,6 +348,14 @@ public:
         this->partitionLambda = partitionLambda;
     }
 
+    void setShared( bool isShared ) {
+        this->isShared = isShared;
+    }
+
+    bool getShared() {
+        return this->isShared;
+    }
+
 protected:
     // Be careful here that we put PageCircularBufferIteratorPtr and DataProxyPtr in a pdb object.
     PageCircularBufferIteratorPtr iterator = nullptr;
@@ -372,7 +380,7 @@ protected:
 
     GenericLambdaObjectPtr partitionLambda = nullptr;
  
-
+    bool isShared = false;
 
 };
 

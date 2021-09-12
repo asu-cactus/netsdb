@@ -183,6 +183,19 @@ public:
      */
     virtual vector<PageIteratorPtr>* getIterators();
 
+
+    /**
+     * Get a set of iterators for scanning the data in the set, including the pages that are shared by the set but not stored in the set.
+     * The set of iterators will include:
+     * -- 1 iterator to scan data in input buffer;
+     * -- K iterators to scan data in file partitions, assuming there are K partitions.
+     * -- K iterators to scan shared pages in file partitions, assuming there are K partitions
+     * IMPORTANT: user needs to delete the returned vector!!!
+     */
+    virtual vector<PageIteratorPtr>* getIteratorsExtended();
+
+
+
     /**
      * Get page from set.
      * Step 1. check whether the page is already in cache using cache key, if so return it.

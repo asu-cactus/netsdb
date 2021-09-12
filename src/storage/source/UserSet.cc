@@ -194,6 +194,25 @@ vector<PageIteratorPtr>* UserSet::getIterators() {
     return retVec;
 }
 
+
+/**
+     * Get a set of iterators for scanning the data in the set, including the pages that are shared by the set but not stored in the set.
+     * The set of iterators will include:
+     * -- 1 iterator to scan data in input buffer;
+     * -- K iterators to scan data in file partitions, assuming there are K partitions.
+     * -- K iterators to scan shared pages in file partitions, assuming there are K partitions
+     * IMPORTANT: user needs to delete the returned vector!!!
+     */
+vector<PageIteratorPtr>* UserSet::getIteratorsExtended() {
+
+     vector<PageIteratorPtr>* retVec = this->getIterators();
+     //now we should retrieve the iterator for shared pages of this set
+     //TODO
+     return retVec;
+
+    
+}
+
 // user MUST guarantee that the size of buffer is large enough for dumping all data in the set.
 void UserSet::dump(char* buffer) {
     setPinned(true);

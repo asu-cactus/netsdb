@@ -150,13 +150,27 @@ public:
     /**
      * Add a shared page to this partitioned file instance
      */
-    void addSharedPage(FilePartitionID partitionId, unsigned int pageSequentialID);
+    void addSharedPage(PageID pageId, FilePartitionID partitionId, unsigned int pageSequentialID);
+
+    /**
+     * Remove a shared page from this partitioned file instance
+     */
+    void removeSharedPage(PageID pageId, FilePartitionID partitionId, unsigned int pageSequentialID);
 
 
     /**
      * Get the shared page indexes
      */
     std::vector<PageIndex> * getSharedPages();
+
+    /**
+     * Get the shared page maps
+     */
+    std::unordered_map<FilePartitionID, std::unordered_map<PageID, PageIndex>> * getSharedPageMaps();
+
+
+    std::unordered_map<PageID, PageIndex> & getSharedPageMap(FilePartitionID partitionId);
+
 
     /**
      * Set the number of shared pages

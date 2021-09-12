@@ -408,7 +408,8 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                                                                          pageSize,
                                                                          desiredSize,
                                                                          request->getMRUorNot(),
-                                                                         request->getMRUorNot());
+                                                                         request->getMRUorNot(),
+									 request->getSharedTensorBlockSet());
             std::cout << "Page size is determined to be " << pageSize << std::endl;
             
 
@@ -651,7 +652,8 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                                                                          pageSize,
                                                                          desiredSize,
                                                                          request->getMRUorNot(),
-                                                                         request->getMRUorNot());
+                                                                         request->getMRUorNot(),
+									 request->getSharedTensorBlockSet());
             std::cout << "Page size is determined to be " << pageSize << std::endl;
             std::cout << "jobName to match is " << jobName << std::endl; 
 
