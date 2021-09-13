@@ -80,12 +80,12 @@ public:
   /* Creates a set with a given type for an existing database, which can be applied with lambda-based dispatching policy */
   bool createSet(const std::string &databaseName, const std::string &setName,
                  const std::string &typeName, std::string &errMsg,
-                 size_t pageSize = DEFAULT_PAGE_SIZE, const std::string &createdJobId = "", Handle<Computation> dispatchComputation = nullptr, Handle<LambdaIdentifier> lambda = nullptr);
+                 size_t pageSize = DEFAULT_PAGE_SIZE, const std::string &createdJobId = "", Handle<Computation> dispatchComputation = nullptr, Handle<LambdaIdentifier> lambda = nullptr, bool isSharedTensorBlockSet = false);
 
   /* Creates a set with a given type for an existing database, which can be applied with IR-based dispatching policy*/
   bool createSet(const std::string &databaseName, const std::string &setName,
                  const std::string &typeName, std::string &errMsg,
-                 size_t pageSize, const std::string &createdJobId, Handle<Vector<Handle<Computation>>> dispatchComputations, const std::string jobName, std::string jobName1, std::string jobName2, std::string computationName1, std::string computationName2, std::string lambdaName1, std::string lambdaName2);
+                 size_t pageSize, const std::string &createdJobId, Handle<Vector<Handle<Computation>>> dispatchComputations, const std::string jobName, std::string jobName1, std::string jobName2, std::string computationName1, std::string computationName2, std::string lambdaName1, std::string lambdaName2, bool isSharedTensorBlockSet = false);
 
 
   /* Creates a set with a given type (using a template) for an existing
@@ -94,7 +94,7 @@ public:
   bool createSet(const std::string &databaseName,
                             const std::string &setName, std::string &errMsg, 
                             size_t pageSize = DEFAULT_PAGE_SIZE,
-                            const std::string &createdJobId = "", Handle<Computation> dispatchComputation = nullptr, Handle<LambdaIdentifier> lambda = nullptr);
+                            const std::string &createdJobId = "", Handle<Computation> dispatchComputation = nullptr, Handle<LambdaIdentifier> lambda = nullptr, bool isSharedTensorBlockSet = false);
 
  /* Creates a set with a given type (using a template) for an existing
    * database with page_size value, which can be applied with IR-based dispatching policy */
@@ -102,7 +102,7 @@ public:
   bool createSet(const std::string &databaseName,
                             const std::string &setName, std::string &errMsg,
                             size_t pageSize,
-                            const std::string &createdJobId, Handle<Vector<Handle<Computation>>> dispatchComputations, const std::string jobName, std::string jobName1, std::string jobName2, std::string computationName1, std::string computationName2, std::string lambdaName1, std::string lambdaName2);
+                            const std::string &createdJobId, Handle<Vector<Handle<Computation>>> dispatchComputations, const std::string jobName, std::string jobName1, std::string jobName2, std::string computationName1, std::string computationName2, std::string lambdaName1, std::string lambdaName2, bool isSharedTensorBlockSet = false);
 
   /* Creates a temporary set with a given type for an existing database (only
    * goes through storage) */

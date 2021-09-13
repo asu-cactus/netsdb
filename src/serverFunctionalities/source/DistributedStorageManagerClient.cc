@@ -56,7 +56,8 @@ bool DistributedStorageManagerClient::createSet(const std::string& databaseName,
                                                 Handle<Computation> dispatchComputation,
                                                 Handle<LambdaIdentifier> lambdaIdentifier,
                                                 size_t desiredSize,
-                                                bool isMRU ) {
+                                                bool isMRU,
+	       bool isSharedTensorBlockSet	) {
     std::cout << "to create set for " << databaseName << ":" << setName << std::endl;
     if (lambdaIdentifier != nullptr) {
 
@@ -79,7 +80,8 @@ bool DistributedStorageManagerClient::createSet(const std::string& databaseName,
         dispatchComputation,
         lambdaIdentifier,
         desiredSize,
-        isMRU
+        isMRU,
+	isSharedTensorBlockSet
         );
 }
 
@@ -99,11 +101,12 @@ bool DistributedStorageManagerClient::createSet(const std::string& databaseName,
                                                 std::string lambdaName1,
                                                 std::string lambdaName2,
                                                 size_t desiredSize,
-                                                bool isMRU ) {
+                                                bool isMRU,
+	                                        bool isSharedTensorBlockSet	) {
     std::cout << "to create set for " << databaseName << ":" << setName << std::endl;
     std::cout << "jobName is " << jobName << std::endl;
     Handle<DistributedStorageAddSetWithPartition> request = makeObject<DistributedStorageAddSetWithPartition> (databaseName,
-    setName, typeName, pageSize, createdJobId, dispatchComputations, jobName, jobName1, jobName2, computationName1, computationName2, lambdaName1, lambdaName2, desiredSize, isMRU);
+    setName, typeName, pageSize, createdJobId, dispatchComputations, jobName, jobName1, jobName2, computationName1, computationName2, lambdaName1, lambdaName2, desiredSize, isMRU, isSharedTensorBlockSet);
     return simpleDoubleRequest<DistributedStorageAddSetWithPartition, Vector<Handle<Computation>>, SimpleRequestResult, bool>(
         logger,
         port,

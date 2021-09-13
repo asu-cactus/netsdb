@@ -1,0 +1,87 @@
+
+#ifndef TEST_SHARED_TENSOR_BLOCK_SET_CC
+#define TEST_SHARED_TENSOR_BLOCK_SET_CC
+
+#include "PDBString.h"
+#include "PDBMap.h"
+#include "TensorBlockIndex.h"
+#include "InterfaceFunctions.h"
+#include "PDBClient.h"
+#include "FFMatrixBlock.h"
+#include "FFMatrixUtil.h"
+#include "SimpleFF.h"
+
+#include <cstddef>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <algorithm>
+#include <iterator>
+#include <cstring>
+#include <ctime>
+#include <chrono>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <string>
+
+using namespace pdb;
+
+int main() {
+
+    makeObjectAllocatorBlock(124 * 1024 * 1024, true);
+
+    //create a shared set
+     string masterIp = "localhost";
+     pdb::PDBLoggerPtr clientLogger = make_shared<pdb::PDBLogger>("TestSharedSetLog");
+     pdb::PDBClient pdbClient(8108, masterIp, clientLogger, false, true);
+     pdb::CatalogClient catalogClient(8108, masterIp, clientLogger);
+
+     ff::createDatabase(pdbClient, "word2vec");
+     ff::loadLibrary(pdbClient, "libraries/libFFMatrixMeta.so");
+     ff::loadLibrary(pdbClient, "libraries/libFFMatrixData.so");
+     ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlock.so");
+     std::string errMsg;
+     pdbClient.createSet("word2vec", "shared_weights", "FFMatrixBlock", errMsg,
+		     DEFAULT_PAGE_SIZE, "weights", nullptr, nullptr, true);
+
+     int block_x = 1000;
+     int block_y = 1000;
+     int matrix1_totalNumBlock_x = 1000;
+     int matrix2_totalNumBlock_x = 1000;
+     int sharedNumBlock_x = 500;
+     int numBlock_y = 1;
+
+     
+
+     //load blocks to the shared set
+     ff::loadMatrix(pdbClient, "word2vec", "shared_weights", sharedNumBlock_x*block_x, numBlock_y*block_y, block_x, block_y, false, false, errMsg);
+      
+     //create private set 1
+     pdbClient.createSet("word2vec", "weights1", "FFMatrixBlock", errMsg,
+                     DEFAULT_PAGE_SIZE, "weights1", nullptr, nullptr, false);
+    
+     //load blocks to the private set 1
+     ff::loadMatrix(pdbClient, "word2vec", "weights1", (matrix1_totalNumBlock_x-sharedNumBlock_x)*block_x, numBlock_y*block_y, block_x, block_y, false, false, errMsg);
+    
+     //add the metadata of shared pages to the private set 1
+     
+
+
+     //create private set 2
+     pdbClient.createSet("word2vec", "weights2", "FFMatrixBlock", errMsg,
+                     DEFAULT_PAGE_SIZE, "weights1", nullptr, nullptr, false);
+    
+     //load blocks to the private set 2
+     ff::loadMatrix(pdbClient, "word2vec", "weights2", (matrix1_totalNumBlock_x-sharedNumBlock_x)*block_x, numBlock_y*block_y, block_x, block_y, false, false, errMsg);
+    
+     //add the metadata of shared pages to the private set 2
+    
+     //scan private set 1
+    
+     //scan private set 2
+
+}
+
+#endif

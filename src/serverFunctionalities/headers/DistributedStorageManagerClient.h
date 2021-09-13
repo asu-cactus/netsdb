@@ -38,7 +38,8 @@ public:
                    Handle<Computation> computationForDispatch = nullptr,
                    Handle<LambdaIdentifier> lambdaForDispatch = nullptr,
                    size_t desiredSize = 0,
-                   bool isMRU = false);
+                   bool isMRU = false,
+		   bool isSharedTensorBlockSet = false);
 
 
     bool createSet(const std::string& databaseName,
@@ -56,7 +57,8 @@ public:
                    std::string lambdaName1,
                    std::string lambdaName2, 
                    size_t desiredSize = 0,
-                   bool isMRU = false);
+                   bool isMRU = false,
+		   bool isSharedTensorBlockSet = false);
 
 
     // create a temp set that only goes through storage
@@ -81,7 +83,8 @@ public:
                    Handle<Computation> computationForDispatch = nullptr,
                    Handle<LambdaIdentifier> lambdaForDispatch = nullptr,
                    size_t desiredSize = 0,
-                   bool isMRU = false);
+                   bool isMRU = false,
+		   bool isSharedTensorBlockSet = false);
 
 
     // templated createSet
@@ -100,7 +103,8 @@ public:
                    std::string lambdaName1,
                    std::string lambdaName2,
                    size_t desiredSize = 0,
-                   bool isMRU = false);
+                   bool isMRU = false,
+		   bool isSharedTensorBlockSet = false);
 
 
 
