@@ -27,6 +27,7 @@
 #include "BackendTestSetScan.h"
 #include "StorageTestSetCopy.h"
 #include "BackendTestSetCopy.h"
+#include "StorageAddSharedPage.h"
 #include "StorageAddTempSet.h"
 #include "StorageAddTempSetResult.h"
 #include "StorageRemoveDatabase.h"
@@ -986,6 +987,40 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
             std::cout << "end StorageAddObjectInLoop" << std::endl;
             return make_pair(everythingOK, errMsg);
         }));
+
+
+    // this handler accepts a request to store information regarding shared data
+    forMe.registerHandler(
+        StorageAddSharedPage_TYPEID,
+        make_shared<SimpleRequestHandler<StorageAddSharedPage>>([&](Handle<StorageAddSharedPage> request,
+		                                                    PDBCommunicatorPtr sendUsingMe)	{
+		std::cout << "received StorageAddSharedPage" << std::endl;
+		std::string errMsg;
+		auto databaseAndSet = make_pair((std::string)request->getSharingDatabase(),
+                                                (std::string)request->getSharingSetName());
+                std::cout << "to link shared page to " << request->getSharingDatabase() <<
+                        ":" << request->getSharingSetName() << std::endl;
+                SetPtr mySet = getFunctionality<PangeaStorageServer>().getSet(databaseAndSet);
+                if (mySet == nullptr) {
+                    std::cout << "Set doesn't exist: " << request->getSharingDatabase() << ":" << request->getSharingSetName() << std::endl;
+                    exit(1);
+                }
+		PartitionedFilePtr file = mySet->getFile();
+		file->addSharedPage(request->getPageId(), request->getFilePartitionId(), request->getPageSeqId());
+
+		if(request->getWhetherToAddSharedSet()) {
+
+		    auto sharedDatabaseAndSet = make_pair((std::string)request->getSharedDatabase(),
+                                                (std::string)request->getSharedSetName());
+		    SetPtr mySharedSet =  getFunctionality<PangeaStorageServer>().getSet(sharedDatabaseAndSet);
+		    SetKey key;
+		    key.dbId = mySharedSet->getDbID();
+		    key.typeId = mySharedSet->getTypeID();
+		    key.setId = mySharedSet->getSetID();
+	            file->setSharedSet(key);	
+		}
+                return make_pair(true, errMsg); 
+    }));
 
 
     // this handler accepts a request to store some data

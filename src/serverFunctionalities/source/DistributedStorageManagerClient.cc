@@ -15,6 +15,7 @@
 #include "DistributedStorageExportSet.h"
 #include "DistributedStorageClearSet.h"
 #include "DistributedStorageCleanup.h"
+#include "DistributedStorageAddSharedPage.h"
 
 namespace pdb {
 
@@ -255,6 +256,40 @@ bool DistributedStorageManagerClient::clearSet(const std::string& databaseName,
         typeName);
 }
 
+
+bool DistributedStorageManagerClient::addSharedPage(std::string sharingDatabase,
+                   std::string sharingSetName,
+                   std::string sharingTypeName,
+                   std::string sharedDatabase,
+                   std::string sharedSetName,
+                   std::string sharedTypeName,
+                   PageID pageId,
+                   FilePartitionID filePartitionId,
+                   unsigned int pageSeqId,
+                   bool whetherToAddSharedSet,
+                   NodeID nodeId,
+		   std::string& errMsg) {
+
+     return simpleRequest<DistributedStorageAddSharedPage, SimpleRequestResult, bool>(
+		   logger,
+		   port,
+		   address,
+		   false,
+		   1024,
+		   generateResponseHandler("Could not add shared page to distributed storage manager", errMsg),   
+                   sharingDatabase,
+		   sharingSetName,
+		   sharingTypeName,
+		   sharedDatabase,
+		   sharedSetName,
+		   sharedTypeName,
+		   pageId,
+		   filePartitionId,
+		   pageSeqId,
+                   whetherToAddSharedSet,
+		   nodeId);
+
+}
 
 bool DistributedStorageManagerClient::flushData(std::string& errMsg) {
     return simpleRequest<DistributedStorageCleanup, SimpleRequestResult, bool>(

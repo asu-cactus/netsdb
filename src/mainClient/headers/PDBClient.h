@@ -111,6 +111,20 @@ public:
                      std::string &errMsg, size_t pageSize = DEFAULT_PAGE_SIZE, 
                      const std::string &createdJobId = "", Handle<Computation> dispatchComputation = nullptr, Handle<LambdaIdentifier> lambda = nullptr);
 
+  /* Link shared page to a private set at a specific node*/
+  bool addSharedPage(std::string sharingDatabase,
+                   std::string sharingSetName,
+                   std::string sharingTypeName,
+                   std::string sharedDatabase,
+                   std::string sharedSetName,
+                   std::string sharedTypeName,
+                   PageID pageId,
+                   FilePartitionID filePartitionId,
+                   unsigned int pageSeqId,
+                   bool whetherToAddSharedSet,
+                   NodeID nodeId,
+                   std::string& errMsg); 
+
   /* Flushes data currently in memory into disk. */
   bool flushData(std::string &errMsg);
 

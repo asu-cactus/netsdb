@@ -129,6 +129,26 @@ bool PDBClient::clearSet(const std::string &databaseName,
                                            errMsg);
 }
 
+
+bool PDBClient::addSharedPage(std::string sharingDatabase,
+                   std::string sharingSetName,
+                   std::string sharingTypeName,
+                   std::string sharedDatabase,
+                   std::string sharedSetName,
+                   std::string sharedTypeName,
+                   PageID pageId,
+                   FilePartitionID filePartitionId,
+                   unsigned int pageSeqId,
+                   bool whetherToAddSharedSet,
+                   NodeID nodeId,
+                   std::string& errMsg) {
+   
+  return distributedStorageClient.addSharedPage(sharingDatabase, sharingSetName, sharingTypeName,
+		  sharedDatabase, sharedSetName, sharedTypeName, pageId, filePartitionId, pageSeqId,
+		  whetherToAddSharedSet, nodeId, errMsg);
+
+}
+
 bool PDBClient::flushData(std::string &errMsg) {
 
   return distributedStorageClient.flushData(errMsg);

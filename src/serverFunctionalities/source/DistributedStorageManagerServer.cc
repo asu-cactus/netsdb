@@ -21,6 +21,7 @@
 #include "DistributedStorageExportSet.h"
 #include "DistributedStorageClearSet.h"
 #include "DistributedStorageCleanup.h"
+#include "DistributedStorageAddSharedPage.h"
 #include "Computation.h"
 #include "ComputationNode.h"
 #include "QuerySchedulerServer.h"
@@ -32,6 +33,7 @@
 #include "StorageAddDatabase.h"
 #include "StorageAddSet.h"
 #include "StorageAddTempSet.h"
+#include "StorageAddSharedPage.h"
 #include "StorageRemoveDatabase.h"
 #include "StorageRemoveUserSet.h"
 #include "StorageRemoveHashSet.h"
@@ -77,6 +79,51 @@ DistributedStorageManagerServer::~DistributedStorageManagerServer() {
 }
 
 void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
+
+    /**
+     * Handler that add Shared Page information to the specific node
+     */
+    forMe.registerHandler(
+        DistributedStorageAddDatabase_TYPEID,
+        make_shared<SimpleRequestHandler<DistributedStorageAddSharedPage>>(
+            [&](Handle<DistributedStorageAddSharedPage> request, PDBCommunicatorPtr sendUsingMe) {
+            const UseTemporaryAllocationBlock tempBlock{1 * 1024 * 1024};
+            std::string errMsg;
+            NodeID nodeId = request->getNodeId();
+            mutex lock;
+	    auto successfulNodes = std::vector<std::string>();
+            auto failureNodes = std::vector<std::string>();
+            auto nodesToBroadcastTo = std::vector<std::string>();
+            std::vector<std::string> allNodes;
+            const auto nodes = getFunctionality<ResourceManagerServer>().getAllNodes();
+            std::string address = static_cast<std::string>((*nodes)[nodeId]->getAddress());
+            std::string port = std::to_string((*nodes)[nodeId]->getPort());
+            allNodes.push_back(address + ":" + port);
+            nodesToBroadcastTo = allNodes;
+            Handle<StorageAddSharedPage> storageCmd =
+                    makeObject<StorageAddSharedPage>(request->getSharingDatabase(), request->getSharingSetName(),
+    request->getSharingType(), request->getSharedDatabase(), request->getSharedSetName(), request->getSharedType(),
+    request->getPageId(), request->getFilePartitionId(), request->getPageSeqId(), request->getWhetherToAddSharedSet());
+            getFunctionality<DistributedStorageManagerServer>()
+                    .broadcast<StorageAddSharedPage, Object, SimpleRequestResult>(
+                        storageCmd,
+                        nullptr,
+                        nodesToBroadcastTo,
+                        generateAckHandler(successfulNodes, failureNodes, lock),
+                        [&](std::string errMsg, std::string serverName) {
+                            lock.lock();
+                            std::cout << "Server " << serverName << " received an error: " << errMsg
+                                      << std::endl;
+                            failureNodes.push_back(serverName);
+                            lock.unlock();
+                        });
+
+            bool res = true;
+            Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(res, errMsg);
+            res = sendUsingMe->sendObject(response, errMsg);
+            return make_pair(res, errMsg);
+            }));
+
 
     /**
      * Handler that distributes an add database request

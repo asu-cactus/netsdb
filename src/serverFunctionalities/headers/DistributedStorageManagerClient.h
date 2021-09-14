@@ -107,6 +107,19 @@ public:
 		   bool isSharedTensorBlockSet = false);
 
 
+   bool addSharedPage(std::string sharingDatabase,
+                   std::string sharingSetName,
+                   std::string sharingTypeName,
+                   std::string sharedDatabase,
+                   std::string sharedSetName,
+                   std::string sharedTypeName,
+                   PageID pageId,
+                   FilePartitionID filePartitionId,
+                   unsigned int pageSeqId,
+                   bool whetherToAddSharedSet,
+                   NodeID nodeId,
+		   std::string& errMsg);
+
 
     // storage cleanup to flush buffered data to disk
     bool flushData(std::string& errMsg);
