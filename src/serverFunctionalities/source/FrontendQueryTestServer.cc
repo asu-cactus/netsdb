@@ -805,7 +805,14 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
                     " with " << loopingSet->getNumPages() << " pages." << std::endl;
             }
             loopingSet->setPinned(true);
-            vector<PageIteratorPtr>* pageIters = loopingSet->getIterators();
+            
+  	    vector<PageIteratorPtr>* pageIters;
+	   
+	    if (request->getShared()) {
+	        pageIters = loopingSet->getIteratorsExtended();
+	    } else {
+	        pageIters = loopingSet->getIterators();
+	    }
             // loop through all pages
             int numIterators = pageIters->size();
             for (int i = 0; i < numIterators; i++) {

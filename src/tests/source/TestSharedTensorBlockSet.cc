@@ -174,7 +174,15 @@ int main() {
                     "word2vec", "shared_weights", "FFMatrixBlock",
                    15, 0, 15, false, 0, errMsg);
      //scan private set 1
-    
+     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+     auto it = pdbClient.getSetIterator<FFMatrixBlock>("word2vec", "weights1", true);
+     int count = 0;
+     for (auto r : it) {
+         r->print();
+	 count++;
+     }
+     std::cout << "count=" << count << std::endl;
      //scan private set 2
 
 }

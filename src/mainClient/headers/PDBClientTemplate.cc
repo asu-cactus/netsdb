@@ -69,8 +69,9 @@ bool PDBClient::executeComputations(std::string &errMsg,
 
 template <class Type>
 SetIterator<Type> PDBClient::getSetIterator(std::string databaseName,
-                                            std::string setName) {
-  return queryClient.getSetIterator<Type>(databaseName, setName);
+                                            std::string setName, 
+					    bool isShared) {
+  return queryClient.getSetIterator<Type>(databaseName, setName, isShared);
 }
 }
 #endif

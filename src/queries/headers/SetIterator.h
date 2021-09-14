@@ -17,13 +17,16 @@ public:
                 int portIn,
                 std::string& serverNameIn,
                 std::string& dbNameIn,
-                std::string& setNameIn) {
+                std::string& setNameIn,
+		bool isSharedIn = false) {
         myLogger = loggerIn;
         port = portIn;
         serverName = serverNameIn;
         dbName = dbNameIn;
         setName = setNameIn;
+	isShared = isSharedIn;
         wasError = false;
+	
     }
 
     SetIterator() {
@@ -79,8 +82,15 @@ private:
     // true if there is an error
     bool wasError;
 
+    // true if the set to be scanned links to the shared pages
+    bool isShared;
+
+
     // allows creation of these objects
     friend class QueryClient;
+
+
+
 };
 }
 

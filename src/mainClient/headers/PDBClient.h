@@ -243,7 +243,8 @@ public:
   /* Gets a set iterator. */
   template <class Type>
   SetIterator<Type> getSetIterator(std::string databaseName,
-                                   std::string setName);
+                                   std::string setName, 
+				   bool isShared = false);
 
 
   static std::string getNextClientId() {
