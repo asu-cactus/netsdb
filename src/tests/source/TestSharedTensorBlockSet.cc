@@ -28,8 +28,14 @@
 
 using namespace pdb;
 
-int main() {
+int main(int argc, char* argv[]) {
 
+    bool loadData = true;
+    if (argc > 1) {
+        if (strcmp(argv[1], "N") == 0) {
+           loadData = false;
+	}
+    }
     makeObjectAllocatorBlock(124 * 1024 * 1024, true);
 
     //create a shared set
@@ -43,29 +49,29 @@ int main() {
      ff::loadLibrary(pdbClient, "libraries/libFFMatrixData.so");
      ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlock.so");
      std::string errMsg;
-     pdbClient.createSet("word2vec", "shared_weights", "FFMatrixBlock", errMsg,
+     pdbClient.createSet<FFMatrixBlock>("word2vec", "shared_weights", errMsg,
 		     DEFAULT_PAGE_SIZE, "weights", nullptr, nullptr, true);
 
      int block_x = 1000;
      int block_y = 1000;
-     int matrix1_totalNumBlock_x = 1000;
-     int matrix2_totalNumBlock_x = 1000;
+     int matrix1_totalNumBlock_x = 550;
+     int matrix2_totalNumBlock_x = 550;
      int sharedNumBlock_x = 500;
      int numBlock_y = 1;
 
      
-
+     if (loadData) {
      //load blocks to the shared set
      ff::loadMatrix(pdbClient, "word2vec", "shared_weights", sharedNumBlock_x*block_x, numBlock_y*block_y, block_x, block_y, false, false, errMsg);
       
      //create private set 1
-     pdbClient.createSet("word2vec", "weights1", "FFMatrixBlock", errMsg,
+     pdbClient.createSet<FFMatrixBlock>("word2vec", "weights1", errMsg,
                      DEFAULT_PAGE_SIZE, "weights1", nullptr, nullptr, false);
     
      //load blocks to the private set 1
      ff::loadMatrix(pdbClient, "word2vec", "weights1", (matrix1_totalNumBlock_x-sharedNumBlock_x)*block_x, numBlock_y*block_y, block_x, block_y, false, false, errMsg);
 
-
+     sleep(30);
 
      //add the metadata of shared pages to the private set 1
      pdbClient.addSharedPage("word2vec", "weights1", "FFMatrixBlock",
@@ -116,9 +122,10 @@ int main() {
      pdbClient.addSharedPage("word2vec", "weights1", "FFMatrixBlock",
                     "word2vec", "shared_weights", "FFMatrixBlock",
                    15, 0, 15, false, 0, errMsg);
+/*
 
      //create private set 2
-     pdbClient.createSet("word2vec", "weights2", "FFMatrixBlock", errMsg,
+     pdbClient.createSet<FFMatrixBlock>("word2vec", "weights2", errMsg,
                      DEFAULT_PAGE_SIZE, "weights1", nullptr, nullptr, false);
     
      //load blocks to the private set 2
@@ -173,6 +180,9 @@ int main() {
      pdbClient.addSharedPage("word2vec", "weights2", "FFMatrixBlock",
                     "word2vec", "shared_weights", "FFMatrixBlock",
                    15, 0, 15, false, 0, errMsg);
+     */
+     }
+     
      //scan private set 1
      const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
@@ -184,7 +194,7 @@ int main() {
      }
      std::cout << "count=" << count << std::endl;
      //scan private set 2
-
+    
 }
 
 #endif

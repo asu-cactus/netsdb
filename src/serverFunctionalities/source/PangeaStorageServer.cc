@@ -1007,19 +1007,31 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                 }
 		PartitionedFilePtr file = mySet->getFile();
 		file->addSharedPage(request->getPageId(), request->getFilePartitionId(), request->getPageSeqId());
-
+                bool res = true;
 		if(request->getWhetherToAddSharedSet()) {
 
 		    auto sharedDatabaseAndSet = make_pair((std::string)request->getSharedDatabase(),
                                                 (std::string)request->getSharedSetName());
+		    std::cout << "shared set:" << request->getSharedDatabase() << ":" << request->getSharedSetName() << std::endl;
 		    SetPtr mySharedSet =  getFunctionality<PangeaStorageServer>().getSet(sharedDatabaseAndSet);
-		    SetKey key;
-		    key.dbId = mySharedSet->getDbID();
-		    key.typeId = mySharedSet->getTypeID();
-		    key.setId = mySharedSet->getSetID();
-	            file->setSharedSet(key);	
+		    if(mySharedSet == nullptr) {
+		        std::cout << "Error: empty shared set" << std::endl;
+		    } else {
+		        SetKey key;
+		        key.dbId = mySharedSet->getDbID();
+		        key.typeId = mySharedSet->getTypeID();
+		        key.setId = mySharedSet->getSetID();
+	                file->setSharedSet(key);
+		        std::cout << "shared set: dbId=" << key.dbId
+			          << ", typeId=" << key.typeId
+			          << ", setId=" << key.setId << std::endl;	  
+		    }
 		}
-                return make_pair(true, errMsg); 
+		const UseTemporaryAllocationBlock tempBlock{1024};
+                Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(res, errMsg);
+
+                res = sendUsingMe->sendObject(response, errMsg);
+                return make_pair(res, errMsg); 
     }));
 
 

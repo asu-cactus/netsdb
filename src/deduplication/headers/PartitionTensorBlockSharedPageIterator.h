@@ -12,6 +12,8 @@
 #include "UserSet.h"
 #include "SharedTensorBlockSet.h"
 
+namespace pdb{
+
 class PartitionTensorBlockSharedPageIterator : public PageIteratorInterface {
 
 public:
@@ -22,8 +24,7 @@ public:
                           PartitionedFilePtr fileOfSharingSet,
 			  PartitionedFilePtr fileOfSharedSet,
                           FilePartitionID partitionIdOfSharedSet,
-			  SharedTensorBlockSetPtr sharedSet,
-                          UserSet* sharingSet = nullptr);
+			  SharedTensorBlockSetPtr sharedSet);
     /*
      * To support polymorphism.
      */
@@ -40,17 +41,16 @@ public:
     bool hasNext();
 
 private:
-    PageCachePtr cache;
-    PartitionedFilePtr partitionedFileOfSharingSet;
-    PartitionedFilePtr partitionedFileOfSharedSet;
+    PageCachePtr cache = nullptr;
+    PartitionedFilePtr fileOfSharingSet = nullptr;
+    PartitionedFilePtr fileOfSharedSet = nullptr;
     FilePartitionID partitionId;
     unsigned int numPages = 0;
     unsigned int numIteratedPages = 0;
-    SharedTensorBlockSetPtr sharedSet;
-    UserSet* sharingSet;
-    std::unordered_map<PageID, PageIndex> & sharedPageMap;
+    SharedTensorBlockSetPtr sharedSet = nullptr;
+    std::unordered_map<PageID, PageIndex> * sharedPageMap = nullptr;
     std::unordered_map<PageID, PageIndex>::iterator it;
 };
 
-
+}
 #endif /* SRC_CPP_MAIN_DATABASE_HEADERS_PARTITIONTENSORBLOCKSHAREDPAGEITERATOR_H_ */

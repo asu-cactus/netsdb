@@ -235,7 +235,7 @@ public:
     /**
      * Get the shared page maps
      */
-    std::unordered_map<FilePartitionID, std::unordered_map<PageID, PageIndex>> * getSharedPageMaps() {
+    std::unordered_map<FilePartitionID, std::unordered_map<PageID, PageIndex>*> * getSharedPageMaps() {
         return this->sharedPageMaps;
     }
 
@@ -255,10 +255,12 @@ public:
         this->sharedPageIndexes->push_back(pageIndex);
 
 	if (sharedPageMaps == nullptr) {
-	    sharedPageMaps = new std::unordered_map<FilePartitionID, std::unordered_map<PageID, PageIndex>>();
-	    
+	    sharedPageMaps = new std::unordered_map<FilePartitionID, std::unordered_map<PageID, PageIndex>*>();
 	}
-	(*sharedPageMaps)[partitionId][pageId] = pageIndex;
+	if (sharedPageMaps->count(partitionId) == 0) {
+	    (*sharedPageMaps)[partitionId]=new std::unordered_map<PageID, PageIndex>();
+	}
+	(*(*sharedPageMaps)[partitionId])[pageId] = pageIndex;
         pthread_mutex_unlock(&sharedPageIndexMutex);
     }
 
@@ -317,7 +319,7 @@ private:
     /**
      * A map that maps PageID to PageIndex for shared pages for each partition
      */
-    std::unordered_map<FilePartitionID, std::unordered_map<PageID, PageIndex>> * sharedPageMaps = nullptr;    
+    std::unordered_map<FilePartitionID, std::unordered_map<PageID, PageIndex>*> * sharedPageMaps = nullptr;    
 
 };
 

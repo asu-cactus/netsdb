@@ -805,16 +805,21 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
                     " with " << loopingSet->getNumPages() << " pages." << std::endl;
             }
             loopingSet->setPinned(true);
-            
+            SetKey sharedSet = loopingSet->getFile()->getSharedSet();
+	    std::cout << "Set dbId:" << sharedSet.dbId << std::endl;
+	    std::cout << "Set typeId:" << sharedSet.typeId << std::endl;
+	    std::cout << "Set setId:" << sharedSet.setId << std::endl;
+	    SetPtr sharedSetPtr = getFunctionality<PangeaStorageServer>().getSet(sharedSet.dbId, sharedSet.typeId, sharedSet.setId);
   	    vector<PageIteratorPtr>* pageIters;
 	   
 	    if (request->getShared()) {
-	        pageIters = loopingSet->getIteratorsExtended();
+	        pageIters = loopingSet->getIteratorsExtended(sharedSetPtr);
 	    } else {
 	        pageIters = loopingSet->getIterators();
 	    }
             // loop through all pages
             int numIterators = pageIters->size();
+	    std::cout << "We've got " << numIterators << " iterators" << std::endl;
             for (int i = 0; i < numIterators; i++) {
                 PageIteratorPtr iter = pageIters->at(i);
                 while (iter->hasNext()) {

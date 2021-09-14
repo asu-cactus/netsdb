@@ -192,7 +192,7 @@ public:
      * -- K iterators to scan shared pages in file partitions, assuming there are K partitions
      * IMPORTANT: user needs to delete the returned vector!!!
      */
-    virtual vector<PageIteratorPtr>* getIteratorsExtended();
+    virtual vector<PageIteratorPtr>* getIteratorsExtended(SetPtr sharedSetPtr);
 
 
 

@@ -359,7 +359,7 @@ std::vector<PageIndex> * PartitionedFile::getSharedPages() {
 /**
  * Get shared page maps
  */
-std::unordered_map<FilePartitionID, std::unordered_map<PageID, PageIndex>> * PartitionedFile::getSharedPageMaps() {
+std::unordered_map<FilePartitionID, std::unordered_map<PageID, PageIndex>*> * PartitionedFile::getSharedPageMaps() {
     return this->metaData->getSharedPageMaps();
 }
 
@@ -367,7 +367,7 @@ std::unordered_map<FilePartitionID, std::unordered_map<PageID, PageIndex>> * Par
  * Get a specified shared page map
  */
 
-std::unordered_map<PageID, PageIndex> & PartitionedFile::getSharedPageMap(FilePartitionID partitionId) {
+std::unordered_map<PageID, PageIndex> * PartitionedFile::getSharedPageMap(FilePartitionID partitionId) {
      return (*(this->metaData->getSharedPageMaps()))[partitionId];
 
 }
@@ -510,14 +510,14 @@ int PartitionedFile::writeMeta() {
     *((unsigned int*)cur) = this->metaData->getNumSharedPages();
     cur = cur + sizeof(unsigned int);
 
-    std::unordered_map<FilePartitionID, std::unordered_map<PageID, PageIndex>> * sharedPageMaps = this->metaData->getSharedPageMaps();
+    std::unordered_map<FilePartitionID, std::unordered_map<PageID, PageIndex>*> * sharedPageMaps = this->metaData->getSharedPageMaps();
 
     if (sharedPageMaps != nullptr) {
       for (auto iter = sharedPageMaps->begin();
          iter != sharedPageMaps->end();
          iter++) {
-	      std::unordered_map<PageID, PageIndex> sharedPageMap = iter->second;
-	      for (auto map : sharedPageMap) {
+	      std::unordered_map<PageID, PageIndex> * sharedPageMap = iter->second;
+	      for (auto map : *sharedPageMap) {
 		      PageID pageId = map.first;
                       PageIndex pageIndex = map.second;
 		      *((PageID*)cur) = pageId;

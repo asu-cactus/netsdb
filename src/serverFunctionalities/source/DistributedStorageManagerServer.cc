@@ -84,7 +84,7 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
      * Handler that add Shared Page information to the specific node
      */
     forMe.registerHandler(
-        DistributedStorageAddDatabase_TYPEID,
+        DistributedStorageAddSharedPage_TYPEID,
         make_shared<SimpleRequestHandler<DistributedStorageAddSharedPage>>(
             [&](Handle<DistributedStorageAddSharedPage> request, PDBCommunicatorPtr sendUsingMe) {
             const UseTemporaryAllocationBlock tempBlock{1 * 1024 * 1024};
@@ -98,6 +98,7 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
             const auto nodes = getFunctionality<ResourceManagerServer>().getAllNodes();
             std::string address = static_cast<std::string>((*nodes)[nodeId]->getAddress());
             std::string port = std::to_string((*nodes)[nodeId]->getPort());
+	    std::cout << address << ":" << port << std::endl;
             allNodes.push_back(address + ":" + port);
             nodesToBroadcastTo = allNodes;
             Handle<StorageAddSharedPage> storageCmd =
@@ -1333,7 +1334,7 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                          << "-th server with address=" << address << " and port=" << port
                          << std::endl;
                 Handle<SetScan> newRequest =
-                    makeObject<SetScan>(request->getDatabase(), request->getSetName());
+                    makeObject<SetScan>(request->getDatabase(), request->getSetName(), request->getShared());
 
                 PDB_COUT << "to connect to the remote node" << std::endl;
                 PDBCommunicatorPtr communicator = std::make_shared<PDBCommunicator>();

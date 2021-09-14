@@ -166,10 +166,10 @@ public:
     /**
      * Get the shared page maps
      */
-    std::unordered_map<FilePartitionID, std::unordered_map<PageID, PageIndex>> * getSharedPageMaps();
+    std::unordered_map<FilePartitionID, std::unordered_map<PageID, PageIndex>* > * getSharedPageMaps();
 
 
-    std::unordered_map<PageID, PageIndex> & getSharedPageMap(FilePartitionID partitionId);
+    std::unordered_map<PageID, PageIndex> * getSharedPageMap(FilePartitionID partitionId);
 
 
     /**

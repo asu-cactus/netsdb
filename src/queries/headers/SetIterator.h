@@ -55,7 +55,7 @@ public:
 
         // build the request
         const UseTemporaryAllocationBlock tempBlock{1024};
-        Handle<SetScan> request = makeObject<SetScan>(dbName, setName);
+        Handle<SetScan> request = makeObject<SetScan>(dbName, setName, isShared);
         if (!temp->sendObject(request, errMsg)) {
             myLogger->error(errMsg);
             myLogger->error("output iterator: not able to send request to server.\n");
