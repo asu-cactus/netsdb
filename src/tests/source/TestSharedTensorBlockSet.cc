@@ -122,7 +122,6 @@ int main(int argc, char* argv[]) {
      pdbClient.addSharedPage("word2vec", "weights1", "FFMatrixBlock",
                     "word2vec", "shared_weights", "FFMatrixBlock",
                    15, 0, 15, false, 0, errMsg);
-/*
 
      //create private set 2
      pdbClient.createSet<FFMatrixBlock>("word2vec", "weights2", errMsg,
@@ -130,7 +129,8 @@ int main(int argc, char* argv[]) {
     
      //load blocks to the private set 2
      ff::loadMatrix(pdbClient, "word2vec", "weights2", (matrix1_totalNumBlock_x-sharedNumBlock_x)*block_x, numBlock_y*block_y, block_x, block_y, false, false, errMsg);
-    
+     sleep(30);
+
      //add the metadata of shared pages to the private set 2
      pdbClient.addSharedPage("word2vec", "weights2", "FFMatrixBlock",
                     "word2vec", "shared_weights", "FFMatrixBlock",
@@ -180,7 +180,6 @@ int main(int argc, char* argv[]) {
      pdbClient.addSharedPage("word2vec", "weights2", "FFMatrixBlock",
                     "word2vec", "shared_weights", "FFMatrixBlock",
                    15, 0, 15, false, 0, errMsg);
-     */
      }
      
      //scan private set 1
@@ -194,7 +193,14 @@ int main(int argc, char* argv[]) {
      }
      std::cout << "count=" << count << std::endl;
      //scan private set 2
-    
+     auto it1 = pdbClient.getSetIterator<FFMatrixBlock>("word2vec", "weights2", true);
+     int count1 = 0;
+     for (auto r : it1) {
+         r->print();
+         count1++;
+     }
+     std::cout << "count=" << count << std::endl;  
+     std::cout << "count1=" << count1 << std::endl;  
 }
 
 #endif
