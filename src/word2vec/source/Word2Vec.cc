@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
     embedding_path = string(argv[4]) + "/weights.txt";
 
     // load the input data
-        (void)ff::load_matrix_data(pdbClient, embedding_path, "word2vec", "weights", block_x, block_y,
+        (void)ff::load_matrix_data(pdbClient, input_path, "word2vec", "inputs", block_x, block_y,
                                false, false, errMsg);
 
     // load the embedding weights
