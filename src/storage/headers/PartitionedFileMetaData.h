@@ -261,6 +261,7 @@ public:
 	    (*sharedPageMaps)[partitionId]=new std::unordered_map<PageID, PageIndex>();
 	}
 	(*(*sharedPageMaps)[partitionId])[pageId] = pageIndex;
+	this->numSharedPages++;
         pthread_mutex_unlock(&sharedPageIndexMutex);
     }
 

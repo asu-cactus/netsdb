@@ -242,6 +242,13 @@ public:
     }
 
     /**
+     * Returns the number of external pages the set shares
+     */
+    int getNumSharedPages() {
+        return this->file->getNumSharedPages();
+    }
+
+    /**
      * Returns file instance;
      */
     PartitionedFilePtr getFile() {

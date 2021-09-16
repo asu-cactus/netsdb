@@ -32,6 +32,58 @@
 
 using namespace pdb;
 
+void execute(pdb::PDBClient & pdbClient, std::string weight_set_name) {
+
+  auto begin = std::chrono::high_resolution_clock::now();
+
+  // make the reader
+  pdb::Handle<pdb::Computation> readA =
+      makeObject<FFMatrixBlockScanner>("word2vec", weight_set_name);
+  pdb::Handle<pdb::Computation> readB =
+      makeObject<FFMatrixBlockScanner>("word2vec", "inputs");
+
+  // make the transpose multiply join
+  pdb::Handle<pdb::Computation> join = pdb::makeObject<FFTransposeMult>();
+  join->setInput(0, readA);
+  join->setInput(1, readB);
+
+  // make the transpose multiply aggregation
+  pdb::Handle<pdb::Computation> myAggregation =
+      pdb::makeObject<FFAggMatrix>();
+  myAggregation->setInput(join);
+
+  // make the writer
+  pdb::Handle<pdb::Computation> myWriter = nullptr;
+  myWriter = pdb::makeObject<FFMatrixWriter>("word2vec", "outputs");
+  myWriter->setInput(myAggregation);
+
+  bool materializeHash = false;
+  std::string errMsg;
+
+  auto exe_begin = std::chrono::high_resolution_clock::now();
+
+  // run the computation
+  if (!pdbClient.executeComputations(errMsg, weight_set_name, materializeHash, myWriter)) {
+      cout << "Computation failed. Message was: " << errMsg << "\n";
+      exit(1);
+  }
+
+  auto end = std::chrono::high_resolution_clock::now();
+  std::cout << "****Word2Vec End-to-End Time Duration: ****"
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
+              << " secs." << std::endl;
+
+  std::cout << "****Word2Vec Execution Time Duration: ****"
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end - exe_begin).count()
+              << " secs." << std::endl;
+
+  //verify the results
+  ff::print_stats(pdbClient, "word2vec", "outputs");
+  ff::print(pdbClient, "word2vec", "outputs");
+
+}
+
+
 int main(int argc, char* argv[]) {
 
      bool loadData = true;
@@ -196,88 +248,9 @@ int main(int argc, char* argv[]) {
   pdbClient.createSet<FFMatrixBlock>("word2vec", "outputs", errMsg,
 		  DEFAULT_PAGE_SIZE, "outputs", nullptr, nullptr, false);
 
-  auto begin = std::chrono::high_resolution_clock::now();
+  execute(pdbClient, "weights1");
+  execute(pdbClient, "weights2");
 
-  // make the reader
-  pdb::Handle<pdb::Computation> readA =
-      makeObject<FFMatrixBlockScanner>("word2vec", "weights1");
-  pdb::Handle<pdb::Computation> readC =
-      makeObject<FFMatrixBlockScanner>("word2vec", "weights2");
-  pdb::Handle<pdb::Computation> readB =
-      makeObject<FFMatrixBlockScanner>("word2vec", "inputs");
-
-  // make the transpose multiply join
-  pdb::Handle<pdb::Computation> join = pdb::makeObject<FFTransposeMult>();
-  join->setInput(0, readA);
-  join->setInput(1, readB);
-
-  // make the transpose multiply aggregation
-  pdb::Handle<pdb::Computation> myAggregation =
-      pdb::makeObject<FFAggMatrix>();
-  myAggregation->setInput(join);
-
-  // make the writer
-  pdb::Handle<pdb::Computation> myWriter = nullptr;
-  myWriter = pdb::makeObject<FFMatrixWriter>("word2vec", "outputs");
-  myWriter->setInput(myAggregation);
-
-  bool materializeHash = false;
-
-  auto exe_begin = std::chrono::high_resolution_clock::now();
-    // run the computation
-    if (!pdbClient.executeComputations(errMsg, "wrod2vec1", materializeHash, myWriter)) {
-      cout << "Computation failed. Message was: " << errMsg << "\n";
-      exit(1);
-    }
-
-  
-
-  auto end = std::chrono::high_resolution_clock::now();
-  std::cout << "****Word2Vec End-to-End Time Duration: ****"
-              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
-              << " secs." << std::endl;
-
-  std::cout << "****Word2Vec Execution Time Duration: ****"
-              << std::chrono::duration_cast<std::chrono::duration<float>>(end - exe_begin).count()
-              << " secs." << std::endl;
-
-  //verify the results
-  ff::print_stats(pdbClient, "word2vec", "outputs");
-  ff::print(pdbClient, "word2vec", "outputs");
-
-  join->setInput(0, readC);
-  exe_begin = std::chrono::high_resolution_clock::now();
-  // run the computation
-  if (!pdbClient.executeComputations(errMsg, "wrod2vec2", materializeHash, myWriter)) {
-      cout << "Computation failed. Message was: " << errMsg << "\n";
-      exit(1);
-  }
-  end = std::chrono::high_resolution_clock::now();
-  std::cout << "****Word2Vec End-to-End Time Duration: ****"
-              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
-              << " secs." << std::endl;
-      
-     /*
-     //scan private set 1
-     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
-
-     auto it = pdbClient.getSetIterator<FFMatrixBlock>("word2vec", "weights1", true);
-     int count = 0;
-     for (auto r : it) {
-         r->print();
-	 count++;
-     }
-     std::cout << "count=" << count << std::endl;
-     //scan private set 2
-     auto it1 = pdbClient.getSetIterator<FFMatrixBlock>("word2vec", "weights2", true);
-     int count1 = 0;
-     for (auto r : it1) {
-         r->print();
-         count1++;
-     }
-     std::cout << "count=" << count << std::endl;  
-     std::cout << "count1=" << count1 << std::endl;  
-     */
 }
 
 #endif

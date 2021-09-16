@@ -1500,7 +1500,19 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
 
             // use frontend iterators: one iterator for in-memory dirty pages, and one iterator for
             // each file partition
-            std::vector<PageIteratorPtr>* iterators = set->getIterators();
+	    
+            std::vector<PageIteratorPtr>* iterators;
+	    std::cout << "*********The set " << set->getSetName() << " has " << set->getNumSharedPages() << " pages*********" << std::endl;
+	    if (set->getNumSharedPages()==0) {
+	        iterators = set->getIterators();
+	    } else {
+		SetKey sharedSet = set->getFile()->getSharedSet();
+		std::cout << "SharedSet dbId:" << sharedSet.dbId << std::endl;
+                std::cout << "SharedSet typeId:" << sharedSet.typeId << std::endl;
+                std::cout << "SharedSet setId:" << sharedSet.setId << std::endl;
+		SetPtr sharedSetPtr = getFunctionality<PangeaStorageServer>().getSet(sharedSet.dbId, sharedSet.typeId, sharedSet.setId);
+	        iterators = set->getIteratorsExtended(sharedSetPtr);
+	    }
             getFunctionality<PangeaStorageServer>().getCache()->pin(set, set->getReplacementPolicy(), Read);
 
             set->setPinned(true);
