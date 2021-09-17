@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
     embedding_path = string(argv[4]) + "/weights.txt";
 
     // load the input data
-        (void)ff::load_matrix_data(pdbClient, input_path, "word2vec", "inputs", block_x, block_y,
+    (void)ff::load_matrix_data(pdbClient, input_path, "word2vec", "inputs", block_x, block_y,
                                false, false, errMsg);
 
     // load the embedding weights
@@ -116,19 +116,43 @@ int main(int argc, char *argv[]) {
   myAggregation->setInput(join);
 
   // make the writer
-  pdb::Handle<pdb::Computation> myWriter = nullptr;
-  myWriter = pdb::makeObject<FFMatrixWriter>("word2vec", "outputs");
-  myWriter->setInput(myAggregation);
+  // pdb::Handle<pdb::Computation> myWriter = nullptr;
+  // myWriter = pdb::makeObject<FFMatrixWriter>("word2vec", "outputs");
+  // myWriter->setInput(myAggregation);
 
   bool materializeHash = true;
 
-  auto exe_begin = std::chrono::high_resolution_clock::now();
     // run the computation
-  if (!pdbClient.executeComputations(errMsg, "wrod2vec", materializeHash, myWriter)) {
+  // if (!pdbClient.executeComputations(errMsg, "wrod2vec", materializeHash, myWriter)) {
+  //   cout << "Computation failed. Message was: " << errMsg << "\n";
+  //   exit(1);
+  // }
+
+
+  //verify the results
+  // ff::print_stats(pdbClient, "word2vec", "outputs");
+  // ff::print(pdbClient, "word2vec", "outputs");
+
+
+  // pdb::Handle<pdb::Computation> readA1 =
+  //     makeObject<FFMatrixBlockScanner>("word2vec", "outputs");
+
+
+  pdb::Handle<pdb::Computation> classifier = pdb::makeObject<SemanticClassifier>();
+  classifier->setInput(myAggregation);
+  // pdb::Handle<pdb::Computation> classifier = pdb::makeObject<FFMatrixBlockScanner>("word2vec", "weights");
+
+  ff::createSet(pdbClient, "word2vec", "labels", "labels", 64);
+  pdb::Handle<pdb::Computation> labelWriter = nullptr;
+  labelWriter = pdb::makeObject<FFMatrixWriter>("word2vec", "labels");
+  labelWriter->setInput(classifier);
+
+  auto exe_begin = std::chrono::high_resolution_clock::now();
+
+  if (!pdbClient.executeComputations(errMsg, "wrod2vec1", materializeHash, labelWriter)) {
     cout << "Computation failed. Message was: " << errMsg << "\n";
     exit(1);
   }
-
 
   auto end = std::chrono::high_resolution_clock::now();
   std::cout << "****Word2Vec End-to-End Time Duration: ****"
@@ -139,37 +163,6 @@ int main(int argc, char *argv[]) {
               << std::chrono::duration_cast<std::chrono::duration<float>>(end - exe_begin).count()
               << " secs." << std::endl;
 
-  //verify the results
-  ff::print_stats(pdbClient, "word2vec", "outputs");
-  ff::print(pdbClient, "word2vec", "outputs");
-
-  std::cout << "***real test case" << std::endl;
-
-  pdb::Handle<pdb::Computation> classifier = pdb::makeObject<SemanticClassifier>();
-  classifier->setInput(readA);
-  // pdb::Handle<pdb::Computation> classifier = pdb::makeObject<FFMatrixBlockScanner>("word2vec", "weights");
-
-  ff::createSet(pdbClient, "word2vec", "finaloutputs", "finaloutputs", 64);
-  pdb::Handle<pdb::Computation> finalWriter = nullptr;
-  finalWriter = pdb::makeObject<FFMatrixWriter>("word2vec", "finaloutputs");
-  finalWriter->setInput(classifier);
-
-  
-  // pdb::Handle<pdb::Computation> finalWriter1 = nullptr;
-  // finalWriter1 = pdb::makeObject<FFMatrixWriter>("word2vec", "finaloutputs");
-  // finalWriter1->setInput(readA);
-
-
-
-
-  if (!pdbClient.executeComputations(errMsg, "wrod2vec1", materializeHash, finalWriter)) {
-    cout << "Computation failed. Message was: " << errMsg << "\n";
-    exit(1);
-  }
-
-  ff::print_stats(pdbClient, "word2vec", "finaloutputs");
-  ff::print_stats(pdbClient, "word2vec", "weights");
-
-
+  ff::print_stats(pdbClient, "word2vec", "labels");
   return 0;
 }

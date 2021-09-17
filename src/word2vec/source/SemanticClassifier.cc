@@ -8,4 +8,17 @@
 
 GET_V_TABLE(SemanticClassifier)
 
+double sigmoid(double x) { return 1 / (1 + exp(-x)); }
+
+double relu(double x) { return std::max(0.0, x); }
+
+double outLabel(double x) {
+    double threshold = 0.5;
+    if (x > threshold) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
 #endif
