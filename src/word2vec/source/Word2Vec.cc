@@ -22,7 +22,7 @@ void gen_model_weights(PDBClient & pdbClient, std::string weight_set_name, std::
 
   if (!generate && reloadData) {
      
-     ff::createSet(pdbClient, "word2vec", weight_set_name, weight_set_name, 64);
+     ff::createSet(pdbClient, "word2vec", weight_set_name, weight_set_name, 256);
 
      std::string embedding_path = rootPath + "/" + weight_set_name + ".txt";
 
@@ -32,7 +32,7 @@ void gen_model_weights(PDBClient & pdbClient, std::string weight_set_name, std::
 
   } else if (reloadData) {
 
-    ff::createSet(pdbClient, "word2vec", weight_set_name, weight_set_name, 64);
+    ff::createSet(pdbClient, "word2vec", weight_set_name, weight_set_name, 256);
 
     // embedding_dimension x vocab_size 
     std::cout << "To load matrix for word2vec:"<< weight_set_name << std::endl;
@@ -48,6 +48,7 @@ void execute_model(PDBClient & pdbClient, std::string weight_set_name) {
 
   auto begin = std::chrono::high_resolution_clock::now();
 
+  ff::createSet(pdbClient, "word2vec", "outputs", "outputs", 256);
   // make the reader
   pdb::Handle<pdb::Computation> readA =
       makeObject<FFMatrixBlockScanner>("word2vec", weight_set_name);
@@ -73,7 +74,7 @@ void execute_model(PDBClient & pdbClient, std::string weight_set_name) {
 
   auto exe_begin = std::chrono::high_resolution_clock::now();
     // run the computation
-    if (!pdbClient.executeComputations(errMsg, "wrod2vec", materializeHash, myWriter)) {
+    if (!pdbClient.executeComputations(errMsg, weight_set_name, materializeHash, myWriter)) {
       cout << "Computation failed. Message was: " << errMsg << "\n";
       exit(1);
     }
@@ -155,11 +156,10 @@ int main(int argc, char *argv[]) {
       ff::loadLibrary(pdbClient, "libraries/libFFMatrixWriter.so");
       ff::loadLibrary(pdbClient, "libraries/libFFAggMatrix.so");
       ff::loadLibrary(pdbClient, "libraries/libFFTransposeMult.so");
-      ff::createSet(pdbClient, "word2vec", "inputs", "inputs", 64);
+      ff::createSet(pdbClient, "word2vec", "inputs", "inputs", 256);
 
   }
 
-  ff::createSet(pdbClient, "word2vec", "outputs", "outputs", 64);
 
   const UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 1024};
 
