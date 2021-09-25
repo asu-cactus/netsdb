@@ -40,9 +40,10 @@ public:
             OperationType operation = Read,
             DurabilityType durability = TryCache,
             PersistenceType persistence = Persistent,
-            size_t desiredSize = 1): UserSet(pageSize, logger, shm, nodeId, dbId, typeId, setId, setName,
+            size_t desiredSize = 1, 
+	    bool isShared = true): UserSet(pageSize, logger, shm, nodeId, dbId, typeId, setId, setName,
 		       file, pageCache, localityType, policy, operation, durability,
-		       persistence, desiredSize) {
+		       persistence, desiredSize, isShared) {
         
     }
 
@@ -62,9 +63,10 @@ public:
             OperationType operation = Read,
             DurabilityType durability = TryCache,
             PersistenceType persistence = Persistent,
-            size_t desiredSize = 1) : UserSet(pageSize, logger, shm, nodeId, dbId, typeId, setId, setName,
+            size_t desiredSize = 1,
+	    bool isShared = true) : UserSet(pageSize, logger, shm, nodeId, dbId, typeId, setId, setName,
 		       file, pageCache, localityType, policy, operation, durability, 
-		       persistence, desiredSize) {
+		       persistence, desiredSize, true) {
        indexes.deserializeIndex(pathToIndexFile);
     }
 

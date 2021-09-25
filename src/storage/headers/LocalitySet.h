@@ -26,7 +26,8 @@ public:
                 OperationType operationType,
                 DurabilityType durabilityType,
                 PersistenceType persistenceType,
-                size_t desiredSize = 1);
+                size_t desiredSize = 1,
+		bool isShared = true);
 
     /*
      * Destructor
@@ -60,7 +61,7 @@ public:
 
     void unpin();
 
-      
+    bool getShared();  
 
     /*
      * Getters/Setters
@@ -227,6 +228,8 @@ protected:
     double writeCost = 0.0;
     double readCost = 0.0;
     long accessSequenceId = 0;
+
+    bool isShared = false;
 };
 
 

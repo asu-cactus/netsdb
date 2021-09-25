@@ -9,7 +9,8 @@ LocalitySet::LocalitySet(LocalityType localityType,
                          OperationType operationType,
                          DurabilityType durabilityType,
                          PersistenceType persistenceType,
-                         size_t desiredSize) {
+                         size_t desiredSize,
+			 bool isShared) {
 
     cachedPages = new list<PDBPagePtr>();
     this->localityType = localityType;
@@ -19,6 +20,7 @@ LocalitySet::LocalitySet(LocalityType localityType,
     this->persistenceType = persistenceType;
     this->lifetimeEnded = false;
     this->desiredSize = desiredSize;
+    this->isShared = isShared;
     pthread_mutex_init(&localitySetCacheMutex, nullptr);
 
 }
@@ -54,6 +56,12 @@ void LocalitySet::removeCachedPage(PDBPagePtr page) {
         }
     }
 }
+
+bool LocalitySet::getShared() {
+   return isShared;
+}
+
+
 
 PDBPagePtr LocalitySet::selectPageForReplacement() {
     PDBPagePtr retPage = nullptr;
