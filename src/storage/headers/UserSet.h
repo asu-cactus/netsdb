@@ -380,7 +380,12 @@ public:
 
     void print() {
         std::cout << "################################" << std::endl;
-        std::cout << "setName:" << setName << std::endl;
+        if (isShared){
+	   std::cout << "SharedSet" << std::endl;
+	} else {
+	   std::cout << "PrivateSet" << std::endl;
+	}
+ 	std::cout << "setName:" << setName << std::endl;
         std::cout << "pageSize:" << pageSize << std::endl;
         switch (localityType) {
             case JobData:

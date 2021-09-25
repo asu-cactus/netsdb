@@ -450,6 +450,10 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
             }
 
             std::cout << "******************** desired size = " << desiredSize << "********************" << std::endl;
+	    if (request->getSharedTensorBlockSet())
+	        std::cout << "%%%%%%%%%%%%%%%%%DistributedStorageManagerServer: to add shared set%%%%%%%%%%%%%%%" << std::endl;
+	    else 
+		std::cout << "%%%%%%%%%%%%%%%%%DistributedStorageManagerServer: to add private set%%%%%%%%%%%%%%%" << std::endl;
             Handle<StorageAddSet> storageCmd = makeObject<StorageAddSet>(request->getDatabase(),
                                                                          request->getSetName(),
                                                                          request->getTypeName(),

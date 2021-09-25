@@ -501,6 +501,11 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
 
             std::string errMsg;
             bool res = true;
+	    if (request->getSharedTensorBlockSet()) {
+	        std::cout << "%%%%%%%%Pangea to add a shared set%%%%%%%%%%%%" << std::endl;
+	    } else {
+	        std::cout << "%%%%%%%%Pangea to add a private set%%%%%%%%%%%" << std::endl;
+	    }
             if (request->getPageSize() > conf->getMaxPageSize()) {
                 errMsg = "Error: page size is larger than maxPageSize\n";
                 std::cout << errMsg << std::endl;
@@ -1498,6 +1503,8 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                 return make_pair(res, errMsg);
             }
 
+	    SetPtr sharedSetPtr = nullptr;
+
             // use frontend iterators: one iterator for in-memory dirty pages, and one iterator for
             // each file partition
 	    
@@ -1510,13 +1517,16 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
 		std::cout << "SharedSet dbId:" << sharedSet.dbId << std::endl;
                 std::cout << "SharedSet typeId:" << sharedSet.typeId << std::endl;
                 std::cout << "SharedSet setId:" << sharedSet.setId << std::endl;
-		SetPtr sharedSetPtr = getFunctionality<PangeaStorageServer>().getSet(sharedSet.dbId, sharedSet.typeId, sharedSet.setId);
+		sharedSetPtr = getFunctionality<PangeaStorageServer>().getSet(sharedSet.dbId, sharedSet.typeId, sharedSet.setId);
 	        iterators = set->getIteratorsExtended(sharedSetPtr);
 	    }
             getFunctionality<PangeaStorageServer>().getCache()->pin(set, set->getReplacementPolicy(), Read);
-
             set->setPinned(true);
-            int numIterators = iterators->size();
+	    if (sharedSetPtr != nullptr){
+                getFunctionality<PangeaStorageServer>().getCache()->pin(sharedSetPtr, sharedSetPtr->getReplacementPolicy(), Read);
+                sharedSetPtr->setPinned(true);
+	    }
+	    int numIterators = iterators->size();
 
             std::cout<<"GetSetPages iterators:" << numIterators << std::endl;
 
@@ -1540,6 +1550,10 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                 tempBuzzer->wait();
             }
             set->setPinned(false);
+
+	    if (sharedSetPtr != nullptr) {
+	        sharedSetPtr->setPinned(false);
+	    }
             delete iterators;
 
             // here, we have already loaded all pages, and sent all information about those pages to

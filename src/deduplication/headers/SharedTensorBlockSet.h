@@ -40,11 +40,15 @@ public:
             OperationType operation = Read,
             DurabilityType durability = TryCache,
             PersistenceType persistence = Persistent,
-            size_t desiredSize = 1, 
-	    bool isShared = true): UserSet(pageSize, logger, shm, nodeId, dbId, typeId, setId, setName,
+            size_t desiredSize = 1): UserSet(pageSize, logger, shm, nodeId, dbId, typeId, setId, setName,
 		       file, pageCache, localityType, policy, operation, durability,
-		       persistence, desiredSize, isShared) {
-        
+		       persistence, desiredSize, true) {
+		    std::cout << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << std::endl;
+		    std::cout << "Created shared set:" << setName << std::endl;
+		    if (isShared) {
+		       std::cout << "isShared set to true" << std::endl;
+		    }
+		    std::cout << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << std::endl;
     }
 
     SharedTensorBlockSet(size_t pageSize,
@@ -63,12 +67,18 @@ public:
             OperationType operation = Read,
             DurabilityType durability = TryCache,
             PersistenceType persistence = Persistent,
-            size_t desiredSize = 1,
-	    bool isShared = true) : UserSet(pageSize, logger, shm, nodeId, dbId, typeId, setId, setName,
+            size_t desiredSize = 1) : UserSet(pageSize, logger, shm, nodeId, dbId, typeId, setId, setName,
 		       file, pageCache, localityType, policy, operation, durability, 
 		       persistence, desiredSize, true) {
        indexes.deserializeIndex(pathToIndexFile);
-    }
+                           std::cout << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << std::endl;
+                    std::cout << "Created shared set:" << setName << std::endl;
+                    if (isShared) {
+                       std::cout << "isShared set to true" << std::endl;
+                    }
+                    std::cout << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << std::endl;
+
+	    }
 
 
 

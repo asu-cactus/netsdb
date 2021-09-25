@@ -27,7 +27,7 @@ public:
                 DurabilityType durabilityType,
                 PersistenceType persistenceType,
                 size_t desiredSize = 1,
-		bool isShared = true);
+		bool isShared = false);
 
     /*
      * Destructor
@@ -123,10 +123,12 @@ public:
      */
     void setWriteCost(double writeCost) {
         this->writeCost = writeCost;
+        std::cout << "WriteCost: " << this->writeCost << std::endl;
     }
 
     void setReadCost(double readCost) {
         this->readCost = readCost;
+	std::cout << "ReadCost: " << this->readCost << std::endl;
     }
 
     double getWriteCost() {

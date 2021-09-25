@@ -29,6 +29,7 @@ UserSet::UserSet(pdb::PDBLoggerPtr logger,
                  size_t desiredSize,
 		 bool isShared)
     : LocalitySet(localityType, policy, operation, durability, persistence, desiredSize, isShared) {
+    this->isShared = isShared;
     this->pageSize = pageSize;
     this->logger = logger;
     this->shm = shm;
@@ -70,6 +71,7 @@ UserSet::UserSet(size_t pageSize,
                  size_t desiredSize,
 		 bool isShared)
     : LocalitySet(localityType, policy, operation, durability, persistence, desiredSize, isShared) {
+    this->isShared = isShared;
     this->pageSize = pageSize;
     this->logger = logger;
     this->shm = shm;
