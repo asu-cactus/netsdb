@@ -385,7 +385,9 @@ public:
 	} else {
 	   std::cout << "PrivateSet" << std::endl;
 	}
- 	std::cout << "setName:" << setName << std::endl;
+        std::cout << "readCost:" << readCost << std::endl;
+	std::cout << "writeCost:" << writeCost << std::endl;
+	std::cout << "setName:" << setName << std::endl;
         std::cout << "pageSize:" << pageSize << std::endl;
         switch (localityType) {
             case JobData:

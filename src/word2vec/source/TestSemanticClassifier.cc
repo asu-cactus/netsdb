@@ -115,38 +115,17 @@ int main(int argc, char *argv[]) {
       pdb::makeObject<FFAggMatrix>();
   myAggregation->setInput(join);
 
-  // make the writer
-  // pdb::Handle<pdb::Computation> myWriter = nullptr;
-  // myWriter = pdb::makeObject<FFMatrixWriter>("word2vec", "outputs");
-  // myWriter->setInput(myAggregation);
-
-  bool materializeHash = true;
-
-    // run the computation
-  // if (!pdbClient.executeComputations(errMsg, "wrod2vec", materializeHash, myWriter)) {
-  //   cout << "Computation failed. Message was: " << errMsg << "\n";
-  //   exit(1);
-  // }
-
-
-  //verify the results
-  // ff::print_stats(pdbClient, "word2vec", "outputs");
-  // ff::print(pdbClient, "word2vec", "outputs");
-
-
-  // pdb::Handle<pdb::Computation> readA1 =
-  //     makeObject<FFMatrixBlockScanner>("word2vec", "outputs");
 
 
   pdb::Handle<pdb::Computation> classifier = pdb::makeObject<SemanticClassifier>();
   classifier->setInput(myAggregation);
-  // pdb::Handle<pdb::Computation> classifier = pdb::makeObject<FFMatrixBlockScanner>("word2vec", "weights");
 
   ff::createSet(pdbClient, "word2vec", "labels", "labels", 64);
   pdb::Handle<pdb::Computation> labelWriter = nullptr;
   labelWriter = pdb::makeObject<FFMatrixWriter>("word2vec", "labels");
   labelWriter->setInput(classifier);
 
+  bool materializeHash = false;
   auto exe_begin = std::chrono::high_resolution_clock::now();
 
   if (!pdbClient.executeComputations(errMsg, "wrod2vec1", materializeHash, labelWriter)) {
@@ -155,11 +134,11 @@ int main(int argc, char *argv[]) {
   }
 
   auto end = std::chrono::high_resolution_clock::now();
-  std::cout << "****Word2Vec End-to-End Time Duration: ****"
+  std::cout << "****Classifier End-to-End Time Duration: ****"
               << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
               << " secs." << std::endl;
 
-  std::cout << "****Word2Vec Execution Time Duration: ****"
+  std::cout << "****Classifier Execution Time Duration: ****"
               << std::chrono::duration_cast<std::chrono::duration<float>>(end - exe_begin).count()
               << " secs." << std::endl;
 
