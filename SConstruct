@@ -1377,6 +1377,14 @@ common_env.Program(
     'bin/removeSet', ['build/tests/RemoveSet.cc'] + all + pdb_client)
 
 
+# Semantic Classifier
+common_env.SharedLibrary('libraries/libSemanticClassifier.so',
+                        ['build/word2vec/SemanticClassifier.cc'] + all)
+common_env.Program('bin/classifier', 
+                        ['build/word2vec/Word2VecModel.cc', 'build/FF/SimpleFF.cc',
+                        'build/FF/FFMatrixUtil.cc', 'build/word2vec/SemanticClassifier.cc'] + all + pdb_client)
+
+
 # Testing
 pdbTest = common_env.Command(
     'test', 'scripts/integratedTests.py', 'python3 $SOURCE -o $TARGET')
@@ -1838,6 +1846,30 @@ libFFTest = common_env.Alias('libword2vec', [
     'bin/testSharedTensorBlockSet',
     'bin/testWord2VecWithDeduplication',
     # Other libraries from src/FF
+    'libraries/libFFMatrixBlock.so',
+    'libraries/libFFMatrixMeta.so',
+    'libraries/libFFMatrixData.so',
+    'libraries/libFFMatrixBlockScanner.so',
+    'libraries/libFFInputLayerJoin.so',
+    'libraries/libFFMatrixWriter.so',
+    'libraries/libFFAggMatrix.so',
+    'libraries/libFFTransposeBiasSum.so',
+    'libraries/libFFTransposeMult.so',
+    'libraries/libFFReluBiasSum.so',
+    'libraries/libFFRowAggregate.so',
+    'libraries/libFFOutputLayer.so',
+    'libraries/libFFMatrixMultiSel.so',
+    'libraries/libInferenceResult.so',
+    'libraries/libInferenceResultPartition.so',
+    'libraries/libFFMatrixPartitioner.so',
+])
+
+libFFTest = common_env.Alias('libclassifier', [
+    'bin/pdb-cluster',
+    'bin/pdb-server',
+    'bin/classifier',
+    # Other libraries from src/FF
+    'libraries/libSemanticClassifier.so',
     'libraries/libFFMatrixBlock.so',
     'libraries/libFFMatrixMeta.so',
     'libraries/libFFMatrixData.so',
