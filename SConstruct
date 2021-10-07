@@ -1383,7 +1383,9 @@ common_env.SharedLibrary('libraries/libSemanticClassifier.so',
 common_env.Program('bin/classifier', 
                         ['build/word2vec/TestSemanticClassifier.cc', 'build/FF/SimpleFF.cc',
                         'build/FF/FFMatrixUtil.cc', 'build/word2vec/SemanticClassifier.cc'] + all + pdb_client)
-
+common_env.Program('bin/dedupClassifier',
+                        ['build/tests/TestSemanticClassificationWithDeduplication.cc', 'build/FF/SimpleFF.cc',
+                        'build/FF/FFMatrixUtil.cc', 'build/word2vec/SemanticClassifier.cc'] + all + pdb_client)
 
 # Testing
 pdbTest = common_env.Command(
@@ -1868,6 +1870,7 @@ libFFTest = common_env.Alias('libclassifier', [
     'bin/pdb-cluster',
     'bin/pdb-server',
     'bin/classifier',
+    'bin/dedupClassifier',
     # Other libraries from src/FF
     'libraries/libSemanticClassifier.so',
     'libraries/libFFMatrixBlock.so',
