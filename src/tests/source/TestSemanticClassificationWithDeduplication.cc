@@ -34,7 +34,7 @@
 using namespace pdb;
 
 void create_weights_set(pdb::PDBClient & pdbClient, std::string weight_set_name, int numBlock_x, int block_x, int matrix_totalNumBlock_y,
-		int sharedNumBlock_y, int block_y, std::vector<PageID> & pageIds, std::vector<PageIndex> & pageIndexes, int numSharedPages) {
+		int sharedNumBlock_y, int block_y, int numSharedPages) {
 
      std::string errMsg;
      pdbClient.removeSet("text-classification", weight_set_name, errMsg);
@@ -46,11 +46,12 @@ void create_weights_set(pdb::PDBClient & pdbClient, std::string weight_set_name,
      ff::loadMatrix(pdbClient, "text-classification", weight_set_name, numBlock_x*block_x, (matrix_totalNumBlock_y-sharedNumBlock_y)*block_y, block_x, block_y, false, false, errMsg);
 
      sleep(30);
-
+     bool whetherToAddSharedSet = true;
     //add the metadata of shared pages to the private set 
      for (int i = 0; i < numSharedPages; i++) {
           pdbClient.addSharedPage("text-classification", weight_set_name, "FFMatrixBlock", "text-classification",
-			  "shared_weights", "FFMatrixBlock", pageIds[i], pageIndexes[i].partitionId, pageIndexes[i].pageSeqInPartition, true, 0, errMsg );
+			  "shared_weights", "FFMatrixBlock", 16-numSharedPages+i, 0, 16-numSharedPages+i, whetherToAddSharedSet, 0, errMsg );
+	  whetherToAddSharedSet = false;
      } 
 
 
@@ -129,7 +130,7 @@ int main(int argc, char* argv[]) {
 	}
      }
 
-     int numModels = 2;
+     int numModels = 5;
      if (argc > 2) {
          numModels = atoi(argv[2]);
      }
@@ -145,8 +146,8 @@ int main(int argc, char* argv[]) {
 
      int block_x = 100;
      int block_y = 10000;
-     int matrix_totalNumBlock_y = 100;
-     int sharedNumBlock_y = 90;
+     int matrix_totalNumBlock_y = 101;
+     int sharedNumBlock_y = 101;
      int numBlock_x = 5;
 
      int batchSize = 100;
@@ -173,29 +174,24 @@ int main(int argc, char* argv[]) {
 
 
          //create weights set for model 0	 
-	 std::vector<PageID> pageIds0;
-	 std::vector<PageIndex> pageIndexes0;
-         create_weights_set(pdbClient, "weights"+std::to_string(0), numBlock_x, block_x, matrix_totalNumBlock_y, sharedNumBlock_y, block_y, pageIds0, pageIndexes0, 0);
+	 //1 private page, 15 shared pages
+         create_weights_set(pdbClient, "weights"+std::to_string(0), numBlock_x, block_x, matrix_totalNumBlock_y, sharedNumBlock_y-5, block_y, 14);
 
 	 //create weights set for model 1
-         std::vector<PageID> pageIds1;
-         std::vector<PageIndex> pageIndexes1;
-         create_weights_set(pdbClient, "weights"+std::to_string(1), numBlock_x, block_x, matrix_totalNumBlock_y, sharedNumBlock_y, block_y, pageIds1, pageIndexes1, 0);
+	 //2 private pages, 14 shared pages
+         create_weights_set(pdbClient, "weights"+std::to_string(1), numBlock_x, block_x, matrix_totalNumBlock_y, sharedNumBlock_y-10, block_y, 14);
 
 	 //create weights set for model 2
-         std::vector<PageID> pageIds2;
-         std::vector<PageIndex> pageIndexes2;
-         create_weights_set(pdbClient, "weights"+std::to_string(2), numBlock_x, block_x, matrix_totalNumBlock_y, sharedNumBlock_y, block_y, pageIds2, pageIndexes2, 0);
+	 //0 private pages, 16 shared pages
+         create_weights_set(pdbClient, "weights"+std::to_string(2), numBlock_x, block_x, matrix_totalNumBlock_y, sharedNumBlock_y, block_y, 16);
 
          //create weights set for model 3
-         std::vector<PageID> pageIds3;
-         std::vector<PageIndex> pageIndexes3;
-         create_weights_set(pdbClient, "weights"+std::to_string(3), numBlock_x, block_x, matrix_totalNumBlock_y, sharedNumBlock_y, block_y, pageIds3, pageIndexes3, 0);
+	 //4 private pages, 12 shared pages
+         create_weights_set(pdbClient, "weights"+std::to_string(3), numBlock_x, block_x, matrix_totalNumBlock_y, sharedNumBlock_y-20, block_y, 14);
 
 	 //create weights set for model 4
-         std::vector<PageID> pageIds4;
-         std::vector<PageIndex> pageIndexes4;
-         create_weights_set(pdbClient, "weights"+std::to_string(4), numBlock_x, block_x, matrix_totalNumBlock_y, sharedNumBlock_y, block_y, pageIds2, pageIndexes4, 0);
+	 //0 private pages, 16 shared pages
+         create_weights_set(pdbClient, "weights"+std::to_string(4), numBlock_x, block_x, matrix_totalNumBlock_y, sharedNumBlock_y, block_y, 16);
 
          //create input set
          pdbClient.createSet<FFMatrixBlock>("text-classification", "inputs", errMsg,

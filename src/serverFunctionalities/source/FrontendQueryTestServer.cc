@@ -163,7 +163,7 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
             // forward result
             // now, we send back the result
             Handle<SetIdentifier> result = makeObject<SetIdentifier>(inDatabaseName, inSetName);
-            result->setNumPages(inputSet->getNumPages());
+            result->setNumPages(inputSet->getNumPages()+inputSet->getNumSharedPages());
             result->setPageSize(inputSet->getPageSize());
             result->setNumHashKeys(numHashKeys);
             if (success == true) {
@@ -566,8 +566,8 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
                     getFunctionality<PangeaStorageServer>().cleanup(false);
                 }
                 std::cout << "number of pages in set " << inSetName << " is "
-                          << inputSet->getNumPages() << std::endl;
-                if (inputSet->getNumPages() == 0) {
+                          << inputSet->getNumPages()+inputSet->getNumSharedPages() << std::endl;
+                if (inputSet->getNumPages() + inputSet->getNumSharedPages()== 0) {
                     PDB_COUT << "FrontendQueryTestServer: input set doesn't have any pages in this machine"
                              << std::endl;
                     // TODO: move data from other servers
@@ -591,7 +591,7 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
                 sourceContext->setTypeId(inputSet->getTypeID());
                 sourceContext->setSetId(inputSet->getSetID());
                 sourceContext->setPageSize(inputSet->getPageSize());
-                sourceContext->setNumPages(inputSet->getNumPages());
+                sourceContext->setNumPages(inputSet->getNumPages()+inputSet->getNumSharedPages());
                 newRequest->setSourceContext(sourceContext);
                 PDB_COUT << "Input is set with setName=" << inSetName
                          << ", setId=" << inputSet->getSetID() << std::endl;
