@@ -1381,7 +1381,7 @@ common_env.Program(
 common_env.SharedLibrary('libraries/libSemanticClassifier.so',
                         ['build/word2vec/SemanticClassifier.cc'] + all)
 common_env.Program('bin/classifier', 
-                        ['build/word2vec/TestSemanticClassifier.cc', 'build/FF/SimpleFF.cc',
+                        ['build/tests/TestSemanticClassifier.cc', 'build/FF/SimpleFF.cc',
                         'build/FF/FFMatrixUtil.cc', 'build/word2vec/SemanticClassifier.cc'] + all + pdb_client)
 common_env.Program('bin/dedupClassifier',
                         ['build/tests/TestSemanticClassificationWithDeduplication.cc', 'build/FF/SimpleFF.cc',
