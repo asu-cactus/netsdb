@@ -154,13 +154,6 @@ int main(int argc, char* argv[]) {
          ff::loadLibrary(pdbClient, "libraries/libFFTransposeMult.so");
          ff::loadLibrary(pdbClient, "libraries/libSemanticClassifier.so");
 
-	 //create the set for storing shared weights 
-         pdbClient.createSet<FFMatrixBlock>("text-classification", "shared_weights", errMsg,
-                     DEFAULT_PAGE_SIZE, "weights", nullptr, nullptr, true);
-
-         //load blocks to the shared set
-         ff::loadMatrix(pdbClient, "text-classification", "shared_weights", numBlock_x*block_x, numBlock_y*block_y, block_x, block_y, false, false, errMsg);
-
 	
          //create weights set for model 0	 
          create_weights_set(pdbClient, "weights"+std::to_string(0), numBlock_x, block_x, numBlock_y, block_y);
@@ -179,7 +172,7 @@ int main(int argc, char* argv[]) {
 
          //create input set
          pdbClient.createSet<FFMatrixBlock>("text-classification", "inputs", errMsg,
-                     DEFAULT_PAGE_SIZE, "weights1", nullptr, nullptr, false);
+                     DEFAULT_PAGE_SIZE, "inputs", nullptr, nullptr, false);
 
          // batch_size x vocab_size
          std::cout << "To load matrix for text-classification:inputs" << std::endl;

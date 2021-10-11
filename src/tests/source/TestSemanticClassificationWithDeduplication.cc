@@ -48,9 +48,9 @@ void create_weights_set(pdb::PDBClient & pdbClient, std::string weight_set_name,
      sleep(30);
      bool whetherToAddSharedSet = true;
     //add the metadata of shared pages to the private set 
-     for (int i = 0; i < numSharedPages; i++) {
+     for (int i = 0; i < numSharedPages-1; i++) {
           pdbClient.addSharedPage("text-classification", weight_set_name, "FFMatrixBlock", "text-classification",
-			  "shared_weights", "FFMatrixBlock", 16-numSharedPages+i, 0, 16-numSharedPages+i, whetherToAddSharedSet, 0, errMsg );
+			  "shared_weights", "FFMatrixBlock", 17-numSharedPages+i, 0, 17-numSharedPages+i, whetherToAddSharedSet, 0, errMsg );
 	  whetherToAddSharedSet = false;
      } 
 
@@ -175,7 +175,7 @@ int main(int argc, char* argv[]) {
 
          //create weights set for model 0	 
 	 //1 private page, 15 shared pages
-         create_weights_set(pdbClient, "weights"+std::to_string(0), numBlock_x, block_x, matrix_totalNumBlock_y, sharedNumBlock_y-5, block_y, 14);
+         create_weights_set(pdbClient, "weights"+std::to_string(0), numBlock_x, block_x, matrix_totalNumBlock_y, sharedNumBlock_y-5, block_y, 15);
 
 	 //create weights set for model 1
 	 //2 private pages, 14 shared pages
@@ -186,8 +186,8 @@ int main(int argc, char* argv[]) {
          create_weights_set(pdbClient, "weights"+std::to_string(2), numBlock_x, block_x, matrix_totalNumBlock_y, sharedNumBlock_y, block_y, 16);
 
          //create weights set for model 3
-	 //4 private pages, 12 shared pages
-         create_weights_set(pdbClient, "weights"+std::to_string(3), numBlock_x, block_x, matrix_totalNumBlock_y, sharedNumBlock_y-20, block_y, 14);
+	 //3 private pages, 13 shared pages
+         create_weights_set(pdbClient, "weights"+std::to_string(3), numBlock_x, block_x, matrix_totalNumBlock_y, sharedNumBlock_y-15, block_y, 13);
 
 	 //create weights set for model 4
 	 //0 private pages, 16 shared pages
@@ -195,7 +195,7 @@ int main(int argc, char* argv[]) {
 
          //create input set
          pdbClient.createSet<FFMatrixBlock>("text-classification", "inputs", errMsg,
-                     DEFAULT_PAGE_SIZE, "weights1", nullptr, nullptr, false);
+                     DEFAULT_PAGE_SIZE, "inputs", nullptr, nullptr, false);
 
          // batch_size x vocab_size
          std::cout << "To load matrix for text-classification:inputs" << std::endl;

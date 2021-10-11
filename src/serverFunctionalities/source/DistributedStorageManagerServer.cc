@@ -120,6 +120,14 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                         });
 
             bool res = true;
+	    // update stats
+            StatisticsPtr stats = getFunctionality<QuerySchedulerServer>().getStats();
+            if (stats == nullptr) {
+                getFunctionality<QuerySchedulerServer>().collectStats();
+                stats = getFunctionality<QuerySchedulerServer>().getStats();
+            }
+            stats->incrementNumPages(request->getSharingDatabase(), request->getSharingSetName(), 1);
+	    stats->incrementNumBytes(request->getSharingDatabase(), request->getSharingSetName(), DEFAULT_PAGE_SIZE);
             Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(res, errMsg);
             res = sendUsingMe->sendObject(response, errMsg);
             return make_pair(res, errMsg);
