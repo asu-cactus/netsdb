@@ -8,7 +8,8 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers
 import tensorflow_hub as hub
-
+from tensorflow.keras.models import Sequential
+from keras.initializers import Constant
 
 SEED = 42
 AUTOTUNE = tf.data.AUTOTUNE
@@ -22,20 +23,14 @@ class Word2Vec(tf.keras.Model):
                                       embedding_dim,
                                       input_length=1,
                                       name="w2v_embedding")
-    self.context_embedding = layers.Embedding(vocab_size,
-                                       embedding_dim,
-                                       input_length=num_ns+1)
-  def call(self, pair):
-    target, context = pair
+  def get_layer(self):
+      return self.target_embedding
+
+  def call(self, target):
     if len(target.shape) == 2:
       target = tf.squeeze(target, axis=1)
     word_emb = self.target_embedding(target)
-    # word_emb: (batch, embed)
-    context_emb = self.context_embedding(context)
-    # context_emb: (batch, context, embed)
-    dots = tf.einsum('be,bce->bc', word_emb, context_emb)
-    # dots: (batch, context)
-    return dots
+    return word_emb
 
 # Generates skip-gram pairs with negative sampling for a list of sequences
 # (int-encoded sentences) based on window size, number of negative samples
@@ -134,16 +129,17 @@ if __name__ == "__main__":
     contexts = np.array(contexts)[:,:,0]
     labels = np.array(labels)
 
-    BATCH_SIZE = 1024
+    BATCH_SIZE = 100
     BUFFER_SIZE = 10000
     dataset = tf.data.Dataset.from_tensor_slices(((targets, contexts), labels))
     dataset = dataset.shuffle(BUFFER_SIZE).batch(BATCH_SIZE, drop_remainder=True)
     dataset = dataset.cache().prefetch(buffer_size=AUTOTUNE)
 
-    word2vec = Word2Vec(vocab_size, embedding_dim)
-    word2vec.compile(optimizer='adam',
-                     loss=tf.keras.losses.CategoricalCrossentropy(from_logits=True),
-                     metrics=['accuracy'])
-    num_epochs = 1
-    word2vec.fit(dataset, epochs=num_epochs)
-    word2vec.save("word2vec", save_format="h5") 
+    word2vec = tf.keras.models.load_model("word2vec")
+    layer2 = word2vec.get_layer("w2v_embedding")
+    word2vec1 = Sequential()
+    embedding = layers.Embedding(vocab_size, embedding_dim, embeddings_initializer=Constant(layer2.get_weights()), trainable=False)
+    word2vec1.add(embedding)
+    results = word2vec1.predict(dataset)
+    print(results)
+
