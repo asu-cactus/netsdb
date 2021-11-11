@@ -16,133 +16,58 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 SEED = 42
 AUTOTUNE = tf.data.AUTOTUNE
+ # Define the vocabulary size and number of words in a sequence.
+vocab_size = 1009375
+embedding_dim = 500
+
+def create_word2vec_model(input_weights):
+    word2vec = Sequential()
+    embedding = layers.Embedding(vocab_size, embedding_dim, embeddings_initializer=Constant(input_weights), trainable=False)
+    word2vec.add(embedding)
+    return word2vec
+
 
 if __name__ == "__main__":
 
-    # Define the vocabulary size and number of words in a sequence.
-    vocab_size = 1009375
-    embedding_dim = 500
-
     start = time.time()
 
-    print("loading model-1")
-
-    targets1 = np.random.randint(0, vocab_size-1, (100,))
-    #print(targets1)
-    #print(targets1.shape)
-
-    #dataset = tf.data.Dataset.from_tensor_slices(((targets, contexts), labels))
-    #dataset = dataset.shuffle(BUFFER_SIZE).batch(BATCH_SIZE, drop_remainder=True)
-    #dataset = dataset.cache().prefetch(buffer_size=AUTOTUNE)
-    #print(dataset)
+    print("loading model")
 
     word2vec = tf.keras.models.load_model("word2vec")
-    layer2 = word2vec.get_layer("w2v_embedding")
-    weights1= layer2.get_weights()
-    word2vec1 = Sequential()
-    embedding1 = layers.Embedding(vocab_size, embedding_dim, embeddings_initializer=Constant(weights1), trainable=False)
-    word2vec1.add(embedding1)
+    layer = word2vec.get_layer("w2v_embedding")
+    weights= layer.get_weights()
+    word2vec_new = create_word2vec_model(weights)
 
-    print("loading model-2")
+    #print ("saving model")
+    #word2vec_new.save("word2vec_new", save_format="h5")
 
-    targets2 = np.random.randint(0, vocab_size-1, (100,))
-    weights2 = layer2.get_weights()
-    word2vec2 = Sequential()
-    embedding2 = layers.Embedding(vocab_size, embedding_dim, embeddings_initializer=Constant(weights2), trainable=False)
-    word2vec2.add(embedding2)
-
-
-    print("loading model-3")
-
-    targets3 = np.random.randint(0, vocab_size-1, (100,))
-    weights3 = layer2.get_weights()
-    word2vec3 = Sequential()
-    embedding3 = layers.Embedding(vocab_size, embedding_dim, embeddings_initializer=Constant(weights3), trainable=False)
-    word2vec3.add(embedding3)
-
-    print("loading model-4")
-
-    targets4 = np.random.randint(0, vocab_size-1, (100,))
-    weights4 = layer2.get_weights()
-    word2vec4 = Sequential()
-    embedding4 = layers.Embedding(vocab_size, embedding_dim, embeddings_initializer=Constant(weights4), trainable=False)
-    word2vec4.add(embedding4)
-
-    print("loading model-5")
-
-    targets5 = np.random.randint(0, vocab_size-1, (100,))
-    weights5 = layer2.get_weights()
-    word2vec5 = Sequential()
-    embedding5 = layers.Embedding(vocab_size, embedding_dim, embeddings_initializer=Constant(weights5), trainable=False)
-    word2vec5.add(embedding5)
-
-
-#    print("loading model-6")
-
-#    targets6 = np.random.randint(0, vocab_size-1, (100,))
-#    weights6 = layer2.get_weights()
-#    word2vec6 = Sequential()
-#    embedding6 = layers.Embedding(vocab_size, embedding_dim, embeddings_initializer=Constant(weights6), trainable=False)
-#    word2vec6.add(embedding5)
-
-
-#    print("loading model-7")
-
-#    targets7 = np.random.randint(0, vocab_size-1, (100,))
-#    weights7 = layer2.get_weights()
-#    word2vec7 = Sequential()
-#    embedding7 = layers.Embedding(vocab_size, embedding_dim, embeddings_initializer=Constant(weights7), trainable=False)
-#    word2vec7.add(embedding2)
-
-
-#    print("loading model-8")
-
-#    targets8 = np.random.randint(0, vocab_size-1, (100,))
-#    weights8 = layer2.get_weights()
-#    word2vec8 = Sequential()
-#    embedding8 = layers.Embedding(vocab_size, embedding_dim, embeddings_initializer=Constant(weights8), trainable=False)
-#    word2vec8.add(embedding3)
-
-#    print("loading model-9")
-
-#    targets9 = np.random.randint(0, vocab_size-1, (100,))
-#    weights9 = layer2.get_weights()
-#    word2vec9 = Sequential()
-#    embedding9 = layers.Embedding(vocab_size, embedding_dim, embeddings_initializer=Constant(weights9), trainable=False)
-#    word2vec9.add(embedding4)
-
-#    print("loading model-10")
-
-#    targets10 = np.random.randint(0, vocab_size-1, (100,))
-#    weights10 = layer2.get_weights()
-#    word2vec10 = Sequential()
-#    embedding10 = layers.Embedding(vocab_size, embedding_dim, embeddings_initializer=Constant(weights10), trainable=False)
-#    word2vec10.add(embedding5)
+    print ("generating inputs")
+    targets1 = np.random.randint(0, vocab_size-1, (100,))
+    targets2 = np.random.randint(0, vocab_size-1, (1000,))
+    targets3 = np.random.randint(0, vocab_size-1, (10000,))
+    targets4 = np.random.randint(0, vocab_size-1, (100000,))
+    targets5 = np.random.randint(0, vocab_size-1, (1000000,))
+    #targets6 = np.random.randint(0, vocab_size-1, (10000000,))
+    print("making inference")
+    inference_start_1 = time.time()
+    results1 = word2vec_new.predict(targets1)
+    inference_start_2 = time.time()
+    print('inference time for 100x1 inputs', inference_start_2-inference_start_1)
+    results2 = word2vec_new.predict(targets2)
+    inference_start_3 = time.time()
+    print('inference time for 100x10 inputs', inference_start_3-inference_start_2)
+    results3 = word2vec_new.predict(targets3)
+    inference_start_4 = time.time()
+    print('inference time for 100x100 inputs', inference_start_4-inference_start_3)
+    results4 = word2vec_new.predict(targets4)
+    inference_start_5 = time.time()
+    print('inference time for 100x1000 inputs', inference_start_5-inference_start_4)
+    results5 = word2vec_new.predict(targets5)
+    inference_start_6 = time.time()
+    print('inference time for 100x10000 inputs', inference_start_6-inference_start_5)
+    #results6 = word2vec_new.predict(targets6)
+    #inference_end = time.time()
+    #print('inference time for 100x100000 inputs', inference_end-inference_start_6)
 
 
 
-
-    inference_start = time.time()
-    results1 = word2vec1.predict(targets1)
-    results2 = word2vec2.predict(targets2)
-    results3 = word2vec3.predict(targets3)
-    results4 = word2vec4.predict(targets4)
-    results5 = word2vec5.predict(targets5)
-#    results6 = word2vec6.predict(targets6)
-#    results7 = word2vec7.predict(targets7)
-#    results8 = word2vec8.predict(targets8)
-#    results9 = word2vec9.predict(targets9)
-#    results10 = word2vec10.predict(targets10)
-    inference_end = time.time()
-    print(results1)
-    print(results2)
-    print(results3)
-    print(results4)
-    print(results5)
-#    print(results6)
-#    print(results7)
-#    print(results8)
-#    print(results9)
-#    print(results10)
-    print('model and data preparation time', inference_start-start)
-    print('inference time for word2vec', inference_end-inference_start)
