@@ -20,6 +20,7 @@ AUTOTUNE = tf.data.AUTOTUNE
 vocab_size = 1009375
 embedding_dim = 500
 batch_size = 100
+num_models = 6
 
 class Word2Vec_MM():
     def __init__(self, input_weights):
@@ -38,7 +39,9 @@ if __name__ == "__main__":
     word2vec = tf.keras.models.load_model("word2vec")
     layer = word2vec.get_layer("w2v_embedding")
     weights= layer.get_weights()
-    word2vec_new = Word2Vec_MM(weights)
+    model_list = []
+    for i in range(num_models):
+        model_list.append(Word2Vec_MM(weights))
 
     #print ("saving model")
     #word2vec_new.save("word2vec_new", save_format="h5")
@@ -46,11 +49,12 @@ if __name__ == "__main__":
     print ("generating inputs")
     targets = np.random.rand(100,vocab_size)
     print("making inference")
-    inference_start_1 = time.time()
-    results1 = word2vec_new.predict(targets)
-    print(results1)
-    inference_start_2 = time.time()
-    print('inference time for 100xvocab_size input batch', inference_start_2-inference_start_1)
+    inference_start = time.time()
+    for i in range(num_models):
+        results = model_list[i].predict(targets)
+        print(results)
+    inference_end = time.time()
+    print('inference time for ', num_models, ' models:', inference_end-inference_start, ' senconds')
 
 
 

@@ -19,15 +19,14 @@ AUTOTUNE = tf.data.AUTOTUNE
  # Define the vocabulary size and number of words in a sequence.
 vocab_size = 1009375
 embedding_dim = 500
-batch_size = 100
+num_models = 6
 
-class Word2Vec_MM():
-    def __init__(self, input_weights):
-        self.weights = np.copy(input_weights)
-    
-    def predict(self, input_batch):
-        return tf.matmul(input_batch, self.weights)
-    
+def create_word2vec_model(input_weights):
+    word2vec = Sequential()
+    embedding = layers.Embedding(vocab_size, embedding_dim, embeddings_initializer=Constant(input_weights), trainable=False)
+    word2vec.add(embedding)
+    return word2vec
+
 
 if __name__ == "__main__":
 
@@ -38,19 +37,23 @@ if __name__ == "__main__":
     word2vec = tf.keras.models.load_model("word2vec")
     layer = word2vec.get_layer("w2v_embedding")
     weights= layer.get_weights()
-    word2vec_new = Word2Vec_MM(weights)
-
+    model_list = []
+    for i in range (num_models):
+        model_list.append(create_word2vec_model(weights))
+       
     #print ("saving model")
     #word2vec_new.save("word2vec_new", save_format="h5")
 
     print ("generating inputs")
-    targets = np.random.rand(100,vocab_size)
+    targets = np.random.randint(0, vocab_size-1, (1000000,))
+    #targets6 = np.random.randint(0, vocab_size-1, (10000000,))
     print("making inference")
-    inference_start_1 = time.time()
-    results1 = word2vec_new.predict(targets)
-    print(results1)
-    inference_start_2 = time.time()
-    print('inference time for 100xvocab_size input batch', inference_start_2-inference_start_1)
+
+    inference_start = time.time()
+    for i in range(num_models):
+        results = model_list[i].predict(targets)
+    inference_end = time.time()
+    print('inference time for all', num_models, 'models', inference_end-inference_start, ' seconds')
 
 
 
