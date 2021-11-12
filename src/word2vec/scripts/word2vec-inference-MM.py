@@ -35,7 +35,8 @@ if __name__ == "__main__":
 
     print("loading model")
 
-    word2vec = tf.keras.models.load_model("word2vec")
+    #word2vec = tf.keras.models.load_model("word2vec")
+    word2vec = tf.keras.models.load_model("/home/ubuntu/saved_model")
     layer = word2vec.get_layer("w2v_embedding")
     weights= layer.get_weights()
     word2vec_new = Word2Vec_MM(weights)
