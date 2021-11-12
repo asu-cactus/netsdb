@@ -24,7 +24,7 @@ num_models = 6
 
 class Word2Vec_MM():
     def __init__(self, input_weights):
-        self.weights = np.copy(input_weights)
+        self.weights = np.copy(tf.dtypes.cast(input_weights, tf.double))
     
     def predict(self, input_batch):
         return tf.matmul(input_batch, self.weights)
@@ -47,7 +47,7 @@ if __name__ == "__main__":
     #word2vec_new.save("word2vec_new", save_format="h5")
 
     print ("generating inputs")
-    targets = np.random.rand(100,vocab_size)
+    targets = tf.dtypes.cast(np.random.rand(100,vocab_size), tf.double)
     print("making inference")
     inference_start = time.time()
     for i in range(num_models):
