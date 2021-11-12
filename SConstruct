@@ -1378,6 +1378,10 @@ common_env.Program(
 
 
 # Semantic Classifier
+common_env.SharedLibrary('libraries/libEmbeddingLookupSparse.so',
+                        ['build/word2vec/EmbeddingLookupSparse.cc'] + all)
+common_env.SharedLibrary('libraries/libEmbeddingSegment.so',
+                        ['build/word2vec/EmbeddingSegment.cc'] + all)
 common_env.SharedLibrary('libraries/libSemanticClassifier.so',
                         ['build/word2vec/SemanticClassifier.cc'] + all)
 common_env.Program('bin/classifier', 
@@ -1848,6 +1852,8 @@ libFFTest = common_env.Alias('libword2vec', [
     'bin/testSharedTensorBlockSet',
     'bin/testWord2VecWithDeduplication',
     # Other libraries from src/FF
+    'libraries/libEmbeddingLookupSparse.so',
+    'libraries/libEmbeddingSegment.so',
     'libraries/libFFMatrixBlock.so',
     'libraries/libFFMatrixMeta.so',
     'libraries/libFFMatrixData.so',

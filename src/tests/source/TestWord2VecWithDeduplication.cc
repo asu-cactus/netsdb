@@ -161,7 +161,8 @@ int main(int argc, char* argv[]) {
 	}
      }
 
-     int numModels = 2;
+     //int numModels = 6;
+     int numModels = 12;
      if (argc > 2) {
          numModels = atoi(argv[2]);
      }

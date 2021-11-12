@@ -11,7 +11,7 @@ bool PDBClient::createSet(const std::string &databaseName,
                           size_t pageSize, const std::string &createdJobId, Handle<Computation> dispatchComputation, Handle<LambdaIdentifier> lambda, bool isSharedTensorBlockSet) {
 
   return distributedStorageClient.createSet<DataType>(
-        databaseName, setName, errMsg, pageSize, createdJobId, dispatchComputation, lambda, 0, false, isSharedTensorBlockSet);
+        databaseName, setName, errMsg, pageSize, createdJobId, dispatchComputation, lambda, 0, true, false);
 }
 
 

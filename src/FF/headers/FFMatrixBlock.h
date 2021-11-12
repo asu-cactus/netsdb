@@ -16,11 +16,10 @@
 #include <eigen3/Eigen/Dense>
 
 class FFMatrixBlock : public pdb::Object {
-private:
+public:
   FFMatrixData data;
   pdb::Handle<FFMatrixMeta> meta;
   bool partitionByCol = true;
-public:
   const static int librayCode = EIGEN_CODE;
 
   ENABLE_DEEP_COPY

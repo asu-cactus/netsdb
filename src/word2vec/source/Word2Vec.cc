@@ -103,7 +103,7 @@ int main(int argc, char *argv[]) {
   string errMsg;
   string input_path, embedding_path;
   int block_x, block_y;
-  int numModels = 1;
+  int numModels = 6;
   int batch_size = 100;
   int vocab_size = 1000000;
   int embedding_dimension = 500;

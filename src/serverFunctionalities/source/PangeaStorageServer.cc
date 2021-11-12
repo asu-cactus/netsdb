@@ -108,7 +108,7 @@ PangeaStorageServer::PangeaStorageServer(SharedMemPtr shm,
     this->flushBuffer = make_shared<PageCircularBuffer>(FLUSH_BUFFER_SIZE, logger);
 
     // initialize cache, must be initialized before databases
-    this->cache = make_shared<PageCache>(conf, workers, flushBuffer, logger, shm, UnifiedCost);
+    this->cache = make_shared<PageCache>(conf, workers, flushBuffer, logger, shm, UnifiedLRU);
 
     // initialize and load databases, must be initialized after cache
     this->dbs = new std::map<DatabaseID, DefaultDatabasePtr>();
