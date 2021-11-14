@@ -8,11 +8,10 @@ import numpy as np
 import os
 import tensorflow as tf
 from tensorflow.keras import layers
-import tensorflow_hub as hub
 from tensorflow.keras.models import Sequential
 from keras.initializers import Constant
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 SEED = 42
 AUTOTUNE = tf.data.AUTOTUNE
@@ -23,8 +22,8 @@ batch_size = 100
 num_models = 3 
 
 class Word2Vec_MM():
-    def __init__(self):
-        self.weights = tf.dtypes.cast(np.random.rand(vocab_size, embedding_dim), tf.double)
+    def __init__(self, input_weights):
+        self.weights = np.array(tf.dtypes.cast(input_weights, tf.double))
         print(self.weights) 
     def predict(self, input_batch):
         return tf.matmul(input_batch, self.weights)
@@ -35,9 +34,10 @@ if __name__ == "__main__":
     print(tf.__version__)
     print(tf.config.list_physical_devices())
     print("loading model")
+    weights = tf.dtypes.cast(np.random.rand(vocab_size, embedding_dim), tf.double)
     model_list = []
     for i in range(num_models):
-        model_list.append(Word2Vec_MM())
+        model_list.append(Word2Vec_MM(weights))
 
 
     print ("generating inputs")

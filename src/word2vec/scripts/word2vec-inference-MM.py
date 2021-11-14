@@ -21,8 +21,8 @@ vocab_size = 1009375
 embedding_dim = 500
 batch_size = 100
 
-class Word2Vec_MM():
-    def __init__(self, input_weights):
+class Word2Vec_MM(input_weights):
+    def __init__(self):
         self.weights = np.copy(input_weights)
     
     def predict(self, input_batch):
