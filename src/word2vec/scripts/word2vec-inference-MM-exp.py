@@ -20,36 +20,29 @@ AUTOTUNE = tf.data.AUTOTUNE
 vocab_size = 1009375
 embedding_dim = 500
 batch_size = 100
-num_models = 6
+num_models = 3 
 
 class Word2Vec_MM():
-    def __init__(self, input_weights):
-        #self.weights = input_weights
-        self.weights = np.copy(tf.dtypes.cast(input_weights, tf.double))
-    
+    def __init__(self):
+        self.weights = tf.dtypes.cast(np.random.rand(vocab_size, embedding_dim), tf.double)
+        print(self.weights) 
     def predict(self, input_batch):
         return tf.matmul(input_batch, self.weights)
     
 
 if __name__ == "__main__":
 
-    start = time.time()
-
+    print(tf.__version__)
+    print(tf.config.list_physical_devices())
     print("loading model")
-    #word2vec = tf.keras.models.load_model("/home/ubuntu/saved_model")
-    word2vec = tf.keras.models.load_model("word2vec")
-    layer = word2vec.get_layer("w2v_embedding")
-    weights= layer.get_weights()
     model_list = []
     for i in range(num_models):
-        model_list.append(Word2Vec_MM(weights))
+        model_list.append(Word2Vec_MM())
 
-    #print ("saving model")
-    #word2vec_new.save("word2vec_new", save_format="h5")
 
     print ("generating inputs")
-    #targets = np.random.rand(100,vocab_size)
-    targets = tf.dtypes.cast(np.random.rand(100,vocab_size), tf.double)
+    targets = tf.dtypes.cast(np.random.rand(batch_size,vocab_size), tf.double)
+    print(targets)
     print("making inference")
     inference_start = time.time()
     for i in range(num_models):
