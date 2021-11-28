@@ -19,25 +19,17 @@
 
 # Run model inferences from TensorFlow Keras
 
-
-## Word2Vec
-
-
-## Text Classification
-
-
-## Feed-forward Neural Network
-
-
-## Convolutional Neural Network
-
+[Documentation](tensorflow-experiments/README.md)
 
 # Deduplication for DNN Models
 
 
 ## Deduplication Detection
 
+[Documentation](deduplication/indexing/README.md)
+
 
 ## Packing Tensor Blocks to Pages
 
+[Documentation](deduplication/page-packing/README.md)
 
