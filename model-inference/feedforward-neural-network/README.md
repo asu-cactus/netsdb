@@ -17,10 +17,10 @@ scons libFFTest
 Once you start the netsDB system [Start Cluster](https://github.com/asu-cactus/netsdb/blob/master/README.md), run following command:
 
 ```
-bin/FFTest blockDimensionX, blockDimensionY whetherToLoadData path/to/weights/and/bias(leave empty if generate random)
+bin/FFTest blockDimensionX blockDimensionY whetherToLoadData path/to/weights/and/bias(leave empty if generate random)
 ```
 
-You can pass the command line parameters or modify variables in the example application source to control the block shape and the size of the word2vec layer.
+You can pass the command line parameters or modify variables in the example application source to control the inference batch size, number of labels, and neurons at each layer.
 
 | Parameter/Variables       | Explanation                                               |
 | ------------------------- |-----------------------------------------------------------|

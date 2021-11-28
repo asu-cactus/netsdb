@@ -22,7 +22,7 @@ Once you start the netsDB system [Start Cluster](https://github.com/asu-cactus/n
 bin/classifier whetherToLoadData numModels
 ```
 
-You can modify the below variables in the example application source to control the block shape and the size of the word2vec layer.
+You can modify the below variables in the example application source to control the block shape and the size of the word2vec layer, as well as the inference batch size.
 
 | Parameter/Variables | Explanation                                               |
 | ------------------- |-----------------------------------------------------------|

@@ -27,4 +27,12 @@ bin/word2vec blockDimensionX blockDimensionY whetherToLoadData numModels path/to
 | blockDimensionY   | The size of the y dimension of a 2D tensor block          |
 | whetherToLoadData | Y for yes, N for no                                       |
 | numModels         | Number of Word2Vec models to be loaded or created         |
-| path/to/embedding\_weights| path to model files that needs to be loaded, <br /> if left empty, the models will be created randomly                                 |
+| path/to/embedding\_weights| path to model files that needs to be loaded, <br /> if left empty, the models will be created randomly|
+
+You can also modify the variables in [code](https://github.com/asu-cactus/netsdb/blob/master/src/word2vec/source/Word2Vec.cc) to control batch size and other word2vec parameters
+
+| Variable             | Explanation                                               |
+| ---------------------|-----------------------------------------------------------|
+| batch\_size          | The number of input feature vectors for an inference batch|
+| vocab\_size          | The size of the vocabulary                                |
+| embedding\_dimension | The size of an embedding vector                           |
