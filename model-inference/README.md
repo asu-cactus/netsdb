@@ -10,6 +10,7 @@
 
 ## Feed-forward Neural Network
 
+[Documentation](feedforward-neural-network/README.md)
 
 ## Convolutional Neural Network
 
