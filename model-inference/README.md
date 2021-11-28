@@ -2,6 +2,7 @@
 
 ## Word2Vec
 
+[Documentation](word2vec/README.md)
 
 ## Text Classification
 

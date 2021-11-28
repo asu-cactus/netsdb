@@ -1,5 +1,7 @@
 # Word2Vec
 
+Word2Vec implementation based on matrix multiplication
+
 ## Example Application Source:
 
 [Word2Vec Application Code](https://github.com/asu-cactus/netsdb/blob/master/src/word2vec/source/Word2Vec.cc)
