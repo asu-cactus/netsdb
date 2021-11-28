@@ -1,4 +1,4 @@
-# netsDB - An AI-assisted Data Integration and UDF-Centric Analytics System
+# netsDB - An UDF-Centric Analytics Database
 
 
 ## Credits
@@ -133,7 +133,9 @@ if you define it to non empty like "y" or "yes", it will run as before and bring
 
 by default, it is not defined, and it will run in background using nohup, which means it will not be interrupted by ssh.
 
+# Examples of Running DNN model inferences from netsDB
 
+[Model Inferences](model-inference/README.md)
 
 # Run Lachesis to Automatically Partition Data Using Self-Learning
 
