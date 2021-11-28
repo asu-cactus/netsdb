@@ -6,6 +6,7 @@
 
 ## Text Classification
 
+[Documentation](text-classification/README.md)
 
 ## Feed-forward Neural Network
 

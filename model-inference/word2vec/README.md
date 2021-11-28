@@ -14,13 +14,12 @@ scons libword2vec
 
 ## Run:
 
-### Command:
+Once you start the netsDB system [Start Cluster](https://github.com/asu-cactus/netsdb/blob/master/README.md), run following command:
 
 ```
 bin/word2vec blockDimensionX blockDimensionY whetherToLoadData numModels path/to/embedding_weights(leave empty if generate random)
 ```
 
-### Parameters:
 
 | Parameter         | Explanation                                               |
 | ------------------|-----------------------------------------------------------|
