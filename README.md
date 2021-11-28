@@ -1,4 +1,4 @@
-# netsDB - An UDF-Centric Analytics Database
+# netsDB - A UDF-Centric Analytics Database
 
 
 ## Credits
