@@ -57,7 +57,7 @@ $python3 Greedy-2.py
 ```
 
 ## text classification (300 * 300, 64MB)
-For text classification (300 * 300, 64MB) testing, please go to text_classification_300_64 folder and there are 4 python scripts which are Baseline.py, Two-Stage.py, Greedy-1.py and Greedy-2.py. The inputs are the same as text classification (100 * 10000, 64MB). You can directly run the following 4 python scripts to get the page packing latency and required number of pages using different page packing algorithms. 4 functions corresponding to 4 algorithms can be found in PagePacking.py under the algorithm folder.
+For text classification (300 * 300, 64MB) testing, please go to text_classification_300_64 folder and there are 4 python scripts which are Baseline.py, Two-Stage.py, Greedy-1.py and Greedy-2.py. The input of these 4 Python scripts is a dictionary object saved in data/tensor_list_300.npy file, which has the same format as text classification (100 * 10000, 64MB). You can directly run the following 4 python scripts to get the page packing latency and required number of pages using different page packing algorithms. 4 functions corresponding to 4 algorithms can be found in PagePacking.py under the algorithm folder.
 ```
 $python3 Baseline.py
 $python3 Two-Stage.py
