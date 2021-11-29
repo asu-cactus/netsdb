@@ -48,7 +48,7 @@ All the tensors are from 5 models. The original tensors for these 5 models also 
 4 yelp_nontrainable.npy
 5 yelp_trainable.npy
 
-You can directly run the following 4 python scripts to get the page packing latency and required number of pages using different page packing algorithms. 4 functions corresponding to 4 algorithms can be found in PagePacking.py under the algorithm folder.
+You can directly run the following 4 python scripts to get the page packing latency and required number of pages using different page packing algorithms. 4 functions corresponding to 4 algorithms can be found in PagePacking.py under the algorithm folder. The function names are bin_pack_base for Baseline, text_classification_greedy1 for Greedy-1, bin_pack_greedy for Greedy-2 and text_classification_twostage for Two-Stage.
 ```
 $python3 Baseline.py
 $python3 Two-Stage.py
@@ -66,7 +66,7 @@ $python3 Greedy-2.py
 ```
 
 ## text classification (300 * 300, 32MB)
-For text classification (300 * 300, 32MB) testing, please go to text_classification_300_32 folder and there are 4 python scripts which are Baseline.py, Two-Stage.py, Greedy-1.py and Greedy-2.py. The inputs are the same as text classification (100 * 10000, 64MB). You can directly run the following 4 python scripts to get the page packing latency and required number of pages using different page packing algorithms. 4 functions corresponding to 4 algorithms can be found in PagePacking.py under the algorithm folder.
+For text classification (300 * 300, 32MB) testing, please go to text_classification_300_32 folder and there are 4 python scripts which are Baseline.py, Two-Stage.py, Greedy-1.py and Greedy-2.py. The inputs are the same as text classification (300 * 300, 64MB). You can directly run the following 4 python scripts to get the page packing latency and required number of pages using different page packing algorithms. 4 functions corresponding to 4 algorithms can be found in PagePacking.py under the algorithm folder.
 ```
 $python3 Baseline.py
 $python3 Two-Stage.py

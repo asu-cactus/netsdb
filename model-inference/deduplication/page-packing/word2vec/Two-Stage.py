@@ -33,14 +33,16 @@ for t in range(num_tensors):
             l.append(tensor_mapping[t].get((i,j)))
     list_of_tensors.append(l)
 
-P = set()
+tensor_list = [{}, {}, {}, {}, {}, {}]
+# change the tensor from list to set
+for i in range(6):
+    tensor_list[i] = set(list_of_tensors[i])
 
-# run the Greedy-2 algorithm
+# run the Two-Stage algorithm
 start = timeit.default_timer()
-P, tensor_page_mapping = bin_pack_greedy(list_of_tensors, blocks_in_page)
+numBins = w2v_twostage(tensor_list, blocks_in_page)
 stop = timeit.default_timer()
-L = list(P)
 
 # print the results
 print('page packing latency: ', stop - start , ' seconds')
-print('required number of pages: ', L[0].numBins , ' pages')
+print('required number of pages: ', numBins , ' pages')
