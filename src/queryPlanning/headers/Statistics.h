@@ -99,7 +99,7 @@ public:
     pthread_mutex_lock(&mutex);
     dataStatistics[key].numPages += numPages;
     pthread_mutex_unlock(&mutex);
-
+    std::cout << "number of pages in " << key << " is " << dataStatistics[key].numPages << std::endl;
   }
 
 

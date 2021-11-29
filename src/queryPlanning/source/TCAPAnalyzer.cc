@@ -1244,6 +1244,7 @@ int TCAPAnalyzer::getBestSource(StatisticsPtr stats) {
       if (curCost < 1) {
           curCost = 1;
       }
+      std::cout << "Cost of set <" << curSourceSetNames[i] << ">:" << curCost << std::endl;
       for (size_t j = 0; j < penalizedSourceSets.size(); j++) {
         if (curSourceSetNames[i] == penalizedSourceSets[j]) {
           if (stats->getPenalizedCost(curSourceSetNames[i]) > 0) {

@@ -42,8 +42,13 @@ public:
             PersistenceType persistence = Persistent,
             size_t desiredSize = 1): UserSet(pageSize, logger, shm, nodeId, dbId, typeId, setId, setName,
 		       file, pageCache, localityType, policy, operation, durability,
-		       persistence, desiredSize) {
-        
+		       persistence, desiredSize, true) {
+		    std::cout << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << std::endl;
+		    std::cout << "Created shared set:" << setName << std::endl;
+		    if (isShared) {
+		       std::cout << "isShared set to true" << std::endl;
+		    }
+		    std::cout << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << std::endl;
     }
 
     SharedTensorBlockSet(size_t pageSize,
@@ -64,9 +69,16 @@ public:
             PersistenceType persistence = Persistent,
             size_t desiredSize = 1) : UserSet(pageSize, logger, shm, nodeId, dbId, typeId, setId, setName,
 		       file, pageCache, localityType, policy, operation, durability, 
-		       persistence, desiredSize) {
+		       persistence, desiredSize, true) {
        indexes.deserializeIndex(pathToIndexFile);
-    }
+                           std::cout << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << std::endl;
+                    std::cout << "Created shared set:" << setName << std::endl;
+                    if (isShared) {
+                       std::cout << "isShared set to true" << std::endl;
+                    }
+                    std::cout << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << std::endl;
+
+	    }
 
 
 

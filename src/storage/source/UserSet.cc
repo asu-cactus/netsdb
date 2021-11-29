@@ -26,8 +26,10 @@ UserSet::UserSet(pdb::PDBLoggerPtr logger,
                  DurabilityType durability,
                  PersistenceType persistence,
                  size_t pageSize,
-                 size_t desiredSize)
-    : LocalitySet(localityType, policy, operation, durability, persistence, desiredSize) {
+                 size_t desiredSize,
+		 bool isShared)
+    : LocalitySet(localityType, policy, operation, durability, persistence, desiredSize, isShared) {
+    this->isShared = isShared;
     this->pageSize = pageSize;
     this->logger = logger;
     this->shm = shm;
@@ -44,6 +46,7 @@ UserSet::UserSet(pdb::PDBLoggerPtr logger,
     pthread_mutex_init(&this->addBytesMutex, nullptr);
     this->isPinned = false;
     this->numPages = 0;
+
 }
 
 
@@ -65,8 +68,10 @@ UserSet::UserSet(size_t pageSize,
                  OperationType operation,
                  DurabilityType durability,
                  PersistenceType persistence,
-                 size_t desiredSize)
-    : LocalitySet(localityType, policy, operation, durability, persistence, desiredSize) {
+                 size_t desiredSize,
+		 bool isShared)
+    : LocalitySet(localityType, policy, operation, durability, persistence, desiredSize, isShared) {
+    this->isShared = isShared;
     this->pageSize = pageSize;
     this->logger = logger;
     this->shm = shm;

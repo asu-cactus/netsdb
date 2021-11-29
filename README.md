@@ -1,4 +1,4 @@
-# netsDB - An AI-assisted Data Integration and UDF-Centric Analytics System
+# netsDB - A UDF-Centric Analytics Database
 
 
 ## Credits
@@ -34,62 +34,55 @@ OS: Ubuntu-16, MacOS, Ubuntu-20
 
 Run: scons 
 
-## Run Pangea on local
+## Run netsDB on local
 
 python scripts/startPseudoCluster.py #numThreads #sharedMemPoolSize (MB)
 
 
-## Cleanup Pangea Data on local
+## Cleanup netsDB Data on local
 
 scripts/cleanupNode.sh
 
 
+## Run netsDB on a Cluster 
 
-## Run Pangea on a Cluster 
+### Configuration
 
+Step (1) Download netsDB code from github to the Master server, configure PDB_HOME to be the github repository. For example, you can:
 
-Firstly, we need to setup the test suite by following five steps. (Those five steps only need to be done only once)
+     - edit ~/.bashrc, and add following to that file: export PDB_HOME=/home/ubuntu/netsDB
+     Here /home/ubuntu/netsDB should be replaced by the path to the github repository
 
-Step (1.1) In rice cloud or AWS, find one ubuntu server as your Master, and log in to that server using the 'ubuntu' account; (In future, we shall not be constrained by OS, and we can use the 'pdb' account)
+Step (2) Configure PDB_INSTALL to be the location that you want pangea to be installed at on the workers.  For example, you might add the following to .basrc:
 
-Step (1.2) Download pangea code from github to the Master server, configure PDB_HOME to be the github repository. For example, you can:
-
-     - edit ~/.bashrc, and add following to that file: export PDB_HOME=/home/ubuntu/pangea
-     Here /home/ubuntu/pangea should be replaced by the path to the github repository
-
-Step (1.3) Next, configure PDB_INSTALL to be the location that you want pangea to be installed at on the workers.  For example, you might add the following to .basrc:
-
-     export PDB_INSTALL=/disk1/PDB
-     Here /disk1/PDB should be the path to the directory where you want the binary and code to be copied to, and where data will be stored.
+     export PDB_INSTALL=/disk1/netsDB
+     Here /disk1/netsDB should be the path to the directory where you want the binary and code to be copied to, and where data will be stored.
      Make sure that the user that runs the program has authorization to read/write/create in this directory
 
-  Then run following command in shell to make sure these variables are set: source ~/.bashrc
+After Step (1) and (2), run `source ~/.bashrc' in shell to make sure these variables are set. 
 
-Step (1.4) Find at least one different ubuntu servers as your Workers, make sure those Workers can be accessed by Master through network and vice versa, and also make sure you have only one PEM file to log on to all slaves. Then add only IPs of those slaves to the file: $PDB_HOME/conf/serverlist. For example, my serverlist looks like following:
+Step (3) Find one or more servers as your Workers, make sure those Workers can be accessed by Master through network and vice versa, and also make sure you have only one PEM file to log on to all slaves. Then add only IPs of those slaves to the file: $PDB_HOME/conf/serverlist. For example, my serverlist looks like following:
+
 10.134.96.184
 10.134.96.153  
 
-Step (1.5) On the master server, install the cluster by run:
+Step (4) On the master server, install the cluster by run:
      
      scripts/install.sh $pem_file
 
 
-
-
-
-
-Secondly, we start the cluster
+### Start the cluster
 
 On the Master server:
 
-Step (2.1)
+Step (1)
 
 cd $PDB_HOME
 scripts/startMaster.sh $pem_file
 
 wait for the scripts to return (see something like "master is started!" in the end), and move to  step 2.3:
 
-Step (2.2) : run following command:   
+Step (2) : run following command:   
  
 cd $PDB_HOME
 scripts/startWorkers.sh $pem_file $MasterIPAddress $ThreadNumber (optional, default is 4)  $SharedMemSize (optional, unit MB, default is 4096)
@@ -97,29 +90,22 @@ scripts/startWorkers.sh $pem_file $MasterIPAddress $ThreadNumber (optional, defa
 wait for the scripts to return (see something like "servers are started!" in the end).
 
 
-Thirdly, you can run test cases
-
-For example:
-
-In PDB without Pliny dependency (PLINY_HOME is set to empty)
-cd $PDB_HOME
-bin/test52  Y Y YourTestingDataSizeInMB (e.g. 1024 to test 1GB data) YourMasterIP
+After the cluster is started, you can run your application.
 
 
-
-## Stop Cluster
+### Stop Cluster
 cd $PDB_HOME
 scripts/stopWorkers.sh $pem_file
 
 
-## Soft Reboot Cluster (restart cluster with all data kept)
+### Soft Reboot Cluster (restart cluster with all data kept)
 cd $PDB_HOME
 scripts/stopWorkers.sh $pem_filex
 scripts/startMaster.sh $pem_file
 scripts/startWorkers.sh $pem_file $MasterIPAddress $ThreadNum $SharedMemoryPoolSize
 
 
-## Upgrade Cluster (for developers and testers upgrade binaries and restart cluster with all data kept)
+### Upgrade Cluster (for developers and testers upgrade binaries and restart cluster with all data kept)
 cd $PDB_HOME
 scripts/stopWorkers.sh $pem_file
 scripts/upgrade.sh $pem_file
@@ -127,14 +113,14 @@ scripts/startMaster.sh $pem_file
 scripts/startWorkers.sh $pem_file $MasterIPAddress $ThreadNum $SharedMemoryPoolSize
 
 
-## Cleanup Catalog and Storage data
+### Cleanup Catalog and Storage data
 You can cleanup all catalog and storage data by running following command in master
 
 cd $PDB_HOME
 scripts/cleanup.sh $pem_file
 
 
-## Environment Variables:
+### Environment Variables:
 
 
 (1) PDB_SSH_OPTS
@@ -147,7 +133,9 @@ if you define it to non empty like "y" or "yes", it will run as before and bring
 
 by default, it is not defined, and it will run in background using nohup, which means it will not be interrupted by ssh.
 
+# Examples of Running DNN model inferences from netsDB
 
+[Model Inferences](model-inference/README.md)
 
 # Run Lachesis to Automatically Partition Data Using Self-Learning
 

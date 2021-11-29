@@ -54,7 +54,8 @@ public:
             DurabilityType durability = TryCache,
             PersistenceType persistence = Persistent,
             size_t pageSize = DEFAULT_PAGE_SIZE,
-            size_t desiredSize = 1);
+            size_t desiredSize = 1,
+	    bool isShared = false);
 
     /**
      * Create a UserSet instance, file is set now
@@ -74,7 +75,8 @@ public:
             OperationType operation = Read,
             DurabilityType durability = TryCache,
             PersistenceType persistence = Persistent,
-            size_t desiredSize = 1);
+            size_t desiredSize = 1,
+	    bool isShared = false);
 
     /**
      * Destructor.
@@ -378,7 +380,14 @@ public:
 
     void print() {
         std::cout << "################################" << std::endl;
-        std::cout << "setName:" << setName << std::endl;
+        if (isShared){
+	   std::cout << "SharedSet" << std::endl;
+	} else {
+	   std::cout << "PrivateSet" << std::endl;
+	}
+        std::cout << "readCost:" << readCost << std::endl;
+	std::cout << "writeCost:" << writeCost << std::endl;
+	std::cout << "setName:" << setName << std::endl;
         std::cout << "pageSize:" << pageSize << std::endl;
         switch (localityType) {
             case JobData:
