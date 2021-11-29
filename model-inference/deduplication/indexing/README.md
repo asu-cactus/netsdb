@@ -109,7 +109,7 @@ After running the code, the program will save one **csv** file and two **npy** f
 
 To run it with new model, you should **replicate** function `baseline_run_on_second_model(method)` and modify it to the new model. You can refer to the example attached in the following section.
 
-**Note**: after the first run, `baseline_run_on_first_model` can be commented out since the index should only be built once. Later, we will only invoke **update** operation.
+**Note**: after the first run, `baseline_run_on_first_model` can be commented out. Later, we will invoke **Indexer.update()** operation to update the index.
 
 ### Enhanced Pairwise and Proposed Approach
 
@@ -174,6 +174,6 @@ Run the code:
 ```
 python run.py
 ```
-**Note**: after the first run, `run_on_first_model` can be commented out since the index should only be built once. Later, we will only invoke **update** operation.
+**Note**: after the first run, `run_on_first_model` can be commented out. Later, we will invoke **Indexer.update()** operation to update the index.
 
 After running the code, the program will save one **csv** file and two **npy** files to the disk. The csv file is a tracking history of the block deduplication process. The npy of detector_output is an intermediate result that will be sent to page packing. *blocks_indexer.npy* is used to store the unique blocks.
