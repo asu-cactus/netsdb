@@ -15,16 +15,11 @@ The input of these 4 Python scripts is a dictionary object saved in data/detecto
 
 Key: Value
 
-list_blocks:              a list that stores the distinct blocks, the size is 
-                          equals to num_distinct_blocks
-tensor_mapping:           a list of tensor mapping whose length is the number  
-                          of tensor. Each element is a dictionary that stores
-                          the mapping between the block index and its distinct 
-                          block ID. e.g tensor_mapping[0][(1,1)] = 50 means the 
-                          block (1,1) in the 0th tensor is mapped to the distinct
-                          block 50.
+list_blocks: a list that stores the distinct blocks, the size is equals to num_distinct_blocks.
+
+tensor_mapping: a list of tensor mapping whose length is the number of tensor. Each element is a dictionary that stores the mapping between the block index and its distinct block ID. e.g tensor_mapping[0][(1,1)] = 50 means the block (1,1) in the 0th tensor is mapped to the distinct block 50.
 blocked_tensor_dimension: a list of dimensions for each blocked tensor
-block_size:               the size of the block
+block_size: the size of the block
 
 detector_output_same_size_unshared_located_random.npy has 6 tensors and each tensor is in the same dimension after blocking, (5,100). There are 50 non-shareable blocks for each tensor and these blocks are randomly distributed. The lower-bound for this case is ⌈750/8⌉ = 94 pages.
 
