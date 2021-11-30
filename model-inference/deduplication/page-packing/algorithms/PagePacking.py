@@ -10,8 +10,14 @@ import hashlib
 import numpy as np
 import gc
 
-# Create a 2D array to save the packing scheme
+"""
+A class to store the packing scheme.
+Each row represents a tensor and each column represnts a page
+0 means that the blcok is not in the corresponding page. 1 just the opposite.
+Also includes the number of pages needed
+"""
 class BinPackingScheme(object):
+    # initialization
     def __init__(self, item_ids, l):
         # Each row is a tensor
         # Each col is the bin/page
@@ -20,6 +26,8 @@ class BinPackingScheme(object):
         self.l = l
         self.numBins = math.ceil(len(item_ids) / l)
 
+    # Determine whether it has been marked.
+    # 0 means that the blcok is not in the corresponding page. 1 just the opposite.
     def is_marked(self, item_id):
         return any([x == 1 for x in self.p_i_j[self.item_ids.index(item_id)]])
 
@@ -74,6 +82,7 @@ class BinPackingScheme(object):
 
         return int(hashlib.md5(full_hash).hexdigest(), 16)
 
+    # The marked function replaces the original 0 with 1
     def mark(self, i, j):
         if j - 1 > len(self.p_i_j[0]) - 1:
             diff = (j - 1) - (len(self.p_i_j[0]) - 1)
@@ -158,11 +167,13 @@ class BinPackingScheme(object):
 
         return bin_set, used_bins
 
-# ordering sizes for Greedy-2 algorithm
+# Ordering sizes for Greedy-2 algorithm
+# Sort the tensors from large to small according to the size
 def order_tensors_by_size(T):
     return sorted(T, key=lambda x: len(x), reverse=True)
 
-# ordering frequency for Greedy-2 algorithm
+# Ordering frequency for Greedy-2 algorithm
+# Sort from high to low according to the frequency of occurrence in all tensors
 def order_tensor_blocks_by_freq(T, t_i):
     freq_map = {}
     for block in t_i:
@@ -183,9 +194,15 @@ def order_tensor_blocks_by_freq(T, t_i):
     return [x[0] for x in ordered_items]
 
 """
-1:INPUT1: 𝑇 (a set of tensors, each tensor is a set of item ids i.e. tensor blocks ids)
-2:INPUT2: 𝑙 (the maximum number of items for each bin)
-3:OUTPUT: {𝑃𝑖𝑗} (an approximate optimal bin-packing scheme)
+1:INPUT1: T (a set of tensors, each tensor is a set of item ids i.e. tensor blocks ids)
+2:INPUT2: l (the maximum number of blocks for each page)
+3:OUTPUT: {𝑃𝑖𝑗} (an approximate optimal bin-packing scheme) and mapping of tensor IDs and page IDs
+Used in the Greedy-2 algorithm in all 4 test cases:
+1. word2vec (100 * 10000, 64MB)
+2. text classification (100 * 10000, 64MB)
+3. text classification (300 * 300, 64MB)
+4. text classification (300 * 300, 32MB)
+These testing examples can be found in runGreedy-2.py in the corresponding 4 folders
 """
 def bin_pack_greedy(T, l):
     I = set()
@@ -238,6 +255,16 @@ def bin_pack_greedy(T, l):
 
     return set([p_i_j]), tensor_page_mapping
 
+"""
+1:INPUT1: tensor_list (a set of tensors, each tensor is a set of item ids i.e. tensor blocks ids)
+2:INPUT2: blocks_in_page (the maximum number of blocks for each page)
+3:OUTPUT: numBins (the number of pages needed in total)
+Used in the Greedy-1 algorithm in the floowing test cases:
+1. text classification (100 * 10000, 64MB)
+2. text classification (300 * 300, 64MB)
+3. text classification (300 * 300, 32MB)
+These testing examples can be found in runGreedy-1.py in the corresponding 3 folders
+"""
 def text_classification_greedy1(tensor_list, blocks_in_page):
 
     # set the required number of pages as 0
@@ -492,6 +519,16 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
     numBins = numBins + math.ceil(len(l4) / blocks_in_page)
     return numBins
 
+"""
+1:INPUT1: tensor_list (a set of tensors, each tensor is a set of item ids i.e. tensor blocks ids)
+2:INPUT2: blocks_in_page (the maximum number of blocks for each page)
+3:OUTPUT: numBins (the number of pages needed in total)
+Used in the Two-Stage algorithm in the floowing test cases:
+1. text classification (100 * 10000, 64MB)
+2. text classification (300 * 300, 64MB)
+3. text classification (300 * 300, 32MB)
+These testing examples can be found in runTwo-Stage.py in the corresponding 3 folders
+"""
 def text_classification_twostage(tensor_list, blocks_in_page):
 
     # set the required number of pages as 0
@@ -992,6 +1029,14 @@ def text_classification_twostage(tensor_list, blocks_in_page):
     numBins = numBins + L[0].numBins
     return numBins
 
+"""
+1:INPUT1: T (a set of tensors, each tensor is a set of item ids i.e. tensor blocks ids)
+2:INPUT2: l (the maximum number of blocks for each page)
+3:OUTPUT: {𝑃𝑖𝑗} (an approximate optimal bin-packing scheme) and mapping of tensor IDs and page IDs
+Used in the Greedy-1 algorithm in the following test:
+1. word2vec (100 * 10000, 64MB)
+This testing example can be found in runGreedy-1.py in the corresponding folder
+"""
 def w2v_greedy1(tensor_list, blocks_in_page):
 
     # set the required number of pages as 0
@@ -1056,6 +1101,14 @@ def w2v_greedy1(tensor_list, blocks_in_page):
 
     return numBins
 
+"""
+1:INPUT1: T (a set of tensors, each tensor is a set of item ids i.e. tensor blocks ids)
+2:INPUT2: l (the maximum number of blocks for each page)
+3:OUTPUT: {𝑃𝑖𝑗} (an approximate optimal bin-packing scheme) and mapping of tensor IDs and page IDs
+Used in the Two-Stage algorithm in the following test:
+1. word2vec (100 * 10000, 64MB)
+This testing example can be found in runTwo-Stage.py in the corresponding folder
+"""
 def w2v_twostage(tensor_list, blocks_in_page):
 
     # set the required number of pages as 0
@@ -1143,6 +1196,17 @@ def w2v_twostage(tensor_list, blocks_in_page):
     numBins = numBins + L[0].numBins
     return numBins
 
+"""
+1:INPUT1: T (a set of tensors, each tensor is a set of item ids i.e. tensor blocks ids)
+2:INPUT2: l (the maximum number of blocks for each page)
+3:OUTPUT: {𝑃𝑖𝑗} (an approximate optimal bin-packing scheme) and mapping of tensor IDs and page IDs
+Used in the Baseline algorithm in all 4 test cases:
+1. word2vec (100 * 10000, 64MB)
+2. text classification (100 * 10000, 64MB)
+3. text classification (300 * 300, 64MB)
+4. text classification (300 * 300, 32MB)
+These testing examples can be found in runBaseline.py in the corresponding 4 folders
+"""
 def bin_pack_base(T, l):
     I = set()
     for t_i in T:
