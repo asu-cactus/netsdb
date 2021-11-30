@@ -196,7 +196,7 @@ def order_tensor_blocks_by_freq(T, t_i):
 """
 1:INPUT1: T (a set of tensors, each tensor is a set of item ids i.e. tensor blocks ids)
 2:INPUT2: l (the maximum number of blocks for each page)
-3:OUTPUT: {𝑃𝑖𝑗} (an approximate optimal bin-packing scheme) and mapping of tensor IDs and page IDs
+3:OUTPUT: {𝑃𝑖𝑗} (an approximate optimal bin-packing scheme) including number of pages needed and mapping of tensor IDs and page IDs
 Used in the Greedy-2 algorithm in all 4 test cases:
 1. word2vec (100 * 10000, 64MB)
 2. text classification (100 * 10000, 64MB)
@@ -258,7 +258,7 @@ def bin_pack_greedy(T, l):
 """
 1:INPUT1: tensor_list (a set of tensors, each tensor is a set of item ids i.e. tensor blocks ids)
 2:INPUT2: blocks_in_page (the maximum number of blocks for each page)
-3:OUTPUT: numBins (the number of pages needed in total)
+3:OUTPUT: {𝑃𝑖𝑗} (an approximate optimal bin-packing scheme) including number of pages needed
 Used in the Greedy-1 algorithm in the floowing test cases:
 1. text classification (100 * 10000, 64MB)
 2. text classification (300 * 300, 64MB)
@@ -277,6 +277,7 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l01234) / blocks_in_page)
+    p_i_j.numBins = numBins
 
     l0123=tensor_list[0].intersection(tensor_list[1], tensor_list[2], tensor_list[3])-l01234
     p_i_j = BinPackingScheme(l0123, blocks_in_page)
@@ -285,6 +286,7 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l0123) / blocks_in_page)
+    p_i_j.numBins = numBins
 
     l0124=tensor_list[0].intersection(tensor_list[1], tensor_list[2], tensor_list[4])-l01234
     p_i_j = BinPackingScheme(l0124, blocks_in_page)
@@ -293,6 +295,7 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l0124) / blocks_in_page)
+    p_i_j.numBins = numBins
 
     l0134=tensor_list[0].intersection(tensor_list[1], tensor_list[3], tensor_list[4])-l01234
     p_i_j = BinPackingScheme(l0134, blocks_in_page)
@@ -301,6 +304,7 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l0134) / blocks_in_page)
+    p_i_j.numBins = numBins
 
     l0234=tensor_list[0].intersection(tensor_list[2], tensor_list[3], tensor_list[4])-l01234
     p_i_j = BinPackingScheme(l0234, blocks_in_page)
@@ -309,6 +313,7 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l0234) / blocks_in_page)
+    p_i_j.numBins = numBins
 
     l1234=tensor_list[1].intersection(tensor_list[2], tensor_list[3], tensor_list[4])-l01234
     p_i_j = BinPackingScheme(l1234, blocks_in_page)
@@ -317,6 +322,7 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l1234) / blocks_in_page)
+    p_i_j.numBins = numBins
 
     l012=tensor_list[0].intersection(tensor_list[1], tensor_list[2])-l0123-l0124-l01234
     p_i_j = BinPackingScheme(l012, blocks_in_page)
@@ -325,6 +331,7 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l012) / blocks_in_page)
+    p_i_j.numBins = numBins
     
     l013=tensor_list[0].intersection(tensor_list[1], tensor_list[3])-l0123-l0134-l01234
     p_i_j = BinPackingScheme(l013, blocks_in_page)
@@ -333,6 +340,7 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l013) / blocks_in_page)
+    p_i_j.numBins = numBins
 
     l014=tensor_list[0].intersection(tensor_list[1], tensor_list[4])-l0124-l0134-l01234
     p_i_j = BinPackingScheme(l014, blocks_in_page)
@@ -341,6 +349,7 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l014) / blocks_in_page)
+    p_i_j.numBins = numBins
 
     l023=tensor_list[0].intersection(tensor_list[2], tensor_list[3])-l0123-l0234-l01234
     p_i_j = BinPackingScheme(l023, blocks_in_page)
@@ -349,6 +358,7 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l023) / blocks_in_page)
+    p_i_j.numBins = numBins
     
     l024=tensor_list[0].intersection(tensor_list[2], tensor_list[4])-l0124-l0234-l01234
     p_i_j = BinPackingScheme(l024, blocks_in_page)
@@ -357,6 +367,7 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l024) / blocks_in_page)
+    p_i_j.numBins = numBins
     
     l034=tensor_list[0].intersection(tensor_list[3], tensor_list[4])-l0134-l0234-l01234
     p_i_j = BinPackingScheme(l034, blocks_in_page)
@@ -365,6 +376,7 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l034) / blocks_in_page)
+    p_i_j.numBins = numBins
     
     l123=tensor_list[1].intersection(tensor_list[2], tensor_list[3])-l0123-l1234-l01234
     p_i_j = BinPackingScheme(l123, blocks_in_page)
@@ -373,6 +385,7 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l123) / blocks_in_page)
+    p_i_j.numBins = numBins
 
     l124=tensor_list[1].intersection(tensor_list[2], tensor_list[4])-l0124-l1234-l01234
     p_i_j = BinPackingScheme(l124, blocks_in_page)
@@ -381,6 +394,7 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l124) / blocks_in_page)
+    p_i_j.numBins = numBins
     
     l134=tensor_list[1].intersection(tensor_list[3], tensor_list[4])-l0134-l1234-l01234
     p_i_j = BinPackingScheme(l134, blocks_in_page)
@@ -389,6 +403,7 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l134) / blocks_in_page)
+    p_i_j.numBins = numBins
     
     l234=tensor_list[2].intersection(tensor_list[3], tensor_list[4])-l0234-l1234-l01234
     p_i_j = BinPackingScheme(l234, blocks_in_page)
@@ -397,6 +412,7 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l234) / blocks_in_page)
+    p_i_j.numBins = numBins
     
     l01=tensor_list[0].intersection(tensor_list[1])-l012-l013-l014-l0123-l0124-l0134-l01234
     p_i_j = BinPackingScheme(l01, blocks_in_page)
@@ -405,6 +421,7 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l01) / blocks_in_page)
+    p_i_j.numBins = numBins
 
     l02=tensor_list[0].intersection(tensor_list[2])-l012-l023-l024-l0123-l0124-l0234-l01234
     p_i_j = BinPackingScheme(l02, blocks_in_page)
@@ -413,6 +430,7 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l02) / blocks_in_page)
+    p_i_j.numBins = numBins
 
     l03=tensor_list[0].intersection(tensor_list[3])-l013-l023-l034-l0123-l0234-l0234-l01234
     p_i_j = BinPackingScheme(l03, blocks_in_page)
@@ -421,6 +439,7 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l03) / blocks_in_page)
+    p_i_j.numBins = numBins
 
     l04=tensor_list[0].intersection(tensor_list[4])-l014-l024-l034-l0124-l0134-l0234-l01234
     p_i_j = BinPackingScheme(l04, blocks_in_page)
@@ -429,6 +448,7 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l04) / blocks_in_page)
+    p_i_j.numBins = numBins
 
     l12=tensor_list[1].intersection(tensor_list[2])-l012-l123-l124-l0123-l0124-l1234-l01234
     p_i_j = BinPackingScheme(l12, blocks_in_page)
@@ -437,6 +457,7 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l12) / blocks_in_page)
+    p_i_j.numBins = numBins
 
     l13=tensor_list[1].intersection(tensor_list[3])-l013-l034-l134-l0123-l0134-l1234-l01234
     p_i_j = BinPackingScheme(l13, blocks_in_page)
@@ -445,6 +466,7 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l13) / blocks_in_page)
+    p_i_j.numBins = numBins
 
     l14=tensor_list[1].intersection(tensor_list[4])-l014-l124-l134-l0124-l0134-l1234-l01234
     p_i_j = BinPackingScheme(l14, blocks_in_page)
@@ -453,6 +475,7 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l14) / blocks_in_page)
+    p_i_j.numBins = numBins
 
     l23=tensor_list[2].intersection(tensor_list[3])-l023-l123-l234-l0123-l0234-l1234-l01234
     p_i_j = BinPackingScheme(l23, blocks_in_page)
@@ -461,6 +484,7 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l23) / blocks_in_page)
+    p_i_j.numBins = numBins
 
     l24=tensor_list[2].intersection(tensor_list[4])-l024-l124-l234-l0124-l0234-l1234-l01234
     p_i_j = BinPackingScheme(l24, blocks_in_page)
@@ -469,6 +493,7 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l24) / blocks_in_page)
+    p_i_j.numBins = numBins
 
     l34=tensor_list[3].intersection(tensor_list[4])-l034-l134-l234-l0134-l0234-l1234-l01234
     p_i_j = BinPackingScheme(l34, blocks_in_page)
@@ -477,6 +502,7 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l34) / blocks_in_page)
+    p_i_j.numBins = numBins
 
     l0=tensor_list[0]-l01-l02-l03-l04-l012-l013-l014-l023-l024-l034-l0123-l0124-l0134-l0234-l01234
     p_i_j = BinPackingScheme(l0, blocks_in_page)
@@ -485,6 +511,7 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l0) / blocks_in_page)
+    p_i_j.numBins = numBins
     
     l1=tensor_list[1]-l01-l12-l13-l14-l012-l013-l014-l123-l124-l134-l0123-l0124-l0134-l1234-l01234
     p_i_j = BinPackingScheme(l1, blocks_in_page)
@@ -493,6 +520,7 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l1) / blocks_in_page)
+    p_i_j.numBins = numBins
 
     l2=tensor_list[2]-l02-l12-l23-l24-l012-l023-l024-l123-l124-l234-l0123-l0124-l0234-l1234-l01234
     p_i_j = BinPackingScheme(l2, blocks_in_page)
@@ -501,6 +529,7 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l2) / blocks_in_page)
+    p_i_j.numBins = numBins
 
     l3=tensor_list[3]-l03-l13-l23-l34-l013-l023-l034-l123-l134-l234-l0123-l0134-l0234-l1234-l01234
     p_i_j = BinPackingScheme(l3, blocks_in_page)
@@ -509,6 +538,7 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l3) / blocks_in_page)
+    p_i_j.numBins = numBins
 
     l4=tensor_list[4]-l04-l14-l24-l34-l014-l024-l034-l124-l134-l234-l0124-l0134-l0234-l1234-l01234
     p_i_j = BinPackingScheme(l4, blocks_in_page)
@@ -517,12 +547,13 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l4) / blocks_in_page)
-    return numBins
+    p_i_j.numBins = numBins
+    return set([p_i_j])
 
 """
 1:INPUT1: tensor_list (a set of tensors, each tensor is a set of item ids i.e. tensor blocks ids)
 2:INPUT2: blocks_in_page (the maximum number of blocks for each page)
-3:OUTPUT: numBins (the number of pages needed in total)
+3:OUTPUT: {𝑃𝑖𝑗} (an approximate optimal bin-packing scheme) including number of pages needed
 Used in the Two-Stage algorithm in the floowing test cases:
 1. text classification (100 * 10000, 64MB)
 2. text classification (300 * 300, 64MB)
@@ -547,6 +578,7 @@ def text_classification_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
     this_remain = len(l01234) - blocks_in_page*newBins01234
     if (this_remain!=0):
         for i in range(block_id, block_id + this_remain):
@@ -565,6 +597,7 @@ def text_classification_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
     this_remain = len(l0123) - blocks_in_page*newBins0123
     if (this_remain!=0):
         for i in range(block_id, block_id + this_remain):
@@ -582,6 +615,7 @@ def text_classification_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
     this_remain = len(l0124) - blocks_in_page*newBins0124
     if (this_remain!=0):
         for i in range(block_id, block_id + this_remain):
@@ -599,6 +633,7 @@ def text_classification_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
     this_remain = len(l0134) - blocks_in_page*newBins0134
     if (this_remain!=0):
         for i in range(block_id, block_id + this_remain):
@@ -616,6 +651,7 @@ def text_classification_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
     this_remain = len(l0234) - blocks_in_page*newBins0234
     if (this_remain!=0):
         for i in range(block_id, block_id + this_remain):
@@ -633,6 +669,7 @@ def text_classification_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
     this_remain = len(l1234) - blocks_in_page*newBins1234
     if (this_remain!=0):
         for i in range(block_id, block_id + this_remain):
@@ -650,6 +687,7 @@ def text_classification_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
     this_remain = len(l012) - blocks_in_page*newBins012
     if (this_remain!=0):
         for i in range(block_id, block_id + this_remain):
@@ -666,6 +704,7 @@ def text_classification_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
     this_remain = len(l013) - blocks_in_page*newBins013
     if (this_remain!=0):
         for i in range(block_id, block_id + this_remain):
@@ -682,6 +721,7 @@ def text_classification_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
     this_remain = len(l014) - blocks_in_page*newBins014
     if (this_remain!=0):
         for i in range(block_id, block_id + this_remain):
@@ -698,6 +738,7 @@ def text_classification_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
     this_remain = len(l023) - blocks_in_page*newBins023
     if (this_remain!=0):
         for i in range(block_id, block_id + this_remain):
@@ -714,6 +755,7 @@ def text_classification_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
     this_remain = len(l024) - blocks_in_page*newBins024
     if (this_remain!=0):
         for i in range(block_id, block_id + this_remain):
@@ -730,6 +772,7 @@ def text_classification_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
     this_remain = len(l034) - blocks_in_page*newBins034
     if (this_remain!=0):
         for i in range(block_id, block_id + this_remain):
@@ -746,6 +789,7 @@ def text_classification_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
     this_remain = len(l123) - blocks_in_page*newBins123
     if (this_remain!=0):
         for i in range(block_id, block_id + this_remain):
@@ -762,6 +806,7 @@ def text_classification_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
     this_remain = len(l124) - blocks_in_page*newBins124
     if (this_remain!=0):
         for i in range(block_id, block_id + this_remain):
@@ -778,6 +823,7 @@ def text_classification_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
     this_remain = len(l134) - blocks_in_page*newBins134
     if (this_remain!=0):
         for i in range(block_id, block_id + this_remain):
@@ -794,6 +840,7 @@ def text_classification_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
     this_remain = len(l234) - blocks_in_page*newBins234
     if (this_remain!=0):
         for i in range(block_id, block_id + this_remain):
@@ -810,6 +857,7 @@ def text_classification_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
     this_remain = len(l01) - blocks_in_page*newBins01
     if (this_remain!=0):
         for i in range(block_id, block_id + this_remain):
@@ -825,6 +873,7 @@ def text_classification_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
     this_remain = len(l02) - blocks_in_page*newBins02
     if (this_remain!=0):
         for i in range(block_id, block_id + this_remain):
@@ -840,6 +889,7 @@ def text_classification_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
     this_remain = len(l03) - blocks_in_page*newBins03
     if (this_remain!=0):
         for i in range(block_id, block_id + this_remain):
@@ -855,6 +905,7 @@ def text_classification_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
     this_remain = len(l04) - blocks_in_page*newBins04
     if (this_remain!=0):
         for i in range(block_id, block_id + this_remain):
@@ -870,6 +921,7 @@ def text_classification_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
     this_remain = len(l12) - blocks_in_page*newBins12
     if (this_remain!=0):
         for i in range(block_id, block_id + this_remain):
@@ -885,6 +937,7 @@ def text_classification_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
     this_remain = len(l13) - blocks_in_page*newBins13
     if (this_remain!=0):
         for i in range(block_id, block_id + this_remain):
@@ -900,6 +953,7 @@ def text_classification_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
     this_remain = len(l14) - blocks_in_page*newBins14
     if (this_remain!=0):
         for i in range(block_id, block_id + this_remain):
@@ -915,6 +969,7 @@ def text_classification_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
     this_remain = len(l23) - blocks_in_page*newBins23
     if (this_remain!=0):
         for i in range(block_id, block_id + this_remain):
@@ -930,6 +985,7 @@ def text_classification_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
     this_remain = len(l24) - blocks_in_page*newBins24
     if (this_remain!=0):
         for i in range(block_id, block_id + this_remain):
@@ -945,6 +1001,7 @@ def text_classification_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
     this_remain = len(l34) - blocks_in_page*newBins34
     if (this_remain!=0):
         for i in range(block_id, block_id + this_remain):
@@ -960,6 +1017,7 @@ def text_classification_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
     this_remain = len(l0) - blocks_in_page*newBins0
     if (this_remain!=0):
         for i in range(block_id, block_id + this_remain):
@@ -974,6 +1032,7 @@ def text_classification_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
     this_remain = len(l1) - blocks_in_page*newBins1
     if (this_remain!=0):
         for i in range(block_id, block_id + this_remain):
@@ -988,6 +1047,7 @@ def text_classification_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
     this_remain = len(l2) - blocks_in_page*newBins2
     if (this_remain!=0):
         for i in range(block_id, block_id + this_remain):
@@ -1002,6 +1062,7 @@ def text_classification_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
     this_remain = len(l3) - blocks_in_page*newBins3
     if (this_remain!=0):
         for i in range(block_id, block_id + this_remain):
@@ -1016,6 +1077,7 @@ def text_classification_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
     this_remain = len(l4) - blocks_in_page*newBins4
     if (this_remain!=0):
         for i in range(block_id, block_id + this_remain):
@@ -1026,13 +1088,15 @@ def text_classification_twostage(tensor_list, blocks_in_page):
     P = set()
     P, tensor_page_mapping = bin_pack_greedy(new_tensor_list, blocks_in_page)
     L = list(P)
-    numBins = numBins + L[0].numBins
-    return numBins
+    L[0].numBins = numBins + L[0].numBins
+    P = set(L)
+    P.union(set([p_i_j]))
+    return P
 
 """
 1:INPUT1: T (a set of tensors, each tensor is a set of item ids i.e. tensor blocks ids)
 2:INPUT2: l (the maximum number of blocks for each page)
-3:OUTPUT: {𝑃𝑖𝑗} (an approximate optimal bin-packing scheme) and mapping of tensor IDs and page IDs
+3:OUTPUT: {𝑃𝑖𝑗} (an approximate optimal bin-packing scheme) including number of pages needed
 Used in the Greedy-1 algorithm in the following test:
 1. word2vec (100 * 10000, 64MB)
 This testing example can be found in runGreedy-1.py in the corresponding folder
@@ -1050,6 +1114,7 @@ def w2v_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l) / blocks_in_page)
+    p_i_j.numBins = numBins
 
     l0=tensor_list[0]-l
     p_i_j = BinPackingScheme(l0, blocks_in_page)
@@ -1058,6 +1123,7 @@ def w2v_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l0) / blocks_in_page)
+    p_i_j.numBins = numBins
 
     l1=tensor_list[1]-l
     p_i_j = BinPackingScheme(l1, blocks_in_page)
@@ -1066,6 +1132,7 @@ def w2v_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l1) / blocks_in_page)
+    p_i_j.numBins = numBins
 
     l2=tensor_list[2]-l
     p_i_j = BinPackingScheme(l2, blocks_in_page)
@@ -1074,6 +1141,7 @@ def w2v_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l2) / blocks_in_page)
+    p_i_j.numBins = numBins
 
     l3=tensor_list[3]-l
     p_i_j = BinPackingScheme(l3, blocks_in_page)
@@ -1082,6 +1150,7 @@ def w2v_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l3) / blocks_in_page)
+    p_i_j.numBins = numBins
 
     l4=tensor_list[4]-l
     p_i_j = BinPackingScheme(l4, blocks_in_page)
@@ -1090,6 +1159,7 @@ def w2v_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l4) / blocks_in_page)
+    p_i_j.numBins = numBins
 
     l5=tensor_list[5]-l
     p_i_j = BinPackingScheme(l5, blocks_in_page)
@@ -1098,13 +1168,14 @@ def w2v_greedy1(tensor_list, blocks_in_page):
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
     numBins = numBins + math.ceil(len(l5) / blocks_in_page)
+    p_i_j.numBins = numBins
 
-    return numBins
+    return set([p_i_j])
 
 """
 1:INPUT1: T (a set of tensors, each tensor is a set of item ids i.e. tensor blocks ids)
 2:INPUT2: l (the maximum number of blocks for each page)
-3:OUTPUT: {𝑃𝑖𝑗} (an approximate optimal bin-packing scheme) and mapping of tensor IDs and page IDs
+3:OUTPUT: {𝑃𝑖𝑗} (an approximate optimal bin-packing scheme) including number of pages needed
 Used in the Two-Stage algorithm in the following test:
 1. word2vec (100 * 10000, 64MB)
 This testing example can be found in runTwo-Stage.py in the corresponding folder
@@ -1123,6 +1194,7 @@ def w2v_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
 
     l0=tensor_list[0]-l
     p_i_j = BinPackingScheme(l0, blocks_in_page)
@@ -1132,6 +1204,7 @@ def w2v_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
 
     l1=tensor_list[1]-l
     p_i_j = BinPackingScheme(l1, blocks_in_page)
@@ -1141,6 +1214,7 @@ def w2v_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
 
     l2=tensor_list[2]-l
     p_i_j = BinPackingScheme(l2, blocks_in_page)
@@ -1150,6 +1224,7 @@ def w2v_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
 
     l3=tensor_list[3]-l
     p_i_j = BinPackingScheme(l3, blocks_in_page)
@@ -1159,6 +1234,7 @@ def w2v_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
 
     l4=tensor_list[4]-l
     p_i_j = BinPackingScheme(l4, blocks_in_page)
@@ -1168,6 +1244,7 @@ def w2v_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
 
     l5=tensor_list[5]-l
     p_i_j = BinPackingScheme(l5, blocks_in_page)
@@ -1177,6 +1254,7 @@ def w2v_twostage(tensor_list, blocks_in_page):
         j = i + 1
         s = math.ceil(i / blocks_in_page) + 1
         p_i_j.mark(j, s)
+    p_i_j.numBins = numBins
 
     # deal with the blocks which can not be packed into a full page
     new_tensor_list = [[], [], [], [], [], []]
@@ -1193,13 +1271,15 @@ def w2v_twostage(tensor_list, blocks_in_page):
     P = set()
     P, tensor_page_mapping = bin_pack_greedy(new_tensor_list, blocks_in_page)
     L = list(P)
-    numBins = numBins + L[0].numBins
-    return numBins
+    L[0].numBins = numBins + L[0].numBins
+    P = set(L)
+    P.union(set([p_i_j]))
+    return P
 
 """
 1:INPUT1: T (a set of tensors, each tensor is a set of item ids i.e. tensor blocks ids)
 2:INPUT2: l (the maximum number of blocks for each page)
-3:OUTPUT: {𝑃𝑖𝑗} (an approximate optimal bin-packing scheme) and mapping of tensor IDs and page IDs
+3:OUTPUT: {𝑃𝑖𝑗} (an approximate optimal bin-packing scheme) including number of pages needed
 Used in the Baseline algorithm in all 4 test cases:
 1. word2vec (100 * 10000, 64MB)
 2. text classification (100 * 10000, 64MB)

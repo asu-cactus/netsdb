@@ -9,7 +9,7 @@ import itertools
 # import the PagePacking.py under algorithm folder
 import os
 from sys import path
-sys.path.append('../algorithm/')
+sys.path.append('../algorithms/')
 from PagePacking import *
 
 # load the input file
