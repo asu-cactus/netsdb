@@ -1129,69 +1129,50 @@ def w2v_greedy1(tensor_list, blocks_in_page):
     # set the required number of pages as 0
     numBins = 0
 
+    # create a list of equivalent class tensors
+    equivalent_class_tensors = []
+
+    # divide blocks into multiple equivalent classes
     l=tensor_list[0].intersection(tensor_list[1],tensor_list[2],tensor_list[3],tensor_list[4],tensor_list[5])
     ll = list(l)
-    for i in range(len(l)):
-        j = I.index(ll[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l) / blocks_in_page)
-    p_i_j.numBins = numBins
-
+    equivalent_class_tensors.append(ll)
+    
     l0=tensor_list[0]-l
     ll0 = list(l0)
-    for i in range(len(l0)):
-        j = I.index(ll0[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l0) / blocks_in_page)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll0)
 
     l1=tensor_list[1]-l
     ll1 = list(l1)
-    for i in range(len(l1)):
-        j = I.index(ll1[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l1) / blocks_in_page)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll1)
 
     l2=tensor_list[2]-l
     ll2 = list(l2)
-    for i in range(len(l2)):
-        j = I.index(ll2[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l2) / blocks_in_page)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll2)
 
     l3=tensor_list[3]-l
     ll3 = list(l3)
-    for i in range(len(l3)):
-        j = I.index(ll3[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l3) / blocks_in_page)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll3)
 
     l4=tensor_list[4]-l
     ll4 = list(l4)
-    for i in range(len(l4)):
-        j = I.index(ll4[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l4) / blocks_in_page)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll4)
 
     l5=tensor_list[5]-l
     ll5 = list(l5)
-    for i in range(len(l5)):
-        j = I.index(ll5[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l5) / blocks_in_page)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll5)
 
+    # pack the blocks based on the equivalent classes
+    for k in range(len(equivalent_class_tensors)):
+        this_len = len(equivalent_class_tensors[k])
+        this_ten = equivalent_class_tensors[k]
+        for i in range(this_len):
+            j = I.index(this_ten[i]) + 1
+            s = numBins + math.ceil(i / blocks_in_page)
+            p_i_j.mark(j, s)
+        numBins = numBins + math.ceil(this_len / blocks_in_page)
+        p_i_j.numBins = numBins
+
+    # return the bin-packing scheme
     return set([p_i_j])
 
 """
@@ -1216,83 +1197,64 @@ def w2v_twostage(tensor_list, blocks_in_page):
     # set the required number of pages as 0
     numBins = 0
 
-    l=tensor_list[0].intersection(tensor_list[1],tensor_list[2],tensor_list[3],tensor_list[4],tensor_list[5])
-    newBins = int(len(l) / blocks_in_page)
-    numBins = numBins + newBins
-    ll = list(l)
-    for i in range(blocks_in_page*newBins):
-        j = I.index(ll[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    p_i_j.numBins = numBins
+    # create a list of equivalent class tensors
+    equivalent_class_tensors = []
 
+    # divide blocks into multiple equivalent classes
+    l=tensor_list[0].intersection(tensor_list[1],tensor_list[2],tensor_list[3],tensor_list[4],tensor_list[5])
+    ll = list(l)
+    equivalent_class_tensors.append(ll)
+    
     l0=tensor_list[0]-l
-    newBins0 = int(len(l0) / blocks_in_page)
-    numBins = numBins + newBins0
     ll0 = list(l0)
-    for i in range(blocks_in_page*newBins0):
-        j = I.index(ll0[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll0)
 
     l1=tensor_list[1]-l
-    newBins1 = int(len(l1) / blocks_in_page)
-    numBins = numBins + newBins1
     ll1 = list(l1)
-    for i in range(blocks_in_page*newBins1):
-        j = I.index(ll1[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll1)
 
     l2=tensor_list[2]-l
-    newBins2 = int(len(l2) / blocks_in_page)
-    numBins = numBins + newBins2
     ll2 = list(l2)
-    for i in range(blocks_in_page*newBins2):
-        j = I.index(ll2[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll2)
 
     l3=tensor_list[3]-l
-    newBins3 = int(len(l3) / blocks_in_page)
-    numBins = numBins + newBins3
     ll3 = list(l3)
-    for i in range(blocks_in_page*newBins3):
-        j = I.index(ll3[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll3)
 
     l4=tensor_list[4]-l
-    newBins4 = int(len(l4) / blocks_in_page)
-    numBins = numBins + newBins4
     ll4 = list(l4)
-    for i in range(blocks_in_page*newBins4):
-        j = I.index(ll4[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll4)
 
     l5=tensor_list[5]-l
-    newBins5 = int(len(l5) / blocks_in_page)
-    numBins = numBins + newBins5
     ll5 = list(l5)
-    for i in range(blocks_in_page*newBins5):
-        j = I.index(ll5[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll5)
+
+    # set the number of bins owned by all and owned by one tensor
+    allBins = 0
+    oneBins = 0
+    # pack the blocks based on the equivalent classes
+    for k in range(len(equivalent_class_tensors)):
+        this_len = len(equivalent_class_tensors[k])
+        this_ten = equivalent_class_tensors[k]
+        newBins = int(this_len / blocks_in_page)
+        numBins = numBins + newBins
+        if(k == 0):
+            allBins = newBins
+        elif(k == 1):
+            oneBins = newBins
+        for i in range(blocks_in_page*newBins):
+            j = I.index(this_ten[i]) + 1
+            s = numBins + math.ceil(i / blocks_in_page)
+            p_i_j.mark(j, s)
+        p_i_j.numBins = numBins
 
     # deal with the blocks which can not be packed into a full page
     new_tensor_list = [[], [], [], [], [], []]
-    for i in range(len(l)-blocks_in_page*newBins):
+    for i in range(len(l)-blocks_in_page*allBins):
         for j in range(6):
             new_tensor_list[j].append(i)
-    block_id = len(l)-blocks_in_page*newBins
-    block_increase = len(l0)-blocks_in_page*newBins0
+    block_id = len(l)-blocks_in_page*allBins
+    block_increase = len(l0)-blocks_in_page*oneBins
     for k in range(6):
         for i in range(block_id+k*block_increase, block_id+(k+1)*block_increase):
             new_tensor_list[k].append(i)
