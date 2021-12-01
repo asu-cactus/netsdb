@@ -277,284 +277,146 @@ def text_classification_greedy1(tensor_list, blocks_in_page):
     # set the required number of pages as 0
     numBins = 0
 
+    # create a list of equivalent class tensors
+    equivalent_class_tensors = []
+
+    # divide blocks into multiple equivalent classes
     l01234=tensor_list[0].intersection(tensor_list[1], tensor_list[2], tensor_list[3], tensor_list[4])
     ll01234 = list(l01234)
-    for i in range(len(l01234)):
-        j = I.index(ll01234[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l01234) / blocks_in_page)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll01234)
 
     l0123=tensor_list[0].intersection(tensor_list[1], tensor_list[2], tensor_list[3])-l01234
     ll0123 = list(l0123)
-    for i in range(len(l0123)):
-        j = I.index(ll0123[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l0123) / blocks_in_page)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll0123)
 
     l0124=tensor_list[0].intersection(tensor_list[1], tensor_list[2], tensor_list[4])-l01234
     ll0124 = list(l0124)
-    for i in range(len(l0124)):
-        j = I.index(ll0124[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l0124) / blocks_in_page)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll0124)
 
     l0134=tensor_list[0].intersection(tensor_list[1], tensor_list[3], tensor_list[4])-l01234
     ll0134 = list(l0134)
-    for i in range(len(l0134)):
-        j = I.index(ll0134[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l0134) / blocks_in_page)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll0134)
 
     l0234=tensor_list[0].intersection(tensor_list[2], tensor_list[3], tensor_list[4])-l01234
     ll0234 = list(l0234)
-    for i in range(len(l0234)):
-        j = I.index(ll0234[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l0234) / blocks_in_page)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll0234)
 
     l1234=tensor_list[1].intersection(tensor_list[2], tensor_list[3], tensor_list[4])-l01234
     ll1234 = list(l1234)
-    for i in range(len(l1234)):
-        j = I.index(ll1234[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l1234) / blocks_in_page)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll1234)
 
     l012=tensor_list[0].intersection(tensor_list[1], tensor_list[2])-l0123-l0124-l01234
     ll012 = list(l012)
-    for i in range(len(l012)):
-        j = I.index(ll012[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l012) / blocks_in_page)
-    p_i_j.numBins = numBins
-    
+    equivalent_class_tensors.append(ll012)
+
     l013=tensor_list[0].intersection(tensor_list[1], tensor_list[3])-l0123-l0134-l01234
     ll013 = list(l013)
-    for i in range(len(l013)):
-        j = I.index(ll013[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l013) / blocks_in_page)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll013)
 
     l014=tensor_list[0].intersection(tensor_list[1], tensor_list[4])-l0124-l0134-l01234
     ll014 = list(l014)
-    for i in range(len(l014)):
-        j = I.index(ll014[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l014) / blocks_in_page)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll014)
 
     l023=tensor_list[0].intersection(tensor_list[2], tensor_list[3])-l0123-l0234-l01234
     ll023 = list(l023)
-    for i in range(len(l023)):
-        j = I.index(ll023[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l023) / blocks_in_page)
-    p_i_j.numBins = numBins
-    
+    equivalent_class_tensors.append(ll023)
+
     l024=tensor_list[0].intersection(tensor_list[2], tensor_list[4])-l0124-l0234-l01234
     ll024 = list(l024)
-    for i in range(len(l024)):
-        j = I.index(ll024[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l024) / blocks_in_page)
-    p_i_j.numBins = numBins
-    
+    equivalent_class_tensors.append(ll024)
+
     l034=tensor_list[0].intersection(tensor_list[3], tensor_list[4])-l0134-l0234-l01234
     ll034 = list(l034)
-    for i in range(len(l034)):
-        j = I.index(ll034[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l034) / blocks_in_page)
-    p_i_j.numBins = numBins
-    
+    equivalent_class_tensors.append(ll034)
+
     l123=tensor_list[1].intersection(tensor_list[2], tensor_list[3])-l0123-l1234-l01234
     ll123 = list(l123)
-    for i in range(len(l123)):
-        j = I.index(ll123[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l123) / blocks_in_page)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll123)
 
     l124=tensor_list[1].intersection(tensor_list[2], tensor_list[4])-l0124-l1234-l01234
     ll124 = list(l124)
-    for i in range(len(l124)):
-        j = I.index(ll124[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l124) / blocks_in_page)
-    p_i_j.numBins = numBins
-    
+    equivalent_class_tensors.append(ll124)
+
     l134=tensor_list[1].intersection(tensor_list[3], tensor_list[4])-l0134-l1234-l01234
     ll134 = list(l134)
-    for i in range(len(l134)):
-        j = I.index(ll134[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l134) / blocks_in_page)
-    p_i_j.numBins = numBins
-    
+    equivalent_class_tensors.append(ll134)
+
     l234=tensor_list[2].intersection(tensor_list[3], tensor_list[4])-l0234-l1234-l01234
     ll234 = list(l234)
-    for i in range(len(l234)):
-        j = I.index(ll234[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l234) / blocks_in_page)
-    p_i_j.numBins = numBins
-    
+    equivalent_class_tensors.append(ll234)
+
     l01=tensor_list[0].intersection(tensor_list[1])-l012-l013-l014-l0123-l0124-l0134-l01234
     ll01 = list(l01)
-    for i in range(len(l01)):
-        j = I.index(ll01[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l01) / blocks_in_page)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll01)
 
     l02=tensor_list[0].intersection(tensor_list[2])-l012-l023-l024-l0123-l0124-l0234-l01234
     ll02 = list(l02)
-    for i in range(len(l02)):
-        j = I.index(ll02[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l02) / blocks_in_page)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll02)
 
     l03=tensor_list[0].intersection(tensor_list[3])-l013-l023-l034-l0123-l0234-l0234-l01234
     ll03 = list(l03)
-    for i in range(len(l03)):
-        j = I.index(ll03[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l03) / blocks_in_page)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll03)
 
     l04=tensor_list[0].intersection(tensor_list[4])-l014-l024-l034-l0124-l0134-l0234-l01234
     ll04 = list(l04)
-    for i in range(len(l04)):
-        j = I.index(ll04[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l04) / blocks_in_page)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll04)
 
     l12=tensor_list[1].intersection(tensor_list[2])-l012-l123-l124-l0123-l0124-l1234-l01234
     ll12 = list(l12)
-    for i in range(len(l12)):
-        j = I.index(ll12[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l12) / blocks_in_page)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll12)
 
     l13=tensor_list[1].intersection(tensor_list[3])-l013-l034-l134-l0123-l0134-l1234-l01234
     ll13 = list(l13)
-    for i in range(len(l13)):
-        j = I.index(ll13[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l13) / blocks_in_page)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll13)
 
     l14=tensor_list[1].intersection(tensor_list[4])-l014-l124-l134-l0124-l0134-l1234-l01234
     ll14 = list(l14)
-    for i in range(len(l14)):
-        j = I.index(ll14[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l14) / blocks_in_page)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll14)
 
     l23=tensor_list[2].intersection(tensor_list[3])-l023-l123-l234-l0123-l0234-l1234-l01234
     ll23 = list(l23)
-    for i in range(len(l23)):
-        j = I.index(ll23[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l23) / blocks_in_page)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll23)
 
     l24=tensor_list[2].intersection(tensor_list[4])-l024-l124-l234-l0124-l0234-l1234-l01234
     ll24 = list(l24)
-    for i in range(len(l24)):
-        j = I.index(ll24[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l24) / blocks_in_page)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll24)
 
     l34=tensor_list[3].intersection(tensor_list[4])-l034-l134-l234-l0134-l0234-l1234-l01234
     ll34 = list(l34)
-    for i in range(len(l34)):
-        j = I.index(ll34[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l34) / blocks_in_page)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll34)
 
     l0=tensor_list[0]-l01-l02-l03-l04-l012-l013-l014-l023-l024-l034-l0123-l0124-l0134-l0234-l01234
     ll0 = list(l0)
-    for i in range(len(l0)):
-        j = I.index(ll0[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l0) / blocks_in_page)
-    p_i_j.numBins = numBins
-    
+    equivalent_class_tensors.append(ll0)
+
     l1=tensor_list[1]-l01-l12-l13-l14-l012-l013-l014-l123-l124-l134-l0123-l0124-l0134-l1234-l01234
     ll1 = list(l1)
-    for i in range(len(l1)):
-        j = I.index(ll1[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l1) / blocks_in_page)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll1)
 
     l2=tensor_list[2]-l02-l12-l23-l24-l012-l023-l024-l123-l124-l234-l0123-l0124-l0234-l1234-l01234
     ll2 = list(l2)
-    for i in range(len(l2)):
-        j = I.index(ll2[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l2) / blocks_in_page)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll2)
 
     l3=tensor_list[3]-l03-l13-l23-l34-l013-l023-l034-l123-l134-l234-l0123-l0134-l0234-l1234-l01234
     ll3 = list(l3)
-    for i in range(len(l3)):
-        j = I.index(ll3[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l3) / blocks_in_page)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll3)
 
     l4=tensor_list[4]-l04-l14-l24-l34-l014-l024-l034-l124-l134-l234-l0124-l0134-l0234-l1234-l01234
     ll4 = list(l4)
-    for i in range(len(l4)):
-        j = I.index(ll4[i]) + 1
-        s = numBins + math.ceil(i / blocks_in_page)
-        p_i_j.mark(j, s)
-    numBins = numBins + math.ceil(len(l4) / blocks_in_page)
-    p_i_j.numBins = numBins
+    equivalent_class_tensors.append(ll4)
+
+    # pack the blocks based on the equivalent classes
+    for k in range(len(equivalent_class_tensors)):
+        this_len = len(equivalent_class_tensors[k])
+        this_ten = equivalent_class_tensors[k]
+        for i in range(this_len):
+            j = I.index(this_ten[i]) + 1
+            s = numBins + math.ceil(i / blocks_in_page)
+            p_i_j.mark(j, s)
+        numBins = numBins + math.ceil(this_len / blocks_in_page)
+        p_i_j.numBins = numBins
+
+    # return the bin-packing scheme
     return set([p_i_j])
 
 """
