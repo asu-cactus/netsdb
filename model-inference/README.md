@@ -33,3 +33,8 @@
 
 [Documentation](deduplication/page-packing/README.md)
 
+## Model Serving with Deduplication
+
+[Word2Vec](deduplication/model-serving/word2vec/README.md)
+
+[TextClassifier](deduplication/model-serving/text-classification/README.md)
