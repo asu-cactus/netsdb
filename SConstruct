@@ -378,6 +378,7 @@ all = ['build/sqlite/sqlite3.c',
        component_dir_basename_to_cc_file_paths['storage'],
        component_dir_basename_to_cc_file_paths['lambdas'],
        component_dir_basename_to_cc_file_paths['logicalPlan'],
+       component_dir_basename_to_cc_file_paths['deduplication'],
        component_dir_basename_to_cc_file_paths['linearAlgebraDSL'],
        component_dir_basename_to_cc_file_paths['selfLearning'],
        component_dir_basename_to_lexer_file_paths['logicalPlan'],
@@ -1267,6 +1268,8 @@ common_env.Program('bin/test95', ['build/tests/Test95.cc'] + all + pdb_client)
 common_env.Program('bin/test96', ['build/tests/Test96.cc'] + all)
 common_env.Program('bin/test97', ['build/tests/Test97.cc'] + all + pdb_client)
 common_env.Program('bin/testTensorBlockIndex', ['build/tests/TestTensorBlockIndex.cc'] + all + pdb_client)
+common_env.Program('bin/testSharedTensorBlockSet', ['build/tests/TestSharedTensorBlockSet.cc', 'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc']+all+pdb_client)
+common_env.Program('bin/testWord2VecWithDeduplication', ['build/tests/TestWord2VecWithDeduplication.cc', 'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc']+all+pdb_client)
 common_env.Program('bin/testLA01_Transpose',
                    ['build/tests/TestLA01_Transpose.cc'] + all + pdb_client)
 common_env.Program('bin/testLA02_Add',
@@ -1373,6 +1376,27 @@ common_env.SharedLibrary('libraries/libRankUpdateAggregation.so',
 common_env.Program(
     'bin/removeSet', ['build/tests/RemoveSet.cc'] + all + pdb_client)
 
+
+# Semantic Classifier
+common_env.SharedLibrary('libraries/libEmbeddingLookupSparse.so',
+                        ['build/word2vec/EmbeddingLookupSparse.cc'] + all)
+common_env.SharedLibrary('libraries/libEmbeddingSegment.so',
+                        ['build/word2vec/EmbeddingSegment.cc'] + all)
+common_env.SharedLibrary('libraries/libSemanticClassifier.so',
+                        ['build/word2vec/SemanticClassifier.cc'] + all)
+common_env.Program('bin/classifier', 
+                        ['build/tests/TestSemanticClassifier.cc', 'build/FF/SimpleFF.cc',
+                        'build/FF/FFMatrixUtil.cc', 'build/word2vec/SemanticClassifier.cc'] + all + pdb_client)
+common_env.Program('bin/dedupClassifier',
+                        ['build/tests/TestSemanticClassificationWithDeduplication.cc', 'build/FF/SimpleFF.cc',
+                        'build/FF/FFMatrixUtil.cc', 'build/word2vec/SemanticClassifier.cc'] + all + pdb_client)
+
+# Decision Tree
+common_env.SharedLibrary('libraries/libSpecializedBC.so',
+                        ['build/decisionTree/SpecializedBC.cc'] + all)
+common_env.Program('bin/decisionTreeSpecializedBC', 
+                        ['build/tests/TestSpecializedBC.cc', 'build/FF/FFMatrixUtil.cc',
+                        'build/FF/SimpleFF.cc', 'build/decisionTree/SpecializedBC.cc'] + all + pdb_client)
 
 # Testing
 pdbTest = common_env.Command(
@@ -1832,7 +1856,36 @@ libFFTest = common_env.Alias('libword2vec', [
     'bin/pdb-server',
     'bin/word2vec',
     'bin/testTensorBlockIndex',
+    'bin/testSharedTensorBlockSet',
+    'bin/testWord2VecWithDeduplication',
     # Other libraries from src/FF
+    'libraries/libEmbeddingLookupSparse.so',
+    'libraries/libEmbeddingSegment.so',
+    'libraries/libFFMatrixBlock.so',
+    'libraries/libFFMatrixMeta.so',
+    'libraries/libFFMatrixData.so',
+    'libraries/libFFMatrixBlockScanner.so',
+    'libraries/libFFInputLayerJoin.so',
+    'libraries/libFFMatrixWriter.so',
+    'libraries/libFFAggMatrix.so',
+    'libraries/libFFTransposeBiasSum.so',
+    'libraries/libFFTransposeMult.so',
+    'libraries/libFFReluBiasSum.so',
+    'libraries/libFFRowAggregate.so',
+    'libraries/libFFOutputLayer.so',
+    'libraries/libFFMatrixMultiSel.so',
+    'libraries/libInferenceResult.so',
+    'libraries/libInferenceResultPartition.so',
+    'libraries/libFFMatrixPartitioner.so',
+])
+
+libFFTest = common_env.Alias('libclassifier', [
+    'bin/pdb-cluster',
+    'bin/pdb-server',
+    'bin/classifier',
+    'bin/dedupClassifier',
+    # Other libraries from src/FF
+    'libraries/libSemanticClassifier.so',
     'libraries/libFFMatrixBlock.so',
     'libraries/libFFMatrixMeta.so',
     'libraries/libFFMatrixData.so',
@@ -1913,6 +1966,19 @@ libLSTMTest = common_env.Alias('libLSTMTest', [
     'libraries/libLSTMThreeWaySum.so',
     'libraries/libLSTMTwoSum.so',
     'libraries/libLSTMHiddenState.so',
+])
+
+libSpecializedBCTest = common_env.Alias('libSpecializedBCTest', [
+    'bin/pdb-cluster',
+    'bin/pdb-server',
+    'libraries/libFFMatrixBlock.so',
+    'libraries/libFFMatrixMeta.so',
+    'libraries/libFFMatrixData.so',
+    'libraries/libFFMatrixBlockScanner.so',
+    'libraries/libFFMatrixWriter.so',
+    'libraries/libMatrixBlock.so',
+    'libraries/libSpecializedBC.so',
+    'bin/decisionTreeSpecializedBC'
 ])
 
 libConv2DProjTest = common_env.Alias('libConv2DProjTest', [
