@@ -24,8 +24,9 @@ public:
                   size_t pageSize = DEFAULT_PAGE_SIZE,
                   size_t desiredSize = 1,
                   bool isMRU = true,
-                  bool isTransient = true)
-        : dataBase(dataBase), setName(setName), typeName(typeName), pageSize(pageSize), desiredSize(desiredSize), isMRU(isMRU), isTransient(isTransient) {}
+                  bool isTransient = true,
+		  bool isSharedTensorBlockSet = false)
+        : dataBase(dataBase), setName(setName), typeName(typeName), pageSize(pageSize), desiredSize(desiredSize), isMRU(isMRU), isTransient(isTransient), isSharedTensorBlockSet(isSharedTensorBlockSet) {}
 
     std::string getDatabase() {
         return dataBase;
@@ -55,7 +56,13 @@ public:
         return isTransient;
     }
 
+    bool getSharedTensorBlockSet() {
+        return this->isSharedTensorBlockSet;
+    }
 
+    void setSharedTensorBlockSet(bool isSharedTensorBlockSet) {
+        this->isSharedTensorBlockSet = isSharedTensorBlockSet;
+    }
 
     ENABLE_DEEP_COPY
 
@@ -67,6 +74,7 @@ private:
     size_t desiredSize;
     bool isMRU;
     bool isTransient;
+    bool isSharedTensorBlockSet;
 };
 }
 

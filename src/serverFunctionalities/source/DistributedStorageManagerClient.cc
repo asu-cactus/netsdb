@@ -15,6 +15,7 @@
 #include "DistributedStorageExportSet.h"
 #include "DistributedStorageClearSet.h"
 #include "DistributedStorageCleanup.h"
+#include "DistributedStorageAddSharedPage.h"
 
 namespace pdb {
 
@@ -56,7 +57,8 @@ bool DistributedStorageManagerClient::createSet(const std::string& databaseName,
                                                 Handle<Computation> dispatchComputation,
                                                 Handle<LambdaIdentifier> lambdaIdentifier,
                                                 size_t desiredSize,
-                                                bool isMRU ) {
+                                                bool isMRU,
+	       bool isSharedTensorBlockSet	) {
     std::cout << "to create set for " << databaseName << ":" << setName << std::endl;
     if (lambdaIdentifier != nullptr) {
 
@@ -79,7 +81,8 @@ bool DistributedStorageManagerClient::createSet(const std::string& databaseName,
         dispatchComputation,
         lambdaIdentifier,
         desiredSize,
-        isMRU
+        isMRU,
+	isSharedTensorBlockSet
         );
 }
 
@@ -99,11 +102,12 @@ bool DistributedStorageManagerClient::createSet(const std::string& databaseName,
                                                 std::string lambdaName1,
                                                 std::string lambdaName2,
                                                 size_t desiredSize,
-                                                bool isMRU ) {
+                                                bool isMRU,
+	                                        bool isSharedTensorBlockSet	) {
     std::cout << "to create set for " << databaseName << ":" << setName << std::endl;
     std::cout << "jobName is " << jobName << std::endl;
     Handle<DistributedStorageAddSetWithPartition> request = makeObject<DistributedStorageAddSetWithPartition> (databaseName,
-    setName, typeName, pageSize, createdJobId, dispatchComputations, jobName, jobName1, jobName2, computationName1, computationName2, lambdaName1, lambdaName2, desiredSize, isMRU);
+    setName, typeName, pageSize, createdJobId, dispatchComputations, jobName, jobName1, jobName2, computationName1, computationName2, lambdaName1, lambdaName2, desiredSize, isMRU, isSharedTensorBlockSet);
     return simpleDoubleRequest<DistributedStorageAddSetWithPartition, Vector<Handle<Computation>>, SimpleRequestResult, bool>(
         logger,
         port,
@@ -252,6 +256,40 @@ bool DistributedStorageManagerClient::clearSet(const std::string& databaseName,
         typeName);
 }
 
+
+bool DistributedStorageManagerClient::addSharedPage(std::string sharingDatabase,
+                   std::string sharingSetName,
+                   std::string sharingTypeName,
+                   std::string sharedDatabase,
+                   std::string sharedSetName,
+                   std::string sharedTypeName,
+                   PageID pageId,
+                   FilePartitionID filePartitionId,
+                   unsigned int pageSeqId,
+                   bool whetherToAddSharedSet,
+                   NodeID nodeId,
+		   std::string& errMsg) {
+
+     return simpleRequest<DistributedStorageAddSharedPage, SimpleRequestResult, bool>(
+		   logger,
+		   port,
+		   address,
+		   false,
+		   1024,
+		   generateResponseHandler("Could not add shared page to distributed storage manager", errMsg),   
+                   sharingDatabase,
+		   sharingSetName,
+		   sharingTypeName,
+		   sharedDatabase,
+		   sharedSetName,
+		   sharedTypeName,
+		   pageId,
+		   filePartitionId,
+		   pageSeqId,
+                   whetherToAddSharedSet,
+		   nodeId);
+
+}
 
 bool DistributedStorageManagerClient::flushData(std::string& errMsg) {
     return simpleRequest<DistributedStorageCleanup, SimpleRequestResult, bool>(

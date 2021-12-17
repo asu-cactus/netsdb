@@ -6,6 +6,7 @@
 #include "UserSet.h"
 #include "PartitionPageIterator.h"
 #include "SetCachePageIterator.h"
+#include "PartitionTensorBlockSharedPageIterator.h"
 #include <string>
 #include <string.h>
 /**
@@ -25,8 +26,10 @@ UserSet::UserSet(pdb::PDBLoggerPtr logger,
                  DurabilityType durability,
                  PersistenceType persistence,
                  size_t pageSize,
-                 size_t desiredSize)
-    : LocalitySet(localityType, policy, operation, durability, persistence, desiredSize) {
+                 size_t desiredSize,
+		 bool isShared)
+    : LocalitySet(localityType, policy, operation, durability, persistence, desiredSize, isShared) {
+    this->isShared = isShared;
     this->pageSize = pageSize;
     this->logger = logger;
     this->shm = shm;
@@ -43,6 +46,7 @@ UserSet::UserSet(pdb::PDBLoggerPtr logger,
     pthread_mutex_init(&this->addBytesMutex, nullptr);
     this->isPinned = false;
     this->numPages = 0;
+
 }
 
 
@@ -64,8 +68,10 @@ UserSet::UserSet(size_t pageSize,
                  OperationType operation,
                  DurabilityType durability,
                  PersistenceType persistence,
-                 size_t desiredSize)
-    : LocalitySet(localityType, policy, operation, durability, persistence, desiredSize) {
+                 size_t desiredSize,
+		 bool isShared)
+    : LocalitySet(localityType, policy, operation, durability, persistence, desiredSize, isShared) {
+    this->isShared = isShared;
     this->pageSize = pageSize;
     this->logger = logger;
     this->shm = shm;
@@ -192,6 +198,33 @@ vector<PageIteratorPtr>* UserSet::getIterators() {
     }
     this->unlockDirtyPageSet();
     return retVec;
+}
+
+
+/**
+     * Get a set of iterators for scanning the data in the set, including the pages that are shared by the set but not stored in the set.
+     * The set of iterators will include:
+     * -- 1 iterator to scan data in input buffer;
+     * -- K iterators to scan data in file partitions, assuming there are K partitions.
+     * -- K iterators to scan shared pages in file partitions, assuming there are K partitions
+     * IMPORTANT: user needs to delete the returned vector!!!
+     */
+vector<PageIteratorPtr>* UserSet::getIteratorsExtended(SetPtr sharedSet) {
+
+     vector<PageIteratorPtr>* retVec = this->getIterators();
+     //now we should retrieve the iterator for shared pages of this set
+     PartitionedFilePtr sharedFile = sharedSet->getFile();
+     int numPartitions = sharedFile->getNumPartitions();
+     std::cout << "SharedFile has " << numPartitions << " partitions" << std::endl;
+     PageIteratorPtr iterator = nullptr;
+     for (int i = 0; i < numPartitions; i++) {
+        iterator = make_shared<pdb::PartitionTensorBlockSharedPageIterator>(this->pageCache, file, sharedFile, i, dynamic_pointer_cast<pdb::SharedTensorBlockSet>(sharedSet));
+        retVec->push_back(iterator);
+     }
+
+     return retVec;
+
+    
 }
 
 // user MUST guarantee that the size of buffer is large enough for dumping all data in the set.

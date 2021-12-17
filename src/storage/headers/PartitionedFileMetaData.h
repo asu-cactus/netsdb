@@ -233,9 +233,18 @@ public:
     }
 
     /**
+     * Get the shared page maps
+     */
+    std::unordered_map<FilePartitionID, std::unordered_map<PageID, PageIndex>*> * getSharedPageMaps() {
+        return this->sharedPageMaps;
+    }
+
+
+
+    /**
      * Add a shared page index
      */ 
-    void addSharedPageIndex(FilePartitionID partitionId, unsigned int pageSeqInPartition) {
+    void addSharedPageIndex(PageID pageId, FilePartitionID partitionId, unsigned int pageSeqInPartition) {
 	pthread_mutex_lock(&sharedPageIndexMutex);
         if (sharedPageIndexes == nullptr) {
 	    this->sharedPageIndexes = new std::vector<PageIndex>();
@@ -244,23 +253,34 @@ public:
         pageIndex.partitionId = partitionId;
         pageIndex.pageSeqInPartition = pageSeqInPartition;
         this->sharedPageIndexes->push_back(pageIndex);
+
+	if (sharedPageMaps == nullptr) {
+	    sharedPageMaps = new std::unordered_map<FilePartitionID, std::unordered_map<PageID, PageIndex>*>();
+	}
+	if (sharedPageMaps->count(partitionId) == 0) {
+	    (*sharedPageMaps)[partitionId]=new std::unordered_map<PageID, PageIndex>();
+	}
+	(*(*sharedPageMaps)[partitionId])[pageId] = pageIndex;
+	this->numSharedPages++;
         pthread_mutex_unlock(&sharedPageIndexMutex);
     }
 
     /**
      * Remove a shared page index
      */
-    void removeSharedPageIndex (FilePartitionID partitionId, unsigned int pageSeqInPartition) {
+    void removeSharedPageIndex (PageID pageId, FilePartitionID partitionId, unsigned int pageSeqInPartition) {
         pthread_mutex_lock(&sharedPageIndexMutex);
-	if (sharedPageIndexes == nullptr) {
+	if ((sharedPageIndexes == nullptr)||(sharedPageMaps == nullptr)) {
 	    pthread_mutex_unlock(&sharedPageIndexMutex);
 	    return;
 	}
         for (auto r=(this->sharedPageIndexes)->begin(); r!=(this->sharedPageIndexes)->end();r++) {
 	    if (((*r).partitionId == partitionId)&&((*r).pageSeqInPartition == pageSeqInPartition)){
-	        r= sharedPageIndexes->erase(r);
+	        r = sharedPageIndexes->erase(r);
+
 	    } 
 	}
+	sharedPageMaps[partitionId].erase(pageId);
 	pthread_mutex_unlock(&sharedPageIndexMutex);
     } 
 
@@ -296,6 +316,11 @@ private:
      * A list of PageIndexes that index the external shared pages
      */
     std::vector<PageIndex>* sharedPageIndexes = nullptr;
+
+    /**
+     * A map that maps PageID to PageIndex for shared pages for each partition
+     */
+    std::unordered_map<FilePartitionID, std::unordered_map<PageID, PageIndex>*> * sharedPageMaps = nullptr;    
 
 };
 

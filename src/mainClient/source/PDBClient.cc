@@ -58,20 +58,20 @@ bool PDBClient::createDatabase(const std::string &databaseName,
 bool PDBClient::createSet(const std::string &databaseName,
                           const std::string &setName,
                           const std::string &typeName, std::string &errMsg,
-                          size_t pageSize, const std::string &createdJobId, Handle<Computation> dispatchComputation, Handle<LambdaIdentifier> lambda) {
+                          size_t pageSize, const std::string &createdJobId, Handle<Computation> dispatchComputation, Handle<LambdaIdentifier> lambda, bool isSharedTensorBlockSet) {
 
   return distributedStorageClient.createSet(databaseName, setName, typeName,
-                                            errMsg, pageSize, createdJobId, dispatchComputation, lambda);
+                                            errMsg, pageSize, createdJobId, dispatchComputation, lambda, isSharedTensorBlockSet);
 }
 
 
 bool PDBClient::createSet(const std::string &databaseName,
                           const std::string &setName,
                           const std::string &typeName, std::string &errMsg,
-                          size_t pageSize, const std::string &createdJobId, Handle<Vector<Handle<Computation>>> dispatchComputations, std::string jobName, std::string jobName1, std::string jobName2, std::string computationName1, std::string computationName2, std::string lambdaName1, std::string lambdaName2) {
+                          size_t pageSize, const std::string &createdJobId, Handle<Vector<Handle<Computation>>> dispatchComputations, std::string jobName, std::string jobName1, std::string jobName2, std::string computationName1, std::string computationName2, std::string lambdaName1, std::string lambdaName2, bool isSharedTensorBlockSet) {
 
   return distributedStorageClient.createSet(databaseName, setName, typeName,
-                                            errMsg, pageSize, createdJobId, dispatchComputations, jobName, jobName1, jobName2, computationName1, computationName2, lambdaName1, lambdaName2);
+                                            errMsg, pageSize, createdJobId, dispatchComputations, jobName, jobName1, jobName2, computationName1, computationName2, lambdaName1, lambdaName2, isSharedTensorBlockSet);
 }
 
 
@@ -127,6 +127,26 @@ bool PDBClient::clearSet(const std::string &databaseName,
 
   return distributedStorageClient.clearSet(databaseName, setName, typeName,
                                            errMsg);
+}
+
+
+bool PDBClient::addSharedPage(std::string sharingDatabase,
+                   std::string sharingSetName,
+                   std::string sharingTypeName,
+                   std::string sharedDatabase,
+                   std::string sharedSetName,
+                   std::string sharedTypeName,
+                   PageID pageId,
+                   FilePartitionID filePartitionId,
+                   unsigned int pageSeqId,
+                   bool whetherToAddSharedSet,
+                   NodeID nodeId,
+                   std::string& errMsg) {
+   
+  return distributedStorageClient.addSharedPage(sharingDatabase, sharingSetName, sharingTypeName,
+		  sharedDatabase, sharedSetName, sharedTypeName, pageId, filePartitionId, pageSeqId,
+		  whetherToAddSharedSet, nodeId, errMsg);
+
 }
 
 bool PDBClient::flushData(std::string &errMsg) {

@@ -54,7 +54,8 @@ public:
             DurabilityType durability = TryCache,
             PersistenceType persistence = Persistent,
             size_t pageSize = DEFAULT_PAGE_SIZE,
-            size_t desiredSize = 1);
+            size_t desiredSize = 1,
+	    bool isShared = false);
 
     /**
      * Create a UserSet instance, file is set now
@@ -74,7 +75,8 @@ public:
             OperationType operation = Read,
             DurabilityType durability = TryCache,
             PersistenceType persistence = Persistent,
-            size_t desiredSize = 1);
+            size_t desiredSize = 1,
+	    bool isShared = false);
 
     /**
      * Destructor.
@@ -183,6 +185,19 @@ public:
      */
     virtual vector<PageIteratorPtr>* getIterators();
 
+
+    /**
+     * Get a set of iterators for scanning the data in the set, including the pages that are shared by the set but not stored in the set.
+     * The set of iterators will include:
+     * -- 1 iterator to scan data in input buffer;
+     * -- K iterators to scan data in file partitions, assuming there are K partitions.
+     * -- K iterators to scan shared pages in file partitions, assuming there are K partitions
+     * IMPORTANT: user needs to delete the returned vector!!!
+     */
+    virtual vector<PageIteratorPtr>* getIteratorsExtended(SetPtr sharedSetPtr);
+
+
+
     /**
      * Get page from set.
      * Step 1. check whether the page is already in cache using cache key, if so return it.
@@ -226,6 +241,13 @@ public:
      */
     string getSetName() {
         return this->setName;
+    }
+
+    /**
+     * Returns the number of external pages the set shares
+     */
+    int getNumSharedPages() {
+        return this->file->getNumSharedPages();
     }
 
     /**
@@ -358,7 +380,14 @@ public:
 
     void print() {
         std::cout << "################################" << std::endl;
-        std::cout << "setName:" << setName << std::endl;
+        if (isShared){
+	   std::cout << "SharedSet" << std::endl;
+	} else {
+	   std::cout << "PrivateSet" << std::endl;
+	}
+        std::cout << "readCost:" << readCost << std::endl;
+	std::cout << "writeCost:" << writeCost << std::endl;
+	std::cout << "setName:" << setName << std::endl;
         std::cout << "pageSize:" << pageSize << std::endl;
         switch (localityType) {
             case JobData:

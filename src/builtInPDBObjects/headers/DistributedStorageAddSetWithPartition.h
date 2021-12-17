@@ -34,7 +34,8 @@ public:
                              std::string lambdaName1,
                              std::string lambdaName2,
                              size_t desiredSize = 1,
-                             bool isMRU = false)
+                             bool isMRU = false,
+			     bool isSharedTensorBlockSet = false)
         : dataBase(dataBase), setName(setName), typeName(typeName), pageSize(pageSize), createdJobId(createdJobId) {
 
         this->dispatchComputations = dispatchComputations;
@@ -47,6 +48,7 @@ public:
         this->lambdaName2 = lambdaName2;
         this->desiredSize = desiredSize;
         this->isMRU = isMRU;
+	this->isSharedTensorBlockSet = isSharedTensorBlockSet;
     }
 
 
@@ -154,6 +156,14 @@ public:
         this->computationName2 = computationName2;
     }
 
+    bool getSharedTensorBlockSet() {
+        return this->isSharedTensorBlockSet;
+    }
+
+    void setSharedTensorBlockSet(bool isSharedTensorBlockSet) {
+        this->isSharedTensorBlockSet = isSharedTensorBlockSet;
+    }
+
     ENABLE_DEEP_COPY
 
 private:
@@ -172,7 +182,7 @@ private:
     String computationName2;
     String lambdaName1;
     String lambdaName2;
-
+    bool isSharedTensorBlockSet;
 };
 }
 
