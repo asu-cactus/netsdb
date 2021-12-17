@@ -8,6 +8,10 @@
 #include <iostream>
 #include <vector>
 
+#include "Object.h"
+#include "PDBVector.h"
+#include "PDBString.h"
+#include "Handle.h"
 #include "FFMatrixBlock.h"
 #include "Lambda.h"
 #include "LambdaCreationFunctions.h"
@@ -20,8 +24,8 @@ class SpecializedBC: public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
 
     ENABLE_DEEP_COPY
 
-    SpecializedBC() {
-    }
+    SpecializedBC() {}
+    ~SpecializedBC() {}
 
     Lambda<bool> getSelection(Handle<FFMatrixBlock> checkMe) override {
         return makeLambda(checkMe,
@@ -56,7 +60,7 @@ class SpecializedBC: public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
             double concavity_worst;
 
             double result;
-            pdb::Handle<pdb::Vector<double>> resultMatrix;
+            pdb::Handle<pdb::Vector<double>> resultMatrix = pdb::makeObject<pdb::Vector<double>>();
 
             for (int i = 0; i < inNumRow; i++){
               texture_mean = inData[i*inNumCol+1];

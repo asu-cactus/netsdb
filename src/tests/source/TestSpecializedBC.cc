@@ -26,6 +26,8 @@ int main(int argc, char *argv[]) {
 
   string errMsg;
 
+  makeObjectAllocatorBlock(1024* 1024 * 1024, true);
+
   string masterIp = "localhost";
   pdb::PDBLoggerPtr clientLogger = make_shared<pdb::PDBLogger>("DecisionTreeClientLog");
   pdb::PDBClient pdbClient(8108, masterIp, clientLogger, false, true);
@@ -37,7 +39,7 @@ int main(int argc, char *argv[]) {
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlock.so");
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlockScanner.so");
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixWriter.so");
-  
+
   std::cout << "To load shared libraries of rules" << std::endl;
   ff::loadLibrary(pdbClient, "libraries/libSpecializedBC.so");
   
