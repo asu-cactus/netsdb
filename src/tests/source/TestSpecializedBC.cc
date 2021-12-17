@@ -19,9 +19,9 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 
-  int rowNum = 569;
-  int colNum = 31;
-  int block_x = 569;
+  int rowNum = 569; //number of instances
+  int colNum = 31; //number of features
+  int block_x = 569; 
   int block_y = 31;
 
   string errMsg;
@@ -34,12 +34,16 @@ int main(int argc, char *argv[]) {
   pdb::CatalogClient catalogClient(8108, masterIp, clientLogger);
 
   ff::createDatabase(pdbClient, "decisiontreeBC");
+  ff::createSet(pdbClient, "decisiontreeBC", "inputs", "inputs", 64);
+  ff::createSet(pdbClient, "decisiontreeBC", "labels", "labels", 64);
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixMeta.so");
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixData.so");
+  std::cout << "to load libraries/libFFMatrixBlock.so" << std::endl;
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlock.so");
+  std::cout << "to load scanner" << std::endl;
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlockScanner.so");
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixWriter.so");
-
+  ff::loadLibrary(pdbClient, "libraries/libFFMatrixPartitioner.so");
   std::cout << "To load shared libraries of rules" << std::endl;
   ff::loadLibrary(pdbClient, "libraries/libSpecializedBC.so");
   
@@ -47,8 +51,9 @@ int main(int argc, char *argv[]) {
 
   std::cout << "To load matrix for decision tree:inputs" << std::endl;
   ff::loadMatrix(pdbClient, "decisiontreeBC", "inputs", rowNum, colNum, block_x,
-                   block_y, false, false, errMsg);
+                   block_y, false, false, errMsg, 128, false);
 
+  std::cout << "To create the computation for scanner" << std::endl;
   pdb::Handle<pdb::Computation> inputMatrix = pdb::makeObject<FFMatrixBlockScanner>("decisiontreeBC", "inputs");
 
   std::cout << "To make object of decision tree shared libraries" << std::endl;

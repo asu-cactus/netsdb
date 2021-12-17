@@ -378,7 +378,7 @@ all = ['build/sqlite/sqlite3.c',
        component_dir_basename_to_cc_file_paths['storage'],
        component_dir_basename_to_cc_file_paths['lambdas'],
        component_dir_basename_to_cc_file_paths['logicalPlan'],
-       component_dir_basename_to_cc_file_paths['deduplication'],
+       #component_dir_basename_to_cc_file_paths['deduplication'],
        component_dir_basename_to_cc_file_paths['linearAlgebraDSL'],
        component_dir_basename_to_cc_file_paths['selfLearning'],
        component_dir_basename_to_lexer_file_paths['logicalPlan'],
@@ -1978,7 +1978,8 @@ libSpecializedBCTest = common_env.Alias('libSpecializedBCTest', [
     'libraries/libFFMatrixWriter.so',
     'libraries/libMatrixBlock.so',
     'libraries/libSpecializedBC.so',
-    'bin/decisionTreeSpecializedBC'
+    'bin/decisionTreeSpecializedBC',
+    'libraries/libFFMatrixPartitioner.so',
 ])
 
 libConv2DProjTest = common_env.Alias('libConv2DProjTest', [
