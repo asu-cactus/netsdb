@@ -156,7 +156,7 @@ class SpecializedBC: public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
               resultMatrix->push_back(result);
             }
             pdb::Handle<FFMatrixBlock> resultMatrixBlock =
-                pdb::makeObject<FFMatrixBlock>(inBlockRowIndex, 0, inBlockRowIndex, 1, resultMatrix);
+                pdb::makeObject<FFMatrixBlock>(inBlockRowIndex, inBlockColIndex, inNumRow, 1, resultMatrix);
             return resultMatrixBlock;
         });
     }

@@ -34,8 +34,6 @@ int main(int argc, char *argv[]) {
   pdb::CatalogClient catalogClient(8108, masterIp, clientLogger);
 
   ff::createDatabase(pdbClient, "decisiontreeBC");
-  ff::createSet(pdbClient, "decisiontreeBC", "inputs", "inputs", 64);
-  ff::createSet(pdbClient, "decisiontreeBC", "labels", "labels", 64);
 
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixMeta.so");
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixData.so");
@@ -44,14 +42,20 @@ int main(int argc, char *argv[]) {
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixWriter.so");
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixPartitioner.so");
 
+  ff::createSet(pdbClient, "decisiontreeBC", "inputs", "inputs", 64);
+  ff::createSet(pdbClient, "decisiontreeBC", "labels", "labels", 64);
+
   std::cout << "To load shared libraries of rules" << std::endl;
   ff::loadLibrary(pdbClient, "libraries/libSpecializedBC.so");
   
   auto begin = std::chrono::high_resolution_clock::now();
 
-  std::cout << "To load matrix for decision tree:inputs" << std::endl;
+  std::cout << "To load matrix for decision tree inputs" << std::endl;
   ff::loadMatrix(pdbClient, "decisiontreeBC", "inputs", rowNum, colNum, block_x,
                    block_y, false, false, errMsg);
+
+  std::cout << "To print the inputs" << std::endl;
+  ff::print(pdbClient, "decisiontreeBC", "inputs");
 
   pdb::Handle<pdb::Computation> inputMatrix = pdb::makeObject<FFMatrixBlockScanner>("decisiontreeBC", "inputs");
 
@@ -75,8 +79,6 @@ int main(int argc, char *argv[]) {
 
   auto end = std::chrono::high_resolution_clock::now();
 
-  std::cout << "To print the results" << std::endl;
-
   std::cout << "****Decision Tree End-to-End Time Duration: ****"
               << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
               << " secs." << std::endl;
@@ -85,7 +87,10 @@ int main(int argc, char *argv[]) {
               << std::chrono::duration_cast<std::chrono::duration<float>>(end - exe_begin).count()
               << " secs." << std::endl;
 
+  //verify the results
   std::cout << "To print the status" << std::endl;
   ff::print_stats(pdbClient, "decisiontreeBC", "labels");
+  std::cout << "To print the results" << std::endl;
+  ff::print(pdbClient, "decisiontreeBC", "labels");
   return 0;
 }
