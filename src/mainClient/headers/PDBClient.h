@@ -80,12 +80,12 @@ public:
   /* Creates a set with a given type for an existing database, which can be applied with lambda-based dispatching policy */
   bool createSet(const std::string &databaseName, const std::string &setName,
                  const std::string &typeName, std::string &errMsg,
-                 size_t pageSize = DEFAULT_PAGE_SIZE, const std::string &createdJobId = "", Handle<Computation> dispatchComputation = nullptr, Handle<LambdaIdentifier> lambda = nullptr);
+                 size_t pageSize = DEFAULT_PAGE_SIZE, const std::string &createdJobId = "", Handle<Computation> dispatchComputation = nullptr, Handle<LambdaIdentifier> lambda = nullptr, bool isSharedTensorBlockSet = false);
 
   /* Creates a set with a given type for an existing database, which can be applied with IR-based dispatching policy*/
   bool createSet(const std::string &databaseName, const std::string &setName,
                  const std::string &typeName, std::string &errMsg,
-                 size_t pageSize, const std::string &createdJobId, Handle<Vector<Handle<Computation>>> dispatchComputations, const std::string jobName, std::string jobName1, std::string jobName2, std::string computationName1, std::string computationName2, std::string lambdaName1, std::string lambdaName2);
+                 size_t pageSize, const std::string &createdJobId, Handle<Vector<Handle<Computation>>> dispatchComputations, const std::string jobName, std::string jobName1, std::string jobName2, std::string computationName1, std::string computationName2, std::string lambdaName1, std::string lambdaName2, bool isSharedTensorBlockSet = false);
 
 
   /* Creates a set with a given type (using a template) for an existing
@@ -94,7 +94,7 @@ public:
   bool createSet(const std::string &databaseName,
                             const std::string &setName, std::string &errMsg, 
                             size_t pageSize = DEFAULT_PAGE_SIZE,
-                            const std::string &createdJobId = "", Handle<Computation> dispatchComputation = nullptr, Handle<LambdaIdentifier> lambda = nullptr);
+                            const std::string &createdJobId = "", Handle<Computation> dispatchComputation = nullptr, Handle<LambdaIdentifier> lambda = nullptr, bool isSharedTensorBlockSet = false);
 
  /* Creates a set with a given type (using a template) for an existing
    * database with page_size value, which can be applied with IR-based dispatching policy */
@@ -102,7 +102,7 @@ public:
   bool createSet(const std::string &databaseName,
                             const std::string &setName, std::string &errMsg,
                             size_t pageSize,
-                            const std::string &createdJobId, Handle<Vector<Handle<Computation>>> dispatchComputations, const std::string jobName, std::string jobName1, std::string jobName2, std::string computationName1, std::string computationName2, std::string lambdaName1, std::string lambdaName2);
+                            const std::string &createdJobId, Handle<Vector<Handle<Computation>>> dispatchComputations, const std::string jobName, std::string jobName1, std::string jobName2, std::string computationName1, std::string computationName2, std::string lambdaName1, std::string lambdaName2, bool isSharedTensorBlockSet = false);
 
   /* Creates a temporary set with a given type for an existing database (only
    * goes through storage) */
@@ -110,6 +110,20 @@ public:
                      const std::string &setName, const std::string &typeName,
                      std::string &errMsg, size_t pageSize = DEFAULT_PAGE_SIZE, 
                      const std::string &createdJobId = "", Handle<Computation> dispatchComputation = nullptr, Handle<LambdaIdentifier> lambda = nullptr);
+
+  /* Link shared page to a private set at a specific node*/
+  bool addSharedPage(std::string sharingDatabase,
+                   std::string sharingSetName,
+                   std::string sharingTypeName,
+                   std::string sharedDatabase,
+                   std::string sharedSetName,
+                   std::string sharedTypeName,
+                   PageID pageId,
+                   FilePartitionID filePartitionId,
+                   unsigned int pageSeqId,
+                   bool whetherToAddSharedSet,
+                   NodeID nodeId,
+                   std::string& errMsg); 
 
   /* Flushes data currently in memory into disk. */
   bool flushData(std::string &errMsg);
@@ -229,7 +243,8 @@ public:
   /* Gets a set iterator. */
   template <class Type>
   SetIterator<Type> getSetIterator(std::string databaseName,
-                                   std::string setName);
+                                   std::string setName, 
+				   bool isShared = false);
 
 
   static std::string getNextClientId() {

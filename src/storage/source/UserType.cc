@@ -1,6 +1,6 @@
 #include "UserType.h"
 #include "PartitionedFile.h"
-
+#include "SharedTensorBlockSet.h"
 /**
  * Create a UserType instance.
  */
@@ -72,7 +72,7 @@ string UserType::encodePath(string typePath, SetID setId, string setName) {
 
 // add new set
 // Not thread-safe
-int UserType::addSet(string setName, SetID setId, size_t pageSize, size_t desiredSize, bool isMRU, bool isTransient) {
+int UserType::addSet(string setName, SetID setId, size_t pageSize, size_t desiredSize, bool isMRU, bool isTransient, bool isSharedTensorBlockSet) {
     if (this->sets->find(setId) != this->sets->end()) {
         this->logger->writeLn("UserType: set exists.");
         return -1;
@@ -103,9 +103,13 @@ int UserType::addSet(string setName, SetID setId, size_t pageSize, size_t desire
     if (isTransient) {
         persistenceType = Transient;
     }
-    set = make_shared<UserSet>(
-          pageSize, logger, shm, nodeId, dbId, id, setId, setName, file, this->cache, JobData, policy, Write, TryCache, persistenceType, desiredSize);
 
+    if (isSharedTensorBlockSet) {
+        set = make_shared<pdb::SharedTensorBlockSet>(pageSize, logger, shm, nodeId, dbId, id, setId, setName, file, this->cache, JobData, policy, Write, TryCache, persistenceType, desiredSize);
+    } else {
+        set = make_shared<UserSet>(
+          pageSize, logger, shm, nodeId, dbId, id, setId, setName, file, this->cache, JobData, policy, Write, TryCache, persistenceType, desiredSize);
+    }
     if (set == 0) {
         this->logger->writeLn("UserType: Out of Memory.");
         return -1;

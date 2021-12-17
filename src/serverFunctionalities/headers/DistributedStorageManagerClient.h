@@ -38,7 +38,8 @@ public:
                    Handle<Computation> computationForDispatch = nullptr,
                    Handle<LambdaIdentifier> lambdaForDispatch = nullptr,
                    size_t desiredSize = 0,
-                   bool isMRU = false);
+                   bool isMRU = false,
+		   bool isSharedTensorBlockSet = false);
 
 
     bool createSet(const std::string& databaseName,
@@ -56,7 +57,8 @@ public:
                    std::string lambdaName1,
                    std::string lambdaName2, 
                    size_t desiredSize = 0,
-                   bool isMRU = false);
+                   bool isMRU = false,
+		   bool isSharedTensorBlockSet = false);
 
 
     // create a temp set that only goes through storage
@@ -81,7 +83,8 @@ public:
                    Handle<Computation> computationForDispatch = nullptr,
                    Handle<LambdaIdentifier> lambdaForDispatch = nullptr,
                    size_t desiredSize = 0,
-                   bool isMRU = false);
+                   bool isMRU = false,
+		   bool isSharedTensorBlockSet = false);
 
 
     // templated createSet
@@ -100,8 +103,22 @@ public:
                    std::string lambdaName1,
                    std::string lambdaName2,
                    size_t desiredSize = 0,
-                   bool isMRU = false);
+                   bool isMRU = false,
+		   bool isSharedTensorBlockSet = false);
 
+
+   bool addSharedPage(std::string sharingDatabase,
+                   std::string sharingSetName,
+                   std::string sharingTypeName,
+                   std::string sharedDatabase,
+                   std::string sharedSetName,
+                   std::string sharedTypeName,
+                   PageID pageId,
+                   FilePartitionID filePartitionId,
+                   unsigned int pageSeqId,
+                   bool whetherToAddSharedSet,
+                   NodeID nodeId,
+		   std::string& errMsg);
 
 
     // storage cleanup to flush buffered data to disk

@@ -15,9 +15,10 @@ namespace pdb {
 class SetScan : public Object {
 
 public:
-    SetScan(std::string dbNameIn, std::string setNameIn) {
+    SetScan(std::string dbNameIn, std::string setNameIn, bool isSharedIn=false) {
         dbName = dbNameIn;
         setName = setNameIn;
+	isShared = isSharedIn;
     }
 
     SetScan() {}
@@ -31,6 +32,10 @@ public:
         return setName;
     }
 
+    bool getShared() {
+        return isShared;
+    }
+
     ENABLE_DEEP_COPY
 
 private:
@@ -39,6 +44,9 @@ private:
 
     // and the set
     String setName;
+
+    // whether the set to be scanned has links to shared pages
+    bool isShared;
 };
 }
 

@@ -72,7 +72,7 @@ public:
 
     // get an iterator for a set in the database
     template <class Type>
-    SetIterator<Type> getSetIterator(std::string databaseName, std::string setName) {
+    SetIterator<Type> getSetIterator(std::string databaseName, std::string setName, bool isShared = false) {
 
 // verify that the database and set work
 #ifdef DEBUG_SET_TYPE
@@ -94,7 +94,7 @@ if (typeName != getTypeName <Type> ()) {
     return returnVal;
 }
         */
-        SetIterator<Type> returnVal(myLogger, port, address, databaseName, setName);
+        SetIterator<Type> returnVal(myLogger, port, address, databaseName, setName, isShared);
         return returnVal;
     }
 

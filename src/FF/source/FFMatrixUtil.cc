@@ -213,6 +213,13 @@ void loadMatrix(pdb::PDBClient &pdbClient, pdb::String dbName,
                 pdb::String setName, int totalX, int totalY, int blockX,
                 int blockY, bool dont_pad_x, bool dont_pad_y, string &errMsg,
                 int size, bool partitionByCol) {
+
+  if ((totalX == 0) || (totalY == 0) || (blockX == 0) || (blockY == 0)) {
+  
+      return;
+
+  }   
+
   std::cout << "totalX=" << totalX << ", totalY=" << totalY
             << ",blockX=" << blockX << ", blockY=" << blockY << std::endl;
   std::random_device rd;

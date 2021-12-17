@@ -848,7 +848,8 @@ void PageCache::evict() {
 
         double profiledWriteCosts[6] = {0, 0, 0, 6.30, 6.30, 12.82};
         double profiledReadCosts[6] = {0, 0, 4.26, 4.26, 4.26, 8.07};
- 
+        double profiledWriteCostShared = 99;
+        double profiledReadCostShared = 99;	
 
         priority_queue<LocalitySetPtr, vector<LocalitySetPtr>, CompareLocalitySets> * localitySets =
             new priority_queue<LocalitySetPtr, vector<LocalitySetPtr>, CompareLocalitySets>();
@@ -863,8 +864,13 @@ void PageCache::evict() {
                  ++it) {
                 LocalitySetPtr set = (*it);
                 if (set->selectPageForReplacement() != nullptr) {
-                    set->setWriteCost(profiledWriteCosts[i]);
-                    set->setReadCost(profiledReadCosts[i]);
+		    if (set->getShared()) {
+		         set->setWriteCost(profiledWriteCostShared);
+                         set->setReadCost(profiledReadCostShared);
+		    } else {
+                         set->setWriteCost(profiledWriteCosts[i]);
+                         set->setReadCost(profiledReadCosts[i]);
+		    }
                     set->setSequenceId(this->accessCount+1);
                     localitySets->push(set);
                 }
@@ -947,8 +953,8 @@ void PageCache::evict() {
     } else{
         this->evictionLock();
         this->logger->debug("PageCache::evict(): got the lock for evictionLock()...");
-        priority_queue<PDBPagePtr, vector<PDBPagePtr>, CompareCachedPages>* cachedPages =
-            new priority_queue<PDBPagePtr, vector<PDBPagePtr>, CompareCachedPages>();
+        priority_queue<PDBPagePtr, vector<PDBPagePtr>, CompareCachedPagesMRU>* cachedPages =
+            new priority_queue<PDBPagePtr, vector<PDBPagePtr>, CompareCachedPagesMRU>();
         unordered_map<CacheKey, PDBPagePtr, CacheKeyHash, CacheKeyEqual>::iterator cacheIter;
         PDBPagePtr curPage;
         for (cacheIter = this->cache->begin(); cacheIter != this->cache->end(); cacheIter++) {
