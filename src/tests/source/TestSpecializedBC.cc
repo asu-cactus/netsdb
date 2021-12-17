@@ -34,8 +34,6 @@ int main(int argc, char *argv[]) {
   pdb::CatalogClient catalogClient(8108, masterIp, clientLogger);
 
   ff::createDatabase(pdbClient, "decisiontreeBC");
-  ff::createSet(pdbClient, "decisiontreeBC", "inputs", "inputs", 64);
-  ff::createSet(pdbClient, "decisiontreeBC", "labels", "labels", 64);
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixMeta.so");
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixData.so");
   std::cout << "to load libraries/libFFMatrixBlock.so" << std::endl;
@@ -46,6 +44,8 @@ int main(int argc, char *argv[]) {
   ff::loadLibrary(pdbClient, "libraries/libFFMatrixPartitioner.so");
   std::cout << "To load shared libraries of rules" << std::endl;
   ff::loadLibrary(pdbClient, "libraries/libSpecializedBC.so");
+  ff::createSet(pdbClient, "decisiontreeBC", "inputs", "inputs", 64);
+  ff::createSet(pdbClient, "decisiontreeBC", "labels", "labels", 64);
   
   auto begin = std::chrono::high_resolution_clock::now();
 
