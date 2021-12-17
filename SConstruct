@@ -1391,6 +1391,13 @@ common_env.Program('bin/dedupClassifier',
                         ['build/tests/TestSemanticClassificationWithDeduplication.cc', 'build/FF/SimpleFF.cc',
                         'build/FF/FFMatrixUtil.cc', 'build/word2vec/SemanticClassifier.cc'] + all + pdb_client)
 
+# Decision Tree
+common_env.SharedLibrary('libraries/libSpecializedBC.so',
+                        ['build/decisionTree/SpecializedBC.cc'] + all)
+common_env.Program('bin/decisionTreeSpecializedBC', 
+                        ['build/tests/TestSpecializedBC.cc', 'build/FF/FFMatrixUtil.cc',
+                        'build/FF/SimpleFF.cc', 'build/decisionTree/SpecializedBC.cc'] + all + pdb_client)
+
 # Testing
 pdbTest = common_env.Command(
     'test', 'scripts/integratedTests.py', 'python3 $SOURCE -o $TARGET')
@@ -1959,6 +1966,20 @@ libLSTMTest = common_env.Alias('libLSTMTest', [
     'libraries/libLSTMThreeWaySum.so',
     'libraries/libLSTMTwoSum.so',
     'libraries/libLSTMHiddenState.so',
+])
+
+libSpecializedBCTest = common_env.Alias('libSpecializedBCTest', [
+    'bin/pdb-cluster',
+    'bin/pdb-server',
+    'libraries/libFFMatrixBlock.so',
+    'libraries/libFFMatrixMeta.so',
+    'libraries/libFFMatrixData.so',
+    'libraries/libFFMatrixBlockScanner.so',
+    'libraries/libFFMatrixWriter.so',
+    'libraries/libMatrixBlock.so',
+    'libraries/libFFMatrixPartitioner.so',
+    'libraries/libSpecializedBC.so',
+    'bin/decisionTreeSpecializedBC'
 ])
 
 libConv2DProjTest = common_env.Alias('libConv2DProjTest', [
