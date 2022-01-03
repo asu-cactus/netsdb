@@ -138,5 +138,3 @@
 #define Vector_TYPEID 136
 #define WriteUserSet_TYPEID 137
 #define ZB_Company_TYPEID 138
-#define DispatcherGetSetRequest_TYPEID 139
-#define DispatcherGetSetResult_TYPEID 140

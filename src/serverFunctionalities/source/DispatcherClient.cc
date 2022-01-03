@@ -4,6 +4,8 @@
 #include "DispatcherClient.h"
 #include "SimpleRequest.h"
 #include "DispatcherRegisterPartitionPolicy.h"
+#include "DispatcherGetSetRequest.h"
+#include "DispatcherGetSetResult.h"
 
 namespace pdb {
 
@@ -49,20 +51,21 @@ bool DispatcherClient::registerSet(std::pair<std::string, std::string> setAndDat
         policy);
 }
 
-pair<string, string> DispatcherClient::MM_getSet(const std::string &dbName, const std::string &setName, std::string &errMsg) {
+bool DispatcherClient::MM_getSet(const std::string &dbName, const std::string &setName, std::string &errMsg) {
 
-    // make a request and return the value
-    return simpleRequest<DispatcherGetSetRequest, DispatcherGetSetResult, pair<string, string>>(
-              logger, port, address, pair<string, string>("",""), 1024,
+    // make a request and return a true/false
+    return simpleRequest<DispatcherGetSetRequest, DispatcherGetSetResult, bool>(
+              logger, port, address, false, 1024,
               [&](Handle<DispatcherGetSetResult> result) {
 
                 // do we have the thing
                 if(result != nullptr && result->databaseName == dbName && result->setName == setName) {
-                  return pdb::makeObject<pair<string, string>>(result->databaseName, result->setName);
+                    return true;
                 }
 
                 // otherwise
-                return pair<string, string>("","");
+                errMsg = "Received nullptr as response or wrong dbName or setName";
+                return false;
               },
               dbName, setName);
 }

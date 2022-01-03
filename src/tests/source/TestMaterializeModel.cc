@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
     }
     std::cout << "Stored the data!\n";
 
-    pair<string, string> results = pdbClient.MM_getSet(dbName,setName);
+    bool results = pdbClient.MM_getSet(dbName,setName);
     std::cout << results;
     pdbClient.flushData(errMsg);
 

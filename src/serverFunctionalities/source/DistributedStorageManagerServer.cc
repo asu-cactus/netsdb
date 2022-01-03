@@ -47,6 +47,8 @@
 #include "DoneWithResult.h"
 #include "RuleBasedDataPlacementOptimizerForLoadJob.h"
 #include "DRLBasedDataPlacementOptimizerForLoadJob.h"
+#include "DispatcherGetSetRequest.h"
+#include "DispatcherGetSetResult.h"
 
 #include <chrono>
 #include <ctime>
@@ -1165,6 +1167,60 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
             }
 
             ));
+
+    // handles a request to get a set from a db
+  forMe.registerHandler(
+      DispatcherGetSetRequest_TYPEID,
+      make_shared<SimpleRequestHandler<DispatcherGetSetRequest>>(
+          [&](Handle<DispatcherGetSetRequest> request, PDBCommunicatorPtr sendUsingMe) {
+
+            // allocate a block for the response
+            const UseTemporaryAllocationBlock tempBlock{1 * 1024 * 1024};
+
+            auto begin = std::chrono::high_resolution_clock::now();
+
+            // this is where we put the error
+            std::string errMsg;
+
+            mutex lock;
+
+            auto successfulNodes = std::vector<std::string>();
+            auto failureNodes = std::vector<std::string>();
+            auto nodesToBroadcast = std::vector<std::string>();
+
+            std::string databaseName = request->getDatabaseName();
+            std::string setName = request->getSetName();
+            std::string fullSetName = databaseName + "." + setName;
+            std::string typeName;
+
+            std::string error;
+
+            // grab the database
+            auto set = getFunctionality<CatalogClient>().getSet(databaseName, setName, error);
+
+            // check if the thing exists
+            bool res = set != nullptr;
+
+            Handle<DispatcherGetSetResult> response;
+
+            if(res) {
+
+              // create the response object
+              response = makeObject<DispatcherGetSetResult>(set->database, set->name, *set->type, *set->type);
+
+            } else {
+
+              // set the error
+              errMsg = "Could not find the set with the name " + (std::string) request->databaseName + " and " + (std::string) request->setName;
+
+              // create the response object in case of an error
+              response = makeObject<DispatcherGetSetResult>();
+            }
+
+            // sends result to requester
+            res = sendUsingMe->sendObject(response, errMsg) && res;
+            return make_pair(res, errMsg);
+          }));
 
     // Below handler is to force to remove a hash set from the HermesExecutionServer by forwarding the
     // DistributedStorageRemoveHashSet

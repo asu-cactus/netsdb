@@ -51,6 +51,8 @@
 #include "PDBFlushConsumerWork.h"
 #include "ExportableObject.h"
 #include "JoinTupleBase.h"
+#include "DispatcherGetSetRequest.h"
+#include "DispatcherGetSetResult.h"
 //#include <hdfs/hdfs.h>
 #include <cstdio>
 #include <memory>
@@ -457,6 +459,25 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
 
             ));
 
+    // this handler accepts a request to get some information from a set
+    forMe.registerHandler(
+        DispatcherGetSetResult_TYPEID,
+        make_shared<SimpleRequestHandler<DispatcherGetSetResult>>(
+            [&](Handle<DispatcherGetSetResult> request, PDBCommunicatorPtr sendUsingMe) {
+                std::cout << "received DispatcherGetSetResult" << std::endl;
+                std::string errMsg;
+                bool res = true;
+                std::cout << "Print the name of the set" << std::endl;
+                std::cout << request->getSetName() << std::endl;
+
+                const UseTemporaryAllocationBlock tempBlock{1024};
+                Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(res, errMsg);
+
+                res = sendUsingMe->sendObject(response, errMsg);
+                return make_pair(res, errMsg);
+            }
+
+            ));
 
     // this handler accepts a request to add a database
     forMe.registerHandler(

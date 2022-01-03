@@ -40,6 +40,14 @@ namespace pdb {
 
         String setName;
 
+        std::string getDatabaseName() {
+            return databaseName;
+        }
+
+        std::string getSetName() {
+            return setName;
+        }
+
         /**
          * The the name of the internal type that is going to be handling the types.
          * For example a pdb::Vector<StringIntPair> is going to be handled by pdb::Vector<pdb::Nothing>

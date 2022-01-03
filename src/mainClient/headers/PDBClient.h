@@ -217,7 +217,7 @@ public:
                  char *bytes, size_t numBytes, std::string &errMsg);
 
   template <class DataType>
-  pair<string, string> MM_getSet(const std::string &dbName, const std::string &setName, std::string &errMsg);
+  bool MM_getSet(const std::string &dbName, const std::string &setName, std::string &errMsg);
 
   /****
    * Methods for invoking Query-related operations

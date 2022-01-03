@@ -37,8 +37,8 @@ pdb::DispatcherClient PDBClient::getDispatcherClient() {
   return dispatcherClient;
 }
 
-pair<string, string> PDBClient::MM_getSet(const std::string &dbName, const std::string &setName, std::string &errMsg){
-  return dispatcherClient.MM_getSet(databaseName, setName, typeName, errMsg);
+bool PDBClient::MM_getSet(const std::string &dbName, const std::string &setName, std::string &errMsg){
+  return dispatcherClient.MM_getSet(databaseName, setName, errMsg);
 }
 
 pdb::DistributedStorageManagerClient PDBClient::getDistributedStorageClient() {
