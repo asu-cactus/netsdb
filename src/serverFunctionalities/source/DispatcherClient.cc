@@ -48,6 +48,25 @@ bool DispatcherClient::registerSet(std::pair<std::string, std::string> setAndDat
         setAndDatabase.second,
         policy);
 }
+
+pair<string, string> DispatcherClient::MM_getSet(const std::string &dbName, const std::string &setName, std::string &errMsg) {
+
+    // make a request and return the value
+    return simpleRequest<DispatcherGetSetRequest, DispatcherGetSetResult, pair<string, string>>(
+              logger, port, address, pair<string, string>("",""), 1024,
+              [&](Handle<DispatcherGetSetResult> result) {
+
+                // do we have the thing
+                if(result != nullptr && result->databaseName == dbName && result->setName == setName) {
+                  return pdb::makeObject<pair<string, string>>(result->databaseName, result->setName);
+                }
+
+                // otherwise
+                return pair<string, string>("","");
+              },
+              dbName, setName);
+}
+
 }
 
 #include "StorageClientTemplate.cc"

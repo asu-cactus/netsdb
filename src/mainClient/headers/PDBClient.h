@@ -216,6 +216,9 @@ public:
   bool sendBytes(std::pair<std::string, std::string> setAndDatabase,
                  char *bytes, size_t numBytes, std::string &errMsg);
 
+  template <class DataType>
+  pair<string, string> MM_getSet(const std::string &dbName, const std::string &setName, std::string &errMsg);
+
   /****
    * Methods for invoking Query-related operations
    */
@@ -234,8 +237,6 @@ public:
   template <class... Types>
   bool executeComputations(std::string &errMsg, std::string jobName, bool preCompile, Handle<Computation> firstParam,
                            Handle<Types>... args);
-
-
 
   /* Deletes a set. */
   bool deleteSet(std::string databaseName, std::string setName);

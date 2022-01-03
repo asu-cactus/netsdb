@@ -1394,9 +1394,14 @@ common_env.Program('bin/dedupClassifier',
 # Decision Tree
 common_env.SharedLibrary('libraries/libSpecializedBC.so',
                         ['build/decisionTree/SpecializedBC.cc'] + all)
+common_env.SharedLibrary('libraries/libTreeNode.so',
+                        ['build/decisionTree/TreeNode.cc'] + all)
 common_env.Program('bin/decisionTreeSpecializedBC', 
                         ['build/tests/TestSpecializedBC.cc', 'build/FF/FFMatrixUtil.cc',
                         'build/FF/SimpleFF.cc', 'build/decisionTree/SpecializedBC.cc'] + all + pdb_client)
+common_env.Program('bin/materializemodel', 
+                        ['build/tests/TestMaterializeModel.cc', 'build/FF/FFMatrixUtil.cc',
+                        'build/FF/SimpleFF.cc', 'build/decisionTree/TreeNode.cc'] + all + pdb_client)
 
 # Testing
 pdbTest = common_env.Command(
@@ -1971,6 +1976,8 @@ libLSTMTest = common_env.Alias('libLSTMTest', [
 libSpecializedBCTest = common_env.Alias('libSpecializedBCTest', [
     'bin/pdb-cluster',
     'bin/pdb-server',
+    'bin/decisionTreeSpecializedBC',
+    'bin/materializemodel',
     'libraries/libFFMatrixBlock.so',
     'libraries/libFFMatrixMeta.so',
     'libraries/libFFMatrixData.so',
@@ -1979,7 +1986,7 @@ libSpecializedBCTest = common_env.Alias('libSpecializedBCTest', [
     'libraries/libMatrixBlock.so',
     'libraries/libFFMatrixPartitioner.so',
     'libraries/libSpecializedBC.so',
-    'bin/decisionTreeSpecializedBC'
+    'libraries/libTreeNode.so'
 ])
 
 libConv2DProjTest = common_env.Alias('libConv2DProjTest', [

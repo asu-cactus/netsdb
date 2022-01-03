@@ -37,6 +37,10 @@ pdb::DispatcherClient PDBClient::getDispatcherClient() {
   return dispatcherClient;
 }
 
+pair<string, string> PDBClient::MM_getSet(const std::string &dbName, const std::string &setName, std::string &errMsg){
+  return dispatcherClient.MM_getSet(databaseName, setName, typeName, errMsg);
+}
+
 pdb::DistributedStorageManagerClient PDBClient::getDistributedStorageClient() {
   return distributedStorageClient;
 }
@@ -128,7 +132,6 @@ bool PDBClient::clearSet(const std::string &databaseName,
   return distributedStorageClient.clearSet(databaseName, setName, typeName,
                                            errMsg);
 }
-
 
 bool PDBClient::addSharedPage(std::string sharingDatabase,
                    std::string sharingSetName,

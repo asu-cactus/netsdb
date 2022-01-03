@@ -37,6 +37,8 @@ public:
                      PartitionPolicy::Policy policy,
                      std::string& errMsg);
 
+    pair<string, string> MM_getSet(const std::string &dbName, const std::string &setName, std::string &errMsg);
+    
     /**
      *
      * @param setAndDatabase
