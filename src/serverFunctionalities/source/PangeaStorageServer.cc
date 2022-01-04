@@ -461,17 +461,17 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
 
     // this handler accepts a request to get some information from a set
     forMe.registerHandler(
-        DispatcherGetSetResult_TYPEID,
-        make_shared<SimpleRequestHandler<DispatcherGetSetResult>>(
-            [&](Handle<DispatcherGetSetResult> request, PDBCommunicatorPtr sendUsingMe) {
-                std::cout << "received DispatcherGetSetResult" << std::endl;
+        DispatcherGetSetRequest_TYPEID,
+        make_shared<SimpleRequestHandler<DispatcherGetSetRequest>>(
+            [&](Handle<DispatcherGetSetRequest> request, PDBCommunicatorPtr sendUsingMe) {
+                std::cout << "received DispatcherGetSetRequest" << std::endl;
                 std::string errMsg;
                 bool res = true;
                 std::cout << "Print the name of the set" << std::endl;
                 std::cout << request->getSetName() << std::endl;
 
                 const UseTemporaryAllocationBlock tempBlock{1024};
-                Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(res, errMsg);
+                Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(res,errMsg);
 
                 res = sendUsingMe->sendObject(response, errMsg);
                 return make_pair(res, errMsg);

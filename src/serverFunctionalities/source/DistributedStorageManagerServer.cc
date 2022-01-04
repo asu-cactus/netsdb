@@ -1177,8 +1177,6 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
             // allocate a block for the response
             const UseTemporaryAllocationBlock tempBlock{1 * 1024 * 1024};
 
-            auto begin = std::chrono::high_resolution_clock::now();
-
             // this is where we put the error
             std::string errMsg;
 
@@ -1186,39 +1184,56 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
 
             auto successfulNodes = std::vector<std::string>();
             auto failureNodes = std::vector<std::string>();
-            auto nodesToBroadcast = std::vector<std::string>();
+
+            std::vector<std::string> allNodes;
+            std::cout << "to wait for all requests get processed" << std::endl;
+            getFunctionality<DispatcherServer>().waitAllRequestsProcessed();
+            std::cout << "All data requests have been served" << std::endl;
+            const auto nodes = getFunctionality<ResourceManagerServer>().getAllNodes();
+            for (int i = 0; i < nodes->size(); i++) {
+                std::string address = static_cast<std::string>((*nodes)[i]->getAddress());
+                std::string port = std::to_string((*nodes)[i]->getPort());
+                allNodes.push_back(address + ":" + port);
+            }
 
             std::string databaseName = request->getDatabaseName();
             std::string setName = request->getSetName();
             std::string fullSetName = databaseName + "." + setName;
             std::string typeName;
 
-            std::string error;
+            getFunctionality<DistributedStorageManagerServer>()
+                    .broadcast<DispatcherGetSetRequest, Object, SimpleRequestResult>(
+                        request,
+                        nullptr,
+                        allNodes,
+                        generateAckHandler(successfulNodes, failureNodes, lock));
 
-            // grab the database
-            auto set = getFunctionality<CatalogClient>().getSet(databaseName, setName, error);
+            bool res = true;
+            if (failureNodes.size() > 0) {
+                res = false;
+                errMsg = "";
+                for (int i = 0; i < failureNodes.size(); i++) {
+                    errMsg += failureNodes[i] + std::string(";");
+                }
+            }
 
-            // check if the thing exists
-            bool res = set != nullptr;
-
-            Handle<DispatcherGetSetResult> response;
+            Handle<SimpleRequestResult> response;
 
             if(res) {
-
-              // create the response object
-              response = makeObject<DispatcherGetSetResult>(set->database, set->name, *set->type, *set->type);
+                // create the response object
+                response = makeObject<SimpleRequestResult>(res,errMsg);
 
             } else {
 
-              // set the error
-              errMsg = "Could not find the set with the name " + (std::string) request->databaseName + " and " + (std::string) request->setName;
+                // set the error
+                errMsg = "Could not find the set with the name " + (std::string) request->databaseName + " and " + (std::string) request->setName;
 
-              // create the response object in case of an error
-              response = makeObject<DispatcherGetSetResult>();
+                // create the response object in case of an error
+                response = makeObject<SimpleRequestResult>(res,errMsg);
             }
 
             // sends result to requester
-            res = sendUsingMe->sendObject(response, errMsg) && res;
+            res = sendUsingMe->sendObject(response, errMsg);
             return make_pair(res, errMsg);
           }));
 

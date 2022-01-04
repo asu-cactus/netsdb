@@ -25,8 +25,8 @@ namespace pdb {
          * @param database - the name of database
          */
 
-        explicit DispatcherGetSetResult(const std::string &database, const std::string &set, const std::string &internalType, const std::string &type) : databaseName(database),
-                                                      setName(set), internalType(internalType),type(type) {}
+        explicit DispatcherGetSetResult(const std::string &database, const std::string &set) : databaseName(database),
+                                                      setName(set) {}
 
         ENABLE_DEEP_COPY
 
@@ -49,19 +49,6 @@ namespace pdb {
         std::string getSetName() {
             return setName;
         }
-
-        /**
-         * The the name of the internal type that is going to be handling the types.
-         * For example a pdb::Vector<StringIntPair> is going to be handled by pdb::Vector<pdb::Nothing>
-         */
-
-        String internalType;
-
-        /**
-         * The real name of the type see above
-         */
-
-        String type;
     };
 }
 

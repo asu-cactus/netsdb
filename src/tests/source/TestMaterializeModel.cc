@@ -60,8 +60,8 @@ int main(int argc, char *argv[]) {
     std::cout << "Stored the data!\n";
 
     bool results = pdbClient.MM_getSet(dbName,setName,errMsg);
-    std::cout << "Here is the MM_getSet results: " << results << endl;
-    // pdbClient.flushData(errMsg);
+    std::cout << "Here is the MM_getSet results: " << results << std::endl;
+    pdbClient.flushData(errMsg);
 
     return 0;
 }

@@ -54,17 +54,18 @@ bool DispatcherClient::registerSet(std::pair<std::string, std::string> setAndDat
 bool DispatcherClient::MM_getSet(const std::string &dbName, const std::string &setName, std::string &errMsg) {
 
     // make a request and return a true/false
-    return simpleRequest<DispatcherGetSetRequest, DispatcherGetSetResult, bool>(
+    return simpleRequest<DispatcherGetSetRequest, SimpleRequestResult, bool>(
               logger, port, address, false, 1024,
-              [&](Handle<DispatcherGetSetResult> result) {
+              [&](Handle<SimpleRequestResult> result) {
 
                 // do we have the thing
-                if(result != nullptr && result->databaseName == dbName && result->setName == setName) {
+                if(result != nullptr) {
                     return true;
                 }
 
                 // otherwise
                 errMsg = "Received nullptr as response or wrong dbName or setName";
+                std::cout << "Received nullptr as response or wrong dbName or setName" << std::endl;
                 return false;
               },
               dbName, setName);
