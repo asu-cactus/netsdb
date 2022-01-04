@@ -25,6 +25,8 @@ int main(int argc, char *argv[]) {
 	pdb::PDBClient pdbClient(8108, masterIp, clientLogger, false, true);
 	pdb::CatalogClient catalogClient(8108, masterIp, clientLogger);
 
+	pdbClient.registerType("libraries/libTreeNode.so", errMsg);
+
 	// create a new database
 	string dbName = "materializedmodel_db";
     if (!pdbClient.createDatabase(dbName, errMsg)) {
@@ -57,9 +59,9 @@ int main(int argc, char *argv[]) {
     }
     std::cout << "Stored the data!\n";
 
-    bool results = pdbClient.MM_getSet(dbName,setName);
-    std::cout << results;
-    pdbClient.flushData(errMsg);
+    bool results = pdbClient.MM_getSet(dbName,setName,errMsg);
+    std::cout << "Here is the MM_getSet results: " << results << endl;
+    // pdbClient.flushData(errMsg);
 
     return 0;
 }

@@ -5,6 +5,8 @@
 #include "Handle.h"
 #include "PDBString.h"
 
+// PRELOAD %DispatcherGetSetResult%
+
 namespace pdb {
 
     /**

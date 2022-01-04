@@ -215,8 +215,7 @@ public:
   template <class DataType>
   bool sendBytes(std::pair<std::string, std::string> setAndDatabase,
                  char *bytes, size_t numBytes, std::string &errMsg);
-
-  template <class DataType>
+  
   bool MM_getSet(const std::string &dbName, const std::string &setName, std::string &errMsg);
 
   /****

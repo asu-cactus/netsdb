@@ -1,4 +1,3 @@
-
 #ifndef DISPATCHER_SERVER_CC
 #define DISPATCHER_SERVER_CC
 
