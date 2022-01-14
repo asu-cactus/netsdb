@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
     }
     std::cout << "Stored the data!\n";
     pdbClient.flushData(errMsg);
-    
+
     bool results = pdbClient.MM_getSet(dbName, setName, errMsg);
     std::cout << "Here is the MM_getSet results: " << results << std::endl;
 
@@ -108,7 +108,8 @@ int main(int argc, char *argv[]) {
     pdb::Handle<pdb::Computation> inputMatrix = pdb::makeObject<FFMatrixBlockScanner>("decisiontreeBC", "inputs");
 
     std::cout << "To make object of decision tree shared libraries" << std::endl;
-    pdb::Handle<pdb::Computation> genericDT = pdb::makeObject<GenericDT>();
+    string fileName = "trees/"+dbName+setName+".csv";
+    pdb::Handle<pdb::Computation> genericDT = pdb::makeObject<GenericDT>(fileName);
     genericDT->setInput(inputMatrix);
 
     std::cout << "To set the Computation" << std::endl;

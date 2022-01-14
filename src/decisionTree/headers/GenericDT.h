@@ -7,6 +7,22 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <future>
+#include <thread>
+#include <sstream>
+#include <string>
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <unistd.h>
+#include <cassert>
+#include <memory>
+#include <algorithm>
+#include <map>
+#include <set>
+#include <cstring>
+#include <exception>
 
 #include "Object.h"
 #include "PDBVector.h"
@@ -23,6 +39,7 @@ using namespace pdb;
 class GenericDT: public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
   private:
     decisiontree::Node * ptr = nullptr;
+    string fileName;
 
   public:
 
@@ -33,6 +50,15 @@ class GenericDT: public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
 
     GenericDT(decisiontree::Node &ptrIn) {
       this->ptr = &ptrIn;
+    }
+
+    GenericDT(string fileName) {
+      ifstream fin(fileName);
+      string line;
+      while (getline(fin, line)){
+        long long result=strtoll(line.c_str(), NULL, 16);
+        this->ptr = (decisiontree::Node *)result;
+      }
     }
 
     Lambda<bool> getSelection(Handle<FFMatrixBlock> checkMe) override {
