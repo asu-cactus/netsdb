@@ -24,6 +24,7 @@ namespace decisiontree{
 		bool isLeaf = BOOL_DEFAULT;
 		int leftChild = INTEGER_DEFAULT;
 		int rightChild = INTEGER_DEFAULT;
+		// returnClass will be the vaule to compare while this is not a leaf node
 		long returnClass = LONG_DEFAULT;
 
 		Node() {}

@@ -48,7 +48,7 @@
 #include "RuleBasedDataPlacementOptimizerForLoadJob.h"
 #include "DRLBasedDataPlacementOptimizerForLoadJob.h"
 #include "DispatcherGetSetRequest.h"
-#include "DispatcherGetSetResult.h"
+//#include "DispatcherGetSetResult.h"
 
 #include <chrono>
 #include <ctime>
@@ -1199,14 +1199,13 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
             std::string databaseName = request->getDatabaseName();
             std::string setName = request->getSetName();
             std::string fullSetName = databaseName + "." + setName;
-            std::string typeName;
 
             getFunctionality<DistributedStorageManagerServer>()
                     .broadcast<DispatcherGetSetRequest, Object, SimpleRequestResult>(
                         request,
                         nullptr,
                         allNodes,
-                        generateAckHandler(successfulNodes, failureNodes, lock));
+                        generatePointerFileHandler(successfulNodes, failureNodes, lock));
 
             bool res = true;
             if (failureNodes.size() > 0) {
@@ -1217,19 +1216,21 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                 }
             }
 
+            //Handle<DispatcherGetSetResult> response;
             Handle<SimpleRequestResult> response;
 
             if(res) {
                 // create the response object
-                response = makeObject<SimpleRequestResult>(res,errMsg);
+                //response = makeObject<DispatcherGetSetResult>(databaseName, setName, fileNames.at(0), errMsg);
+                response = makeObject<SimpleRequestResult>(res, errMsg);
 
             } else {
-
                 // set the error
-                errMsg = "Could not find the set with the name " + (std::string) request->databaseName + " and " + (std::string) request->setName;
+                errMsg = "Could not return the pointer of the set: " + (std::string) request->databaseName + ":" + (std::string) request->setName;
 
                 // create the response object in case of an error
-                response = makeObject<SimpleRequestResult>(res,errMsg);
+                // response = makeObject<DispatcherGetSetResult>(databaseName, setName, "", errMsg);
+                response = makeObject<SimpleRequestResult>(res, errMsg);
             }
 
             // sends result to requester
@@ -1523,6 +1524,29 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
 std::function<void(Handle<SimpleRequestResult>, std::string)>
 DistributedStorageManagerServer::generateAckHandler(std::vector<std::string>& success,
                                                     std::vector<std::string>& failures,
+                                                    mutex& lock) {
+    return [&](Handle<SimpleRequestResult> response, std::string server) {
+        lock.lock();
+
+        // TODO: Better error handling
+
+        if (!response->getRes().first) {
+            PDB_COUT << "BROADCAST CALLBACK FAIL: " << server << ": " << response->getRes().first
+                     << " : " << response->getRes().second << std::endl;
+            failures.push_back(server);
+        } else {
+            PDB_COUT << "BROADCAST CALLBACK SUCCESS: " << server << ": " << response->getRes().first
+                     << " : " << response->getRes().second << std::endl;
+            success.push_back(server);
+        }
+        lock.unlock();
+    };
+}
+
+std::function<void(Handle<SimpleRequestResult>, std::string)>
+DistributedStorageManagerServer::generatePointerFileHandler(std::vector<std::string>& success,
+                                                    std::vector<std::string>& failures,
+                                                    //std::vector<std::string>& filenames,
                                                     mutex& lock) {
     return [&](Handle<SimpleRequestResult> response, std::string server) {
         lock.lock();

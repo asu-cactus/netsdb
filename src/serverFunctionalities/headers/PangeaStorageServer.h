@@ -15,6 +15,22 @@
 #include "SharedMem.h"
 #include "TempSet.h"
 #include "PDBWork.h"
+#include "TreeNode.h"
+#include <iostream>
+#include <fstream>
+#include <future>
+#include <thread>
+#include <sstream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <unistd.h>
+#include <cassert>
+#include <algorithm>
+#include <set>
+#include <cstring>
+#include <exception>
 #include <vector>
 #include <string>
 #include <map>
@@ -285,6 +301,12 @@ public:
                       std::string path,
                       std::string format,
                       std::string& errMsg);
+
+    // export the pointer to a piece of memory
+    bool exportToPointerInFile(std::string dbName,
+                                       std::string setName,
+                                       std::string format,
+                                       std::string& errMsg);
 
     // export to a HDFS partition
     bool exportToHDFSFile(std::string dbName,

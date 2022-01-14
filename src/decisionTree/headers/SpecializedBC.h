@@ -16,6 +16,7 @@
 #include "Lambda.h"
 #include "LambdaCreationFunctions.h"
 #include "SelectionComp.h"
+
 using namespace pdb;
 
 class SpecializedBC: public SelectionComp<FFMatrixBlock, FFMatrixBlock> {

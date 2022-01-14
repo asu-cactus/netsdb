@@ -1396,12 +1396,14 @@ common_env.SharedLibrary('libraries/libSpecializedBC.so',
                         ['build/decisionTree/SpecializedBC.cc'] + all)
 common_env.SharedLibrary('libraries/libTreeNode.so',
                         ['build/decisionTree/TreeNode.cc'] + all)
+common_env.SharedLibrary('libraries/libGenericDT.so',
+                        ['build/decisionTree/GenericDT.cc'] + all)
 common_env.Program('bin/decisionTreeSpecializedBC', 
                         ['build/tests/TestSpecializedBC.cc', 'build/FF/FFMatrixUtil.cc',
                         'build/FF/SimpleFF.cc', 'build/decisionTree/SpecializedBC.cc'] + all + pdb_client)
 common_env.Program('bin/materializemodel', 
                         ['build/tests/TestMaterializeModel.cc', 'build/FF/FFMatrixUtil.cc',
-                        'build/FF/SimpleFF.cc', 'build/decisionTree/TreeNode.cc'] + all + pdb_client)
+                        'build/FF/SimpleFF.cc', 'build/decisionTree/TreeNode.cc', 'build/decisionTree/GenericDT.cc'] + all + pdb_client)
 
 # Testing
 pdbTest = common_env.Command(
@@ -1735,10 +1737,10 @@ mainTests = common_env.Alias('mainTests', [
     'bin/pdb-cluster',
     'bin/pdb-server',
     'bin/test47',
-    'bin/test47Join',
-    'bin/test47JoinB',
-    'bin/test47JoinC',
-    'bin/test47JoinD',
+    #'bin/test47Join',
+    #'bin/test47JoinB',
+    #'bin/test47JoinC',
+    #'bin/test47JoinD',
     #  'bin/test52',
     #  'bin/test53',
     #  'bin/test54',
@@ -1986,6 +1988,7 @@ libSpecializedBCTest = common_env.Alias('libSpecializedBCTest', [
     'libraries/libMatrixBlock.so',
     'libraries/libFFMatrixPartitioner.so',
     'libraries/libSpecializedBC.so',
+    'libraries/libGenericDT.so',
     'libraries/libTreeNode.so'
 ])
 

@@ -52,7 +52,8 @@
 #include "ExportableObject.h"
 #include "JoinTupleBase.h"
 #include "DispatcherGetSetRequest.h"
-#include "DispatcherGetSetResult.h"
+#include "TreeNode.h"
+//#include "DispatcherGetSetResult.h"
 //#include <hdfs/hdfs.h>
 #include <cstdio>
 #include <memory>
@@ -419,6 +420,81 @@ bool PangeaStorageServer::exportToFile(std::string dbName,
     return true;
 }
 
+// export the set to a piece of memory and save the pointer of that memory in a file
+bool PangeaStorageServer::exportToPointerInFile(std::string dbName,
+                                       std::string setName,
+                                       std::string format,
+                                       std::string& errMsg) {
+    SetPtr setToExport =
+        getFunctionality<PangeaStorageServer>().getSet(std::make_pair(dbName, setName));
+    //std::string fileName = "";
+    if (setToExport == nullptr) {
+        errMsg = "Error in exportToFile: set doesn't exist: " + dbName + ":" + setName;
+        std::cout << errMsg << std::endl;
+        return false;
+    }
+    setToExport->setPinned(true);
+    std::vector<PageIteratorPtr>* pageIters = setToExport->getIterators();
+    int numIterators = pageIters->size();
+    std::vector<std::string> vect;
+    for (int i = 0; i < numIterators; i++) {
+        PageIteratorPtr iter = pageIters->at(i);
+        while (iter->hasNext()) {
+            PDBPagePtr nextPage = iter->next();
+            if (nextPage != nullptr) {
+                Record<Vector<Handle<Object>>>* myRec =
+                    (Record<Vector<Handle<Object>>>*)(nextPage->getBytes());
+                Handle<Vector<Handle<Object>>> inputVec = myRec->getRootObject();
+                int vecSize = inputVec->size();
+                for (int j = 0; j < vecSize; j++) {
+                    Handle<ExportableObject> objectToExport =
+                        unsafeCast<ExportableObject, Object>((*inputVec)[j]);
+                    // the following will return string: a line of comma separated values for csv
+                    std::string value = objectToExport->toValueString(format);
+                    vect.push_back(value);
+                }
+            }
+        }
+    }
+    int numNodes = vect.size();
+    int memSize = (4 * sizeof(int) + 1 * sizeof(long) + 1 * sizeof(bool)) * numNodes;
+    decisiontree::Node* tree = static_cast<decisiontree::Node*>(mmap(NULL, memSize, PROT_READ | PROT_WRITE, MAP_ANON | MAP_SHARED, 0, 0));
+    for(int i = 0; i < numNodes; i++){
+        string s = vect.at(i);
+        for (int j = 0; j < s.size(); ++j){
+            if(s[j] == ','){
+                s[j] = ' ';
+            }
+        }
+        istringstream out(s);
+        string str;
+        out >> str;
+        int nodeID = atoi(str.c_str());
+        out >> str;
+        int indexID = atoi(str.c_str());
+        bool isLeaf = true;
+        out >> str;
+        if(str == "false"){
+            isLeaf = false;
+        }
+        out >> str;
+        int leftChild = atoi(str.c_str());
+        out >> str;
+        int rightChild = atoi(str.c_str());
+        out >> str;
+        long returnClass = stol(str.c_str());
+        *(tree + i) = decisiontree::Node(nodeID,indexID,isLeaf,leftChild,rightChild,returnClass);
+    }
+    std::string fileName = "trees/"+dbName+setName+".csv";
+    ofstream file(fileName);
+    if (file){
+        file << tree << "\n";
+    }
+    setToExport->setPinned(false);
+    delete pageIters;
+    return true;
+}
+
 // export to a HDFS partition
 bool PangeaStorageServer::exportToHDFSFile(std::string dbName,
                                            std::string setName,
@@ -466,13 +542,11 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
             [&](Handle<DispatcherGetSetRequest> request, PDBCommunicatorPtr sendUsingMe) {
                 std::cout << "received DispatcherGetSetRequest" << std::endl;
                 std::string errMsg;
-                bool res = true;
-                std::cout << "Print the name of the set" << std::endl;
-                std::cout << request->getSetName() << std::endl;
-
+                //std::cout << "Print the name of the set" << std::endl;
+                //std::cout << request->getSetName() << std::endl;
+                bool res = getFunctionality<PangeaStorageServer>().exportToPointerInFile(request->getDatabaseName(),request->getSetName(), "csv", errMsg);
                 const UseTemporaryAllocationBlock tempBlock{1024};
                 Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(res,errMsg);
-
                 res = sendUsingMe->sendObject(response, errMsg);
                 return make_pair(res, errMsg);
             }

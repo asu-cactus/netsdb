@@ -15,8 +15,8 @@ namespace pdb {
     class DispatcherGetSetRequest : public Object {
 
     public:
-        DispatcherGetSetRequest() = default;
-        ~DispatcherGetSetRequest() = default;
+        DispatcherGetSetRequest() {}
+        ~DispatcherGetSetRequest() {}
 
         /**
          * Creates a request to get the database
