@@ -59,6 +59,7 @@ bool DispatcherClient::MM_getSet(const std::string &dbName, const std::string &s
     return simpleRequest<DispatcherGetSetRequest, SimpleRequestResult, bool>(
               logger, port, address, false, 1024,
               [&](Handle<SimpleRequestResult> result) {
+                bool pointerReady = false;
 
                 // do we have the correct thing
                 if(result != nullptr) {
@@ -67,14 +68,18 @@ bool DispatcherClient::MM_getSet(const std::string &dbName, const std::string &s
                     if (!result->getRes().first) {
                         errMsg = "Error setting up a piece of memory for " + dbName +":" + setName+ ": " + result->getRes().second;
                         logger->error(errMsg);
+                        tree2pointer["trees/"+dbName+setName+".csv"] = pointerReady;
                         return false;
                     }
+                    pointerReady = true;
+                    tree2pointer["trees/"+dbName+setName+".csv"] = pointerReady;
                     return true;
                 }
 
                 // otherwise
                 errMsg = "Error setting up a piece of memory: got nothing back from the DispatcherServer";
                 // std::cout << "Received nullptr as response or wrong dbName or setName" << std::endl;
+                tree2pointer["trees/"+dbName+setName+".csv"] = pointerReady;
                 return false;
               },
               dbName, setName);

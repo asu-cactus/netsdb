@@ -48,17 +48,8 @@ class GenericDT: public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
     GenericDT() {}
     ~GenericDT() {}
 
-    GenericDT(decisiontree::Node &ptrIn) {
-      this->ptr = &ptrIn;
-    }
-
     GenericDT(string fileName) {
-      ifstream fin(fileName);
-      string line;
-      while (getline(fin, line)){
-        long long result=strtoll(line.c_str(), NULL, 16);
-        this->ptr = (decisiontree::Node *)result;
-      }
+      this -> fileName = fileName;
     }
 
     Lambda<bool> getSelection(Handle<FFMatrixBlock> checkMe) override {
@@ -75,6 +66,15 @@ class GenericDT: public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
             uint32_t inBlockRowIndex = in->getBlockRowIndex();
             uint32_t inBlockColIndex = in->getBlockColIndex();
 
+            if(this->ptr == nullptr){
+              ifstream fin(fileName);
+              string line;
+              while (getline(fin, line)){
+                long long result=strtoll(line.c_str(), NULL, 16);
+                this->ptr = (decisiontree::Node *)result;
+              }
+            }
+            
             // testing purpose
             std::cout << inNumRow << "," << inNumCol << std::endl;
             std::cout << inBlockRowIndex << "," << inBlockColIndex << std::endl;

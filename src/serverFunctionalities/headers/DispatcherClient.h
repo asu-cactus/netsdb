@@ -62,7 +62,7 @@ private:
     PDBLoggerPtr logger;
     // the fileName stored the pointer is dbName+setName
     // there is no need to create two maps
-    std::map<uint32_t, std::pair<std::string, std::string>> treeID2Set;
+    std::map<string, bool> tree2pointer;
     //std::map<uint32_t, string> treeID2PointerAdd;
 };
 }
