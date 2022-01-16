@@ -436,22 +436,22 @@ bool PangeaStorageServer::exportToPointerInFile(std::string dbName,
     setToExport->setPinned(true);
     std::vector<PageIteratorPtr>* pageIters = setToExport->getIterators();
     int numIterators = pageIters->size();
-    std::vector<std::string> vect;
+    //std::vector<std::string> vect;
+    std::vector<decisiontree::Node> vect;
     for (int i = 0; i < numIterators; i++) {
         PageIteratorPtr iter = pageIters->at(i);
         while (iter->hasNext()) {
             PDBPagePtr nextPage = iter->next();
             if (nextPage != nullptr) {
-                Record<Vector<Handle<Object>>>* myRec =
-                    (Record<Vector<Handle<Object>>>*)(nextPage->getBytes());
-                Handle<Vector<Handle<Object>>> inputVec = myRec->getRootObject();
+                Record<Vector<Handle<decisiontree::Node>>>* myRec =
+                    (Record<Vector<Handle<decisiontree::Node>>>*)(nextPage->getBytes());
+                Handle<Vector<Handle<decisiontree::Node>>> inputVec = myRec->getRootObject();
                 int vecSize = inputVec->size();
                 for (int j = 0; j < vecSize; j++) {
-                    Handle<ExportableObject> objectToExport =
-                        unsafeCast<ExportableObject, Object>((*inputVec)[j]);
-                    // the following will return string: a line of comma separated values for csv
-                    std::string value = objectToExport->toValueString(format);
-                    vect.push_back(value);
+                    Handle<decisiontree::Node> thisNodePtr = (*inputVec)[j];
+                    // the following will build a decisiontree::Node object
+                    decisiontree::Node thisNode = decisiontree::Node(thisNodePtr->nodeID,thisNodePtr->indexID,thisNodePtr->isLeaf,thisNodePtr->leftChild,thisNodePtr->rightChild,thisNodePtr->returnClass);
+                    vect.push_back(thisNode);
                 }
             }
         }
@@ -460,30 +460,7 @@ bool PangeaStorageServer::exportToPointerInFile(std::string dbName,
     int memSize = (4 * sizeof(int) + 1 * sizeof(long) + 1 * sizeof(bool)) * numNodes;
     decisiontree::Node* tree = static_cast<decisiontree::Node*>(mmap(NULL, memSize, PROT_READ | PROT_WRITE, MAP_ANON | MAP_SHARED, 0, 0));
     for(int i = 0; i < numNodes; i++){
-        string s = vect.at(i);
-        for (int j = 0; j < s.size(); ++j){
-            if(s[j] == ','){
-                s[j] = ' ';
-            }
-        }
-        istringstream out(s);
-        string str;
-        out >> str;
-        int nodeID = atoi(str.c_str());
-        out >> str;
-        int indexID = atoi(str.c_str());
-        bool isLeaf = true;
-        out >> str;
-        if(str == "false"){
-            isLeaf = false;
-        }
-        out >> str;
-        int leftChild = atoi(str.c_str());
-        out >> str;
-        int rightChild = atoi(str.c_str());
-        out >> str;
-        long returnClass = stol(str.c_str());
-        *(tree + i) = decisiontree::Node(nodeID,indexID,isLeaf,leftChild,rightChild,returnClass);
+        *(tree + i) = vect.at(i);
     }
     std::string fileName = "trees/"+dbName+setName+".csv";
     ofstream file(fileName);

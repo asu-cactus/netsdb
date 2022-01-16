@@ -1400,10 +1400,10 @@ common_env.SharedLibrary('libraries/libGenericDT.so',
                         ['build/decisionTree/GenericDT.cc'] + all)
 common_env.Program('bin/decisionTreeSpecializedBC', 
                         ['build/tests/TestSpecializedBC.cc', 'build/FF/FFMatrixUtil.cc',
-                        'build/FF/SimpleFF.cc', 'build/decisionTree/SpecializedBC.cc'] + all + pdb_client)
+                        'build/FF/SimpleFF.cc'] + all + pdb_client)
 common_env.Program('bin/materializemodel', 
                         ['build/tests/TestMaterializeModel.cc', 'build/FF/FFMatrixUtil.cc',
-                        'build/FF/SimpleFF.cc', 'build/decisionTree/TreeNode.cc', 'build/decisionTree/GenericDT.cc'] + all + pdb_client)
+                        'build/FF/SimpleFF.cc'] + all + pdb_client)
 
 # Testing
 pdbTest = common_env.Command(
@@ -1975,7 +1975,7 @@ libLSTMTest = common_env.Alias('libLSTMTest', [
     'libraries/libLSTMHiddenState.so',
 ])
 
-libSpecializedBCTest = common_env.Alias('libSpecializedBCTest', [
+libSpecializedBCTest = common_env.Alias('libDecisionTreeTest', [
     'bin/pdb-cluster',
     'bin/pdb-server',
     'bin/decisionTreeSpecializedBC',
