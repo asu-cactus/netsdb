@@ -9,6 +9,22 @@
 #include "DataTypes.h"
 #include "HashSetManager.h"
 #include "DataProxy.h"
+#include "TreeNode.h"
+#include <iostream>
+#include <fstream>
+#include <future>
+#include <thread>
+#include <sstream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <unistd.h>
+#include <cassert>
+#include <algorithm>
+#include <set>
+#include <cstring>
+#include <exception>
 #include <string>
 
 namespace pdb {
@@ -92,6 +108,10 @@ public:
         return this->nodeId;
     }
 
+    // export the pointer to a piece of memory
+    bool exportToPointerInFile(std::string dbName,
+                                       std::string setName,
+                                       std::string& errMsg);
 
     // from the ServerFunctionality interface... registers the HermesExecutionServer's        //
     // handlers

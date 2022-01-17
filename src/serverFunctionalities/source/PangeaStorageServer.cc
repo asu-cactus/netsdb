@@ -420,58 +420,6 @@ bool PangeaStorageServer::exportToFile(std::string dbName,
     return true;
 }
 
-// export the set to a piece of memory and save the pointer of that memory in a file
-bool PangeaStorageServer::exportToPointerInFile(std::string dbName,
-                                       std::string setName,
-                                       std::string format,
-                                       std::string& errMsg) {
-    SetPtr setToExport =
-        getFunctionality<PangeaStorageServer>().getSet(std::make_pair(dbName, setName));
-    //std::string fileName = "";
-    if (setToExport == nullptr) {
-        errMsg = "Error in exportToFile: set doesn't exist: " + dbName + ":" + setName;
-        std::cout << errMsg << std::endl;
-        return false;
-    }
-    setToExport->setPinned(true);
-    std::vector<PageIteratorPtr>* pageIters = setToExport->getIterators();
-    int numIterators = pageIters->size();
-    //std::vector<std::string> vect;
-    std::vector<decisiontree::Node> vect;
-    for (int i = 0; i < numIterators; i++) {
-        PageIteratorPtr iter = pageIters->at(i);
-        while (iter->hasNext()) {
-            PDBPagePtr nextPage = iter->next();
-            if (nextPage != nullptr) {
-                Record<Vector<Handle<decisiontree::Node>>>* myRec =
-                    (Record<Vector<Handle<decisiontree::Node>>>*)(nextPage->getBytes());
-                Handle<Vector<Handle<decisiontree::Node>>> inputVec = myRec->getRootObject();
-                int vecSize = inputVec->size();
-                for (int j = 0; j < vecSize; j++) {
-                    Handle<decisiontree::Node> thisNodePtr = (*inputVec)[j];
-                    // the following will build a decisiontree::Node object
-                    decisiontree::Node thisNode = decisiontree::Node(thisNodePtr->nodeID,thisNodePtr->indexID,thisNodePtr->isLeaf,thisNodePtr->leftChild,thisNodePtr->rightChild,thisNodePtr->returnClass);
-                    vect.push_back(thisNode);
-                }
-            }
-        }
-    }
-    int numNodes = vect.size();
-    int memSize = (4 * sizeof(int) + 1 * sizeof(long) + 1 * sizeof(bool)) * numNodes;
-    decisiontree::Node* tree = static_cast<decisiontree::Node*>(mmap(NULL, memSize, PROT_READ | PROT_WRITE, MAP_ANON | MAP_SHARED, 0, 0));
-    for(int i = 0; i < numNodes; i++){
-        *(tree + i) = vect.at(i);
-    }
-    std::string fileName = "trees/"+dbName+setName+".csv";
-    ofstream file(fileName);
-    if (file){
-        file << tree << "\n";
-    }
-    setToExport->setPinned(false);
-    delete pageIters;
-    return true;
-}
-
 // export to a HDFS partition
 bool PangeaStorageServer::exportToHDFSFile(std::string dbName,
                                            std::string setName,
@@ -512,20 +460,50 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
 
             ));
 
-    // this handler accepts a request to get some information from a set
+    // this handler accepts a request to get information from a set
     forMe.registerHandler(
         DispatcherGetSetRequest_TYPEID,
         make_shared<SimpleRequestHandler<DispatcherGetSetRequest>>(
             [&](Handle<DispatcherGetSetRequest> request, PDBCommunicatorPtr sendUsingMe) {
-                std::cout << "received DispatcherGetSetRequest" << std::endl;
+                std::cout << "Front-end received DispatcherGetSetRequest" << std::endl;
                 std::string errMsg;
-                //std::cout << "Print the name of the set" << std::endl;
-                //std::cout << request->getSetName() << std::endl;
-                bool res = getFunctionality<PangeaStorageServer>().exportToPointerInFile(request->getDatabaseName(),request->getSetName(), "csv", errMsg);
+                bool success;
+                bool result;
+                Handle<SimpleRequestResult> res;
+                // connect to backend
+                PDBCommunicatorPtr communicatorToBackend = make_shared<PDBCommunicator>();
+                if (communicatorToBackend->connectToLocalServer(
+                    getFunctionality<PangeaStorageServer>().getLogger(),
+                    getFunctionality<PangeaStorageServer>().getPathToBackEndServer(),
+                    errMsg)) {
+                    std::cout << errMsg << std::endl;
+                    success = false;
+                } else if (!communicatorToBackend->sendObject(request, errMsg)) {
+                    std::cout << errMsg << std::endl;
+                    errMsg = std::string("Front-end can't send message to Back-end: ") + errMsg;
+                    success = false;
+                } else {
+                    PDB_COUT << "PangeaStorage sent request to Back-end" << std::endl;
+                    // wait for backend to finish.
+                    res = communicatorToBackend->getNextObject<SimpleRequestResult>(success, errMsg);
+                    if (!success) {
+                        std::cout << "Error waiting for Back-end to save the table in the memory. " << errMsg << std::endl;
+                        errMsg = std::string("Back-end failed to save the table in the memory: ") + errMsg;
+                    }
+                }
+                // make the response
+                if(success){
+                    result = res->getRes().first;
+                } else {
+                    result = false;
+                }
+                std::cout << "Send back reply: " << result << " from Front-end server" << std::endl;
                 const UseTemporaryAllocationBlock tempBlock{1024};
-                Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(res,errMsg);
-                res = sendUsingMe->sendObject(response, errMsg);
-                return make_pair(res, errMsg);
+                Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(result, errMsg);
+
+                // return the result
+                success = sendUsingMe->sendObject(response, errMsg);
+                return make_pair(success, errMsg);
             }
 
             ));

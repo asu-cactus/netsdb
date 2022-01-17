@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
     pdb::Handle<pdb::Vector<pdb::Handle<decisiontree::Node>>> storeMe = pdb::makeObject<pdb::Vector<pdb::Handle<decisiontree::Node>>>();
     try{
     	for(int i = 0; i < 5; i++){
-    		pdb::Handle<decisiontree::Node> myData = pdb::makeObject<decisiontree::Node>(i,i,false,i,i,1.00);
+    		pdb::Handle<decisiontree::Node> myData = pdb::makeObject<decisiontree::Node>(i,i,true,i,i,1.00);
     		storeMe->push_back(myData);
     	}
     } catch (pdb::NotEnoughSpace& e) {
@@ -81,6 +81,7 @@ int main(int argc, char *argv[]) {
     bool results = pdbClient.MM_getSet(dbName, setName, errMsg);
     std::cout << "Here is the MM_getSet results: " << results << std::endl;
 
+    /*
     ff::createDatabase(pdbClient, "decisiontreeBC");
 
     ff::loadLibrary(pdbClient, "libraries/libFFMatrixMeta.so");
@@ -108,7 +109,7 @@ int main(int argc, char *argv[]) {
     pdb::Handle<pdb::Computation> inputMatrix = pdb::makeObject<FFMatrixBlockScanner>("decisiontreeBC", "inputs");
 
     std::cout << "To make object of decision tree shared libraries" << std::endl;
-    string fileName = "trees/"+dbName+setName+".csv";
+    string fileName = "trees/"+dbName+setName;
     pdb::Handle<pdb::Computation> genericDT = pdb::makeObject<GenericDT>(fileName);
     genericDT->setInput(inputMatrix);
 
@@ -141,6 +142,7 @@ int main(int argc, char *argv[]) {
     ff::print_stats(pdbClient, "decisiontreeBC", "labels");
     std::cout << "To print the results" << std::endl;
     ff::print(pdbClient, "decisiontreeBC", "labels");
+    */
     return 0;
 }
 

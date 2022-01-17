@@ -65,21 +65,22 @@ bool DispatcherClient::MM_getSet(const std::string &dbName, const std::string &s
                 if(result != nullptr) {
                     //uint32_t treeID = treeID2Set.find(std::pair<std::string, std::string>(dbName, setName));
                     //treeID2PointerAdd[treeID] = result-> fileName;
+                    std::cout << "Received result from server" << std::endl;
                     if (!result->getRes().first) {
                         errMsg = "Error setting up a piece of memory for " + dbName +":" + setName+ ": " + result->getRes().second;
                         logger->error(errMsg);
-                        tree2pointer["trees/"+dbName+setName+".csv"] = pointerReady;
+                        tree2pointer["trees/"+dbName+setName] = pointerReady;
                         return false;
                     }
                     pointerReady = true;
-                    tree2pointer["trees/"+dbName+setName+".csv"] = pointerReady;
+                    tree2pointer["trees/"+dbName+setName] = pointerReady;
                     return true;
                 }
 
                 // otherwise
                 errMsg = "Error setting up a piece of memory: got nothing back from the DispatcherServer";
-                // std::cout << "Received nullptr as response or wrong dbName or setName" << std::endl;
-                tree2pointer["trees/"+dbName+setName+".csv"] = pointerReady;
+                std::cout << "Received nothing back" << std::endl;
+                tree2pointer["trees/"+dbName+setName] = pointerReady;
                 return false;
               },
               dbName, setName);

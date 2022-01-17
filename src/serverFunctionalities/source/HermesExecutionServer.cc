@@ -1,17 +1,57 @@
-
 #ifndef HERMES_EXECUTION_SERVER_CC
 #define HERMES_EXECUTION_SERVER_CC
 
+#include <openssl/md5.h>
 #include "PDBDebug.h"
+#include "JoinMap.h"
+#include "PangeaStorageServer.h"
+#include "SimpleRequestResult.h"
+#include "CatalogServer.h"
+#include "StorageAddData.h"
+#include "StorageAddObjectInLoop.h"
+#include "StorageAddDatabase.h"
+#include "StorageAddSet.h"
+#include "StorageClearSet.h"
+#include "StorageGetData.h"
+#include "StorageGetStats.h"
+#include "StorageGetDataResponse.h"
+#include "StorageGetSetPages.h"
+#include "StoragePinPage.h"
+#include "StoragePinBytes.h"
+#include "StorageUnpinPage.h"
+#include "StoragePagePinned.h"
+#include "StorageBytesPinned.h"
+#include "StorageNoMorePage.h"
+#include "StorageTestSetScan.h"
+#include "BackendTestSetScan.h"
+#include "StorageTestSetCopy.h"
+#include "BackendTestSetCopy.h"
+#include "StorageAddSharedPage.h"
+#include "StorageAddTempSet.h"
+#include "StorageAddTempSetResult.h"
+#include "StorageRemoveDatabase.h"
+#include "StorageRemoveTempSet.h"
+#include "StorageExportSet.h"
+#include "StorageRemoveUserSet.h"
+#include "StorageRemoveHashSet.h"
+#include "StorageCleanup.h"
+#include "StorageCollectStats.h"
+#include "StorageCollectStatsResponse.h"
+#include "PDBScanWork.h"
+#include "UseTemporaryAllocationBlock.h"
+#include "SimpleRequestHandler.h"
+#include "Record.h"
+#include "InterfaceFunctions.h"
+#include "DeleteSet.h"
+#include "DefaultDatabase.h"
+#include "DataTypes.h"
+#include "SharedMem.h"
+#include "PDBFlushProducerWork.h"
+#include "PDBFlushConsumerWork.h"
+#include "ExportableObject.h"
+#include "JoinTupleBase.h"
 #include "GenericWork.h"
 #include "HermesExecutionServer.h"
-#include "StoragePagePinned.h"
-#include "StorageNoMorePage.h"
-#include "StorageRemoveHashSet.h"
-#include "SimpleRequestHandler.h"
-#include "SimpleRequestResult.h"
-#include "BackendTestSetScan.h"
-#include "BackendTestSetCopy.h"
 #include "BackendExecuteSelection.h"
 #include "PageCircularBufferIterator.h"
 #include "TestScanWork.h"
@@ -25,9 +65,20 @@
 #include "PipelineStage.h"
 #include "PartitionedHashSet.h"
 #include "SharedHashSet.h"
-#include "JoinMap.h"
 #include "RecordIterator.h"
+#include "DispatcherGetSetRequest.h"
+
 #include <vector>
+#include <cstdio>
+#include <memory>
+#include <string>
+#include <iostream>
+#include <signal.h>
+#include <stdio.h>
+#include <map>
+#include <iterator>
+#include <pthread.h>
+#include <snappy.h>
 
 #ifndef JOIN_HASH_TABLE_SIZE_RATIO
 #define JOIN_HASH_TABLE_SIZE_RATIO 1.5
@@ -39,9 +90,75 @@
 
 namespace pdb {
 
+// export the set to a piece of memory and save the pointer of that memory in a file
+bool HermesExecutionServer::exportToPointerInFile(std::string dbName,
+                                       std::string setName,
+                                       std::string& errMsg) {
+    SetPtr setToExport =
+        getFunctionality<PangeaStorageServer>().getSet(std::make_pair(dbName, setName));
+    if (setToExport == nullptr) {
+        errMsg = "Error in exportToFile: set doesn't exist: " + dbName + ":" + setName;
+        std::cout << errMsg << std::endl;
+        return false;
+    }
+    setToExport->setPinned(true);
+    std::vector<PageIteratorPtr>* pageIters = setToExport->getIterators();
+    int numIterators = pageIters->size();
+    //std::vector<std::string> vect;
+    std::vector<decisiontree::Node> vect;
+    for (int i = 0; i < numIterators; i++) {
+        PageIteratorPtr iter = pageIters->at(i);
+        while (iter->hasNext()) {
+            PDBPagePtr nextPage = iter->next();
+            if (nextPage != nullptr) {
+                Record<Vector<Handle<decisiontree::Node>>>* myRec =
+                    (Record<Vector<Handle<decisiontree::Node>>>*)(nextPage->getBytes());
+                Handle<Vector<Handle<decisiontree::Node>>> inputVec = myRec->getRootObject();
+                int vecSize = inputVec->size();
+                for (int j = 0; j < vecSize; j++) {
+                    Handle<decisiontree::Node> thisNodePtr = (*inputVec)[j];
+                    // the following will build a decisiontree::Node object
+                    decisiontree::Node thisNode = decisiontree::Node(thisNodePtr->nodeID,thisNodePtr->indexID,thisNodePtr->isLeaf,thisNodePtr->leftChild,thisNodePtr->rightChild,thisNodePtr->returnClass);
+                    // testing purpose
+                    std::cout << "NodeID is: " << thisNode.nodeID << std::endl;
+                    vect.push_back(thisNode);
+                }
+            }
+        }
+    }
+    int numNodes = vect.size();
+    int memSize = (4 * sizeof(int) + 1 * sizeof(long) + 1 * sizeof(bool)) * numNodes;
+    decisiontree::Node* tree = static_cast<decisiontree::Node*>(mmap(NULL, memSize, PROT_READ | PROT_WRITE, MAP_ANON | MAP_SHARED, 0, 0));
+    for(int i = 0; i < numNodes; i++){
+        *(tree + i) = vect.at(i);
+    }
+    std::string fileName = "trees/"+dbName+setName;
+    ofstream file(fileName);
+    if (file){
+        file << tree << "\n";
+    }
+    setToExport->setPinned(false);
+    delete pageIters;
+    return true;
+}
+
 
 void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
 
+  // this handler accepts a request to get some information from a set
+  forMe.registerHandler(
+    DispatcherGetSetRequest_TYPEID,
+    make_shared<SimpleRequestHandler<DispatcherGetSetRequest>>(
+      [&](Handle<DispatcherGetSetRequest> request, PDBCommunicatorPtr sendUsingMe) {
+        std::cout << "Back-end received DispatcherGetSetRequest" << std::endl;
+        std::string errMsg;
+        bool res = getFunctionality<HermesExecutionServer>().exportToPointerInFile(request->getDatabaseName(),request->getSetName(), errMsg);
+        const UseTemporaryAllocationBlock tempBlock{1024};
+        std::cout << "Send back reply: " << res << " from Back-end server" << std::endl;
+        Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(res,errMsg);
+        res = sendUsingMe->sendObject(response, errMsg);
+        return make_pair(res, errMsg);
+      }));
 
   // register a handler to process StoragePagePinned messages that are reponses to the same
   // StorageGetSetPages message initiated by the current PageScanner instance.

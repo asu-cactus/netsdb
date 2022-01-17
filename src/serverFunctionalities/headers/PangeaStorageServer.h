@@ -1,8 +1,5 @@
-
 #ifndef PANGEA_STORAGE_SERVER_H
 #define PANGEA_STORAGE_SERVER_H
-
-
 
 #include "ServerFunctionality.h"
 #include "PDBServer.h"
@@ -38,7 +35,6 @@
 #include <pthread.h>
 #include <memory>
 
-
 namespace pdb {
 
 
@@ -67,10 +63,6 @@ typedef std::shared_ptr<PangeaStorageServer> PangeaStorageServerPtr;
 //-- StoragePinBytes: to pin bytes of specified length in one set
 //-- StorageUnpinPage: to unpin a page from one set
 //-- StorageGetSetPages: to trigger a parallel scan over a set
-
-
-
-
 
 class PangeaStorageServer : public ServerFunctionality {
 
@@ -254,7 +246,6 @@ public:
      */
     bool removeTempSet(SetID setId);
 
-
     /**
      * Returns a temporary set specified
      */
@@ -301,12 +292,6 @@ public:
                       std::string path,
                       std::string format,
                       std::string& errMsg);
-
-    // export the pointer to a piece of memory
-    bool exportToPointerInFile(std::string dbName,
-                                       std::string setName,
-                                       std::string format,
-                                       std::string& errMsg);
 
     // export to a HDFS partition
     bool exportToHDFSFile(std::string dbName,
