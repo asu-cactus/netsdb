@@ -9,7 +9,7 @@ import itertools
 # import the PagePacking.py under algorithm folder
 import os
 from sys import path
-sys.path.append('../algorithm/')
+sys.path.append('../algorithms/')
 from PagePacking import *
 
 # load the input file
@@ -35,9 +35,9 @@ for t in range(num_tensors):
 
 P = set()
 
-# run the Greedy-2 algorithm
+# run the Baseline algorithm
 start = timeit.default_timer()
-P, tensor_page_mapping = bin_pack_greedy(list_of_tensors, blocks_in_page)
+P = bin_pack_base(list_of_tensors, blocks_in_page)
 stop = timeit.default_timer()
 L = list(P)
 

@@ -6,7 +6,7 @@ This repository contains all the code for page packing testing including 4 algor
 4 text classification (300 * 300, 32MB)
 
 ## Algorithms
-All the 4 algorithms (Baseline, Two-Stage, Greedy-1 and Greedy-2) are in PagePacking.py under the algorithm folder.
+All the 4 algorithms (Baseline, Two-Stage, Greedy-1 and Greedy-2) are in PagePacking.py under the algorithms folder.
 
 ## word2vec (100 * 10000, 64MB)
 For word2vec (100 * 10000, 64MB) testing, please go to word2vec folder and there are 4 python scripts which are Baseline.py, Two-Stage.py, Greedy-1.py and Greedy-2.py.
@@ -25,10 +25,10 @@ detector_output_same_size_unshared_located_random.npy has 6 tensors and each ten
 
 You can directly run the following 4 python scripts to get the page packing latency and required number of pages using different page packing algorithms. 4 functions corresponding to 4 algorithms can be found in PagePacking.py under the algorithm folder. The function names are bin_pack_base for Baseline, w2v_greedy1 for Greedy-1, bin_pack_greedy for Greedy-2 and w2v_twostage for Two-Stage.
 ```
-$python3 Baseline.py
-$python3 Two-Stage.py
-$python3 Greedy-1.py
-$python3 Greedy-2.py
+$python3 runBaseline.py
+$python3 runTwo-Stage.py
+$python3 runGreedy-1.py
+$python3 runGreedy-2.py
 ```
 
 ## text classification (100 * 10000, 64MB)
@@ -48,28 +48,28 @@ All the tensors are from 5 models. The original tensors for these 5 models also 
 4 yelp_nontrainable.npy
 5 yelp_trainable.npy
 
-You can directly run the following 4 python scripts to get the page packing latency and required number of pages using different page packing algorithms. 4 functions corresponding to 4 algorithms can be found in PagePacking.py under the algorithm folder.
+You can directly run the following 4 python scripts to get the page packing latency and required number of pages using different page packing algorithms. 4 functions corresponding to 4 algorithms can be found in PagePacking.py under the algorithm folder. The function names are bin_pack_base for Baseline, text_classification_greedy1 for Greedy-1, bin_pack_greedy for Greedy-2 and text_classification_twostage for Two-Stage.
 ```
-$python3 Baseline.py
-$python3 Two-Stage.py
-$python3 Greedy-1.py
-$python3 Greedy-2.py
+$python3 runBaseline.py
+$python3 runTwo-Stage.py
+$python3 runGreedy-1.py
+$python3 runGreedy-2.py
 ```
 
 ## text classification (300 * 300, 64MB)
-For text classification (300 * 300, 64MB) testing, please go to text_classification_300_64 folder and there are 4 python scripts which are Baseline.py, Two-Stage.py, Greedy-1.py and Greedy-2.py. The inputs are the same as text classification (100 * 10000, 64MB). You can directly run the following 4 python scripts to get the page packing latency and required number of pages using different page packing algorithms. 4 functions corresponding to 4 algorithms can be found in PagePacking.py under the algorithm folder.
+For text classification (300 * 300, 64MB) testing, please go to text_classification_300_64 folder and there are 4 python scripts which are Baseline.py, Two-Stage.py, Greedy-1.py and Greedy-2.py. The input of these 4 Python scripts is a dictionary object saved in data/tensor_list_300.npy file, which has the same format as text classification (100 * 10000, 64MB). You can directly run the following 4 python scripts to get the page packing latency and required number of pages using different page packing algorithms. 4 functions corresponding to 4 algorithms can be found in PagePacking.py under the algorithm folder.
 ```
-$python3 Baseline.py
-$python3 Two-Stage.py
-$python3 Greedy-1.py
-$python3 Greedy-2.py
+$python3 runBaseline.py
+$python3 runTwo-Stage.py
+$python3 runGreedy-1.py
+$python3 runGreedy-2.py
 ```
 
 ## text classification (300 * 300, 32MB)
-For text classification (300 * 300, 32MB) testing, please go to text_classification_300_32 folder and there are 4 python scripts which are Baseline.py, Two-Stage.py, Greedy-1.py and Greedy-2.py. The inputs are the same as text classification (100 * 10000, 64MB). You can directly run the following 4 python scripts to get the page packing latency and required number of pages using different page packing algorithms. 4 functions corresponding to 4 algorithms can be found in PagePacking.py under the algorithm folder.
+For text classification (300 * 300, 32MB) testing, please go to text_classification_300_32 folder and there are 4 python scripts which are Baseline.py, Two-Stage.py, Greedy-1.py and Greedy-2.py. The inputs are the same as text classification (300 * 300, 64MB). You can directly run the following 4 python scripts to get the page packing latency and required number of pages using different page packing algorithms. 4 functions corresponding to 4 algorithms can be found in PagePacking.py under the algorithm folder.
 ```
-$python3 Baseline.py
-$python3 Two-Stage.py
-$python3 Greedy-1.py
-$python3 Greedy-2.py
+$python3 runBaseline.py
+$python3 runTwo-Stage.py
+$python3 runGreedy-1.py
+$python3 runGreedy-2.py
 ```

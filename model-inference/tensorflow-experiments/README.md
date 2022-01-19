@@ -1,6 +1,6 @@
 # TensorFlow Comparison Experiments
 
-This repository contains all the code for text classification and extreme classification testing on Tensorflow.
+This repository contains all the code for word2vec and extreme classification testing on Tensorflow.
 
 # Environment
 AWS r4.xlarge for CPU testing and AWS g4dn.2xlarge for GPU testing.
@@ -20,17 +20,17 @@ $sudo apt update
 $sudo apt install postgresql postgresql-contrib
 ```
 
-# Text Classification
-For text classification, please go to Text_Classification_Test folder.
+# Word2Vec
+For word2vec, please go to Word2Vec_Test folder.
 
 ## Download the models
-Please download the model when running for the first time. The model is saved locally in H5 format. Please run:
+Please download the models when running for the first time. The models are saved locally in H5 format. Please run:
 ```
 $python3 Download_Models.py
 ```
 
 ## Change the weights(Optional)
-At this time, the weights of the model downloaded to the local is float32. Our tests for text classification based on look up function are using float32 precision and the tests based on matrix multiplication are using double precision. We will load one of the previous models and then change the wights from float32 to double while testing in matrix multiplication. However, if you would like to save the weights of the models as double precision, please run Change_Weights_Float_to_Double.py: (This is optional. Not do so will not affect the testing results.)
+At this time, the weights of the model downloaded to the local is float32. Our tests for word2vec based on look up function are using float32 precision and the tests based on matrix multiplication are using double precision. We will load one of the previous models and then change the wights from float32 to double while testing in matrix multiplication. However, if you would like to save the weights of the models as double precision, please run Change_Weights_Float_to_Double.py: (This is optional. Not do so will not affect the testing results.)
 ```
 $python3 Change_Weights_Float_to_Double.py
 ```
@@ -62,7 +62,7 @@ $python3 Load_Data_to_Postgres_G.py
 ```
 
 ## Run the test program
-There are 2 kinds of methods are testing for text classification. Our tests for text classification based on the look up function are using float32 precision and the tests based on matrix multiplication are using double precision. word2vec-inference-MM-exp.py is using matrix multiplication and word2vec-inference-exp.py is using the look up function.
+There are 2 kinds of methods are testing for word2vec. Our tests for word2vec based on the look up function are using float32 precision and the tests based on matrix multiplication are using double precision. word2vec-inference-MM-exp.py is using matrix multiplication and word2vec-inference-exp.py is using the look up function.
 
 For the word2vec-inference-MM-exp.py, which is using matrix multiplication in double precision, you can set the number of models you would like to test while running the python script. The default number of models is 1. The following is an example for running the tests for 2 models.
 ```

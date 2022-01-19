@@ -9,7 +9,7 @@ import itertools
 # import the PagePacking.py under algorithm folder
 import os
 from sys import path
-sys.path.append('../algorithm/')
+sys.path.append('../algorithms/')
 from PagePacking import *
 
 # load the input file
@@ -40,9 +40,10 @@ for i in range(6):
 
 # run the Greedy-1 algorithm
 start = timeit.default_timer()
-numBins = w2v_greedy1(tensor_list, blocks_in_page)
+P = w2v_greedy1(tensor_list, blocks_in_page)
 stop = timeit.default_timer()
 
+L = list(P)
 # print the results
 print('page packing latency: ', stop - start , ' seconds')
-print('required number of pages: ', numBins , ' pages')
+print('required number of pages: ', L[0].numBins , ' pages')
