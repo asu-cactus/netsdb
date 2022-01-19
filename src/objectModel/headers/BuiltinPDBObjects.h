@@ -49,6 +49,7 @@
 #include "/home/jiaqingchen/netsdb/src/builtInPDBObjects/headers/StoragePinBytes.h"
 #include "/home/jiaqingchen/netsdb/src/builtInPDBObjects/headers/DepartmentTotal.h"
 #include "/home/jiaqingchen/netsdb/src/builtInPDBObjects/headers/CatGetSetResult.h"
+#include "/home/jiaqingchen/netsdb/src/builtInPDBObjects/headers/BackendGetSet.h"
 #include "/home/jiaqingchen/netsdb/src/builtInPDBObjects/headers/BroadcastJoinBuildHTJobStage.h"
 #include "/home/jiaqingchen/netsdb/src/builtInPDBObjects/headers/ZB_Company.h"
 #include "/home/jiaqingchen/netsdb/src/builtInPDBObjects/headers/DistributedStorageCleanup.h"

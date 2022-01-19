@@ -13,6 +13,8 @@
 #include "TempSet.h"
 #include "PDBWork.h"
 #include "TreeNode.h"
+#include "GetSetWork.h"
+#include "BackendGetSet.h"
 #include <iostream>
 #include <fstream>
 #include <future>
@@ -163,7 +165,6 @@ public:
      */
     bool removeDatabase(std::string dbName);
 
-
     /**
      * Add a new and empty type
      */
@@ -178,6 +179,13 @@ public:
      * Remove a type from the typeName to typeId mapping
      */
     bool removeType(std::string typeName);
+
+    /*
+    // export the pointer to a piece of memory
+    bool exportToPointerInFile(std::string dbName,
+                                       std::string setName,
+                                       std::string& errMsg);
+    */
 
     /**
      * Add a new and empty set

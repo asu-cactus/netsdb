@@ -10,6 +10,8 @@
 #include "HashSetManager.h"
 #include "DataProxy.h"
 #include "TreeNode.h"
+#include "BackendGetSet.h"
+
 #include <iostream>
 #include <fstream>
 #include <future>

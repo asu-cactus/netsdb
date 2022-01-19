@@ -67,6 +67,8 @@
 #include "SharedHashSet.h"
 #include "RecordIterator.h"
 #include "DispatcherGetSetRequest.h"
+#include "GetSetWork.h"
+#include "BackendGetSet.h"
 
 #include <vector>
 #include <cstdio>
@@ -94,6 +96,7 @@ namespace pdb {
 bool HermesExecutionServer::exportToPointerInFile(std::string dbName,
                                        std::string setName,
                                        std::string& errMsg) {
+
     SetPtr setToExport =
         getFunctionality<PangeaStorageServer>().getSet(std::make_pair(dbName, setName));
     if (setToExport == nullptr) {
@@ -147,17 +150,98 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
 
   // this handler accepts a request to get some information from a set
   forMe.registerHandler(
-    DispatcherGetSetRequest_TYPEID,
-    make_shared<SimpleRequestHandler<DispatcherGetSetRequest>>(
-      [&](Handle<DispatcherGetSetRequest> request, PDBCommunicatorPtr sendUsingMe) {
-        std::cout << "Back-end received DispatcherGetSetRequest" << std::endl;
+    BackendGetSet_TYPEID,
+    make_shared<SimpleRequestHandler<BackendGetSet>>(
+      [&](Handle<BackendGetSet> request, PDBCommunicatorPtr sendUsingMe) {
+        std::cout << "Back-end received BackendGetSet request" << std::endl;
         std::string errMsg;
-        bool res = getFunctionality<HermesExecutionServer>().exportToPointerInFile(request->getDatabaseName(),request->getSetName(), errMsg);
-        const UseTemporaryAllocationBlock tempBlock{1024};
+        bool res;
+
+        DatabaseID dbId = request->getDatabaseID();
+        UserTypeID typeId = request->getUserTypeID();
+        SetID setId = request->getSetID();
+        std::string dbName = request->getDatabaseName();
+        std::string setName = request->getSetName();
+
+        PDB_COUT << "Backend received BackendGetSet message with dbId=" << dbId
+                 << ", typeId=" << typeId << ", setId=" << setId << std::endl;
+
+        int numThreads = getFunctionality<HermesExecutionServer>().getConf()->getNumThreads();
+        NodeID nodeId = getFunctionality<HermesExecutionServer>().getNodeID();
+        pdb::PDBLoggerPtr logger = getFunctionality<HermesExecutionServer>().getLogger();
+        SharedMemPtr shm = getFunctionality<HermesExecutionServer>().getSharedMem();
+        int backendCircularBufferSize = 3;
+
+        PDBCommunicatorPtr communicatorToFrontend = make_shared<PDBCommunicator>();
+        communicatorToFrontend->connectToInternetServer(
+            logger,
+            getFunctionality<HermesExecutionServer>().getConf()->getPort(),
+            "localhost",
+            errMsg);
+        PageScannerPtr scanner = make_shared<PageScanner>(
+            communicatorToFrontend, shm, logger, numThreads, backendCircularBufferSize, nodeId);
+
+        if (getFunctionality<HermesExecutionServer>().setCurPageScanner(scanner) == false) {
+          res = false;
+          errMsg = "Error: A job is already running!";
+          std::cout << errMsg << std::endl;
+          return make_pair(res, errMsg);
+        }
+
+        std::vector<PageCircularBufferIteratorPtr> iterators =
+            scanner->getSetIterators(nodeId, dbId, typeId, setId);
+
+        int numIteratorsReturned = iterators.size();
+        if (numIteratorsReturned != numThreads) {
+          res = false;
+          errMsg = "Error: number of iterators doesn't match number of threads!";
+          std::cout << errMsg << std::endl;
+          return make_pair(res, errMsg);
+        }
+        PDB_COUT << "Buzzer is created in GetSetWork\n";
+        PDBBuzzerPtr tempBuzzer = make_shared<PDBBuzzer>([&](PDBAlarm myAlarm, atomic_int &counter) {
+          counter++;
+          PDB_COUT << "counter = " << counter << std::endl;
+        });
+        atomic_int counter;
+        counter = 0;
+        std::vector<decisiontree::Node> vect;
+        for (int i = 0; i < numThreads; i++) {
+          PDBWorkerPtr worker =
+              getFunctionality<HermesExecutionServer>().getWorkers()->getWorker();
+
+          // starting processing threads;
+          GetSetWorkPtr getSetWork = make_shared<GetSetWork>(
+              iterators.at(i), &(getFunctionality<HermesExecutionServer>()), counter);
+          //vect = worker->runActualWork(getSetWork, tempBuzzer);
+          worker->execute(getSetWork, tempBuzzer);
+        }
+
+        while (counter < numThreads) {
+          tempBuzzer->wait();
+        }
+
+        int numNodes = vect.size();
+        int memSize = (4 * sizeof(int) + 1 * sizeof(long) + 1 * sizeof(bool)) * numNodes;
+        decisiontree::Node* tree = static_cast<decisiontree::Node*>(mmap(NULL, memSize, PROT_READ | PROT_WRITE, MAP_ANON | MAP_SHARED, 0, 0));
+        for(int i = 0; i < numNodes; i++){
+          *(tree + i) = vect.at(i);
+        }
+        std::string fileName = "trees/"+dbName+setName;
+        ofstream file(fileName);
+        if (file){
+          file << tree << "\n";
+        }
+
+        res = true;
+        const UseTemporaryAllocationBlock block{1024};
         std::cout << "Send back reply: " << res << " from Back-end server" << std::endl;
-        Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(res,errMsg);
+        Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(res, errMsg);
+
+        // return the result
         res = sendUsingMe->sendObject(response, errMsg);
         return make_pair(res, errMsg);
+
       }));
 
   // register a handler to process StoragePagePinned messages that are reponses to the same
