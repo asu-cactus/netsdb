@@ -552,6 +552,9 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                     UserTypeID typeId = set->getTypeID();
                     SetID setId = set->getSetID();
 
+                    std::cout << "Frontend obtained BackendGetSet message with dbId=" << dbId 
+                        << ", typeId=" << typeId << ", setId=" << setId << std::endl;
+                    
                     {
                         const UseTemporaryAllocationBlock myBlock{1024};
                         Handle<BackendGetSet> msg =

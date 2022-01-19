@@ -155,7 +155,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
       [&](Handle<BackendGetSet> request, PDBCommunicatorPtr sendUsingMe) {
         std::cout << "Back-end received BackendGetSet request" << std::endl;
         std::string errMsg;
-        bool res;
+        bool res = false;
 
         DatabaseID dbId = request->getDatabaseID();
         UserTypeID typeId = request->getUserTypeID();
@@ -163,8 +163,11 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
         std::string dbName = request->getDatabaseName();
         std::string setName = request->getSetName();
 
-        PDB_COUT << "Backend received BackendGetSet message with dbId=" << dbId
+        std::cout << "Backend received BackendGetSet message with dbId=" << dbId
                  << ", typeId=" << typeId << ", setId=" << setId << std::endl;
+
+        std::cout << "Backend received BackendGetSet message with dbName=" << dbName
+                 << ", setName=" << setName << std::endl;
 
         int numThreads = getFunctionality<HermesExecutionServer>().getConf()->getNumThreads();
         NodeID nodeId = getFunctionality<HermesExecutionServer>().getNodeID();
@@ -172,53 +175,49 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
         SharedMemPtr shm = getFunctionality<HermesExecutionServer>().getSharedMem();
         int backendCircularBufferSize = 3;
 
-        PDBCommunicatorPtr communicatorToFrontend = make_shared<PDBCommunicator>();
-        communicatorToFrontend->connectToInternetServer(
-            logger,
-            getFunctionality<HermesExecutionServer>().getConf()->getPort(),
-            "localhost",
-            errMsg);
-        PageScannerPtr scanner = make_shared<PageScanner>(
-            communicatorToFrontend, shm, logger, numThreads, backendCircularBufferSize, nodeId);
-
-        if (getFunctionality<HermesExecutionServer>().setCurPageScanner(scanner) == false) {
-          res = false;
-          errMsg = "Error: A job is already running!";
-          std::cout << errMsg << std::endl;
-          return make_pair(res, errMsg);
-        }
-
-        std::vector<PageCircularBufferIteratorPtr> iterators =
-            scanner->getSetIterators(nodeId, dbId, typeId, setId);
-
-        int numIteratorsReturned = iterators.size();
-        if (numIteratorsReturned != numThreads) {
+        pdb::PDBCommunicatorPtr communicatorToFrontend = make_shared<PDBCommunicator>();
+        communicatorToFrontend->connectToInternetServer(logger,getFunctionality<HermesExecutionServer>().getConf()->getPort(),"localhost",errMsg);
+        DataProxyPtr proxy = make_shared<DataProxy>(nodeId, communicatorToFrontend, getSharedMem(), logger);
+        PageScannerPtr scanner = make_shared<PageScanner>(communicatorToFrontend, shm, logger, numThreads, backendCircularBufferSize, nodeId);
+        
+        std::vector<PageCircularBufferIteratorPtr> iterators = scanner->getSetIterators(nodeId, dbId, typeId, setId);
+        int numIterators = iterators.size();
+        std::cout << "The number of the iterators: " << numIterators << std::endl;
+        if (numIterators != numThreads) {
           res = false;
           errMsg = "Error: number of iterators doesn't match number of threads!";
           std::cout << errMsg << std::endl;
           return make_pair(res, errMsg);
         }
-        PDB_COUT << "Buzzer is created in GetSetWork\n";
-        PDBBuzzerPtr tempBuzzer = make_shared<PDBBuzzer>([&](PDBAlarm myAlarm, atomic_int &counter) {
-          counter++;
-          PDB_COUT << "counter = " << counter << std::endl;
-        });
-        atomic_int counter;
-        counter = 0;
         std::vector<decisiontree::Node> vect;
-        for (int i = 0; i < numThreads; i++) {
-          PDBWorkerPtr worker =
-              getFunctionality<HermesExecutionServer>().getWorkers()->getWorker();
+        for (int i = 0; i < numIterators; i++) {
+          PageCircularBufferIteratorPtr iter =  iterators.at(i);
+          PDBPagePtr page;
+          while (iter->hasNext()) {
+            page = iter->next();
+            // page still can be nullptr, so we MUST check nullptr here.
+            if (page != nullptr) {
+              std::cout << "processing page with pageId=" << page->getPageID() << std::endl;
+              pdb::Record<pdb::Vector<pdb::Handle<decisiontree::Node>>>* temp = (pdb::Record<pdb::Vector<pdb::Handle<decisiontree::Node>>>*)page->getBytes();
+              pdb::Handle<pdb::Vector<pdb::Handle<decisiontree::Node>>> inputVec = temp->getRootObject();
+              int vecSize = inputVec->size();
+              for (int j = 0; j < vecSize; j++) {
+                pdb::Handle<decisiontree::Node> thisNodePtr = (*inputVec)[j];
+                // the following will build a decisiontree::Node object
+                decisiontree::Node thisNode = decisiontree::Node(thisNodePtr->nodeID,thisNodePtr->indexID,thisNodePtr->isLeaf,thisNodePtr->leftChild,thisNodePtr->rightChild,thisNodePtr->returnClass);
+                // testing purpose
+                std::cout << "Decision tree NodeID is: " << thisNode.nodeID << std::endl;
+                vect.push_back(thisNode);
+              }
 
-          // starting processing threads;
-          GetSetWorkPtr getSetWork = make_shared<GetSetWork>(
-              iterators.at(i), &(getFunctionality<HermesExecutionServer>()), counter);
-          //vect = worker->runActualWork(getSetWork, tempBuzzer);
-          worker->execute(getSetWork, tempBuzzer);
-        }
-
-        while (counter < numThreads) {
-          tempBuzzer->wait();
+              // clean the page;
+              if (proxy->unpinUserPage(nodeId, page->getDbID(), page->getTypeID(), page->getSetID(), page) == false) {
+                logger->writeLn("Can not add finished page to cleaner.");
+                return make_pair(res, errMsg);
+              }
+            }
+            std::cout << "The PDBPagePtr page is nullptr!" << std::endl;
+          }
         }
 
         int numNodes = vect.size();
