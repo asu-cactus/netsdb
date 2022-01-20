@@ -69,6 +69,10 @@ int main(int argc, char *argv[]) {
     		pdb::Handle<decisiontree::Node> myData = pdb::makeObject<decisiontree::Node>(i,i,true,i,i,1.00);
     		storeMe->push_back(myData);
     	}
+        if (!pdbClient.sendData<decisiontree::Node>(pair<string, string>(setName, dbName), storeMe, errMsg)) {
+            cout << "Failed to send data to dispatcher server" << endl;
+            return -1;
+        }
     } catch (pdb::NotEnoughSpace& e) {
     	if (!pdbClient.sendData<decisiontree::Node>(pair<string, string>(setName, dbName), storeMe, errMsg)) {
     		cout << "Not able to store data: " + errMsg;
