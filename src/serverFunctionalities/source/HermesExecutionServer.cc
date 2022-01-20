@@ -148,7 +148,8 @@ bool HermesExecutionServer::exportToPointerInFile(std::string dbName,
     for(int i = 0; i < numNodes; i++){
         *(tree + i) = vect.at(i);
     }
-    std::string fileName = "/home/jiaqingchen/netsdb/trees/"+dbName+setName;
+    std::string fileName = dbName+setName;
+    //std::string fileName = "/home/jiaqingchen/netsdb/trees/"+dbName+setName;
     ofstream file(fileName);
     if (file){
         file << tree << "\n";
@@ -256,7 +257,8 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
         std::cout << "root node's nodeID: " << tree-> nodeID << std::endl;
         std::cout << "root's left child node's data: " << (tree+(tree->leftChild))-> returnClass << std::endl;
 
-        std::string fileName = "/home/jiaqingchen/netsdb/trees/"+dbName+setName;
+        std::string fileName = dbName+setName;
+        //std::string fileName = "/home/jiaqingchen/netsdb/trees/"+dbName+setName;
         ofstream file(fileName);
         if (file){
           file << tree << "\n";

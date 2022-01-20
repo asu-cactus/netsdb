@@ -112,8 +112,10 @@ int main(int argc, char *argv[]) {
     pdb::Handle<pdb::Computation> inputMatrix = pdb::makeObject<FFMatrixBlockScanner>("decisiontreeBC", "inputs");
 
     std::cout << "To make object of decision tree shared libraries" << std::endl;
-    
-    string fileName = "/home/jiaqingchen/netsdb/trees/"+dbName+setName;
+
+    //string fileName = "/home/jiaqingchen/netsdb/trees/"+dbName+setName;
+    string fileName = dbName+setName;
+    /*
     std::cout << fileName << std::endl;
     // testing purpose
     ofstream file(fileName);
@@ -124,6 +126,7 @@ int main(int argc, char *argv[]) {
         std::cout << "Failed to create a file!" << std::endl;
     }
     file.close();
+    */
 
     pdb::Handle<pdb::Computation> genericDT = pdb::makeObject<GenericDT>(fileName);
     genericDT->setInput(inputMatrix);

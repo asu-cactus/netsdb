@@ -119,7 +119,9 @@ int main(int argc, const char *argv[]){
 	//print the original root address
 	std::cout << "original root address: " << tree << std::endl;
 
-	ofstream file("tree.csv");
+	//string fileName = "/home/jiaqingchen/netsdb/trees/tree";
+	string fileName = "tree";
+	ofstream file(fileName);
 	if (file){
 		file << tree << "\n";
 	}
@@ -127,7 +129,7 @@ int main(int argc, const char *argv[]){
 	file.close();
 
 	// reload the pointer from tree.csv file
-	ifstream fin("tree.csv");
+	ifstream fin(fileName);
 	string line;
 	Node * ptr = nullptr;
 	while (getline(fin, line)){
