@@ -179,7 +179,14 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
         communicatorToFrontend->connectToInternetServer(logger,getFunctionality<HermesExecutionServer>().getConf()->getPort(),"localhost",errMsg);
         DataProxyPtr proxy = make_shared<DataProxy>(nodeId, communicatorToFrontend, getSharedMem(), logger);
         PageScannerPtr scanner = make_shared<PageScanner>(communicatorToFrontend, shm, logger, numThreads, backendCircularBufferSize, nodeId);
-        
+
+        if (getFunctionality<HermesExecutionServer>().setCurPageScanner(scanner) == false) {
+          res = false;
+          errMsg = "Error: A job is already running!";
+          std::cout << errMsg << std::endl;
+          return make_pair(res, errMsg);
+        }
+
         std::vector<PageCircularBufferIteratorPtr> iterators = scanner->getSetIterators(nodeId, dbId, typeId, setId);
         int numIterators = iterators.size();
         std::cout << "The number of the iterators: " << numIterators << std::endl;
@@ -191,12 +198,16 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
         }
         std::vector<decisiontree::Node> vect;
         for (int i = 0; i < numIterators; i++) {
+          std::cout << "Create a PageCircularBufferIteratorPtr" << std::endl;
           PageCircularBufferIteratorPtr iter =  iterators.at(i);
+          std::cout << "Create a PDBPagePtr" << std::endl;
           PDBPagePtr page;
           while (iter->hasNext()) {
+            std::cout << "Get next iter" << std::endl;
             page = iter->next();
             // page still can be nullptr, so we MUST check nullptr here.
             if (page != nullptr) {
+              std::cout << "The PDBPagePtr page is not nullptr!" << std::endl;
               std::cout << "processing page with pageId=" << page->getPageID() << std::endl;
               pdb::Record<pdb::Vector<pdb::Handle<decisiontree::Node>>>* temp = (pdb::Record<pdb::Vector<pdb::Handle<decisiontree::Node>>>*)page->getBytes();
               pdb::Handle<pdb::Vector<pdb::Handle<decisiontree::Node>>> inputVec = temp->getRootObject();
@@ -215,8 +226,9 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                 logger->writeLn("Can not add finished page to cleaner.");
                 return make_pair(res, errMsg);
               }
+            } else {
+              std::cout << "The PDBPagePtr page is nullptr!" << std::endl;
             }
-            std::cout << "The PDBPagePtr page is nullptr!" << std::endl;
           }
         }
 
