@@ -75,10 +75,23 @@
 #include <memory>
 #include <string>
 #include <iostream>
+#include <fstream>
 #include <signal.h>
 #include <stdio.h>
 #include <map>
 #include <iterator>
+#include <future>
+#include <thread>
+#include <sstream>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <unistd.h>
+#include <cassert>
+#include <algorithm>
+#include <set>
+#include <cstring>
+#include <exception>
 #include <pthread.h>
 #include <snappy.h>
 
@@ -135,7 +148,7 @@ bool HermesExecutionServer::exportToPointerInFile(std::string dbName,
     for(int i = 0; i < numNodes; i++){
         *(tree + i) = vect.at(i);
     }
-    std::string fileName = "trees/"+dbName+setName;
+    std::string fileName = "/home/jiaqingchen/netsdb/trees/"+dbName+setName;
     ofstream file(fileName);
     if (file){
         file << tree << "\n";
@@ -231,7 +244,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
             }
           }
         }
-        
+
         int numNodes = vect.size();
         int memSize = (4 * sizeof(int) + 1 * sizeof(long) + 1 * sizeof(bool)) * numNodes;
         decisiontree::Node* tree = static_cast<decisiontree::Node*>(mmap(NULL, memSize, PROT_READ | PROT_WRITE, MAP_ANON | MAP_SHARED, 0, 0));
@@ -240,7 +253,10 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
         }
         // testing purpose
         std::cout << "Address of the tree pointer: " << tree << std::endl;
-        std::string fileName = "trees/"+dbName+setName;
+        std::cout << "root node's nodeID: " << tree-> nodeID << std::endl;
+        std::cout << "root's left child node's data: " << (tree+(tree->leftChild))-> returnClass << std::endl;
+
+        std::string fileName = "/home/jiaqingchen/netsdb/trees/"+dbName+setName;
         ofstream file(fileName);
         if (file){
           file << tree << "\n";

@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
 	pdbClient.registerType("libraries/libTreeNode.so", errMsg);
 
 	// create a new database
-	string dbName = "materializedmodel_db";
+	string dbName = "mm_db";
     if (!pdbClient.createDatabase(dbName, errMsg)) {
         cout << "Not able to create database: " + errMsg;
         return -1;
@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
     }
 
     // create a new set in the database
-    string setName = "materializedmodel_set";
+    string setName = "mm_set";
     if (!pdbClient.createSet<decisiontree::Node>(dbName, setName, errMsg)) {
         cout << "Not able to create set: " + errMsg;
         return -1;
@@ -112,7 +112,19 @@ int main(int argc, char *argv[]) {
     pdb::Handle<pdb::Computation> inputMatrix = pdb::makeObject<FFMatrixBlockScanner>("decisiontreeBC", "inputs");
 
     std::cout << "To make object of decision tree shared libraries" << std::endl;
-    string fileName = "trees/"+dbName+setName;
+    
+    string fileName = "/home/jiaqingchen/netsdb/trees/"+dbName+setName;
+    std::cout << fileName << std::endl;
+    // testing purpose
+    ofstream file(fileName);
+    if (file){
+        file << "tree testing"<< "\n";
+        std::cout << "Succeed to create a file!" << std::endl;
+    } else{
+        std::cout << "Failed to create a file!" << std::endl;
+    }
+    file.close();
+
     pdb::Handle<pdb::Computation> genericDT = pdb::makeObject<GenericDT>(fileName);
     genericDT->setInput(inputMatrix);
 
