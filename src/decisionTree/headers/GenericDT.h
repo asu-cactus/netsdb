@@ -76,6 +76,9 @@ class GenericDT: public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
             }
             
             // testing purpose
+            std::cout << "Address of the tree pointer: " << ptr << std::endl;
+
+            // testing purpose
             std::cout << inNumRow << "," << inNumCol << std::endl;
             std::cout << inBlockRowIndex << "," << inBlockColIndex << std::endl;
 

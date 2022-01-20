@@ -231,18 +231,31 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
             }
           }
         }
-
+        
         int numNodes = vect.size();
         int memSize = (4 * sizeof(int) + 1 * sizeof(long) + 1 * sizeof(bool)) * numNodes;
         decisiontree::Node* tree = static_cast<decisiontree::Node*>(mmap(NULL, memSize, PROT_READ | PROT_WRITE, MAP_ANON | MAP_SHARED, 0, 0));
         for(int i = 0; i < numNodes; i++){
           *(tree + i) = vect.at(i);
         }
+        // testing purpose
+        std::cout << "Address of the tree pointer: " << tree << std::endl;
         std::string fileName = "trees/"+dbName+setName;
         ofstream file(fileName);
         if (file){
           file << tree << "\n";
         }
+        file.close();
+
+        // testing purpose
+        ifstream fin(fileName);
+        string line;
+        decisiontree::Node* ptr = nullptr;
+        while (getline(fin, line)){
+          long long result=strtoll(line.c_str(), NULL, 16);
+          ptr = (decisiontree::Node *)result;
+        }
+        std::cout << "Verify the Address of the tree pointer: " << ptr << std::endl;
 
         res = true;
         const UseTemporaryAllocationBlock block{1024};

@@ -85,7 +85,6 @@ int main(int argc, char *argv[]) {
     bool results = pdbClient.MM_getSet(dbName, setName, errMsg);
     std::cout << "Here is the MM_getSet results: " << results << std::endl;
 
-    /*
     ff::createDatabase(pdbClient, "decisiontreeBC");
 
     ff::loadLibrary(pdbClient, "libraries/libFFMatrixMeta.so");
@@ -146,7 +145,6 @@ int main(int argc, char *argv[]) {
     ff::print_stats(pdbClient, "decisiontreeBC", "labels");
     std::cout << "To print the results" << std::endl;
     ff::print(pdbClient, "decisiontreeBC", "labels");
-    */
     return 0;
 }
 
