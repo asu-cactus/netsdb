@@ -1339,7 +1339,8 @@ common_env.Program('bin/PipelinedConv2dMemFuseTest', ['build/tests/PipelinedConv
                                                       'build/conv2d_memory_fusion/ImageUtils.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
 common_env.Program('bin/Conv2dProjTest',
                    ['build/tests/Conv2dProjTest.cc'] + all + pdb_client)
-
+common_env.Program('bin/FCProjTest', ['build/tests/FCProjTest.cc',
+                                  'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc', 'build/FF_proj/FullyConnectedNetwork.cc'] + all + pdb_client)
 # PageRank
 
 common_env.Program(
@@ -1376,6 +1377,9 @@ common_env.SharedLibrary('libraries/libRankUpdateAggregation.so',
 common_env.Program(
     'bin/removeSet', ['build/tests/RemoveSet.cc'] + all + pdb_client)
 
+# Fully Connected Network
+common_env.SharedLibrary('libraries/libFullyConnectedNetwork.so', 
+                         ['build/FF_proj/FullyConnectedNetwork.cc'] + all)
 
 # Semantic Classifier
 common_env.SharedLibrary('libraries/libEmbeddingLookupSparse.so',
