@@ -275,6 +275,14 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
         }
         std::cout << "Verify the Address of the tree pointer: " << ptr << std::endl;
 
+        if (this->setCurPageScanner(nullptr) == false) {
+          res = false;
+          errMsg = "Error: No job is running!";
+          std::cout << errMsg << std::endl;
+        }
+
+        printCacheStats();
+
         res = true;
         const UseTemporaryAllocationBlock block{1024};
         std::cout << "Send back reply: " << res << " from Back-end server" << std::endl;

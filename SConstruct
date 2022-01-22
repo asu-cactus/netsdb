@@ -1975,7 +1975,7 @@ libLSTMTest = common_env.Alias('libLSTMTest', [
     'libraries/libLSTMHiddenState.so',
 ])
 
-libSpecializedBCTest = common_env.Alias('libDecisionTreeTest', [
+libDecisionTreeTest = common_env.Alias('libDecisionTreeTest', [
     'bin/pdb-cluster',
     'bin/pdb-server',
     'bin/decisionTreeSpecializedBC',

@@ -43,6 +43,7 @@ class SpecializedBC: public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
             uint32_t inBlockColIndex = in->getBlockColIndex();
 
             // testing purpose
+            std::cout << "Finish load the metadata" << std::endl;
             std::cout << inNumRow << "," << inNumCol << std::endl;
             std::cout << inBlockRowIndex << "," << inBlockColIndex << std::endl;
 
@@ -76,7 +77,7 @@ class SpecializedBC: public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
               compactness_worst = inData[i*inNumCol+25];
               concavity_worst = inData[i*inNumCol+26];
               result = -1.0;
-
+              
               if(concave_points_mean<=0.052){
                 if(radius_worst<=16.54){
                   if(area_se<=37.61){
@@ -154,8 +155,11 @@ class SpecializedBC: public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
                   }
                 }
               }
+              std::cout << result << " ";
               resultMatrix->push_back(result);
             }
+            std::cout << std::endl;
+            std::cout << "Matrix size is: " << resultMatrix->size() << std::endl;
             pdb::Handle<FFMatrixBlock> resultMatrixBlock =
                 pdb::makeObject<FFMatrixBlock>(inBlockRowIndex, inBlockColIndex, inNumRow, 1, resultMatrix);
             return resultMatrixBlock;

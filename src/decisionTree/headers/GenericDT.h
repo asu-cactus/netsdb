@@ -39,7 +39,7 @@ using namespace pdb;
 class GenericDT: public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
   private:
     decisiontree::Node * ptr = nullptr;
-    string fileName;
+    pdb::String fileName = "";
 
   public:
 
@@ -48,8 +48,8 @@ class GenericDT: public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
     GenericDT() {}
     ~GenericDT() {}
 
-    GenericDT(string fileName) {
-      this -> fileName = fileName;
+    GenericDT(pdb::String fileNameIn) {
+      fileName = fileNameIn;
     }
 
     Lambda<bool> getSelection(Handle<FFMatrixBlock> checkMe) override {
@@ -66,6 +66,13 @@ class GenericDT: public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
             uint32_t inBlockRowIndex = in->getBlockRowIndex();
             uint32_t inBlockColIndex = in->getBlockColIndex();
 
+            // testing purpose
+            std::cout << "Finish load the metadata" << std::endl;
+            std::cout << inNumRow << "," << inNumCol << std::endl;
+            std::cout << inBlockRowIndex << "," << inBlockColIndex << std::endl;
+
+            double *inData = in->getValue().rawData->c_ptr();
+
             if(this->ptr == nullptr){
               ifstream fin(fileName);
               string line;
@@ -74,16 +81,9 @@ class GenericDT: public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
                 this->ptr = (decisiontree::Node *)result;
               }
             }
-            
+
             // testing purpose
             std::cout << "Address of the tree pointer: " << ptr << std::endl;
-
-            // testing purpose
-            std::cout << inNumRow << "," << inNumCol << std::endl;
-            std::cout << inBlockRowIndex << "," << inBlockColIndex << std::endl;
-
-            double *inData = in->getValue().rawData->c_ptr();
-
             pdb::Handle<pdb::Vector<double>> resultMatrix = pdb::makeObject<pdb::Vector<double>>();
 
             for (int i = 0; i < inNumRow; i++){
@@ -95,10 +95,12 @@ class GenericDT: public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
                   *ptr = *(ptr+(ptr->rightChild));
                 }
               }
+              std::cout << ptr->returnClass << " ";
               resultMatrix->push_back(ptr->returnClass);
             }
-            pdb::Handle<FFMatrixBlock> resultMatrixBlock =
-                pdb::makeObject<FFMatrixBlock>(inBlockRowIndex, inBlockColIndex, inNumRow, 1, resultMatrix);
+            std::cout << std::endl;
+            std::cout << "Matrix size is: " << resultMatrix->size() << std::endl;
+            pdb::Handle<FFMatrixBlock> resultMatrixBlock = pdb::makeObject<FFMatrixBlock>(inBlockRowIndex, inBlockColIndex, inNumRow, 1, resultMatrix);
             return resultMatrixBlock;
         });
     }
