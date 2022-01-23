@@ -1881,7 +1881,9 @@ libFFTest = common_env.Alias('libclassifier', [
     'bin/pdb-server',
     'bin/classifier',
     'bin/dedupClassifier',
+    'bin/FCProjTest',
     # Other libraries from src/FF
+    'libraries/libFullyConnectedNetwork.so',
     'libraries/libSemanticClassifier.so',
     'libraries/libFFMatrixBlock.so',
     'libraries/libFFMatrixMeta.so',

@@ -38,8 +38,8 @@ int main(int argc, char *argv[]) {
   int num_labels = atoi(argv[6]);
 
 
-  if (argc >= 4) {
-      if (strcmp(argv[3], "N")==0) {
+  if (argc >= 7) {
+      if (strcmp(argv[7], "N")==0) {
           reloadData = false;
           std::cout << "WARNING: we do not reload data!" << std::endl;
       }
@@ -83,6 +83,7 @@ int main(int argc, char *argv[]) {
 
   }
 
+  const pdb::UseTemporaryAllocationBlock tempBlock1{(size_t)6 * (size_t)1024 * (size_t)1024 * (size_t)1024};
 
   pdb::Handle<pdb::Computation> inputScanner =
       pdb::makeObject<pdb::ScanUserSet<FFMatrixBlock>>("ff", "inputs"); 
@@ -98,7 +99,6 @@ int main(int argc, char *argv[]) {
   writer->setInput(0, fullyConnectedNetwork);
 
   auto begin = std::chrono::high_resolution_clock::now();
-
     // run the computation
   if (!pdbClient.executeComputations(errMsg, "fc-proj", writer)) {
     cout << "Computation failed. Message was: " << errMsg << "\n";
@@ -119,7 +119,7 @@ int main(int argc, char *argv[]) {
 
   int correct = 0;
   {
-    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+    const pdb::UseTemporaryAllocationBlock tempBlock{(size_t)128 * (size_t)1024 * (size_t)1024};
 
     auto it = pdbClient.getSetIterator<FFMatrixBlock>("ff", "output");
 
