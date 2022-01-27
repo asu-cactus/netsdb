@@ -1398,11 +1398,18 @@ common_env.SharedLibrary('libraries/libTreeNode.so',
                         ['build/decisionTree/TreeNode.cc'] + all)
 common_env.SharedLibrary('libraries/libGenericDT.so',
                         ['build/decisionTree/GenericDT.cc'] + all)
+common_env.SharedLibrary('libraries/libBaselineNode.so',
+                        ['build/decisionTree/BaselineNode.cc'] + all)
+common_env.SharedLibrary('libraries/libMyPrediction.so',
+                        ['build/decisionTree/MyPrediction.cc'] + all)
 common_env.Program('bin/decisionTreeSpecializedBC', 
                         ['build/tests/TestSpecializedBC.cc', 'build/FF/FFMatrixUtil.cc',
                         'build/FF/SimpleFF.cc'] + all + pdb_client)
 common_env.Program('bin/materializemodel', 
                         ['build/tests/TestMaterializeModel.cc', 'build/FF/FFMatrixUtil.cc',
+                        'build/FF/SimpleFF.cc'] + all + pdb_client)
+common_env.Program('bin/baselineBC', 
+                        ['build/tests/TestBaselineBC.cc', 'build/FF/FFMatrixUtil.cc',
                         'build/FF/SimpleFF.cc'] + all + pdb_client)
 
 # Testing
@@ -1980,6 +1987,7 @@ libDecisionTreeTest = common_env.Alias('libDecisionTreeTest', [
     'bin/pdb-server',
     'bin/decisionTreeSpecializedBC',
     'bin/materializemodel',
+    'bin/baselineBC',
     'libraries/libFFMatrixBlock.so',
     'libraries/libFFMatrixMeta.so',
     'libraries/libFFMatrixData.so',
@@ -1989,7 +1997,9 @@ libDecisionTreeTest = common_env.Alias('libDecisionTreeTest', [
     'libraries/libFFMatrixPartitioner.so',
     'libraries/libSpecializedBC.so',
     'libraries/libGenericDT.so',
-    'libraries/libTreeNode.so'
+    'libraries/libTreeNode.so',
+    'libraries/libBaselineNode.so',
+    'libraries/libMyPrediction.so'
 ])
 
 libConv2DProjTest = common_env.Alias('libConv2DProjTest', [
