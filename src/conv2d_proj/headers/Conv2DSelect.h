@@ -26,9 +26,9 @@ public:
 
     Conv2DSelect() {}
 
-    Conv2DSelect(Handle<TensorData> filters, std::string convMode) {
+    Conv2DSelect(Handle<TensorData> filters, unsigned int stride = 1, std::string convMode = "aten-conv2d") {
 
-        //make sure it's a 3D tensor
+        //make sure it's a 4D tensor
         assert(filters->numRanks = 4);
 
         //set up the kernel and kernel dimensions
@@ -48,6 +48,8 @@ public:
 
         //set up the mode of the convolutional operation
         this->conv2dMode = convMode;
+
+        this->stride = stride;
 
     }
 
@@ -139,35 +141,33 @@ public:
 
         return out;
 
-
     }
 
-    Handle<TensorData> runAtenConv2d(TensorData& input, int z, int y, int x) {
-
+    Handle<TensorData> runAtenConv2d(TensorData& input, int z, int y, int x, int stride) {
         //input data
         at::Tensor a = at::from_blob(input.rawData->c_ptr(), {1, z, y, x});
 
         at::Tensor b = at::from_blob(kernel->rawData->c_ptr(), {nk, zk, yk, xk});
 
+        at::Tensor bias;
         //perform the convolutional operation
-        auto c = at::conv2d(a, b);
+        auto c = at::conv2d(a, b, bias, stride);
 
         //create the output
-
         Handle<Vector<unsigned int>> dimensions = makeObject<Vector<unsigned int>>(3);
-
+        
         dimensions->push_back(nk);
+        
+        int oy = calculateOutputDimension(y, yk, stride) + 1;
+        dimensions->push_back(oy);
 
-        dimensions->push_back(y - yk + 1);
-
-        dimensions->push_back(x - xk + 1);
+        int ox = calculateOutputDimension(x, xk, stride) + 1;
+        dimensions->push_back(ox);
 
         Handle<TensorData> out = makeObject<TensorData>(3, dimensions);
-
-        memcpy(out->rawData->c_ptr(), c.storage().data(), nk * (y - yk + 1 ) * (x - xk + 1 ) * sizeof(float));
-
+        memcpy(out->rawData->c_ptr(), c.storage().data(), nk * (oy) * (ox) * sizeof(float));
+        
         return out;
-
     }
 
 
@@ -193,14 +193,11 @@ public:
             int x = (*(input.dimensions))[2];
 
 
-            if (conv2dMode == "eigen-spatial")
-
-                  return runEigenSpatial(input, z, y, x);
-
-            else 
-
-                  return runAtenConv2d(input, z, y, x);
-
+            if (conv2dMode == "eigen-spatial") {
+                return runEigenSpatial(input, z, y, x);
+            } else {
+                return runAtenConv2d(input, z, y, x, stride);
+            }
         });
     }
 
@@ -224,6 +221,11 @@ private:
 
     int zk;
 
+    unsigned int stride;
+
+    static int calculateOutputDimension(int inputDimention, int filterDimention, int stride) {
+        return (inputDimention - filterDimention) / stride + 1;
+    }
 
 };
 
