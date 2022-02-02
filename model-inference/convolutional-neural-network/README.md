@@ -15,6 +15,29 @@ The convolutional neural network consists of 64 7x7x3 filters.
 An image is in the shape of 112x112x3
 The convolutional neural network consists of 64 7x7x3 filters
 
+## Pytorch Dependency Installation
+
+- Tested configuration on Ubuntu 20.04 LTS https://pytorch.org/get-started/locally/
+    - PyTorch Build: Stable (1.10.2)
+    - OS: Linux
+    - Package: Source
+    - Language: Python
+    - Compute platform: CPU
+- Install Anaconda https://docs.anaconda.com/anaconda/install/
+- Pytorch installation using source https://github.com/pytorch/pytorch#from-source
+
+- In [SContruct](https://github.com/asu-cactus/netsdb/blob/master/SConstruct)
+    - Update `LIBPYTORCH_PATH` to your installation path 
+    - Update `LIBPYTORCH_ROOT` to your installation path
+- Last step is to set LD_LIBRARY_PATH
+  ```
+  export LD_LIBRARY_PATH="/home/ubuntu/pytorch/torch/lib:/home/ubuntu/anaconda3/lib:$LD_LIBRARY_PATH"
+  ```
+  Replace: `/home/ubuntu/pytorch/torch/lib` and `/home/ubuntu/anaconda3/lib` with your install paths.
+  
+  Note: Without this step you might run into `libtorch.so` library missing while starting netsdb cluster.
+
+
 ## Compilation:
 
 ### The version based on UDF-encapsulation 

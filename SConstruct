@@ -58,7 +58,7 @@ elif common_env['PLATFORM'] == 'posix':
     LIBPYTORCH_PATH = "/home/ubuntu/libtorch/lib"
     if os.path.exists(LIBPYTORCH_PATH):
         common_env.Append(
-            LINKFLAGS='-L/home/ubuntu/libtorch/lib -pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++ -lcrypto -lssl -ltorch -ltorch_cpu -lc10')
+            LINKFLAGS=f'-L{LIBPYTORCH_PATH} -pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++ -lcrypto -lssl -ltorch -ltorch_cpu -lc10')
     else:
         common_env.Append(
             LINKFLAGS='-pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++ -lcrypto -lssl')
