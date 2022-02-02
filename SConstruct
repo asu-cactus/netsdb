@@ -1394,8 +1394,12 @@ common_env.Program('bin/dedupClassifier',
 # Decision Tree
 common_env.SharedLibrary('libraries/libSpecializedBC.so',
                         ['build/decisionTree/SpecializedBC.cc'] + all)
+common_env.SharedLibrary('libraries/libJoinforBaselineDT.so',
+                        ['build/decisionTree/JoinforBaselineDT.cc'] + all)
 common_env.SharedLibrary('libraries/libTreeNode.so',
                         ['build/decisionTree/TreeNode.cc'] + all)
+common_env.SharedLibrary('libraries/libTree.so',
+                        ['build/decisionTree/Tree.cc'] + all)
 common_env.SharedLibrary('libraries/libGenericDT.so',
                         ['build/decisionTree/GenericDT.cc'] + all)
 common_env.SharedLibrary('libraries/libBaselineNode.so',
@@ -1997,7 +2001,9 @@ libDecisionTreeTest = common_env.Alias('libDecisionTreeTest', [
     'libraries/libFFMatrixPartitioner.so',
     'libraries/libSpecializedBC.so',
     'libraries/libGenericDT.so',
+    'libraries/libJoinforBaselineDT.so',
     'libraries/libTreeNode.so',
+    'libraries/libTree.so',
     'libraries/libBaselineNode.so',
     'libraries/libMyPrediction.so'
 ])
