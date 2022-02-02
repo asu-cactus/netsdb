@@ -29,6 +29,7 @@ class JoinforBaselineDT : public JoinComp<FFMatrixBlock, Tree, FFMatrixBlock> {
 
   Lambda<Handle<FFMatrixBlock>> getProjection(Handle<Tree> in1, Handle<FFMatrixBlock> in2) override {
     return makeLambda(in1, in2, [](Handle<Tree>& in1, Handle<FFMatrixBlock>& in2) {
+      // get the input features matrix information
     	uint32_t inNumRow = in2->getRowNums();
     	uint32_t inNumCol = in2->getColNums();
     	uint32_t inBlockRowIndex = in2->getBlockRowIndex();
@@ -39,13 +40,39 @@ class JoinforBaselineDT : public JoinComp<FFMatrixBlock, Tree, FFMatrixBlock> {
     	std::cout << inNumRow << "," << inNumCol << std::endl;
     	std::cout << inBlockRowIndex << "," << inBlockColIndex << std::endl;
 
+      // get the input features
     	double *inData = in2->getValue().rawData->c_ptr();
+      // get the decision tree
+      pdb::Vector<pdb::Handle<decisiontree::Node>> tree = in1->get_tree();
 
+      // set the output matrix
     	pdb::Handle<pdb::Vector<double>> resultMatrix = pdb::makeObject<pdb::Vector<double>>();
 
-    	//TODO: inference logic
+      // set the node of the tree
+      decisiontree::Node * treeNode = nullptr;
+
+      // set a new vetor to store the whole tree
+      std::vector<decisiontree::Node> vectNode;
+      for(int i = 0; i < tree.size(); i++){
+        pdb::Handle<decisiontree::Node> thisNodePtr = tree[i];
+        decisiontree::Node thisNode = decisiontree::Node(thisNodePtr->nodeID,thisNodePtr->indexID,thisNodePtr->isLeaf,thisNodePtr->leftChild,thisNodePtr->rightChild,thisNodePtr->returnClass);
+        vectNode.push_back(thisNode);
+      }
+
+      // inference
     	for (int i = 0; i < inNumRow; i++){
-    		resultMatrix->push_back(-1.0);
+        // pass the root node of the tree
+        treeNode = & vectNode.at(0);
+        while(treeNode->isLeaf == false){
+          double inputValue = inData[i*inNumRow+treeNode->indexID];
+          if(inputValue <= treeNode->returnClass){
+            * treeNode = * (treeNode + (treeNode->leftChild));
+          }else{
+            * treeNode = * (treeNode + (treeNode->rightChild));
+          }
+        }
+        std::cout << treeNode->returnClass << " ";
+        resultMatrix->push_back(treeNode->returnClass);
     	}
 
     	std::cout << std::endl;
