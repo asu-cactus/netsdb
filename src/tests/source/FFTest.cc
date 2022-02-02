@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
 
   }
 
-  ff::createSet(pdbClient, "ff", "output", "Output", 64);
+  ff::createSet(pdbClient, "ff", "output", "Output", 256);
 
   ff::createSet(pdbClient, "ff", "y1", "Y1", 64);
 
