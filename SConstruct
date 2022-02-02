@@ -55,10 +55,10 @@ elif common_env['PLATFORM'] == 'posix':
         CXXFLAGS='-std=c++14 -g3 -O3 -fPIC -fno-tree-vectorize  -march=native -Winline  -Wno-deprecated-declarations')
     #common_env.Append(CXXFLAGS = '-std=c++14 -g  -Oz -ldl -lstdc++ -Wno-deprecated-declarations')
     #LIBPYTORCH_PATH = "/home/ubuntu/anaconda3/envs/py37_torch/lib/python3.7/site-packages/torch/lib"
-    LIBPYTORCH_PATH = "/home/ubuntu/pytorch/torch/lib"
+    LIBPYTORCH_PATH = "/home/ubuntu/libtorch/lib"
     if os.path.exists(LIBPYTORCH_PATH):
         common_env.Append(
-            LINKFLAGS='-L/home/ubuntu/pytorch/torch/lib -pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++ -lcrypto -lssl -ltorch -ltorch_cpu -lc10')
+            LINKFLAGS='-L/home/ubuntu/libtorch/lib -pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++ -lcrypto -lssl -ltorch -ltorch_cpu -lc10')
     else:
         common_env.Append(
             LINKFLAGS='-pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++ -lcrypto -lssl')
@@ -347,7 +347,7 @@ else:
     sys.exit("ERROR: EIGEN3_ROOT must be configured to the correct path to eigen3")
 
 #LIBPYTORCH_ROOT = "/home/ubuntu/anaconda3/envs/py37_torch/lib/python3.7/site-packages/torch/include"
-LIBPYTORCH_ROOT = "/home/ubuntu/pytorch/torch/include"
+LIBPYTORCH_ROOT = "/home/ubuntu/libtorch/include"
 if os.path.exists(LIBPYTORCH_ROOT):
     headerpaths.append(LIBPYTORCH_ROOT)
 

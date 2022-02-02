@@ -138,13 +138,18 @@ int main(int argc, char *argv[]) {
   if (!generate)
     ff::load_matrix_from_file(labels_path, labels_test);
 
+  int count = 0;
   int correct = 0;
   {
     const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 
     auto it = pdbClient.getSetIterator<FFMatrixBlock>("ff", "output");
 
+
     for (auto r : it) {
+
+      count++;
+
       double *data = r->getRawDataHandle()->c_ptr();
       int i = 0;
       int j = r->getBlockRowIndex() * r->getRowNums();
@@ -170,6 +175,8 @@ int main(int argc, char *argv[]) {
     if (!generate)
       cout << "Accuracy: " << correct << "/" << labels_test.size() << std::endl;
   }
+
+  std::cout << "count=" << count << std::endl;
 
   sleep(20);
 
