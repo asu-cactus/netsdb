@@ -380,12 +380,29 @@ void inference_unit(pdb::PDBClient &pdbClient, string database, string w1,
     reluBias1->setInput(0, myAggregation1);
     reluBias1->setInput(1, readE);
 
+    pdb::Handle<pdb::Computation> intermediateWriter =
+        pdb::makeObject<FFMatrixWriter>(database, "yo");
+    intermediateWriter->setInput(reluBias1);
+
+    auto begin0 = std::chrono::high_resolution_clock::now();
+    // run the computation
+    if (!pdbClient.executeComputations(errMsg, "inference-unit-intermediate", materializeHash, intermediateWriter)) {
+      cout << "Computation failed. Message was: " << errMsg << "\n";
+      exit(1);
+    }
+    auto end0 = std::chrono::high_resolution_clock::now();
+    std::cout << "Inference-unit Intermediate Stage Time Duration: "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end0 - begin0).count()
+              << " secs." << std::endl;
+
+    pdb::Handle<pdb::Computation> readF =
+        makeObject<FFMatrixBlockScanner>(database, "yo");
 
     pdb::Handle<pdb::Computation> expSum = pdb::makeObject<FFRowAggregate>();
-    expSum->setInput(reluBias1);
+    expSum->setInput(readF);
 
     pdb::Handle<pdb::Computation> softmax = pdb::makeObject<FFOutputLayer>();
-    softmax->setInput(0, reluBias1);
+    softmax->setInput(0, readF);
     softmax->setInput(1, expSum);
 
     // make the writer
