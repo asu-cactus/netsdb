@@ -183,9 +183,10 @@ int main(int argc, char *argv[]) {
   dimensions->push_back(z);
   dimensions->push_back(y);
   dimensions->push_back(x);
+
   pdb::Handle<TensorData> kernel = pdb::makeObject<TensorData>(4, dimensions);
 
-  for (unsigned int i = 0; i < n*z*y*z; i++) {
+  for (unsigned int i = 0; i < n*z*y*x; i++) {
 
      (*(kernel->rawData))[i] = 0.5;
 
@@ -193,8 +194,8 @@ int main(int argc, char *argv[]) {
 
 
   //create select computation
-//  pdb::Handle<pdb::Computation> select = pdb::makeObject<Conv2DSelect>(kernel, "aten-conv2d");
-  pdb::Handle<pdb::Computation> select = pdb::makeObject<Conv2DSelect>(kernel, mode);
+  // stride (across all dimensions)
+  pdb::Handle<pdb::Computation> select = pdb::makeObject<Conv2DSelect>(kernel, mode, 1);
   select->setInput(0, imageScanner);
   std::cout << "select's output type: "<< select->getOutputType() << std::endl;
   //create write computation

@@ -26,7 +26,7 @@ public:
 
     Conv2DSelect() {}
 
-    Conv2DSelect(Handle<TensorData> filters, std::string convMode) {
+    Conv2DSelect(Handle<TensorData> filters, std::string convMode = "aten-conv2d", int stride = 1) {
 
         //make sure it's a 3D tensor
         assert(filters->numRanks = 4);
@@ -49,6 +49,8 @@ public:
         //set up the mode of the convolutional operation
         this->conv2dMode = convMode;
 
+        this->stride = stride;
+
     }
 
     Lambda<bool> getSelection(Handle<TensorData> checkMe) override {
@@ -58,7 +60,7 @@ public:
     }
 
 
-    Handle<TensorData> runEigenSpatial(TensorData& input,  int z, int y, int x) {
+    Handle<TensorData> runEigenSpatial(TensorData& input,  int z, int y, int x, int stride) {
 
         Eigen::TensorMap<Eigen::Tensor<float, 3>> a (input.rawData->c_ptr(), z, y, x);
         
@@ -81,21 +83,22 @@ public:
         contract_dims[0] = Eigen::IndexPair<int>(1, 0);
 
 
-        //out_height = inputRows - kernelRowsEff + 1 = y - yk + 1
-        //out_width = inputCols - kernelColsEff + 1 = x - xk + 1
+        //out_height = (inputRows - kernelRowsEff) / stride + 1 = (y - yk) / stride + 1
+        //out_width = (inputCols - kernelColsEff) / stride  + 1 = (x - xk) / stride + 1
 
-        
+       int oy = calculateOutputDimension(y, yk, stride);
+       int ox = calculateOutputDimension(x, xk, stride);
        
         //pre_contract_dims
         Eigen::array<int, 2> pre_contract_dims;
         pre_contract_dims[0] = zk * yk * xk;
-        pre_contract_dims[1] = (y - yk + 1 ) * (x - xk + 1 );
+        pre_contract_dims[1] = (oy) * (ox);
 
         //post_contract_dims
         Eigen::array<int, 3> post_contract_dims;
         post_contract_dims[0] = nk;
-        post_contract_dims[1] = (y - yk + 1 );
-        post_contract_dims[2] = (x - xk + 1 );
+        post_contract_dims[1] = (oy);
+        post_contract_dims[2] = (ox);
 
         //kernel dims
         Eigen::array<int, 2> kernel_dims;
@@ -109,23 +112,23 @@ public:
         
         dimensions->push_back(nk);
         
-        dimensions->push_back(y - yk + 1);
+        dimensions->push_back(oy);
         
-        dimensions->push_back(x - xk + 1);
+        dimensions->push_back(ox);
 
         Handle<TensorData> out = makeObject<TensorData>(3, dimensions);
 
-        float * mempool = (float *) malloc (nk * (y - yk + 1) * (x - xk + 1) * sizeof(float));
+       float * mempool = (float *) malloc (nk * oy * ox * sizeof(float));
 
-        Eigen::TensorMap<Eigen::Tensor<float, 3>> c (mempool, nk, y - yk + 1, x - xk + 1); 
+        Eigen::TensorMap<Eigen::Tensor<float, 3>> c (mempool, nk, oy, ox); 
 
         c = b1.reshape(kernel_dims)
               .contract(
-                 a.extract_image_patches(yk, xk, 1, 1, 1, 1, 
+                 a.extract_image_patches(yk, xk, stride, stride, 1, 1, 
                                              Eigen::PADDING_VALID)
                   .reshape(pre_contract_dims), contract_dims)
               .reshape(post_contract_dims);
-                 
+
 
         /* 
         c = a.extract_image_patches(yk, xk, 1, 1, 1, 1, Eigen::PADDING_VALID)
@@ -135,39 +138,39 @@ public:
                                      .reshape(Eigen::array<int, 3>({ (x - xk + 1 ), (y - yk + 1 ), nk }));
 
         */
-        memcpy (out->rawData->c_ptr(), mempool, nk * (y - yk + 1) * (x - xk + 1) * sizeof(float));
 
-        return out;
+       memcpy (out->rawData->c_ptr(), mempool, nk * oy * ox * sizeof(float));
 
-
+       return out;
     }
 
-    Handle<TensorData> runAtenConv2d(TensorData& input, int z, int y, int x) {
+    Handle<TensorData> runAtenConv2d(TensorData& input, int z, int y, int x, int stride) {
 
         //input data
         at::Tensor a = at::from_blob(input.rawData->c_ptr(), {1, z, y, x});
 
         at::Tensor b = at::from_blob(kernel->rawData->c_ptr(), {nk, zk, yk, xk});
 
+        // bias length = kernel count = nk
+        at::Tensor bias = at::zeros({nk}, at::kInt);
         //perform the convolutional operation
-        auto c = at::conv2d(a, b);
+        auto c = at::conv2d(a, b, bias, stride);
 
         //create the output
-
+        int oy = calculateOutputDimension(y, yk, stride);
+        int ox = calculateOutputDimension(x, xk, stride);
         Handle<Vector<unsigned int>> dimensions = makeObject<Vector<unsigned int>>(3);
 
         dimensions->push_back(nk);
 
-        dimensions->push_back(y - yk + 1);
+        dimensions->push_back(oy);
 
-        dimensions->push_back(x - xk + 1);
+        dimensions->push_back(ox);
 
         Handle<TensorData> out = makeObject<TensorData>(3, dimensions);
-
-        memcpy(out->rawData->c_ptr(), c.storage().data(), nk * (y - yk + 1 ) * (x - xk + 1 ) * sizeof(float));
-
+        memcpy(out->rawData->c_ptr(), c.storage().data(), nk * (oy) * (ox) * sizeof(float));
+        
         return out;
-
     }
 
 
@@ -193,14 +196,11 @@ public:
             int x = (*(input.dimensions))[2];
 
 
-            if (conv2dMode == "eigen-spatial")
-
-                  return runEigenSpatial(input, z, y, x);
-
-            else 
-
-                  return runAtenConv2d(input, z, y, x);
-
+            if (conv2dMode == "eigen-spatial") {
+                return runEigenSpatial(input, z, y, x, stride);
+            } else {
+                return runAtenConv2d(input, z, y, x, stride);
+            }
         });
     }
 
@@ -224,6 +224,11 @@ private:
 
     int zk;
 
+    unsigned int stride;
+
+    static int calculateOutputDimension(int inputDimention, int filterDimention, int stride) {
+        return (inputDimention - filterDimention) / stride + 1;
+    }
 
 };
 
