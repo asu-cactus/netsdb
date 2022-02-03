@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
 
 	int rowNum = 569;
 	int colNum = 31;
-	int block_x = 569;
+	int block_x = 1;
 	int block_y = 31;
 
 	string errMsg;

@@ -47,7 +47,7 @@ class JoinforBaselineDT : public JoinComp<FFMatrixBlock, Tree, FFMatrixBlock> {
 
       // set the output matrix
     	pdb::Handle<pdb::Vector<double>> resultMatrix = pdb::makeObject<pdb::Vector<double>>();
-
+      
       // set the node of the tree
       decisiontree::Node * treeNode = nullptr;
 
@@ -60,11 +60,12 @@ class JoinforBaselineDT : public JoinComp<FFMatrixBlock, Tree, FFMatrixBlock> {
       }
 
       // inference
+      double inputValue;
     	for (int i = 0; i < inNumRow; i++){
         // pass the root node of the tree
         treeNode = & vectNode.at(0);
         while(treeNode->isLeaf == false){
-          double inputValue = inData[i*inNumCol+treeNode->indexID];
+          inputValue = inData[i*inNumCol+treeNode->indexID];
           if(inputValue <= treeNode->returnClass){
             * treeNode = * (treeNode + (treeNode->leftChild));
           }else{

@@ -86,9 +86,10 @@ class GenericDT: public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
             std::cout << "Address of the tree pointer: " << ptr << std::endl;
             pdb::Handle<pdb::Vector<double>> resultMatrix = pdb::makeObject<pdb::Vector<double>>();
 
+            double inputValue;
             for (int i = 0; i < inNumRow; i++){
               while(ptr->isLeaf == false){
-                double inputValue = inData[i*inNumCol+ptr->indexID];
+                inputValue = inData[i*inNumCol+ptr->indexID];
                 if(inputValue <= ptr->returnClass){
                   *ptr = *(ptr+(ptr->leftChild));
                 }else{

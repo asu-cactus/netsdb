@@ -102,11 +102,13 @@ namespace decisiontree{
 			}
 
 			// inference
+			double inputValue;
+			pdb::Handle<decisiontree::Node> thisNodePtr;
 			for (int i = 0; i < inNumRow; i++){
 				// pass the root node of the tree
 				treeNode = & vectNode.at(0);
 				while(treeNode->isLeaf == false){
-					double inputValue = inData[i*inNumCol+treeNode->indexID];
+					inputValue = inData[i*inNumCol+treeNode->indexID];
 					if(inputValue <= treeNode->returnClass){
 						* treeNode = * (treeNode + (treeNode->leftChild));
 					}else{
@@ -117,6 +119,26 @@ namespace decisiontree{
 				resultMatrix->push_back(treeNode->returnClass);
 			}
 			return resultMatrix;
+
+			/*
+			double inputValue;
+			pdb::Handle<decisiontree::Node> thisNodePtr;
+			for (int i = 0; i < inNumRow; i++){
+				// pass the root node of the tree
+				thisNodePtr = tree[0];
+				while(thisNodePtr->isLeaf == false){
+					inputValue = inData[i*inNumCol+thisNodePtr->indexID];
+					if(inputValue <= thisNodePtr->returnClass){
+						* thisNodePtr = * (thisNodePtr + (thisNodePtr->leftChild));
+					}else{
+						* thisNodePtr = * (thisNodePtr + (thisNodePtr->rightChild));
+					}
+				}
+				std::cout << thisNodePtr->returnClass << " ";
+				resultMatrix->push_back(thisNodePtr->returnClass);
+			}
+			return resultMatrix;
+			*/
 		}
 	};
 }
