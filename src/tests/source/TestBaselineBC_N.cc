@@ -1,5 +1,5 @@
-#ifndef TEST_BASELINE_BC_CC
-#define TEST_BASELINE_BC_CC
+#ifndef TEST_BASELINE_BC_N_CC
+#define TEST_BASELINE_BC_N_CC
 
 #include <cmath>
 #include <cstdlib>
@@ -25,7 +25,7 @@
 #include "FFMatrixBlock.h"
 #include "FFMatrixUtil.h"
 #include "SimpleFF.h"
-#include "JoinforBaselineDT.h"
+#include "JoinforBaselineDT_N.h"
 
 using namespace pdb;
 
@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
     } else {
         std::cout << "Created baseline tree set for breast cancer" << std::endl;
     }
-
+    
     pdb::Vector<pdb::Handle<decisiontree::Node>> tree;
     pdb::Handle<pdb::Vector<pdb::Handle<decisiontree::Tree>>> storeMe = pdb::makeObject<pdb::Vector<pdb::Handle<decisiontree::Tree>>>();
     try{
@@ -166,7 +166,7 @@ int main(int argc, char *argv[]) {
     ff::createSet(pdbClientDT, "decisiontreeBC", "labels", "labels", 64);
 
     std::cout << "To load JoinforBaselineDT shared library" << std::endl;
-    ff::loadLibrary(pdbClientDT, "libraries/libJoinforBaselineDT.so");
+    ff::loadLibrary(pdbClientDT, "libraries/libJoinforBaselineDT_N.so");
 
     auto begin = std::chrono::high_resolution_clock::now();
 
@@ -180,7 +180,7 @@ int main(int argc, char *argv[]) {
     pdb::Handle<pdb::Computation> input1 = pdb::makeObject<ScanUserSet<decisiontree::Tree>>(dbName, setName);
     pdb::Handle<pdb::Computation> inputMatrix = pdb::makeObject<FFMatrixBlockScanner>("decisiontreeBC", "inputs");
 
-    pdb::Handle<pdb::Computation> join = pdb::makeObject<decisiontree::JoinforBaselineDT>();
+    pdb::Handle<pdb::Computation> join = pdb::makeObject<decisiontree::JoinforBaselineDT_N>();
     join->setInput(0, input1);
     join->setInput(1, inputMatrix);
 
@@ -198,11 +198,11 @@ int main(int argc, char *argv[]) {
 
     auto end = std::chrono::high_resolution_clock::now();
 
-    std::cout << "****Decision Tree Baseline 1 End-to-End Time Duration: ****"
+    std::cout << "****Decision Tree Baseline 2 End-to-End Time Duration: ****"
               << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
               << " secs." << std::endl;
 
-    std::cout << "****Decision Tree Baseline 1 Execution Time Duration: ****"
+    std::cout << "****Decision Tree Baseline 2 Execution Time Duration: ****"
               << std::chrono::duration_cast<std::chrono::duration<float>>(end - exe_begin).count()
               << " secs." << std::endl;
               

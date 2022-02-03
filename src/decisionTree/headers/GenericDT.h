@@ -88,7 +88,7 @@ class GenericDT: public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
 
             for (int i = 0; i < inNumRow; i++){
               while(ptr->isLeaf == false){
-                double inputValue = inData[i*inNumRow+ptr->indexID];
+                double inputValue = inData[i*inNumCol+ptr->indexID];
                 if(inputValue <= ptr->returnClass){
                   *ptr = *(ptr+(ptr->leftChild));
                 }else{

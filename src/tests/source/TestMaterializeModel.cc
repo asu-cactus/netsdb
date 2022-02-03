@@ -198,11 +198,11 @@ int main(int argc, char *argv[]) {
 
     auto end = std::chrono::high_resolution_clock::now();
 
-    std::cout << "****Decision Tree End-to-End Time Duration: ****"
+    std::cout << "****Decision Tree Model Materialization End-to-End Time Duration: ****"
               << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
               << " secs." << std::endl;
 
-    std::cout << "****Decision Tree Execution Time Duration: ****"
+    std::cout << "****Decision Tree Model Materialization Execution Time Duration: ****"
               << std::chrono::duration_cast<std::chrono::duration<float>>(end - exe_begin).count()
               << " secs." << std::endl;
               

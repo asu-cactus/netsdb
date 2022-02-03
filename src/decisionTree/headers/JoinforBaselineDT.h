@@ -64,7 +64,7 @@ class JoinforBaselineDT : public JoinComp<FFMatrixBlock, Tree, FFMatrixBlock> {
         // pass the root node of the tree
         treeNode = & vectNode.at(0);
         while(treeNode->isLeaf == false){
-          double inputValue = inData[i*inNumRow+treeNode->indexID];
+          double inputValue = inData[i*inNumCol+treeNode->indexID];
           if(inputValue <= treeNode->returnClass){
             * treeNode = * (treeNode + (treeNode->leftChild));
           }else{
