@@ -157,7 +157,7 @@ int main(int argc, char *argv[]) {
 
   //load data
   if (addDataOrNot == true) {
-      load_rnd_img(56, 56, 256, numImages, pdbClient, dbName, img_set);
+      load_rnd_img(112, 112, 3, numImages, pdbClient, dbName, img_set);
   }
  
   //create output dataset
@@ -177,15 +177,16 @@ int main(int argc, char *argv[]) {
   pdb::Handle<pdb::Computation> imageScanner =
       pdb::makeObject<pdb::ScanUserSet<pdb::TensorData>>(dbName, img_set);
 
-  pdb::Handle<pdb::Vector<unsigned int>> dimensions = pdb::makeObject<pdb::Vector<unsigned int>>(3);
-  unsigned int x=1, y=1, z=256, n=128;
+  pdb::Handle<pdb::Vector<unsigned int>> dimensions = pdb::makeObject<pdb::Vector<unsigned int>>(4);
+  unsigned int x=7, y=7, z=3, n=64;
   dimensions->push_back(n);
   dimensions->push_back(z);
   dimensions->push_back(y);
   dimensions->push_back(x);
+
   pdb::Handle<TensorData> kernel = pdb::makeObject<TensorData>(4, dimensions);
 
-  for (unsigned int i = 0; i < n*z*y*z; i++) {
+  for (unsigned int i = 0; i < n*z*y*x; i++) {
 
      (*(kernel->rawData))[i] = 0.5;
 
@@ -193,8 +194,8 @@ int main(int argc, char *argv[]) {
 
 
   //create select computation
-  // stride: 2 (across all dimensions)
-  pdb::Handle<pdb::Computation> select = pdb::makeObject<Conv2DSelect>(kernel, 2, mode);
+  // stride (across all dimensions)
+  pdb::Handle<pdb::Computation> select = pdb::makeObject<Conv2DSelect>(kernel, mode, 1);
   select->setInput(0, imageScanner);
   std::cout << "select's output type: "<< select->getOutputType() << std::endl;
   //create write computation
