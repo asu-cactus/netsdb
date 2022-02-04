@@ -187,7 +187,8 @@ int main(int argc, char *argv[]) {
     pdb::Handle<pdb::Computation> labelWriter = pdb::makeObject<FFMatrixWriter>("decisiontreeBC", "labels");
     labelWriter->setInput(join);
     
-    bool materializeHash = false;
+    //bool materializeHash = false;
+    bool materializeHash = true;
     std::cout << "To run the Computation" << std::endl;
     auto exe_begin = std::chrono::high_resolution_clock::now();
 

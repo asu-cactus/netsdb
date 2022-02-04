@@ -83,7 +83,7 @@ class GenericDT: public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
             }
 
             // testing purpose
-            std::cout << "Address of the tree pointer: " << ptr << std::endl;
+            //std::cout << "Address of the tree pointer: " << ptr << std::endl;
             pdb::Handle<pdb::Vector<double>> resultMatrix = pdb::makeObject<pdb::Vector<double>>();
 
             double inputValue;
@@ -100,7 +100,7 @@ class GenericDT: public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
               resultMatrix->push_back(ptr->returnClass);
             }
             std::cout << std::endl;
-            std::cout << "Matrix size is: " << resultMatrix->size() << std::endl;
+            //std::cout << "Matrix size is: " << resultMatrix->size() << std::endl;
             pdb::Handle<FFMatrixBlock> resultMatrixBlock = pdb::makeObject<FFMatrixBlock>(inBlockRowIndex, inBlockColIndex, inNumRow, 1, resultMatrix);
             return resultMatrixBlock;
         });

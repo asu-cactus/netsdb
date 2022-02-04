@@ -28,7 +28,7 @@ using namespace pdb;
 
 int main(int argc, char *argv[]) {
 
-	int rowNum = 569;
+	int rowNum = 2000;
 	int colNum = 31;
 	int block_x = 1;
 	int block_y = 31;
@@ -164,8 +164,6 @@ int main(int argc, char *argv[]) {
     ff::loadLibrary(pdbClientDT, "libraries/libGenericDT.so");
     ff::loadLibrary(pdbClientDT, "libraries/libSpecializedBC.so");
 
-    auto begin = std::chrono::high_resolution_clock::now();
-
     std::cout << "To load matrix for decision tree inputs" << std::endl;
     ff::loadMatrix(pdbClientDT, "decisiontreeBC", "inputs", rowNum, colNum, block_x,
                    block_y, false, false, errMsg);
@@ -188,7 +186,9 @@ int main(int argc, char *argv[]) {
     labelWriter->setInput(genericDT);
 
     bool materializeHash = false;
+    //bool materializeHash = true;
     std::cout << "To run the Computation" << std::endl;
+
     auto exe_begin = std::chrono::high_resolution_clock::now();
 
     if (!pdbClientDT.executeComputations(errMsg, "decisiontreeBC", materializeHash, labelWriter)) {
@@ -197,10 +197,6 @@ int main(int argc, char *argv[]) {
     }
 
     auto end = std::chrono::high_resolution_clock::now();
-
-    std::cout << "****Decision Tree Model Materialization End-to-End Time Duration: ****"
-              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
-              << " secs." << std::endl;
 
     std::cout << "****Decision Tree Model Materialization Execution Time Duration: ****"
               << std::chrono::duration_cast<std::chrono::duration<float>>(end - exe_begin).count()

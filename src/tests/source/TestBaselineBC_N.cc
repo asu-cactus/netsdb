@@ -10,6 +10,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
+#include <algorithm>
 
 #include "PDBClient.h"
 #include "StorageClient.h"
@@ -31,12 +32,22 @@ using namespace pdb;
 
 int main(int argc, char *argv[]) {
 
-	int rowNum = 569;
+	int rowNum = 2000;
 	int colNum = 31;
 	int block_x = 1;
 	int block_y = 31;
 
 	string errMsg;
+
+    bool createSetOrNot = true;
+
+    if ( argc > 1 ) {
+        if ( strcmp( argv[1], "Y") == 0 ) {
+            createSetOrNot = true;
+        } else {
+            createSetOrNot = false;
+        }
+    }
 
 	makeObjectAllocatorBlock(1024 * 1024 * 1024, true);
 
@@ -48,112 +59,115 @@ int main(int argc, char *argv[]) {
 	pdbClient.registerType("libraries/libTreeNode.so", errMsg);
 	pdbClient.registerType("libraries/libTree.so", errMsg);
 
-	// create a new database
-	string dbName = "baselinebc_db";
-    if (!pdbClient.createDatabase(dbName, errMsg)) {
-        cout << "Not able to create database: " + errMsg;
-        return -1;
-    } else {
-        std::cout << "Created baseline tree database for breast cancer" << std::endl;
-    }
-
-    // create a new set in the database
+    string dbName = "baselinebc_db";
     string setName = "baselinebc_set";
-    if (!pdbClient.createSet<decisiontree::Tree>(dbName, setName, errMsg)) {
-        cout << "Not able to create set: " + errMsg;
-        return -1;
-    } else {
-        std::cout << "Created baseline tree set for breast cancer" << std::endl;
-    }
-    
-    pdb::Vector<pdb::Handle<decisiontree::Node>> tree;
-    pdb::Handle<pdb::Vector<pdb::Handle<decisiontree::Tree>>> storeMe = pdb::makeObject<pdb::Vector<pdb::Handle<decisiontree::Tree>>>();
-    try{
-        pdb::Handle<decisiontree::Node> treeNode;
-        treeNode = pdb::makeObject<decisiontree::Node>(0,7,false,1,2,0.052);
-        tree.push_back(treeNode);
-        treeNode = pdb::makeObject<decisiontree::Node>(1,20,false,3,4,16.54);
-        tree.push_back(treeNode);
-        treeNode = pdb::makeObject<decisiontree::Node>(2,26,false,5,6,0.225);
-        tree.push_back(treeNode);
-        treeNode = pdb::makeObject<decisiontree::Node>(3,13,false,7,8,37.61);
-        tree.push_back(treeNode);
-        treeNode = pdb::makeObject<decisiontree::Node>(4,21,false,9,10,20.22);
-        tree.push_back(treeNode);
-        treeNode = pdb::makeObject<decisiontree::Node>(5,-1,true,-1,-1,2.0);
-        tree.push_back(treeNode);
-        treeNode = pdb::makeObject<decisiontree::Node>(6,23,false,11,12,710.2);
-        tree.push_back(treeNode);
-        treeNode = pdb::makeObject<decisiontree::Node>(7,21,false,13,14,33.27);
-        tree.push_back(treeNode);
-        treeNode = pdb::makeObject<decisiontree::Node>(8,4,false,15,16,0.091);
-        tree.push_back(treeNode);
-        treeNode = pdb::makeObject<decisiontree::Node>(9,-1,true,-1,-1,2.0);
-        tree.push_back(treeNode);
-        treeNode = pdb::makeObject<decisiontree::Node>(10,17,false,17,18,0.011);
-        tree.push_back(treeNode);
-        treeNode = pdb::makeObject<decisiontree::Node>(11,21,false,19,20,25.95);
-        tree.push_back(treeNode);
-        treeNode = pdb::makeObject<decisiontree::Node>(12,1,false,21,22,14.12);
-        tree.push_back(treeNode);
-        treeNode = pdb::makeObject<decisiontree::Node>(13,-1,true,-1,-1,2.0);
-        tree.push_back(treeNode);
-        treeNode = pdb::makeObject<decisiontree::Node>(14,21,false,23,24,34.14);
-        tree.push_back(treeNode);
-        treeNode = pdb::makeObject<decisiontree::Node>(15,-1,true,-1,-1,2.0);
-        tree.push_back(treeNode);
-        treeNode = pdb::makeObject<decisiontree::Node>(16,17,false,25,26,0.012);
-        tree.push_back(treeNode);
-        treeNode = pdb::makeObject<decisiontree::Node>(17,-1,true,-1,-1,1.0);
-        tree.push_back(treeNode);
-        treeNode = pdb::makeObject<decisiontree::Node>(18,-1,true,-1,-1,2.0);
-        tree.push_back(treeNode);
-        treeNode = pdb::makeObject<decisiontree::Node>(19,-1,true,-1,-1,2.0);
-        tree.push_back(treeNode);
-        treeNode = pdb::makeObject<decisiontree::Node>(20,9,false,27,28,0.065);
-        tree.push_back(treeNode);
-        treeNode = pdb::makeObject<decisiontree::Node>(21,25,false,29,30,0.361);
-        tree.push_back(treeNode);
-        treeNode = pdb::makeObject<decisiontree::Node>(22,-1,true,-1,-1,1.0);
-        tree.push_back(treeNode);
-        treeNode = pdb::makeObject<decisiontree::Node>(23,-1,true,-1,-1,1.0);
-        tree.push_back(treeNode);
-        treeNode = pdb::makeObject<decisiontree::Node>(24,-1,true,-1,-1,2.0);
-        tree.push_back(treeNode);
-        treeNode = pdb::makeObject<decisiontree::Node>(25,-1,true,-1,-1,2.0);
-        tree.push_back(treeNode);
-        treeNode = pdb::makeObject<decisiontree::Node>(26,-1,true,-1,-1,1.0);
-        tree.push_back(treeNode);
-        treeNode = pdb::makeObject<decisiontree::Node>(27,-1,true,-1,-1,2.0);
-        tree.push_back(treeNode);
-        treeNode = pdb::makeObject<decisiontree::Node>(28,-1,true,-1,-1,1.0);
-        tree.push_back(treeNode);
-        treeNode = pdb::makeObject<decisiontree::Node>(29,-1,true,-1,-1,1.0);
-        tree.push_back(treeNode);
-        treeNode = pdb::makeObject<decisiontree::Node>(30,-1,2.0,true,-1,-1);
-        tree.push_back(treeNode);
-        pdb::Handle<decisiontree::Tree> wholeTree = pdb::makeObject<decisiontree::Tree>(tree);
-        storeMe->push_back(wholeTree);
 
-        if (!pdbClient.sendData<decisiontree::Tree>(pair<string, string>(setName, dbName), storeMe, errMsg)) {
-            std::cout << "Failed to send data to dispatcher server" << std::endl;
+    if(createSetOrNot == true){
+        // create a new database
+        if (!pdbClient.createDatabase(dbName, errMsg)) {
+            cout << "Not able to create database: " + errMsg;
             return -1;
+        } else {
+            std::cout << "Created baseline tree database for breast cancer" << std::endl;
         }
-    } catch (pdb::NotEnoughSpace& e) {
-    	if (!pdbClient.sendData<decisiontree::Tree>(pair<string, string>(setName, dbName), storeMe, errMsg)) {
-    		std::cout << "Not able to store data: " + errMsg;
-    		return -1;
-    	}
+
+        // create a new set in the database
+        if (!pdbClient.createSet<decisiontree::Tree>(dbName, setName, errMsg)) {
+            cout << "Not able to create set: " + errMsg;
+            return -1;
+        } else {
+            std::cout << "Created baseline tree set for breast cancer" << std::endl;
+        }
+
+        pdb::Vector<pdb::Handle<decisiontree::Node>> tree;
+        pdb::Handle<pdb::Vector<pdb::Handle<decisiontree::Tree>>> storeMe = pdb::makeObject<pdb::Vector<pdb::Handle<decisiontree::Tree>>>();
+        try{
+            pdb::Handle<decisiontree::Node> treeNode;
+            treeNode = pdb::makeObject<decisiontree::Node>(0,7,false,1,2,0.052);
+            tree.push_back(treeNode);
+            treeNode = pdb::makeObject<decisiontree::Node>(1,20,false,3,4,16.54);
+            tree.push_back(treeNode);
+            treeNode = pdb::makeObject<decisiontree::Node>(2,26,false,5,6,0.225);
+            tree.push_back(treeNode);
+            treeNode = pdb::makeObject<decisiontree::Node>(3,13,false,7,8,37.61);
+            tree.push_back(treeNode);
+            treeNode = pdb::makeObject<decisiontree::Node>(4,21,false,9,10,20.22);
+            tree.push_back(treeNode);
+            treeNode = pdb::makeObject<decisiontree::Node>(5,-1,true,-1,-1,2.0);
+            tree.push_back(treeNode);
+            treeNode = pdb::makeObject<decisiontree::Node>(6,23,false,11,12,710.2);
+            tree.push_back(treeNode);
+            treeNode = pdb::makeObject<decisiontree::Node>(7,21,false,13,14,33.27);
+            tree.push_back(treeNode);
+            treeNode = pdb::makeObject<decisiontree::Node>(8,4,false,15,16,0.091);
+            tree.push_back(treeNode);
+            treeNode = pdb::makeObject<decisiontree::Node>(9,-1,true,-1,-1,2.0);
+            tree.push_back(treeNode);
+            treeNode = pdb::makeObject<decisiontree::Node>(10,17,false,17,18,0.011);
+            tree.push_back(treeNode);
+            treeNode = pdb::makeObject<decisiontree::Node>(11,21,false,19,20,25.95);
+            tree.push_back(treeNode);
+            treeNode = pdb::makeObject<decisiontree::Node>(12,1,false,21,22,14.12);
+            tree.push_back(treeNode);
+            treeNode = pdb::makeObject<decisiontree::Node>(13,-1,true,-1,-1,2.0);
+            tree.push_back(treeNode);
+            treeNode = pdb::makeObject<decisiontree::Node>(14,21,false,23,24,34.14);
+            tree.push_back(treeNode);
+            treeNode = pdb::makeObject<decisiontree::Node>(15,-1,true,-1,-1,2.0);
+            tree.push_back(treeNode);
+            treeNode = pdb::makeObject<decisiontree::Node>(16,17,false,25,26,0.012);
+            tree.push_back(treeNode);
+            treeNode = pdb::makeObject<decisiontree::Node>(17,-1,true,-1,-1,1.0);
+            tree.push_back(treeNode);
+            treeNode = pdb::makeObject<decisiontree::Node>(18,-1,true,-1,-1,2.0);
+            tree.push_back(treeNode);
+            treeNode = pdb::makeObject<decisiontree::Node>(19,-1,true,-1,-1,2.0);
+            tree.push_back(treeNode);
+            treeNode = pdb::makeObject<decisiontree::Node>(20,9,false,27,28,0.065);
+            tree.push_back(treeNode);
+            treeNode = pdb::makeObject<decisiontree::Node>(21,25,false,29,30,0.361);
+            tree.push_back(treeNode);
+            treeNode = pdb::makeObject<decisiontree::Node>(22,-1,true,-1,-1,1.0);
+            tree.push_back(treeNode);
+            treeNode = pdb::makeObject<decisiontree::Node>(23,-1,true,-1,-1,1.0);
+            tree.push_back(treeNode);
+            treeNode = pdb::makeObject<decisiontree::Node>(24,-1,true,-1,-1,2.0);
+            tree.push_back(treeNode);
+            treeNode = pdb::makeObject<decisiontree::Node>(25,-1,true,-1,-1,2.0);
+            tree.push_back(treeNode);
+            treeNode = pdb::makeObject<decisiontree::Node>(26,-1,true,-1,-1,1.0);
+            tree.push_back(treeNode);
+            treeNode = pdb::makeObject<decisiontree::Node>(27,-1,true,-1,-1,2.0);
+            tree.push_back(treeNode);
+            treeNode = pdb::makeObject<decisiontree::Node>(28,-1,true,-1,-1,1.0);
+            tree.push_back(treeNode);
+            treeNode = pdb::makeObject<decisiontree::Node>(29,-1,true,-1,-1,1.0);
+            tree.push_back(treeNode);
+            treeNode = pdb::makeObject<decisiontree::Node>(30,-1,2.0,true,-1,-1);
+            tree.push_back(treeNode);
+            pdb::Handle<decisiontree::Tree> wholeTree = pdb::makeObject<decisiontree::Tree>(tree);
+            storeMe->push_back(wholeTree);
+
+            if (!pdbClient.sendData<decisiontree::Tree>(pair<string, string>(setName, dbName), storeMe, errMsg)) {
+                std::cout << "Failed to send data to dispatcher server" << std::endl;
+                return -1;
+            }
+        } catch (pdb::NotEnoughSpace& e) {
+            if (!pdbClient.sendData<decisiontree::Tree>(pair<string, string>(setName, dbName), storeMe, errMsg)) {
+                std::cout << "Not able to store data: " + errMsg;
+                return -1;
+            }
+        }
+        std::cout << "Successfully stored the tree data for breast cancer" << std::endl;
+        pdbClient.flushData(errMsg);
+    } else {
+        std::cout << "Not create a set and not load new data to the tree set" << std::endl;
     }
-    std::cout << "Successfully stored the tree data for breast cancer" << std::endl;
-    pdbClient.flushData(errMsg);
 
     makeObjectAllocatorBlock(1024 * 1024 * 1024, true);
     pdb::PDBLoggerPtr clientLoggerDT = make_shared<pdb::PDBLogger>("DecisionTreeClientLog");
     pdb::PDBClient pdbClientDT(8108, masterIp, clientLoggerDT, false, true);
     pdb::CatalogClient catalogClientDT(8108, masterIp, clientLoggerDT);
-
-    ff::createDatabase(pdbClientDT, "decisiontreeBC");
 
     ff::loadLibrary(pdbClientDT, "libraries/libFFMatrixMeta.so");
     ff::loadLibrary(pdbClientDT, "libraries/libFFMatrixData.so");
@@ -162,20 +176,22 @@ int main(int argc, char *argv[]) {
     ff::loadLibrary(pdbClientDT, "libraries/libFFMatrixWriter.so");
     ff::loadLibrary(pdbClientDT, "libraries/libFFMatrixPartitioner.so");
 
-    ff::createSet(pdbClientDT, "decisiontreeBC", "inputs", "inputs", 64);
-    ff::createSet(pdbClientDT, "decisiontreeBC", "labels", "labels", 64);
-
     std::cout << "To load JoinforBaselineDT shared library" << std::endl;
     ff::loadLibrary(pdbClientDT, "libraries/libJoinforBaselineDT_N.so");
 
     auto begin = std::chrono::high_resolution_clock::now();
 
-    std::cout << "To load matrix for decision tree inputs" << std::endl;
-    ff::loadMatrix(pdbClientDT, "decisiontreeBC", "inputs", rowNum, colNum, block_x,
-                   block_y, false, false, errMsg);
-
-    std::cout << "To print the inputs" << std::endl;
-    ff::print(pdbClientDT, "decisiontreeBC", "inputs");
+    if(createSetOrNot == true){
+        ff::createDatabase(pdbClientDT, "decisiontreeBC");
+        ff::createSet(pdbClientDT, "decisiontreeBC", "inputs", "inputs", 64);
+        ff::createSet(pdbClientDT, "decisiontreeBC", "labels", "labels", 64);
+        std::cout << "To load matrix for decision tree inputs" << std::endl;
+        ff::loadMatrix(pdbClientDT, "decisiontreeBC", "inputs", rowNum, colNum, block_x,block_y, false, false, errMsg);
+        std::cout << "To print the inputs" << std::endl;
+        ff::print(pdbClientDT, "decisiontreeBC", "inputs");
+    } else{
+        std::cout << "Not create a set and not load new data to the input set" << std::endl;
+    }
 
     pdb::Handle<pdb::Computation> input1 = pdb::makeObject<ScanUserSet<decisiontree::Tree>>(dbName, setName);
     pdb::Handle<pdb::Computation> inputMatrix = pdb::makeObject<FFMatrixBlockScanner>("decisiontreeBC", "inputs");
@@ -188,6 +204,7 @@ int main(int argc, char *argv[]) {
     labelWriter->setInput(join);
     
     bool materializeHash = false;
+    //bool materializeHash = true;
     std::cout << "To run the Computation" << std::endl;
     auto exe_begin = std::chrono::high_resolution_clock::now();
 
