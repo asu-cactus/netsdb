@@ -337,12 +337,12 @@ void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
   int block_x = 32;
   int block_y = 32;
   int kernel = 1;//kernel shape should be $kernelx$kernel (e.g., 7x7)
-  int strides = 1;
+  int strides = 2;
   int padding = 0;
   bool block_padding = true;
 
-  int height = 7, width = 7, channels = 512, numOfImages = 100;
-  int kHeight = 1, kWidth = 1, kChannels = 512, numOfFilters = 2048;
+  int height = 56, width = 56, channels = 256, numOfImages = 100;
+  int kHeight = 1, kWidth = 1, kChannels = 256, numOfFilters = 128;
   if (reloadData) {
 
     test_common::create_database(pdbClient, dbName, allSets, reloadData);
@@ -400,7 +400,7 @@ void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
   //Y: num_cols per flattened image (7*7*3+1) why +1?
   img_conv_flatten::blocks_to_matrix(pdbClient, dbName, "temp_image1",
                                      "temp_image2", block_x, block_y,
-                                     block_padding, (width - kWidth) * (height - kHeight), kWidth * kHeight * kChannels + 1);
+                                     block_padding, numOfImages * ((width + 2 * padding - kWidth) / strides + 1)  * ((height + 2 * - kHeight) / strides + 1), kWidth * kHeight * kChannels + 1);
  
 
   //#ifdef PROFILING_CONV2D
@@ -431,7 +431,7 @@ void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
 
     img_conv_flatten::blocks_to_matrix(pdbClient, dbName, "temp_kernel1",
                                      "temp_kernel2", block_x, block_y,
-                                     block_padding, 64, kWidth * kHeight * kChannels + 1);
+                                     block_padding, numOfFilters, kWidth * kHeight * kChannels + 1);
 
     #ifdef PROFILING_CONV2D
         img_conv_flatten::verify_matrices(pdbClient, dbName, "temp_kernel2");
@@ -509,6 +509,9 @@ void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
   auto result_end = std::chrono::high_resolution_clock::now();
 */
 
+  std::cout << "Total Time Duration : "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(image_end - image_begin  + kernel_flat_end - kernel_flat_begin + conv2d_end - conv2d_begin).count()
+              << " secs." << std::endl;
 
   std::cout << "Time Duration for image ops: "
               << std::chrono::duration_cast<std::chrono::duration<float>>(image_end - image_begin).count()
@@ -523,8 +526,8 @@ void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
               << " secs." << std::endl;
 
   //std::cout << "Time Duration for result gathering: "
-    //          << std::chrono::duration_cast<std::chrono::duration<float>>(result_end - result_begin).count()
-      //        << " secs." << std::endl;
+  //          << std::chrono::duration_cast<std::chrono::duration<float>>(result_end - result_begin).count()
+  //        << " secs." << std::endl;
 
 }
 
