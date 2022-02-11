@@ -11,12 +11,13 @@
 
 using namespace std;
 
-void load_rnd_img(int x, int y, int z, int size, pdb::PDBClient &pdbClient,
+void load_rnd_img(int x, int y, int z, int n, int size, pdb::PDBClient &pdbClient,
                   pdb::String dbName, pdb::String setName) {
   std::string errMsg;
-  pdb::makeObjectAllocatorBlock(64 * 1024 * 1024, true);
+  pdb::makeObjectAllocatorBlock(128 * 1024 * 1024, true);
 
   pdb::Handle<pdb::Vector<unsigned int>> dimensions = pdb::makeObject<pdb::Vector<unsigned int>>();
+  dimensions->push_back(n);
   dimensions->push_back(z);
   dimensions->push_back(y);
   dimensions->push_back(x);
@@ -37,16 +38,12 @@ void load_rnd_img(int x, int y, int z, int size, pdb::PDBClient &pdbClient,
 
   for (int i = 0; i < size; i++) {
       try {
-          pdb::Handle<pdb::TensorData> image = pdb::makeObject<pdb::TensorData>(3, dimensions);
-          for (int c = 0; c < z; c++) {
-             for (int h = 0; h < y; h++) {
-                 for (int w = 0; w < x; w++) {
-                      double data = (bool)gen() ? distn(e2) : distp(e2);
-                      (*(image->rawData))[c * y * x + h * x + w] = data;
-                 }
-             }
-          }
-          images->push_back(image);
+            pdb::Handle<pdb::TensorData> image = pdb::makeObject<pdb::TensorData>(4, dimensions);
+            for (unsigned int i = 0; i < n*z*y*x; i++) {
+                double data = (bool)gen() ? distn(e2) : distp(e2);
+                (*(image->rawData))[i] = data;
+            }
+            images->push_back(image);
       } catch (pdb::NotEnoughSpace &e) {
           if (!pdbClient.sendData<pdb::TensorData>(
                 pair<string, string>(setName, dbName), images, errMsg)) {
@@ -54,8 +51,9 @@ void load_rnd_img(int x, int y, int z, int size, pdb::PDBClient &pdbClient,
               exit(1);
           }
           i--;
-          pdb::makeObjectAllocatorBlock(64 * 1024 * 1024, true);
+          pdb::makeObjectAllocatorBlock(128 * 1024 * 1024, true);
           dimensions = pdb::makeObject<pdb::Vector<unsigned int>>();
+          dimensions->push_back(n);
           dimensions->push_back(z);
           dimensions->push_back(y);
           dimensions->push_back(x);
@@ -199,7 +197,7 @@ int main(int argc, char *argv[]) {
 
   //load data
   if (addDataOrNot == true) {
-      load_rnd_img(w, h, c, numImages, pdbClient, dbName, img_set);
+      load_rnd_img(w, h, c, n, numImages, pdbClient, dbName, img_set);
   }
  
   //create output dataset
@@ -213,7 +211,7 @@ int main(int argc, char *argv[]) {
   }
 
   auto begin1 = std::chrono::high_resolution_clock::now();
-  pdb::makeObjectAllocatorBlock(64 * 1024 * 1024, true);
+  pdb::makeObjectAllocatorBlock(128 * 1024 * 1024, true);
 
   //create scan computation
   pdb::Handle<pdb::Computation> imageScanner =

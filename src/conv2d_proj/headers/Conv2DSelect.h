@@ -60,9 +60,10 @@ public:
     }
 
 
-    Handle<TensorData> runEigenSpatial(TensorData& input,  int z, int y, int x, int stride) {
+    Handle<TensorData> runEigenSpatial(TensorData& input,  int n, int z, int y, int x, int stride) {
 
-        Eigen::TensorMap<Eigen::Tensor<float, 3>> a (input.rawData->c_ptr(), z, y, x);
+        std::cout << "---------------------------runEigenSpatial-------------------------:" << n << " " << z << " "<< y << " "<< x << " " << stride << std::endl;
+        Eigen::TensorMap<Eigen::Tensor<float, 4>> a (input.rawData->c_ptr(), n, z, y, x);
         
         //Eigen::Tensor<float, 3> c = a.convolve(b1)
 
@@ -92,13 +93,13 @@ public:
         //pre_contract_dims
         Eigen::array<int, 2> pre_contract_dims;
         pre_contract_dims[0] = zk * yk * xk;
-        pre_contract_dims[1] = (oy) * (ox);
+        pre_contract_dims[1] = (oy) * (ox) * x;
 
         //post_contract_dims
         Eigen::array<int, 3> post_contract_dims;
         post_contract_dims[0] = nk;
         post_contract_dims[1] = (oy);
-        post_contract_dims[2] = (ox);
+        post_contract_dims[2] = (ox) * x;
 
         //kernel dims
         Eigen::array<int, 2> kernel_dims;
@@ -108,19 +109,20 @@ public:
 
         //create the output
         
-        Handle<Vector<unsigned int>> dimensions = makeObject<Vector<unsigned int>>(3);
-        
+        Handle<Vector<unsigned int>> dimensions = makeObject<Vector<unsigned int>>(4);
+        dimensions->push_back(n);
+
         dimensions->push_back(nk);
         
         dimensions->push_back(oy);
         
         dimensions->push_back(ox);
 
-        Handle<TensorData> out = makeObject<TensorData>(3, dimensions);
+        Handle<TensorData> out = makeObject<TensorData>(4, dimensions);
 
-       float * mempool = (float *) malloc (nk * oy * ox * sizeof(float));
+       float * mempool = (float *) malloc (n * nk * oy * ox * sizeof(float));
 
-        Eigen::TensorMap<Eigen::Tensor<float, 3>> c (mempool, nk, oy, ox); 
+        Eigen::TensorMap<Eigen::Tensor<float, 4>> c (mempool, n, nk, oy, ox); 
 
         c = b1.reshape(kernel_dims)
               .contract(
@@ -139,15 +141,16 @@ public:
 
         */
 
-       memcpy (out->rawData->c_ptr(), mempool, nk * oy * ox * sizeof(float));
+       memcpy (out->rawData->c_ptr(), mempool, n * nk * oy * ox * sizeof(float));
 
        return out;
     }
 
-    Handle<TensorData> runAtenConv2d(TensorData& input, int z, int y, int x, int stride) {
+    Handle<TensorData> runAtenConv2d(TensorData& input, int n, int z, int y, int x, int stride) {
 
+        std::cout << "---------------------------RunAtendCOnv2d-------------------------:" << n << " " << z << " "<< y << " "<< x << " " << stride << std::endl;
         //input data
-        at::Tensor a = at::from_blob(input.rawData->c_ptr(), {1, z, y, x});
+        at::Tensor a = at::from_blob(input.rawData->c_ptr(), {n, z, y, x});
 
         at::Tensor b = at::from_blob(kernel->rawData->c_ptr(), {nk, zk, yk, xk});
 
@@ -159,7 +162,9 @@ public:
         //create the output
         int oy = calculateOutputDimension(y, yk, stride);
         int ox = calculateOutputDimension(x, xk, stride);
-        Handle<Vector<unsigned int>> dimensions = makeObject<Vector<unsigned int>>(3);
+        Handle<Vector<unsigned int>> dimensions = makeObject<Vector<unsigned int>>(4);
+
+        dimensions->push_back(n);
 
         dimensions->push_back(nk);
 
@@ -167,8 +172,8 @@ public:
 
         dimensions->push_back(ox);
 
-        Handle<TensorData> out = makeObject<TensorData>(3, dimensions);
-        memcpy(out->rawData->c_ptr(), c.storage().data(), nk * (oy) * (ox) * sizeof(float));
+        Handle<TensorData> out = makeObject<TensorData>(4, dimensions);
+        memcpy(out->rawData->c_ptr(), c.storage().data(), n * nk * (oy) * (ox) * sizeof(float));
         
         return out;
     }
@@ -182,24 +187,27 @@ public:
 
             TensorData input = *checkMe;
 
-            assert (input.numRanks = 3);
+            assert (input.numRanks = 4);
 
             //set up input dimensions
 
+            //N
+            int n = (*(input.dimensions))[0];
+
             //C
-            int z = (*(input.dimensions))[0];
+            int z = (*(input.dimensions))[1];
 
             //H
-            int y = (*(input.dimensions))[1];
+            int y = (*(input.dimensions))[2];
 
             //W
-            int x = (*(input.dimensions))[2];
+            int x = (*(input.dimensions))[3];
 
 
             if (conv2dMode == "eigen-spatial") {
-                return runEigenSpatial(input, z, y, x, stride);
+                return runEigenSpatial(input, n, z, y, x, stride);
             } else {
-                return runAtenConv2d(input, z, y, x, stride);
+                return runAtenConv2d(input, n, z, y, x, stride);
             }
         });
     }
