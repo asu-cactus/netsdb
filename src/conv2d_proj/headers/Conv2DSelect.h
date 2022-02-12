@@ -152,7 +152,7 @@ public:
         at::Tensor b = at::from_blob(kernel->rawData->c_ptr(), {nk, zk, yk, xk});
 
         // bias length = kernel count = nk
-        at::Tensor bias = at::zeros({nk}, at::kInt);
+        at::Tensor bias = at::zeros({nk}, at::kFloat);
         //perform the convolutional operation
         auto c = at::conv2d(a, b, bias, stride);
 
