@@ -32,9 +32,9 @@ using namespace pdb;
 
 int main(int argc, char *argv[]) {
 
-	int rowNum = 2000;
+	int rowNum = 2000000;
 	int colNum = 31;
-	int block_x = 1;
+	int block_x = 10000;
 	int block_y = 31;
 
 	string errMsg;
@@ -203,8 +203,8 @@ int main(int argc, char *argv[]) {
     pdb::Handle<pdb::Computation> labelWriter = pdb::makeObject<FFMatrixWriter>("decisiontreeBC", "labels");
     labelWriter->setInput(join);
     
-    bool materializeHash = false;
-    //bool materializeHash = true;
+    //bool materializeHash = false;
+    bool materializeHash = true;
     std::cout << "To run the Computation" << std::endl;
     auto exe_begin = std::chrono::high_resolution_clock::now();
 

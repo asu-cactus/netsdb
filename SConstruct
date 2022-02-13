@@ -1404,6 +1404,8 @@ common_env.SharedLibrary('libraries/libTree.so',
                         ['build/decisionTree/Tree.cc'] + all)
 common_env.SharedLibrary('libraries/libGenericDT.so',
                         ['build/decisionTree/GenericDT.cc'] + all)
+common_env.SharedLibrary('libraries/libGenericUDF.so',
+                        ['build/decisionTree/GenericUDF.cc'] + all)
 common_env.SharedLibrary('libraries/libBaselineNode.so',
                         ['build/decisionTree/BaselineNode.cc'] + all)
 common_env.SharedLibrary('libraries/libMyPrediction.so',
@@ -1419,6 +1421,9 @@ common_env.Program('bin/baselineBC',
                         'build/FF/SimpleFF.cc'] + all + pdb_client)
 common_env.Program('bin/baselineBC_N', 
                         ['build/tests/TestBaselineBC_N.cc', 'build/FF/FFMatrixUtil.cc',
+                        'build/FF/SimpleFF.cc'] + all + pdb_client)
+common_env.Program('bin/genericUDF', 
+                        ['build/tests/TestGenericUDF.cc', 'build/FF/FFMatrixUtil.cc',
                         'build/FF/SimpleFF.cc'] + all + pdb_client)
 
 # Testing
@@ -1996,6 +2001,7 @@ libDecisionTreeTest = common_env.Alias('libDecisionTreeTest', [
     'bin/pdb-server',
     'bin/decisionTreeSpecializedBC',
     'bin/materializemodel',
+    'bin/genericUDF',
     'bin/baselineBC',
     'bin/baselineBC_N',
     'libraries/libFFMatrixBlock.so',
@@ -2007,6 +2013,7 @@ libDecisionTreeTest = common_env.Alias('libDecisionTreeTest', [
     'libraries/libFFMatrixPartitioner.so',
     'libraries/libSpecializedBC.so',
     'libraries/libGenericDT.so',
+    'libraries/libGenericUDF.so',
     'libraries/libJoinforBaselineDT.so',
     'libraries/libJoinforBaselineDT_N.so',
     'libraries/libTreeNode.so',

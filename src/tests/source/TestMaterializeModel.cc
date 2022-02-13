@@ -28,9 +28,9 @@ using namespace pdb;
 
 int main(int argc, char *argv[]) {
 
-	int rowNum = 2000;
+	int rowNum = 2000000;
 	int colNum = 31;
-	int block_x = 1;
+	int block_x = 10000;
 	int block_y = 31;
 
 	string errMsg;
@@ -125,7 +125,7 @@ int main(int argc, char *argv[]) {
         storeMe->push_back(myData);
         myData = pdb::makeObject<decisiontree::Node>(29,-1,true,-1,-1,1.0);
         storeMe->push_back(myData);
-        myData = pdb::makeObject<decisiontree::Node>(30,-1,2.0,true,-1,-1);
+        myData = pdb::makeObject<decisiontree::Node>(30,-1,true,-1,-1,2.0);
         storeMe->push_back(myData);
         if (!pdbClient.sendData<decisiontree::Node>(pair<string, string>(setName, dbName), storeMe, errMsg)) {
             std::cout << "Failed to send data to dispatcher server" << std::endl;

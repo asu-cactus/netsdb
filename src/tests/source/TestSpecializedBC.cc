@@ -1,3 +1,6 @@
+#ifndef TEST_SPECIALIZED_BC_CC
+#define TEST_SPECIALIZED_BC_CC
+
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
@@ -94,3 +97,5 @@ int main(int argc, char *argv[]) {
   ff::print(pdbClient, "decisiontreeBC", "labels");
   return 0;
 }
+
+#endif
