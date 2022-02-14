@@ -32,7 +32,7 @@ using namespace pdb;
 
 int main(int argc, char *argv[]) {
 
-	int rowNum = 2000000;
+	int rowNum = 20000000;
 	int colNum = 31;
 	int block_x = 10000;
 	int block_y = 31;
@@ -143,7 +143,7 @@ int main(int argc, char *argv[]) {
             tree.push_back(treeNode);
             treeNode = pdb::makeObject<decisiontree::Node>(29,-1,true,-1,-1,1.0);
             tree.push_back(treeNode);
-            treeNode = pdb::makeObject<decisiontree::Node>(30,-1,2.0,true,-1,-1);
+            treeNode = pdb::makeObject<decisiontree::Node>(30,-1,true,-1,-1,2.0);
             tree.push_back(treeNode);
             pdb::Handle<decisiontree::Tree> wholeTree = pdb::makeObject<decisiontree::Tree>(tree);
             storeMe->push_back(wholeTree);

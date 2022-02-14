@@ -143,7 +143,7 @@ bool HermesExecutionServer::exportToPointerInFile(std::string dbName,
         }
     }
     int numNodes = vect.size();
-    int memSize = (4 * sizeof(int) + 1 * sizeof(long) + 1 * sizeof(bool)) * numNodes;
+    int memSize = (4 * sizeof(int) + 1 * sizeof(double) + 1 * sizeof(bool)) * numNodes;
     decisiontree::Node* tree = static_cast<decisiontree::Node*>(mmap(NULL, memSize, PROT_READ | PROT_WRITE, MAP_ANON | MAP_SHARED, 0, 0));
     for(int i = 0; i < numNodes; i++){
         *(tree + i) = vect.at(i);

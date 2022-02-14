@@ -1,5 +1,5 @@
-#ifndef TEST_GENERIC_UDF_CC
-#define TEST_GENERIC_UDF_CC
+#ifndef TEST_RF_GENERIC_UDF_CC
+#define TEST_RF_GENERIC_UDF_CC
 
 #include <cstdlib>
 #include <cstring>
@@ -18,6 +18,7 @@
 #include "MyPrediction.h"
 #include "TreeNode.h"
 #include "Tree.h"
+#include "RandomForest.h"
 #include "FFMatrixBlockScanner.h"
 #include "FFTransposeMult.h"
 #include "FFAggMatrix.h"
@@ -25,7 +26,7 @@
 #include "FFMatrixBlock.h"
 #include "FFMatrixUtil.h"
 #include "SimpleFF.h"
-#include "GenericUDF.h"
+#include "RFGenericUDF.h"
 
 using namespace std;
 
@@ -57,7 +58,7 @@ int main(int argc, char *argv[]) {
     ff::createSet(pdbClient, "decisiontreeBC", "labels", "labels", 64);
 
     std::cout << "To load shared libraries of decision tree UDF" << std::endl;
-    ff::loadLibrary(pdbClient, "libraries/libGenericUDF.so");
+    ff::loadLibrary(pdbClient, "libraries/libRFGenericUDF.so");
 
     auto begin = std::chrono::high_resolution_clock::now();
 
@@ -71,13 +72,13 @@ int main(int argc, char *argv[]) {
     pdb::Handle<pdb::Computation> inputMatrix = pdb::makeObject<FFMatrixBlockScanner>("decisiontreeBC", "inputs");
 
     std::cout << "To make object of decision tree UDF shared libraries" << std::endl;
-    pdb::Handle<pdb::Computation> genericUDF = pdb::makeObject<GenericUDF>();
-    genericUDF->setInput(inputMatrix);
+    pdb::Handle<pdb::Computation> rfgenericUDF = pdb::makeObject<decisiontree::RFGenericUDF>();
+    rfgenericUDF->setInput(inputMatrix);
 
     std::cout << "To set the Computation" << std::endl;
     pdb::Handle<pdb::Computation> labelWriter = nullptr;
     labelWriter = pdb::makeObject<FFMatrixWriter>("decisiontreeBC", "labels");
-    labelWriter->setInput(genericUDF);
+    labelWriter->setInput(rfgenericUDF);
 
     bool materializeHash = false;
     std::cout << "To run the Computation" << std::endl;
@@ -89,7 +90,7 @@ int main(int argc, char *argv[]) {
 
     auto end = std::chrono::high_resolution_clock::now();
 
-    std::cout << "****Decision Tree UDF Execution Time Duration: ****"
+    std::cout << "****Random Forest UDF Execution Time Duration: ****"
               << std::chrono::duration_cast<std::chrono::duration<float>>(end - exe_begin).count()
               << " secs." << std::endl;
 

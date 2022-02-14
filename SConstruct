@@ -1398,10 +1398,16 @@ common_env.SharedLibrary('libraries/libJoinforBaselineDT.so',
                         ['build/decisionTree/JoinforBaselineDT.cc'] + all)
 common_env.SharedLibrary('libraries/libJoinforBaselineDT_N.so',
                         ['build/decisionTree/JoinforBaselineDT_N.cc'] + all)
+common_env.SharedLibrary('libraries/libRFJoin.so',
+                        ['build/decisionTree/RFJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libRFGenericUDF.so',
+                        ['build/decisionTree/RFGenericUDF.cc'] + all)
 common_env.SharedLibrary('libraries/libTreeNode.so',
                         ['build/decisionTree/TreeNode.cc'] + all)
 common_env.SharedLibrary('libraries/libTree.so',
                         ['build/decisionTree/Tree.cc'] + all)
+common_env.SharedLibrary('libraries/libRandomForest.so',
+                        ['build/decisionTree/RandomForest.cc'] + all)
 common_env.SharedLibrary('libraries/libGenericDT.so',
                         ['build/decisionTree/GenericDT.cc'] + all)
 common_env.SharedLibrary('libraries/libGenericUDF.so',
@@ -1424,6 +1430,9 @@ common_env.Program('bin/baselineBC_N',
                         'build/FF/SimpleFF.cc'] + all + pdb_client)
 common_env.Program('bin/genericUDF', 
                         ['build/tests/TestGenericUDF.cc', 'build/FF/FFMatrixUtil.cc',
+                        'build/FF/SimpleFF.cc'] + all + pdb_client)
+common_env.Program('bin/rfgenericUDF', 
+                        ['build/tests/TestRFGenericUDF.cc', 'build/FF/FFMatrixUtil.cc',
                         'build/FF/SimpleFF.cc'] + all + pdb_client)
 
 # Testing
@@ -2002,6 +2011,7 @@ libDecisionTreeTest = common_env.Alias('libDecisionTreeTest', [
     'bin/decisionTreeSpecializedBC',
     'bin/materializemodel',
     'bin/genericUDF',
+    'bin/rfgenericUDF',
     'bin/baselineBC',
     'bin/baselineBC_N',
     'libraries/libFFMatrixBlock.so',
@@ -2016,8 +2026,11 @@ libDecisionTreeTest = common_env.Alias('libDecisionTreeTest', [
     'libraries/libGenericUDF.so',
     'libraries/libJoinforBaselineDT.so',
     'libraries/libJoinforBaselineDT_N.so',
+    'libraries/libRFJoin.so',
+    'libraries/libRFGenericUDF.so',
     'libraries/libTreeNode.so',
     'libraries/libTree.so',
+    'libraries/libRandomForest.so',
     'libraries/libBaselineNode.so',
     'libraries/libMyPrediction.so'
 ])

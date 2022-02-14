@@ -1,5 +1,5 @@
-#ifndef BASELINE_JOIN_DT_N_H
-#define BASELINE_JOIN_DT_N_H
+#ifndef RF_JOIN_H
+#define RF_JOIN_H
 
 #pragma once
 
@@ -7,6 +7,7 @@
 #include <LambdaCreationFunctions.h>
 #include "TreeNode.h"
 #include "Tree.h"
+#include "RandomForest.h"
 #include "FFMatrixBlockScanner.h"
 #include "FFTransposeMult.h"
 #include "FFAggMatrix.h"
@@ -15,20 +16,20 @@
 
 namespace decisiontree{
 	
-class JoinforBaselineDT_N : public JoinComp<FFMatrixBlock, Tree, FFMatrixBlock> {
+class RFJoin : public JoinComp<FFMatrixBlock, RandomForest, FFMatrixBlock> {
 
  public:
 
   ENABLE_DEEP_COPY
 
-  JoinforBaselineDT_N() = default;
+  RFJoin() = default;
 
-  Lambda<bool> getSelection(Handle<Tree> in1, Handle<FFMatrixBlock> in2) override {
-  	return makeLambda(in1, in2, [](Handle<Tree>& in1, Handle<FFMatrixBlock>& in2) { return true; });
+  Lambda<bool> getSelection(Handle<RandomForest> in1, Handle<FFMatrixBlock> in2) override {
+  	return makeLambda(in1, in2, [](Handle<RandomForest>& in1, Handle<FFMatrixBlock>& in2) { return true; });
   }
 
-  Lambda<Handle<FFMatrixBlock>> getProjection(Handle<Tree> in1, Handle<FFMatrixBlock> in2) override {
-    return makeLambda(in1, in2, [](Handle<Tree>& in1, Handle<FFMatrixBlock>& in2) {
+  Lambda<Handle<FFMatrixBlock>> getProjection(Handle<RandomForest> in1, Handle<FFMatrixBlock> in2) override {
+    return makeLambda(in1, in2, [](Handle<RandomForest>& in1, Handle<FFMatrixBlock>& in2) {
       // get the input features matrix information
     	uint32_t inNumRow = in2->getRowNums();
     	uint32_t inNumCol = in2->getColNums();
