@@ -32,9 +32,9 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 
-    int rowNum = 20000000;
+    int rowNum = 2000;
     int colNum = 31;
-    int block_x = 10000;
+    int block_x = 100;
     int block_y = 31;
 
     string errMsg;
@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
     ff::createSet(pdbClient, "decisiontreeBC", "inputs", "inputs", 64);
     ff::createSet(pdbClient, "decisiontreeBC", "labels", "labels", 64);
 
-    std::cout << "To load shared libraries of decision tree UDF" << std::endl;
+    std::cout << "To load shared libraries of Random Forest generic UDF" << std::endl;
     ff::loadLibrary(pdbClient, "libraries/libRFGenericUDF.so");
 
     auto begin = std::chrono::high_resolution_clock::now();
@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
     std::cout << "To load matrix for decision tree inputs" << std::endl;
     ff::loadMatrix(pdbClient, "decisiontreeBC", "inputs", rowNum, colNum, block_x,
                    block_y, false, false, errMsg);
-
+    
     std::cout << "To print the inputs" << std::endl;
     ff::print(pdbClient, "decisiontreeBC", "inputs");
 

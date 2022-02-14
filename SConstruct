@@ -1434,6 +1434,9 @@ common_env.Program('bin/genericUDF',
 common_env.Program('bin/rfgenericUDF', 
                         ['build/tests/TestRFGenericUDF.cc', 'build/FF/FFMatrixUtil.cc',
                         'build/FF/SimpleFF.cc'] + all + pdb_client)
+common_env.Program('bin/rfJoin', 
+                        ['build/tests/TestRFJoin.cc', 'build/FF/FFMatrixUtil.cc',
+                        'build/FF/SimpleFF.cc'] + all + pdb_client)
 
 # Testing
 pdbTest = common_env.Command(
@@ -2012,6 +2015,7 @@ libDecisionTreeTest = common_env.Alias('libDecisionTreeTest', [
     'bin/materializemodel',
     'bin/genericUDF',
     'bin/rfgenericUDF',
+    'bin/rfJoin',
     'bin/baselineBC',
     'bin/baselineBC_N',
     'libraries/libFFMatrixBlock.so',
