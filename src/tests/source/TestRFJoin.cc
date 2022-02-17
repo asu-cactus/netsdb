@@ -53,6 +53,8 @@ using namespace pdb;
 // testing for higgs, an example for 3rd - 6th parameters are: 2000,28,100,28
 // 7th parameter specifies whether to classification ("C") or regression ("R")
 // Starting with the 8th parameter, each parameter will represent one path of a tree. The following is a running example.
+// $bin/rfJoin Y 2000 28 100 28 C /home/jiaqingchen/netsdb/graphs/higgs/higgs_0.txt /home/jiaqingchen/netsdb/graphs/higgs/higgs_1.txt
+// $bin/rfJoin Y 2000 90 100 90 R /home/jiaqingchen/netsdb/graphs/year/year_0.txt /home/jiaqingchen/netsdb/graphs/year/year_1.txt
 int main(int argc, char *argv[]) {
 
     bool createSetOrNot = true;
@@ -92,7 +94,7 @@ int main(int argc, char *argv[]) {
             cout << "Not able to create database: " + errMsg;
             return -1;
         } else {
-            std::cout << "Created baseline Random Forest database" << std::endl;
+            std::cout << "Created Random Forest database" << std::endl;
         }
 
         // create a new set in the database
@@ -100,7 +102,7 @@ int main(int argc, char *argv[]) {
             cout << "Not able to create set: " + errMsg;
             return -1;
         } else {
-            std::cout << "Created baseline Random Forest set" << std::endl;
+            std::cout << "Created Random Forest set" << std::endl;
         }
 
         // the # of trees of the input

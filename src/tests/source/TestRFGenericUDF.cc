@@ -10,6 +10,23 @@
 #include <cstdlib>
 #include <cstring>
 #include <algorithm>
+#include <future>
+#include <thread>
+#include <sstream>
+#include <string>
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <unistd.h>
+#include <cassert>
+#include <memory>
+#include <vector>
+#include <map>
+#include <set>
+#include <cstdio>
+#include <exception>
+#include <cassert>
 
 #include "PDBClient.h"
 #include "StorageClient.h"
@@ -30,15 +47,29 @@
 
 using namespace std;
 
+// 1st parameter is the program itself
+// 2nd - 5th parameter gives the number of rowNum, colNum, block_x and block_y
+// testing for higgs, an example for 2nd - 5th parameters are: 2000,28,100,28
+// 6th parameter specifies whether to classification ("C") or regression ("R")
+// Starting with the 7th parameter, each parameter will represent one path of a tree. The following is 2 running examples.
+// $bin/rfgenericUDF 2000 28 100 28 C /home/jiaqingchen/netsdb/graphs/higgs/higgs_0.txt /home/jiaqingchen/netsdb/graphs/higgs/higgs_1.txt
+// $bin/rfgenericUDF 2000 90 100 90 R /home/jiaqingchen/netsdb/graphs/year/year_0.txt /home/jiaqingchen/netsdb/graphs/year/year_1.txt
 int main(int argc, char *argv[]) {
 
-    int rowNum = 2000;
-    int colNum = 31;
-    int block_x = 100;
-    int block_y = 31;
+    int rowNum = std::stoi(argv[1]);
+    int colNum = std::stoi(argv[2]);
+    int block_x = std::stoi(argv[3]);
+    int block_y = std::stoi(argv[4]);
+
+    // "C" represents classification and "R" represents regression
+    std::string type = std::string(argv[5]);
 
     string errMsg;
 
+    pdb::Vector<std::string> treePath;
+    for(int i = 6; i < argc; i++){
+        treePath.push_back(std::string(argv[i]));
+    }
     makeObjectAllocatorBlock(1024 * 1024 * 1024, true);
 
     string masterIp = "localhost";
@@ -53,6 +84,10 @@ int main(int argc, char *argv[]) {
     ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlockScanner.so");
     ff::loadLibrary(pdbClient, "libraries/libFFMatrixWriter.so");
     ff::loadLibrary(pdbClient, "libraries/libFFMatrixPartitioner.so");
+
+    ff::loadLibrary(pdbClient, "libraries/libTreeNode.so");
+    ff::loadLibrary(pdbClient, "libraries/libTree.so");
+    ff::loadLibrary(pdbClient, "libraries/libRandomForest.so");
 
     ff::createSet(pdbClient, "decisiontreeBC", "inputs", "inputs", 64);
     ff::createSet(pdbClient, "decisiontreeBC", "labels", "labels", 64);
@@ -72,7 +107,7 @@ int main(int argc, char *argv[]) {
     pdb::Handle<pdb::Computation> inputMatrix = pdb::makeObject<FFMatrixBlockScanner>("decisiontreeBC", "inputs");
 
     std::cout << "To make object of decision tree UDF shared libraries" << std::endl;
-    pdb::Handle<pdb::Computation> rfgenericUDF = pdb::makeObject<decisiontree::RFGenericUDF>();
+    pdb::Handle<pdb::Computation> rfgenericUDF = pdb::makeObject<decisiontree::RFGenericUDF>(treePath, type);
     rfgenericUDF->setInput(inputMatrix);
 
     std::cout << "To set the Computation" << std::endl;

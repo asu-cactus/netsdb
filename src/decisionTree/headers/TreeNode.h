@@ -86,6 +86,10 @@ namespace decisiontree{
 		void set_returnClass(double returnClassIn) {
 			returnClass = returnClassIn;
 		}
+
+		bool operator == (const int &nodeID){
+			return (this->nodeID == nodeID);
+		}
 	};
 }
 

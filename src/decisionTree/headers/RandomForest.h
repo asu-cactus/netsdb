@@ -36,6 +36,10 @@ namespace decisiontree{
 		pdb::Vector<pdb::Vector<pdb::Handle<decisiontree::Node>>> forest;
 		int numTree;
 
+		static bool compareByNodeID(const decisiontree::Node &a, const decisiontree::Node &b){
+			return a.nodeID < b.nodeID;
+		}
+
 		RandomForest() {}
 		~RandomForest() {}
 
@@ -95,8 +99,9 @@ namespace decisiontree{
 						vectNode.push_back(thisNode);
 					}
 
+					std::sort(vectNode.begin(), vectNode.end(), compareByNodeID);
+					
 					// inference
-					pdb::Handle<decisiontree::Node> thisNodePtr;
 					// pass the root node of the tree
 					treeNode = & vectNode.at(0);
 					while(treeNode->isLeaf == false){
