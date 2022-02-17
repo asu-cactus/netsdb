@@ -24,7 +24,7 @@
 
 using namespace std;
 
-static long LONG_DEFAULT = 0L;
+static double LONG_DEFAULT = 0.0;
 static int INTEGER_DEFAULT = 0;
 static bool BOOL_DEFAULT = false;
 static int NUM_INT = 4;
@@ -43,12 +43,12 @@ class Node{
 		int leftChild = INTEGER_DEFAULT;
 		int rightChild = INTEGER_DEFAULT;
 		// returnClass will be the vaule to compare while this is not a leaf node
-		long returnClass = LONG_DEFAULT;
+		double returnClass = LONG_DEFAULT;
 
 		Node() {}
 		~Node() {}
 
-		Node(int nodeIDIn, int indexIDIn, bool isLeafIn, int leftChildIn, int rightChildIn, long returnClassIn){
+		Node(int nodeIDIn, int indexIDIn, bool isLeafIn, int leftChildIn, int rightChildIn, double returnClassIn){
 			nodeID = nodeIDIn;
 			indexID = indexIDIn;
 			isLeaf = isLeafIn;
@@ -77,7 +77,7 @@ class Node{
 			return rightChild;
 		}
 
-		long get_returnClass() {
+		double get_returnClass() {
 			return returnClass;
 		}
 
@@ -101,14 +101,14 @@ class Node{
 			rightChild = rightChildIn;
 		}
 
-		void set_returnClass(long returnClassIn) {
+		void set_returnClass(double returnClassIn) {
 			returnClass = returnClassIn;
 		}
 };
 
 int main(int argc, const char *argv[]){
 
-	int size = (NUM_INT * sizeof(int) + NUM_LONG * sizeof(long) + NUM_BOOL * sizeof(bool)) * NUM_NODE;
+	int size = (NUM_INT * sizeof(int) + NUM_LONG * sizeof(double) + NUM_BOOL * sizeof(bool)) * NUM_NODE;
 
 	Node* tree = static_cast<Node*>(mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_ANON | MAP_SHARED, 0, 0));
 
