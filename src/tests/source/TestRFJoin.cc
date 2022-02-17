@@ -8,9 +8,25 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
-#include <cstdlib>
 #include <cstring>
 #include <algorithm>
+#include <future>
+#include <thread>
+#include <sstream>
+#include <string>
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <unistd.h>
+#include <cassert>
+#include <memory>
+#include <vector>
+#include <map>
+#include <set>
+#include <cstdio>
+#include <exception>
+#include <cassert>
 
 #include "PDBClient.h"
 #include "StorageClient.h"
@@ -31,14 +47,13 @@
 
 using namespace pdb;
 
+// 1st parameter is the program itself
+// 2nd parameter gives whether to create set or not
+// 3rd - 6th parameter gives the number of rowNum, colNum, block_x and block_y
+// testing for higgs, an example for 3rd - 6th parameters are: 2000,28,100,28
+// 7th parameter specifies whether to classification ("C") or regression ("R")
+// Starting with the 8th parameter, each parameter will represent one path of a tree. The following is a running example.
 int main(int argc, char *argv[]) {
-
-	int rowNum = 2000;
-	int colNum = 31;
-	int block_x = 100;
-	int block_y = 31;
-
-	string errMsg;
 
     bool createSetOrNot = true;
 
@@ -49,6 +64,13 @@ int main(int argc, char *argv[]) {
             createSetOrNot = false;
         }
     }
+
+	int rowNum = std::stoi(argv[2]);
+	int colNum = std::stoi(argv[3]);
+	int block_x = std::stoi(argv[4]);
+	int block_y = std::stoi(argv[5]);
+
+	string errMsg;
 
 	makeObjectAllocatorBlock(1024 * 1024 * 1024, true);
 
@@ -70,7 +92,7 @@ int main(int argc, char *argv[]) {
             cout << "Not able to create database: " + errMsg;
             return -1;
         } else {
-            std::cout << "Created baseline Random Forest database for breast cancer" << std::endl;
+            std::cout << "Created baseline Random Forest database" << std::endl;
         }
 
         // create a new set in the database
@@ -78,77 +100,158 @@ int main(int argc, char *argv[]) {
             cout << "Not able to create set: " + errMsg;
             return -1;
         } else {
-            std::cout << "Created baseline Random Forest set for breast cancer" << std::endl;
+            std::cout << "Created baseline Random Forest set" << std::endl;
         }
 
-        pdb::Vector<pdb::Handle<decisiontree::Node>> tree;
+        // the # of trees of the input
+        int numTrees = argc-7;
+        // "C" represents classification and "R" represents regression
+        std::string type = std::string(argv[6]);
+
         pdb::Vector<pdb::Vector<pdb::Handle<decisiontree::Node>>> forest;
         pdb::Handle<pdb::Vector<pdb::Handle<decisiontree::RandomForest>>> storeMe = pdb::makeObject<pdb::Vector<pdb::Handle<decisiontree::RandomForest>>>();
-        try{
-            pdb::Handle<decisiontree::Node> treeNode;
-            treeNode = pdb::makeObject<decisiontree::Node>(0,7,false,1,2,0.052);
-            tree.push_back(treeNode);
-            treeNode = pdb::makeObject<decisiontree::Node>(1,20,false,3,4,16.54);
-            tree.push_back(treeNode);
-            treeNode = pdb::makeObject<decisiontree::Node>(2,26,false,5,6,0.225);
-            tree.push_back(treeNode);
-            treeNode = pdb::makeObject<decisiontree::Node>(3,13,false,7,8,37.61);
-            tree.push_back(treeNode);
-            treeNode = pdb::makeObject<decisiontree::Node>(4,21,false,9,10,20.22);
-            tree.push_back(treeNode);
-            treeNode = pdb::makeObject<decisiontree::Node>(5,-1,true,-1,-1,2.0);
-            tree.push_back(treeNode);
-            treeNode = pdb::makeObject<decisiontree::Node>(6,23,false,11,12,710.2);
-            tree.push_back(treeNode);
-            treeNode = pdb::makeObject<decisiontree::Node>(7,21,false,13,14,33.27);
-            tree.push_back(treeNode);
-            treeNode = pdb::makeObject<decisiontree::Node>(8,4,false,15,16,0.091);
-            tree.push_back(treeNode);
-            treeNode = pdb::makeObject<decisiontree::Node>(9,-1,true,-1,-1,2.0);
-            tree.push_back(treeNode);
-            treeNode = pdb::makeObject<decisiontree::Node>(10,17,false,17,18,0.011);
-            tree.push_back(treeNode);
-            treeNode = pdb::makeObject<decisiontree::Node>(11,21,false,19,20,25.95);
-            tree.push_back(treeNode);
-            treeNode = pdb::makeObject<decisiontree::Node>(12,1,false,21,22,14.12);
-            tree.push_back(treeNode);
-            treeNode = pdb::makeObject<decisiontree::Node>(13,-1,true,-1,-1,2.0);
-            tree.push_back(treeNode);
-            treeNode = pdb::makeObject<decisiontree::Node>(14,21,false,23,24,34.14);
-            tree.push_back(treeNode);
-            treeNode = pdb::makeObject<decisiontree::Node>(15,-1,true,-1,-1,2.0);
-            tree.push_back(treeNode);
-            treeNode = pdb::makeObject<decisiontree::Node>(16,17,false,25,26,0.012);
-            tree.push_back(treeNode);
-            treeNode = pdb::makeObject<decisiontree::Node>(17,-1,true,-1,-1,1.0);
-            tree.push_back(treeNode);
-            treeNode = pdb::makeObject<decisiontree::Node>(18,-1,true,-1,-1,2.0);
-            tree.push_back(treeNode);
-            treeNode = pdb::makeObject<decisiontree::Node>(19,-1,true,-1,-1,2.0);
-            tree.push_back(treeNode);
-            treeNode = pdb::makeObject<decisiontree::Node>(20,9,false,27,28,0.065);
-            tree.push_back(treeNode);
-            treeNode = pdb::makeObject<decisiontree::Node>(21,25,false,29,30,0.361);
-            tree.push_back(treeNode);
-            treeNode = pdb::makeObject<decisiontree::Node>(22,-1,true,-1,-1,1.0);
-            tree.push_back(treeNode);
-            treeNode = pdb::makeObject<decisiontree::Node>(23,-1,true,-1,-1,1.0);
-            tree.push_back(treeNode);
-            treeNode = pdb::makeObject<decisiontree::Node>(24,-1,true,-1,-1,2.0);
-            tree.push_back(treeNode);
-            treeNode = pdb::makeObject<decisiontree::Node>(25,-1,true,-1,-1,2.0);
-            tree.push_back(treeNode);
-            treeNode = pdb::makeObject<decisiontree::Node>(26,-1,true,-1,-1,1.0);
-            tree.push_back(treeNode);
-            treeNode = pdb::makeObject<decisiontree::Node>(27,-1,true,-1,-1,2.0);
-            tree.push_back(treeNode);
-            treeNode = pdb::makeObject<decisiontree::Node>(28,-1,true,-1,-1,1.0);
-            tree.push_back(treeNode);
-            treeNode = pdb::makeObject<decisiontree::Node>(29,-1,true,-1,-1,1.0);
-            tree.push_back(treeNode);
-            treeNode = pdb::makeObject<decisiontree::Node>(30,-1,true,-1,-1,2.0);
-            tree.push_back(treeNode);
+
+        for(int n = 7; n < argc; n++){
+            std::string inputFileName = std::string(argv[n]);
+            std::cout << "tree file path: " << inputFileName << std::endl;
+            std::ifstream infile;
+            infile.open(inputFileName.data()); // link the ifstream with the file name
+            assert(infile.is_open()); // stop the program if failed
+
+            std:: string line;
+            std::vector<std::string> relationships;
+            std::vector<std::string> innerNodes;
+            std::vector<std::string> leafNodes;
+            string::size_type position;
+
+            bool leftLine = true;
+            bool rightLine = true;
+
+            while(getline(infile,line)){
+                if(line == "digraph Tree {" || line == "node [shape=box] ;" || line == "}"){
+                    continue;
+                }else{
+                    position = line.find("->");
+                    if (position != string::npos){
+                        if(line.find("0 -> 1") != string::npos && line.find("True") != string::npos){
+                            rightLine = false;
+                        } else{
+                            leftLine = true;
+                        }
+                        relationships.push_back(line);
+                    } else{
+                        if(line.find("X") != string::npos){
+                            innerNodes.push_back(line);
+                        } else{
+                            leafNodes.push_back(line);
+                        }
+                    }
+                }
+            }
+            infile.close();
+            int findStartPosition;
+            int findMidPosition;
+            int findEndPosition;
+            pdb::Vector<pdb::Handle<decisiontree::Node>> tree;
+
+            //std::cout << "print the innerNodes" << std::endl;
+            for (int i = 0; i < innerNodes.size(); i++) {
+                string thisLine = innerNodes[i];
+                int nodeID;
+                int indexID;
+                double returnClass;
+                //std::cout << innerNodes[i] << std::endl;
+                if((findEndPosition = thisLine.find_first_of("[label=")) != string::npos){
+                    nodeID = std::stoi(thisLine.substr(0, findEndPosition-1));
+                    //std::cout << nodeID << std::endl;
+                }
+                if((findStartPosition = thisLine.find("X")) != string::npos && (findEndPosition = thisLine.find_first_of("]")) != string::npos){
+                    indexID = std::stoi(thisLine.substr(findStartPosition+2, findEndPosition-(findStartPosition+2)));
+                    //std::cout << indexID << std::endl;
+                }
+                if((findStartPosition = thisLine.find("<=")) != string::npos && (findEndPosition = thisLine.find_first_of("ngini")) != string::npos){
+                    returnClass = std::stod(thisLine.substr(findStartPosition+3, findEndPosition-1-(findStartPosition+3)));
+                    //std::cout << returnClass << std::endl;
+                }
+                tree.push_back(pdb::makeObject<decisiontree::Node>(nodeID, indexID, false, -1, -1, returnClass));
+            }
+
+            //std::cout << "print the leafNodes" << std::endl;
+            for (int i = 0; i < leafNodes.size(); i++) {
+                string thisLine = leafNodes[i];
+                int nodeID;
+                double returnClass = -1.0;
+                //std::cout << leafNodes[i] << std::endl;
+                if((findEndPosition = thisLine.find_first_of("[label=\"gini")) != string::npos){
+                    nodeID = std::stoi(thisLine.substr(0, findEndPosition-1));
+                    //std::cout << nodeID << std::endl;
+                }
+                if(type == "C"){
+                    if((findStartPosition = thisLine.find("nvalue = "))!= string::npos && (findMidPosition = thisLine.find_first_of(",")) != string::npos && (findEndPosition = thisLine.find_first_of("]\"] ;")) != string::npos){
+                        double firstValue = std::stod(thisLine.substr(findStartPosition+10, findMidPosition-(findStartPosition+10)));
+                        double secondValue = std::stod(thisLine.substr(findMidPosition+2, findEndPosition-(findMidPosition+2)));
+                        //std::cout << firstValue << " " << secondValue << std::endl;
+                        if(firstValue >= secondValue){
+                            returnClass = 1.0;
+                        }else{
+                            returnClass = 2.0;
+                        }
+                    }
+                } else if(type == "R"){
+                    if((findStartPosition = thisLine.find("nvalue = "))!= string::npos && (findEndPosition = thisLine.find_last_of("\"] ;")) != string::npos){
+                        returnClass = std::stod(thisLine.substr(findStartPosition+9, findEndPosition-(findStartPosition+9)));
+                        //std::cout << returnClass << std::endl;
+                    }
+                } else{
+                    std::cout << "category error" << std::endl;
+                    exit(1);
+                }
+                tree.push_back(pdb::makeObject<decisiontree::Node>(nodeID, -1, true, -1, -1, returnClass));
+            }
+
+            //std::cout << "number of tree nodes: " << tree.size() << std::endl;
+            //std::cout << "print the relationships" << std::endl;
+            for (int i = 0; i < relationships.size(); i++) {
+                //std::cout << relationships[i] << std::endl;
+                int nodeID;
+                int thisChild;
+                string thisLine = relationships[i];
+                if((findMidPosition = thisLine.find_first_of("->")) != string::npos){
+                    nodeID = std::stoi(thisLine.substr(0, findMidPosition-1));
+                    //std::cout << nodeID << std::endl;
+                }
+                if(nodeID == 0){
+                    if((findEndPosition = thisLine.find_first_of(" [")) != string::npos){
+                        thisChild = std::stoi(thisLine.substr(findMidPosition+3, findEndPosition-1-(findMidPosition+3)));
+                        //std::cout << thisChild << std::endl;
+                    }
+                } else{
+                    if((findEndPosition = thisLine.find_first_of(" ;")) != string::npos){
+                        thisChild = std::stoi(thisLine.substr(findMidPosition+3, findEndPosition-1-(findMidPosition+3)));
+                        //std::cout << thisChild << std::endl;
+                    }
+                }
+
+                for(int k = 0; k < tree.size(); k++){
+                    pdb::Handle<decisiontree::Node> thisNodePtr = tree[k];
+                    if(thisNodePtr->nodeID == nodeID){
+                        if(thisNodePtr->leftChild == -1){
+                            thisNodePtr->leftChild = thisChild;
+                        }else{
+                            thisNodePtr->rightChild = thisChild;
+                        }
+                    }
+                }
+            }
             forest.push_back(tree);
+        }
+        std::cout << "numbers of trees in the forest: " << forest.size() << std::endl;
+        std::cout << "numbers of nodes in each tree: " << std::endl;
+        for(int i = 0; i < forest.size(); i++){
+            std::cout << "numbers of nodes in tree " << i << " is " << forest[i].size() << std::endl;
+        }
+
+        try{
             pdb::Handle<decisiontree::RandomForest> wholeRandomForest = pdb::makeObject<decisiontree::RandomForest>(forest);
             storeMe->push_back(wholeRandomForest);
 
@@ -162,7 +265,7 @@ int main(int argc, char *argv[]) {
                 return -1;
             }
         }
-        std::cout << "Successfully stored the tree data in Random Forest for breast cancer" << std::endl;
+        std::cout << "Successfully stored the tree data in Random Forest" << std::endl;
         pdbClient.flushData(errMsg);
     } else {
         std::cout << "Not create a set and not load new data to the Random Forest set" << std::endl;
