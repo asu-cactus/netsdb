@@ -14,8 +14,9 @@ using namespace std;
 void load_rnd_img(int x, int y, int z, int n, int size, pdb::PDBClient &pdbClient,
                   pdb::String dbName, pdb::String setName) {
   std::string errMsg;
-  pdb::makeObjectAllocatorBlock(128 * 1024 * 1024, true);
-
+  pdb::makeObjectAllocatorBlock(2047 * 1024 * 1024, true);
+ 
+  std::cout << "----------------inside load rnd img---------------: " << x << " " << y << " " << z << " " << n << " " << size << std::endl;
   pdb::Handle<pdb::Vector<unsigned int>> dimensions = pdb::makeObject<pdb::Vector<unsigned int>>();
   dimensions->push_back(n);
   dimensions->push_back(z);
@@ -51,7 +52,7 @@ void load_rnd_img(int x, int y, int z, int n, int size, pdb::PDBClient &pdbClien
               exit(1);
           }
           i--;
-          pdb::makeObjectAllocatorBlock(128 * 1024 * 1024, true);
+          pdb::makeObjectAllocatorBlock(2047 * 1024 * 1024, true);
           dimensions = pdb::makeObject<pdb::Vector<unsigned int>>();
           dimensions->push_back(n);
           dimensions->push_back(z);
