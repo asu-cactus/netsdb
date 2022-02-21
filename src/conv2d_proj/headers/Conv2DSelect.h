@@ -148,8 +148,9 @@ public:
 
     Handle<TensorData> runAtenConv2d(TensorData& input, int n, int z, int y, int x, int stride) {
 
-        std::cout << "---------------------------RunAtendCOnv2d-------------------------:" << n << " " << z << " "<< y << " "<< x << " " << stride << std::endl;
+        std::cout << "---------------------------RunAtendConv2d-------------------------:" << n << " " << z << " "<< y << " "<< x << " " << stride << std::endl;
         //input data
+        // std::cout << "---------------------------input size ----------------------------:" << input.size << std::endl;
         at::Tensor a = at::from_blob(input.rawData->c_ptr(), {n, z, y, x});
 
         at::Tensor b = at::from_blob(kernel->rawData->c_ptr(), {nk, zk, yk, xk});
@@ -157,7 +158,14 @@ public:
         // bias length = kernel count = nk
         at::Tensor bias = at::zeros({nk}, at::kFloat);
         //perform the convolutional operation
+        auto begin = std::chrono::high_resolution_clock::now();
+        // auto c = at::conv2d(a, b);
         auto c = at::conv2d(a, b, bias, stride);
+        auto end = std::chrono::high_resolution_clock::now();
+
+        std::cout << "-------------------------------------------------------------------------Inside RunAten Time Duration: "
+            << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
+            << " secs." << std::endl;
 
         //create the output
         int oy = calculateOutputDimension(y, yk, stride);
@@ -203,6 +211,8 @@ public:
             //W
             int x = (*(input.dimensions))[3];
 
+            std::cout << "------------------------------------------------------------------Before calling runAtenConv2d--------------------------------------------------" << std::endl;
+            std::cout << "n =" << n << "z =" << z << "y =" << y << "x =" << x << std::endl;
 
             if (conv2dMode == "eigen-spatial") {
                 return runEigenSpatial(input, n, z, y, x, stride);
