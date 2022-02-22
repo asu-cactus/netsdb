@@ -52,7 +52,7 @@ public:
           makeObject<ImageChunk>(block_y, block_y, block_row, y_index, block_row_start);
 
       for (int c = 0; c < checkMe->get_num_channels(); c++) {
-        double *data =
+        float *data =
             checkMe->getMatrixAtIndex(c)->getValue().rawData->c_ptr();
 
         for (int i = 0; i < checkMe->x * checkMe->y; i++) {

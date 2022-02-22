@@ -150,7 +150,7 @@ int main(int argc, char *argv[]) {
 
       count++;
 
-      double *data = r->getRawDataHandle()->c_ptr();
+      float *data = r->getRawDataHandle()->c_ptr();
       int i = 0;
       int j = r->getBlockRowIndex() * r->getRowNums();
       while (i < r->getRowNums() * r->getColNums()) {

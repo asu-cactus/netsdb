@@ -52,18 +52,18 @@ public:
                     in1->getTotalRowNums(), in2->getTotalRowNums(), false);
 
             // get the ptrs
-            double *outData = resultFFMatrixBlock->getValue().rawData->c_ptr();
-            double *in1Data = in1->getValue().rawData->c_ptr();
-            double *in2Data = in2->getValue().rawData->c_ptr();
+            float *outData = resultFFMatrixBlock->getValue().rawData->c_ptr();
+            float *in1Data = in1->getValue().rawData->c_ptr();
+            float *in2Data = in2->getValue().rawData->c_ptr();
 
-            Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
+            Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic,
                                      Eigen::RowMajor>>
                 currentMatrix1(in1Data, in1->getRowNums(), in1->getColNums());
-            Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
+            Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic,
                                      Eigen::RowMajor>>
                 currentMatrix2(in2Data, in2->getRowNums(), in2->getColNums());
 
-            Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
+            Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic,
                                      Eigen::RowMajor>>
                 productMatrix(outData, I, J);
 

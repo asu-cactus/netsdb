@@ -81,7 +81,7 @@ public:
 
       int i = 0;
       Handle<ImageChunk> chunk = nullptr;
-      double *data = checkMe->getValue().rawData->c_ptr();
+      float *data = checkMe->getValue().rawData->c_ptr();
 
       while (i < real_x) {
         for (int j = 0; j < real_y; j++) {

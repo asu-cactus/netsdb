@@ -41,12 +41,12 @@ public:
 
       // assert(J == 2);
 
-      double *checkMeData = checkMe->getValue().rawData->c_ptr();
+      float *checkMeData = checkMe->getValue().rawData->c_ptr();
 
       for (int i = 0; i < I; i++) {
           int index = checkMe->getBlockRowIndex() * I + i;
           Handle<InferenceResult> inference = makeObject<InferenceResult>(index, checkMe->getBlockRowIndex());
-          Vector<double> &inference_results = inference->getInference();
+          Vector<float> &inference_results = inference->getInference();
           for (int j = 0; j < 2; j++) {
               inference_results.push_back(checkMeData[i * J + j]);
           }

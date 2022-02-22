@@ -23,7 +23,7 @@ public:
   int block_x_size;
   int block_y_size;
   int block_y_index;
-  Map<int, Vector<double>> chunks;
+  Map<int, Vector<float>> chunks;
   long key;
 
   int feature_count;
@@ -46,7 +46,7 @@ public:
     key = block_x_index * 10000 + block_y_index;
   }
 
-  Map<int, Vector<double>> &getBlock() { return chunks; }
+  Map<int, Vector<float>> &getBlock() { return chunks; }
 
   long &getKey() { return key; }
 
@@ -55,14 +55,14 @@ public:
   int getActualBlockSize() { return chunks.size(); }
 
   void dump() {
-    Map<int, Vector<double>> &rhs = getBlock();
+    Map<int, Vector<float>> &rhs = getBlock();
     std::cout << "ImageBlock: " << block_x_index << ", " << block_y_index << std::endl;
     std::cout << "block size: " << block_x_size << ", " << block_y_size << ", key: " << key << std::endl; 
     auto iter = rhs.begin();
     while (iter != rhs.end()) {
       int myKey = (*iter).key;
       std::cout << "Key: " << myKey << " -> ";
-      Vector<double> &data = (*iter).value;
+      Vector<float> &data = (*iter).value;
       for (int i = 0; i < data.size(); i++)
         std::cout << data[i] << ", ";
       std::cout << std::endl;
@@ -72,7 +72,7 @@ public:
 
   ImageBlock &operator+(ImageBlock &addMeIn) {
 
-    Map<int, Vector<double>> &rhs = addMeIn.getBlock();
+    Map<int, Vector<float>> &rhs = addMeIn.getBlock();
     auto iter = rhs.begin();
     while (iter != rhs.end()) {
       int myKey = (*iter).key;

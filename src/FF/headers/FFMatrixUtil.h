@@ -28,7 +28,7 @@ void loadMatrix(pdb::PDBClient &pdbClient, pdb::String dbName,
                 bool partitionByCol = true);
 
 void load_matrix_from_file(std::string path,
-                           std::vector<std::vector<double>> &matrix);
+                           std::vector<std::vector<float>> &matrix);
 
 void print_stats(pdb::PDBClient &pdbClient, std::string dbName,
                  std::string setName);

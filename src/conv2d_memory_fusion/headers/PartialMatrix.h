@@ -14,7 +14,7 @@ public:
   int y;
   int key;
 
-  pdb::Vector<double> partial;
+  pdb::Vector<float> partial;
   ENABLE_DEEP_COPY
 
   PartialMatrix() {}
@@ -25,13 +25,13 @@ public:
   }
 
   // Copy x*y elements from offset
-  void copy_partial(pdb::Vector<double> &from, int offset) {
+  void copy_partial(pdb::Vector<float> &from, int offset) {
     for (int i = 0; i < x * y; i++) {
       partial[i] = from[offset + i];
     }
   }
 
-  pdb::Vector<double> &getPartial() { return partial; }
+  pdb::Vector<float> &getPartial() { return partial; }
 
   void dump() {
     std::cout << "x: " << x << ", y: " << y << ", origin_x: " << origin_x

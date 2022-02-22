@@ -46,13 +46,13 @@ public:
     return makeLambda(aggMe, [this](Handle<ImageBlock> &aggMe) {
       Handle<Image> temp = makeObject<Image>(aggMe->block_x_index, x, y, z);
       Handle<FFMatrixBlock> channel = makeObject<FFMatrixBlock>(0, 0, x, y, x, y);
-      double *data = channel->getValue().rawData->c_ptr();
+      float *data = channel->getValue().rawData->c_ptr();
 
-      Map<int, Vector<double>> &chunks = aggMe->getBlock();
+      Map<int, Vector<float>> &chunks = aggMe->getBlock();
       int i = 0;
       while (i < x * y) {
         assert(chunks.count(i) != 0);
-        Vector<double> &in = chunks[i];
+        Vector<float> &in = chunks[i];
 
         for(int j = 0; j < in.size(); j++) {
           data[i + j] = in[j];

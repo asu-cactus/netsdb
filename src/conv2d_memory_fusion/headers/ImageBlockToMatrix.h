@@ -55,7 +55,7 @@ public:
           checkMe->block_x_index, checkMe->block_y_index, real_block_x,
           real_block_y, batch_size, total_features, true);
 
-      Map<int, Vector<double>> &chunk = checkMe->getBlock();
+      Map<int, Vector<float>> &chunk = checkMe->getBlock();
       // Because each chunk has a mapping between the actual index of the
       // comment and the features. These may be stored out of order in the
       // map.
@@ -63,7 +63,7 @@ public:
 
       for (int x = 0; x < real_block_x; x++) {
         for (int y = 0; y < real_block_y; y++) {
-          double data =
+          float data =
               x >= checkMe->getActualBlockSize() || y >= checkMe->feature_count
                   ? 0
                   : chunk[offset + x][y];

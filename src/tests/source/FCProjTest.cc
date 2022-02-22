@@ -124,7 +124,7 @@ int main(int argc, char *argv[]) {
     auto it = pdbClient.getSetIterator<FFMatrixBlock>("ff", "output");
 
     for (auto r : it) {
-      double *data = r->getRawDataHandle()->c_ptr();
+      float *data = r->getRawDataHandle()->c_ptr();
       int i = 0;
       int j = r->getBlockRowIndex() * r->getRowNums();
       while (i < r->getRowNums() * r->getColNums()) {

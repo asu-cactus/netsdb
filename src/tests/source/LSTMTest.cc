@@ -26,7 +26,7 @@ void print(pdb::PDBClient &pdbClient, string dbName, string setName) {
   auto it = pdbClient.getSetIterator<FFMatrixBlock>(dbName, setName);
 
   for (auto r : it) {
-    double *data = r->getRawDataHandle()->c_ptr();
+    float *data = r->getRawDataHandle()->c_ptr();
     for (int i = 0; i < r->getRowNums() * r->getColNums(); i++) {
       std::cout << data[i] << ",";
     }

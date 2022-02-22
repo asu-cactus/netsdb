@@ -60,9 +60,9 @@ public:
                     in1->getBlockRowIndex(), in1->getBlockColIndex(), I, J,
                     in1->getTotalRowNums(), in1->getTotalColNums(), false);
 
-            double *outData = resultFFMatrixBlock->getValue().rawData->c_ptr();
-            double *in1Data = in1->getValue().rawData->c_ptr();
-            double *in2Data = in2->getValue().rawData->c_ptr();
+            float *outData = resultFFMatrixBlock->getValue().rawData->c_ptr();
+            float *in1Data = in1->getValue().rawData->c_ptr();
+            float *in2Data = in2->getValue().rawData->c_ptr();
 
             srand(time(NULL));
             for (int32_t i = 0; i < I; i++) {

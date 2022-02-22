@@ -23,7 +23,7 @@ public:
   int index;
   int block_row_id;
 
-  Handle<Vector<double>> inference = nullptr;
+  Handle<Vector<float>> inference = nullptr;
 
   ENABLE_DEEP_COPY
 
@@ -32,12 +32,12 @@ public:
 
   InferenceResult(int index, int block_row_id)
       : index(index), block_row_id(block_row_id) {
-    inference = makeObject<Vector<double>>();
+    inference = makeObject<Vector<float>>();
   }
 
   int getKey() { return this->index; }
 
-  Vector<double> &getInference() { return (*inference); }
+  Vector<float> &getInference() { return (*inference); }
 
   int getLabel() { return (*inference)[0] > (*inference)[1] ? 1 : -1; }
 
