@@ -148,8 +148,8 @@ void loadRandomImages(int width, int height, int channels, int numOfImages, pdb:
 
   std::mt19937 e2(rd());
 
-  std::uniform_real_distribution<> distp(0.0001, 0.5);
-  std::uniform_real_distribution<> distn(-0.5, -0.0001);
+  std::uniform_real_distribution<float> distp(0.0001, 0.5);
+  std::uniform_real_distribution<float> distn(-0.5, -0.0001);
 
   auto gen = std::bind(std::uniform_int_distribution<>(0, 1),
                        std::default_random_engine());
@@ -163,7 +163,7 @@ void loadRandomImages(int width, int height, int channels, int numOfImages, pdb:
 
           for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-              double data = (bool)gen() ? distn(e2) : distp(e2);
+              float data = (bool)gen() ? distn(e2) : distp(e2);
               (*(channel->getRawDataHandle()))[i * height + j] = data;
             }
           }
