@@ -53,9 +53,10 @@ def load_input_to_file_torch(input_file_path, input_dimensions, iterations):
 
     end = time.time()
     print ("Time for saving input to file", end - start)
+
 def load_input_to_file(input_file_path, input_dimensions, iterations):
     for id in range (0,iterations):
-        img = np.random.rand(*input_dimensions)
+        img = np.random.rand(*input_dimensions).astype('f')
         np.save(input_file_path + str(id), img)
 
 def load_kernel_to_file_torch(kernel_file_path, kernel_dimensions):
@@ -63,7 +64,7 @@ def load_kernel_to_file_torch(kernel_file_path, kernel_dimensions):
     torch.save(img, kernel_file_path + '.pt')
 
 def load_kernel_to_file(kernel_file_path, kernel_dimensions):
-    kernel = np.random.rand(*kernel_dimensions)
+    kernel = np.random.rand(*kernel_dimensions).astype('f')
     np.save(kernel_file_path, kernel)
 
 def _read_kernel_from_db(db_cursor, kernel_id, kernel_dimensions):

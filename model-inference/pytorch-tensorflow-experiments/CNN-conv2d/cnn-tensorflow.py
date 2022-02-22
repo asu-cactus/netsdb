@@ -3,7 +3,7 @@ import numpy as np
 import tensorflow as tf
 import time
 import argparse
-from utils import get_db_connection, create_tables, load_input_to_db, load_kernel_to_db, load_input_to_file, load_kernel_to_file, read_kernel_data, read_input_from_db
+from utils import get_db_connection, create_tables, load_input_to_db, load_input_to_file, load_kernel_to_file, read_kernel_data, read_input_from_db
 
 # defaults
 default_number_of_images = 100
@@ -37,49 +37,64 @@ kernel_file_path = 'cnn-tensorflow-kernel'
 
 _iterations = number_of_images
 # connect to postgresql database
-db_connection = get_db_connection()
-db_cursor = db_connection.cursor()
+# db_connection = get_db_connection()
+# db_cursor = db_connection.cursor()
 
 # create the table named images and kernel
-create_tables(db_cursor)
+# create_tables(db_cursor)
 
 # load the input and kernel to PostgreSQL DB/File
 try:
     if load_data_from_file:
         load_input_to_file(input_file_path, input_dimensions, _iterations)
-        load_kernel_to_file(kernel_file_path, kernel_dimensions)
-    else:
-        load_input_to_db(db_connection, input_dimensions, _iterations)
-        load_kernel_to_db(db_connection, kernel_dimensions, kernel_id)
+    # else:
+        # load_input_to_db(db_connection, input_dimensions, _iterations)
+        # load_kernel_to_db(db_connection, kernel_dimensions, kernel_id)
+
+    load_kernel_to_file(kernel_file_path, kernel_dimensions)
 except(Exception, psycopg2.DatabaseError) as error:    
     print("error while loading data", error)
 
-# Start Measuring Time
-start = time.time()
+
+print ("before try block")
 try:
     # read kernel data
-    filter = read_kernel_data(load_data_from_file, kernel_file_path, db_cursor, kernel_id, kernel_dimensions)
-
+    startKernelLoad = time.time()
+    filter = read_kernel_data(True, kernel_file_path, None, kernel_id, kernel_dimensions)
+    endKernelLoad = time.time()
+    kernelLoadTime = endKernelLoad - startKernelLoad
+    
+    inputLoadTime = 0
+    conv2dOpTime = 0
     # read input data
     for id in range(0, _iterations):
+        startTime = time.time()
         if load_data_from_file:
             input = np.load(input_file_path + str(id) + '.npy')
-        else:
-            input = read_input_from_db(db_cursor, id, input_dimensions)
+        # else:
+        #     input = read_input_from_db(db_cursor, id, input_dimensions)
+        endTime = time.time()
+        inputLoadTime = inputLoadTime + (endTime - startTime)
 
         print ("input", input.shape)
         print ("filter", filter.shape)
 
-        output = tf.nn.conv2d(input, filter, strides=1, padding='VALID')
+        startTime = time.time()
+        output = tf.nn.conv2d(input, filter, strides=stride, padding='VALID')
+        endTime = time.time()
+        conv2dOpTime = conv2dOpTime + (endTime - startTime)
         print ("Output Shape: ", output.shape)
 except(Exception, psycopg2.DatabaseError) as error:
     print ("exception while reading images", error)
-finally:
-    if db_connection is not None:
-        db_connection.close()
+# finally:
+#     if db_connection is not None:
+#         db_connection.close()
 
 # close the communication with the PostgresQL database
-db_cursor.close()
-end = time.time()
+# db_cursor.close()
+# end = time.time()
 
-print("Total time duration: ", end - start)
+print("Total time duration: ", kernelLoadTime + inputLoadTime + conv2dOpTime)
+print("Kernel load duration: ", kernelLoadTime)
+print("Input load duration: ", inputLoadTime)
+print("Conv2d load duration: ", conv2dOpTime)

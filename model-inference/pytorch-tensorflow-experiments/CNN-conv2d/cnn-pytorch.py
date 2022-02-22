@@ -36,18 +36,18 @@ kernel_file_path = 'cnn-pytorch-kernel'
 
 _iterations = number_of_images
 # connect to postgresql database
-db_connection = get_db_connection()
-db_cursor = db_connection.cursor()
+# db_connection = get_db_connection()
+# db_cursor = db_connection.cursor()
 
 # create the table named images and kernel
-create_tables(db_cursor)
+# create_tables(db_cursor)
 
 # load the input and kernel to PostgreSQL DB/File
 try:
     if load_data_from_file:
         load_input_to_file_torch(input_file_path, input_dimensions, _iterations)
-    else:
-        load_input_to_db(db_connection, input_dimensions, _iterations)
+    # else:
+    #     load_input_to_db(db_connection, input_dimensions, _iterations)
 
     load_kernel_to_file_torch(kernel_file_path, kernel_dimensions)
 except(Exception, psycopg2.DatabaseError) as error:    
@@ -56,7 +56,7 @@ except(Exception, psycopg2.DatabaseError) as error:
 try:
     # read kernel data
     startKernelLoad = time.time()
-    filter = input = torch.load(kernel_file_path + '.pt')
+    filter = torch.load(kernel_file_path + '.pt')
     endKernelLoad = time.time()
     kernelLoadTime = endKernelLoad - startKernelLoad
     
@@ -69,9 +69,9 @@ try:
         startTime = time.time()
         if load_data_from_file:
             input = torch.load(input_file_path + str(id) + '.pt')
-        else:
-            input = read_input_from_db(db_cursor, id, input_dimensions)
-            input = torch.tensor(input, dtype=torch.float32) # TODO: find optimal implementation for this. 
+        # else:
+        #     input = read_input_from_db(db_cursor, id, input_dimensions)
+        #     input = torch.tensor(input, dtype=torch.float32) # TODO: find optimal implementation for this. 
         endTime = time.time()
         inputLoadTime = inputLoadTime + (endTime - startTime)
 
@@ -87,13 +87,12 @@ try:
         print ("Output Shape: ", output.shape)
 except(Exception, psycopg2.DatabaseError) as error:
     print ("exception while reading images", error)
-finally:
-    if db_connection is not None:
-        db_connection.close()
+# finally:
+    # if db_connection is not None:
+    #     db_connection.close()
 
 # close the communication with the PostgresQL database
-db_cursor.close()
-end = time.time()
+# db_cursor.close()
 
 print("Total time duration: ", kernelLoadTime + inputLoadTime + conv2dOpTime)
 print("Kernel load duration: ", kernelLoadTime)
