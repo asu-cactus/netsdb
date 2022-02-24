@@ -220,7 +220,7 @@ namespace decisiontree{
       return std::max_element(counts.begin(), counts.end(),[] (const std::pair<T, int>& pair1, const std::pair<T, int>& pair2) {
         return pair1.second < pair2.second;})->first;
     }
-
+    
     Lambda<bool> getSelection(Handle<FFMatrixBlock> checkMe) override {
         return makeLambda(checkMe,
                           [](Handle<FFMatrixBlock> &checkMe) { return true; });

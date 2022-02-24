@@ -56,6 +56,8 @@ using namespace std;
 // $bin/rfgenericUDF 2000 90 100 90 R /home/jiaqingchen/netsdb/graphs/year/year_0.txt /home/jiaqingchen/netsdb/graphs/year/year_1.txt
 int main(int argc, char *argv[]) {
 
+    makeObjectAllocatorBlock(1024 * 1024 * 1024, true);
+
     int rowNum = std::stoi(argv[1]);
     int colNum = std::stoi(argv[2]);
     int block_x = std::stoi(argv[3]);
@@ -65,13 +67,12 @@ int main(int argc, char *argv[]) {
     std::string type = std::string(argv[5]);
 
     string errMsg;
-
     pdb::Vector<std::string> treePath;
+
     for(int i = 6; i < argc; i++){
         treePath.push_back(std::string(argv[i]));
     }
-    makeObjectAllocatorBlock(1024 * 1024 * 1024, true);
-
+    
     string masterIp = "localhost";
     pdb::PDBLoggerPtr clientLogger = make_shared<pdb::PDBLogger>("DecisionTreeClientLog");
     pdb::PDBClient pdbClient(8108, masterIp, clientLogger, false, true);
