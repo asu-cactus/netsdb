@@ -10,6 +10,8 @@
 #include "HashSetManager.h"
 #include "DataProxy.h"
 #include "TreeNode.h"
+#include "Tree.h"
+#include "RandomForest.h"
 #include "BackendGetSet.h"
 
 #include <iostream>
@@ -110,11 +112,10 @@ public:
         return this->nodeId;
     }
 
-    // export the pointer to a piece of memory
-    bool exportToPointerInFile(std::string dbName,
-                                       std::string setName,
-                                       std::string& errMsg);
-
+    static bool compareByNodeID(const decisiontree::Node &a, const decisiontree::Node &b){
+      return a.nodeID < b.nodeID;
+    }
+    
     // from the ServerFunctionality interface... registers the HermesExecutionServer's        //
     // handlers
     void registerHandlers(PDBServer& forMe) override;

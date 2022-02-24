@@ -1402,6 +1402,8 @@ common_env.SharedLibrary('libraries/libRFJoin.so',
                         ['build/decisionTree/RFJoin.cc'] + all)
 common_env.SharedLibrary('libraries/libRFGenericUDF.so',
                         ['build/decisionTree/RFGenericUDF.cc'] + all)
+common_env.SharedLibrary('libraries/libRFGenericDT.so',
+                        ['build/decisionTree/RFGenericDT.cc'] + all)
 common_env.SharedLibrary('libraries/libTreeNode.so',
                         ['build/decisionTree/TreeNode.cc'] + all)
 common_env.SharedLibrary('libraries/libTree.so',
@@ -1436,6 +1438,9 @@ common_env.Program('bin/rfgenericUDF',
                         'build/FF/SimpleFF.cc'] + all + pdb_client)
 common_env.Program('bin/rfJoin', 
                         ['build/tests/TestRFJoin.cc', 'build/FF/FFMatrixUtil.cc',
+                        'build/FF/SimpleFF.cc'] + all + pdb_client)
+common_env.Program('bin/rfmaterializemodel', 
+                        ['build/tests/TestRFMaterializeModel.cc', 'build/FF/FFMatrixUtil.cc',
                         'build/FF/SimpleFF.cc'] + all + pdb_client)
 
 # Testing
@@ -2016,6 +2021,7 @@ libDecisionTreeTest = common_env.Alias('libDecisionTreeTest', [
     'bin/genericUDF',
     'bin/rfgenericUDF',
     'bin/rfJoin',
+    'bin/rfmaterializemodel',
     'bin/baselineBC',
     'bin/baselineBC_N',
     'libraries/libFFMatrixBlock.so',
@@ -2032,6 +2038,7 @@ libDecisionTreeTest = common_env.Alias('libDecisionTreeTest', [
     'libraries/libJoinforBaselineDT_N.so',
     'libraries/libRFJoin.so',
     'libraries/libRFGenericUDF.so',
+    'libraries/libRFGenericDT.so',
     'libraries/libTreeNode.so',
     'libraries/libTree.so',
     'libraries/libRandomForest.so',

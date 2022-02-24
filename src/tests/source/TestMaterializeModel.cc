@@ -28,9 +28,9 @@ using namespace pdb;
 
 int main(int argc, char *argv[]) {
 
-	int rowNum = 2000000;
+	int rowNum = 2000;
 	int colNum = 31;
-	int block_x = 10000;
+	int block_x = 100;
 	int block_y = 31;
 
 	string errMsg;

@@ -49,7 +49,7 @@
 #include "PDBFlushProducerWork.h"
 #include "PDBFlushConsumerWork.h"
 #include "ExportableObject.h"
-#include "JoinTupleBase.h"
+//#include "JoinTupleBase.h"
 #include "GenericWork.h"
 #include "HermesExecutionServer.h"
 #include "BackendExecuteSelection.h"
@@ -69,6 +69,9 @@
 #include "DispatcherGetSetRequest.h"
 #include "GetSetWork.h"
 #include "BackendGetSet.h"
+#include "TreeNode.h"
+#include "Tree.h"
+#include "RandomForest.h"
 
 #include <vector>
 #include <cstdio>
@@ -105,61 +108,6 @@
 
 namespace pdb {
 
-// export the set to a piece of memory and save the pointer of that memory in a file
-bool HermesExecutionServer::exportToPointerInFile(std::string dbName,
-                                       std::string setName,
-                                       std::string& errMsg) {
-
-    SetPtr setToExport =
-        getFunctionality<PangeaStorageServer>().getSet(std::make_pair(dbName, setName));
-    if (setToExport == nullptr) {
-        errMsg = "Error in exportToFile: set doesn't exist: " + dbName + ":" + setName;
-        std::cout << errMsg << std::endl;
-        return false;
-    }
-    setToExport->setPinned(true);
-    std::vector<PageIteratorPtr>* pageIters = setToExport->getIterators();
-    int numIterators = pageIters->size();
-    //std::vector<std::string> vect;
-    std::vector<decisiontree::Node> vect;
-    for (int i = 0; i < numIterators; i++) {
-        PageIteratorPtr iter = pageIters->at(i);
-        while (iter->hasNext()) {
-            PDBPagePtr nextPage = iter->next();
-            if (nextPage != nullptr) {
-                Record<Vector<Handle<decisiontree::Node>>>* myRec =
-                    (Record<Vector<Handle<decisiontree::Node>>>*)(nextPage->getBytes());
-                Handle<Vector<Handle<decisiontree::Node>>> inputVec = myRec->getRootObject();
-                int vecSize = inputVec->size();
-                for (int j = 0; j < vecSize; j++) {
-                    Handle<decisiontree::Node> thisNodePtr = (*inputVec)[j];
-                    // the following will build a decisiontree::Node object
-                    decisiontree::Node thisNode = decisiontree::Node(thisNodePtr->nodeID,thisNodePtr->indexID,thisNodePtr->isLeaf,thisNodePtr->leftChild,thisNodePtr->rightChild,thisNodePtr->returnClass);
-                    // testing purpose
-                    std::cout << "NodeID is: " << thisNode.nodeID << std::endl;
-                    vect.push_back(thisNode);
-                }
-            }
-        }
-    }
-    int numNodes = vect.size();
-    int memSize = (4 * sizeof(int) + 1 * sizeof(double) + 1 * sizeof(bool)) * numNodes;
-    decisiontree::Node* tree = static_cast<decisiontree::Node*>(mmap(NULL, memSize, PROT_READ | PROT_WRITE, MAP_ANON | MAP_SHARED, 0, 0));
-    for(int i = 0; i < numNodes; i++){
-        *(tree + i) = vect.at(i);
-    }
-    std::string fileName = dbName+setName;
-    //std::string fileName = "/home/jiaqingchen/netsdb/trees/"+dbName+setName;
-    ofstream file(fileName);
-    if (file){
-        file << tree << "\n";
-    }
-    setToExport->setPinned(false);
-    delete pageIters;
-    return true;
-}
-
-
 void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
 
   // this handler accepts a request to get some information from a set
@@ -176,6 +124,13 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
         SetID setId = request->getSetID();
         std::string dbName = request->getDatabaseName();
         std::string setName = request->getSetName();
+
+        std::string setType;
+        if(dbName.find("rf") != string::npos){
+          setType = "RF";
+        }else{
+          setType = "DT";
+        }
 
         std::cout << "Backend received BackendGetSet message with dbId=" << dbId
                  << ", typeId=" << typeId << ", setId=" << setId << std::endl;
@@ -210,7 +165,11 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
           std::cout << errMsg << std::endl;
           return make_pair(res, errMsg);
         }
+
         std::vector<decisiontree::Node> vect;
+        pdb::Vector<pdb::Vector<pdb::Handle<decisiontree::Node>>> forest;
+        int numNodeinForest = 0;
+
         for (int i = 0; i < numIterators; i++) {
           std::cout << "Create a PageCircularBufferIteratorPtr" << std::endl;
           PageCircularBufferIteratorPtr iter =  iterators.at(i);
@@ -223,16 +182,33 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
             if (page != nullptr) {
               std::cout << "The PDBPagePtr page is not nullptr!" << std::endl;
               std::cout << "processing page with pageId=" << page->getPageID() << std::endl;
-              pdb::Record<pdb::Vector<pdb::Handle<decisiontree::Node>>>* temp = (pdb::Record<pdb::Vector<pdb::Handle<decisiontree::Node>>>*)page->getBytes();
-              pdb::Handle<pdb::Vector<pdb::Handle<decisiontree::Node>>> inputVec = temp->getRootObject();
-              int vecSize = inputVec->size();
-              for (int j = 0; j < vecSize; j++) {
-                pdb::Handle<decisiontree::Node> thisNodePtr = (*inputVec)[j];
-                // the following will build a decisiontree::Node object
-                decisiontree::Node thisNode = decisiontree::Node(thisNodePtr->nodeID,thisNodePtr->indexID,thisNodePtr->isLeaf,thisNodePtr->leftChild,thisNodePtr->rightChild,thisNodePtr->returnClass);
-                // testing purpose
-                std::cout << "Decision tree NodeID is: " << thisNode.nodeID << std::endl;
-                vect.push_back(thisNode);
+
+              if(setType == "DT"){
+                pdb::Record<pdb::Vector<pdb::Handle<decisiontree::Node>>>* temp = (pdb::Record<pdb::Vector<pdb::Handle<decisiontree::Node>>>*)page->getBytes();
+                pdb::Handle<pdb::Vector<pdb::Handle<decisiontree::Node>>> inputVec = temp->getRootObject();
+                int vecSize = inputVec->size();
+                for (int j = 0; j < vecSize; j++) {
+                  pdb::Handle<decisiontree::Node> thisNodePtr = (*inputVec)[j];
+                  // the following will build a decisiontree::Node object
+                  decisiontree::Node thisNode = decisiontree::Node(thisNodePtr->nodeID,thisNodePtr->indexID,thisNodePtr->isLeaf,thisNodePtr->leftChild,thisNodePtr->rightChild,thisNodePtr->returnClass);
+                  // testing purpose
+                  std::cout << "Decision tree NodeID is: " << thisNode.nodeID << std::endl;
+                  vect.push_back(thisNode);
+                }
+              }else if(setType == "RF"){
+                pdb::Record<pdb::Vector<pdb::Handle<decisiontree::RandomForest>>>* temp = (pdb::Record<pdb::Vector<pdb::Handle<decisiontree::RandomForest>>>*)page->getBytes();
+                pdb::Handle<pdb::Vector<pdb::Handle<decisiontree::RandomForest>>> inputVec = temp->getRootObject();
+                pdb::Handle<decisiontree::RandomForest> thisRandomForestPtr = (*inputVec)[0];
+                decisiontree::RandomForest thisRandomForest = decisiontree::RandomForest(thisRandomForestPtr->forest);
+                forest = thisRandomForest.forest;
+
+                // get the total number of nodes to calculate the size of memory
+                for(int m = 0; m < forest.size(); m++){
+                  pdb::Vector<pdb::Handle<decisiontree::Node>> tree = forest[m];
+                  numNodeinForest = numNodeinForest + tree.size();
+                }
+              }else{
+                std::cout << "Set Type Error!" << std::endl;
               }
 
               // clean the page;
@@ -246,34 +222,67 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
           }
         }
 
-        int numNodes = vect.size();
-        int memSize = (4 * sizeof(int) + 1 * sizeof(long) + 1 * sizeof(bool)) * numNodes;
-        decisiontree::Node* tree = static_cast<decisiontree::Node*>(mmap(NULL, memSize, PROT_READ | PROT_WRITE, MAP_ANON | MAP_SHARED, 0, 0));
-        for(int i = 0; i < numNodes; i++){
-          *(tree + i) = vect.at(i);
-        }
-        // testing purpose
-        std::cout << "Address of the tree pointer: " << tree << std::endl;
-        std::cout << "root node's nodeID: " << tree-> nodeID << std::endl;
-        std::cout << "root's left child node's data: " << (tree+(tree->leftChild))-> returnClass << std::endl;
+        if(setType == "DT"){
+          int numNodes = vect.size();
+          int memSize = (4 * sizeof(int) + 1 * sizeof(double) + 1 * sizeof(bool)) * numNodes;
+          decisiontree::Node* tree = static_cast<decisiontree::Node*>(mmap(NULL, memSize, PROT_READ | PROT_WRITE, MAP_ANON | MAP_SHARED, 0, 0));
+          for(int t = 0; t < numNodes; t++){
+            *(tree + t) = vect.at(t);
+          }
 
-        std::string fileName = dbName+setName;
-        //std::string fileName = "/home/jiaqingchen/netsdb/trees/"+dbName+setName;
-        ofstream file(fileName);
-        if (file){
-          file << tree << "\n";
-        }
-        file.close();
+          // testing purpose
+          std::cout << "Address of the tree pointer: " << tree << std::endl;
+          std::cout << "root node's nodeID: " << tree-> nodeID << std::endl;
+          std::cout << "root's left child node's data: " << (tree+(tree->leftChild))-> returnClass << std::endl;
 
-        // testing purpose
-        ifstream fin(fileName);
-        string line;
-        decisiontree::Node* ptr = nullptr;
-        while (getline(fin, line)){
-          long long result=strtoll(line.c_str(), NULL, 16);
-          ptr = (decisiontree::Node *)result;
+          std::string fileName = dbName+setName;
+          ofstream file(fileName);
+          if (file){
+            file << tree << "\n";
+          }
+          file.close();
+        }else if(setType == "RF"){
+          std::cout << "total number of nodes is " << numNodeinForest << std::endl;
+          int nodememSize = (4 * sizeof(int) + 1 * sizeof(double) + 1 * sizeof(bool)) * numNodeinForest;
+          std::cout << "total memory of nodes is " << nodememSize << std::endl;
+          int totalmemSize = nodememSize + 4;
+          std::cout << "total memory is " << totalmemSize << std::endl;
+          decisiontree::RandomForest * startPtr = static_cast<decisiontree::RandomForest*>(mmap(NULL, totalmemSize, PROT_READ | PROT_WRITE, MAP_ANON | MAP_SHARED, 0, 0));
+
+          //print the original address
+          std::cout << "original address: " << startPtr << std::endl;
+          * startPtr = decisiontree::RandomForest(forest);
+          std::cout << "mmap the memory successfully" << std::endl;
+          
+          std::string fileName = dbName+setName;
+          ofstream file(fileName);
+          if (file){
+            file << startPtr << "\n";
+          }
+          file.close();
+
+          // testing purpose: reload the pointer from tree file
+          ifstream fin(fileName);
+          string line;
+          decisiontree::RandomForest * newPtr = nullptr;
+          while (getline(fin, line)){
+            // print the string obtained from file
+            //std::cout << "string obtained from file: " << line << std::endl;
+            long long result=strtoll(line.c_str(), NULL, 16);
+            newPtr = (decisiontree::RandomForest*)result;
+            // print the new address we get from the file
+            std::cout << "address loading from file: " << newPtr << std::endl;
+          }
+
+          // print some values of the loading forest
+          std::cout << "number of trees is " << newPtr->numTree << std::endl;
+          pdb::Vector<pdb::Vector<pdb::Handle<decisiontree::Node>>> thisForest = newPtr->forest;
+          std::cout << "testing on the first tree" << std::endl;
+          pdb::Vector<pdb::Handle<decisiontree::Node>> tree = thisForest[0];
+          std::cout << "number of nodes in the first tree is " << tree.size() << std::endl;
+        }else{
+          std::cout << "Set Type Error!" << std::endl;
         }
-        std::cout << "Verify the Address of the tree pointer: " << ptr << std::endl;
 
         if (this->setCurPageScanner(nullptr) == false) {
           res = false;

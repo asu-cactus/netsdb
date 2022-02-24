@@ -85,8 +85,8 @@ int main(int argc, char *argv[]) {
 	pdbClient.registerType("libraries/libTree.so", errMsg);
     pdbClient.registerType("libraries/libRandomForest.so", errMsg);
 
-    string dbName = "rf_bc_db";
-    string setName = "rf_bc_set";
+    string dbName = "rf_db";
+    string setName = "rf_set";
 
     if(createSetOrNot == true){
         // create a new database
@@ -98,7 +98,7 @@ int main(int argc, char *argv[]) {
         }
 
         // create a new set in the database
-        if (!pdbClient.createSet<decisiontree::Tree>(dbName, setName, errMsg)) {
+        if (!pdbClient.createSet<decisiontree::RandomForest>(dbName, setName, errMsg)) {
             cout << "Not able to create set: " + errMsg;
             return -1;
         } else {
