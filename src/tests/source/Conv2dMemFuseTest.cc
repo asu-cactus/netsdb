@@ -341,7 +341,7 @@ void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
   int padding = 0;
   bool block_padding = true;
 
-  int height = 512, width = 512, channels = 3, numOfImages = 10;
+  int height = 512, width = 512, channels = 3, numOfImages = 215;
   int kHeight = 1, kWidth = 1, kChannels = 3, numOfFilters = 64;
   std::chrono::high_resolution_clock::time_point loadRandomImages_time;
   std::chrono::high_resolution_clock::time_point loadRandomImages_end;
