@@ -42,7 +42,7 @@ void load_rnd_img(int x, int y, int z, int n, int size, pdb::PDBClient &pdbClien
             pdb::Handle<pdb::TensorData> image = pdb::makeObject<pdb::TensorData>(4, dimensions);
             for (unsigned int i = 0; i < n*z*y*x; i++) {
                 double data = (bool)gen() ? distn(e2) : distp(e2);
-                (*(image->rawData))[i] = data;
+                (*(image->rawData))[i] = 1;
             }
             images->push_back(image);
       } catch (pdb::NotEnoughSpace &e) {
@@ -212,7 +212,7 @@ int main(int argc, char *argv[]) {
   }
 
   auto begin1 = std::chrono::high_resolution_clock::now();
-  pdb::makeObjectAllocatorBlock(128 * 1024 * 1024, true);
+  pdb::makeObjectAllocatorBlock(2047 * 1024 * 1024, true);
 
   //create scan computation
   pdb::Handle<pdb::Computation> imageScanner =
@@ -248,6 +248,8 @@ int main(int argc, char *argv[]) {
 
   auto begin = std::chrono::high_resolution_clock::now();
 
+
+  std::cout<< "---------------------------Starting execute computations---------------------------" << std::endl;
   // run the computation
   if (!pdbClient.executeComputations(errMsg, "conv2d-proj", myWriteSet)) {
     cout << "Computation failed. Message was: " << errMsg << "\n";

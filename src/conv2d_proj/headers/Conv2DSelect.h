@@ -9,6 +9,7 @@
 //LA libraries:
 #include <eigen3/unsupported/Eigen/CXX11/Tensor>
 #include <cmath>
+#include <fstream>
 
 //ATen libraries:
 #include <ATen/ATen.h>
@@ -147,7 +148,7 @@ public:
     }
 
     Handle<TensorData> runAtenConv2d(TensorData& input, int n, int z, int y, int x, int stride) {
-
+        try {
         std::cout << "---------------------------RunAtendConv2d-------------------------:" << n << " " << z << " "<< y << " "<< x << " " << stride << std::endl;
         //input data
         // std::cout << "---------------------------input size ----------------------------:" << input.size << std::endl;
@@ -155,18 +156,22 @@ public:
 
         at::Tensor b = at::from_blob(kernel->rawData->c_ptr(), {nk, zk, yk, xk});
 
+        ofstream myfile;
+        myfile.open ("conv2d_output_aten.txt");
         // bias length = kernel count = nk
         at::Tensor bias = at::zeros({nk}, at::kFloat);
         //perform the convolutional operation
         auto begin = std::chrono::high_resolution_clock::now();
         // auto c = at::conv2d(a, b);
         auto c = at::conv2d(a, b, bias, stride);
+
         auto end = std::chrono::high_resolution_clock::now();
 
         std::cout << "-------------------------------------------------------------------------Inside RunAten Time Duration: "
             << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
             << " secs." << std::endl;
 
+        pdb::makeObjectAllocatorBlock(2047 * 1024 * 1024, true);
         //create the output
         int oy = calculateOutputDimension(y, yk, stride);
         int ox = calculateOutputDimension(x, xk, stride);
@@ -181,9 +186,16 @@ public:
         dimensions->push_back(ox);
 
         Handle<TensorData> out = makeObject<TensorData>(4, dimensions);
-        memcpy(out->rawData->c_ptr(), c.storage().data(), n * nk * (oy) * (ox) * sizeof(float));
-        
+        memcpy(out->rawData->c_ptr(), c.storage().data(), (long long)n * nk * (oy) * (ox) * sizeof(float));
+        // for (int i = 0; i < n * nk * oy * ox; i++) {
+        //     myfile << (*(out->rawData))[i] << endl;
+        // }
+        // myfile.close();
         return out;
+        } catch (std::exception &e) {
+            std::cerr << "-----------------------------exception caught--------------------------------------------------------: " << e.what() << '\n';
+            exit(1);
+        }
     }
 
 

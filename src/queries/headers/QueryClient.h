@@ -160,6 +160,7 @@ if (typeName != getTypeName <Type> ()) {
     bool executeComputations(std::string& errMsg, std::string jobName = "", bool preCompile = false) {
 
         // this is the request
+        std::cout << "------------------------------------------------------------------------------------------------inside execute computations----------------------------" << std::endl;
         const UseTemporaryAllocationBlock myBlock{256 * 1024 * 1024};
         QueryGraphAnalyzer queryAnalyzer(this->queryGraph);
         std::string tcapString = queryAnalyzer.parseTCAPString();
@@ -175,7 +176,7 @@ if (typeName != getTypeName <Type> ()) {
             jobName = clientName + "-" + std::to_string(queryId);
             queryId ++;
         }
-        std::cout << "jobName is " << jobName << std::endl;
+        std::cout << "-----------------------------------------jobName is --------------------------------------------------------------------" << jobName << std::endl;
         Handle<ExecuteComputation> executeComputation = makeObject<ExecuteComputation>(
             jobName, tcapString, preCompile);
 
