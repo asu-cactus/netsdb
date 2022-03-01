@@ -90,7 +90,7 @@ class RFGenericDT: public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
             std::cout << inNumRow << "," << inNumCol << std::endl;
             std::cout << inBlockRowIndex << "," << inBlockColIndex << std::endl;
 
-            double *inData = in->getValue().rawData->c_ptr();
+            float *inData = in->getValue().rawData->c_ptr();
 
             if(this->forestPtr == nullptr){
               ifstream fin(fileName);
@@ -113,13 +113,13 @@ class RFGenericDT: public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
             */
 
             // set the output matrix
-            pdb::Handle<pdb::Vector<double>> resultMatrix = pdb::makeObject<pdb::Vector<double>>();
-            std::vector<double> thisResultMatrix;
+            pdb::Handle<pdb::Vector<float>> resultMatrix = pdb::makeObject<pdb::Vector<float>>();
+            std::vector<float> thisResultMatrix;
 
-            //pdb::Handle<pdb::Vector<double>> resultMatrix = pdb::makeObject<pdb::Vector<double>>();
+            //pdb::Handle<pdb::Vector<float>> resultMatrix = pdb::makeObject<pdb::Vector<float>>();
 
-            double inputValue;
-            //std::vector<double> thisResultMatrix;
+            float inputValue;
+            //std::vector<float> thisResultMatrix;
             decisiontree::Node * treeNode = nullptr;
             int numTree = forestPtr->numTree;
             pdb::Vector<pdb::Vector<pdb::Handle<decisiontree::Node>>> thisForest = forestPtr->forest;
@@ -150,7 +150,7 @@ class RFGenericDT: public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
                 }
                 thisResultMatrix.push_back(treeNode->returnClass);
               }
-              double voteResult = most_common(thisResultMatrix.begin(), thisResultMatrix.end());
+              float voteResult = most_common(thisResultMatrix.begin(), thisResultMatrix.end());
               resultMatrix->push_back(voteResult);
               thisResultMatrix.clear();
             }

@@ -1418,21 +1418,21 @@ common_env.SharedLibrary('libraries/libBaselineNode.so',
                         ['build/decisionTree/BaselineNode.cc'] + all)
 common_env.SharedLibrary('libraries/libMyPrediction.so',
                         ['build/decisionTree/MyPrediction.cc'] + all)
-common_env.Program('bin/decisionTreeSpecializedBC', 
-                        ['build/tests/TestSpecializedBC.cc', 'build/FF/FFMatrixUtil.cc',
-                        'build/FF/SimpleFF.cc'] + all + pdb_client)
-common_env.Program('bin/materializemodel', 
-                        ['build/tests/TestMaterializeModel.cc', 'build/FF/FFMatrixUtil.cc',
-                        'build/FF/SimpleFF.cc'] + all + pdb_client)
-common_env.Program('bin/baselineBC', 
-                        ['build/tests/TestBaselineBC.cc', 'build/FF/FFMatrixUtil.cc',
-                        'build/FF/SimpleFF.cc'] + all + pdb_client)
-common_env.Program('bin/baselineBC_N', 
-                        ['build/tests/TestBaselineBC_N.cc', 'build/FF/FFMatrixUtil.cc',
-                        'build/FF/SimpleFF.cc'] + all + pdb_client)
-common_env.Program('bin/genericUDF', 
-                        ['build/tests/TestGenericUDF.cc', 'build/FF/FFMatrixUtil.cc',
-                        'build/FF/SimpleFF.cc'] + all + pdb_client)
+#common_env.Program('bin/decisionTreeSpecializedBC', 
+#                        ['build/tests/TestSpecializedBC.cc', 'build/FF/FFMatrixUtil.cc',
+#                        'build/FF/SimpleFF.cc'] + all + pdb_client)
+#common_env.Program('bin/materializemodel', 
+#                        ['build/tests/TestMaterializeModel.cc', 'build/FF/FFMatrixUtil.cc',
+#                        'build/FF/SimpleFF.cc'] + all + pdb_client)
+#common_env.Program('bin/baselineBC', 
+#                        ['build/tests/TestBaselineBC.cc', 'build/FF/FFMatrixUtil.cc',
+#                        'build/FF/SimpleFF.cc'] + all + pdb_client)
+#common_env.Program('bin/baselineBC_N', 
+#                        ['build/tests/TestBaselineBC_N.cc', 'build/FF/FFMatrixUtil.cc',
+#                        'build/FF/SimpleFF.cc'] + all + pdb_client)
+#common_env.Program('bin/genericUDF', 
+#                        ['build/tests/TestGenericUDF.cc', 'build/FF/FFMatrixUtil.cc',
+#                        'build/FF/SimpleFF.cc'] + all + pdb_client)
 common_env.Program('bin/rfgenericUDF', 
                         ['build/tests/TestRFGenericUDF.cc', 'build/FF/FFMatrixUtil.cc',
                         'build/FF/SimpleFF.cc'] + all + pdb_client)
@@ -2016,14 +2016,14 @@ libLSTMTest = common_env.Alias('libLSTMTest', [
 libDecisionTreeTest = common_env.Alias('libDecisionTreeTest', [
     'bin/pdb-cluster',
     'bin/pdb-server',
-    'bin/decisionTreeSpecializedBC',
-    'bin/materializemodel',
-    'bin/genericUDF',
+    #'bin/decisionTreeSpecializedBC',
+    #'bin/materializemodel',
+    #'bin/genericUDF',
     'bin/rfgenericUDF',
     'bin/rfJoin',
     'bin/rfmaterializemodel',
-    'bin/baselineBC',
-    'bin/baselineBC_N',
+    #'bin/baselineBC',
+    #'bin/baselineBC_N',
     'libraries/libFFMatrixBlock.so',
     'libraries/libFFMatrixMeta.so',
     'libraries/libFFMatrixData.so',
@@ -2031,11 +2031,11 @@ libDecisionTreeTest = common_env.Alias('libDecisionTreeTest', [
     'libraries/libFFMatrixWriter.so',
     'libraries/libMatrixBlock.so',
     'libraries/libFFMatrixPartitioner.so',
-    'libraries/libSpecializedBC.so',
-    'libraries/libGenericDT.so',
-    'libraries/libGenericUDF.so',
-    'libraries/libJoinforBaselineDT.so',
-    'libraries/libJoinforBaselineDT_N.so',
+    #'libraries/libSpecializedBC.so',
+    #'libraries/libGenericDT.so',
+    #'libraries/libGenericUDF.so',
+    #'libraries/libJoinforBaselineDT.so',
+    #'libraries/libJoinforBaselineDT_N.so',
     'libraries/libRFJoin.so',
     'libraries/libRFGenericUDF.so',
     'libraries/libRFGenericDT.so',

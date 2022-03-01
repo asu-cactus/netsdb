@@ -224,7 +224,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
 
         if(setType == "DT"){
           int numNodes = vect.size();
-          int memSize = (4 * sizeof(int) + 1 * sizeof(double) + 1 * sizeof(bool)) * numNodes;
+          int memSize = (4 * sizeof(int) + 1 * sizeof(float) + 1 * sizeof(bool)) * numNodes;
           decisiontree::Node* tree = static_cast<decisiontree::Node*>(mmap(NULL, memSize, PROT_READ | PROT_WRITE, MAP_ANON | MAP_SHARED, 0, 0));
           for(int t = 0; t < numNodes; t++){
             *(tree + t) = vect.at(t);
@@ -243,7 +243,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
           file.close();
         }else if(setType == "RF"){
           std::cout << "total number of nodes is " << numNodeinForest << std::endl;
-          int nodememSize = (4 * sizeof(int) + 1 * sizeof(double) + 1 * sizeof(bool)) * numNodeinForest;
+          int nodememSize = (4 * sizeof(int) + 1 * sizeof(float) + 1 * sizeof(bool)) * numNodeinForest;
           std::cout << "total memory of nodes is " << nodememSize << std::endl;
           int totalmemSize = nodememSize + 4;
           std::cout << "total memory is " << totalmemSize << std::endl;

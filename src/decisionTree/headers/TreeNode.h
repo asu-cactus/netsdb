@@ -7,7 +7,7 @@
 
 using namespace pdb;
 
-static double DOUBLE_DEFAULT = 0.0;
+static float FLOAT_DEFAULT = 0.0;
 static int INTEGER_DEFAULT = 0;
 static bool BOOL_DEFAULT = false;
 
@@ -25,12 +25,12 @@ namespace decisiontree{
 		int leftChild = INTEGER_DEFAULT;
 		int rightChild = INTEGER_DEFAULT;
 		// returnClass will be the vaule to compare while this is not a leaf node
-		double returnClass = DOUBLE_DEFAULT;
+		float returnClass = FLOAT_DEFAULT;
 
 		Node() {}
 		~Node() {}
 
-		Node(int nodeIDIn, int indexIDIn, bool isLeafIn, int leftChildIn, int rightChildIn, double returnClassIn){
+		Node(int nodeIDIn, int indexIDIn, bool isLeafIn, int leftChildIn, int rightChildIn, float returnClassIn){
 			nodeID = nodeIDIn;
 			indexID = indexIDIn;
 			isLeaf = isLeafIn;
@@ -59,7 +59,7 @@ namespace decisiontree{
 			return rightChild;
 		}
 
-		double get_returnClass() {
+		float get_returnClass() {
 			return returnClass;
 		}
 
@@ -83,7 +83,7 @@ namespace decisiontree{
 			rightChild = rightChildIn;
 		}
 
-		void set_returnClass(double returnClassIn) {
+		void set_returnClass(float returnClassIn) {
 			returnClass = returnClassIn;
 		}
 

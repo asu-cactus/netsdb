@@ -43,7 +43,7 @@ public:
       }
 
   FFMatrixBlock(int blockRowIndexIn, int blockColIndexIn, int rowNumsIn,
-                int colNumsIn, pdb::Handle<pdb::Vector<double>> rawDataIn, bool partitionByCol = true)
+                int colNumsIn, pdb::Handle<pdb::Vector<float>> rawDataIn, bool partitionByCol = true)
       : data(rowNumsIn, colNumsIn, rawDataIn)  {
         meta = pdb::makeObject<FFMatrixMeta>(blockRowIndexIn, blockColIndexIn);
         this->partitionByCol = partitionByCol;
@@ -51,7 +51,7 @@ public:
 
   FFMatrixBlock(int blockRowIndexIn, int blockColIndexIn, int rowNumsIn,
                 int colNumsIn, int totalRows, int totalCols,
-                pdb::Handle<pdb::Vector<double>> rawDataIn, bool partitionByCol = true)
+                pdb::Handle<pdb::Vector<float>> rawDataIn, bool partitionByCol = true)
       : data(rowNumsIn, colNumsIn, rawDataIn) {
         meta = pdb::makeObject<FFMatrixMeta>(blockRowIndexIn, blockColIndexIn, totalRows, totalCols);
         this->partitionByCol = partitionByCol;
@@ -68,18 +68,18 @@ public:
   }
 
   bool isLastColBlock() {
-    int numYBlocks = ceil(getTotalColNums() / (double)getColNums());
+    int numYBlocks = ceil(getTotalColNums() / (float)getColNums());
     return getBlockColIndex() == numYBlocks - 1;
   }
 
   bool isLastRowBlock() {
-    int numXBlocks = ceil(getTotalRowNums() / (double)getRowNums());
+    int numXBlocks = ceil(getTotalRowNums() / (float)getRowNums());
     return getBlockRowIndex() == numXBlocks - 1;
   }
 
   int getColNums() { return data.colNums; }
 
-  pdb::Handle<pdb::Vector<double>> &getRawDataHandle() { return data.rawData; }
+  pdb::Handle<pdb::Vector<float>> &getRawDataHandle() { return data.rawData; }
 
   pdb::Handle<FFMatrixMeta> &getKey() { return meta; }
 
@@ -96,11 +96,11 @@ public:
   int getTotalColNums() { return meta->totalCols; }
 
   int getNumRowBlocks() {
-      return ceil(getTotalRowNums() / (double)getRowNums());
+      return ceil(getTotalRowNums() / (float)getRowNums());
   }
 
   int getNumColBlocks() {
-      return ceil(getTotalColNums() / (double)getColNums());
+      return ceil(getTotalColNums() / (float)getColNums());
   }
 
   // This is needed for row-wise computation
@@ -115,12 +115,12 @@ public:
       sumRowData.rowNums = data.rowNums;
       sumRowData.colNums = 1;
       int bufferLength = sumRowData.rowNums * sumRowData.colNums;
-      sumRowData.rawData = pdb::makeObject<pdb::Vector<double>>(bufferLength, bufferLength);
+      sumRowData.rawData = pdb::makeObject<pdb::Vector<float>>(bufferLength, bufferLength);
 
-      Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>
+      Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>
           currentMatrix((data.rawData)->c_ptr(), data.rowNums, data.colNums);
 
-      Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>
+      Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>
           rowSumMatrix((sumRowData.rawData)->c_ptr(), sumRowData.rowNums, sumRowData.colNums);
 
       rowSumMatrix = currentMatrix.rowwise().sum();

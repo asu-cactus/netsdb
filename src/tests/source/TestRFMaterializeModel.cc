@@ -50,8 +50,8 @@
 // testing for higgs, an example for 2nd - 5th parameters are: 2000,28,100,28
 // 6th parameter specifies whether to classification ("C") or regression ("R")
 // Starting with the 7th parameter, each parameter will represent one path of a tree. The following is 2 running examples.
-// $bin/rfmaterializemodel 2000 28 100 28 C /home/jiaqingchen/netsdb/graphs/higgs/higgs_0.txt /home/jiaqingchen/netsdb/graphs/higgs/higgs_1.txt
-// $bin/rfmaterializemodel 2000 90 100 90 R /home/jiaqingchen/netsdb/graphs/year/year_0.txt /home/jiaqingchen/netsdb/graphs/year/year_1.txt
+// $bin/FFMaterializemodel 2000 28 100 28 C /home/jiaqingchen/netsdb/graphs/higgs/higgs_0.txt /home/jiaqingchen/netsdb/graphs/higgs/higgs_1.txt
+// $bin/FFMaterializemodel 2000 90 100 90 R /home/jiaqingchen/netsdb/graphs/year/year_0.txt /home/jiaqingchen/netsdb/graphs/year/year_1.txt
 
 int main(int argc, char *argv[]) {
 
@@ -149,7 +149,7 @@ int main(int argc, char *argv[]) {
             string thisLine = innerNodes[i];
             int nodeID;
             int indexID;
-            double returnClass;
+            float returnClass;
             
             //std::cout << innerNodes[i] << std::endl;
             if((findEndPosition = thisLine.find_first_of("[label=")) != string::npos){
@@ -171,7 +171,7 @@ int main(int argc, char *argv[]) {
         for (int i = 0; i < leafNodes.size(); i++) {
             string thisLine = leafNodes[i];
             int nodeID;
-            double returnClass = -1.0;
+            float returnClass = -1.0;
             //std::cout << leafNodes[i] << std::endl;
             if((findEndPosition = thisLine.find_first_of("[label=\"gini")) != string::npos){
                 nodeID = std::stoi(thisLine.substr(0, findEndPosition-1));
@@ -179,8 +179,8 @@ int main(int argc, char *argv[]) {
             }
             if(type == "C"){
                 if((findStartPosition = thisLine.find("nvalue = "))!= string::npos && (findMidPosition = thisLine.find_first_of(",")) != string::npos && (findEndPosition = thisLine.find_first_of("]\"] ;")) != string::npos){
-                    double firstValue = std::stod(thisLine.substr(findStartPosition+10, findMidPosition-(findStartPosition+10)));
-                    double secondValue = std::stod(thisLine.substr(findMidPosition+2, findEndPosition-(findMidPosition+2)));
+                    float firstValue = std::stod(thisLine.substr(findStartPosition+10, findMidPosition-(findStartPosition+10)));
+                    float secondValue = std::stod(thisLine.substr(findMidPosition+2, findEndPosition-(findMidPosition+2)));
                     //std::cout << firstValue << " " << secondValue << std::endl;
                     if(firstValue >= secondValue){
                         returnClass = 1.0;
@@ -288,28 +288,29 @@ int main(int argc, char *argv[]) {
     ff::loadLibrary(pdbClientDT,"libraries/libRandomForest.so");
 
     std::cout << "To load matrix for decision tree inputs" << std::endl;
+    auto begin = std::chrono::high_resolution_clock::now();
     ff::loadMatrix(pdbClientDT, "decisiontree", "inputs", rowNum, colNum, block_x,
                    block_y, false, false, errMsg);
 
-    std::cout << "To print the inputs" << std::endl;
+    //std::cout << "To print the inputs" << std::endl;
     ff::print(pdbClientDT, "decisiontree", "inputs");
 
     pdb::Handle<pdb::Computation> inputMatrix = pdb::makeObject<FFMatrixBlockScanner>("decisiontree", "inputs");
 
-    std::cout << "To make object of decision tree shared libraries" << std::endl;
+    //std::cout << "To make object of decision tree shared libraries" << std::endl;
 
     pdb::String fileName = dbName+setName;
 
     pdb::Handle<pdb::Computation> rfgenericDT = pdb::makeObject<RFGenericDT>(fileName);
     rfgenericDT->setInput(inputMatrix);
 
-    std::cout << "To set the Computation" << std::endl;
+    //std::cout << "To set the Computation" << std::endl;
     pdb::Handle<pdb::Computation> labelWriter = nullptr;
     labelWriter = pdb::makeObject<FFMatrixWriter>("decisiontree", "labels");
     labelWriter->setInput(rfgenericDT);
 
     bool materializeHash = false;
-    std::cout << "To run the Computation" << std::endl;
+    //std::cout << "To run the Computation" << std::endl;
 
     auto exe_begin = std::chrono::high_resolution_clock::now();
 
@@ -323,7 +324,11 @@ int main(int argc, char *argv[]) {
     std::cout << "****Decision Tree Model Materialization for Random Forest Execution Time Duration: ****"
               << std::chrono::duration_cast<std::chrono::duration<float>>(end - exe_begin).count()
               << " secs." << std::endl;
-              
+    
+    std::cout << "****Decision Tree Model Materialization for Random Forest End-End Time Duration: ****"
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
+              << " secs." << std::endl;
+
     //verify the results
     std::cout << "To print the status" << std::endl;
     ff::print_stats(pdbClientDT, "decisiontree", "labels");

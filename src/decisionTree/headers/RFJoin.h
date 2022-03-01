@@ -42,7 +42,7 @@ class RFJoin : public JoinComp<FFMatrixBlock, RandomForest, FFMatrixBlock> {
     	std::cout << inBlockRowIndex << "," << inBlockColIndex << std::endl;
       
       // inference
-      pdb::Handle<pdb::Vector<double>> resultMatrix = in1->predict(in2);
+      pdb::Handle<pdb::Vector<float>> resultMatrix = in1->predict(in2);
     	pdb::Handle<FFMatrixBlock> resultMatrixBlock = pdb::makeObject<FFMatrixBlock>(inBlockRowIndex, inBlockColIndex, inNumRow, 1, resultMatrix);
     	return resultMatrixBlock;
     });

@@ -49,16 +49,16 @@ namespace decisiontree{
 			tree = treeIn;
 		}
 
-		pdb::Handle<pdb::Vector<double>> predict(Handle<FFMatrixBlock>& in){
+		pdb::Handle<pdb::Vector<float>> predict(Handle<FFMatrixBlock>& in){
 
 			// get the input features matrix information
 			uint32_t inNumRow = in->getRowNums();
 			uint32_t inNumCol = in->getColNums();
 
-			double *inData = in->getValue().rawData->c_ptr();
+			float *inData = in->getValue().rawData->c_ptr();
 
 			// set the output matrix
-			pdb::Handle<pdb::Vector<double>> resultMatrix = pdb::makeObject<pdb::Vector<double>>();
+			pdb::Handle<pdb::Vector<float>> resultMatrix = pdb::makeObject<pdb::Vector<float>>();
 
 			// set the node of the tree
 			decisiontree::Node * treeNode = nullptr;
@@ -72,7 +72,7 @@ namespace decisiontree{
 			}
 
 			// inference
-			double inputValue;
+			float inputValue;
 			pdb::Handle<decisiontree::Node> thisNodePtr;
 			for (int i = 0; i < inNumRow; i++){
 				// pass the root node of the tree

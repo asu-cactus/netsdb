@@ -19,9 +19,9 @@ public:
 
   FFReluBiasSum() : dropout_rate(0){};
 
-  FFReluBiasSum(double dropout_rate_in) : dropout_rate(dropout_rate_in){};
+  FFReluBiasSum(float dropout_rate_in) : dropout_rate(dropout_rate_in){};
 
-  double dropout_rate;
+  float dropout_rate;
 
   Lambda<bool> getSelection(Handle<FFMatrixBlock> in1,
                             Handle<FFMatrixBlock> in2) override {
@@ -60,15 +60,15 @@ public:
                     in1->getBlockRowIndex(), in1->getBlockColIndex(), I, J,
                     in1->getTotalRowNums(), in1->getTotalColNums(), false);
 
-            double *outData = resultFFMatrixBlock->getValue().rawData->c_ptr();
-            double *in1Data = in1->getValue().rawData->c_ptr();
-            double *in2Data = in2->getValue().rawData->c_ptr();
+            float *outData = resultFFMatrixBlock->getValue().rawData->c_ptr();
+            float *in1Data = in1->getValue().rawData->c_ptr();
+            float *in2Data = in2->getValue().rawData->c_ptr();
 
             srand(time(NULL));
             for (int32_t i = 0; i < I; i++) {
               for (int32_t j = 0; j < J; j++) {
                 int32_t pos = i * J + j;
-                outData[pos] = max(0.0, in1Data[pos] + in2Data[i]);
+                outData[pos] = max(0.0f, in1Data[pos] + in2Data[i]);
 
                 if (dropout_rate != 0) {
                   bool zero = (rand() % 100) < (dropout_rate * 100);

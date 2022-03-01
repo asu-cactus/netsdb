@@ -71,22 +71,22 @@ namespace decisiontree{
 				return pair1.second < pair2.second;})->first;
 		}
 
-		pdb::Handle<pdb::Vector<double>> predict(Handle<FFMatrixBlock>& in){
+		pdb::Handle<pdb::Vector<float>> predict(Handle<FFMatrixBlock>& in){
 
 			// get the input features matrix information
 			uint32_t inNumRow = in->getRowNums();
 			uint32_t inNumCol = in->getColNums();
 
-			double *inData = in->getValue().rawData->c_ptr();
+			float *inData = in->getValue().rawData->c_ptr();
 
 			// set the output matrix
-			pdb::Handle<pdb::Vector<double>> resultMatrix = pdb::makeObject<pdb::Vector<double>>();
-			std::vector<double> thisResultMatrix;
+			pdb::Handle<pdb::Vector<float>> resultMatrix = pdb::makeObject<pdb::Vector<float>>();
+			std::vector<float> thisResultMatrix;
 
 			// set the node of the tree
 			decisiontree::Node * treeNode = nullptr;
 
-			double inputValue;
+			float inputValue;
 
 			for (int i = 0; i < inNumRow; i++){
 				for(int j = 0; j < numTree; j++){
@@ -114,7 +114,7 @@ namespace decisiontree{
 					}
 					thisResultMatrix.push_back(treeNode->returnClass);
 				}
-				double voteResult = most_common(thisResultMatrix.begin(), thisResultMatrix.end());
+				float voteResult = most_common(thisResultMatrix.begin(), thisResultMatrix.end());
 				resultMatrix->push_back(voteResult);
 				thisResultMatrix.clear();
 			}

@@ -108,7 +108,7 @@ static bool materializeHash = true;
 
 void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
                        string w2, string wo, string inputs, string b1,
-                       string b2, string bo, double dropout_rate, bool enablePartition) {
+                       string b2, string bo, float dropout_rate, bool enablePartition) {
   string errMsg;
 
   {
@@ -306,7 +306,7 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
 
 void inference(pdb::PDBClient &pdbClient, string database, string w1, string w2,
                string wo, string inputs, string b1, string b2, string bo,
-               string output, double dropout_rate, bool enablePartition) {
+               string output, float dropout_rate, bool enablePartition) {
   string errMsg;
   inference_compute(pdbClient, database, w1, w2, wo, inputs, b1, b2, bo,
                     dropout_rate, enablePartition);
@@ -345,7 +345,7 @@ void inference(pdb::PDBClient &pdbClient, string database, string w1, string w2,
 
 void inference(pdb::PDBClient &pdbClient, string database, string w1, string w2,
                string wo, string inputs, string b1, string b2, string bo,
-               pdb::Handle<pdb::Computation> &output, double dropout_rate, bool enablePartition) {
+               pdb::Handle<pdb::Computation> &output, float dropout_rate, bool enablePartition) {
   string errMsg;
   inference_compute(pdbClient, database, w1, w2, wo, inputs, b1, b2, bo,
                     dropout_rate, enablePartition);

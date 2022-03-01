@@ -28,7 +28,7 @@
 #include "PDBVector.h"
 #include "PDBString.h"
 #include "Handle.h"
-#include "FFMatrixBlock.h"
+#include "RFMatrixBlock.h"
 #include "Lambda.h"
 #include "LambdaCreationFunctions.h"
 #include "SelectionComp.h"
@@ -40,7 +40,7 @@ using namespace pdb;
 
 namespace decisiontree{
 
-  class RFGenericUDF: public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
+  class RFGenericUDF: public SelectionComp<RFMatrixBlock, RFMatrixBlock> {
   
   public:
 
@@ -113,7 +113,7 @@ namespace decisiontree{
           string thisLine = innerNodes[i];
           int nodeID;
           int indexID;
-          double returnClass;
+          float returnClass;
           //std::cout << innerNodes[i] << std::endl;
 
           if((findEndPosition = thisLine.find_first_of("[label=")) != string::npos){
@@ -135,7 +135,7 @@ namespace decisiontree{
         for (int i = 0; i < leafNodes.size(); i++) {
           string thisLine = leafNodes[i];
           int nodeID;
-          double returnClass = -1.0;
+          float returnClass = -1.0;
           //std::cout << leafNodes[i] << std::endl;
           if((findEndPosition = thisLine.find_first_of("[label=\"gini")) != string::npos){
             nodeID = std::stoi(thisLine.substr(0, findEndPosition-1));
@@ -143,8 +143,8 @@ namespace decisiontree{
           }
           if(type == "C"){
             if((findStartPosition = thisLine.find("nvalue = "))!= string::npos && (findMidPosition = thisLine.find_first_of(",")) != string::npos && (findEndPosition = thisLine.find_first_of("]\"] ;")) != string::npos){
-              double firstValue = std::stod(thisLine.substr(findStartPosition+10, findMidPosition-(findStartPosition+10)));
-              double secondValue = std::stod(thisLine.substr(findMidPosition+2, findEndPosition-(findMidPosition+2)));
+              float firstValue = std::stod(thisLine.substr(findStartPosition+10, findMidPosition-(findStartPosition+10)));
+              float secondValue = std::stod(thisLine.substr(findMidPosition+2, findEndPosition-(findMidPosition+2)));
               //std::cout << firstValue << " " << secondValue << std::endl;
               if(firstValue >= secondValue){
                 returnClass = 1.0;
@@ -221,14 +221,14 @@ namespace decisiontree{
         return pair1.second < pair2.second;})->first;
     }
     
-    Lambda<bool> getSelection(Handle<FFMatrixBlock> checkMe) override {
+    Lambda<bool> getSelection(Handle<RFMatrixBlock> checkMe) override {
         return makeLambda(checkMe,
-                          [](Handle<FFMatrixBlock> &checkMe) { return true; });
+                          [](Handle<RFMatrixBlock> &checkMe) { return true; });
     }
 
-    Lambda<Handle<FFMatrixBlock>>
-    getProjection(Handle<FFMatrixBlock> in) override {
-        return makeLambda(in, [this](Handle<FFMatrixBlock> &in) {
+    Lambda<Handle<RFMatrixBlock>>
+    getProjection(Handle<RFMatrixBlock> in) override {
+        return makeLambda(in, [this](Handle<RFMatrixBlock> &in) {
             // load the metadata
             uint32_t inNumRow = in->getRowNums();
             uint32_t inNumCol = in->getColNums();
@@ -240,16 +240,16 @@ namespace decisiontree{
             std::cout << inNumRow << "," << inNumCol << std::endl;
             std::cout << inBlockRowIndex << "," << inBlockColIndex << std::endl;
 
-            double *inData = in->getValue().rawData->c_ptr();
+            float *inData = in->getValue().rawData->c_ptr();
 
             // set the output matrix
-            pdb::Handle<pdb::Vector<double>> resultMatrix = pdb::makeObject<pdb::Vector<double>>();
-            std::vector<double> thisResultMatrix;
+            pdb::Handle<pdb::Vector<float>> resultMatrix = pdb::makeObject<pdb::Vector<float>>();
+            std::vector<float> thisResultMatrix;
             
             // set the node of the tree
             decisiontree::Node * treeNode = nullptr;
 
-            double inputValue;
+            float inputValue;
 
             for (int i = 0; i < inNumRow; i++){
               for(int j = 0; j < forest.size(); j++){
@@ -277,11 +277,11 @@ namespace decisiontree{
                 }
                 thisResultMatrix.push_back(treeNode->returnClass);
               }
-              double voteResult = most_common(thisResultMatrix.begin(), thisResultMatrix.end());
+              float voteResult = most_common(thisResultMatrix.begin(), thisResultMatrix.end());
               resultMatrix->push_back(voteResult);
               thisResultMatrix.clear();
             }
-            pdb::Handle<FFMatrixBlock> resultMatrixBlock = pdb::makeObject<FFMatrixBlock>(inBlockRowIndex, inBlockColIndex, inNumRow, 1, resultMatrix);
+            pdb::Handle<RFMatrixBlock> resultMatrixBlock = pdb::makeObject<RFMatrixBlock>(inBlockRowIndex, inBlockColIndex, inNumRow, 1, resultMatrix);
             return resultMatrixBlock;
           });
       }

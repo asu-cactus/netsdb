@@ -55,6 +55,7 @@ using namespace pdb;
 // Starting with the 8th parameter, each parameter will represent one path of a tree. The following is a running example.
 // $bin/rfJoin Y 2000 28 100 28 C /home/jiaqingchen/netsdb/graphs/higgs/higgs_0.txt /home/jiaqingchen/netsdb/graphs/higgs/higgs_1.txt
 // $bin/rfJoin Y 2000 90 100 90 R /home/jiaqingchen/netsdb/graphs/year/year_0.txt /home/jiaqingchen/netsdb/graphs/year/year_1.txt
+// $bin/rfJoin Y 11000 28 1000 28 C /home/jiaqingchen/netsdb/graphs/higgs/higgs_0.txt /home/jiaqingchen/netsdb/graphs/higgs/higgs_1.txt /home/jiaqingchen/netsdb/graphs/higgs/higgs_2.txt /home/jiaqingchen/netsdb/graphs/higgs/higgs_3.txt /home/jiaqingchen/netsdb/graphs/higgs/higgs_4.txt /home/jiaqingchen/netsdb/graphs/higgs/higgs_5.txt /home/jiaqingchen/netsdb/graphs/higgs/higgs_6.txt /home/jiaqingchen/netsdb/graphs/higgs/higgs_7.txt /home/jiaqingchen/netsdb/graphs/higgs/higgs_8.txt /home/jiaqingchen/netsdb/graphs/higgs/higgs_9.txt
 int main(int argc, char *argv[]) {
 
     bool createSetOrNot = true;
@@ -161,7 +162,7 @@ int main(int argc, char *argv[]) {
                 string thisLine = innerNodes[i];
                 int nodeID;
                 int indexID;
-                double returnClass;
+                float returnClass;
                 //std::cout << innerNodes[i] << std::endl;
                 if((findEndPosition = thisLine.find_first_of("[label=")) != string::npos){
                     nodeID = std::stoi(thisLine.substr(0, findEndPosition-1));
@@ -182,7 +183,7 @@ int main(int argc, char *argv[]) {
             for (int i = 0; i < leafNodes.size(); i++) {
                 string thisLine = leafNodes[i];
                 int nodeID;
-                double returnClass = -1.0;
+                float returnClass = -1.0;
                 //std::cout << leafNodes[i] << std::endl;
                 if((findEndPosition = thisLine.find_first_of("[label=\"gini")) != string::npos){
                     nodeID = std::stoi(thisLine.substr(0, findEndPosition-1));
@@ -190,8 +191,8 @@ int main(int argc, char *argv[]) {
                 }
                 if(type == "C"){
                     if((findStartPosition = thisLine.find("nvalue = "))!= string::npos && (findMidPosition = thisLine.find_first_of(",")) != string::npos && (findEndPosition = thisLine.find_first_of("]\"] ;")) != string::npos){
-                        double firstValue = std::stod(thisLine.substr(findStartPosition+10, findMidPosition-(findStartPosition+10)));
-                        double secondValue = std::stod(thisLine.substr(findMidPosition+2, findEndPosition-(findMidPosition+2)));
+                        float firstValue = std::stod(thisLine.substr(findStartPosition+10, findMidPosition-(findStartPosition+10)));
+                        float secondValue = std::stod(thisLine.substr(findMidPosition+2, findEndPosition-(findMidPosition+2)));
                         //std::cout << firstValue << " " << secondValue << std::endl;
                         if(firstValue >= secondValue){
                             returnClass = 1.0;
@@ -283,21 +284,20 @@ int main(int argc, char *argv[]) {
     ff::loadLibrary(pdbClientDT, "libraries/libFFMatrixBlock.so");
     ff::loadLibrary(pdbClientDT, "libraries/libFFMatrixBlockScanner.so");
     ff::loadLibrary(pdbClientDT, "libraries/libFFMatrixWriter.so");
-    ff::loadLibrary(pdbClientDT, "libraries/libFFMatrixPartitioner.so");
 
     std::cout << "To load Random Forest RFJoin shared library" << std::endl;
     ff::loadLibrary(pdbClientDT, "libraries/libRFJoin.so");
-    
+
     auto begin = std::chrono::high_resolution_clock::now();
 
     if(createSetOrNot == true){
         ff::createDatabase(pdbClientDT, "decisiontreeBC");
         ff::createSet(pdbClientDT, "decisiontreeBC", "inputs", "inputs", 64);
         ff::createSet(pdbClientDT, "decisiontreeBC", "labels", "labels", 64);
-        std::cout << "To load matrix for decision tree inputs" << std::endl;
+        //std::cout << "To load matrix for decision tree inputs" << std::endl;
         ff::loadMatrix(pdbClientDT, "decisiontreeBC", "inputs", rowNum, colNum, block_x,block_y, false, false, errMsg);
-        std::cout << "To print the inputs" << std::endl;
-        ff::print(pdbClientDT, "decisiontreeBC", "inputs");
+        //std::cout << "To print the inputs" << std::endl;
+        //ff::print(pdbClientDT, "decisiontreeBC", "inputs");
     } else{
         std::cout << "Not create a set and not load new data to the input set" << std::endl;
     }
@@ -314,7 +314,7 @@ int main(int argc, char *argv[]) {
     
     //bool materializeHash = false;
     bool materializeHash = true;
-    std::cout << "To run the Computation" << std::endl;
+    //std::cout << "To run the Computation" << std::endl;
     auto exe_begin = std::chrono::high_resolution_clock::now();
 
     if (!pdbClientDT.executeComputations(errMsg, "decisiontreeBC", materializeHash, labelWriter)) {
@@ -325,9 +325,13 @@ int main(int argc, char *argv[]) {
     auto end = std::chrono::high_resolution_clock::now();
 
     std::cout << "****Random Forest Join Execution Time Duration: ****"
-              << std::chrono::duration_cast<std::chrono::duration<float>>(end - exe_begin).count()
+              << std::chrono::duration_cast<std::chrono::duration<double>>(end - exe_begin).count()
               << " secs." << std::endl;
-              
+    
+    std::cout << "****Random Forest Join End-End Time Duration: ****"
+              << std::chrono::duration_cast<std::chrono::duration<double>>(end - begin).count()
+              << " secs." << std::endl;
+
     //verify the results
     std::cout << "To print the status" << std::endl;
     ff::print_stats(pdbClientDT, "decisiontreeBC", "labels");

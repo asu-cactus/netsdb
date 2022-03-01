@@ -84,7 +84,6 @@ int main(int argc, char *argv[]) {
     ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlock.so");
     ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlockScanner.so");
     ff::loadLibrary(pdbClient, "libraries/libFFMatrixWriter.so");
-    ff::loadLibrary(pdbClient, "libraries/libFFMatrixPartitioner.so");
 
     ff::loadLibrary(pdbClient, "libraries/libTreeNode.so");
     ff::loadLibrary(pdbClient, "libraries/libTree.so");
@@ -98,26 +97,26 @@ int main(int argc, char *argv[]) {
 
     auto begin = std::chrono::high_resolution_clock::now();
 
-    std::cout << "To load matrix for decision tree inputs" << std::endl;
+    //std::cout << "To load matrix for decision tree inputs" << std::endl;
     ff::loadMatrix(pdbClient, "decisiontreeBC", "inputs", rowNum, colNum, block_x,
                    block_y, false, false, errMsg);
     
-    std::cout << "To print the inputs" << std::endl;
-    ff::print(pdbClient, "decisiontreeBC", "inputs");
+    //std::cout << "To print the inputs" << std::endl;
+    //ff::print(pdbClient, "decisiontreeBC", "inputs");
 
     pdb::Handle<pdb::Computation> inputMatrix = pdb::makeObject<FFMatrixBlockScanner>("decisiontreeBC", "inputs");
 
-    std::cout << "To make object of decision tree UDF shared libraries" << std::endl;
+    //std::cout << "To make object of decision tree UDF shared libraries" << std::endl;
     pdb::Handle<pdb::Computation> rfgenericUDF = pdb::makeObject<decisiontree::RFGenericUDF>(treePath, type);
     rfgenericUDF->setInput(inputMatrix);
 
-    std::cout << "To set the Computation" << std::endl;
+    //std::cout << "To set the Computation" << std::endl;
     pdb::Handle<pdb::Computation> labelWriter = nullptr;
     labelWriter = pdb::makeObject<FFMatrixWriter>("decisiontreeBC", "labels");
     labelWriter->setInput(rfgenericUDF);
 
     bool materializeHash = false;
-    std::cout << "To run the Computation" << std::endl;
+    //std::cout << "To run the Computation" << std::endl;
     auto exe_begin = std::chrono::high_resolution_clock::now();
     if (!pdbClient.executeComputations(errMsg, "decisiontreeBC", materializeHash, labelWriter)) {
         cout << "Computation failed. Message was: " << errMsg << "\n";
@@ -127,7 +126,11 @@ int main(int argc, char *argv[]) {
     auto end = std::chrono::high_resolution_clock::now();
 
     std::cout << "****Random Forest UDF Execution Time Duration: ****"
-              << std::chrono::duration_cast<std::chrono::duration<float>>(end - exe_begin).count()
+              << std::chrono::duration_cast<std::chrono::duration<double>>(end - exe_begin).count()
+              << " secs." << std::endl;
+
+    std::cout << "****Random Forest UDF End-End Time Duration: ****"
+              << std::chrono::duration_cast<std::chrono::duration<double>>(end - begin).count()
               << " secs." << std::endl;
 
     //verify the results

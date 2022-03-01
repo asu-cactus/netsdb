@@ -4,6 +4,7 @@
 // The second parameter specifies whether to classification ("C") or regression ("R").
 // Starting with the third parameter, each parameter will represent one path of a tree. The following is a running example.
 // $./TestLoadingTree C higgs/higgs_0.txt higgs/higgs_1.txt
+// $./TestLoadingTree C higgs/higgs_0.txt higgs/higgs_1.txt higgs/higgs_2.txt higgs/higgs_3.txt higgs/higgs_4.txt higgs/higgs_5.txt higgs/higgs_6.txt higgs/higgs_7.txt higgs/higgs_8.txt higgs/higgs_9.txt
 
 #include <iostream>
 #include <fstream>
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <sys/mman.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <cassert>
 #include <memory>
@@ -29,7 +31,7 @@
 
 using namespace std;
 
-static double LONG_DEFAULT = 0.0;
+static float FLOAT_DEFAULT = 0.0;
 static int INTEGER_DEFAULT = 0;
 static bool BOOL_DEFAULT = false;
 
@@ -44,12 +46,12 @@ class Node{
 		int leftChild = INTEGER_DEFAULT;
 		int rightChild = INTEGER_DEFAULT;
 		// returnClass will be the vaule to compare while this is not a leaf node
-		double returnClass = LONG_DEFAULT;
+		float returnClass = FLOAT_DEFAULT;
 
 		Node() {}
 		~Node() {}
 
-		Node(int nodeIDIn, int indexIDIn, bool isLeafIn, int leftChildIn, int rightChildIn, double returnClassIn){
+		Node(int nodeIDIn, int indexIDIn, bool isLeafIn, int leftChildIn, int rightChildIn, float returnClassIn){
 			nodeID = nodeIDIn;
 			indexID = indexIDIn;
 			isLeaf = isLeafIn;
@@ -78,7 +80,7 @@ class Node{
 			return rightChild;
 		}
 
-		double get_returnClass() {
+		float get_returnClass() {
 			return returnClass;
 		}
 
@@ -102,7 +104,7 @@ class Node{
 			rightChild = rightChildIn;
 		}
 
-		void set_returnClass(double returnClassIn) {
+		void set_returnClass(float returnClassIn) {
 			returnClass = returnClassIn;
 		}
 
@@ -168,7 +170,7 @@ int main(int argc, const char *argv[]){
     		string thisLine = innerNodes[i];
     		int nodeID;
     		int indexID;
-    		double returnClass;
+    		float returnClass;
     		//std::cout << innerNodes[i] << std::endl;
     		if((findEndPosition = thisLine.find_first_of("[label=")) != string::npos){
     			nodeID = std::stoi(thisLine.substr(0, findEndPosition-1));
@@ -188,7 +190,7 @@ int main(int argc, const char *argv[]){
     	for (int i = 0; i < leafNodes.size(); i++) {
     		string thisLine = leafNodes[i];
     		int nodeID;
-    		double returnClass = -1.0;
+    		float returnClass = -1.0;
     		//std::cout << leafNodes[i] << std::endl;
     		if((findEndPosition = thisLine.find_first_of("[label=\"gini")) != string::npos){
     			nodeID = std::stoi(thisLine.substr(0, findEndPosition-1));
@@ -196,8 +198,8 @@ int main(int argc, const char *argv[]){
     		}
     		if(type == "C"){
     			if((findStartPosition = thisLine.find("nvalue = "))!= string::npos && (findMidPosition = thisLine.find_first_of(",")) != string::npos && (findEndPosition = thisLine.find_first_of("]\"] ;")) != string::npos){
-    				double firstValue = std::stod(thisLine.substr(findStartPosition+10, findMidPosition-(findStartPosition+10)));
-    				double secondValue = std::stod(thisLine.substr(findMidPosition+2, findEndPosition-(findMidPosition+2)));
+    				float firstValue = std::stod(thisLine.substr(findStartPosition+10, findMidPosition-(findStartPosition+10)));
+    				float secondValue = std::stod(thisLine.substr(findMidPosition+2, findEndPosition-(findMidPosition+2)));
     				//std::cout << firstValue << " " << secondValue << std::endl;
     				if(firstValue >= secondValue){
     					returnClass = 1.0;
@@ -252,16 +254,24 @@ int main(int argc, const char *argv[]){
     		}
     	}
     	forest.push_back(tree);
-    	/*
-    	for(int i = 0; i < tree.size(); i++){
-    		std::cout << tree[i].nodeID << " " << tree[i].indexID << " " << tree[i].leftChild << " " << tree[i].rightChild << " " << tree[i].returnClass << std::endl;
-    	}
-    	*/
     }
     std::cout << "numbers of trees in the forest: " << forest.size() << std::endl;
     std::cout << "numbers of nodes in each tree: " << std::endl;
     for(int i = 0; i < forest.size(); i++){
     	std::cout << "numbers of nodes in tree " << i << " is " << forest[i].size() << std::endl;
+    	std::vector<Node> treeout = forest[i];
+    	ofstream outFile;
+    	std::string intStr = std::to_string(i);
+    	std::string fileOutName = "tree_"+intStr+".csv";
+    	outFile.open(fileOutName,ios::out);
+    	for(int j = 0; j <treeout.size(); j++){
+    		Node thisnode = treeout[j];
+    		if (thisnode.isLeaf){
+    			outFile << thisnode.nodeID << "," << thisnode.indexID << "," << thisnode.returnClass << "," << "TRUE" << "," << thisnode.leftChild << "," << thisnode.rightChild << std::endl;
+    		}else{
+    			outFile << thisnode.nodeID << "," << thisnode.indexID << "," << thisnode.returnClass << "," << "FALSE" << "," << thisnode.leftChild << "," << thisnode.rightChild << std::endl;
+    		}	
+    	}
     }
 	return 0;
 }
