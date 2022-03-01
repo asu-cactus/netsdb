@@ -288,8 +288,6 @@ int main(int argc, char *argv[]) {
     std::cout << "To load Random Forest RFJoin shared library" << std::endl;
     ff::loadLibrary(pdbClientDT, "libraries/libRFJoin.so");
 
-    auto begin = std::chrono::high_resolution_clock::now();
-
     if(createSetOrNot == true){
         ff::createDatabase(pdbClientDT, "decisiontreeBC");
         ff::createSet(pdbClientDT, "decisiontreeBC", "inputs", "inputs", 64);
@@ -302,6 +300,8 @@ int main(int argc, char *argv[]) {
         std::cout << "Not create a set and not load new data to the input set" << std::endl;
     }
 
+    auto begin = std::chrono::high_resolution_clock::now();
+    
     pdb::Handle<pdb::Computation> input1 = pdb::makeObject<ScanUserSet<decisiontree::RandomForest>>(dbName, setName);
     pdb::Handle<pdb::Computation> inputMatrix = pdb::makeObject<FFMatrixBlockScanner>("decisiontreeBC", "inputs");
 

@@ -21,7 +21,8 @@ db_conn = psycopg2.connect(host=t_host, port=t_port, dbname=t_dbname, user=t_use
 db_cursor = db_conn.cursor()
 
 input_size = 11000
-batch_size = 10
+batch_size = 1000
+exe_total_time = 0
 
 time_start = time.time()
 try:
@@ -30,9 +31,12 @@ try:
                           "jet1pt,jet1eta,jet1phi,jet1btag,jet2pt,jet2eta,jet2phi,jet2btag,jet3pt,jet3eta,"+
                           "jet3phi,jet3btag,jet4pt,jet4eta,jet4phi,jet4btag,mjj,mjjj,mlv,mjlv,mbb,mwbb,mwwbb from higgs;")
         some_tuple = db_cursor.fetchmany(batch_size)
+        exe_time_start = time.time()
         pred = model.predict(some_tuple)
+        exe_total_time = exe_total_time + time.time() - exe_time_start
 except psycopg2.Error as e:
     t_message = "Postgres Database error: " + e + "/n"
 time_end=time.time()
 
-print('time cost',(time_end-time_start)*1000,'ms')
+print('total time cost',(time_end-time_start)*1000,'ms')
+print('exe time cost',exe_total_time*1000,'ms')

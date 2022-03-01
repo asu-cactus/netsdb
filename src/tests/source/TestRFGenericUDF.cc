@@ -95,8 +95,6 @@ int main(int argc, char *argv[]) {
     std::cout << "To load shared libraries of Random Forest generic UDF" << std::endl;
     ff::loadLibrary(pdbClient, "libraries/libRFGenericUDF.so");
 
-    auto begin = std::chrono::high_resolution_clock::now();
-
     //std::cout << "To load matrix for decision tree inputs" << std::endl;
     ff::loadMatrix(pdbClient, "decisiontreeBC", "inputs", rowNum, colNum, block_x,
                    block_y, false, false, errMsg);
@@ -104,6 +102,8 @@ int main(int argc, char *argv[]) {
     //std::cout << "To print the inputs" << std::endl;
     //ff::print(pdbClient, "decisiontreeBC", "inputs");
 
+    auto begin = std::chrono::high_resolution_clock::now();
+    
     pdb::Handle<pdb::Computation> inputMatrix = pdb::makeObject<FFMatrixBlockScanner>("decisiontreeBC", "inputs");
 
     //std::cout << "To make object of decision tree UDF shared libraries" << std::endl;

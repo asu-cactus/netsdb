@@ -288,13 +288,14 @@ int main(int argc, char *argv[]) {
     ff::loadLibrary(pdbClientDT,"libraries/libRandomForest.so");
 
     std::cout << "To load matrix for decision tree inputs" << std::endl;
-    auto begin = std::chrono::high_resolution_clock::now();
     ff::loadMatrix(pdbClientDT, "decisiontree", "inputs", rowNum, colNum, block_x,
                    block_y, false, false, errMsg);
 
     //std::cout << "To print the inputs" << std::endl;
-    ff::print(pdbClientDT, "decisiontree", "inputs");
+    //ff::print(pdbClientDT, "decisiontree", "inputs");
 
+    auto begin = std::chrono::high_resolution_clock::now();
+    
     pdb::Handle<pdb::Computation> inputMatrix = pdb::makeObject<FFMatrixBlockScanner>("decisiontree", "inputs");
 
     //std::cout << "To make object of decision tree shared libraries" << std::endl;
