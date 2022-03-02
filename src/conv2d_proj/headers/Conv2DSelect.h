@@ -171,7 +171,7 @@ public:
             << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
             << " secs." << std::endl;
 
-        pdb::makeObjectAllocatorBlock(2047 * 1024 * 1024, true);
+        // pdb::makeObjectAllocatorBlock(2047 * 1024 * 1024, true);
         //create the output
         int oy = calculateOutputDimension(y, yk, stride);
         int ox = calculateOutputDimension(x, xk, stride);
@@ -192,6 +192,9 @@ public:
         // }
         // myfile.close();
         return out;
+        } catch (NotEnoughSpace &e) {
+            std::cout<<"------------------inside not enough space allocation-----------------:" << '\n';
+            exit(1);
         } catch (std::exception &e) {
             std::cerr << "-----------------------------exception caught--------------------------------------------------------: " << e.what() << '\n';
             exit(1);
