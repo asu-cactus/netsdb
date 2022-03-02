@@ -14,7 +14,7 @@ using namespace std;
 void load_rnd_img(int x, int y, int z, int n, int size, pdb::PDBClient &pdbClient,
                   pdb::String dbName, pdb::String setName) {
   std::string errMsg;
-  pdb::makeObjectAllocatorBlock(2047 * 1024 * 1024, true);
+  pdb::makeObjectAllocatorBlock(2000 * 1024 * 1024, true);
  
   std::cout << "----------------inside load rnd img---------------: " << x << " " << y << " " << z << " " << n << " " << size << std::endl;
   pdb::Handle<pdb::Vector<unsigned int>> dimensions = pdb::makeObject<pdb::Vector<unsigned int>>();
@@ -52,7 +52,7 @@ void load_rnd_img(int x, int y, int z, int n, int size, pdb::PDBClient &pdbClien
               exit(1);
           }
           i--;
-          pdb::makeObjectAllocatorBlock(2047 * 1024 * 1024, true);
+          pdb::makeObjectAllocatorBlock(2000 * 1024 * 1024, true);
           dimensions = pdb::makeObject<pdb::Vector<unsigned int>>();
           dimensions->push_back(n);
           dimensions->push_back(z);
@@ -189,7 +189,7 @@ int main(int argc, char *argv[]) {
 
       pdbClient.removeSet(dbName, img_set, errMsg);
       if (!pdbClient.createSet<pdb::TensorData>(
-            dbName, img_set, errMsg, (size_t)128 * (size_t)1024 * (size_t)1024)) {
+            dbName, img_set, errMsg, (size_t)1024 * (size_t)1024 * (size_t)1024)) {
           cout << "Not able to create set " + img_set + ": " + errMsg;
       } else {
           cout << "Created set " << img_set << ".\n";
@@ -205,14 +205,14 @@ int main(int argc, char *argv[]) {
   string feature_out_set = "feature_map";    
   pdbClient.removeSet(dbName, feature_out_set, errMsg);
   if (!pdbClient.createSet<pdb::TensorData>(
-            dbName, feature_out_set, errMsg, (size_t)128 * (size_t)1024 * (size_t)1024)) {
+            dbName, feature_out_set, errMsg, (size_t)2047 * (size_t)1024 * (size_t)1024)) {
       cout << "Not able to create set " + feature_out_set + ": " + errMsg;
   } else {
       cout << "Created set " << feature_out_set << ".\n";
   }
 
   auto begin1 = std::chrono::high_resolution_clock::now();
-  pdb::makeObjectAllocatorBlock(2047 * 1024 * 1024, true);
+  pdb::makeObjectAllocatorBlock(1024 * 1024 * 1024, true);
 
   //create scan computation
   pdb::Handle<pdb::Computation> imageScanner =
