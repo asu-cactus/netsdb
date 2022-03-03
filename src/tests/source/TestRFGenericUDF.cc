@@ -78,6 +78,8 @@ int main(int argc, char *argv[]) {
     pdb::PDBClient pdbClient(8108, masterIp, clientLogger, false, true);
     pdb::CatalogClient catalogClient(8108, masterIp, clientLogger);
 
+    ff::createDatabase(pdbClient, "decisiontree");
+
     ff::loadLibrary(pdbClient, "libraries/libFFMatrixMeta.so");
     ff::loadLibrary(pdbClient, "libraries/libFFMatrixData.so");
     ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlock.so");
@@ -85,15 +87,14 @@ int main(int argc, char *argv[]) {
     ff::loadLibrary(pdbClient, "libraries/libFFMatrixWriter.so");
     ff::loadLibrary(pdbClient, "libraries/libFFMatrixPartitioner.so");
 
+    ff::createSet(pdbClient, "decisiontree", "inputs", "inputs", 64);
+    ff::createSet(pdbClient, "decisiontree", "labels", "labels", 64);
+    
+    std::cout << "To load shared libraries of Random Forest generic UDF" << std::endl;
     ff::loadLibrary(pdbClient, "libraries/libTreeNode.so");
     ff::loadLibrary(pdbClient, "libraries/libTree.so");
     ff::loadLibrary(pdbClient, "libraries/libRandomForest.so");
-
-    std::cout << "To load shared libraries of Random Forest generic UDF" << std::endl;
     ff::loadLibrary(pdbClient, "libraries/libRFGenericUDF.so");
-
-    ff::createSet(pdbClient, "decisiontree", "inputs", "inputs", 64);
-    ff::createSet(pdbClient, "decisiontree", "labels", "labels", 64);
 
     //std::cout << "To load matrix for decision tree inputs" << std::endl;
     ff::loadMatrix(pdbClient, "decisiontree", "inputs", rowNum, colNum, block_x,
