@@ -28,7 +28,11 @@
 #include "PDBVector.h"
 #include "PDBString.h"
 #include "Handle.h"
-#include "RFMatrixBlock.h"
+#include "FFMatrixBlockScanner.h"
+#include "FFTransposeMult.h"
+#include "FFAggMatrix.h"
+#include "FFMatrixWriter.h"
+#include "FFMatrixBlock.h"
 #include "Lambda.h"
 #include "LambdaCreationFunctions.h"
 #include "SelectionComp.h"
@@ -40,7 +44,7 @@ using namespace pdb;
 
 namespace decisiontree{
 
-  class RFGenericUDF: public SelectionComp<RFMatrixBlock, RFMatrixBlock> {
+  class RFGenericUDF: public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
   
   public:
 
@@ -221,14 +225,14 @@ namespace decisiontree{
         return pair1.second < pair2.second;})->first;
     }
     
-    Lambda<bool> getSelection(Handle<RFMatrixBlock> checkMe) override {
+    Lambda<bool> getSelection(Handle<FFMatrixBlock> checkMe) override {
         return makeLambda(checkMe,
-                          [](Handle<RFMatrixBlock> &checkMe) { return true; });
+                          [](Handle<FFMatrixBlock> &checkMe) { return true; });
     }
 
-    Lambda<Handle<RFMatrixBlock>>
-    getProjection(Handle<RFMatrixBlock> in) override {
-        return makeLambda(in, [this](Handle<RFMatrixBlock> &in) {
+    Lambda<Handle<FFMatrixBlock>>
+    getProjection(Handle<FFMatrixBlock> in) override {
+        return makeLambda(in, [this](Handle<FFMatrixBlock> &in) {
             // load the metadata
             uint32_t inNumRow = in->getRowNums();
             uint32_t inNumCol = in->getColNums();
@@ -281,7 +285,7 @@ namespace decisiontree{
               resultMatrix->push_back(voteResult);
               thisResultMatrix.clear();
             }
-            pdb::Handle<RFMatrixBlock> resultMatrixBlock = pdb::makeObject<RFMatrixBlock>(inBlockRowIndex, inBlockColIndex, inNumRow, 1, resultMatrix);
+            pdb::Handle<FFMatrixBlock> resultMatrixBlock = pdb::makeObject<FFMatrixBlock>(inBlockRowIndex, inBlockColIndex, inNumRow, 1, resultMatrix);
             return resultMatrixBlock;
           });
       }

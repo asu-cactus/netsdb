@@ -86,9 +86,9 @@ class RFGenericDT: public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
             uint32_t inBlockColIndex = in->getBlockColIndex();
 
             // testing purpose
-            std::cout << "Finish load the metadata" << std::endl;
-            std::cout << inNumRow << "," << inNumCol << std::endl;
-            std::cout << inBlockRowIndex << "," << inBlockColIndex << std::endl;
+            //std::cout << "Finish load the metadata" << std::endl;
+            //std::cout << inNumRow << "," << inNumCol << std::endl;
+            //std::cout << inBlockRowIndex << "," << inBlockColIndex << std::endl;
 
             float *inData = in->getValue().rawData->c_ptr();
 

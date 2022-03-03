@@ -20,8 +20,8 @@ t_pw = "postgres"
 db_conn = psycopg2.connect(host=t_host, port=t_port, dbname=t_dbname, user=t_user, password=t_pw)
 db_cursor = db_conn.cursor()
 
-input_size = 11000
-batch_size = 1000
+input_size = 110000
+batch_size = 100
 exe_total_time = 0
 
 time_start = time.time()

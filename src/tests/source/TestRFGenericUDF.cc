@@ -78,33 +78,35 @@ int main(int argc, char *argv[]) {
     pdb::PDBClient pdbClient(8108, masterIp, clientLogger, false, true);
     pdb::CatalogClient catalogClient(8108, masterIp, clientLogger);
 
-    ff::createDatabase(pdbClient, "decisiontreeBC");
     ff::loadLibrary(pdbClient, "libraries/libFFMatrixMeta.so");
     ff::loadLibrary(pdbClient, "libraries/libFFMatrixData.so");
     ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlock.so");
     ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlockScanner.so");
     ff::loadLibrary(pdbClient, "libraries/libFFMatrixWriter.so");
+    ff::loadLibrary(pdbClient, "libraries/libFFMatrixPartitioner.so");
 
     ff::loadLibrary(pdbClient, "libraries/libTreeNode.so");
     ff::loadLibrary(pdbClient, "libraries/libTree.so");
     ff::loadLibrary(pdbClient, "libraries/libRandomForest.so");
 
-    ff::createSet(pdbClient, "decisiontreeBC", "inputs", "inputs", 64);
-    ff::createSet(pdbClient, "decisiontreeBC", "labels", "labels", 64);
-
     std::cout << "To load shared libraries of Random Forest generic UDF" << std::endl;
     ff::loadLibrary(pdbClient, "libraries/libRFGenericUDF.so");
 
+    ff::createSet(pdbClient, "decisiontree", "inputs", "inputs", 64);
+    ff::createSet(pdbClient, "decisiontree", "labels", "labels", 64);
+
     //std::cout << "To load matrix for decision tree inputs" << std::endl;
-    ff::loadMatrix(pdbClient, "decisiontreeBC", "inputs", rowNum, colNum, block_x,
+    ff::loadMatrix(pdbClient, "decisiontree", "inputs", rowNum, colNum, block_x,
                    block_y, false, false, errMsg);
+
+    makeObjectAllocatorBlock(1024 * 1024 * 1024, true);
     
     //std::cout << "To print the inputs" << std::endl;
-    //ff::print(pdbClient, "decisiontreeBC", "inputs");
+    //ff::print(pdbClient, "decisiontree", "inputs");
 
     auto begin = std::chrono::high_resolution_clock::now();
     
-    pdb::Handle<pdb::Computation> inputMatrix = pdb::makeObject<FFMatrixBlockScanner>("decisiontreeBC", "inputs");
+    pdb::Handle<pdb::Computation> inputMatrix = pdb::makeObject<FFMatrixBlockScanner>("decisiontree", "inputs");
 
     //std::cout << "To make object of decision tree UDF shared libraries" << std::endl;
     pdb::Handle<pdb::Computation> rfgenericUDF = pdb::makeObject<decisiontree::RFGenericUDF>(treePath, type);
@@ -112,13 +114,13 @@ int main(int argc, char *argv[]) {
 
     //std::cout << "To set the Computation" << std::endl;
     pdb::Handle<pdb::Computation> labelWriter = nullptr;
-    labelWriter = pdb::makeObject<FFMatrixWriter>("decisiontreeBC", "labels");
+    labelWriter = pdb::makeObject<FFMatrixWriter>("decisiontree", "labels");
     labelWriter->setInput(rfgenericUDF);
 
     bool materializeHash = false;
     //std::cout << "To run the Computation" << std::endl;
     auto exe_begin = std::chrono::high_resolution_clock::now();
-    if (!pdbClient.executeComputations(errMsg, "decisiontreeBC", materializeHash, labelWriter)) {
+    if (!pdbClient.executeComputations(errMsg, "decisiontree", materializeHash, labelWriter)) {
         cout << "Computation failed. Message was: " << errMsg << "\n";
         exit(1);
     }
@@ -135,9 +137,9 @@ int main(int argc, char *argv[]) {
 
     //verify the results
     std::cout << "To print the status" << std::endl;
-    ff::print_stats(pdbClient, "decisiontreeBC", "labels");
+    ff::print_stats(pdbClient, "decisiontree", "labels");
     std::cout << "To print the results" << std::endl;
-    ff::print(pdbClient, "decisiontreeBC", "labels");
+    ff::print(pdbClient, "decisiontree", "labels");
     return 0;
 }
 

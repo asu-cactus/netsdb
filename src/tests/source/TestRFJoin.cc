@@ -284,6 +284,7 @@ int main(int argc, char *argv[]) {
     ff::loadLibrary(pdbClientDT, "libraries/libFFMatrixBlock.so");
     ff::loadLibrary(pdbClientDT, "libraries/libFFMatrixBlockScanner.so");
     ff::loadLibrary(pdbClientDT, "libraries/libFFMatrixWriter.so");
+    ff::loadLibrary(pdbClientDT, "libraries/libFFMatrixPartitioner.so");
 
     std::cout << "To load Random Forest RFJoin shared library" << std::endl;
     ff::loadLibrary(pdbClientDT, "libraries/libRFJoin.so");
