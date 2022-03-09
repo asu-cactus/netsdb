@@ -334,14 +334,14 @@ void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
                                 "result", "result_chunked", "result_chunked1", "result_chunked2"};
   std::string errMsg;
 
-  int block_x = 32;
-  int block_y = 32;
+  int block_x = 16;
+  int block_y = 16;
   int kernel = 1;//kernel shape should be $kernelx$kernel (e.g., 7x7)
   int strides = 1;
   int padding = 0;
   bool block_padding = true;
 
-  int height = 512, width = 512, channels = 3, numOfImages = 215;
+  int height = 512, width = 512, channels = 3, numOfImages = 230;
   int kHeight = 1, kWidth = 1, kChannels = 3, numOfFilters = 64;
   std::chrono::high_resolution_clock::time_point loadRandomImages_time;
   std::chrono::high_resolution_clock::time_point loadRandomImages_end;

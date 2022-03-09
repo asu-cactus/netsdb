@@ -139,7 +139,7 @@ void load_imgs_from_file(PDBClient &pdbClient, string path, String dbName,
 void loadRandomImages(int width, int height, int channels, int numOfImages, pdb::PDBClient &pdbClient,
                   pdb::String dbName, pdb::String setName, int pageSize) {
   std::string errMsg;
-  pdb::makeObjectAllocatorBlock(16 * 1024 * 1024, true);
+  pdb::makeObjectAllocatorBlock(32 * 1024 * 1024, true);
 
   pdb::Handle<pdb::Vector<pdb::Handle<conv2d_memory_fusion::Image>>> storeImages =
       pdb::makeObject<pdb::Vector<pdb::Handle<conv2d_memory_fusion::Image>>>();
@@ -180,7 +180,7 @@ void loadRandomImages(int width, int height, int channels, int numOfImages, pdb:
       }
 
       imageCount--;
-      pdb::makeObjectAllocatorBlock(16 * 1024 * 1024, true);
+      pdb::makeObjectAllocatorBlock(32 * 1024 * 1024, true);
       storeImages = pdb::makeObject<pdb::Vector<pdb::Handle<conv2d_memory_fusion::Image>>>();
     }
   }
