@@ -25,7 +25,7 @@ def create_tables(db_cursor):
 def load_input_to_db(db_connection, input_dimensions, iterations):
     db_cursor = db_connection.cursor()
     for id in range (0,iterations):
-        img = np.random.rand(*input_dimensions)
+        img = np.random.rand(*input_dimensions).astype(np.float32)
         img_bytes = img.tobytes()
         db_cursor.execute("INSERT INTO images(id,array_data) " + "VALUES(%s,%s)",(id, img_bytes))
     
@@ -35,7 +35,7 @@ def load_input_to_db(db_connection, input_dimensions, iterations):
     
 def load_kernel_to_db(db_connection, kernel_dimensions, kernel_id):
     db_cursor = db_connection.cursor()
-    kernel = np.random.rand(*kernel_dimensions)
+    kernel = np.random.rand(*kernel_dimensions).astype('f')
     kernel_bytes = kernel.tobytes()
     db_cursor.execute("INSERT INTO kernels(id,array_data) " + "VALUES(%s,%s)",(kernel_id, kernel_bytes))
     print (kernel.shape)
@@ -83,6 +83,6 @@ def read_kernel_data(load_data_from_file, kernel_file_path, db_cursor, kernel_id
 def read_input_from_db(db_cursor, id, input_dimensions):
     db_cursor.execute(""" SELECT array_data FROM images WHERE id = %s """,(id,))
     blob = db_cursor.fetchone()
-    input = np.frombuffer(blob[0])
+    input = np.frombuffer(blob[0], dtype=np.float32)
     input = input.reshape(*input_dimensions)
     return input
