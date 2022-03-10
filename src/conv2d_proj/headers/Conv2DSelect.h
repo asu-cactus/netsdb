@@ -156,9 +156,7 @@ public:
 
         at::Tensor b = at::from_blob(kernel->rawData->c_ptr(), {nk, zk, yk, xk});
 
-        ofstream myfile;
-        myfile.open ("conv2d_output_aten.txt");
-        // bias length = kernel count = nk
+        // bias length = kernel Count = nk
         at::Tensor bias = at::zeros({nk}, at::kFloat);
         //perform the convolutional operation
         auto begin = std::chrono::high_resolution_clock::now();
@@ -187,6 +185,11 @@ public:
 
         Handle<TensorData> out = makeObject<TensorData>(4, dimensions);
         memcpy(out->rawData->c_ptr(), c.storage().data(), (long long)n * nk * (oy) * (ox) * sizeof(float));
+        
+        // Write output to file
+        // ofstream myfile;
+        // std::time_t result = std::time(nullptr);
+        // myfile.open ("conv2d_output_aten" + to_string(result) + ".txt");
         // for (int i = 0; i < n * nk * oy * ox; i++) {
         //     myfile << (*(out->rawData))[i] << endl;
         // }
@@ -259,8 +262,8 @@ private:
 
     unsigned int stride;
 
-    static int calculateOutputDimension(int inputDimention, int filterDimention, int stride) {
-        return (inputDimention - filterDimention) / stride + 1;
+    static int calculateOutputDimension(int inputDimension, int filterDimension, int stride) {
+        return (inputDimension - filterDimension) / stride + 1;
     }
 
 };
