@@ -1,6 +1,6 @@
-# TensorFlow with PostgreSQL Comparison Experiments
+# Onnx with PostgreSQL Comparison Experiments
 
-This repository contains all the code for Random Forest testing on Tensorflow with PostgreSQL.
+This repository contains all the code for Random Forest testing on Onnx with PostgreSQL.
 In this test, we are using the higgs dataset, which you can download from the following repository.
 https://archive.ics.uci.edu/ml/datasets/HIGGS
 
@@ -13,10 +13,12 @@ Ubuntu 16.04.7 LTS
 
 TensorFlow 2.6.0
 
-## Install TensorFlow Hub
+## Install Onnx
 ```
-$pip3 install --upgrade tensorflow-hub
+$pip3 install onnxruntime
 ```
+For more information, please check the following link:
+https://onnx.ai/
 
 ## Install Postgres
 ```
@@ -52,7 +54,7 @@ postgres=# copy higgs from '/home/jiaqingchen/datasets/higgs/HIGGS.csv' with CSV
 After running the above command, it will show that "COPY 11000000". It shows the total number/size of the testing input.
 
 ## Run the test program
-After the testing input is successfully loaded into the PostgreSQL, it is ready to run the testing in Tensorflow.
+After the testing input is successfully loaded into the PostgreSQL, it is ready to run the testing in Onnx.
 ```
-$python3 Tensorflow_PostgreSQL_Test.py
+$python3 Onnx_Test.py
 ```
