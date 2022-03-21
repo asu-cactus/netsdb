@@ -5,11 +5,9 @@ In this test, we are using the higgs dataset, which you can download from the fo
 https://archive.ics.uci.edu/ml/datasets/HIGGS
 
 # Environment
-2.6 GHz 6-Core Intel Core i7
+AWS r4xlarge 30.5GB
 
-25,600 MB Memory
-
-Ubuntu 16.04.7 LTS
+Ubuntu 18.04
 
 ## Install Postgres
 ```
@@ -64,18 +62,18 @@ postgres=# CREATE TABLE columns(column_name text NOT NULL, column_id INTEGER NOT
 
 And then we need to load the data to these tables. Please use the following command to load the data. Note that you need to change the path of the file located in your machine.
 ```
-postgres=# copy tree0 from '/home/jiaqingchen/RF_tests/PostgreSQL/higgs/rf_tables/tree_0.csv' with CSV;
-postgres=# copy tree1 from '/home/jiaqingchen/RF_tests/PostgreSQL/higgs/rf_tables/tree_1.csv' with CSV;
-postgres=# copy tree2 from '/home/jiaqingchen/RF_tests/PostgreSQL/higgs/rf_tables/tree_2.csv' with CSV;
-postgres=# copy tree3 from '/home/jiaqingchen/RF_tests/PostgreSQL/higgs/rf_tables/tree_3.csv' with CSV;
-postgres=# copy tree4 from '/home/jiaqingchen/RF_tests/PostgreSQL/higgs/rf_tables/tree_4.csv' with CSV;
-postgres=# copy tree5 from '/home/jiaqingchen/RF_tests/PostgreSQL/higgs/rf_tables/tree_5.csv' with CSV;
-postgres=# copy tree6 from '/home/jiaqingchen/RF_tests/PostgreSQL/higgs/rf_tables/tree_6.csv' with CSV;
-postgres=# copy tree7 from '/home/jiaqingchen/RF_tests/PostgreSQL/higgs/rf_tables/tree_7.csv' with CSV;
-postgres=# copy tree8 from '/home/jiaqingchen/RF_tests/PostgreSQL/higgs/rf_tables/tree_8.csv' with CSV;
-postgres=# copy tree9 from '/home/jiaqingchen/RF_tests/PostgreSQL/higgs/rf_tables/tree_9.csv' with CSV;
-postgres=# copy rf from '/home/jiaqingchen/RF_tests/PostgreSQL/higgs/rf_tables/rf.csv' with CSV;
-postgres=# copy columns from '/home/jiaqingchen/RF_tests/PostgreSQL/higgs/rf_tables/columns.csv' with CSV;
+postgres=# copy tree0 from '/home/ubuntu/netsdb/src/decisionTree/experiments/higgs/PostgreSQL/rf_tables/tree_0.csv' with CSV;
+postgres=# copy tree1 from '/home/ubuntu/netsdb/src/decisionTree/experiments/higgs/PostgreSQL/rf_tables/tree_1.csv' with CSV;
+postgres=# copy tree2 from '/home/ubuntu/netsdb/src/decisionTree/experiments/higgs/PostgreSQL/rf_tables/tree_2.csv' with CSV;
+postgres=# copy tree3 from '/home/ubuntu/netsdb/src/decisionTree/experiments/higgs/PostgreSQL/rf_tables/tree_3.csv' with CSV;
+postgres=# copy tree4 from '/home/ubuntu/netsdb/src/decisionTree/experiments/higgs/PostgreSQL/rf_tables/tree_4.csv' with CSV;
+postgres=# copy tree5 from '/home/ubuntu/netsdb/src/decisionTree/experiments/higgs/PostgreSQL/rf_tables/tree_5.csv' with CSV;
+postgres=# copy tree6 from '/home/ubuntu/netsdb/src/decisionTree/experiments/higgs/PostgreSQL/rf_tables/tree_6.csv' with CSV;
+postgres=# copy tree7 from '/home/ubuntu/netsdb/src/decisionTree/experiments/higgs/PostgreSQL/rf_tables/tree_7.csv' with CSV;
+postgres=# copy tree8 from '/home/ubuntu/netsdb/src/decisionTree/experiments/higgs/PostgreSQL/rf_tables/tree_8.csv' with CSV;
+postgres=# copy tree9 from '/home/ubuntu/netsdb/src/decisionTree/experiments/higgs/PostgreSQL/rf_tables/tree_9.csv' with CSV;
+postgres=# copy rf from '/home/ubuntu/netsdb/src/decisionTree/experiments/higgs/PostgreSQL/rf_tables/rf.csv' with CSV;
+postgres=# copy columns from '/home/ubuntu/netsdb/src/decisionTree/experiments/higgs/PostgreSQL/rf_tables/columns.csv' with CSV;
 ```
 After running the above commands, it will show that "COPY XXX". It shows the total nodes of each tree or total trees in the random forest. If you run the above commands in order, the result should be as follows.
 COPY 511
@@ -93,13 +91,13 @@ COPY 29
 
 Next step, we need to create the UDF model logic function of tree inference:
 ```
-postgres=# \i /home/jiaqingchen/RF_tests/PostgreSQL/higgs/code/genericfun.sql
+postgres=# \i /home/ubuntu/netsdb/src/decisionTree/experiments/higgs/PostgreSQL/code/genericfun.sql
 ```
 
 We also need to create the UDF query function of the above UDF model logic function.
 We can change the batch size in this function.
 ```
-postgres=# \i /home/jiaqingchen/RF_tests/PostgreSQL/higgs/code/callgenericfun.sql
+postgres=# \i /home/ubuntu/netsdb/src/decisionTree/experiments/higgs/PostgreSQL/code/callgenericfun.sql
 ```
 
 At this step, we can test this UDF query function using the following command:
@@ -110,5 +108,5 @@ postgres=# select call_generic();
 ## Run the test program
 Use the following command to test this UDF query function execution time in PostgreSQL.
 ```
-postgres=# \i /home/jiaqingchen/RF_tests/PostgreSQL/higgs/code/runtime4generic.sql
+postgres=# \i /home/ubuntu/netsdb/src/decisionTree/experiments/higgs/PostgreSQL/code/runtime4generic.sql
 ```
