@@ -162,29 +162,62 @@ if (typeName != getTypeName <Type> ()) {
         // this is the request
         std::cout << "------------------------------------------------------------------------------------------------inside execute computations----------------------------" << std::endl;
         const UseTemporaryAllocationBlock myBlock{256 * 1024 * 1024};
+        auto begin = std::chrono::high_resolution_clock::now();
         QueryGraphAnalyzer queryAnalyzer(this->queryGraph);
+        auto end = std::chrono::high_resolution_clock::now();
+        std::cout << "Query Analyzer Duration: "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
+              << " secs." << std::endl;
+
+        begin = std::chrono::high_resolution_clock::now();
         std::string tcapString = queryAnalyzer.parseTCAPString();
+        end = std::chrono::high_resolution_clock::now();
+        std::cout << "Query Parser Duration: "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
+              << " secs." << std::endl;
+
+
+        begin = std::chrono::high_resolution_clock::now();
         std::vector<Handle<Computation>> computations;
         queryAnalyzer.parseComputations(computations);
+        end = std::chrono::high_resolution_clock::now();
+        std::cout << "parseComputations Duration: "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
+              << " secs." << std::endl;
+
+        begin = std::chrono::high_resolution_clock::now();
         Handle<Vector<Handle<Computation>>> computationsToSend =
             makeObject<Vector<Handle<Computation>>>();
         for (int i = 0; i < computations.size(); i++) {
             computationsToSend->push_back(computations[i]);
         }
+        end = std::chrono::high_resolution_clock::now();
+        std::cout << "computationsToSend Duration: "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
+              << " secs." << std::endl;
         
         if (jobName == "") {
             jobName = clientName + "-" + std::to_string(queryId);
             queryId ++;
         }
         std::cout << "-----------------------------------------jobName is --------------------------------------------------------------------" << jobName << std::endl;
+        std::cout << "jobName is " << jobName << std::endl;
+
+        begin = std::chrono::high_resolution_clock::now();
         Handle<ExecuteComputation> executeComputation = makeObject<ExecuteComputation>(
             jobName, tcapString, preCompile);
 
+        end = std::chrono::high_resolution_clock::now();
+        std::cout << "executeComputation Duration: "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
+              << " secs." << std::endl;
         // this call asks the database to execute the query, and then it inserts the result set name
         // within each of the results, as well as the database connection information
 
         // this is for query scheduling stuff
         if (useScheduler == true) {
+            cout << "-----------------------------------------Inside useScheduler-----------------------------------------" << std::endl;
+            begin = std::chrono::high_resolution_clock::now();
             return simpleDoubleRequest<ExecuteComputation,
                                        Vector<Handle<Computation>>,
                                        SimpleRequestResult,
@@ -213,7 +246,10 @@ if (typeName != getTypeName <Type> ()) {
                 executeComputation,
                 computationsToSend);
 
-
+        end = std::chrono::high_resolution_clock::now();
+        std::cout << "useScheduler Duration: "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
+              << " secs." << std::endl;
         } else {
             errMsg =
                 "This query must be sent to QuerySchedulerServer, but it seems "
