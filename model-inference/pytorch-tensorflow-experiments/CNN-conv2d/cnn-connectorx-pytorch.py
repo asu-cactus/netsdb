@@ -2,6 +2,7 @@ import psycopg2
 import torch
 import time
 import argparse
+import connectorx as cx
 from utils import get_db_connection, create_tables, load_input_to_db, load_input_to_file_torch, load_kernel_to_file_torch, read_input_from_db
 
 # defaults
@@ -39,6 +40,9 @@ _iterations = number_of_images
 db_connection = get_db_connection()
 db_cursor = db_connection.cursor()
 
+# connection string
+conn_string = "postgresql://postgres:postgres@localhost:5432/postgres"
+
 # create the table named images and kernel
 create_tables(db_cursor)
 
@@ -66,13 +70,20 @@ try:
     # read input data
     inputLoadTime = 0
     conv2dOpTime = 0
+    query = """SELECT * FROM images"""
+    data = cx.read_sql(conn_string, query, partition_on="id", partition_num=_iterations)
+    print ("print data ", data.shape)
     for id in range(0, _iterations):
         startTime = time.time()
         if load_data_from_file:
             input = torch.load(input_file_path + str(id) + '.pt')
         else:
-            input = read_input_from_db(db_cursor, id, input_dimensions)
-            input = torch.tensor(input, dtype=torch.float32) # TODO: find optimal implementation for this. 
+            # input = read_input_from_db(db_cursor, id, input_dimensions)
+            # query = """ SELECT array_data FROM images WHERE id = %s """,(id,)
+            # input = cx.read_sql(conn_string, query)
+            df = data.iloc[id]["array_data"]
+            input = torch.frombuffer(df, dtype=torch.float32).reshape(*input_dimensions)
+            # input = torch.tensor(input, dtype=torch.float32)
         endTime = time.time()
         inputLoadTime = inputLoadTime + (endTime - startTime)
 
@@ -86,8 +97,9 @@ try:
         endTime = time.time()
         conv2dOpTime = conv2dOpTime + (endTime - startTime)
         print ("Output Shape: ", output.shape)
-except(Exception, psycopg2.DatabaseError) as error:
-    print ("exception while reading images", error)
+except Exception as error:
+    print ("exception while reading images")
+    print (error)
 finally:
     if db_connection is not None:
         db_connection.close()
