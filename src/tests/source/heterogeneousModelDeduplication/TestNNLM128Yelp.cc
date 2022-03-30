@@ -83,6 +83,10 @@ int main(int argc, char *argv[]) {
         ff::loadLibrary(pdbClient, "libraries/libFFTransposeMult.so");
         ff::loadLibrary(pdbClient, "libraries/libSemanticClassifier.so");
 
+        //create input set
+        pdbClient.createSet<FFMatrixBlock>("text-classification", "inputs", errMsg,
+                     DEFAULT_PAGE_SIZE, "inputs", nullptr, nullptr, false);
+
         // create weights set for model 0
         pdbClient.removeSet("text-classification", "weights", errMsg);
         pdbClient.createSet<FFMatrixBlock>("text-classification", "weights",
