@@ -55,10 +55,10 @@ elif common_env['PLATFORM'] == 'posix':
         CXXFLAGS='-std=c++14 -g3 -O3 -fPIC -fno-tree-vectorize  -march=native -Winline  -Wno-deprecated-declarations')
     #common_env.Append(CXXFLAGS = '-std=c++14 -g  -Oz -ldl -lstdc++ -Wno-deprecated-declarations')
     #LIBPYTORCH_PATH = "/home/ubuntu/anaconda3/envs/py37_torch/lib/python3.7/site-packages/torch/lib"
-    LIBPYTORCH_PATH = "/home/ubuntu/pytorch/torch/lib"
+    LIBPYTORCH_PATH = "/home/ubuntu/libtorch/lib"
     if os.path.exists(LIBPYTORCH_PATH):
         common_env.Append(
-            LINKFLAGS='-L/home/ubuntu/pytorch/torch/lib -pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++ -lcrypto -lssl -ltorch -ltorch_cpu -lc10')
+            LINKFLAGS=f'-L{LIBPYTORCH_PATH} -pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++ -lcrypto -lssl -ltorch -ltorch_cpu -lc10')
     else:
         common_env.Append(
             LINKFLAGS='-pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++ -lcrypto -lssl')
@@ -347,7 +347,7 @@ else:
     sys.exit("ERROR: EIGEN3_ROOT must be configured to the correct path to eigen3")
 
 #LIBPYTORCH_ROOT = "/home/ubuntu/anaconda3/envs/py37_torch/lib/python3.7/site-packages/torch/include"
-LIBPYTORCH_ROOT = "/home/ubuntu/pytorch/torch/include"
+LIBPYTORCH_ROOT = "/home/ubuntu/libtorch/include"
 if os.path.exists(LIBPYTORCH_ROOT):
     headerpaths.append(LIBPYTORCH_ROOT)
 
@@ -1339,7 +1339,8 @@ common_env.Program('bin/PipelinedConv2dMemFuseTest', ['build/tests/PipelinedConv
                                                       'build/conv2d_memory_fusion/ImageUtils.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
 common_env.Program('bin/Conv2dProjTest',
                    ['build/tests/Conv2dProjTest.cc'] + all + pdb_client)
-
+common_env.Program('bin/FCProjTest', ['build/tests/FCProjTest.cc',
+                                  'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc', 'build/FF_proj/FullyConnectedNetwork.cc'] + all + pdb_client)
 # PageRank
 
 common_env.Program(
@@ -1376,6 +1377,9 @@ common_env.SharedLibrary('libraries/libRankUpdateAggregation.so',
 common_env.Program(
     'bin/removeSet', ['build/tests/RemoveSet.cc'] + all + pdb_client)
 
+# Fully Connected Network
+common_env.SharedLibrary('libraries/libFullyConnectedNetwork.so', 
+                         ['build/FF_proj/FullyConnectedNetwork.cc'] + all)
 
 # Semantic Classifier
 common_env.SharedLibrary('libraries/libEmbeddingLookupSparse.so',
@@ -1877,7 +1881,9 @@ libFFTest = common_env.Alias('libclassifier', [
     'bin/pdb-server',
     'bin/classifier',
     'bin/dedupClassifier',
+    'bin/FCProjTest',
     # Other libraries from src/FF
+    'libraries/libFullyConnectedNetwork.so',
     'libraries/libSemanticClassifier.so',
     'libraries/libFFMatrixBlock.so',
     'libraries/libFFMatrixMeta.so',

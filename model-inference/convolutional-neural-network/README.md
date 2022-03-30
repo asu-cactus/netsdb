@@ -15,6 +15,29 @@ The convolutional neural network consists of 64 7x7x3 filters.
 An image is in the shape of 112x112x3
 The convolutional neural network consists of 64 7x7x3 filters
 
+## Pytorch Dependency Installation
+
+- Tested configuration on Ubuntu 20.04 LTS https://pytorch.org/get-started/locally/
+    - PyTorch Build: Stable (1.10.2)
+    - OS: Linux
+    - Package: Source
+    - Language: Python
+    - Compute platform: CPU
+- Install Anaconda https://docs.anaconda.com/anaconda/install/
+- Pytorch installation using source https://github.com/pytorch/pytorch#from-source
+
+- In [SContruct](https://github.com/asu-cactus/netsdb/blob/master/SConstruct)
+    - Update `LIBPYTORCH_PATH` to your installation path 
+    - Update `LIBPYTORCH_ROOT` to your installation path
+- Last step is to set LD_LIBRARY_PATH
+  ```
+  export LD_LIBRARY_PATH="/home/ubuntu/pytorch/torch/lib:/home/ubuntu/anaconda3/lib:$LD_LIBRARY_PATH"
+  ```
+  Replace: `/home/ubuntu/pytorch/torch/lib` and `/home/ubuntu/anaconda3/lib` with your install paths.
+  
+  Note: Without this step you might run into `libtorch.so` library missing while starting netsdb cluster.
+
+
 ## Compilation:
 
 ### The version based on UDF-encapsulation 
@@ -34,11 +57,8 @@ Once you start the netsDB system [Start Cluster](https://github.com/asu-cactus/n
 ### The version based on UDF-encapsulation 
 
 ```
-bin/Conv2dProjTest whetherToLoadData whetherToCreateSet numImages conv2D-mode(aten-conv2d or eigen-spatial)
+bin/Conv2dProjTest whetherToLoadData whetherToCreateSet numImages conv2D-mode(aten-conv2d or eigen-spatial) inputDimension kernelDimension
 ```
-
-An image is in the shape of 112x112x3
-The convolutional neural network consists of 64 7x7x3 filters.
 
 You can pass the command line parameters or modify variables in the example application source to control the block shape and the size of the word2vec layer.
 
@@ -46,8 +66,17 @@ You can pass the command line parameters or modify variables in the example appl
 | ------------------------- |----------------------------------------------------------------------|
 | whetherToLoadData         | whether to load input or reuse input: Y for yes, N for no            |
 | whetherToCreateSet        | whether to create a new set to store input data: Y for yes, N for no |
-| numImages                 | number of input images to generate for inferences         |
+| numImages                 | number of input images to generate for inferences                    |
+| conv2D-mode               | Run Aten convolution, eigen-spatial                                  |
+| inputDimension            | Default: "1,64,112,112", format: n, c, w, h                          |
+| kernelDimension           | Default: "64,64,1,1", format: nk, ck, wk, hk                         |
+| stride                    | Default: 1                                                           |
 
+#### Examples
+```
+bin/Conv2dProjTest Y Y 5 "aten-conv2d" "1,64,112,112" "64,64,1,1"
+bin/Conv2dProjTest N N 5 "aten-conv2d" "1,64,112,112" "64,64,1,1"
+```
 
 ### The version based on spatial rewriting
 
