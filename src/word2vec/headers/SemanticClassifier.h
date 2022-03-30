@@ -15,10 +15,23 @@ double outLabel(double x);
 
 class SemanticClassifier : public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
   private:
+    uint32_t sizeEmbed;
+    uint32_t sizeDense0;
+    uint32_t sizeDense1;
+
   public:
     ENABLE_DEEP_COPY
 
     SemanticClassifier() {
+        this->sizeEmbed = 500;
+        this->sizeDense0 = 16;
+        this->sizeDense1 = 1;
+    }
+
+    SemanticClassifier(uint32_t sizeEmbed, uint32_t sizeDense0, uint32_t sizeDense1) {
+        this->sizeEmbed = sizeEmbed;
+        this->sizeDense0 = sizeDense0;
+        this->sizeDense1 = sizeDense1;
     }
 
     Lambda<bool> getSelection(Handle<FFMatrixBlock> checkMe) override {
@@ -38,10 +51,18 @@ class SemanticClassifier : public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
             // std::cout << inNumRow << "," << inNumCol << std::endl;
             // std::cout << inBlockRowIndex << "," << inBlockColIndex << std::endl;
 
-            uint32_t sizeEmbed = 500;
+            // uint32_t sizeEmbed = 500;
+            // uint32_t sizeBatch = inNumRow;
+            // uint32_t sizeDense0 = 16;
+            // uint32_t sizeDense1 = 1;
+            uint32_t sizeEmbed = this->sizeEmbed;
             uint32_t sizeBatch = inNumRow;
-            uint32_t sizeDense0 = 16;
-            uint32_t sizeDense1 = 1;
+            uint32_t sizeDense0 = this->sizeDense0;
+            uint32_t sizeDense1 = this->sizeDense1;
+
+            std::cout << "Model Structure: " << sizeEmbed << "," << sizeDense0 << "," << sizeDense1 << std::endl;
+            // std::cout << inBlockRowIndex << "," << inBlockColIndex << std::endl;
+
 
             // init weights and bias
             std::vector<double> embedOutput(sizeEmbed * sizeBatch, 1);

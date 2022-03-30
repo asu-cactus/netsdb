@@ -1394,6 +1394,9 @@ common_env.Program('bin/classifier',
 common_env.Program('bin/dedupClassifier',
                         ['build/tests/TestSemanticClassificationWithDeduplication.cc', 'build/FF/SimpleFF.cc',
                         'build/FF/FFMatrixUtil.cc', 'build/word2vec/SemanticClassifier.cc'] + all + pdb_client)
+common_env.Program('bin/semantic_nnlm128_yelp', 
+                        ['build/tests/heterogeneousModelDeduplication/TestNNLM128Yelp.cc', 'build/FF/SimpleFF.cc',
+                        'build/FF/FFMatrixUtil.cc', 'build/word2vec/SemanticClassifier.cc'] + all + pdb_client)
 
 # Testing
 pdbTest = common_env.Command(
@@ -1858,6 +1861,33 @@ libFFTest = common_env.Alias('libword2vec', [
     # Other libraries from src/FF
     'libraries/libEmbeddingLookupSparse.so',
     'libraries/libEmbeddingSegment.so',
+    'libraries/libFFMatrixBlock.so',
+    'libraries/libFFMatrixMeta.so',
+    'libraries/libFFMatrixData.so',
+    'libraries/libFFMatrixBlockScanner.so',
+    'libraries/libFFInputLayerJoin.so',
+    'libraries/libFFMatrixWriter.so',
+    'libraries/libFFAggMatrix.so',
+    'libraries/libFFTransposeBiasSum.so',
+    'libraries/libFFTransposeMult.so',
+    'libraries/libFFReluBiasSum.so',
+    'libraries/libFFRowAggregate.so',
+    'libraries/libFFOutputLayer.so',
+    'libraries/libFFMatrixMultiSel.so',
+    'libraries/libInferenceResult.so',
+    'libraries/libInferenceResultPartition.so',
+    'libraries/libFFMatrixPartitioner.so',
+])
+
+libFFTest = common_env.Alias('libHeteroModel', [
+    'bin/pdb-cluster',
+    'bin/pdb-server',
+    'bin/semantic_nnlm128_yelp',
+    # 'bin/dedupClassifier',
+    # 'bin/FCProjTest',
+    # Other libraries from src/FF
+    'libraries/libFullyConnectedNetwork.so',
+    'libraries/libSemanticClassifier.so',
     'libraries/libFFMatrixBlock.so',
     'libraries/libFFMatrixMeta.so',
     'libraries/libFFMatrixData.so',
