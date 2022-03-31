@@ -84,20 +84,20 @@ int main(int argc, char *argv[]) {
       ff::createDatabase(pdbClient, "ff");
       ff::setup(pdbClient, "ff");
 
-      ff::createSet(pdbClient, "ff", "inputs", "inputs", 64);
-      ff::createSet(pdbClient, "ff", "label", "label", 64);
+      ff::createSet(pdbClient, "ff", "inputs", "inputs", 256);
+      ff::createSet(pdbClient, "ff", "label", "label", 256);
 
-      ff::createSet(pdbClient, "ff", "w1", "W1", 64);
-      ff::createSet(pdbClient, "ff", "b1", "B1", 64);
+      ff::createSet(pdbClient, "ff", "w1", "W1", 256);
+      ff::createSet(pdbClient, "ff", "b1", "B1", 256);
 
-      ff::createSet(pdbClient, "ff", "wo", "WO", 64);
-      ff::createSet(pdbClient, "ff", "bo", "BO", 64);
+      ff::createSet(pdbClient, "ff", "wo", "WO", 256);
+      ff::createSet(pdbClient, "ff", "bo", "BO", 256);
 
   }
 
   ff::createSet(pdbClient, "ff", "output", "Output", 256);
-  ff::createSet(pdbClient, "ff", "y1", "Y1", 64);
-  ff::createSet(pdbClient, "ff", "yo", "YO", 64);
+  ff::createSet(pdbClient, "ff", "y1", "Y1", 256);
+  ff::createSet(pdbClient, "ff", "yo", "YO", 256);
 
   if (!generate && reloadData) {
     input_path = string(argv[4]) + "/input.out";
