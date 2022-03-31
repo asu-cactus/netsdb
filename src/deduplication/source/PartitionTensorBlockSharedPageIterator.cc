@@ -1,6 +1,7 @@
-
+#include "FFMatrixBlock.h"
 #include "PDBDebug.h"
 #include "PartitionTensorBlockSharedPageIterator.h"
+#include "TensorBlockIndex.h"
 
 namespace pdb {
 
@@ -11,12 +12,18 @@ PartitionTensorBlockSharedPageIterator::PartitionTensorBlockSharedPageIterator(P
                           PartitionedFilePtr fileOfSharingSet,
                           PartitionedFilePtr fileOfSharedSet,
                           FilePartitionID partitionIdOfSharedSet,
-                          SharedTensorBlockSetPtr sharedSet) {
+                          SharedTensorBlockSetPtr sharedSet,
+			  DatabaseID dbIdOfSharingSet,
+			  UserTypeID typeIdOfSharingSet,
+			  SetId setIdOfSharingSet) {
     this->cache = cache;
     this->fileOfSharingSet = fileOfSharingSet;
     this->fileOfSharedSet = fileOfSharedSet;
     this->partitionId = partitionIdOfSharedSet;
     this->sharedSet = sharedSet;
+    this->dbIdOfSharingSet = dbIdOfSharingSet;
+    this->typeIdOfSharingSet = typeIdOfSharingSet;
+    this->setIdOfSharingSet = setIdOfSharingSet;
     this->sharedPageMap = this->fileOfSharingSet->getSharedPageMap(partitionId);
     this->it = sharedPageMap->begin();
     this->numPages = sharedPageMap->size();
@@ -42,6 +49,16 @@ PDBPagePtr PartitionTensorBlockSharedPageIterator::next() {
                                           pageId,
                                           false,
                                           nullptr);
+	    //MODIFY THE BLOCK's METADATA HERE
+	    //Fetch the vector
+	    Record<Vector<Handle<FFMatrixBlock>>>*myRec = (Record<Vector<Handle<FFMatrixBlock>>>*)pageToReturn->getBytes();
+	    Handle<Vector<Handle<FFMatrixBlock>>> iterateOverMe = myRec->getRootObject();
+	    for (int i = 0; i < iterateOverMe->size(); i++) {
+	        Handle<FFMatrixBlock> block = (*iterateOverMe)[i];
+                Handle<FFMatrixMeta> targetMeta = sharedSet->getTargetMetaData(dbIdOfSharingSet, typeIdOfSharingSet, setIdOfSharingSet, block->meta);
+                block->meta->blockRowIndex = targetMeta->blockRowIndex;
+		block->meta->blockColIndex = targetMeta->blockColIndex;
+	    }
             this->numIteratedPages++;
 	    it++;
     }

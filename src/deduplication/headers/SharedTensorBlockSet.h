@@ -94,6 +94,9 @@ public:
         return indexes.getTargetMetadata(dbId, typeId, setId, sourceBlockMeta);
     }
 
+   
+
+
     bool insertIndex(DatabaseID dbId, UserTypeID typeId, SetID setId, TensorBlockMeta sourceBlockMeta, Handle<TensorBlockMeta> targetBlockMeta) {
 	size_t key = indexes.getSetKey(dbId, typeId, setId);
 	return indexes.insertIndex(key, sourceBlockMeta, targetBlockMeta);

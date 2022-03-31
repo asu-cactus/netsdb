@@ -1,6 +1,7 @@
 #include "UserType.h"
 #include "PartitionedFile.h"
-#include "SharedTensorBlockSet.h"
+#include "SharedFFMatrixBlockSet.h"
+
 /**
  * Create a UserType instance.
  */
@@ -72,7 +73,7 @@ string UserType::encodePath(string typePath, SetID setId, string setName) {
 
 // add new set
 // Not thread-safe
-int UserType::addSet(string setName, SetID setId, size_t pageSize, size_t desiredSize, bool isMRU, bool isTransient, bool isSharedTensorBlockSet) {
+int UserType::addSet(string setName, SetID setId, size_t pageSize, size_t desiredSize, bool isMRU, bool isTransient, bool isSharedFFMatrixBlockSet) {
     if (this->sets->find(setId) != this->sets->end()) {
         this->logger->writeLn("UserType: set exists.");
         return -1;
@@ -104,8 +105,8 @@ int UserType::addSet(string setName, SetID setId, size_t pageSize, size_t desire
         persistenceType = Transient;
     }
 
-    if (isSharedTensorBlockSet) {
-        set = make_shared<pdb::SharedTensorBlockSet>(pageSize, logger, shm, nodeId, dbId, id, setId, setName, file, this->cache, JobData, policy, Write, TryCache, persistenceType, desiredSize);
+    if (isSharedFFMatrixBlockSet) {
+        set = make_shared<pdb::SharedFFMatrixBlockSet>(pageSize, logger, shm, nodeId, dbId, id, setId, setName, file, this->cache, JobData, policy, Write, TryCache, persistenceType, desiredSize);
     } else {
         set = make_shared<UserSet>(
           pageSize, logger, shm, nodeId, dbId, id, setId, setName, file, this->cache, JobData, policy, Write, TryCache, persistenceType, desiredSize);

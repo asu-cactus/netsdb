@@ -24,7 +24,10 @@ public:
                           PartitionedFilePtr fileOfSharingSet,
 			  PartitionedFilePtr fileOfSharedSet,
                           FilePartitionID partitionIdOfSharedSet,
-			  SharedTensorBlockSetPtr sharedSet);
+			  SharedTensorBlockSetPtr sharedSet,
+			  DatabaseID dbIdOfSharingSet,
+                          UserTypeID typeIdOfSharingSet,
+                          SetID setIdOfSharingSet);
     /*
      * To support polymorphism.
      */
@@ -50,6 +53,9 @@ private:
     SharedTensorBlockSetPtr sharedSet = nullptr;
     std::unordered_map<PageID, PageIndex> * sharedPageMap = nullptr;
     std::unordered_map<PageID, PageIndex>::iterator it;
+    DatabaseID dbIdOfSharingSet;
+    UserTypeID typeIdOfSharingSet;
+    SetID setIdOfSharingSet;
 };
 
 }
