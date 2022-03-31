@@ -133,8 +133,6 @@ class SemanticClassifier : public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
             std::cout << resultFFMatrixBlock->getRowNums() << ","
                       << resultFFMatrixBlock->getColNums() << std::endl;
             std::cout << y1.rows() << "," << y1.cols() << std::endl; */
-            // TODO Temp added for debugging
-            std::cout << "output shape: " << y1.rows() << "," << y1.cols() << std::endl;
             return resultFFMatrixBlock;
         });
     }

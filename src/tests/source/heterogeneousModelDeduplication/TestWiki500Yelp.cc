@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
         pdbClient.createSet<FFMatrixBlock>("text-classification", "inputs", errMsg,
                      DEFAULT_PAGE_SIZE, "inputs", nullptr, nullptr, false);
 
-        // create weights set for model 0
+        // create weights set
         pdbClient.removeSet("text-classification", "weights", errMsg);
         pdbClient.createSet<FFMatrixBlock>("text-classification", "weights",
                                            errMsg, DEFAULT_PAGE_SIZE, "weights",
