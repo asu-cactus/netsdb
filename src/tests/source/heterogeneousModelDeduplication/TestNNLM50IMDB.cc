@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
     int block_x = 50;
     int block_y = 10000;
     int vocab_size = 963812;
-    int embedding_dimension = 128;
+    int embedding_dimension = 50;
 
     int batchSize = 100;
 
