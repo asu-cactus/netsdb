@@ -51,10 +51,6 @@ class SemanticClassifier : public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
             // std::cout << inNumRow << "," << inNumCol << std::endl;
             // std::cout << inBlockRowIndex << "," << inBlockColIndex << std::endl;
 
-            // uint32_t sizeEmbed = 500;
-            // uint32_t sizeBatch = inNumRow;
-            // uint32_t sizeDense0 = 16;
-            // uint32_t sizeDense1 = 1;
             uint32_t sizeEmbed = this->sizeEmbed;
             uint32_t sizeBatch = inNumRow;
             uint32_t sizeDense0 = this->sizeDense0;
@@ -99,11 +95,11 @@ class SemanticClassifier : public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
 
             // dense 1
             // x1 = y0
-            // w0 [sizeDense0, sizeEmbed]
+            // w1 [sizeDense1, sizeDense0]
             Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
                                      Eigen::RowMajor>>
                 w1(&dense1Weight.data()[0], sizeDense1, sizeDense0);
-            // b1 [sizeDense0, 1]
+            // b1 [sizeDense1, 1]
             Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
                                      Eigen::RowMajor>>
                 b1(&dense1Bias.data()[0], sizeDense1, 1);
@@ -137,7 +133,8 @@ class SemanticClassifier : public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
             std::cout << resultFFMatrixBlock->getRowNums() << ","
                       << resultFFMatrixBlock->getColNums() << std::endl;
             std::cout << y1.rows() << "," << y1.cols() << std::endl; */
-
+            // TODO Temp added for debugging
+            std::cout << "output shape: " << y1.rows() << "," << y1.cols() << std::endl;
             return resultFFMatrixBlock;
         });
     }

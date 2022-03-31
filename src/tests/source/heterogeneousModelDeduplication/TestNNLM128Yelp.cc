@@ -33,23 +33,6 @@
 
 using namespace pdb;
 
-void create_weights_set(pdb::PDBClient &pdbClient, std::string weight_set_name,
-                        int numBlock_x, int block_x, int totalNumBlock_y,
-                        int block_y) {
-
-    std::string errMsg;
-    pdbClient.removeSet("text-classification", weight_set_name, errMsg);
-    // create private set
-    pdbClient.createSet<FFMatrixBlock>(
-        "text-classification", weight_set_name, errMsg, DEFAULT_PAGE_SIZE,
-        weight_set_name, nullptr, nullptr, false);
-
-    // load blocks to the private set
-    ff::loadMatrix(pdbClient, "text-classification", weight_set_name,
-                   numBlock_x * block_x, totalNumBlock_y * block_y, block_x,
-                   block_y, false, false, errMsg);
-}
-
 int main(int argc, char *argv[]) {
     bool loadData = true;
     if (argc > 1) {
@@ -64,11 +47,10 @@ int main(int argc, char *argv[]) {
     pdb::CatalogClient catalogClient(8108, masterIp, clientLogger);
     std::string errMsg;
 
-    // TODO Verify the size is correct
     int block_x = 50;
     int block_y = 10000;
-    int vocab_size = 100000;
-    int embedding_dimension = 500;
+    int vocab_size = 963812;
+    int embedding_dimension = 128;
 
     int batchSize = 100;
 
@@ -130,7 +112,7 @@ int main(int argc, char *argv[]) {
 
     // make the classifier
     pdb::Handle<pdb::Computation> classifier =
-        pdb::makeObject<SemanticClassifier>();
+        pdb::makeObject<SemanticClassifier>(embedding_dimension, 16, 1);
     classifier->setInput(myAggregation);
 
     // make the writer
