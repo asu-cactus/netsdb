@@ -347,7 +347,7 @@ else:
     sys.exit("ERROR: EIGEN3_ROOT must be configured to the correct path to eigen3")
 
 #LIBPYTORCH_ROOT = "/home/ubuntu/anaconda3/envs/py37_torch/lib/python3.7/site-packages/torch/include"
-LIBPYTORCH_ROOT = "/home/ubuntu/pytorch/torch/include"
+LIBPYTORCH_ROOT = "/home/ubuntu/libtorch/include"
 if os.path.exists(LIBPYTORCH_ROOT):
     headerpaths.append(LIBPYTORCH_ROOT)
 
@@ -1325,6 +1325,14 @@ common_env.Program('bin/word2vec', ['build/word2vec/Word2Vec.cc',
                                     'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
 common_env.Program('bin/FFTest', ['build/tests/FFTest.cc',
                                   'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
+common_env.Program('bin/FFTestAmazonCat-13kFFNN', ['build/tests/heterogeneousModelDeduplication/TestAmazonCat-13kFFNN.cc',
+                                  'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
+common_env.Program('bin/FFTestAmazonCat-14kFFNN', ['build/tests/heterogeneousModelDeduplication/TestAmazonCat-14kFFNN.cc',
+                                  'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
+common_env.Program('bin/FFTestEURLex-4.3kFFNN', ['build/tests/heterogeneousModelDeduplication/TestEURLex-4.3kFFNN.cc',
+                                  'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
+common_env.Program('bin/FFTestRCV1-2kFFNN', ['build/tests/heterogeneousModelDeduplication/TestRCV1-2kFFNN.cc',
+                                  'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
 common_env.Program('bin/RedditFeatureExtractor', ['build/tests/RedditFeatureExtractor.cc',
                                                   'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
 common_env.Program(
@@ -1339,7 +1347,8 @@ common_env.Program('bin/PipelinedConv2dMemFuseTest', ['build/tests/PipelinedConv
                                                       'build/conv2d_memory_fusion/ImageUtils.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
 common_env.Program('bin/Conv2dProjTest',
                    ['build/tests/Conv2dProjTest.cc'] + all + pdb_client)
-
+common_env.Program('bin/FCProjTest', ['build/tests/FCProjTest.cc',
+                                  'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc', 'build/FF_proj/FullyConnectedNetwork.cc'] + all + pdb_client)
 # PageRank
 
 common_env.Program(
@@ -1376,6 +1385,9 @@ common_env.SharedLibrary('libraries/libRankUpdateAggregation.so',
 common_env.Program(
     'bin/removeSet', ['build/tests/RemoveSet.cc'] + all + pdb_client)
 
+# Fully Connected Network
+common_env.SharedLibrary('libraries/libFullyConnectedNetwork.so', 
+                         ['build/FF_proj/FullyConnectedNetwork.cc'] + all)
 
 # Semantic Classifier
 common_env.SharedLibrary('libraries/libEmbeddingLookupSparse.so',
@@ -1390,13 +1402,6 @@ common_env.Program('bin/classifier',
 common_env.Program('bin/dedupClassifier',
                         ['build/tests/TestSemanticClassificationWithDeduplication.cc', 'build/FF/SimpleFF.cc',
                         'build/FF/FFMatrixUtil.cc', 'build/word2vec/SemanticClassifier.cc'] + all + pdb_client)
-
-# Decision Tree
-common_env.SharedLibrary('libraries/libSpecializedBC.so',
-                        ['build/decisionTree/SpecializedBC.cc'] + all)
-common_env.Program('bin/decisionTreeSpecializedBC', 
-                        ['build/tests/TestSpecializedBC.cc', 'build/FF/FFMatrixUtil.cc',
-                        'build/FF/SimpleFF.cc', 'build/decisionTree/SpecializedBC.cc'] + all + pdb_client)
 
 # Testing
 pdbTest = common_env.Command(
@@ -1884,7 +1889,9 @@ libFFTest = common_env.Alias('libclassifier', [
     'bin/pdb-server',
     'bin/classifier',
     'bin/dedupClassifier',
+    'bin/FCProjTest',
     # Other libraries from src/FF
+    'libraries/libFullyConnectedNetwork.so',
     'libraries/libSemanticClassifier.so',
     'libraries/libFFMatrixBlock.so',
     'libraries/libFFMatrixMeta.so',
@@ -1908,7 +1915,10 @@ libFFTest = common_env.Alias('libclassifier', [
 libFFTest = common_env.Alias('libFFTest', [
     'bin/pdb-cluster',
     'bin/pdb-server',
-
+    'bin/FFTestAmazonCat-13kFFNN',
+    'bin/FFTestAmazonCat-14kFFNN',
+    'bin/FFTestEURLex-4.3kFFNN',
+    'bin/FFTestRCV1-2kFFNN',
     'bin/FFTest',
     'bin/RedditFeatureExtractor',
     'bin/loadRedditCommentsIndexPartition',
@@ -1966,20 +1976,6 @@ libLSTMTest = common_env.Alias('libLSTMTest', [
     'libraries/libLSTMThreeWaySum.so',
     'libraries/libLSTMTwoSum.so',
     'libraries/libLSTMHiddenState.so',
-])
-
-libSpecializedBCTest = common_env.Alias('libSpecializedBCTest', [
-    'bin/pdb-cluster',
-    'bin/pdb-server',
-    'libraries/libFFMatrixBlock.so',
-    'libraries/libFFMatrixMeta.so',
-    'libraries/libFFMatrixData.so',
-    'libraries/libFFMatrixBlockScanner.so',
-    'libraries/libFFMatrixWriter.so',
-    'libraries/libMatrixBlock.so',
-    'libraries/libSpecializedBC.so',
-    'bin/decisionTreeSpecializedBC',
-    'libraries/libFFMatrixPartitioner.so',
 ])
 
 libConv2DProjTest = common_env.Alias('libConv2DProjTest', [
