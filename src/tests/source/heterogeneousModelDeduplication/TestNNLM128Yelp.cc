@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
     }
     string masterIp = "localhost";
     pdb::PDBLoggerPtr clientLogger =
-        make_shared<pdb::PDBLogger>("NNLM_128_Yelp_Log");
+        make_shared<pdb::PDBLogger>("NNLM128_YELP_Log");
     pdb::PDBClient pdbClient(8108, masterIp, clientLogger, false, true);
     pdb::CatalogClient catalogClient(8108, masterIp, clientLogger);
     std::string errMsg;
@@ -111,8 +111,11 @@ int main(int argc, char *argv[]) {
     myAggregation->setInput(join);
 
     // make the classifier
+    uint32_t sizeDense0 = 16;
+    uint32_t sizeDense1 = 1;
+
     pdb::Handle<pdb::Computation> classifier =
-        pdb::makeObject<SemanticClassifier>(embedding_dimension, 16, 1);
+        pdb::makeObject<SemanticClassifier>(embedding_dimension, sizeDense0, sizeDense1);
     classifier->setInput(myAggregation);
 
     // make the writer
@@ -126,7 +129,7 @@ int main(int argc, char *argv[]) {
     auto exe_begin = std::chrono::high_resolution_clock::now();
 
     // run the computation
-    if (!pdbClient.executeComputations(errMsg, "nnlm_127_yelp", materializeHash,
+    if (!pdbClient.executeComputations(errMsg, "NNLM128_YELP", materializeHash,
                                        myWriter)) {
         cout << "Computation failed. Message was: " << errMsg << "\n";
         exit(1);
