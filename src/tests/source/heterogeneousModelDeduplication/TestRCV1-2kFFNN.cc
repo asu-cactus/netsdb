@@ -1,42 +1,64 @@
-#include <cmath>
-#include <cstdlib>
-#include <cstring>
-#include <fstream>
-#include <iostream>
-#include <vector>
+#ifndef TEST_RCV_CC
+#define TEST_RCV_CC
 
+#include "PDBString.h"
+#include "PDBMap.h"
+#include "DataTypes.h"
+#include "TensorBlockIndex.h"
+#include "InterfaceFunctions.h"
 #include "PDBClient.h"
-
 #include "FFMatrixBlock.h"
 #include "FFMatrixUtil.h"
 #include "SimpleFF.h"
+#include "FFMatrixBlockScanner.h"
+#include "FFMatrixWriter.h"
+#include "FFAggMatrix.h"
+#include "FFTransposeMult.h"
+#include "SemanticClassifier.h"
+#include <cstddef>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <algorithm>
+#include <iterator>
+#include <cstring>
+#include <ctime>
+#include <chrono>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <string>
+#include <cmath>
+#include <cstdlib>
 
-using namespace std;
+using namespace pdb;
 
 int main(int argc, char *argv[]) {
 
-  bool reloadData = true;
-  string errMsg;
-  string input_path, labels_path, w1_path, w2_path, wo_path, b1_path, b2_path,
-      bo_path;
-  int block_x, block_y, batch_size;
-  int numFeatures, numNeurons, numLabels;
-  if (argc < 3) {
-    cout << "Usage: blockDimensionX blockDimensionY batchSize numFeatures numNeurons numLabels Y"
+	makeObjectAllocatorBlock(1024 * 1024 * 1024, true);
+
+	bool reloadData = true;
+	string errMsg;
+	string input_path, labels_path, w1_path, wo_path, b1_path, bo_path;
+	int block_x, block_y, batch_size;
+	int numFeatures, numNeurons, numLabels;
+	if (argc < 3) {
+		cout << "Usage: blockDimensionX blockDimensionY batchSize Y"
             "path/to/weights/and/bias(leave empty if generate random)"
-         << endl;
-    exit(-1);
-  }
+            << endl;
+        exit(-1);
+    }
 
   block_x = atoi(argv[1]);
   block_y = atoi(argv[2]);
   batch_size = atoi(argv[3]);
-  numFeatures = atoi(argv[4]);
-  numNeurons = atoi(argv[5]);
-  numLabels = atoi(argv[6]);
-
-  if (argc >= 7) {
-      if (strcmp(argv[7], "N")==0) {
+  numFeatures = 47236;
+  numNeurons = 5000;
+  numLabels = 2456;
+  
+  if (argc >= 4) {
+      if (strcmp(argv[4], "N")==0) {
           reloadData = false;
           std::cout << "WARNING: we do not reload data!" << std::endl;
       }
@@ -50,7 +72,12 @@ int main(int argc, char *argv[]) {
   pdb::PDBClient pdbClient(8108, masterIp, clientLogger, false, true);
   pdb::CatalogClient catalogClient(8108, masterIp, clientLogger);
 
-
+  ff::loadLibrary(pdbClient, "libraries/libFFMatrixMeta.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFMatrixData.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlock.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlockScanner.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFMatrixWriter.so");
+  ff::loadLibrary(pdbClient, "libraries/libFFMatrixPartitioner.so");
 
   if (reloadData) {
 
@@ -69,10 +96,7 @@ int main(int argc, char *argv[]) {
   }
 
   ff::createSet(pdbClient, "ff", "output", "Output", 256);
-
   ff::createSet(pdbClient, "ff", "y1", "Y1", 64);
-
-
   ff::createSet(pdbClient, "ff", "yo", "YO", 64);
 
   if (!generate && reloadData) {
@@ -111,15 +135,13 @@ int main(int argc, char *argv[]) {
     std::cout << "To load matrix for ff:wo" << std::endl;
     ff::loadMatrix(pdbClient, "ff", "wo", numLabels, numNeurons, block_x,
                    block_y, false, false, errMsg);
-    // 2 x 1
+
     std::cout << "To load matrix for ff:bo" << std::endl;
     ff::loadMatrix(pdbClient, "ff", "bo", numLabels, 1, block_x, block_y,
                    false, true, errMsg);
   }
 
-  double dropout_rate = 0.5;
-
-
+  double dropout_rate = 0.0;
 
   auto begin = std::chrono::high_resolution_clock::now();
 
@@ -131,54 +153,7 @@ int main(int argc, char *argv[]) {
               << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
               << " secs." << std::endl;
 
-
-
-  vector<vector<double>> labels_test;
-
-  if (!generate)
-    ff::load_matrix_from_file(labels_path, labels_test);
-
-  int count = 0;
-  int correct = 0;
-  {
-    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
-
-    auto it = pdbClient.getSetIterator<FFMatrixBlock>("ff", "output");
-
-
-    for (auto r : it) {
-
-      count++;
-
-      double *data = r->getRawDataHandle()->c_ptr();
-      int i = 0;
-      int j = r->getBlockRowIndex() * r->getRowNums();
-      while (i < r->getRowNums() * r->getColNums()) {
-        if (!generate && j >= labels_test.size())
-          break;
-
-        cout << data[i] << ", " << data[i + 1] << endl;
-
-        if (!generate) {
-          int pos1 = data[i] > data[i + 1] ? 0 : 1;
-          int pos2 = labels_test[j][0] > labels_test[j][1] ? 0 : 1;
-
-          if (pos1 == pos2)
-            correct++;
-        }
-
-        i += r->getColNums();
-        j++;
-      }
-    }
-
-    if (!generate)
-      cout << "Accuracy: " << correct << "/" << labels_test.size() << std::endl;
-  }
-
-  std::cout << "count=" << count << std::endl;
-
-  sleep(20);
-
   return 0;
 }
+
+#endif

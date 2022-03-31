@@ -72,6 +72,18 @@ void load_rnd_img(int x, int y, int z, int size, pdb::PDBClient &pdbClient,
   pdbClient.flushData(errMsg);
 }
 
+vector<string> splitString(string s) {
+    vector<string> result;
+    stringstream s_stream(s); //create string stream from the string
+    while(s_stream.good()) {
+      string substr;
+      getline(s_stream, substr, ','); //get first string delimited by comma
+      result.push_back(substr);
+   }
+
+   return result;
+}
+
 int main(int argc, char *argv[]) {
 
   bool addDataOrNot = true;
@@ -79,6 +91,11 @@ int main(int argc, char *argv[]) {
   bool createSetOrNot = true;
 
   int numImages = 100;
+
+  string inputDimensions = "1,64,112,112";
+  string kernelDimensions = "64,64,1,1";
+  int n, c, w, h;
+  int nk, ck, wk, hk;
 
   string mode = "aten-conv2d";
   //string mode = "eigen-spatial";
@@ -122,6 +139,31 @@ int main(int argc, char *argv[]) {
 
   }
 
+    vector<string> imageDims = (argc > 5 )? splitString(argv[5]) : splitString(inputDimensions);
+    if (imageDims.size() != 4) {
+        std::cout << "Invalid format! Accepted format: N, C, W, H" << std::endl;
+        exit(1);
+    }
+    n = std::stoi(imageDims.at(0));
+    c = std::stoi(imageDims.at(1));
+    w = std::stoi(imageDims.at(2));
+    h = std::stoi(imageDims.at(3));
+
+    vector<string> kernelDims = (argc > 6 )? splitString(argv[6]) : splitString(kernelDimensions);
+    if (kernelDims.size() != 4) {
+        std::cout << "Invalid format! Accepted format: N, C, W, H" << std::endl;
+        exit(1);
+    }
+    nk = std::stoi(kernelDims.at(0));
+    ck = std::stoi(kernelDims.at(1));
+    wk = std::stoi(kernelDims.at(2));
+    hk = std::stoi(kernelDims.at(3));
+
+    int stride = (argc > 7) ? atoi(argv[7]) : 1;
+
+  std::cout << "Input dimensions: " << n << " " << c << " " << w << " " << h << std::endl;
+  std::cout << "Kernel dimensions: " << nk << " " << ck << " " << wk << " " << hk << std::endl;
+  std::cout << "Stride: " << stride << std::endl;
 
   string masterIp = "localhost";
   pdb::PDBLoggerPtr clientLogger =
@@ -157,7 +199,7 @@ int main(int argc, char *argv[]) {
 
   //load data
   if (addDataOrNot == true) {
-      load_rnd_img(112, 112, 3, numImages, pdbClient, dbName, img_set);
+      load_rnd_img(w, h, c, numImages, pdbClient, dbName, img_set);
   }
  
   //create output dataset
@@ -178,14 +220,15 @@ int main(int argc, char *argv[]) {
       pdb::makeObject<pdb::ScanUserSet<pdb::TensorData>>(dbName, img_set);
 
   pdb::Handle<pdb::Vector<unsigned int>> dimensions = pdb::makeObject<pdb::Vector<unsigned int>>(4);
-  unsigned int x=7, y=7, z=3, n=64;
-  dimensions->push_back(n);
-  dimensions->push_back(z);
-  dimensions->push_back(y);
-  dimensions->push_back(x);
+//   unsigned int x=1, y=1, z=64, n=64;
+  dimensions->push_back(nk);
+  dimensions->push_back(ck);
+  dimensions->push_back(hk);
+  dimensions->push_back(wk);
+
   pdb::Handle<TensorData> kernel = pdb::makeObject<TensorData>(4, dimensions);
 
-  for (unsigned int i = 0; i < n*z*y*z; i++) {
+  for (unsigned int i = 0; i < nk*ck*hk*wk; i++) {
 
      (*(kernel->rawData))[i] = 0.5;
 
@@ -193,8 +236,8 @@ int main(int argc, char *argv[]) {
 
 
   //create select computation
-//  pdb::Handle<pdb::Computation> select = pdb::makeObject<Conv2DSelect>(kernel, "aten-conv2d");
-  pdb::Handle<pdb::Computation> select = pdb::makeObject<Conv2DSelect>(kernel, mode);
+  // stride (across all dimensions)
+  pdb::Handle<pdb::Computation> select = pdb::makeObject<Conv2DSelect>(kernel, mode, stride);
   select->setInput(0, imageScanner);
   std::cout << "select's output type: "<< select->getOutputType() << std::endl;
   //create write computation

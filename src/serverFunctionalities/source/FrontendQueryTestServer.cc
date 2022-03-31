@@ -805,15 +805,18 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
                     " with " << loopingSet->getNumPages() << " pages." << std::endl;
             }
             loopingSet->setPinned(true);
-            SetKey sharedSet = loopingSet->getFile()->getSharedSet();
-	    std::cout << "Set dbId:" << sharedSet.dbId << std::endl;
-	    std::cout << "Set typeId:" << sharedSet.typeId << std::endl;
-	    std::cout << "Set setId:" << sharedSet.setId << std::endl;
-	    SetPtr sharedSetPtr = getFunctionality<PangeaStorageServer>().getSet(sharedSet.dbId, sharedSet.typeId, sharedSet.setId);
   	    vector<PageIteratorPtr>* pageIters;
+
 	   
 	    if (request->getShared()) {
-	        pageIters = loopingSet->getIteratorsExtended(sharedSetPtr);
+               SetKey sharedSet = loopingSet->getFile()->getSharedSet();
+	       SetPtr sharedSetPtr = getFunctionality<PangeaStorageServer>().getSet(sharedSet.dbId, sharedSet.typeId, sharedSet.setId);
+	       if(sharedSetPtr) {
+                   std::cout << "Set dbId:" << sharedSet.dbId << std::endl;
+                   std::cout << "Set typeId:" << sharedSet.typeId << std::endl;
+                   std::cout << "Set setId:" << sharedSet.setId << std::endl;
+	           pageIters = loopingSet->getIteratorsExtended(sharedSetPtr);
+	       }
 	    } else {
 	        pageIters = loopingSet->getIterators();
 	    }

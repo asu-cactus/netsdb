@@ -235,14 +235,11 @@ void loadMatrix(pdb::PDBClient &pdbClient, pdb::String dbName,
   int total = 0;
   pdb::makeObjectAllocatorBlock(size * 1024 * 1024, true);
 
-  std::cout << "to create storeMatrix 1" << std::endl;
   pdb::Handle<pdb::Vector<pdb::Handle<FFMatrixBlock>>> storeMatrix1 =
       pdb::makeObject<pdb::Vector<pdb::Handle<FFMatrixBlock>>>();
 
   int numXBlocks = ceil(totalX / (double)blockX);
   int numYBlocks = ceil(totalY / (double)blockY);
-  std::cout << "numXBlocks=" << numXBlocks << std::endl;
-  std::cout << "numYBlocks=" << numYBlocks << std::endl;
 
   int i = 0;
   int j = 0;
@@ -255,15 +252,15 @@ void loadMatrix(pdb::PDBClient &pdbClient, pdb::String dbName,
       while (i < numXBlocks) {
         int actual_blockX =
             dont_pad_x ? min(blockX, totalX - i * blockX) : blockX;
-	std::cout << "actual_blockX=" << actual_blockX << std::endl;
+
         while (j < numYBlocks) {
           int actual_blockY =
               dont_pad_y ? min(blockY, totalY - j * blockY) : blockY;
-          std::cout << "---------actual_blockY=" << actual_blockY << std::endl;
+
           pdb::Handle<FFMatrixBlock> myData =
               pdb::makeObject<FFMatrixBlock>(i, j, actual_blockX, actual_blockY,
                                              totalX, totalY, partitionByCol);
-          std::cout << "created a block!" << std::endl;
+
           while (ii < actual_blockX) {
             while (jj < actual_blockY) {
               int curX = (i * actual_blockX + ii);
@@ -279,12 +276,8 @@ void loadMatrix(pdb::PDBClient &pdbClient, pdb::String dbName,
               double data = curX >= totalX || curY >= totalY ? 0
                             : (bool)gen()                    ? distn(e2)
                                                              : distp(e2);
-              std::cout << "data:" << data << std::endl;
-	      std::cout << "i:" << i << std::endl;
-	      std::cout << "j:" << j << std::endl;
-	      (*(myData->getRawDataHandle()))[ii * actual_blockY + jj] = data;
+              (*(myData->getRawDataHandle()))[ii * actual_blockY + jj] = data;
               jj++;
-	      
             }
             ii++;
             jj = 0;

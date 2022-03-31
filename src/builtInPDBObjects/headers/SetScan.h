@@ -46,7 +46,7 @@ private:
     String setName;
 
     // whether the set to be scanned has links to shared pages
-    bool isShared;
+    bool isShared = false;
 };
 }
 

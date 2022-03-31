@@ -1,9 +1,14 @@
 #include "PDBClient.h"
 #include <algorithm>
+#include <random>
 
 #include "Image.h"
 #include "Kernel.h"
 #include "Matrix3D.h"
+
+#include "PDBClient.h"
+#include "PDBVector.h"
+#include "TensorData.h"
 
 using namespace pdb;
 using namespace std;
@@ -131,10 +136,69 @@ void load_imgs_from_file(PDBClient &pdbClient, string path, String dbName,
   pdbClient.flushData(errMsg);
 }
 
+void loadRandomImages(int width, int height, int channels, int numOfImages, pdb::PDBClient &pdbClient,
+                  pdb::String dbName, pdb::String setName, int pageSize) {
+  std::string errMsg;
+  pdb::makeObjectAllocatorBlock(20 * 1024 * 1024, true);
+
+  pdb::Handle<pdb::Vector<pdb::Handle<conv2d_memory_fusion::Image>>> storeImages =
+      pdb::makeObject<pdb::Vector<pdb::Handle<conv2d_memory_fusion::Image>>>();
+
+  std::random_device rd;
+
+  std::mt19937 e2(rd());
+
+  std::uniform_real_distribution<> distp(0.0001, 0.5);
+  std::uniform_real_distribution<> distn(-0.5, -0.0001);
+
+  auto gen = std::bind(std::uniform_int_distribution<>(0, 1),
+                       std::default_random_engine());
+
+  for (int imageCount = 0; imageCount < numOfImages; imageCount++) {
+    pdb::Handle<conv2d_memory_fusion::Image> image = pdb::makeObject<conv2d_memory_fusion::Image>(0, width, height, channels);
+    try {
+        for (int c = 0; c < channels; c++) {
+
+          pdb::Handle<FFMatrixBlock> channel = pdb::makeObject<FFMatrixBlock>(0, 0, width, height, width, height);
+
+          for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+              double data = (bool)gen() ? distn(e2) : distp(e2);
+              (*(channel->getRawDataHandle()))[i * height + j] = data;
+            }
+          }
+
+          image->addChannel(channel);
+        }
+
+        storeImages->push_back(image);
+    } catch (pdb::NotEnoughSpace &e) {
+      if (!pdbClient.sendData<conv2d_memory_fusion::Image>(
+            pair<string, string>(setName, dbName), storeImages, errMsg)) {
+        cout << "Failed to send data to dispatcher server" << endl;
+        exit(1);
+      }
+
+      imageCount--;
+      pdb::makeObjectAllocatorBlock(20 * 1024 * 1024, true);
+      storeImages = pdb::makeObject<pdb::Vector<pdb::Handle<conv2d_memory_fusion::Image>>>();
+    }
+  }
+
+
+  if (!pdbClient.sendData<conv2d_memory_fusion::Image>(
+        pair<string, string>(setName, dbName), storeImages, errMsg)) {
+    cout << "Failed to send data to dispatcher server" << endl;
+    exit(1);
+  }
+  // to write back all buffered records
+  pdbClient.flushData(errMsg);
+}
+
 template void load_imgs_from_file<conv2d_memory_fusion::Image>(PDBClient &pdbClient,
                                                  string path, String dbName,
-                                                 String setName, int img_count = 100, int channels=3, int x=112, int y=112);
+                                                 String setName, int img_count = 100, int channels=64, int x=112, int y=112);
 template void load_imgs_from_file<conv2d_memory_fusion::Kernel>(PDBClient &pdbClient,
                                                   string path, String dbName,
-                                                  String setName, int img_count=64, int channels=3, int x=7, int y=7);
+                                                  String setName, int img_count=64, int channels=64, int x=1, int y=1);
 } // namespace conv2d_memory_fusion
