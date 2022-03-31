@@ -1,7 +1,7 @@
 #include "FFMatrixBlock.h"
 #include "PDBDebug.h"
 #include "PartitionTensorBlockSharedPageIterator.h"
-#include "TensorBlockIndex.h"
+#include "FFMatrixBlockIndex.h"
 
 namespace pdb {
 
@@ -12,10 +12,10 @@ PartitionTensorBlockSharedPageIterator::PartitionTensorBlockSharedPageIterator(P
                           PartitionedFilePtr fileOfSharingSet,
                           PartitionedFilePtr fileOfSharedSet,
                           FilePartitionID partitionIdOfSharedSet,
-                          SharedTensorBlockSetPtr sharedSet,
+                          SharedFFMatrixBlockSetPtr sharedSet,
 			  DatabaseID dbIdOfSharingSet,
 			  UserTypeID typeIdOfSharingSet,
-			  SetId setIdOfSharingSet) {
+			  SetID setIdOfSharingSet) {
     this->cache = cache;
     this->fileOfSharingSet = fileOfSharingSet;
     this->fileOfSharedSet = fileOfSharedSet;
@@ -55,7 +55,7 @@ PDBPagePtr PartitionTensorBlockSharedPageIterator::next() {
 	    Handle<Vector<Handle<FFMatrixBlock>>> iterateOverMe = myRec->getRootObject();
 	    for (int i = 0; i < iterateOverMe->size(); i++) {
 	        Handle<FFMatrixBlock> block = (*iterateOverMe)[i];
-                Handle<FFMatrixMeta> targetMeta = sharedSet->getTargetMetaData(dbIdOfSharingSet, typeIdOfSharingSet, setIdOfSharingSet, block->meta);
+                Handle<FFMatrixMeta> targetMeta = sharedSet->getTargetMetadata(dbIdOfSharingSet, typeIdOfSharingSet, setIdOfSharingSet, *(block->meta));
                 block->meta->blockRowIndex = targetMeta->blockRowIndex;
 		block->meta->blockColIndex = targetMeta->blockColIndex;
 	    }

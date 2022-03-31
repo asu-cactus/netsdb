@@ -10,7 +10,7 @@
 #include "PartitionedFile.h"
 #include "PageCache.h"
 #include "UserSet.h"
-#include "SharedTensorBlockSet.h"
+#include "SharedFFMatrixBlockSet.h"
 
 namespace pdb{
 
@@ -24,7 +24,7 @@ public:
                           PartitionedFilePtr fileOfSharingSet,
 			  PartitionedFilePtr fileOfSharedSet,
                           FilePartitionID partitionIdOfSharedSet,
-			  SharedTensorBlockSetPtr sharedSet,
+			  SharedFFMatrixBlockSetPtr sharedSet,
 			  DatabaseID dbIdOfSharingSet,
                           UserTypeID typeIdOfSharingSet,
                           SetID setIdOfSharingSet);
@@ -50,7 +50,7 @@ private:
     FilePartitionID partitionId;
     unsigned int numPages = 0;
     unsigned int numIteratedPages = 0;
-    SharedTensorBlockSetPtr sharedSet = nullptr;
+    SharedFFMatrixBlockSetPtr sharedSet = nullptr;
     std::unordered_map<PageID, PageIndex> * sharedPageMap = nullptr;
     std::unordered_map<PageID, PageIndex>::iterator it;
     DatabaseID dbIdOfSharingSet;
