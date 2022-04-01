@@ -718,7 +718,7 @@ common_env.Program('bin/tpchTraining1',
                    ['build/tpch/tpchTraining1.cc'] + all + pdb_client)
 common_env.Program('bin/tpchGenTrace',
                    ['build/tpch/tpchGenTrace.cc'] + all + pdb_client)
-
+common_env.Program('bin/testDedup', ['build/tests/TestDeduplication.cc']+ all + pdb_client)
 common_env.Program('bin/sequentialReadWrite',
                    ['build/tests/SequentialReadWriteTest.cc'] + all + pdb_client)
 common_env.Program('bin/tpchDataLoader',
@@ -1852,6 +1852,7 @@ libFFTest = common_env.Alias('libword2vec', [
     'bin/pdb-cluster',
     'bin/pdb-server',
     'bin/word2vec',
+    'bin/testDedup',
     'bin/testTensorBlockIndex',
     'bin/testSharedTensorBlockSet',
     'bin/testWord2VecWithDeduplication',
@@ -1907,7 +1908,7 @@ libFFTest = common_env.Alias('libclassifier', [
 libFFTest = common_env.Alias('libFFTest', [
     'bin/pdb-cluster',
     'bin/pdb-server',
-
+    'bin/testDedup',
     'bin/FFTest',
     'bin/RedditFeatureExtractor',
     'bin/loadRedditCommentsIndexPartition',
