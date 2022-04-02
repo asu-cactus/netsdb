@@ -57,7 +57,7 @@ Once you start the netsDB system [Start Cluster](https://github.com/asu-cactus/n
 ### The version based on UDF-encapsulation 
 
 ```
-bin/Conv2dProjTest whetherToLoadData whetherToCreateSet numImages conv2D-mode(aten-conv2d or eigen-spatial) inputDimension kernelDimension
+bin/Conv2dProjTest whetherToLoadData whetherToCreateSet numImages conv2D-mode(aten-conv2d or eigen-spatial) inputDimension kernelDimension stride
 ```
 
 You can pass the command line parameters or modify variables in the example application source to control the block shape and the size of the word2vec layer.
