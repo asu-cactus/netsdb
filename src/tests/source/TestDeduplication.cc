@@ -134,7 +134,115 @@ void load_set(pdb::PDBClient & pdbClient, std::string db_name, std::string set_n
 
 int main(int argc, char* argv[]) {
 
-    return 0;
+    //This test case simulates the deduplication process of two heterogeneous tensors.	
+    //We use the block size of 100x10000
+    //The first heterogeneous tensor has a dimension of 500x1000000: 5x100 blocks
+    //The second heterogeneous tensor has a dimension of 600x900000: 6x90 blocks
+    //In the shared set, there are 450 shared blocks are:
+    //T1(0, 0) -> T2(5, 89)
+    //T1(0, 1) -> T2(5, 88)
+    //T1(0, 2) -> T2(5, 87)
+    //...
+    //T1(0, 89)-> T2(5, 0)
+    //T1(1, 0) -> T2(4, 89)
+    //T1(1, 1) -> T2(4, 88)
+    //T1(1, 2) -> T2(4, 87)
+    //...
+    //T1(1, 89)-> T2(4, 0)
+    //T1(2, 0) -> T2(3, 89)
+    //T1(2, 1) -> T2(3, 88)
+    //T1(2, 2) -> T2(3, 87)
+    //...
+    //T1(2, 89)-> T2(3, 0)
+    //T1(3, 0) -> T2(2, 89)
+    //T1(3, 1) -> T2(2, 88)
+    //T1(3, 2) -> T2(2, 87)
+    //...
+    //T1(3, 89)-> T2(2, 0)
+    //T1(4, 0) -> T2(1, 89)
+    //T1(4, 1) -> T2(1, 88)
+    //T1(4, 2) -> T2(1, 87)
+    //...
+    //T1(4, 89)-> T2(1, 0)
+    //In the set for T1, there are 50 blocks
+    //T1(0, 90) ... T1(0, 99)
+    //T1(1, 90) ... T1(1, 99)
+    //T1(2, 90) ... T1(2, 99)
+    //T1(3, 90) ... T1(3, 99)
+    //T1(4, 90) ... T1(4, 99)
+    //In the set for T2, there are 40 blocks
+    //T2 (0, 0) ... T2(0, 89)
+    
+     makeObjectAllocatorBlock(128 * 1024 * 1024, true);
+
+    //create a shared set
+     string masterIp = "localhost";
+     pdb::PDBLoggerPtr clientLogger = make_shared<pdb::PDBLogger>("TestSharedSetLog");
+     pdb::PDBClient pdbClient(8108, masterIp, clientLogger, false, true);
+     pdb::CatalogClient catalogClient(8108, masterIp, clientLogger);
+
+     std::string errMsg;
+     int block_x = 100;
+     int block_y = 10000;
+
+     std::string databaseName = "deduplication_test";
+     std::string sharedSetName = "shared";
+     std::string tensor1SetName = "t1";
+     std::string tensor2SetName = "t2";
+
+    //Step 1. Create a shared set.
+
+    //A list of metadata for shared blocks. An alternative approach is to load from a file
+     std::vector<FFMatrixMeta> listOfSharedBlocks;
+     for (int i = 0; i < 5; i++) {
+        for (int j = 0; j < 90; j++) {
+            FFMatrixMeta meta(i, j, 500, 1000000);
+            listOfSharedBlocks.push_back(meta);	    
+	}
+     }
+
+     //load the shared set
+     load_shared_set(pdbClient, databaseName, sharedSetName, listOfSharedBlocks, block_x, block_y);
+	
+
+     //A list of metadata for T1 blocks. An alternative approach is to load from a file
+     std::vector<FFMatrixMeta> listOfT1Blocks;
+     for (int i = 0; i < 5; i++) {
+        for (int j = 90; j < 100; j++) {
+            FFMatrixMeta meta(i, j, 500, 1000000);
+            listOfT1Blocks.push_back(meta);
+        }
+     }
+
+     //A list of pages in the shared set (We need load_shared_set first to obtain the pageIndex)
+     //
+     //
+     std::vector<std::pair<PageID, PageIndex>>  pageSharingInT1;
+     
+
+     //load T1
+     load_set(pdbClient, databaseName, tensor1SetName, listOfT1Blocks, pageSharingInT1, block_x, block_y, databaseName, sharedSetName);
+
+
+     //A list of metadata for T2 blocks. An alternative approach is to load from a file
+     std::vector<FFMatrixMeta> listOfT2Blocks;
+     for (int i = 0; i < 90; i++) {
+         FFMatrixMeta meta(0, i, 600, 900000);
+	 listOfT2Blocks.push_back(meta);
+     }  
+
+     //A list of pages in the shared set (We need load_shared_set first to obtain the pageIndex)
+     //
+     //
+     std::vector<std::pair<PageID, PageIndex>>  pageSharingInT2;
+
+     //load T2
+     load_set(pdbClient, databaseName, tensor2SetName, listOfT2Blocks, pageSharingInT2, block_x, block_y, databaseName, sharedSetName);  
+
+
+     //create the block mapping
+     pdbClient.addSharedMapping(databaseName, tensor2SetName, "FFMatrixBlock", databaseName, sharedSetName, "FFMatrixBlock", "/home/ubuntu/mapping.csv",600, 900000, errMsg);
+     return 0;
 
 }
 
