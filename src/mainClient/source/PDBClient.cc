@@ -149,6 +149,22 @@ bool PDBClient::addSharedPage(std::string sharingDatabase,
 
 }
 
+
+bool PDBClient::addSharedMapping(std::string sharingDatabase,
+                  std::string sharingSetName,
+                  std::string sharingTypeName,
+                  std::string sharedDatabase,
+                  std::string sharedSetName,
+                  std::string sharedTypeName,
+                  std::string fileName,
+                  size_t totalRows,
+                  size_t totalCols,
+		  std::string errMsg) {
+  return distributedStorageClient.addSharedMapping(sharingDatabase, sharingSetName, sharingTypeName,
+                  sharedDatabase, sharedSetName, sharedTypeName, fileName, totalRows, totalCols, errMsg);
+
+}
+
 bool PDBClient::flushData(std::string &errMsg) {
 
   return distributedStorageClient.flushData(errMsg);

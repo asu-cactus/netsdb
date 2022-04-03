@@ -11,7 +11,6 @@
 #include "PDBObject.h"
 #include "PDBVector.h"
 #include "PartitionPolicy.h"
-
 #include "SimpleRequest.h"
 
 /**
@@ -26,7 +25,6 @@
  */
 
 namespace pdb {
-
 class PDBClient : public ServerFunctionality {
 
 public:
@@ -124,6 +122,19 @@ public:
                    bool whetherToAddSharedSet,
                    NodeID nodeId,
                    std::string& errMsg); 
+
+
+  /* Link shared Meta to target meta for a private set at a specific node*/
+  bool addSharedMapping(std::string sharingDatabase,
+                  std::string sharingSetName,
+                  std::string sharingTypeName,
+                  std::string sharedDatabase,
+                  std::string sharedSetName,
+                  std::string sharedTypeName,
+		  std::string fileName,
+                  size_t totalRows,
+		  size_t totalCols,
+                  std::string errMsg); 
 
   /* Flushes data currently in memory into disk. */
   bool flushData(std::string &errMsg);

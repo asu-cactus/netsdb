@@ -16,6 +16,7 @@
 #include "DistributedStorageClearSet.h"
 #include "DistributedStorageCleanup.h"
 #include "DistributedStorageAddSharedPage.h"
+#include "DistributedStorageAddSharedMapping.h"
 
 namespace pdb {
 
@@ -288,6 +289,38 @@ bool DistributedStorageManagerClient::addSharedPage(std::string sharingDatabase,
 		   pageSeqId,
                    whetherToAddSharedSet,
 		   nodeId);
+
+}
+
+
+bool DistributedStorageManagerClient::addSharedMapping(std::string sharingDatabase,
+                  std::string sharingSetName,
+                  std::string sharingTypeName,
+                  std::string sharedDatabase,
+                  std::string sharedSetName,
+                  std::string sharedTypeName,
+                  std::string fileName,
+                  size_t totalRows,
+                  size_t totalCols,
+                  std::string& errMsg) {
+
+     
+     return simpleRequest<DistributedStorageAddSharedMapping, SimpleRequestResult, bool>(
+                   logger,
+                   port,
+                   address,
+                   false,
+                   1024,
+                   generateResponseHandler("Could not add shared mapping to distributed storage manager", errMsg),  
+                   sharingDatabase,
+                   sharingSetName,
+                   sharingTypeName,
+                   sharedDatabase,
+                   sharedSetName,
+                   sharedTypeName,
+                   fileName,
+                   totalRows,
+                   totalCols);
 
 }
 
