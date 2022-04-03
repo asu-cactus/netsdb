@@ -1021,7 +1021,12 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
 
 
 		std::cout << "shared set:" << request->getSharedDatabase() << ":" << request->getSharedSetName() << std::endl;
-                SharedFFMatrixBlockSetPtr mySharedSet =  std::dynamic_pointer_cast<SharedFFMatrixBlockSet>(getFunctionality<PangeaStorageServer>().getSet(sharedDatabaseAndSet));
+                SetPtr mySet1 = getFunctionality<PangeaStorageServer>().getSet(sharedDatabaseAndSet);
+		if (mySet1 == nullptr) {
+                    std::cout << "Set doesn't exist: " << request->getSharedDatabase() << ":" << request->getSharedSetName() << std::endl;
+                    exit(1);
+                }
+		SharedFFMatrixBlockSetPtr mySharedSet =  std::dynamic_pointer_cast<pdb::SharedFFMatrixBlockSet>(mySet1);
                 if(mySharedSet == nullptr) {
                      std::cout << "Error: empty shared set" << std::endl;
                 } else {

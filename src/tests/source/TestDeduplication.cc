@@ -41,7 +41,7 @@ void load_data(pdb::PDBClient & pdbClient, std::string db_name, std::string set_
 
      std::string errMsg;
 
-     pdb::makeObjectAllocatorBlock(DEFAULT_PAGE_SIZE * 1024 * 1024, true);
+     pdb::makeObjectAllocatorBlock(DEFAULT_PAGE_SIZE, true);
 
      pdb::Handle<pdb::Vector<pdb::Handle<FFMatrixBlock>>> storeMatrix =
          pdb::makeObject<pdb::Vector<pdb::Handle<FFMatrixBlock>>>();
@@ -89,7 +89,7 @@ void load_data(pdb::PDBClient & pdbClient, std::string db_name, std::string set_
                   exit(1);
               }
               cout << "Dispatched " << storeMatrix->size() << " blocks." << std::endl;
-              pdb::makeObjectAllocatorBlock(DEFAULT_PAGE_SIZE * 1024 * 1024, true);
+              pdb::makeObjectAllocatorBlock(DEFAULT_PAGE_SIZE, true);
               storeMatrix = pdb::makeObject<pdb::Vector<pdb::Handle<FFMatrixBlock>>>();
           }
 
@@ -121,14 +121,21 @@ void load_set(pdb::PDBClient & pdbClient, std::string db_name, std::string set_n
      //load private pages to the normal set
      load_data(pdbClient, db_name, set_name, listOfPrivateBlocks, block_x, block_y);
 
+
+     sleep(60);
+
      //load pointers that points to the shared pages
      for (int i = 0; i < pageSharing.size(); i++) {
-     
-	 std::pair<PageID, PageIndex> sharing;
+         bool whetherToCreateSharedSet = false;
+	 if (i==0)
+              whetherToCreateSharedSet = true;
+         else
+	      whetherToCreateSharedSet = false;	 
+	 std::pair<PageID, PageIndex> sharing = pageSharing[i];
 	 pdbClient.addSharedPage(db_name, set_name, "FFMatrixBlock",
                     shared_db_name, shared_set_name, "FFMatrixBlock",
-                   sharing.first, sharing.second.partitionId, sharing.second.pageSeqInPartition, true, 0, errMsg);
-     
+                   sharing.first, sharing.second.partitionId, sharing.second.pageSeqInPartition, whetherToCreateSharedSet, 0, errMsg);
+         
      }
 }
 
@@ -164,6 +171,7 @@ int main(int argc, char* argv[]) {
     //T1(4, 2) -> T2(1, 87)
     //...
     //T1(4, 89)-> T2(1, 0)
+    //These shared blocks are packed to 14 pages, with each page having 256MB
     //In the set for T1, there are 50 blocks
     //T1(0, 90) ... T1(0, 99)
     //T1(1, 90) ... T1(1, 99)
@@ -173,13 +181,14 @@ int main(int argc, char* argv[]) {
     //In the set for T2, there are 40 blocks
     //T2 (0, 0) ... T2(0, 89)
     
-     makeObjectAllocatorBlock(128 * 1024 * 1024, true);
 
     //create a shared set
      string masterIp = "localhost";
      pdb::PDBLoggerPtr clientLogger = make_shared<pdb::PDBLogger>("TestSharedSetLog");
      pdb::PDBClient pdbClient(8108, masterIp, clientLogger, false, true);
      pdb::CatalogClient catalogClient(8108, masterIp, clientLogger);
+
+
 
      std::string errMsg;
      int block_x = 100;
@@ -190,9 +199,19 @@ int main(int argc, char* argv[]) {
      std::string tensor1SetName = "t1";
      std::string tensor2SetName = "t2";
 
-    //Step 1. Create a shared set.
+     pdbClient.createDatabase(databaseName, errMsg);
+     makeObjectAllocatorBlock(128*1024*1024, true);
+     pdbClient.registerType("libraries/libFFMatrixMeta.so", errMsg);
+     pdbClient.registerType("libraries/libFFMatrixData.so", errMsg);
+     pdbClient.registerType("libraries/libFFMatrixBlock.so", errMsg);
+     pdbClient.registerType("libraries/libFFMatrixBlockScanner.so", errMsg);
+     pdbClient.registerType("libraries/libFFMatrixWriter.so", errMsg);
 
-    //A list of metadata for shared blocks. An alternative approach is to load from a file
+     //Create a shared set.
+
+     std::cout << "############To create the shared set ...###############" << std::endl; 
+
+     //A list of metadata for shared blocks. An alternative approach is to load from a file
      std::vector<FFMatrixMeta> listOfSharedBlocks;
      for (int i = 0; i < 5; i++) {
         for (int j = 0; j < 90; j++) {
@@ -205,6 +224,10 @@ int main(int argc, char* argv[]) {
      load_shared_set(pdbClient, databaseName, sharedSetName, listOfSharedBlocks, block_x, block_y);
 	
 
+     std::cout << "############To create the set for T1 ...###############" << std::endl;
+
+
+
      //A list of metadata for T1 blocks. An alternative approach is to load from a file
      std::vector<FFMatrixMeta> listOfT1Blocks;
      for (int i = 0; i < 5; i++) {
@@ -215,14 +238,20 @@ int main(int argc, char* argv[]) {
      }
 
      //A list of pages in the shared set (We need load_shared_set first to obtain the pageIndex)
-     //
-     //
      std::vector<std::pair<PageID, PageIndex>>  pageSharingInT1;
+     for (int i = 0; i < 13; i++) {
+         PageIndex index;
+	 index.partitionId = 0;
+	 index.pageSeqInPartition = i;
+    	 pageSharingInT1.push_back(std::pair<PageID, PageIndex>(i, index));
+     }
      
 
      //load T1
      load_set(pdbClient, databaseName, tensor1SetName, listOfT1Blocks, pageSharingInT1, block_x, block_y, databaseName, sharedSetName);
 
+
+     std::cout << "############To create the set for T2 ...###############" << std::endl;
 
      //A list of metadata for T2 blocks. An alternative approach is to load from a file
      std::vector<FFMatrixMeta> listOfT2Blocks;
@@ -235,10 +264,17 @@ int main(int argc, char* argv[]) {
      //
      //
      std::vector<std::pair<PageID, PageIndex>>  pageSharingInT2;
-
+     for (int i = 0; i < 13; i++) {
+         PageIndex index;
+         index.partitionId = 0;
+         index.pageSeqInPartition = i;
+         pageSharingInT2.push_back(std::pair<PageID, PageIndex>(i, index));
+     }
      //load T2
      load_set(pdbClient, databaseName, tensor2SetName, listOfT2Blocks, pageSharingInT2, block_x, block_y, databaseName, sharedSetName);  
 
+
+      std::cout << "############To add block mappings ...###############" << std::endl;
 
      //create the block mapping
      pdbClient.addSharedMapping(databaseName, tensor2SetName, "FFMatrixBlock", databaseName, sharedSetName, "FFMatrixBlock", "/home/ubuntu/mapping.csv",600, 900000, errMsg);

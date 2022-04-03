@@ -106,7 +106,8 @@ int UserType::addSet(string setName, SetID setId, size_t pageSize, size_t desire
     }
 
     if (isSharedFFMatrixBlockSet) {
-        set = make_shared<pdb::SharedFFMatrixBlockSet>(pageSize, logger, shm, nodeId, dbId, id, setId, setName, file, this->cache, JobData, policy, Write, TryCache, persistenceType, desiredSize);
+        std::cout << "****************We are creating a SharedFFMatrixBlockSet instance*********************" << std::endl;
+    	set = make_shared<pdb::SharedFFMatrixBlockSet>(pageSize, logger, shm, nodeId, dbId, id, setId, setName, file, this->cache, JobData, policy, Write, TryCache, persistenceType, desiredSize);
     } else {
         set = make_shared<UserSet>(
           pageSize, logger, shm, nodeId, dbId, id, setId, setName, file, this->cache, JobData, policy, Write, TryCache, persistenceType, desiredSize);
