@@ -22,6 +22,7 @@
 #include "DistributedStorageClearSet.h"
 #include "DistributedStorageCleanup.h"
 #include "DistributedStorageAddSharedPage.h"
+#include "DistributedStorageAddSharedMapping.h"
 #include "Computation.h"
 #include "ComputationNode.h"
 #include "QuerySchedulerServer.h"
@@ -34,6 +35,7 @@
 #include "StorageAddSet.h"
 #include "StorageAddTempSet.h"
 #include "StorageAddSharedPage.h"
+#include "StorageAddSharedMapping.h"
 #include "StorageRemoveDatabase.h"
 #include "StorageRemoveUserSet.h"
 #include "StorageRemoveHashSet.h"
@@ -79,6 +81,55 @@ DistributedStorageManagerServer::~DistributedStorageManagerServer() {
 }
 
 void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
+
+
+    /**
+     * Handler that add Shared block mapping information to the specific node
+     */
+    forMe.registerHandler(
+        DistributedStorageAddSharedMapping_TYPEID,
+        make_shared<SimpleRequestHandler<DistributedStorageAddSharedMapping>>(
+            [&](Handle<DistributedStorageAddSharedMapping> request, PDBCommunicatorPtr sendUsingMe) {
+            const UseTemporaryAllocationBlock tempBlock{1 * 1024 * 1024};
+            std::string errMsg;
+            mutex lock;
+            auto successfulNodes = std::vector<std::string>();
+            auto failureNodes = std::vector<std::string>();
+            auto nodesToBroadcastTo = std::vector<std::string>();
+
+            std::vector<std::string> allNodes;
+            const auto nodes = getFunctionality<ResourceManagerServer>().getAllNodes();
+            for (int i = 0; i < nodes->size(); i++) {
+                std::string address = static_cast<std::string>((*nodes)[i]->getAddress());
+                std::string port = std::to_string((*nodes)[i]->getPort());
+                allNodes.push_back(address + ":" + port);
+            }
+            nodesToBroadcastTo = allNodes;
+
+            Handle<StorageAddSharedMapping> storageCmd =
+                    makeObject<StorageAddSharedMapping>(request->getSharingDatabase(), request->getSharingSetName(),
+    request->getSharingType(), request->getSharedDatabase(), request->getSharedSetName(), request->getSharedType(),
+    request->getFileName(), request->getTotalRows(), request->getTotalCols());
+            getFunctionality<DistributedStorageManagerServer>()
+                    .broadcast<StorageAddSharedMapping, Object, SimpleRequestResult>(
+                        storageCmd,
+                        nullptr,
+                        nodesToBroadcastTo,
+                        generateAckHandler(successfulNodes, failureNodes, lock),
+                        [&](std::string errMsg, std::string serverName) {
+                            lock.lock();
+                            std::cout << "Server " << serverName << " received an error: " << errMsg
+                                      << std::endl;
+                            failureNodes.push_back(serverName);
+                            lock.unlock();
+                        });
+
+            bool res = true;
+            Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(res, errMsg);
+            res = sendUsingMe->sendObject(response, errMsg);
+            return make_pair(res, errMsg);
+            }));
+
 
     /**
      * Handler that add Shared Page information to the specific node

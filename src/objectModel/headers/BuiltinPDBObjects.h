@@ -34,6 +34,7 @@
 #include "/home/ubuntu/netsdb/src/builtInPDBObjects/headers/DepartmentEmployees.h"
 #include "/home/ubuntu/netsdb/src/builtInPDBObjects/headers/HashPartitionedJoinBuildHTJobStage.h"
 #include "/home/ubuntu/netsdb/src/builtInPDBObjects/headers/StorageRemoveTempSet.h"
+#include "/home/ubuntu/netsdb/src/builtInPDBObjects/headers/StorageAddSharedMapping.h"
 #include "/home/ubuntu/netsdb/src/builtInPDBObjects/headers/DistributedStorageCleanup.h"
 #include "/home/ubuntu/netsdb/src/builtInPDBObjects/headers/DistributedStorageRemoveTempSet.h"
 #include "/home/ubuntu/netsdb/src/builtInPDBObjects/headers/JoinPairArray.h"

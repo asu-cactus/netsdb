@@ -13,14 +13,21 @@
 #include "UserSet.h"
 #include "FFMatrixMeta.h"
 #include "FFMatrixBlockIndex.h"
+#include <algorithm>    // copy
+#include <iterator>
+#include <fstream>      // fstream
+#include <boost/tokenizer.hpp>
 #include <memory>
 #include <string>
+#include <stdlib.h>
+
 using namespace std;
+using namespace boost;
 
 namespace pdb{
 
 class SharedFFMatrixBlockSet;
-typedef shared_ptr<SharedFFMatrixBlockSet> SharedFFMatrixBlockSetPtr;
+typedef std::shared_ptr<SharedFFMatrixBlockSet> SharedFFMatrixBlockSetPtr;
 
 class SharedFFMatrixBlockSet : public UserSet {
 public:
@@ -94,8 +101,27 @@ public:
         return indexes.getTargetMetadata(dbId, typeId, setId, sourceBlockMeta);
     }
 
-   
+    //each line of index file is like following:
+    //sharedBlockRowIndex, sharedBlockColIndex, actualBlockRowIndex, actualBlockColIndex
+    void loadIndexFromFile(DatabaseID dbId, UserTypeID typeId, SetID setId, std::string path, size_t totalRows, size_t totalCols) {
 
+         ifstream in(path.c_str());
+         if (!in.is_open()) {
+	   std::cout << "FATAL ERROR: Cannot open file: " << path << std::endl;	 
+           return;
+         }
+	 typedef boost::tokenizer< escaped_list_separator<char> > Tokenizer;
+	 std::string line;
+	 std::vector< std::string > vec;
+         while (getline(in,line)) {
+             Tokenizer tok(line);
+             vec.assign(tok.begin(),tok.end());
+             FFMatrixMeta sharedBlockMeta (atoi(vec[0].c_str()), atoi(vec[1].c_str()), totalRows, totalCols);
+             Handle<FFMatrixMeta> actualBlockMeta = makeObject<FFMatrixMeta>(atoi(vec[2].c_str()), atoi(vec[3].c_str()), totalRows, totalCols);
+	     insertIndex(dbId, typeId, setId, sharedBlockMeta, actualBlockMeta);
+         }
+    }
+    
 
     bool insertIndex(DatabaseID dbId, UserTypeID typeId, SetID setId, FFMatrixMeta sourceBlockMeta, Handle<FFMatrixMeta> targetBlockMeta) {
 	size_t key = indexes.getSetKey(dbId, typeId, setId);
