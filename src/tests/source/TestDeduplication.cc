@@ -37,6 +37,59 @@ using namespace std;
 using namespace pdb;
 
 
+void scan_data(pdb::PDBClient & pdbClient, std::string db_name, std::string set_name) {
+
+  auto begin = std::chrono::high_resolution_clock::now();
+
+  std::string errMsg;
+
+  //create output set
+  pdbClient.removeSet(db_name, "outputs", errMsg);
+  pdbClient.createSet<FFMatrixBlock>(db_name, "outputs", errMsg,
+                  DEFAULT_PAGE_SIZE, "outputs", nullptr, nullptr, false);
+
+
+  // make the reader
+  pdb::Handle<pdb::Computation> read =
+      makeObject<FFMatrixBlockScanner>(db_name, set_name);
+
+  // make the writer
+  pdb::Handle<pdb::Computation> myWriter = nullptr;
+  myWriter = pdb::makeObject<FFMatrixWriter>(db_name, "outputs");
+  myWriter->setInput(read);
+
+  bool materializeHash = false;
+
+  auto exe_begin = std::chrono::high_resolution_clock::now();
+
+  // run the computation
+  if (!pdbClient.executeComputations(errMsg, set_name, materializeHash, myWriter)) {
+      cout << "Computation failed. Message was: " << errMsg << "\n";
+      exit(1);
+  }
+
+  auto end = std::chrono::high_resolution_clock::now();
+  std::cout << "****Scan End-to-End Time Duration: ****"
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
+              << " secs." << std::endl;
+
+  std::cout << "****Scan Execution Time Duration: ****"
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end - exe_begin).count()
+              << " secs." << std::endl;
+
+  //verify the results
+  int numBlocks = 0;
+  auto it = pdbClient.getSetIterator<FFMatrixBlock>(db_name, "outputs");
+
+  cout << "[STATS]: " << set_name << endl;
+  for (auto r : it) {
+      std::cout << r->getBlockRowIndex() << ":" << r->getBlockColIndex() << std::endl;
+      numBlocks++;
+  }
+  std::cout << "Total:" << numBlocks << std::endl;
+
+}
+
 void load_data(pdb::PDBClient & pdbClient, std::string db_name, std::string set_name, std::vector<FFMatrixMeta> & listOfBlocks, int block_x, int block_y) {
 
      std::string errMsg;
@@ -215,7 +268,7 @@ int main(int argc, char* argv[]) {
      std::vector<FFMatrixMeta> listOfSharedBlocks;
      for (int i = 0; i < 5; i++) {
         for (int j = 0; j < 90; j++) {
-            FFMatrixMeta meta(i, j, 500, 1000000);
+            FFMatrixMeta meta(i, j, i, j);//for shared blocks, we use the totalRows field to store the static block row Id, and use the totalCols field to store the static block col id
             listOfSharedBlocks.push_back(meta);	    
 	}
      }
@@ -278,7 +331,17 @@ int main(int argc, char* argv[]) {
 
      //create the block mapping
      pdbClient.addSharedMapping(databaseName, tensor2SetName, "FFMatrixBlock", databaseName, sharedSetName, "FFMatrixBlock", "/home/ubuntu/mapping.csv",600, 900000, errMsg);
+
+     //scan datasets
+     scan_data (pdbClient, databaseName, tensor1SetName);
+
+     scan_data (pdbClient, databaseName, tensor2SetName);    
+
+
      return 0;
+
+
+     
 
 }
 

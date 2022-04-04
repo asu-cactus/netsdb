@@ -97,8 +97,8 @@ public:
         indexes.deserializeIndex(path);
     }
 
-    Handle<FFMatrixMeta> getTargetMetadata (DatabaseID dbId, UserTypeID typeId, SetID setId, FFMatrixMeta sourceBlockMeta) {
-        return indexes.getTargetMetadata(dbId, typeId, setId, sourceBlockMeta);
+    Handle<FFMatrixMeta> getTargetMetadata (DatabaseID dbId, UserTypeID typeId, SetID setId, int blockRowId, int blockColId) {
+        return indexes.getTargetMetadata(dbId, typeId, setId, blockRowId, blockColId);
     }
 
     //each line of index file is like following:
@@ -116,21 +116,20 @@ public:
          while (getline(in,line)) {
              Tokenizer tok(line);
              vec.assign(tok.begin(),tok.end());
-             FFMatrixMeta sharedBlockMeta (atoi(vec[0].c_str()), atoi(vec[1].c_str()), totalRows, totalCols);
              Handle<FFMatrixMeta> actualBlockMeta = makeObject<FFMatrixMeta>(atoi(vec[2].c_str()), atoi(vec[3].c_str()), totalRows, totalCols);
-	     insertIndex(dbId, typeId, setId, sharedBlockMeta, actualBlockMeta);
+	     insertIndex(dbId, typeId, setId, atoi(vec[0].c_str()), atoi(vec[1].c_str()), actualBlockMeta);
          }
     }
     
 
-    bool insertIndex(DatabaseID dbId, UserTypeID typeId, SetID setId, FFMatrixMeta sourceBlockMeta, Handle<FFMatrixMeta> targetBlockMeta) {
+    bool insertIndex(DatabaseID dbId, UserTypeID typeId, SetID setId, int blockColId, int blockRowId, Handle<FFMatrixMeta> targetBlockMeta) {
 	size_t key = indexes.getSetKey(dbId, typeId, setId);
-	return indexes.insertIndex(key, sourceBlockMeta, targetBlockMeta);
+	return indexes.insertIndex(key, blockColId, blockRowId, targetBlockMeta);
     }
 
-    bool removeIndex(DatabaseID dbId, UserTypeID typeId, SetID setId, FFMatrixMeta sourceBlockMeta) {
+    bool removeIndex(DatabaseID dbId, UserTypeID typeId, SetID setId, int blockColId, int blockRowId) {
         size_t key = indexes.getSetKey(dbId, typeId, setId);
-	return indexes.removeIndex(key, sourceBlockMeta);
+	return indexes.removeIndex(key, blockColId, blockRowId);
     }
 
 private:

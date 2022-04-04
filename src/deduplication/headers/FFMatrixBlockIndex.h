@@ -37,7 +37,7 @@ namespace pdb {
 class FFMatrixBlockIndex  {
 public:
     FFMatrixBlockIndex() {
-       indexes = makeObject<Map<size_t, Handle<Map<FFMatrixMeta, Handle<FFMatrixMeta>>>>>();
+       indexes = makeObject<Map<size_t, Handle<Map<size_t, Handle<FFMatrixMeta>>>>>();
     }
 
     FFMatrixBlockIndex(std::string path) {
@@ -52,7 +52,7 @@ public:
     void serializeIndex (std::string path) {
         int filedesc = open(path.c_str(), O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR);
         myBytes =
-            getRecord<Map<size_t, Handle<Map<FFMatrixMeta, Handle<FFMatrixMeta>>>>>(indexes);
+            getRecord<Map<size_t, Handle<Map<size_t, Handle<FFMatrixMeta>>>>>(indexes);
         write(filedesc, myBytes, myBytes->numBytes());
         close(filedesc);
         std::cout << "Wrote " << myBytes->numBytes() << " bytes to the file.\n";
@@ -62,42 +62,43 @@ public:
         std::ifstream in(path.c_str(), std::ifstream::ate | std::ifstream::binary);
         size_t fileLen = in.tellg();
         int filedesc = open(path.c_str(), O_RDONLY);
-        myBytes = (Record<Map<size_t, Handle<Map<FFMatrixMeta, Handle<FFMatrixMeta>>>>>*)malloc(fileLen);
+        myBytes = (Record<Map<size_t, Handle<Map<size_t, Handle<FFMatrixMeta>>>>>*)malloc(fileLen);
         read(filedesc, myBytes, fileLen);
         close(filedesc);
         indexes = myBytes->getRootObject();
     }
 
-    Handle<FFMatrixMeta> getTargetMetadata (DatabaseID dbId, UserTypeID typeId, SetID setId, FFMatrixMeta sourceBlockMeta) {
+    Handle<FFMatrixMeta> getTargetMetadata (DatabaseID dbId, UserTypeID typeId, SetID setId, int blockRowId, int blockColId) {
         size_t setKey = getSetKey(dbId, typeId, setId);
+	size_t blockKey = getBlockKey(blockRowId, blockColId);
 	if (indexes->count(setKey) > 0) {
-	    Handle<Map<FFMatrixMeta, Handle<FFMatrixMeta>>>  metaMap = (*indexes)[setKey];
-	    if(metaMap->count(sourceBlockMeta) > 0) {
-	        return (*metaMap)[sourceBlockMeta];
+	    Handle<Map<size_t, Handle<FFMatrixMeta>>>  metaMap = (*indexes)[setKey];
+	    if(metaMap->count(blockKey) > 0) {
+	        return (*metaMap)[blockKey];
 	    } 
 	}
 	return nullptr;
         
     }
 
-    bool insertIndex(int setKey, FFMatrixMeta sourceBlockMeta, Handle<FFMatrixMeta> targetBlockMeta) {
+    bool insertIndex(int setKey, int blockRowId, int blockColId, Handle<FFMatrixMeta> targetBlockMeta) {
         if (indexes->count(setKey) == 0) {
-
-	    (*indexes)[setKey] = makeObject<Map<FFMatrixMeta, Handle<FFMatrixMeta>>>();
+	    (*indexes)[setKey] = makeObject<Map<size_t, Handle<FFMatrixMeta>>>();
 	}
-    
+        size_t blockKey = getBlockKey(blockRowId, blockColId);
 	if (indexes->count(setKey) > 0) {
-	    Handle<Map<FFMatrixMeta, Handle<FFMatrixMeta>>>  metaMap = (*indexes)[setKey];
-            (*metaMap)[sourceBlockMeta] = targetBlockMeta;
+	    Handle<Map<size_t, Handle<FFMatrixMeta>>>  metaMap = (*indexes)[setKey];
+            (*metaMap)[blockKey] = targetBlockMeta;
 	    return true;   
 	}
 	return false;
     }
 
-    bool removeIndex(int setKey, FFMatrixMeta sourceBlockMeta) {
+    bool removeIndex(int setKey, int blockRowId, int blockColId) {
+       size_t blockKey = getBlockKey(blockRowId, blockColId);
        if (indexes->count(setKey) > 0) {
-            Handle<Map<FFMatrixMeta, Handle<FFMatrixMeta>>>  metaMap = (*indexes)[setKey];
-            metaMap->setUnused(sourceBlockMeta);
+            Handle<Map<size_t, Handle<FFMatrixMeta>>>  metaMap = (*indexes)[setKey];
+            metaMap->setUnused(blockKey);
             return true;
         }
         return false;
@@ -105,13 +106,17 @@ public:
 
     size_t getSetKey(DatabaseID dbId, UserTypeID typeId, SetID setId) {
         size_t code = (size_t)typeId + (size_t)setId * (size_t)100000 + (size_t)dbId * (size_t)100000000;
-	std::cout << "code = " << code << std::endl;
+	return code;
+    }
+
+    size_t getBlockKey(int blockRowId, int blockColId) {
+        size_t code = (size_t)blockRowId*(size_t)1000000 + (size_t)blockColId;
 	return code;
     }
 
 private:
-    Handle<Map<size_t, Handle<Map<FFMatrixMeta, Handle<FFMatrixMeta>>>>> indexes = nullptr;
-    Record<Map<size_t, Handle<Map<FFMatrixMeta, Handle<FFMatrixMeta>>>>>* myBytes = nullptr;
+    Handle<Map<size_t, Handle<Map<size_t, Handle<FFMatrixMeta>>>>> indexes = nullptr;
+    Record<Map<size_t, Handle<Map<size_t, Handle<FFMatrixMeta>>>>>* myBytes = nullptr;
 };
 
 }
