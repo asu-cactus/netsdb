@@ -101,7 +101,23 @@ class L2LSH(object):
             
             index += 1
     
-    def query(self, prob, threshold=0):
+    def compute_signatures_for_bands(self, prob):
+        # Reshape from (dim, ) to (dim, 1) to avoid Python broadcasting error
+        prob = np.reshape(prob, (-1,1))
+        index = 0
+        lsh_values = self.compute_lsh(prob).flatten()
+        lsh_bands_signatures = []
+        for start, end in self.hash_ranges:
+
+            concatenated_hash_value = self._compute_concatenated_lsh(lsh_values[start: end])
+            
+            dict_key = ''.join(['L', str(index), '_', concatenated_hash_value])
+            index += 1
+            lsh_bands_signatures.append(dict_key)
+        return lsh_bands_signatures
+
+
+    def query(self, prob, threshold=0, allow_duplicate=False):
         """Retrieve the keys of probs that are similiar to the 
         given probability vector
 
@@ -114,7 +130,7 @@ class L2LSH(object):
         prob = np.reshape(prob, (-1,1))
 
         # Compute LSH for the given probability vector
-        candidates = set()
+        candidates = list()
         lsh_values = self.compute_lsh(prob).flatten()
 
         # Construct a hit dictonary
@@ -136,9 +152,15 @@ class L2LSH(object):
         
         for k, v in candidate_hit.items():
             if v >= threshold:
-                candidates.add(k)
+                # add to result multiple times
+                for _ in range(v):
+                    candidates.append(k)
         
-        return list(candidates)
+        # TODO Can be optimized to in the future
+        if allow_duplicate:
+            return candidates
+        else:
+            return set(candidates)
     
     def _insert(self, key, value):
         """Insert a band hash value to the hash table

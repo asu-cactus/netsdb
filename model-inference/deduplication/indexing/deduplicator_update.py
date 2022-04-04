@@ -7,6 +7,7 @@ import blocker
 import tensorflow_hub as hub
 from lsh import my_timer, l2lsh
 from tqdm import tqdm
+from my_timer import Timer
 
 def finetune_model(model, model_storage, list_dedup_blocks_idx, list_dedup_weights, x_train, y_train, block_size_x, block_size_y, epochs=1, batch_size=128):
     """Fine-tune a model
@@ -60,8 +61,7 @@ def finetune_model(model, model_storage, list_dedup_blocks_idx, list_dedup_weigh
 def deduplicate_model(model, model_storage,
                       x_test=None, y_test=None, indexer=None, fp=0.01, sim=0.7, stop_acc_drop=0.04, eval_step=5, 
                       eval_batch_size=512, finetune=False, x_train=None, y_train=None, ft_epochs=1, ft_batch_size=128,
-                      ft_step=5, use_lsh=False, ds_test=None, ds_test_steps=None, is_updated_model=False,
-                      path_to_ori_model=None, path_to_ori_output=None):
+                      ft_step=5, use_lsh=False, ds_test=None, ds_test_steps=None):
     """Perform deduplication on a keras model. If fine-tune is enabled, x_train and y_train are needed.
 
     Args:
@@ -91,21 +91,22 @@ def deduplicate_model(model, model_storage,
     block_cap = block_size_x*block_size_y
     block_magnitudes = model_storage['block_magnitude']
 
-    m_old = None
-    m_old_ms = None
-    df_old = None 
+    
+    t_temp = Timer()
+    t_temp.tic()
+    import os
+    m_old = tf.keras.models.load_model(os.path.join('models', 'w2v_wiki500_imdb_embed_trainable.h5'), 
+                                custom_objects={'KerasLayer':hub.KerasLayer})
+    m_old_ms = blocker.block_model_2d(m_old, block_size_x=block_size_x, block_size_y=block_size_y)
+    import re
+    def extract_coor(text):
+        m = re.match(r"\((\d+),\s(\d+),\s(\d+)\)", text)
+        return int(m.group(1)), int(m.group(2)), int(m.group(3))
 
-    if is_updated_model:
-        assert path_to_ori_model is not None and path_to_ori_output is not None
-        m_old = tf.keras.models.load_model(path_to_ori_model, custom_objects={'KerasLayer':hub.KerasLayer})
-        m_old_ms = blocker.block_model_2d(m_old, block_size_x=block_size_x, block_size_y=block_size_y)
-        import re
-        def extract_coor(text):
-            m = re.match(r"\((\d+),\s(\d+),\s(\d+)\)", text)
-            return int(m.group(1)), int(m.group(2)), int(m.group(3))
-
-        df_old = pd.read_csv(path_to_ori_output)
-        df_old['duplicate_block_idx'] = df_old['duplicate_block_idx'].apply(lambda x: extract_coor(x))
+    df_old = pd.read_csv('3.csv')
+    df_old['duplicate_block_idx'] = df_old['duplicate_block_idx'].apply(lambda x: extract_coor(x))
+    t_load_model = t_temp.toc()
+    print('t_load_model time {} ms'.format(t_load_model))
     # Init results storage
     list_b1_index = []
     list_b2_index = []
@@ -117,6 +118,10 @@ def deduplicate_model(model, model_storage,
     list_eval_time = []
     list_is_padded_block = []
     list_block_magnitude = []
+
+    list_is_prev_deduplicated = []
+    list_is_updated = []
+    list_collide_match = []
     
     list_dedup_blocks_idx = []
     list_dedup_weights = []
@@ -176,6 +181,10 @@ def deduplicate_model(model, model_storage,
         t_total_time = ''
         is_padded_block = False
         is_padded_bias = False
+        collide_match = 0
+
+        is_prev_dedup = False 
+        is_updated_block = False
 
         # check whether this is a padded block
         print(weight_idx)
@@ -200,21 +209,19 @@ def deduplicate_model(model, model_storage,
             query_result = None
 
             is_updated_block = True
+            b1_old = m_old_ms['weights_padded'][weight_idx][block_x_idx*block_size_x: (
+                block_x_idx+1)*block_size_x, block_y_idx*block_size_y: (block_y_idx+1)*block_size_y]
+            
+            b1_sigs = lsh_indexer.compute_signatures_for_bands(b1)
+            b1_old_sigs = lsh_indexer.compute_signatures_for_bands(b1_old)
 
-            if is_updated_model:
-                b1_old = m_old_ms['weights_padded'][weight_idx][block_x_idx*block_size_x: (
-                    block_x_idx+1)*block_size_x, block_y_idx*block_size_y: (block_y_idx+1)*block_size_y]
-                
-                b1_sigs = lsh_indexer.compute_signatures_for_bands(b1)
-                b1_old_sigs = lsh_indexer.compute_signatures_for_bands(b1_old)
-                collide_match = 0
-                
-                for sig1, sig2 in zip(b1_sigs, b1_old_sigs):
-                    if sig1 == sig2:
-                        collide_match += 1
-                
-                if collide_match > 0: # threshold
-                    is_updated_block = False
+            
+            for sig1, sig2 in zip(b1_sigs, b1_old_sigs):
+                if sig1 == sig2:
+                    collide_match += 1
+            
+            if collide_match > 0: # threshold
+                is_updated_block = False
 
             if is_updated_block:
                 if use_lsh:
@@ -313,7 +320,6 @@ def deduplicate_model(model, model_storage,
 
             del weights_restored
             gc.collect()
-
             if is_updated_block:
                 step += 1
             
@@ -357,6 +363,9 @@ def deduplicate_model(model, model_storage,
         list_eval_time.append(t_eval_time)
         list_is_padded_block.append(is_padded_block)
         list_block_magnitude.append(magnitude_v)
+        list_is_updated.append(is_updated_block)
+        list_is_prev_deduplicated.append(is_prev_dedup)
+        list_collide_match.append(collide_match)
 
         print('Progress: ', len(list_b2_index), '/',
                 len(block_magnitudes), ' Max sim', max_sim, 'Duplicate block ', magnitude_k, 
@@ -388,6 +397,9 @@ def deduplicate_model(model, model_storage,
         list_eval_time = list_eval_time[:last_eval_step]
         list_is_padded_block = list_is_padded_block[:last_eval_step]
         list_block_magnitude = list_block_magnitude[:last_eval_step]
+        list_is_updated = list_is_updated[:last_eval_step]
+        list_is_prev_deduplicated = list_is_prev_deduplicated[:last_eval_step]
+        list_collide_match = list_collide_match[:last_eval_step]
     else:
         # update the lastest acc
         list_acc[-1] = acc
@@ -412,12 +424,18 @@ def deduplicate_model(model, model_storage,
                     list_eval_time.append('')
                     list_is_padded_block.append('')
                     list_block_magnitude.append('')
+                    list_is_updated.append(True)
+                    list_is_prev_deduplicated.append('')
+                    list_collide_match.append(0)
 
     dedup_df = pd.DataFrame({'duplicate_block_idx': list_b1_index, 'deduplicate_block_idx': list_b2_index,
                                 'block_similarity': list_b2_sim, 'model_accuracy': list_acc,
                                 'is_padded_block': list_is_padded_block,
                                 'is_deduplicated': list_is_deduplicate,
                                 'block_magnitude': list_block_magnitude,
+                                'is_updated': list_is_updated,
+                                'is_prev_dedup': list_is_prev_deduplicated,
+                                'collide_match': list_collide_match,
                                 'search_time': list_search_time,
                                 'eval_time': list_eval_time,
                                 'total_time': list_total_time})
