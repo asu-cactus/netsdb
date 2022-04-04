@@ -18,7 +18,7 @@ def run_device(run_on_cpu):
 def load_dataset(dataset):
     """Load dataset with given input name.
     Args:
-        dataset (string): name of the dataset, it has to be civil_comment,
+        dataset (str): name of the dataset, it has to be civil_comment,
                           yelp_reviews, or imdb_reviews
     
     Returns:
@@ -27,7 +27,7 @@ def load_dataset(dataset):
     if dataset not in ['civil_comment', 'yelp_reviews', 'imdb_reviews']:
         raise ValueError('dataset has to be civil_comment, yelp_reviews, or imdb_reviews')
     # Download dataset
-    downloader.dataset()    
+    downloader.dataset(task='sentiment')    
 
     x = None
     y = None 
@@ -39,18 +39,31 @@ def load_dataset(dataset):
 
     return x, y
 
-def build_model(trainable=True):
+def build_model(trainable=True, embedding='w2v_wiki500'):
     """build a text classification model with trainable/non-trainable embedding
 
     Args:
         trainable (boolean): a flag to indicate the embedding layer is trainable
                              or not.
+        embedding (str): name of embedding layer
     
     Return:
         (model): a keras binary classification model
     """
     # Train civil_embed_nontrainable
-    w2v_layer = hub.KerasLayer("https://tfhub.dev/google/Wiki-words-500/2", 
+
+    if embedding == 'w2v_wiki500':
+        embed_url = 'https://tfhub.dev/google/Wiki-words-500/2'
+    elif embedding == 'w2v_wiki250':
+        embed_url = 'https://tfhub.dev/google/Wiki-words-250/2'
+    elif embedding == 'nnlm_en_dim_128':
+        embed_url = 'https://tfhub.dev/google/nnlm-en-dim128/2'
+    elif embedding == 'nnlm_en_dim_50':
+        embed_url = 'https://tfhub.dev/google/nnlm-en-dim50/2'
+    else:
+        raise ValueError('Not valid embedding, valid option: w2v_wiki500, w2v_wiki250, nnln_en_dim_128, nnlm_en_dim_50')
+
+    w2v_layer = hub.KerasLayer(embed_url, 
                 input_shape=[], dtype=tf.string,trainable=trainable)
     model = tf.keras.Sequential()
     model.add(w2v_layer)
@@ -60,6 +73,8 @@ def build_model(trainable=True):
     return model
 
 def main():
+    # Embedding option: w2v_wiki500, w2v_wiki250, nnln_en_dim_128, nnlm_en_dim_50
+    embedding = 'w2v_wiki500'
     # Dataset option: civil_comment, imdb_reviews, yelp_reviews
     dataset = 'civil_comment' 
     # Trainable option: True, False
@@ -72,10 +87,10 @@ def main():
 
     run_device(run_on_cpu=run_on_cpu)
 
-    model_name = 'w2v_wiki500_' + dataset + '_embed_trainable' + str(trainable)
+    model_name = embedding + '_' + dataset + '_embed_trainable' + str(trainable)
     print('Training model {} with setting:'.format(model_name))
-    print('trainable embedding: {}, epochs: {}, batch_size: {}, run_on_cpu: {}'.format(
-                                trainable, epochs, batch_size, run_on_cpu))
+    print('Setting: embedding: {}, trainable embedding: {}, epochs: {}, batch_size: {}, run_on_cpu: {}'.format(
+                                embedding, trainable, epochs, batch_size, run_on_cpu))
 
     # Load dataset
     x, y = load_dataset(dataset=dataset)

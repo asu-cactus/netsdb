@@ -58,9 +58,10 @@ def finetune_model(model, model_storage, list_dedup_blocks_idx, list_dedup_weigh
 
 
 def deduplicate_model(model, model_storage,
-                      x_test, y_test, indexer, fp=0.01, sim=0.7, stop_acc_drop=0.04, eval_step=5,
-                      finetune=False, x_train=None, y_train=None, ft_epochs=1, ft_batch_size=128,
-                      ft_step=5, use_lsh=False):
+                      x_test=None, y_test=None, indexer=None, fp=0.01, sim=0.7, stop_acc_drop=0.04, eval_step=5, 
+                      eval_batch_size=512, finetune=False, x_train=None, y_train=None, ft_epochs=1, ft_batch_size=128,
+                      ft_step=5, use_lsh=False, ds_test=None, ds_test_steps=None, is_updated_model=False,
+                      path_to_ori_model=None, path_to_ori_output=None):
     """Perform deduplication on a keras model. If fine-tune is enabled, x_train and y_train are needed.
 
     Args:
@@ -90,7 +91,21 @@ def deduplicate_model(model, model_storage,
     block_cap = block_size_x*block_size_y
     block_magnitudes = model_storage['block_magnitude']
 
+    m_old = None
+    m_old_ms = None
+    df_old = None 
 
+    if is_updated_model:
+        assert path_to_ori_model is not None and path_to_ori_output is not None
+        m_old = tf.keras.models.load_model(path_to_ori_model, custom_objects={'KerasLayer':hub.KerasLayer})
+        m_old_ms = blocker.block_model_2d(m_old, block_size_x=block_size_x, block_size_y=block_size_y)
+        import re
+        def extract_coor(text):
+            m = re.match(r"\((\d+),\s(\d+),\s(\d+)\)", text)
+            return int(m.group(1)), int(m.group(2)), int(m.group(3))
+
+        df_old = pd.read_csv(path_to_ori_output)
+        df_old['duplicate_block_idx'] = df_old['duplicate_block_idx'].apply(lambda x: extract_coor(x))
     # Init results storage
     list_b1_index = []
     list_b2_index = []
@@ -100,12 +115,19 @@ def deduplicate_model(model, model_storage,
     list_search_time = []
     list_total_time = []
     list_eval_time = []
+    list_is_padded_block = []
+    list_block_magnitude = []
     
     list_dedup_blocks_idx = []
     list_dedup_weights = []
 
+    last_eval_step = 0
+
     # Obtain original accuracy
-    _, ori_acc = model.evaluate(x_test, y_test)
+    if x_test is not None:
+        _, ori_acc = model.evaluate(x_test, y_test, batch_size=eval_batch_size)
+    if ds_test is not None:
+        _, _, ori_acc = model.evaluate(ds_test, steps=ds_test_steps)
 
     step = 1
 
@@ -143,13 +165,28 @@ def deduplicate_model(model, model_storage,
         # Most similar block
         max_b2 = ''  
         # Maximum similarity
-        max_sim = 0  
+        # FIXME 999 is for L2
+        # max_sim = 999  
+        max_sim = 0
         # Index of the most similar block
         max_b2_index = ''  
         # Timer
         t_search_time = ''
         t_eval_time = ''
         t_total_time = ''
+        is_padded_block = False
+        is_padded_bias = False
+
+        # check whether this is a padded block
+        print(weight_idx)
+        if  (len(model_storage['weights_shape'][weight_idx]) == 1 and block_size_x*block_size_y > 1):
+            is_padded_block = True 
+            is_padded_bias = True
+        else:
+            if (block_x_idx+1)*block_size_x > model_storage['weights_shape'][weight_idx][0] or \
+            (block_y_idx+1)*block_size_y > model_storage['weights_shape'][weight_idx][1]:
+                is_padded_block = True
+
         
         # Here is a trick: do not deduplicate the layer that has only 1 block will
         # gain better compression ratio and less accuracy reduction.
@@ -161,21 +198,104 @@ def deduplicate_model(model, model_storage,
             # Tic for most similar block search
             timer_search.tic()
             query_result = None
-            if use_lsh:
-                # LSH search
-                query_result = lsh_indexer.query(b1)
+
+            is_updated_block = True
+
+            if is_updated_model:
+                b1_old = m_old_ms['weights_padded'][weight_idx][block_x_idx*block_size_x: (
+                    block_x_idx+1)*block_size_x, block_y_idx*block_size_y: (block_y_idx+1)*block_size_y]
+                
+                b1_sigs = lsh_indexer.compute_signatures_for_bands(b1)
+                b1_old_sigs = lsh_indexer.compute_signatures_for_bands(b1_old)
+                collide_match = 0
+                
+                for sig1, sig2 in zip(b1_sigs, b1_old_sigs):
+                    if sig1 == sig2:
+                        collide_match += 1
+                
+                if collide_match > 0: # threshold
+                    is_updated_block = False
+
+            if is_updated_block:
+                if use_lsh:
+                    # LSH search
+                    query_result = lsh_indexer.query(b1)
+                else:
+                    # Pairwise search
+                    query_result = range(indexer.num_total)
             else:
-                # Pairwise search
-                query_result = range(indexer.num_total)
+                # use old one to replace
+                tuple_index = df_old[df_old['duplicate_block_idx'] == (weight_idx, block_x_idx, block_y_idx)].index
+                find_new_one = True
+                if len(tuple_index) != 0:
+                    if not np.isnan(df_old.loc[tuple_index[0], 'deduplicate_block_idx']):
+                        find_new_one = False
+
+                # print(tuple_index)
+                if find_new_one:
+                    # prev not deduplicated 
+                    is_updated_block = True
+                    is_prev_dedup = False
+                    if use_lsh:
+                        # LSH search
+                        query_result = lsh_indexer.query(b1)
+                    else:
+                        # Pairwise search
+                        query_result = range(indexer.num_total)
+                else:
+                    print(b1_index)
+                    is_prev_dedup = True
+                    tuple_index = tuple_index[0]
+                    query_result = [int(df_old.loc[tuple_index, 'deduplicate_block_idx'])]
 
             for b2_index in tqdm(query_result, leave=False):
                 if b1_index == b2_index:
                     continue
                 b2 = indexer.list_blocks[b2_index]
+
                 # compute the similarity between a candidate block and the query block
-                diff = np.abs(b1-b2)
-                block_sim = np.sum(diff <= fp) / block_cap              
+                if not is_padded_block:
+                    # FIXME
+                    diff = np.abs(b1-b2)
+                    block_sim = np.sum(diff <= fp) / block_cap          
+                    # block_sim = np.linalg.norm(b1-b2)    
+                else:
+                    # if is padded block 
+                    block_x_range_begin = block_x_idx*block_size_x
+                    block_y_range_begin = block_y_idx*block_size_y
+                    block_x_range_end = (block_x_idx+1)*block_size_x
+                    block_y_range_end = (block_y_idx+1)*block_size_y
+                    # resize the block
+                    if block_x_range_end > model_storage['weights_shape'][weight_idx][0]:
+                        block_x_range_end = model_storage['weights_shape'][weight_idx][0]
+                    # TODO temp fix for bias block
+                    if is_padded_bias:
+                        block_y_range_end = 1
+                    else:
+                        if block_y_range_end > model_storage['weights_shape'][weight_idx][1]:
+                            block_y_range_end = model_storage['weights_shape'][weight_idx][1]
+
+                    block_x_length = block_x_range_end - block_x_range_begin
+                    block_y_length = block_y_range_end - block_y_range_begin
+
+                    b1_unpadded = b1[:block_x_length, :block_y_length]
+                    b2_unpadded = b2[:block_x_length, :block_y_length]
+
+                    # FIXME Use L2 to measure distance
+                    diff = np.abs(b1_unpadded-b2_unpadded)
+                    block_sim = np.sum(diff <= fp) / (block_x_length*block_y_length)    
+                    # block_sim = np.linalg.norm(b1_unpadded-b2_unpadded)
+
+                # only compute the similarity for non-zero part
+                # b2_non_zero_part = b2[b1_non_zero_index]
+                # diff = np.abs(b2_non_zero_part-b1_non_zero_part)
+                # block_sim = np.sum(diff <= fp) / non_zero_size
+
+
+                # block_sim = np.linalg.norm(b1-b2)
+                # FIXME different criteria for different distance measurement
                 if block_sim > max_sim and block_sim >= sim:
+                # if block_sim < max_sim and block_sim >= sim:
                     max_sim = block_sim
                     max_b2 = b2
                     max_b2_index = b2_index
@@ -193,7 +313,9 @@ def deduplicate_model(model, model_storage,
 
             del weights_restored
             gc.collect()
-            step += 1
+
+            if is_updated_block:
+                step += 1
             
             if finetune:
                 list_dedup_blocks_idx.append((weight_idx, block_x_idx, block_y_idx))
@@ -201,10 +323,15 @@ def deduplicate_model(model, model_storage,
 
             
         # Evaluation at each eval_step
-        if step % eval_step == 0:
+        if step % eval_step == 0 and has_dedup:
             timer_eval.tic()
-            _, acc = model.evaluate(x_test, y_test)
+            if x_test is not None:
+                _, acc = model.evaluate(x_test, y_test, batch_size=eval_batch_size)
+            if ds_test is not None:
+                _, _, acc = model.evaluate(ds_test, steps=ds_test_steps)
             t_eval_time = timer_eval.toc()
+            last_eval_step = len(list_b1_index) + 1
+            step += 1
         else:
             if len(list_acc) != 0:
                 acc = list_acc[-1]
@@ -213,7 +340,10 @@ def deduplicate_model(model, model_storage,
         if finetune and step % ft_step == 0:
             model, model_storage = finetune_model(model, model_storage, list_dedup_blocks_idx, list_dedup_weights,
                                                   x_train, y_train, block_size_x, block_size_y, epochs=ft_epochs, batch_size=ft_batch_size)
-            _, acc = model.evaluate(x_test, y_test)
+            if x_test is not None:
+                _, acc = model.evaluate(x_test, y_test, batch_size=eval_batch_size)
+            if ds_test is not None:
+                _, _, acc = model.evaluate(ds_test, steps=ds_test_steps)
         
         t_total_time = timer_total.toc()
 
@@ -225,14 +355,42 @@ def deduplicate_model(model, model_storage,
         list_search_time.append(t_search_time)
         list_total_time.append(t_total_time)
         list_eval_time.append(t_eval_time)
+        list_is_padded_block.append(is_padded_block)
+        list_block_magnitude.append(magnitude_v)
 
         print('Progress: ', len(list_b2_index), '/',
-                len(block_magnitudes), ' Max sim', max_sim, 'Duplicate block', magnitude_k)
+                len(block_magnitudes), ' Max sim', max_sim, 'Duplicate block ', magnitude_k, 
+                ' Is Padded ',  is_padded_block, ' Block Magnitude ', magnitude_v)
     
         # Stop the deduplication once the accuracy reduction is larger than a threshold
         if ori_acc - acc > stop_acc_drop:
             break
+    
+    # perform a final evaluation in case there are blocks get deduplicated but the 
+    # model is not evaluated
 
+    if x_test is not None:
+        _, acc = model.evaluate(x_test, y_test, batch_size=eval_batch_size)
+    if ds_test is not None:
+        _, _, acc = model.evaluate(ds_test, steps=ds_test_steps)
+
+    if ori_acc - acc > stop_acc_drop:
+        # need to revert to last dedup checkpoint 
+        # num blocks needp to be reverted
+        list_b1_index = list_b1_index[:last_eval_step]
+        print(len(list_b1_index))
+        list_b2_index = list_b2_index[:last_eval_step]
+        list_b2_sim = list_b2_sim[:last_eval_step]
+        list_acc = list_acc[:last_eval_step]
+        list_is_deduplicate = list_is_deduplicate[:last_eval_step]
+        list_search_time = list_search_time[:last_eval_step]
+        list_total_time = list_total_time[:last_eval_step]
+        list_eval_time = list_eval_time[:last_eval_step]
+        list_is_padded_block = list_is_padded_block[:last_eval_step]
+        list_block_magnitude = list_block_magnitude[:last_eval_step]
+    else:
+        # update the lastest acc
+        list_acc[-1] = acc
     # Add the remaining not-deduplicated blocks to the result sheet
     for weight_idx in range(len(model_storage['weights_padded'])):
             m_weight_block_x_num, m_weight_block_y_num = model_storage[
@@ -252,10 +410,14 @@ def deduplicate_model(model, model_storage,
                     list_search_time.append('')
                     list_total_time.append('')
                     list_eval_time.append('')
+                    list_is_padded_block.append('')
+                    list_block_magnitude.append('')
 
     dedup_df = pd.DataFrame({'duplicate_block_idx': list_b1_index, 'deduplicate_block_idx': list_b2_index,
                                 'block_similarity': list_b2_sim, 'model_accuracy': list_acc,
+                                'is_padded_block': list_is_padded_block,
                                 'is_deduplicated': list_is_deduplicate,
+                                'block_magnitude': list_block_magnitude,
                                 'search_time': list_search_time,
                                 'eval_time': list_eval_time,
                                 'total_time': list_total_time})
