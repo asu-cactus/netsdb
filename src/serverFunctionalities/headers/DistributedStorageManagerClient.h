@@ -121,6 +121,21 @@ public:
 		   std::string& errMsg);
 
 
+  /* Link a shared block to its actual position in a tensor*/
+  bool addSharedMapping(std::string sharingDatabase,
+                  std::string sharingSetName,
+                  std::string sharingTypeName,
+                  std::string sharedDatabase,
+                  std::string sharedSetName,
+                  std::string sharedTypeName,
+                  std::string fileName,
+                  size_t totalRows,
+                  size_t totalCols,
+                  std::string& errMsg);
+
+
+
+
     // storage cleanup to flush buffered data to disk
     bool flushData(std::string& errMsg);
 

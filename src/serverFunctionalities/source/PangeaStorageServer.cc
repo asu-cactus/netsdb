@@ -28,6 +28,7 @@
 #include "StorageTestSetCopy.h"
 #include "BackendTestSetCopy.h"
 #include "StorageAddSharedPage.h"
+#include "StorageAddSharedMapping.h"
 #include "StorageAddTempSet.h"
 #include "StorageAddTempSetResult.h"
 #include "StorageRemoveDatabase.h"
@@ -51,6 +52,7 @@
 #include "PDBFlushConsumerWork.h"
 #include "ExportableObject.h"
 #include "JoinTupleBase.h"
+#include "SharedFFMatrixBlockSet.h"
 //#include <hdfs/hdfs.h>
 #include <cstdio>
 #include <memory>
@@ -992,6 +994,62 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
             std::cout << "end StorageAddObjectInLoop" << std::endl;
             return make_pair(everythingOK, errMsg);
         }));
+
+
+    // this handler accepts a request to store information regarding shared data
+    forMe.registerHandler(
+        StorageAddSharedMapping_TYPEID,
+        make_shared<SimpleRequestHandler<StorageAddSharedMapping>>([&](Handle<StorageAddSharedMapping> request,
+                                                                    PDBCommunicatorPtr sendUsingMe)     {
+                std::cout << "received StorageAddSharedMapping" << std::endl;
+                std::string errMsg;
+                auto databaseAndSet = make_pair((std::string)request->getSharingDatabase(),
+                                                (std::string)request->getSharingSetName());
+                std::cout << "to link shared blocks to " << request->getSharingDatabase() <<
+                        ":" << request->getSharingSetName() << std::endl;
+                SetPtr mySet = getFunctionality<PangeaStorageServer>().getSet(databaseAndSet);
+                if (mySet == nullptr) {
+                    std::cout << "Set doesn't exist: " << request->getSharingDatabase() << ":" << request->getSharingSetName() << std::endl;
+                    exit(1);
+                } 
+		
+                bool res = true;
+
+                auto sharedDatabaseAndSet = make_pair((std::string)request->getSharedDatabase(),
+                                                (std::string)request->getSharedSetName());
+
+
+
+		std::cout << "shared set:" << request->getSharedDatabase() << ":" << request->getSharedSetName() << std::endl;
+                SetPtr mySet1 = getFunctionality<PangeaStorageServer>().getSet(sharedDatabaseAndSet);
+		if (mySet1 == nullptr) {
+                    std::cout << "Set doesn't exist: " << request->getSharedDatabase() << ":" << request->getSharedSetName() << std::endl;
+                    exit(1);
+                }
+		SharedFFMatrixBlockSetPtr mySharedSet =  std::dynamic_pointer_cast<pdb::SharedFFMatrixBlockSet>(mySet1);
+                if(mySharedSet == nullptr) {
+                     std::cout << "Error: empty shared set" << std::endl;
+                } else {
+                     const UseTemporaryAllocationBlock myBlock{128*1024*1024};
+                     SetKey key;
+                     key.dbId = mySharedSet->getDbID();
+                     key.typeId = mySharedSet->getTypeID();
+                     key.setId = mySharedSet->getSetID();
+                     std::cout << "shared set: dbId=" << key.dbId
+                          << ", typeId=" << key.typeId
+                          << ", setId=" << key.setId << std::endl;
+                     std::string fileName = request->getFileName();
+		     size_t totalRows = request->getTotalRows();
+		     size_t totalCols = request->getTotalCols();
+		     mySharedSet->loadIndexFromFile(mySet->getDbID(), mySet->getTypeID(), mySet->getSetID(), fileName, totalRows, totalCols );
+		}
+
+                const UseTemporaryAllocationBlock tempBlock{1024};
+                Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(res, errMsg);
+
+                res = sendUsingMe->sendObject(response, errMsg);
+                return make_pair(res, errMsg);
+    }));
 
 
     // this handler accepts a request to store information regarding shared data
