@@ -52,11 +52,14 @@ class SemanticClassifier : public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
             // std::cout << inBlockRowIndex << "," << inBlockColIndex << std::endl;
 
             uint32_t sizeEmbed = this->sizeEmbed;
-            uint32_t sizeBatch = inNumRow;
+            uint32_t sizeBatch = inNumCol;
             uint32_t sizeDense0 = this->sizeDense0;
             uint32_t sizeDense1 = this->sizeDense1;
 
             std::cout << "Model Structure: " << sizeEmbed << "," << sizeDense0 << "," << sizeDense1 << std::endl;
+            std::cout << " inNumRow: " << in->getRowNums() << " inNumCol: " << in->getColNums() << " inBlockRowIndex: " << 
+                    in->getBlockRowIndex() << " inBlockColIndex: " << in->getBlockColIndex() << 
+                    " inTotalRowNums: " << in->getTotalRowNums() << " inTotalColNums: " << in->getTotalColNums() <<   std::endl;
             // std::cout << inBlockRowIndex << "," << inBlockColIndex << std::endl;
 
 
@@ -117,6 +120,7 @@ class SemanticClassifier : public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
             // convert result to FFMatrixBlock
             pdb::Handle<FFMatrixBlock> resultFFMatrixBlock =
                 pdb::makeObject<FFMatrixBlock>(inBlockRowIndex, inBlockColIndex,
+                                               sizeDense1, sizeBatch, 
                                                sizeDense1, sizeBatch, false);
 
             double *outData = resultFFMatrixBlock->getValue().rawData->c_ptr();

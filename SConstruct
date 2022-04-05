@@ -840,6 +840,8 @@ common_env.SharedLibrary('libraries/libFFMatrixWriter.so',
                          ['build/FF/FFMatrixWriter.cc'] + all)
 common_env.SharedLibrary('libraries/libFFAggMatrix.so',
                          ['build/FF/FFAggMatrix.cc'] + all)
+common_env.SharedLibrary('libraries/libFFAggMatrixByCol.so',
+                        ['build/FF/FFAggMatrixByCol.cc'] + all)                      
 common_env.SharedLibrary('libraries/libFFTransposeMult.so',
                          ['build/FF/FFTransposeMult.cc'] + all)
 common_env.SharedLibrary('libraries/libFFTransposeBiasSum.so',
@@ -1907,6 +1909,7 @@ libFFTest = common_env.Alias('libHeteroModel', [
     'libraries/libFFInputLayerJoin.so',
     'libraries/libFFMatrixWriter.so',
     'libraries/libFFAggMatrix.so',
+    'libraries/libFFAggMatrixByCol.so',
     'libraries/libFFTransposeBiasSum.so',
     'libraries/libFFTransposeMult.so',
     'libraries/libFFReluBiasSum.so',

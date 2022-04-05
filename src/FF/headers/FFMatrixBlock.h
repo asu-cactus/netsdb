@@ -146,6 +146,11 @@ public:
          return pdb::Hasher<int>::hash(meta->blockRowIndex);        
   }
 
+  FFMatrixBlock &operator+(FFMatrixBlock &other) {
+    // leave empty for testing
+
+    return *this;
+  }
 
 };
 
