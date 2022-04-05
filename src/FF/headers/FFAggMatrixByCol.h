@@ -9,7 +9,7 @@ using namespace pdb;
 
 // This aggregation will
 class FFAggMatrixByCol : public ClusterAggregateComp<FFMatrixBlock, FFMatrixBlock,
-                                                int, FFMatrixBlock> {
+                                                int, Handle<FFMatrixBlock>> {
 
 public:
   ENABLE_DEEP_COPY
@@ -25,7 +25,7 @@ public:
   }
 
   // the value type must have + defined
-  Lambda<FFMatrixBlock>
+  Lambda<Handle<FFMatrixBlock>>
   getValueProjection(Handle<FFMatrixBlock> aggMe) override {
       return makeLambda(aggMe, [](Handle<FFMatrixBlock>& aggMe) {
           //std::cout << "[FFAggMatrix] " << &aggMe << ", " << &(aggMe->getValue()) << std::endl;
