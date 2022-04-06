@@ -212,12 +212,16 @@ Used in the Greedy-1 algorithm in all 9 test cases:
 9. exp3-pair3 (50 * 10000, 64MB)
 These testing examples can be found in runGreedy-2.py in the corresponding 9 folders
 """
-def bin_pack_greedy1(tensor_list, tensor_id_list, blocks_in_page):
+def bin_pack_greedy1(tensor_list, tensor_id_list, blocks_in_page, blocks_id_max):
     
     I = set()
     for t_i in tensor_list:
         I = I.union(t_i)
     I = list(I)
+
+    total_block_set = set()
+    for i in range(blocks_id_max+1):
+        total_block_set.add(i)
 
     tuple_list = list()
     tuple_name_list = list()
@@ -257,20 +261,15 @@ def bin_pack_greedy1(tensor_list, tensor_id_list, blocks_in_page):
             this_set = tensor_list[this_tuple[0]].intersection(tensor_list[this_tuple[1]])
             for j in range(2,this_tuple_size):
                 this_set = this_set.intersection(tensor_list[this_tuple[j]])
-        for n in range(i):
-            previous_tuple = tuple_list[n]
-            try:
-                for m in range(this_tuple_size):
-                    previous_tuple.index(this_tuple[m])
-            except:
-                continue
-            if(i > 0):
-                this_set = this_set - set(block_list[n])
-        this_list = list(this_set)
+        this_equivalent_class_block = this_set.intersection(total_block_set)
+        total_block_set = total_block_set - this_equivalent_class_block
+        this_list = list(this_equivalent_class_block)
         block_list.append(this_list)
         equivalent_class_tensors.append(this_list)
         if(len(this_list) != 0):
             output_model_block_map[''.join(str(this_tuple_name))] = this_list
+    
+    #print(len(output_model_block_map))
 
     np.save('file2.npy', output_model_block_map)
 
@@ -280,7 +279,7 @@ def bin_pack_greedy1(tensor_list, tensor_id_list, blocks_in_page):
         for key,value in output_model_block_map.items():
             writer.writerow([key,value])
 
-    print('finish writing to the files')
+    #print('finish writing to the files')
 
     # pack the blocks based on the equivalent classes
     for k in range(len(equivalent_class_tensors)):
@@ -382,12 +381,16 @@ Used in the Two-Stage algorithm in the following 9 test cases:
 9. exp3-pair3 (50 * 10000, 64MB)
 These testing examples can be found in runTwo-Stage.py in the corresponding 9 folders
 """
-def bin_pack_twostage(tensor_list, tensor_id_list, blocks_in_page):
+def bin_pack_twostage(tensor_list, tensor_id_list, blocks_in_page, blocks_id_max):
 
     I = set()
     for t_i in tensor_list:
         I = I.union(t_i)
     I = list(I)
+
+    total_block_set = set()
+    for i in range(blocks_id_max+1):
+        total_block_set.add(i)
 
     p_i_j = BinPackingScheme(I, blocks_in_page)
 
@@ -416,9 +419,7 @@ def bin_pack_twostage(tensor_list, tensor_id_list, blocks_in_page):
         for j in range(len(temp_list)):
             tuple_list.append(temp_list[j])
             tuple_name_list.append(temp_list_name[j])
-    #print(tuple_list)
-    #print(len(tuple_list))
-    
+            
     output_model_block_map = dict()
 
     # create a list of equivalent class tensors
@@ -437,26 +438,19 @@ def bin_pack_twostage(tensor_list, tensor_id_list, blocks_in_page):
             this_set = tensor_list[this_tuple[0]].intersection(tensor_list[this_tuple[1]])
             for j in range(2,this_tuple_size):
                 this_set = this_set.intersection(tensor_list[this_tuple[j]])
-        for n in range(i):
-            previous_tuple = tuple_list[n]
-            try:
-                for m in range(this_tuple_size):
-                    previous_tuple.index(this_tuple[m])
-            except:
-                continue
-            if(i > 0):
-                this_set = this_set - set(block_list[n])
-        this_list = list(this_set)
+        this_equivalent_class_block = this_set.intersection(total_block_set)
+        total_block_set = total_block_set - this_equivalent_class_block
+        this_list = list(this_equivalent_class_block)
         block_list.append(this_list)
         equivalent_class_tensors.append(this_list)
-        this_numBins = int(len(this_set) / blocks_in_page)
-        numBins = numBins + this_numBins
-        for i in range(len(this_set)):
+        this_numBins = int(len(this_equivalent_class_block) / blocks_in_page)
+        for i in range(len(this_equivalent_class_block)):
             j = I.index(this_list[i]) + 1
             s = numBins + math.ceil(i / blocks_in_page)
             p_i_j.mark(j, s)
+        numBins = numBins + this_numBins
         p_i_j.numBins = numBins
-        this_remain = len(this_set) - blocks_in_page*this_numBins
+        this_remain = len(this_equivalent_class_block) - blocks_in_page*this_numBins
         if (this_remain!=0):
             for i in range(block_id, block_id + this_remain):
                 for j in range(len(this_tuple)):
@@ -491,12 +485,14 @@ Used in the Baseline algorithm in all 9 test cases:
 These testing examples can be found in runBaseline.py in the corresponding 9 folders
 """
 def bin_pack_base(T, l):
+
     I = set()
     for t_i in T:
         I = I.union(t_i)
     I = list(I)
     
     items = T[0]
+    items_list = list(items)
 
     i, j = 0, 0
     p_i_j = BinPackingScheme(I, l)
@@ -504,7 +500,7 @@ def bin_pack_base(T, l):
     # Process at all items in t0
     for i in range(1, len(items) + 1):
         # Use 1-index according to logic
-        j = I.index(items[i - 1]) + 1
+        j = I.index(items_list[i - 1]) + 1
         s = math.ceil(i / l)
         p_i_j.mark(j, s)
 
@@ -528,10 +524,19 @@ def bin_pack_base(T, l):
 
             numBins = numBins + math.ceil(len(remaining_items) / l)
             p_i_j.numBins = numBins
-
     return set([p_i_j])
 
 def bin_pack_private_blocks(T, T_id, l):
+
+    I = set()
+    for t_i in T:
+        I = I.union(t_i)
+    I = list(I)
+    
+    items = T[0]
+
+    i, j = 0, 0
+    p_i_j = BinPackingScheme(I, l)
 
     output_model_block_map = dict()
     tensor_id_tuple = list()
@@ -553,5 +558,15 @@ def bin_pack_private_blocks(T, T_id, l):
         writer=csv.writer(csv_file)
         for key,value in output_model_block_map.items():
             writer.writerow([key,value])
-    
-    print('finish writing private blocks to the files')
+
+    numBins = 0
+    for i in range(len(T)):
+        this_unique_tensor = T[i]
+        this_unique_list = list(this_unique_tensor)
+        for j in range(1, len(this_unique_list) + 1):
+            s = I.index(this_unique_list[j - 1]) + 1
+            u = numBins + math.ceil(j / l)
+            p_i_j.mark(s, u)
+        numBins = numBins + math.ceil(len(this_unique_list) / l)
+        p_i_j.numBins = numBins
+    return set([p_i_j])
