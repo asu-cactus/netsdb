@@ -140,18 +140,73 @@ public:
   }  
 
   size_t hash() const override{
-     if (partitionByCol)
+     if (partitionByCol) 
          return pdb::Hasher<int>::hash(meta->blockColIndex);  
      else
          return pdb::Hasher<int>::hash(meta->blockRowIndex);        
   }
 
+  // This is a overloaded + operator that will be invoked in the aggregation
   FFMatrixBlock &operator+(FFMatrixBlock &other) {
-    // leave empty for testing
+    /** //TODO
+     * The current implementation only merges several FFMatrixBlock into a single matrix
+     * so the output is ready to be sent to a UDF-based classifier. The ideal way is we 
+     * can support concatenating the blocks along the feature's dimension. It can both 
+     * x and y.  
+     * */
 
-    return *this;
+    /**
+     * Following code is used for debug, keep it here temporary  
+    std::cout << "entering the overloaded + " << this->hash() << std::endl;
+    std::cout << "block 1 INFO: " << std::endl;
+    std::cout << " inNumRow: " << this->getRowNums() << " inNumCol: " << this->getColNums() << " inBlockRowIndex: " << 
+                    this->getBlockRowIndex() << " inBlockColIndex: " << this->getBlockColIndex() << 
+                    " inTotalRowNums: " << this->getTotalRowNums() << " inTotalColNums: " << this->getTotalColNums() <<   std::endl;
+    std::cout << "block 2 INFO: " << std::endl;
+    std::cout << " inNumRow: " << other.getRowNums() << " inNumCol: " << other.getColNums() << " inBlockRowIndex: " << 
+                    other.getBlockRowIndex() << " inBlockColIndex: " << other.getBlockColIndex() << 
+                    " inTotalRowNums: " << other.getTotalRowNums() << " inTotalColNums: " << other.getTotalColNums() <<   std::endl;
+    **/
+
+    int totalRows = this->getTotalRowNums();
+    int totalCols = this->getTotalColNums();
+
+    if ((this->getRowNums() == totalRows) && (this->getColNums() == totalCols)) {
+    // the block (this) is already enlarged, the rest thing is adding the other block to 
+    // its corresponding position
+      for (int i = 0; i < other.getRowNums(); i++) {
+        for (int j = 0; j < other.getColNums(); j++) {
+          int finalRowIndex = other.getBlockRowIndex() * other.getRowNums() + i;
+          int finalColIndex = other.getBlockColIndex() * other.getColNums() + j;
+          (*((this->data).rawData))[finalRowIndex * totalCols + finalColIndex] =
+                        (*(other.data.rawData))[i * other.data.colNums + j];
+        }
+      }
+      return *this;
+    } else {
+      // need to create a large single block and add the blocks value to the created one
+      pdb::Handle<FFMatrixBlock> result = pdb::makeObject<FFMatrixBlock>(0, 0, totalRows, totalCols, totalRows, totalCols);
+      // Add block (this)
+      for (int i = 0; i < this->getRowNums(); i++) {
+        for (int j = 0; j < this->getColNums(); j++) {
+          int finalRowIndex = this->getBlockRowIndex() * this->getRowNums() + i;
+          int finalColIndex = this->getBlockColIndex() * this->getColNums() + j;
+          (*((result->data).rawData))[finalRowIndex * totalCols + finalColIndex] =
+                        (*(this->data.rawData))[i * this->data.colNums + j];
+        }
+      }
+      // Add block (other)
+      for (int i = 0; i < other.getRowNums(); i++) {
+        for (int j = 0; j < other.getColNums(); j++) {
+          int finalRowIndex = other.getBlockRowIndex() * other.getRowNums() + i;
+          int finalColIndex = other.getBlockColIndex() * other.getColNums() + j;
+          (*((result->data).rawData))[finalRowIndex * totalCols + finalColIndex] =
+                        (*(other.data.rawData))[i * other.data.colNums + j];
+        }
+      }
+      return *result;
+    }
   }
-
 };
 
 #endif

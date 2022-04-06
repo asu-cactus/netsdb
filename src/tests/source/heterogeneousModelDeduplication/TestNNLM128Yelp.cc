@@ -14,7 +14,7 @@
 #include "PDBClient.h"
 #include "PDBMap.h"
 #include "PDBString.h"
-#include "SemanticClassifier.h"
+#include "SemanticClassifierSingleBlock.h"
 #include "SimpleFF.h"
 #include "TensorBlockIndex.h"
 #include <algorithm>
@@ -60,12 +60,13 @@ int main(int argc, char *argv[]) {
         ff::loadLibrary(pdbClient, "libraries/libFFMatrixMeta.so");
         ff::loadLibrary(pdbClient, "libraries/libFFMatrixData.so");
         ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlock.so");
+        ff::loadLibrary(pdbClient, "libraries/libFFSingleMatrix.so");
         ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlockScanner.so");
         ff::loadLibrary(pdbClient, "libraries/libFFMatrixWriter.so");
         ff::loadLibrary(pdbClient, "libraries/libFFAggMatrix.so");
         ff::loadLibrary(pdbClient, "libraries/libFFAggMatrixByCol.so");
         ff::loadLibrary(pdbClient, "libraries/libFFTransposeMult.so");
-        ff::loadLibrary(pdbClient, "libraries/libSemanticClassifier.so");
+        ff::loadLibrary(pdbClient, "libraries/libSemanticClassifierSingleBlock.so");
 
         //create input set
         pdbClient.createSet<FFMatrixBlock>("text-classification", "inputs", errMsg,
@@ -77,10 +78,6 @@ int main(int argc, char *argv[]) {
                                            errMsg, DEFAULT_PAGE_SIZE, "weights",
                                            nullptr, nullptr, false);
 
-        // pdbClient.createSet<FFMatrixBlock>("text-classification", "embedoutput_fake",
-        //                                    errMsg, DEFAULT_PAGE_SIZE, "embedoutput_fake",
-        //                                    nullptr, nullptr, false);
-        
         // batch_size x vocab_size
         std::cout << "To load matrix for text-classification::inputs"
                   << std::endl;
@@ -101,6 +98,7 @@ int main(int argc, char *argv[]) {
     pdbClient.createSet<FFMatrixBlock>("text-classification", "outputs", errMsg,
                                        DEFAULT_PAGE_SIZE, "outputs", nullptr,
                                        nullptr, false);
+
     // make the reader
     pdb::Handle<pdb::Computation> readA =
         makeObject<FFMatrixBlockScanner>("text-classification", "weights");
@@ -117,54 +115,18 @@ int main(int argc, char *argv[]) {
         pdb::makeObject<FFAggMatrix>();
     myAggregation->setInput(join);
 
+    // merge the all FFMatrixcBlocks to one single FFMatrix
     pdb::Handle<pdb::Computation> myAggregation1 =
         pdb::makeObject<FFAggMatrixByCol>();
     myAggregation1->setInput(myAggregation);
-
-
-    // pdb::Handle<pdb::Computation> embedOutputWriter =
-    //     pdb::makeObject<FFMatrixWriter>("text-classification", "embedoutput");
-
-    bool materializeHash = false;
-
-    // embedOutputWriter->setInput(myAggregation1);
-
-    auto exe_begin = std::chrono::high_resolution_clock::now();
-
-    // if (!pdbClient.executeComputations(errMsg, "NNLM50_IMDB", materializeHash,
-    //                                    embedOutputWriter)) {
-    //     cout << "Computation failed. Message was: " << errMsg << "\n";
-    //     exit(1);
-    // }
-
-
-    // verify the results
-    // ff::print_stats(pdbClient, "text-classification", "embedoutput");
-    // ff::print(pdbClient, "text-classification", "embedoutput");
-
-    auto end = std::chrono::high_resolution_clock::now();
-    
-    float exe_embed_inference = std::chrono::duration_cast<std::chrono::duration<float>>(end -
-                                                                          begin)
-                                                    .count();
-
-
-    // ff::loadMatrix(pdbClient, "text-classification", "embedoutput_fake",
-    //                    embedding_dimension, batch_size, embedding_dimension, batch_size, false,
-    //                    false, errMsg);
-
-    // pdb::Handle<pdb::Computation> readEmbedOutput =
-    //     makeObject<FFMatrixBlockScanner>("text-classification", "embedoutput_fake");
-    // pdb::Handle<pdb::Computation> readEmbedOutput =
-    //     makeObject<FFMatrixBlockScanner>("text-classification", "embedoutput");
-    
 
     // make the classifier
     uint32_t sizeDense0 = 16;
     uint32_t sizeDense1 = 1;
 
+    // SemanticClassifierSingleBlock takes the input as FFSingleMatrix
     pdb::Handle<pdb::Computation> classifier =
-        pdb::makeObject<SemanticClassifier>(embedding_dimension, sizeDense0, sizeDense1);
+        pdb::makeObject<SemanticClassifierSingleBlock>(embedding_dimension, sizeDense0, sizeDense1);
     classifier->setInput(myAggregation1);
 
     // make the writer
@@ -174,27 +136,24 @@ int main(int argc, char *argv[]) {
     myWriter->setInput(classifier);
 
 
-    exe_begin = std::chrono::high_resolution_clock::now();
+    auto exe_begin = std::chrono::high_resolution_clock::now();
+    bool materializeHash = false;
 
     // run the computation
-    if (!pdbClient.executeComputations(errMsg, "NNLM50_IMDB", materializeHash,
+    if (!pdbClient.executeComputations(errMsg, "NNLM128_IMDB", materializeHash,
                                        myWriter)) {
         cout << "Computation failed. Message was: " << errMsg << "\n";
         exit(1);
     }
 
-    end = std::chrono::high_resolution_clock::now();
+    auto end = std::chrono::high_resolution_clock::now();
     std::cout << "****Text Classification End-to-End Time Duration: ****"
               << std::chrono::duration_cast<std::chrono::duration<float>>(end -
                                                                           begin)
                      .count()
               << " secs." << std::endl;
-    
-    std::cout << "****Text Classification: Embed Inference Duration: ****"
-              << exe_embed_inference
-              << " secs." << std::endl;
 
-    std::cout << "****Text Classification: Classifier Inference Duration: ****"
+    std::cout << "****Text Classification Execution Time Duration: ****"
               << std::chrono::duration_cast<std::chrono::duration<float>>(
                      end - exe_begin)
                      .count()

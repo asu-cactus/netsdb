@@ -828,6 +828,8 @@ common_env.Program('bin/pipelineBench',
 # common_env.SharedLibrary('libraries/.so', ['build/FF/.cc'] + all)
 common_env.SharedLibrary('libraries/libFFMatrixBlock.so',
                          ['build/FF/FFMatrixBlock.cc'] + all)
+common_env.SharedLibrary('libraries/libFFSingleMatrix.so',
+                         ['build/FF/FFSingleMatrix.cc'] + all)    
 common_env.SharedLibrary('libraries/libFFMatrixData.so',
                          ['build/FF/FFMatrixData.cc'] + all)
 common_env.SharedLibrary('libraries/libFFMatrixMeta.so',
@@ -1390,6 +1392,8 @@ common_env.SharedLibrary('libraries/libEmbeddingSegment.so',
                         ['build/word2vec/EmbeddingSegment.cc'] + all)
 common_env.SharedLibrary('libraries/libSemanticClassifier.so',
                         ['build/word2vec/SemanticClassifier.cc'] + all)
+common_env.SharedLibrary('libraries/libSemanticClassifierSingleBlock.so',
+                        ['build/word2vec/SemanticClassifierSingleBlock.cc'] + all)
 common_env.Program('bin/classifier', 
                         ['build/tests/TestSemanticClassifier.cc', 'build/FF/SimpleFF.cc',
                         'build/FF/FFMatrixUtil.cc', 'build/word2vec/SemanticClassifier.cc'] + all + pdb_client)
@@ -1902,7 +1906,9 @@ libFFTest = common_env.Alias('libHeteroModel', [
     # Other libraries from src/FF
     'libraries/libFullyConnectedNetwork.so',
     'libraries/libSemanticClassifier.so',
+    'libraries/libSemanticClassifierSingleBlock.so',
     'libraries/libFFMatrixBlock.so',
+    'libraries/libFFSingleMatrix.so',
     'libraries/libFFMatrixMeta.so',
     'libraries/libFFMatrixData.so',
     'libraries/libFFMatrixBlockScanner.so',

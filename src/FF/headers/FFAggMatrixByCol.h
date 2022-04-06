@@ -3,12 +3,15 @@
 
 #include "ClusterAggregateComp.h"
 #include "FFMatrixBlock.h"
+# include "MatrixBlock.h"
+#include "FFSingleMatrix.h"
 #include "LambdaCreationFunctions.h"
 
 using namespace pdb;
 
-// This aggregation will
-class FFAggMatrixByCol : public ClusterAggregateComp<FFMatrixBlock, FFMatrixBlock,
+// This aggregation will merge all FFMatrixBlock into a single bigger Matrix,
+// which is called FFSingleMatrix
+class FFAggMatrixByCol : public ClusterAggregateComp<FFSingleMatrix, FFMatrixBlock,
                                                 int, FFMatrixBlock> {
 
 public:
@@ -18,20 +21,18 @@ public:
 
   // the key type must have == and size_t hash () defined
   Lambda<int> getKeyProjection(Handle<FFMatrixBlock> aggMe) override {
-    //   return makeLambda(aggMe, [](Handle<FFMatrixBlock>& aggMe) {
-    //       return aggMe->getKey();
-    //   });
-      return makeLambda(aggMe, [](Handle<FFMatrixBlock>& aggMe){return aggMe->getBlockColIndex();});
+      return makeLambda(aggMe, [](Handle<FFMatrixBlock>& aggMe) {
+        // all FFMatrixBlock will be grouped together
+        return 1;
+      });
   }
 
   // the value type must have + defined
-  Lambda<FFMatrixBlock>
-  getValueProjection(Handle<FFMatrixBlock> aggMe) override {
-      return makeLambda(aggMe, [](Handle<FFMatrixBlock>& aggMe) {
-          //std::cout << "[FFAggMatrix] " << &aggMe << ", " << &(aggMe->getValue()) << std::endl;
-          return *aggMe;
-      });
-  }
+    Lambda<FFMatrixBlock> getValueProjection(Handle<FFMatrixBlock> aggMe) override {
+        // return the FFmatrixBlock, the aggregation will invoke the overloaded + operator 
+        // which is defined in FFMatrixBlock
+        return makeLambda(aggMe, [](Handle<FFMatrixBlock>& aggMe) { return *aggMe; });
+    }
 };
 
 #endif

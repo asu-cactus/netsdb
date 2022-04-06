@@ -14,8 +14,9 @@
 #include "FFMatrixBlockScanner.h"
 #include "FFMatrixWriter.h"
 #include "FFAggMatrix.h"
+#include "FFAggMatrixByCol.h"
 #include "FFTransposeMult.h"
-#include "SemanticClassifier.h"
+#include "SemanticClassifierSingleBlock.h"
 #include <cstddef>
 #include <iostream>
 #include <fstream>
@@ -61,11 +62,13 @@ int main(int argc, char *argv[]) {
         ff::loadLibrary(pdbClient, "libraries/libFFMatrixMeta.so");
         ff::loadLibrary(pdbClient, "libraries/libFFMatrixData.so");
         ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlock.so");
+        ff::loadLibrary(pdbClient, "libraries/libFFSingleMatrix.so");
         ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlockScanner.so");
         ff::loadLibrary(pdbClient, "libraries/libFFMatrixWriter.so");
         ff::loadLibrary(pdbClient, "libraries/libFFAggMatrix.so");
+        ff::loadLibrary(pdbClient, "libraries/libFFAggMatrixByCol.so");
         ff::loadLibrary(pdbClient, "libraries/libFFTransposeMult.so");
-        ff::loadLibrary(pdbClient, "libraries/libSemanticClassifier.so");
+        ff::loadLibrary(pdbClient, "libraries/libSemanticClassifierSingleBlock.so");
 
         //create input set
         pdbClient.createSet<FFMatrixBlock>("text-classification", "inputs", errMsg,
@@ -112,13 +115,19 @@ int main(int argc, char *argv[]) {
         pdb::makeObject<FFAggMatrix>();
     myAggregation->setInput(join);
 
+    // merge the all FFMatrixcBlocks to one single FFMatrix
+    pdb::Handle<pdb::Computation> myAggregation1 =
+        pdb::makeObject<FFAggMatrixByCol>();
+    myAggregation1->setInput(myAggregation);
+
     // make the classifier
     uint32_t sizeDense0 = 16;
     uint32_t sizeDense1 = 1;
 
+    // SemanticClassifierSingleBlock takes the input as FFSingleMatrix
     pdb::Handle<pdb::Computation> classifier =
-        pdb::makeObject<SemanticClassifier>(embedding_dimension, sizeDense0, sizeDense1);
-    classifier->setInput(myAggregation);
+        pdb::makeObject<SemanticClassifierSingleBlock>(embedding_dimension, sizeDense0, sizeDense1);
+    classifier->setInput(myAggregation1);
 
     // make the writer
     pdb::Handle<pdb::Computation> myWriter = nullptr;
