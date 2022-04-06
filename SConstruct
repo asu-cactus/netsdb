@@ -1325,6 +1325,10 @@ common_env.Program('bin/word2vec', ['build/word2vec/Word2Vec.cc',
                                     'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
 common_env.Program('bin/FFTest', ['build/tests/FFTest.cc',
                                   'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
+common_env.Program('bin/FFTestWithoutDeduplication', ['build/tests/FFTestWithoutDeduplication.cc',
+                                  'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
+common_env.Program('bin/FFTestWithDeduplication', ['build/tests/FFTestWithDeduplication.cc',
+                                  'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
 common_env.Program('bin/RedditFeatureExtractor', ['build/tests/RedditFeatureExtractor.cc',
                                                   'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
 common_env.Program(
@@ -1909,6 +1913,8 @@ libFFTest = common_env.Alias('libFFTest', [
     'bin/pdb-cluster',
     'bin/pdb-server',
     'bin/testDedup',
+    'bin/FFTestWithoutDeduplication',
+    'bin/FFTestWithDeduplication',
     'bin/FFTest',
     'bin/RedditFeatureExtractor',
     'bin/loadRedditCommentsIndexPartition',

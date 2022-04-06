@@ -268,7 +268,7 @@ int main(int argc, char* argv[]) {
      std::vector<FFMatrixMeta> listOfSharedBlocks;
      for (int i = 0; i < 5; i++) {
         for (int j = 0; j < 90; j++) {
-            FFMatrixMeta meta(i, j, i, j);//for shared blocks, we use the totalRows field to store the static block row Id, and use the totalCols field to store the static block col id
+            FFMatrixMeta meta(i, j, i*5+j, 0);//for shared blocks, we use the totalRows field to store the distinct block id
             listOfSharedBlocks.push_back(meta);	    
 	}
      }
