@@ -14,7 +14,7 @@
 #include "FFMatrixBlockScanner.h"
 #include "FFMatrixWriter.h"
 #include "FFAggMatrix.h"
-#include "FFAggMatrixByCol.h"
+#include "FFAggMatrixToOneMatrix.h"
 #include "FFTransposeMult.h"
 #include "SemanticClassifierSingleBlock.h"
 #include <cstddef>
@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
         ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlockScanner.so");
         ff::loadLibrary(pdbClient, "libraries/libFFMatrixWriter.so");
         ff::loadLibrary(pdbClient, "libraries/libFFAggMatrix.so");
-        ff::loadLibrary(pdbClient, "libraries/libFFAggMatrixByCol.so");
+        ff::loadLibrary(pdbClient, "libraries/libFFAggMatrixToOneMatrix.so");
         ff::loadLibrary(pdbClient, "libraries/libFFTransposeMult.so");
         ff::loadLibrary(pdbClient, "libraries/libSemanticClassifierSingleBlock.so");
 
@@ -117,7 +117,7 @@ int main(int argc, char *argv[]) {
 
     // merge the all FFMatrixcBlocks to one single FFMatrix
     pdb::Handle<pdb::Computation> myAggregation1 =
-        pdb::makeObject<FFAggMatrixByCol>();
+        pdb::makeObject<FFAggMatrixToOneMatrix>();
     myAggregation1->setInput(myAggregation);
 
     // make the classifier

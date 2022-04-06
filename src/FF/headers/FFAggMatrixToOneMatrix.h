@@ -1,5 +1,5 @@
-#ifndef FF_AGG_MATRIX_BY_COL_H
-#define FF_AGG_MATRIX_BY_COL_H
+#ifndef FF_AGG_MATRIX_TO_ONE_MATRIX_H
+#define FF_AGG_MATRIX_TO_ONE_MATRIX_H
 
 #include "ClusterAggregateComp.h"
 #include "FFMatrixBlock.h"
@@ -11,13 +11,13 @@ using namespace pdb;
 
 // This aggregation will merge all FFMatrixBlock into a single bigger Matrix,
 // which is called FFSingleMatrix
-class FFAggMatrixByCol : public ClusterAggregateComp<FFSingleMatrix, FFMatrixBlock,
+class FFAggMatrixToOneMatrix : public ClusterAggregateComp<FFSingleMatrix, FFMatrixBlock,
                                                 int, FFMatrixBlock> {
 
 public:
   ENABLE_DEEP_COPY
 
-  FFAggMatrixByCol() {}
+  FFAggMatrixToOneMatrix() {}
 
   // the key type must have == and size_t hash () defined
   Lambda<int> getKeyProjection(Handle<FFMatrixBlock> aggMe) override {
