@@ -55,10 +55,10 @@ elif common_env['PLATFORM'] == 'posix':
         CXXFLAGS='-std=c++14 -g3 -O3 -fPIC -fno-tree-vectorize  -march=native -Winline  -Wno-deprecated-declarations')
     #common_env.Append(CXXFLAGS = '-std=c++14 -g  -Oz -ldl -lstdc++ -Wno-deprecated-declarations')
     #LIBPYTORCH_PATH = "/home/ubuntu/anaconda3/envs/py37_torch/lib/python3.7/site-packages/torch/lib"
-    LIBPYTORCH_PATH = "/home/ubuntu/libtorch/lib"
+    LIBPYTORCH_PATH = "/home/ubuntu/pytorch/torch/lib"
     if os.path.exists(LIBPYTORCH_PATH):
         common_env.Append(
-            LINKFLAGS=f'-L{LIBPYTORCH_PATH} -pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++ -lcrypto -lssl -ltorch -ltorch_cpu -lc10')
+            LINKFLAGS='-L/home/ubuntu/pytorch/torch/lib -pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++ -lcrypto -lssl -ltorch -ltorch_cpu -lc10')
     else:
         common_env.Append(
             LINKFLAGS='-pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++ -lcrypto -lssl')
@@ -718,7 +718,7 @@ common_env.Program('bin/tpchTraining1',
                    ['build/tpch/tpchTraining1.cc'] + all + pdb_client)
 common_env.Program('bin/tpchGenTrace',
                    ['build/tpch/tpchGenTrace.cc'] + all + pdb_client)
-common_env.Program('bin/testDedup', ['build/tests/TestDeduplication.cc']+ all + pdb_client)
+
 common_env.Program('bin/sequentialReadWrite',
                    ['build/tests/SequentialReadWriteTest.cc'] + all + pdb_client)
 common_env.Program('bin/tpchDataLoader',
@@ -1325,6 +1325,14 @@ common_env.Program('bin/word2vec', ['build/word2vec/Word2Vec.cc',
                                     'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
 common_env.Program('bin/FFTest', ['build/tests/FFTest.cc',
                                   'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
+common_env.Program('bin/FFTestAmazonCat-13kFFNN', ['build/tests/heterogeneousModelDeduplication/TestAmazonCat-13kFFNN.cc',
+                                  'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
+common_env.Program('bin/FFTestAmazonCat-14kFFNN', ['build/tests/heterogeneousModelDeduplication/TestAmazonCat-14kFFNN.cc',
+                                  'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
+common_env.Program('bin/FFTestEURLex-4.3kFFNN', ['build/tests/heterogeneousModelDeduplication/TestEURLex-4.3kFFNN.cc',
+                                  'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
+common_env.Program('bin/FFTestRCV1-2kFFNN', ['build/tests/heterogeneousModelDeduplication/TestRCV1-2kFFNN.cc',
+                                  'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
 common_env.Program('bin/RedditFeatureExtractor', ['build/tests/RedditFeatureExtractor.cc',
                                                   'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
 common_env.Program(
@@ -1852,7 +1860,6 @@ libFFTest = common_env.Alias('libword2vec', [
     'bin/pdb-cluster',
     'bin/pdb-server',
     'bin/word2vec',
-    'bin/testDedup',
     'bin/testTensorBlockIndex',
     'bin/testSharedTensorBlockSet',
     'bin/testWord2VecWithDeduplication',
@@ -1908,7 +1915,10 @@ libFFTest = common_env.Alias('libclassifier', [
 libFFTest = common_env.Alias('libFFTest', [
     'bin/pdb-cluster',
     'bin/pdb-server',
-    'bin/testDedup',
+    'bin/FFTestAmazonCat-13kFFNN',
+    'bin/FFTestAmazonCat-14kFFNN',
+    'bin/FFTestEURLex-4.3kFFNN',
+    'bin/FFTestRCV1-2kFFNN',
     'bin/FFTest',
     'bin/RedditFeatureExtractor',
     'bin/loadRedditCommentsIndexPartition',
