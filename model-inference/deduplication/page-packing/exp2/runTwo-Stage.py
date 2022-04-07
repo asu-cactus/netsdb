@@ -87,7 +87,7 @@ for t in range(num_tensors_4):
         
 num_tensors = num_tensors_1 + num_tensors_2 + num_tensors_3 + num_tensors_4
 #print(num_tensors)
-
+"""
 output = dict()
 output['list_of_tensors'] = list_of_tensors
 #print(len(list_of_tensors))
@@ -104,11 +104,12 @@ for num in range(4):
     a2=set(input['list_of_tensors'][2+num*4])
     a3=set(input['list_of_tensors'][3+num*4])
     tensor_list_model[num]=a0.union(a1, a2, a3)
-
+"""
+"""
 # transfer the set to list
 for i in range(4):
     list_of_tensors_model[i] = list(tensor_list_model[i])
-
+"""
 """
 for i in range(len(list_of_tensors)):
     print('tensor: ', i)
@@ -116,13 +117,16 @@ for i in range(len(list_of_tensors)):
 """
 
 list_of_first_tensors = list()
-list_of_tensor_id = list()
+
+#list_of_tensor_id = list()
 for i in range(4):
     list_of_first_tensors.append(list_of_tensors[i*4])
-    list_of_tensor_id.append(i*4)
+    #list_of_tensor_id.append(i*4)
 
 list_of_private_tensors = list()
 list_of_private_tensors_id = list()
+
+list_of_tensor_id = list(np.arange(16))
 
 for i in range(4):
     for j in range(1, 4):
@@ -137,15 +141,15 @@ blocks_in_page = 2
 P = set()
 # run the Two-Stage algorithm
 start = timeit.default_timer()
-P = bin_pack_twostage(list_of_first_tensors, list_of_tensor_id, blocks_in_page, blocks_id_max)
-P_unique = bin_pack_private_blocks(list_of_private_tensors,list_of_private_tensors_id, blocks_in_page)
-#P = bin_pack_twostage(tensor_list_model, tensor_list_model, blocks_in_page, blocks_id_max)
+#P = bin_pack_twostage(list_of_first_tensors, list_of_tensor_id, blocks_in_page, blocks_id_max)
+#P_unique = bin_pack_private_blocks(list_of_private_tensors,list_of_private_tensors_id, blocks_in_page)
+P = bin_pack_twostage(list_of_tensors, list_of_tensor_id, blocks_in_page, blocks_id_max)
 stop = timeit.default_timer()
 L = list(P)
-L_unique = list(P_unique)
+#L_unique = list(P_unique)
 
 # print the results
 print('page packing latency: ', stop - start , ' seconds')
 print('required number of pages of shared blocks: ', L[0].numBins, ' pages')
-print('required number of pages of non-shared blocks: ', L_unique[0].numBins, ' pages')
-print('required number of pages of all blocks: ', L[0].numBins + L_unique[0].numBins, ' pages')
+#print('required number of pages of non-shared blocks: ', L_unique[0].numBins, ' pages')
+#print('required number of pages of all blocks: ', L[0].numBins + L_unique[0].numBins, ' pages')

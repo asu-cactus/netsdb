@@ -137,18 +137,18 @@ blocks_in_page = 2
 P = set()
 # run the Greedy-2 algorithm
 start = timeit.default_timer()
-P, tensor_page_mapping = bin_pack_greedy2(list_of_first_tensors, blocks_in_page)
-P_unique = bin_pack_private_blocks(list_of_private_tensors,list_of_private_tensors_id, blocks_in_page)
-#P, tensor_page_mapping = bin_pack_greedy2(tensor_list_model, blocks_in_page)
+#P, tensor_page_mapping = bin_pack_greedy2(list_of_first_tensors, blocks_in_page)
+#P_unique = bin_pack_private_blocks(list_of_private_tensors,list_of_private_tensors_id, blocks_in_page)
+P, tensor_page_mapping = bin_pack_greedy2(list_of_tensors, blocks_in_page)
 stop = timeit.default_timer()
 L = list(P)
-L_unique = list(P_unique)
+#L_unique = list(P_unique)
 
 # print the results
 print('page packing latency: ', stop - start , ' seconds')
 print('required number of pages of shared blocks: ', L[0].numBins, ' pages')
-print('required number of pages of non-shared blocks: ', L_unique[0].numBins, ' pages')
-print('required number of pages of all blocks: ', L[0].numBins + L_unique[0].numBins, ' pages')
+#print('required number of pages of non-shared blocks: ', L_unique[0].numBins, ' pages')
+#print('required number of pages of all blocks: ', L[0].numBins + L_unique[0].numBins, ' pages')
 
 #print(L[0].p_i_j)
 #print(np.shape(L[0].p_i_j))
