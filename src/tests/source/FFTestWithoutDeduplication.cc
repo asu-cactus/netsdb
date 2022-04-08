@@ -111,14 +111,14 @@ int main(int argc, char *argv[]) {
 
     std::cout << "To load matrix for " << databaseName << ":b1" << std::endl;
     ff::loadMatrix(pdbClient, databaseName, "b1", numNeurons, 1, block_x,
-                   block_y, false, true, errMsg);
+                   1, false, true, errMsg);
 
     std::cout << "To load matrix for " << databaseName << ":wo" << std::endl;
     ff::loadMatrix(pdbClient, databaseName, "wo", numLabels, numNeurons, block_x,
-                   block_y, false, false, errMsg);
+                   block_x, false, false, errMsg);
     // 2 x 1
     std::cout << "To load matrix for " << databaseName << ":bo" << std::endl;
-    ff::loadMatrix(pdbClient, databaseName, "bo", numLabels, 1, block_x, block_y,
+    ff::loadMatrix(pdbClient, databaseName, "bo", numLabels, 1, block_x, 1,
                    false, true, errMsg);
   }
 
@@ -138,7 +138,7 @@ int main(int argc, char *argv[]) {
 
 
 
-  vector<vector<double>> labels_test;
+/*  vector<vector<double>> labels_test;
 
   if (!generate)
     ff::load_matrix_from_file(labels_path, labels_test);
@@ -184,6 +184,6 @@ int main(int argc, char *argv[]) {
   std::cout << "count=" << count << std::endl;
 
   sleep(20);
-
+*/
   return 0;
 }
