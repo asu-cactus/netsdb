@@ -27,6 +27,7 @@
 #include <fcntl.h>
 #include <string>
 #include <random>
+#include <stdlib.h> 
 
 using namespace std;
 using namespace boost;
@@ -41,6 +42,7 @@ void load_data(pdb::PDBClient & pdbClient, std::string db_name, std::string set_
          pdb::makeObject<pdb::Vector<pdb::Handle<FFMatrixBlock>>>();
 
      int numBlocks = listOfBlocks.size();
+    
 
      int numProcessedBlocks = 0;
 
@@ -88,16 +90,25 @@ void load_data(pdb::PDBClient & pdbClient, std::string db_name, std::string set_
           }
 
      }
+     if (!pdbClient.sendData<FFMatrixBlock> (pair<string, string>(set_name, db_name), storeMatrix, errMsg)) {
+                  cout << "Failed to send data to dispatcher server" << endl;
+                  exit(1);
+     }
+     cout << "Dispatched " << storeMatrix->size() << " blocks." << std::endl;
+     pdbClient.flushData(errMsg);
 
 }
 
 
-void load_shared_set(pdb::PDBClient & pdbClient, std::string db_name, std::string set_name, std::vector<FFMatrixMeta> & listOfSharedBlocks, int block_x, int block_y) {
+void load_shared_set(pdb::PDBClient & pdbClient, std::string db_name, std::string set_name, std::vector<FFMatrixMeta> & listOfSharedBlocks, int block_x, int block_y, bool append) {
 
      std::string errMsg;
-     pdbClient.removeSet(db_name, set_name, errMsg);
-     pdbClient.createSet<FFMatrixBlock>(db_name, set_name, errMsg,
+     if (append == false) {
+         ff::createDatabase(pdbClient, db_name);
+         pdbClient.removeSet(db_name, set_name, errMsg);
+         pdbClient.createSet<FFMatrixBlock>(db_name, set_name, errMsg,
                      DEFAULT_PAGE_SIZE, "sharedSet", nullptr, nullptr, true);
+     }
      load_data(pdbClient, db_name, set_name, listOfSharedBlocks, block_x, block_y);
 
 
@@ -137,7 +148,6 @@ void load_independent_FF_sets(pdb::PDBClient pdbClient, std::string databaseName
       std::string errMsg;
 
       ff::createDatabase(pdbClient, databaseName);
-      ff::setup(pdbClient, databaseName);
 
       ff::createSet(pdbClient, databaseName, "inputs", "inputs", 64);
       ff::createSet(pdbClient, databaseName, "label", "label", 64);
@@ -158,14 +168,14 @@ void load_independent_FF_sets(pdb::PDBClient pdbClient, std::string databaseName
 
       std::cout << "To load matrix for " << databaseName << ":b1" << std::endl;
       ff::loadMatrix(pdbClient, databaseName, "b1", numNeurons, 1, block_x,
-                   block_y, false, true, errMsg);
+                   1, false, true, errMsg);
 
       std::cout << "To load matrix for " << databaseName << ":wo" << std::endl;
       ff::loadMatrix(pdbClient, databaseName, "wo", numLabels, numNeurons, block_x,
-                   block_y, false, false, errMsg);
+                   block_x, false, false, errMsg);
 
       std::cout << "To load matrix for " << databaseName << ":bo" << std::endl;
-      ff::loadMatrix(pdbClient, databaseName, "bo", numLabels, 1, block_x, block_y,
+      ff::loadMatrix(pdbClient, databaseName, "bo", numLabels, 1, block_x, 1,
                    false, true, errMsg);
 
 }
@@ -179,26 +189,39 @@ void load_output_sets(pdb::PDBClient pdbClient, std::string databaseName) {
 
 }
 
-void load_private_set(pdb::PDBClient pdbClient, std::string databaseName, std::string private_blocks_path) {
+void load_private_set(pdb::PDBClient pdbClient, std::string databaseName, std::string private_blocks_path, std::map<int, std::pair<int, int>> & distinctBlockMap, std::vector<int> pageIds, int totalX, int totalY) {
 
 
      //A list of metadata for T1 blocks. An alternative approach is to load from a file
-     std::vector<FFMatrixMeta> listOfT1Blocks;
-     //TODO
-
+     std::vector<FFMatrixMeta> listOfPrivateBlocks;
+     //create the list of private blocks
+     ifstream in(private_blocks_path.c_str());
+     if (!in.is_open()) {
+         std::cout << "FATAL ERROR: Cannot open file: " << private_blocks_path << std::endl;
+         return;
+     }
+     typedef boost::tokenizer< escaped_list_separator<char> > Tokenizer;
+     std::string line;
+     while (getline(in,line)) {
+         std::cout << line << std::endl;
+	 int blockId = atoi(line.c_str());
+	 std::pair<int, int> block_indexes = distinctBlockMap[blockId];
+         Handle<FFMatrixMeta> privateBlockMeta = makeObject<FFMatrixMeta>(block_indexes.first, block_indexes.second, totalX, totalY);
+         listOfPrivateBlocks.push_back(*privateBlockMeta);
+     }
+     in.close();
 
      //A list of pages in the shared set (We need load_shared_set first to obtain the pageIndex)
-     std::vector<std::pair<PageID, PageIndex>>  pageSharingInT1;
-     for (int i = 0; i < 13; i++) {
+     std::vector<std::pair<PageID, PageIndex>>  pageSharing;
+     for (int i = 0; i < pageIds.size(); i++) {
          PageIndex index;
          index.partitionId = 0;
-         index.pageSeqInPartition = i;
-         pageSharingInT1.push_back(std::pair<PageID, PageIndex>(i, index));
+         index.pageSeqInPartition = pageIds[i];
+         pageSharing.push_back(std::pair<PageID, PageIndex>(pageIds[i], index));
      }
 
-
      //load T1
-     load_set(pdbClient, databaseName, "w1", listOfT1Blocks, pageSharingInT1, 50, 10000, "shared_db", "shared_set");
+     load_set(pdbClient, databaseName, "w1", listOfPrivateBlocks, pageSharing, 50, 10000, "shared_db", "shared_set");
 
 }
 
@@ -219,20 +242,62 @@ void runFF(pdb::PDBClient pdbClient, std::string databaseName) {
 }
 
 
+void createAndLoadSharedSet(pdb::PDBClient pdbClient, std::map<int, std::pair<int, int>> & distinctBlockMap, std::string shared_block_path) {
+
+   //create the shared set
+   std::vector<std::vector<FFMatrixMeta>> listsOfSharedBlocks;
+   ifstream shared_in(shared_block_path.c_str());
+   if (!shared_in.is_open()) {
+       std::cout << "FATAL ERROR: Cannot open file: " << shared_block_path << std::endl;
+       return;
+   }
+   std::vector<FFMatrixMeta> curVec;
+   std::string line;
+   while (getline(shared_in,line)) {
+       std::cout << line << std::endl;
+       if (strncmp(line.c_str(), "N", 1)==0){
+	       std::cout <<"#: to push back the curVec" << std::endl;
+	       listsOfSharedBlocks.push_back(curVec);
+	       curVec.clear();
+       } else {
+           int blockId = atoi(line.c_str());
+           if (distinctBlockMap.count(blockId) > 0) {
+                std::pair<int, int> block_indexes = distinctBlockMap[blockId];
+                std::cout << "-------to push back a new FFMatrixMeta" << block_indexes.first << ", " << block_indexes.second << std::endl;
+	        Handle<FFMatrixMeta> sharedBlockMeta = makeObject<FFMatrixMeta>(block_indexes.first, block_indexes.second, blockId, 0);
+                curVec.push_back(*sharedBlockMeta);
+           }
+       }
+   }
+   std::cout << "We found " << listsOfSharedBlocks.size() << " EQUIVALENT CLASSES" << std::endl;
+   bool append = false;
+   for (int i = 0; i < listsOfSharedBlocks.size(); i++) {
+	std::cout << "\r\nEQUIVALENT CLASS-" << i << ":";
+        for (int j = 0; j < listsOfSharedBlocks[i].size(); j++) {
+            std::cout << listsOfSharedBlocks[i][j].blockRowIndex << ":" << listsOfSharedBlocks[i][j].blockColIndex << ";";	
+	}
+	load_shared_set(pdbClient, "shared_db", "shared_set", listsOfSharedBlocks[i], 50, 10000, append);
+	if (append == false) {
+	    append = true;
+	}
+   }
+
+   shared_in.close();
+}
+
 int main(int argc, char *argv[]) {
 
   bool reloadData = true;
 
   if (argc < 2) {
   
-	  std::cout << "Usage: shared_block_path  whetherToLoadData(Y/N)" << std::endl;
+	  std::cout << "Usage: distinct_block_path whetherToLoadData(Y/N)" << std::endl;
   
   }
 
   string errMsg;
   
-  std::string shared_block_path = argv[1];
-
+  std::string distinct_block_path = argv[1];
   if (argc >= 2) {
       if (strcmp(argv[2], "N")==0) {
           reloadData = false;
@@ -248,12 +313,39 @@ int main(int argc, char *argv[]) {
   pdb::PDBLoggerPtr clientLogger = make_shared<pdb::PDBLogger>("FFclientLog");
   pdb::PDBClient pdbClient(8108, masterIp, clientLogger, false, true);
   pdb::CatalogClient catalogClient(8108, masterIp, clientLogger);
+  
+  ff::setup(pdbClient, "any");
 
+  pdb::makeObjectAllocatorBlock(128*1024*1024, true);
 
   if (reloadData) {
 
+	  //create the list of distinct blocks
+          ifstream distinct_in(distinct_block_path.c_str());
+          if (!distinct_in.is_open()) {
+              std::cout << "FATAL ERROR: Cannot open file: " << distinct_block_path << std::endl;
+              return -1;
+          }
+          typedef boost::tokenizer< escaped_list_separator<char> > Tokenizer;
+          std::string line;
+          std::vector< std::string > vec;
+	  std::map<int, std::pair<int, int>> distinctBlockMap;
+          while (getline(distinct_in,line)) {
+             std::cout << line << std::endl;
+             Tokenizer tok(line);
+             vec.assign(tok.begin(),tok.end());
+	     distinctBlockMap[atoi(vec[0].c_str())] = std::pair<int, int>(atoi(vec[1].c_str()), atoi(vec[2].c_str()));
+             std::cout << atoi(vec[0].c_str()) << " => " << "(" << atoi(vec[1].c_str()) << ", " << atoi(vec[2].c_str()) << ")";
+	  }
+      
+
+	  distinct_in.close();
+
+          //create and load shared set
+          createAndLoadSharedSet(pdbClient, distinctBlockMap, "/home/ubuntu/shared/file2-shared.csv");
+
 	  //create other sets for amazoncat-13k
-          load_independent_FF_sets(pdbClient, "amazoncat-13k", 50, 10000, 1000, 203882, 1000, 1330);
+          load_independent_FF_sets(pdbClient, "amazoncat-13k", 50, 10000, 1000, 203882, 1000, 13330);
 	  
 
 	  //create other sets for amazoncat-14k
@@ -266,37 +358,45 @@ int main(int argc, char *argv[]) {
 	  //create other sets for w0 in RCV1-2k
           load_independent_FF_sets(pdbClient, "RCV1-2k", 50, 10000, 1000, 47236, 5000, 2456);
 
-	  //create the shared set
-          std::vector<FFMatrixMeta> listOfSharedBlocks;
-          ifstream in(shared_block_path.c_str());
-          if (!in.is_open()) {
-              std::cout << "FATAL ERROR: Cannot open file: " << shared_block_path << std::endl;
-              return -1;
-	  }
-          typedef boost::tokenizer< escaped_list_separator<char> > Tokenizer;
-          std::string line;
-          std::vector< std::string > vec;
-          while (getline(in,line)) {
-             Tokenizer tok(line);
-             vec.assign(tok.begin(),tok.end());
-             Handle<FFMatrixMeta> sharedBlockMeta = makeObject<FFMatrixMeta>(atoi(vec[1].c_str()), atoi(vec[2].c_str()), atoi(vec[0].c_str()), 0);
-	     listOfSharedBlocks.push_back(*sharedBlockMeta);
-          }
+          std::vector<int> pageIds1;
 
-	  //load the shared set
-          load_shared_set(pdbClient, "shared_db", "shared_set", listOfSharedBlocks, 50, 10000);
-    
-	  //create the private set for w0 in amazoncat-13k
+
+	  //create the private set for w1 in amazoncat-13k
+          load_private_set(pdbClient, "amazoncat-13k", "/home/ubuntu/shared/file2-tensor0.csv", distinctBlockMap, pageIds1, 1000, 203882);
+
+          std::vector<int> pageIds2;
+	  pageIds2.push_back(0);
+	  pageIds2.push_back(1);
+
 	  
-	  //create the private set for w0 in amazoncat-14k
+	  //create the private set for w1 in RCV1-2k
+	  load_private_set(pdbClient, "RCV1-2k", "/home/ubuntu/shared/file2-tensor4.csv", distinctBlockMap, pageIds2, 5000, 47236);
+
+          std::vector<int> pageIds3;
+          pageIds3.push_back(0);
+          pageIds3.push_back(1);
+	  pageIds3.push_back(2);
+
+	  //create the private set for w1 in EURlex-4.3k
+          load_private_set(pdbClient, "EURlex-4.3k", "/home/ubuntu/shared/file2-tensor8.csv", distinctBlockMap, pageIds3, 2000, 200000);
+
+	  std::vector<int> pageIds4;
+          pageIds4.push_back(0);
+          pageIds4.push_back(2);
+
+	  //create the private set for w1 in amazoncat-14k
+	  load_private_set(pdbClient, "amazoncat-14k", "/home/ubuntu/shared/file2-tensor12.csv", distinctBlockMap, pageIds4, 1000, 597540);
 	  
-	  //create the private set for w0 in EURlex-4.3k
 	  
-	  //create the private set for w0 in RCV1-2k
 	  
 	  //add the block mapping to shared set
+	  //create the block mapping for amazoncat-13k
+	  pdbClient.addSharedMapping("amazoncat-13k", "w1", "FFMatrixBlock", "shared_db", "shared_set", "FFMatrixBlock", "/home/ubuntu/shared/file3-tensor0.csv", 1000, 203882, errMsg);
+          pdbClient.addSharedMapping("RCV1-2k", "w1", "FFMatrixBlock", "shared_db", "shared_set", "FFMatrixBlock", "/home/ubuntu/shared/file3-tensor4.csv", 5000, 47236, errMsg);
+          pdbClient.addSharedMapping("EURlex-4.3k", "w1", "FFMatrixBlock", "shared_db", "shared_set", "FFMatrixBlock", "/home/ubuntu/shared/file3-tensor8.csv", 2000, 200000, errMsg);
+	  pdbClient.addSharedMapping("amazoncat-14k", "w1", "FFMatrixBlock", "shared_db", "shared_set", "FFMatrixBlock", "/home/ubuntu/shared/file3-tensor12.csv", 1000, 597540, errMsg);
 	  
-
+       
 	  
 	  
 

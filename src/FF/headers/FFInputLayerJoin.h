@@ -35,12 +35,28 @@ public:
   getProjection(Handle<FFMatrixBlock> in1, Handle<FFMatrixBlock> in2) override {
     return makeLambda(
         in1, in2, [](Handle<FFMatrixBlock> &in1, Handle<FFMatrixBlock> &in2) {
-          if (FFMatrixBlock::librayCode == EIGEN_CODE) {
+
+/*        std::cout << "in1.blockRowIndex=" << in1->getBlockRowIndex() << std::endl;
+	std::cout << "in1.blockColIndex=" << in1->getBlockColIndex() << std::endl;
+	std::cout << "in2.blockRowIndex=" << in2->getBlockRowIndex() << std::endl;
+	std::cout << "in2.blockColIndex=" << in2->getBlockColIndex() << std::endl;
+	std::cout << "in1.blockRowIndex=" << in1->getBlockRowIndex() << std::endl;
+        std::cout << "in1.blockColIndex=" << in1->getBlockColIndex() << std::endl;
+        std::cout << "in1.rowNums=" << in1->getRowNums() << std::endl;
+        std::cout << "in1.colNums=" << in1->getColNums() << std::endl;
+	std::cout << "in2.rowNums=" << in2->getRowNums() << std::endl;
+        std::cout << "in2.colNums=" << in2->getColNums() << std::endl;*/
+	if (FFMatrixBlock::librayCode == EIGEN_CODE) {
             // get the sizes
             uint32_t I = in1->getRowNums();
             uint32_t J = in2->getColNums();
             uint32_t K = in1->getColNums();
 
+
+	     if (in1->getColNums() != in2->getRowNums()) {
+              std::cerr << "Block dimemsions mismatch! " << std::endl;
+              exit(1);
+            }
             // make an output
             pdb::Handle<FFMatrixBlock> resultFFMatrixBlock =
                 pdb::makeObject<FFMatrixBlock>(

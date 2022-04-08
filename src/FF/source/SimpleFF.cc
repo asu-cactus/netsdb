@@ -78,7 +78,6 @@ void setup(pdb::PDBClient &pdbClient, string database) {
   loadLibrary(pdbClient, "libraries/libFFTransposeBiasSum.so");
   loadLibrary(pdbClient, "libraries/libFFRowAggregate.so");
   loadLibrary(pdbClient, "libraries/libFFOutputLayer.so");
-
 }
 
 void cleanup(pdb::PDBClient &pdblient, string database) {
