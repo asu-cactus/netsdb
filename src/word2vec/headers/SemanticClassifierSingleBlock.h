@@ -1,11 +1,13 @@
-#ifndef SEMANTIC_CLASSIFIER_H
-#define SEMANTIC_CLASSIFIER_H
+#ifndef SEMANTIC_CLASSIFIER_SINGLEBLOCK_H
+#define SEMANTIC_CLASSIFIER_SINGLEBLOCK_H
 
 #include "FFMatrixBlock.h"
+#include "FFSingleMatrix.h"
 #include "Lambda.h"
 #include "LambdaCreationFunctions.h"
 #include "SelectionComp.h"
 #include <eigen3/Eigen/Dense>
+#include <fstream>
 
 using namespace pdb;
 
@@ -13,7 +15,8 @@ double sigmoid(double x);
 double relu(double x);
 double outLabel(double x);
 
-class SemanticClassifier : public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
+class SemanticClassifierSingleBlock
+    : public SelectionComp<FFMatrixBlock, FFSingleMatrix> {
   private:
     uint32_t sizeEmbed;
     uint32_t sizeDense0;
@@ -22,46 +25,53 @@ class SemanticClassifier : public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
   public:
     ENABLE_DEEP_COPY
 
-    SemanticClassifier() {
+    SemanticClassifierSingleBlock() {
         this->sizeEmbed = 500;
         this->sizeDense0 = 16;
         this->sizeDense1 = 1;
     }
 
-    SemanticClassifier(uint32_t sizeEmbed, uint32_t sizeDense0, uint32_t sizeDense1) {
+    SemanticClassifierSingleBlock(uint32_t sizeEmbed, uint32_t sizeDense0,
+                                  uint32_t sizeDense1) {
         this->sizeEmbed = sizeEmbed;
         this->sizeDense0 = sizeDense0;
         this->sizeDense1 = sizeDense1;
     }
 
-    Lambda<bool> getSelection(Handle<FFMatrixBlock> checkMe) override {
+    Lambda<bool> getSelection(Handle<FFSingleMatrix> checkMe) override {
         return makeLambda(checkMe,
-                          [](Handle<FFMatrixBlock> &checkMe) { return true; });
+                          [](Handle<FFSingleMatrix> &checkMe) { return true; });
     }
 
     Lambda<Handle<FFMatrixBlock>>
-    getProjection(Handle<FFMatrixBlock> in) override {
-        return makeLambda(in, [this](Handle<FFMatrixBlock> &in) {
+    getProjection(Handle<FFSingleMatrix> in) override {
+        return makeLambda(in, [this](Handle<FFSingleMatrix> &in) {
+            // retrieve the FFMatrixBlock
+            FFMatrixBlock in_block = in->getValue();
             // load the metadata
-            uint32_t inNumRow = in->getRowNums();
-            uint32_t inNumCol = in->getColNums();
-            uint32_t inBlockRowIndex = in->getBlockRowIndex();
-            uint32_t inBlockColIndex = in->getBlockColIndex();
+            uint32_t inNumRow = in_block.getRowNums();
+            uint32_t inNumCol = in_block.getColNums();
+            uint32_t inBlockRowIndex = in_block.getBlockRowIndex();
+            uint32_t inBlockColIndex = in_block.getBlockColIndex();
             // testing purpose
             // std::cout << inNumRow << "," << inNumCol << std::endl;
-            // std::cout << inBlockRowIndex << "," << inBlockColIndex << std::endl;
+            // std::cout << inBlockRowIndex << "," << inBlockColIndex <<
+            // std::endl;
 
             uint32_t sizeEmbed = this->sizeEmbed;
             uint32_t sizeBatch = inNumCol;
             uint32_t sizeDense0 = this->sizeDense0;
             uint32_t sizeDense1 = this->sizeDense1;
 
-            std::cout << "Model Structure: " << sizeEmbed << "," << sizeDense0 << "," << sizeDense1 << std::endl;
-            std::cout << " inNumRow: " << in->getRowNums() << " inNumCol: " << in->getColNums() << " inBlockRowIndex: " << 
-                    in->getBlockRowIndex() << " inBlockColIndex: " << in->getBlockColIndex() << 
-                    " inTotalRowNums: " << in->getTotalRowNums() << " inTotalColNums: " << in->getTotalColNums() <<   std::endl;
-            // std::cout << inBlockRowIndex << "," << inBlockColIndex << std::endl;
-
+            std::cout << "Model Structure: " << sizeEmbed << "," << sizeDense0
+                      << "," << sizeDense1 << std::endl;
+            std::cout << " inNumRow: " << in_block.getRowNums()
+                      << " inNumCol: " << in_block.getColNums()
+                      << " inBlockRowIndex: " << in_block.getBlockRowIndex()
+                      << " inBlockColIndex: " << in_block.getBlockColIndex()
+                      << " inTotalRowNums: " << in_block.getTotalRowNums()
+                      << " inTotalColNums: " << in_block.getTotalColNums()
+                      << std::endl;
 
             // init weights and bias
             std::vector<double> embedOutput(sizeEmbed * sizeBatch, 1);
@@ -72,12 +82,13 @@ class SemanticClassifier : public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
             std::vector<double> dense1Bias(sizeDense1, 1);
             std::vector<double> dense1Output(sizeDense1 * sizeBatch, 1);
             
-            double *inData = in->getValue().rawData->c_ptr();
+            double *inData = in_block.getValue().rawData->c_ptr();
             // dense 0
             // x0 [sizeEmbed, sizeBatch]
             Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
                                      Eigen::RowMajor>>
                 x0(inData, sizeEmbed, sizeBatch);
+
             // w0 [sizeDense0, sizeEmbed]
             Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
                                      Eigen::RowMajor>>
@@ -120,7 +131,7 @@ class SemanticClassifier : public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
             // convert result to FFMatrixBlock
             pdb::Handle<FFMatrixBlock> resultFFMatrixBlock =
                 pdb::makeObject<FFMatrixBlock>(inBlockRowIndex, inBlockColIndex,
-                                               sizeDense1, sizeBatch, 
+                                               sizeDense1, sizeBatch,
                                                sizeDense1, sizeBatch, false);
 
             double *outData = resultFFMatrixBlock->getValue().rawData->c_ptr();
