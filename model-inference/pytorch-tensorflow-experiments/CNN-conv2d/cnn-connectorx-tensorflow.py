@@ -79,8 +79,6 @@ for r in range (0, repetitions):
         inputLoadTime = 0
         conv2dOpTime = 0
         query = """SELECT * FROM images"""
-        data = cx.read_sql(conn_string, query)
-        print ("print data ", data.shape)
 
         for id in range(0, _iterations):
             startTime = time.time()
@@ -88,6 +86,8 @@ for r in range (0, repetitions):
                 input = np.load(input_file_path + str(id) + '.npy')
             else:
                 # input = read_input_from_db(db_cursor, id, input_dimensions)
+                data = cx.read_sql(conn_string, query)
+                print ("print data ", data.shape)
                 df = data.iloc[id]["array_data"]
                 input = np.frombuffer(df, dtype=np.float32).reshape(*input_dimensions)
             endTime = time.time()
