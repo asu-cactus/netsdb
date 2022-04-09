@@ -56,7 +56,7 @@ except(Exception, psycopg2.DatabaseError) as error:
     print("error while loading data", error)
 
 
-print ("before try block")
+# print ("before try block")
 try:
     # read kernel data
     startKernelLoad = time.time()
