@@ -323,7 +323,8 @@ void kernel_bias_join(pdb::PDBClient &pdbClient, std::string dbName,
 
 void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
                           std::string imageset, std::string kernelset,
-                          std::string biasset, bool reloadData, bool materializeModel) {
+                          std::string biasset, bool reloadData, bool materializeModel,
+                          vector<string> imageDims, vector<string> kernelDims) {
   std::vector<std::string> allSets{imageset, kernelset, biasset,  "temp_kernel", "temp_kernel1", "temp_kernel2", "kernel_flat", "temp_image",  "temp_image1",   "temp_image2",
                                 "result", "result_chunked", "result_chunked1", "result_chunked2"};
 
@@ -341,8 +342,22 @@ void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
   int padding = 0;
   bool block_padding = true;
 
-  int height = 512, width = 512, channels = 3, numOfImages = 650;
-  int kHeight = 1, kWidth = 1, kChannels = 3, numOfFilters = 64;
+  int n, c, w, h;
+  int nk, ck, wk, hk;
+
+  n = std::stoi(imageDims.at(0));
+  c = std::stoi(imageDims.at(1));
+  w = std::stoi(imageDims.at(2));
+  h = std::stoi(imageDims.at(3));
+
+  nk = std::stoi(kernelDims.at(0));
+  ck = std::stoi(kernelDims.at(1));
+  wk = std::stoi(kernelDims.at(2));
+  hk = std::stoi(kernelDims.at(3));
+
+  int height = h, width = w, channels = c, numOfImages = n;
+  int kHeight = hk, kWidth = wk, kChannels = ck, numOfFilters = nk;
+
   std::chrono::high_resolution_clock::time_point loadRandomImages_time;
   std::chrono::high_resolution_clock::time_point loadRandomImages_end;
   if (reloadData) {
@@ -568,6 +583,17 @@ void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
   //        << " secs." << std::endl;
 
 }
+vector<string> splitString(string s) {
+    vector<string> result;
+    stringstream s_stream(s); //create string stream from the string
+    while(s_stream.good()) {
+      string substr;
+      getline(s_stream, substr, ','); //get first string delimited by comma
+      result.push_back(substr);
+   }
+
+   return result;
+}
 
 int main(int argc, char *argv[]) {
 
@@ -592,6 +618,32 @@ int main(int argc, char *argv[]) {
       }
   }
 
+  string inputDimensions = "1,64,112,112";
+  string kernelDimensions = "64,64,1,1";
+  int n, c, w, h;
+  int nk, ck, wk, hk;
+
+  vector<string> imageDims = (argc > 3 )? splitString(argv[3]) : splitString(inputDimensions);
+  if (imageDims.size() != 4) {
+      std::cout << "Invalid format! Accepted format: N, C, W, H" << std::endl;
+      exit(1);
+  }
+
+  vector<string> kernelDims = (argc > 4 )? splitString(argv[4]) : splitString(kernelDimensions);
+  if (kernelDims.size() != 4) {
+      std::cout << "Invalid format! Accepted format: N, C, W, H" << std::endl;
+      exit(1);
+  }
+    // nk = std::stoi(kernelDims.at(0));
+    // ck = std::stoi(kernelDims.at(1));
+    // wk = std::stoi(kernelDims.at(2));
+    // hk = std::stoi(kernelDims.at(3));
+
+
+    // n = std::stoi(imageDims.at(0));
+    // c = std::stoi(imageDims.at(1));
+    // w = std::stoi(imageDims.at(2));
+    // h = std::stoi(imageDims.at(3))
 
   // Load Libraries
 
@@ -729,7 +781,7 @@ int main(int argc, char *argv[]) {
   string dbName = "conv2d";
   string img_set = "img";
   string kernel_set = "kernel";
-  test_conv2d_multiply(pdbClient, dbName, img_set, kernel_set, "bias", reloadData, materializeModel);
+  test_conv2d_multiply(pdbClient, dbName, img_set, kernel_set, "bias", reloadData, materializeModel, imageDims, kernelDims);
 
   return 0;
 }
