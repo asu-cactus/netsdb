@@ -139,7 +139,7 @@ void load_imgs_from_file(PDBClient &pdbClient, string path, String dbName,
 void loadRandomImages(int width, int height, int channels, int numOfImages, pdb::PDBClient &pdbClient,
                   pdb::String dbName, pdb::String setName, int pageSize) {
   std::string errMsg;
-  pdb::makeObjectAllocatorBlock(20 * 1024 * 1024, true);
+  pdb::makeObjectAllocatorBlock(512 * 1024 * 1024, true);
 
   pdb::Handle<pdb::Vector<pdb::Handle<conv2d_memory_fusion::Image>>> storeImages =
       pdb::makeObject<pdb::Vector<pdb::Handle<conv2d_memory_fusion::Image>>>();
@@ -148,8 +148,8 @@ void loadRandomImages(int width, int height, int channels, int numOfImages, pdb:
 
   std::mt19937 e2(rd());
 
-  std::uniform_real_distribution<> distp(0.0001, 0.5);
-  std::uniform_real_distribution<> distn(-0.5, -0.0001);
+  std::uniform_real_distribution<float> distp(0.0001, 0.5);
+  std::uniform_real_distribution<float> distn(-0.5, -0.0001);
 
   auto gen = std::bind(std::uniform_int_distribution<>(0, 1),
                        std::default_random_engine());
@@ -163,7 +163,7 @@ void loadRandomImages(int width, int height, int channels, int numOfImages, pdb:
 
           for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-              double data = (bool)gen() ? distn(e2) : distp(e2);
+              float data = (bool)gen() ? distn(e2) : distp(e2);
               (*(channel->getRawDataHandle()))[i * height + j] = data;
             }
           }
@@ -180,7 +180,7 @@ void loadRandomImages(int width, int height, int channels, int numOfImages, pdb:
       }
 
       imageCount--;
-      pdb::makeObjectAllocatorBlock(20 * 1024 * 1024, true);
+      pdb::makeObjectAllocatorBlock(512 * 1024 * 1024, true);
       storeImages = pdb::makeObject<pdb::Vector<pdb::Handle<conv2d_memory_fusion::Image>>>();
     }
   }

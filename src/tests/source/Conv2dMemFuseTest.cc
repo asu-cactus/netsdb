@@ -129,7 +129,7 @@ void verify_data(pdb::PDBClient &pdbClient, std::string dbName,
     for (int c = 0; c < r->get_num_channels(); c++) {
       pdb::Handle<FFMatrixBlock> chan = r->getMatrixAtIndex(c);
       std::cout << "Channel " << c << std::endl;
-      double *data = chan->getValue().rawData->c_ptr();
+      float *data = chan->getValue().rawData->c_ptr();
       for (int i = 0; i < r->x * r->y; i++) {
         std::cout << data[i] << ",";
       }
@@ -173,7 +173,7 @@ void verify_matrices(pdb::PDBClient &pdbClient, std::string dbName,
   for (auto r : it) {
     std::cout << "Block " << r->getBlockRowIndex() << ","
               << r->getBlockColIndex() << std::endl;
-    double *data = r->getValue().rawData->c_ptr();
+    float *data = r->getValue().rawData->c_ptr();
     for (int i = 0; i < r->getColNums() * r->getRowNums(); i++) {
       std::cout << data[i] << ",";
     }
@@ -341,16 +341,20 @@ void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
   int padding = 0;
   bool block_padding = true;
 
-  int height = 7, width = 7, channels = 512, numOfImages = 100;
-  int kHeight = 1, kWidth = 1, kChannels = 512, numOfFilters = 2048;
+  int height = 512, width = 512, channels = 3, numOfImages = 430;
+  int kHeight = 1, kWidth = 1, kChannels = 3, numOfFilters = 64;
+  std::chrono::high_resolution_clock::time_point loadRandomImages_time;
+  std::chrono::high_resolution_clock::time_point loadRandomImages_end;
   if (reloadData) {
 
     test_common::create_database(pdbClient, dbName, allSets, reloadData);
 
     // Load Image
     std::cout << "Loading images....." << std::endl;
+    loadRandomImages_time = std::chrono::high_resolution_clock::now();
     conv2d_memory_fusion::loadRandomImages(width, height, channels, numOfImages, pdbClient, dbName, imageset, 20);
     std::cout << "Image loaded successfully....." << std::endl;
+    loadRandomImages_end = std::chrono::high_resolution_clock::now();
 
     #ifdef PROFILING_CONV2D
           img_conv_flatten::verify_data(pdbClient, dbName, imageset);
@@ -363,10 +367,10 @@ void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
     #ifdef PROFILING_CONV2D
           img_conv_flatten::verify_data(pdbClient, dbName, kernelset);
     #endif
-          std::cout << "Loading bias data..." << std::endl;
-          ff::load_matrix_data(pdbClient, "/home/pavan/netsdb/bias_2048.np", dbName, biasset,
-              block_x, 1, !block_padding, !block_padding, errMsg);
-          std::cout<< "Successfully loaded matrix data bias-------------------" << std::endl;
+          // std::cout << "Loading bias data..." << std::endl;
+          // ff::load_matrix_data(pdbClient, "/home/pavan/netsdb/bias_2048.np", dbName, biasset,
+          //     block_x, 1, !block_padding, !block_padding, errMsg);
+          // std::cout<< "Successfully loaded matrix data bias-------------------" << std::endl;
     #ifdef PROFILING_CONV2D
           ff::print(pdbClient, dbName, biasset);
     #endif
@@ -384,24 +388,36 @@ void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
   img_conv_flatten::img_to_chunks(pdbClient, dbName, imageset, "temp_image",
                                   block_x, block_y, strides, kWidth, padding);
 
+  auto img_to_chunks_time = std::chrono::high_resolution_clock::now();
+
 
   #ifdef PROFILING_CONV2D
     img_conv_flatten::verify_chunks(pdbClient, dbName, "temp_image");
   #endif
 
+  auto verify_chunks_time_end = std::chrono::high_resolution_clock::now();
+
     img_conv_flatten::chunks_to_blocks(pdbClient, dbName, "temp_image",
                                       "temp_image1", block_x);
+
+  auto chunks_to_blocks_end = std::chrono::high_resolution_clock::now();
 
   #ifdef PROFILING_CONV2D
     img_conv_flatten::verify_blocks(pdbClient, dbName, "temp_image1");
   #endif
 
+  auto verify_blocks_end = std::chrono::high_resolution_clock::now();
+
+
   //X: num_rows per flattened image  (112-7+1)(112-7+1)
   //Y: num_cols per flattened image (7*7*3+1) why +1?
   img_conv_flatten::blocks_to_matrix(pdbClient, dbName, "temp_image1",
                                      "temp_image2", block_x, block_y,
-                                     block_padding, (width - kWidth) * (height - kHeight), kWidth * kHeight * kChannels + 1);
+                                     block_padding, numOfImages * ((width + 2 * padding - kWidth) / strides + 1)  * ((height + 2 * - kHeight) / strides + 1), kWidth * kHeight * kChannels + 1);
  
+
+    auto blocks_to_matrix_end = std::chrono::high_resolution_clock::now();
+
 
   //#ifdef PROFILING_CONV2D
   ff::print(pdbClient, dbName, "temp_image2");
@@ -431,18 +447,18 @@ void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
 
     img_conv_flatten::blocks_to_matrix(pdbClient, dbName, "temp_kernel1",
                                      "temp_kernel2", block_x, block_y,
-                                     block_padding, 64, kWidth * kHeight * kChannels + 1);
+                                     block_padding, numOfFilters, kWidth * kHeight * kChannels + 1);
 
     #ifdef PROFILING_CONV2D
         img_conv_flatten::verify_matrices(pdbClient, dbName, "temp_kernel2");
     #endif
 
-    // kernel bias join
-    std::cout << "Running kernel bias join..." << std::endl;
+    // // kernel bias join
+    // std::cout << "Running kernel bias join..." << std::endl;
 
 
-    kernel_conv_flatten::kernel_bias_join(pdbClient, dbName, "temp_kernel2",
-                                      biasset, "kernel_flat");
+    // kernel_conv_flatten::kernel_bias_join(pdbClient, dbName, "temp_kernel2",
+    //                                   biasset, "kernel_flat");
   
     #ifdef PROFILING_CONV2D
         ff::print(pdbClient, dbName, "kernel_flat");
@@ -509,6 +525,9 @@ void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
   auto result_end = std::chrono::high_resolution_clock::now();
 */
 
+  std::cout << "Total Time Duration : "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(image_end - image_begin  + kernel_flat_end - kernel_flat_begin + conv2d_end - conv2d_begin).count()
+              << " secs." << std::endl;
 
   std::cout << "Time Duration for image ops: "
               << std::chrono::duration_cast<std::chrono::duration<float>>(image_end - image_begin).count()
@@ -522,9 +541,31 @@ void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
               << std::chrono::duration_cast<std::chrono::duration<float>>(conv2d_end - conv2d_begin).count()
               << " secs." << std::endl;
 
+  std::cout << "Time Duration for loadRandomImages: "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(loadRandomImages_end - loadRandomImages_time).count()
+              << " secs." << std::endl;
+  std::cout << "Time Duration for img_to_chunks: "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(img_to_chunks_time - image_begin).count()
+              << " secs." << std::endl;
+
+  std::cout << "Time Duration for verify_chunks: "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(verify_chunks_time_end - img_to_chunks_time).count()
+              << " secs." << std::endl;
+
+  std::cout << "Time Duration for chunks_to_blocks: "
+          << std::chrono::duration_cast<std::chrono::duration<float>>(chunks_to_blocks_end - verify_chunks_time_end).count()
+          << " secs." << std::endl;
+  
+  std::cout << "Time Duration for verify_blocks: "
+          << std::chrono::duration_cast<std::chrono::duration<float>>(verify_blocks_end - chunks_to_blocks_end).count()
+          << " secs." << std::endl;
+
+  std::cout << "Time Duration for blocks_to_matrix: "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(blocks_to_matrix_end - verify_blocks_end).count()
+              << " secs." << std::endl;
   //std::cout << "Time Duration for result gathering: "
-    //          << std::chrono::duration_cast<std::chrono::duration<float>>(result_end - result_begin).count()
-      //        << " secs." << std::endl;
+  //          << std::chrono::duration_cast<std::chrono::duration<float>>(result_end - result_begin).count()
+  //        << " secs." << std::endl;
 
 }
 
