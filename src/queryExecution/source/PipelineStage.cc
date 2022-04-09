@@ -907,9 +907,14 @@ void PipelineStage::executePipelineWork(int i,
               << "-" << this->jobStage->getTargetComputationSpecifier()
               << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
               << " secs." << std::endl;
+    auto start = std::chrono::high_resolution_clock::now();              
     std::cout << i<<": Running Pipeline\n";
     curPipeline->id = i;
     curPipeline->run();
+    end = std::chrono::high_resolution_clock::now();
+    std::cout << "RunPipeline Duration : "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
+              << " secs." << std::endl;
     curPipeline = nullptr;
     newPlan->nullifyPlanPointer();
     getAllocator().setPolicy(AllocatorPolicy::defaultAllocator);
