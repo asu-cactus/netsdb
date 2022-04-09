@@ -75,8 +75,6 @@ for r in range (0, repetitions):
         endKernelLoad = time.time()
         kernelLoadTime = endKernelLoad - startKernelLoad
         
-        inputLoadTime = 0
-        conv2dOpTime = 0
         # read input data
         inputLoadTime = 0
         conv2dOpTime = 0
@@ -89,10 +87,9 @@ for r in range (0, repetitions):
             if load_data_from_file:
                 input = np.load(input_file_path + str(id) + '.npy')
             else:
+                # input = read_input_from_db(db_cursor, id, input_dimensions)
                 df = data.iloc[id]["array_data"]
-                input = np.frombuffer(df, dtype=np.float32)
-                input = input.reshape(*input_dimensions)
-                input = torch.tensor(input, dtype=torch.float32)
+                input = np.frombuffer(df, dtype=np.float32).reshape(*input_dimensions)
             endTime = time.time()
             inputLoadTime = inputLoadTime + (endTime - startTime)
 

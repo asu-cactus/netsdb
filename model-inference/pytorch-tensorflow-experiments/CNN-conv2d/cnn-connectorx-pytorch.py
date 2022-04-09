@@ -78,18 +78,20 @@ for r in range (0, repetitions):
         inputLoadTime = 0
         conv2dOpTime = 0
         query = """SELECT * FROM images"""
-        data = cx.read_sql(conn_string, query)
-        print ("print data ", data.shape)
+
         
         for id in range(0, _iterations):
             startTime = time.time()
             if load_data_from_file:
                 input = torch.load(input_file_path + str(id) + '.pt')
             else:
+                data = cx.read_sql(conn_string, query)
+                print ("print data ", data.shape)
                 df = data.iloc[id]["array_data"]
-                input = np.frombuffer(df, dtype=np.float32)
-                input = input.reshape(*input_dimensions)
-                input = torch.tensor(input, dtype=torch.float32)
+                # input = np.frombuffer(df, dtype=np.float32)
+                # input = input.reshape(*input_dimensions)
+                # input = torch.tensor(input, dtype=torch.float32)
+                input = torch.frombuffer(df, dtype=torch.float32).reshape(*input_dimensions)
             endTime = time.time()
             inputLoadTime = inputLoadTime + (endTime - startTime)
 

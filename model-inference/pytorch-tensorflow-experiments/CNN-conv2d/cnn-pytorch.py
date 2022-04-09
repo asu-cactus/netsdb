@@ -61,7 +61,7 @@ try:
     kernelLoadTime = endKernelLoad - startKernelLoad
     
     # TODO: Add bias since conv2d includes bias
-    bias = torch.randn(kernel_dimensions[0], dtype=torch.float32)
+    # bias = torch.randn(kernel_dimensions[0], dtype=torch.float32)
 
     # read input data
     inputLoadTime = 0
@@ -82,7 +82,7 @@ try:
         print ("filter", filter.dtype)
 
         startTime = time.time()
-        output = torch.nn.functional.conv2d(input, filter, stride=stride, bias=bias)
+        output = torch.nn.functional.conv2d(input, filter, stride=stride)
         endTime = time.time()
         conv2dOpTime = conv2dOpTime + (endTime - startTime)
         print ("Output Shape: ", output.shape)
