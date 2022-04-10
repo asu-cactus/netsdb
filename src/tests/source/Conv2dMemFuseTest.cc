@@ -51,7 +51,7 @@ void create_database(pdb::PDBClient &pdbClient, std::string dbName,
   for (auto &s : sets) {
     pdbClient.removeSet(dbName, s, errMsg);
     if (!pdbClient.createSet<conv2d_memory_fusion::Image>(
-            dbName, s, errMsg, (size_t)128 * (size_t)1024 * (size_t)1024, s)) {
+            dbName, s, errMsg, (size_t)1024 * (size_t)1024 * (size_t)1024, s)) {
       cout << "Not able to create set " + s + ": " + errMsg;
     } else {
       cout << "Created set " << s << ".\n";
@@ -62,7 +62,7 @@ void create_database(pdb::PDBClient &pdbClient, std::string dbName,
 void conv2d_op(pdb::PDBClient &pdbClient, std::string dbName, std::string image,
                std::string kernel, std::string res, bool materializeModel) {
   std::string errMsg;
-  const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+  const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 1024};
 
   // make the computation
   pdb::Handle<pdb::Computation> readA =
@@ -93,7 +93,7 @@ void conv2d_op(pdb::PDBClient &pdbClient, std::string dbName, std::string image,
 
 void conv2d_result_to_chunks(pdb::PDBClient &pdbClient, int images, std::string dbName, std::string result, std::string to) {
   std::string errMsg;
-  const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+  const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 1024};
 
   // make the computation
   pdb::Handle<pdb::Computation> readA =
@@ -121,7 +121,7 @@ void verify_data(pdb::PDBClient &pdbClient, std::string dbName,
                  std::string setName) {
   std::cout << "Verifying data..." << std::endl;
 
-  const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+  const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 512};
 
   auto it = pdbClient.getSetIterator<conv2d_memory_fusion::Image>(dbName, setName);
 
@@ -142,7 +142,7 @@ void verify_data(pdb::PDBClient &pdbClient, std::string dbName,
 void verify_chunks(pdb::PDBClient &pdbClient, std::string dbName,
                    std::string setName) {
   std::cout << "Verifying chunks..." << std::endl;
-  const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+  const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 512};
 
   auto it = pdbClient.getSetIterator<conv2d_memory_fusion::ImageChunk>(dbName, setName);
 
@@ -154,7 +154,7 @@ void verify_chunks(pdb::PDBClient &pdbClient, std::string dbName,
 void verify_blocks(pdb::PDBClient &pdbClient, std::string dbName,
                    std::string setName) {
   std::cout << "Verifying blocks..." << std::endl;
-  const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+  const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 512};
 
   auto it = pdbClient.getSetIterator<conv2d_memory_fusion::ImageBlock>(dbName, setName);
 
@@ -166,7 +166,7 @@ void verify_blocks(pdb::PDBClient &pdbClient, std::string dbName,
 void verify_matrices(pdb::PDBClient &pdbClient, std::string dbName,
                      std::string setName) {
   std::cout << "Verifying matrices..." << std::endl;
-  const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+  const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 512};
 
   auto it = pdbClient.getSetIterator<FFMatrixBlock>(dbName, setName);
 
@@ -185,7 +185,7 @@ void img_to_chunks(pdb::PDBClient &pdbClient, std::string dbName,
                    std::string from, std::string to, int block_x, int block_y,
                    int strides, int kernel, int padding) {
   std::string errMsg;
-  const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+  const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 512};
 
   // make the computation
   pdb::Handle<pdb::Computation> readA =
@@ -211,7 +211,7 @@ void img_to_chunks(pdb::PDBClient &pdbClient, std::string dbName,
 void chunks_to_blocks(pdb::PDBClient &pdbClient, std::string dbName,
                       std::string from, std::string to, int block_x) {
   std::string errMsg;
-  const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+  const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 512};
 
   // make the computation
   pdb::Handle<pdb::Computation> readA =
@@ -238,7 +238,7 @@ void blocks_to_matrix(pdb::PDBClient &pdbClient, std::string dbName,
                       std::string from, std::string to, int block_x,
                       int block_y, bool block_padding, int X, int Y) {
   std::string errMsg;
-  const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+  const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 512};
 
   // make the computation
   pdb::Handle<pdb::Computation> readA =
@@ -267,7 +267,7 @@ void kernel_to_chunks(pdb::PDBClient &pdbClient, std::string dbName,
                       std::string from, std::string to, int block_x,
                       int block_y) {
   std::string errMsg;
-  const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+  const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 512};
 
   // make the computation
   pdb::Handle<pdb::Computation> readA =
@@ -293,7 +293,7 @@ void kernel_to_chunks(pdb::PDBClient &pdbClient, std::string dbName,
 void kernel_bias_join(pdb::PDBClient &pdbClient, std::string dbName,
                       std::string a, std::string b, std::string to) {
   std::string errMsg;
-  const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+  const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 512};
 
   // make the computation
   pdb::Handle<pdb::Computation> readA =
