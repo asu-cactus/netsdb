@@ -56,8 +56,10 @@ int main(int argc, char *argv[]) {
 
     int batch_size = 100;
 
+    pdb::makeObjectAllocatorBlock(128*1024*1024, true);
+
     if (loadData) {
-        ff::createDatabase(pdbClient, "text-classification");
+        ff::createDatabase(pdbClient, "nnlm-50");
         ff::loadLibrary(pdbClient, "libraries/libFFMatrixMeta.so");
         ff::loadLibrary(pdbClient, "libraries/libFFMatrixData.so");
         ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlock.so");
@@ -70,39 +72,39 @@ int main(int argc, char *argv[]) {
         ff::loadLibrary(pdbClient, "libraries/libSemanticClassifierSingleBlock.so");
 
         //create input set
-        pdbClient.createSet<FFMatrixBlock>("text-classification", "inputs", errMsg,
+        pdbClient.createSet<FFMatrixBlock>("nnlm-50", "inputs", errMsg,
                      DEFAULT_PAGE_SIZE, "inputs", nullptr, nullptr, false);
 
         // create weights set 
-        pdbClient.removeSet("text-classification", "weights", errMsg);
-        pdbClient.createSet<FFMatrixBlock>("text-classification", "weights",
+        pdbClient.removeSet("nnlm-50", "weights", errMsg);
+        pdbClient.createSet<FFMatrixBlock>("nnlm-50", "weights",
                                            errMsg, DEFAULT_PAGE_SIZE, "weights",
                                            nullptr, nullptr, false);
         // batch_size x vocab_size
-        std::cout << "To load matrix for text-classification::inputs"
+        std::cout << "To load matrix for nnlm-50::inputs"
                   << std::endl;
-        ff::loadMatrix(pdbClient, "text-classification", "inputs", batch_size,
+        ff::loadMatrix(pdbClient, "nnlm-50", "inputs", batch_size,
                        vocab_size, block_x, block_y, false, false, errMsg);
 
         // embedding_dimension x vocab_size
-        std::cout << "To load matrix for text-classification::weights"
+        std::cout << "To load matrix for nnlm-50::weights"
                   << std::endl;
-        ff::loadMatrix(pdbClient, "text-classification", "weights",
+        ff::loadMatrix(pdbClient, "nnlm-50", "weights",
                        embedding_dimension, vocab_size, block_x, block_y, false,
                        false, errMsg);
     }
 
     auto begin = std::chrono::high_resolution_clock::now();
     // create output set
-    pdbClient.removeSet("text-classification", "outputs", errMsg);
-    pdbClient.createSet<FFMatrixBlock>("text-classification", "outputs", errMsg,
+    pdbClient.removeSet("nnlm-50", "outputs", errMsg);
+    pdbClient.createSet<FFMatrixBlock>("nnlm-50", "outputs", errMsg,
                                        DEFAULT_PAGE_SIZE, "outputs", nullptr,
                                        nullptr, false);
     // make the reader
     pdb::Handle<pdb::Computation> readA =
-        makeObject<FFMatrixBlockScanner>("text-classification", "weights");
+        makeObject<FFMatrixBlockScanner>("nnlm-50", "weights");
     pdb::Handle<pdb::Computation> readB =
-        makeObject<FFMatrixBlockScanner>("text-classification", "inputs");
+        makeObject<FFMatrixBlockScanner>("nnlm-50", "inputs");
 
     // make the transpose multiply join
     pdb::Handle<pdb::Computation> join = pdb::makeObject<FFTransposeMult>();
@@ -131,7 +133,7 @@ int main(int argc, char *argv[]) {
     // make the writer
     pdb::Handle<pdb::Computation> myWriter = nullptr;
     myWriter =
-        pdb::makeObject<FFMatrixWriter>("text-classification", "outputs");
+        pdb::makeObject<FFMatrixWriter>("nnlm-50", "outputs");
     myWriter->setInput(classifier);
 
 
@@ -161,7 +163,7 @@ int main(int argc, char *argv[]) {
               << " secs." << std::endl;
 
     // verify the results
-    ff::print_stats(pdbClient, "text-classification", "outputs");
-    ff::print(pdbClient, "text-classification", "outputs");
+    ff::print_stats(pdbClient, "nnlm-50", "outputs");
+    ff::print(pdbClient, "nnlm-50", "outputs");
 }
 #endif
