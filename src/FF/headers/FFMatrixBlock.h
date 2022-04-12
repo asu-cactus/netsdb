@@ -42,6 +42,15 @@ public:
         this->partitionByCol = partitionByCol;
       }
 
+
+  FFMatrixBlock(int blockRowIndexIn, int blockColIndexIn, int rowNumsIn,
+                int colNumsIn, int totalRows, int totalCols, int distinctBlockId, bool partitionByCol = true)
+      : data(rowNumsIn, colNumsIn) {
+        meta = pdb::makeObject<FFMatrixMeta>(blockRowIndexIn, blockColIndexIn, totalRows, totalCols);
+	meta->distinctBlockId = distinctBlockId;
+        this->partitionByCol = partitionByCol;
+      }
+
   FFMatrixBlock(int blockRowIndexIn, int blockColIndexIn, int rowNumsIn,
                 int colNumsIn, pdb::Handle<pdb::Vector<double>> rawDataIn, bool partitionByCol = true)
       : data(rowNumsIn, colNumsIn, rawDataIn)  {
@@ -156,7 +165,7 @@ public:
      * */
 
     /**
-     * Following code is used for debug, keep it here temporary  
+     * Following code is used for debug, keep it here temporary*
     std::cout << "entering the overloaded + " << this->hash() << std::endl;
     std::cout << "block 1 INFO: " << std::endl;
     std::cout << " inNumRow: " << this->getRowNums() << " inNumCol: " << this->getColNums() << " inBlockRowIndex: " << 
@@ -166,18 +175,31 @@ public:
     std::cout << " inNumRow: " << other.getRowNums() << " inNumCol: " << other.getColNums() << " inBlockRowIndex: " << 
                     other.getBlockRowIndex() << " inBlockColIndex: " << other.getBlockColIndex() << 
                     " inTotalRowNums: " << other.getTotalRowNums() << " inTotalColNums: " << other.getTotalColNums() <<   std::endl;
-    **/
-
+    */
+      
     int totalRows = this->getTotalRowNums();
     int totalCols = this->getTotalColNums();
+    int rowStart = other.getBlockRowIndex() * other.getRowNums();
+    int colStart = other.getBlockColIndex() * other.getColNums();
+    if ((other.getBlockRowIndex() < 0) || (rowStart >other.getTotalRowNums()) || (other.getRowNums() <=0)
+		    || (other.getBlockColIndex() <0) || (colStart>other.getTotalColNums()) || (other.getColNums() <=0)) {
+        return *this;
+    }
 
     if ((this->getRowNums() == totalRows) && (this->getColNums() == totalCols)) {
     // the block (this) is already enlarged, the rest thing is adding the other block to 
     // its corresponding position
       for (int i = 0; i < other.getRowNums(); i++) {
         for (int j = 0; j < other.getColNums(); j++) {
-          int finalRowIndex = other.getBlockRowIndex() * other.getRowNums() + i;
-          int finalColIndex = other.getBlockColIndex() * other.getColNums() + j;
+          int finalRowIndex = rowStart + i;
+          int finalColIndex = colStart + j;
+	  /*std::cout << "other.getBlockRowIndex()=" << other.getBlockRowIndex()
+		    << " other.getBlockColIndex()=" << other.getBlockColIndex()
+		    << " other.getRowNums()=" << other.getRowNums()
+		    << " other.getColNums()=" << other.getColNums()
+		    << " i=" << i << " j=" << j
+		  << " finalRowIndex=" << finalRowIndex << " totalCols=" << totalCols << " finalColIndex=" << finalColIndex
+		  << " totalRows=" << totalRows << std::endl;*/
           (*((this->data).rawData))[finalRowIndex * totalCols + finalColIndex] =
                         (*(other.data.rawData))[i * other.data.colNums + j];
         }
@@ -189,8 +211,8 @@ public:
       // Add block (this)
       for (int i = 0; i < this->getRowNums(); i++) {
         for (int j = 0; j < this->getColNums(); j++) {
-          int finalRowIndex = this->getBlockRowIndex() * this->getRowNums() + i;
-          int finalColIndex = this->getBlockColIndex() * this->getColNums() + j;
+          int finalRowIndex = rowStart + i;
+          int finalColIndex = colStart + j;
           (*((result->data).rawData))[finalRowIndex * totalCols + finalColIndex] =
                         (*(this->data.rawData))[i * this->data.colNums + j];
         }
@@ -198,8 +220,8 @@ public:
       // Add block (other)
       for (int i = 0; i < other.getRowNums(); i++) {
         for (int j = 0; j < other.getColNums(); j++) {
-          int finalRowIndex = other.getBlockRowIndex() * other.getRowNums() + i;
-          int finalColIndex = other.getBlockColIndex() * other.getColNums() + j;
+          int finalRowIndex = rowStart + i;
+          int finalColIndex = colStart + j;
           (*((result->data).rawData))[finalRowIndex * totalCols + finalColIndex] =
                         (*(other.data.rawData))[i * other.data.colNums + j];
         }

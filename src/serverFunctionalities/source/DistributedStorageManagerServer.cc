@@ -109,7 +109,7 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
             Handle<StorageAddSharedMapping> storageCmd =
                     makeObject<StorageAddSharedMapping>(request->getSharingDatabase(), request->getSharingSetName(),
     request->getSharingType(), request->getSharedDatabase(), request->getSharedSetName(), request->getSharedType(),
-    request->getFileName(), request->getTotalRows(), request->getTotalCols());
+    request->getFileName(), request->getTotalRows(), request->getTotalCols(), request->getTranspose());
             getFunctionality<DistributedStorageManagerServer>()
                     .broadcast<StorageAddSharedMapping, Object, SimpleRequestResult>(
                         storageCmd,

@@ -134,6 +134,7 @@ public:
 		  std::string fileName,
                   size_t totalRows,
 		  size_t totalCols,
+		  bool transpose,
                   std::string errMsg); 
 
   /* Flushes data currently in memory into disk. */

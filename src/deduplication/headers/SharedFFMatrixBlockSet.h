@@ -103,7 +103,7 @@ public:
 
     //each line of index file is like following:
     //sharedBlockRowIndex, sharedBlockColIndex, actualBlockRowIndex, actualBlockColIndex
-    void loadIndexFromFile(DatabaseID dbId, UserTypeID typeId, SetID setId, std::string path, size_t totalRows, size_t totalCols) {
+    void loadIndexFromFile(DatabaseID dbId, UserTypeID typeId, SetID setId, std::string path, size_t totalRows, size_t totalCols, bool transpose = false) {
 
          ifstream in(path.c_str());
          if (!in.is_open()) {
@@ -116,7 +116,12 @@ public:
          while (getline(in,line)) {
              Tokenizer tok(line);
              vec.assign(tok.begin(),tok.end());
-             Handle<FFMatrixMeta> actualBlockMeta = makeObject<FFMatrixMeta>(atoi(vec[1].c_str()), atoi(vec[2].c_str()), totalRows, totalCols);
+
+             Handle<FFMatrixMeta> actualBlockMeta;
+	     if (transpose)
+		    actualBlockMeta = makeObject<FFMatrixMeta>(atoi(vec[2].c_str()), atoi(vec[1].c_str()), totalRows, totalCols);
+	     else
+		    actualBlockMeta = makeObject<FFMatrixMeta>(atoi(vec[1].c_str()), atoi(vec[2].c_str()), totalRows, totalCols);
 	     insertIndex(dbId, typeId, setId, atoi(vec[0].c_str()), actualBlockMeta);
          }
     }

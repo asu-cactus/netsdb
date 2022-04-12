@@ -302,6 +302,7 @@ bool DistributedStorageManagerClient::addSharedMapping(std::string sharingDataba
                   std::string fileName,
                   size_t totalRows,
                   size_t totalCols,
+		  bool transpose,
                   std::string& errMsg) {
 
      
@@ -320,7 +321,8 @@ bool DistributedStorageManagerClient::addSharedMapping(std::string sharingDataba
                    sharedTypeName,
                    fileName,
                    totalRows,
-                   totalCols);
+                   totalCols,
+		   transpose);
 
 }
 

@@ -159,9 +159,10 @@ bool PDBClient::addSharedMapping(std::string sharingDatabase,
                   std::string fileName,
                   size_t totalRows,
                   size_t totalCols,
+		  bool transpose,
 		  std::string errMsg) {
   return distributedStorageClient.addSharedMapping(sharingDatabase, sharingSetName, sharingTypeName,
-                  sharedDatabase, sharedSetName, sharedTypeName, fileName, totalRows, totalCols, errMsg);
+                  sharedDatabase, sharedSetName, sharedTypeName, fileName, totalRows, totalCols, transpose, errMsg);
 
 }
 

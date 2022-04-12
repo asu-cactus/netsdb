@@ -56,10 +56,19 @@ PDBPagePtr PartitionTensorBlockSharedPageIterator::next() {
 	    for (int i = 0; i < iterateOverMe->size(); i++) {
 	        Handle<FFMatrixBlock> block = (*iterateOverMe)[i];
 		//we borrow the totalRows field to store the static blockRowId, and the totalCols field to store the static blockColId
-                Handle<FFMatrixMeta> targetMeta = sharedSet->getTargetMetadata(dbIdOfSharingSet, typeIdOfSharingSet, setIdOfSharingSet, block->meta->totalRows);
+                Handle<FFMatrixMeta> targetMeta = sharedSet->getTargetMetadata(dbIdOfSharingSet, typeIdOfSharingSet, setIdOfSharingSet, block->meta->distinctBlockId);
                 if(targetMeta != nullptr) {
 		    block->meta->blockRowIndex = targetMeta->blockRowIndex;
 		    block->meta->blockColIndex = targetMeta->blockColIndex;
+                    block->meta->totalRows = targetMeta->totalRows;
+		    block->meta->totalCols = targetMeta->totalCols;
+		} else {
+		    std::cout << "ERROR: I didn't find this block with Id=" << block->meta->distinctBlockId << std::endl;
+		    block->meta->blockRowIndex = -1;
+                    block->meta->blockColIndex = -1;
+                    block->meta->totalRows = 0;
+                    block->meta->totalCols = 0;
+		
 		}
 	    }
             this->numIteratedPages++;

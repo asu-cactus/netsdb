@@ -23,7 +23,11 @@ public:
   Lambda<int> getKeyProjection(Handle<FFMatrixBlock> aggMe) override {
       return makeLambda(aggMe, [](Handle<FFMatrixBlock>& aggMe) {
         // all FFMatrixBlock will be grouped together
-        return 1;
+        std::cout << "aggMe->getBlockRowIndex()=" << aggMe->getBlockRowIndex() 
+	<< " aggMe->getBlockColIndex()=" << aggMe->getBlockRowIndex() 
+	<< " aggMe->getRowNums()=" << aggMe->getRowNums()
+        << " aggMe->getColNums()=" << aggMe->getRowNums() << std::endl;
+	     	      return 1;
       });
   }
 

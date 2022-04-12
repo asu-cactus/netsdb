@@ -26,10 +26,11 @@ public:
 		   std::string sharedTypeName,
 		   std::string fileName,
 		   size_t totalRows,
-		   size_t totalCols)
+		   size_t totalCols,
+		   bool transpose)
         : sharingDatabase(sharingDatabase), sharingSetName(sharingSetName), sharingTypeName(sharingTypeName),
 	  sharedDatabase(sharedDatabase), sharedSetName(sharedSetName), sharedTypeName(sharedTypeName),
-	  fileName(fileName), totalRows(totalRows), totalCols(totalCols) {
+	  fileName(fileName), totalRows(totalRows), totalCols(totalCols), transpose(transpose) {
 
     }
 
@@ -70,6 +71,10 @@ public:
         return totalCols;
     }
 
+    bool getTranspose() {
+        return transpose;
+    }
+
     ENABLE_DEEP_COPY
 
 private:
@@ -82,6 +87,7 @@ private:
     String fileName;
     size_t totalRows;
     size_t totalCols;
+    bool transpose;
 };
 }
 

@@ -1041,7 +1041,8 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                      std::string fileName = request->getFileName();
 		     size_t totalRows = request->getTotalRows();
 		     size_t totalCols = request->getTotalCols();
-		     mySharedSet->loadIndexFromFile(mySet->getDbID(), mySet->getTypeID(), mySet->getSetID(), fileName, totalRows, totalCols );
+		     bool transpose = request->getTranspose();
+		     mySharedSet->loadIndexFromFile(mySet->getDbID(), mySet->getTypeID(), mySet->getSetID(), fileName, totalRows, totalCols, transpose );
 		}
 
                 const UseTemporaryAllocationBlock tempBlock{1024};

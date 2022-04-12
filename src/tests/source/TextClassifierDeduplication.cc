@@ -1,4 +1,5 @@
 #include "PDBString.h"
+#include "FFAggMatrixToOneMatrix.h"
 #include "PDBMap.h"
 #include "TensorBlockIndex.h"
 #include "InterfaceFunctions.h"
@@ -10,6 +11,8 @@
 #include "FFMatrixWriter.h"
 #include "FFAggMatrix.h"
 #include "FFTransposeMult.h"
+#include "FFInputLayerJoin.h"
+#include "SemanticClassifierSingleBlock.h"
 
 #include <fstream>      // fstream
 #include <boost/tokenizer.hpp>
@@ -143,49 +146,24 @@ void load_set(pdb::PDBClient & pdbClient, std::string db_name, std::string set_n
      }
 }
 
-void load_independent_FF_sets(pdb::PDBClient pdbClient, std::string databaseName, int block_x, int block_y, int batch_size, int numFeatures, int numNeurons, int numLabels) {
+void load_independent_input_sets(pdb::PDBClient pdbClient, std::string databaseName, int block_x, int block_y, int batch_size, int numFeatures) {
 
       std::string errMsg;
 
       ff::createDatabase(pdbClient, databaseName);
 
       ff::createSet(pdbClient, databaseName, "inputs", "inputs", 64);
-      ff::createSet(pdbClient, databaseName, "label", "label", 64);
-
-      //ff::createSet(pdbClient, databaseName, "w1", "W1", 64);
-      ff::createSet(pdbClient, databaseName, "b1", "B1", 64);
-
-      ff::createSet(pdbClient, databaseName, "wo", "WO", 64);
-      ff::createSet(pdbClient, databaseName, "bo", "BO", 64);
 
       std::cout << "To load matrix for "<< databaseName <<":inputs" << std::endl;
       ff::loadMatrix(pdbClient, databaseName, "inputs", batch_size, numFeatures, block_x,
                    block_y, false, false, errMsg);
-
-      //std::cout << "To load matrix for "<< databaseName <<" w1" << std::endl;
-      //ff::loadMatrix(pdbClient, databaseName, "w1", numNeurons, numFeatures, block_x, block_y,
-        //           false, false, errMsg);
-
-      std::cout << "To load matrix for " << databaseName << ":b1" << std::endl;
-      ff::loadMatrix(pdbClient, databaseName, "b1", numNeurons, 1, block_x,
-                   1, false, true, errMsg);
-
-      std::cout << "To load matrix for " << databaseName << ":wo" << std::endl;
-      ff::loadMatrix(pdbClient, databaseName, "wo", numLabels, numNeurons, block_x,
-                   block_x, false, false, errMsg);
-
-      std::cout << "To load matrix for " << databaseName << ":bo" << std::endl;
-      ff::loadMatrix(pdbClient, databaseName, "bo", numLabels, 1, block_x, 1,
-                   false, true, errMsg);
 
 }
 
 
 void load_output_sets(pdb::PDBClient pdbClient, std::string databaseName) {
 
-     ff::createSet(pdbClient, databaseName, "output", "Output", 256);
-     ff::createSet(pdbClient, databaseName, "y1", "Y1", 256);
-     ff::createSet(pdbClient, databaseName, "yo", "YO", 256);
+     ff::createSet(pdbClient, databaseName, "outputs", "Outputs", 256);
 
 }
 
@@ -221,23 +199,76 @@ void load_private_set(pdb::PDBClient pdbClient, std::string databaseName, std::s
      }
 
      //load T1
-     load_set(pdbClient, databaseName, "w1", listOfPrivateBlocks, pageSharing, 50, 10000, "shared_db", "shared_set");
+     load_set(pdbClient, databaseName, "embedding", listOfPrivateBlocks, pageSharing, 10000, 50, "shared_db", "shared_set");
 
 }
 
-void runFF(pdb::PDBClient pdbClient, std::string databaseName) {
+void runWorkload(pdb::PDBClient pdbClient, std::string databaseName, int embedding_dimension) {
 
-  double dropout_rate = 0.5;
+    std::cout << "TO RUN WORKLOAD ON " << databaseName << " with an embedding dimension of " << embedding_dimension << std::endl;
 
-  auto begin = std::chrono::high_resolution_clock::now();
+    pdb::makeObjectAllocatorBlock(128*1024*1024, true);
 
-  ff::inference_unit(pdbClient, databaseName, "w1", "wo", "inputs", "b1", "bo",
-                "output", dropout_rate);
+    auto begin = std::chrono::high_resolution_clock::now();
 
-  auto end = std::chrono::high_resolution_clock::now();
-  std::cout << "*****FFTest End-to-End Time Duration: ****"
-              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
+    // make the reader
+    pdb::Handle<pdb::Computation> readA =
+        makeObject<FFMatrixBlockScanner>(databaseName, "inputs");
+    pdb::Handle<pdb::Computation> readB =
+        makeObject<FFMatrixBlockScanner>(databaseName, "embedding");
+
+    // make the transpose multiply join
+    pdb::Handle<pdb::Computation> join = pdb::makeObject<FFInputLayerJoin>();
+    join->setInput(0, readA);
+    join->setInput(1, readB);
+
+    // make the transpose multiply aggregation
+    pdb::Handle<pdb::Computation> myAggregation =
+        pdb::makeObject<FFAggMatrix>();
+    myAggregation->setInput(join);
+
+    // merge the all FFMatrixcBlocks to one single FFMatrix
+    pdb::Handle<pdb::Computation> myAggregation1 =
+        pdb::makeObject<FFAggMatrixToOneMatrix>();
+    myAggregation1->setInput(myAggregation);
+
+    // make the classifier
+    uint32_t sizeDense0 = 16;
+    uint32_t sizeDense1 = 1;
+
+    // SemanticClassifierSingleBlock takes the input as FFSingleMatrix
+    pdb::Handle<pdb::Computation> classifier =
+        pdb::makeObject<SemanticClassifierSingleBlock>(embedding_dimension, sizeDense0, sizeDense1);
+    classifier->setInput(myAggregation1);
+
+    // make the writer
+    pdb::Handle<pdb::Computation> myWriter = pdb::makeObject<FFMatrixWriter>(databaseName, "outputs");
+    myWriter->setInput(classifier);
+
+
+    auto exe_begin = std::chrono::high_resolution_clock::now();
+    bool materializeHash = false;
+    std::string errMsg;
+    // run the computation
+    if (!pdbClient.executeComputations(errMsg, databaseName, materializeHash,
+                                       myWriter)) {
+        cout << "Computation failed. Message was: " << errMsg << "\n";
+        exit(1);
+    }
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::cout << "****Text Classification End-to-End Time Duration: ****"
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end -
+                                                                          begin)
+                     .count()
               << " secs." << std::endl;
+
+    std::cout << "****Text Classification Execution Time Duration: ****"
+              << std::chrono::duration_cast<std::chrono::duration<float>>(
+                     end - exe_begin)
+                     .count() 
+              << " secs." << std::endl;
+
 
 }
 
@@ -265,8 +296,8 @@ void createAndLoadSharedSet(pdb::PDBClient pdbClient, std::map<int, std::pair<in
                 std::pair<int, int> block_indexes = distinctBlockMap[blockId];
                 std::cout << "-------to push back a new FFMatrixMeta" << block_indexes.first << ", " << block_indexes.second << std::endl;
 	        Handle<FFMatrixMeta> sharedBlockMeta = makeObject<FFMatrixMeta>(block_indexes.first, block_indexes.second, 0, 0);
-		sharedBlockMeta->distinctBlockId = blockId;
-                curVec.push_back(*sharedBlockMeta);
+                sharedBlockMeta->distinctBlockId = blockId;
+		curVec.push_back(*sharedBlockMeta);
            }
        }
    }
@@ -275,9 +306,9 @@ void createAndLoadSharedSet(pdb::PDBClient pdbClient, std::map<int, std::pair<in
    for (int i = 0; i < listsOfSharedBlocks.size(); i++) {
 	std::cout << "\r\nEQUIVALENT CLASS-" << i << ":";
         for (int j = 0; j < listsOfSharedBlocks[i].size(); j++) {
-            std::cout << listsOfSharedBlocks[i][j].blockRowIndex << ":" << listsOfSharedBlocks[i][j].blockColIndex << ";";	
+            std::cout << listsOfSharedBlocks[i][j].blockRowIndex << ":" << listsOfSharedBlocks[i][j].blockColIndex << ":"<< listsOfSharedBlocks[i][j].distinctBlockId << ";";	
 	}
-	load_shared_set(pdbClient, "shared_db", "shared_set", listsOfSharedBlocks[i], 50, 10000, append);
+	load_shared_set(pdbClient, "shared_db", "shared_set", listsOfSharedBlocks[i], 10000, 50, append);
 	if (append == false) {
 	    append = true;
 	}
@@ -290,9 +321,9 @@ int main(int argc, char *argv[]) {
 
   bool reloadData = true;
 
-  if (argc < 2) {
+  if (argc < 3) {
   
-	  std::cout << "Usage: distinct_block_path whetherToLoadData(Y/N)" << std::endl;
+	  std::cout << "Usage: distinct_block_path whetherToLoadData(Y/N) whichModelToRun (0 for not running any model, 1 for running model-1(nnlm-128), 2 for running model-2(nnlm-50), 3 for running model-3(wiki-250), 4 for running model-4(wiki-500))" << std::endl;
   
   }
 
@@ -308,18 +339,36 @@ int main(int argc, char *argv[]) {
       }
   }
 
+  int whichModelToRun = 0;
+  if (argc >= 3) {
+      whichModelToRun = atoi(argv[3]);
+  }
+
   bool generate = true;
 
   string masterIp = "localhost";
   pdb::PDBLoggerPtr clientLogger = make_shared<pdb::PDBLogger>("FFclientLog");
   pdb::PDBClient pdbClient(8108, masterIp, clientLogger, false, true);
   pdb::CatalogClient catalogClient(8108, masterIp, clientLogger);
-  
-  ff::setup(pdbClient, "any");
+ 
+
 
   pdb::makeObjectAllocatorBlock(128*1024*1024, true);
 
   if (reloadData) {
+
+
+          ff::loadLibrary(pdbClient, "libraries/libFFInputLayerJoin.so");
+          ff::loadLibrary(pdbClient, "libraries/libFFMatrixMeta.so");
+          ff::loadLibrary(pdbClient, "libraries/libFFMatrixData.so");
+          ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlock.so");
+          ff::loadLibrary(pdbClient, "libraries/libFFSingleMatrix.so");
+          ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlockScanner.so");
+          ff::loadLibrary(pdbClient, "libraries/libFFMatrixWriter.so");
+          ff::loadLibrary(pdbClient, "libraries/libFFAggMatrix.so");
+          ff::loadLibrary(pdbClient, "libraries/libFFAggMatrixToOneMatrix.so");
+          ff::loadLibrary(pdbClient, "libraries/libFFTransposeMult.so");
+          ff::loadLibrary(pdbClient, "libraries/libSemanticClassifierSingleBlock.so");
 
 	  //create the list of distinct blocks
           ifstream distinct_in(distinct_block_path.c_str());
@@ -343,86 +392,101 @@ int main(int argc, char *argv[]) {
 	  distinct_in.close();
 
           //create and load shared set
-          createAndLoadSharedSet(pdbClient, distinctBlockMap, "/home/ubuntu/shared/file2-shared.csv");
-
-	  //create other sets for amazoncat-13k
-          load_independent_FF_sets(pdbClient, "amazoncat-13k", 50, 10000, 1000, 203882, 1000, 13330);
-	  
-
-	  //create other sets for amazoncat-14k
-          load_independent_FF_sets(pdbClient, "amazoncat-14k", 50, 10000, 1000, 597540, 1000, 14588);
-
-	  //create other sets for EURlex-4.3k
-          load_independent_FF_sets(pdbClient, "EURlex-4.3k", 50, 10000, 1000, 200000, 2000, 4271);
+          createAndLoadSharedSet(pdbClient, distinctBlockMap, "/home/ubuntu/shared-1-3/file2/exp1/file2-shared.csv");
 
 
-	  //create other sets for w0 in RCV1-2k
-          load_independent_FF_sets(pdbClient, "RCV1-2k", 50, 10000, 1000, 47236, 5000, 2456);
+          //load independent input sets
+          load_independent_input_sets(pdbClient, "nnlm_128", 50, 10000, 100, 963812);
+	  load_independent_input_sets(pdbClient, "nnlm_50", 50, 10000, 100, 963812);
+          load_independent_input_sets(pdbClient, "wiki_250", 50, 10000, 100, 1009375);
+	  load_independent_input_sets(pdbClient, "wiki_500", 50, 10000, 100, 1009375);
 
           std::vector<int> pageIds1;
+          pageIds1.push_back(0);
+	  pageIds1.push_back(1);
+	  pageIds1.push_back(2);
+	  pageIds1.push_back(3);
+	  pageIds1.push_back(4);
+	  pageIds1.push_back(5);
+	  pageIds1.push_back(7);
+	  pageIds1.push_back(8);
+          pageIds1.push_back(9);
 
-
-	  //create the private set for w1 in amazoncat-13k
-          load_private_set(pdbClient, "amazoncat-13k", "/home/ubuntu/shared/file2-tensor0.csv", distinctBlockMap, pageIds1, 1000, 203882);
+	  //create the private set for the embedding layer nnlm_dim_128_yelp
+          load_private_set(pdbClient, "nnlm_128", "/home/ubuntu/shared-1-3/file2/exp1/file2_0.csv", distinctBlockMap, pageIds1, 963812, 128);
 
           std::vector<int> pageIds2;
 	  pageIds2.push_back(0);
 	  pageIds2.push_back(1);
-
+          pageIds2.push_back(2);
+	  pageIds2.push_back(3);
+	  pageIds2.push_back(6);
+	  pageIds2.push_back(7);
 	  
-	  //create the private set for w1 in RCV1-2k
-	  load_private_set(pdbClient, "RCV1-2k", "/home/ubuntu/shared/file2-tensor4.csv", distinctBlockMap, pageIds2, 5000, 47236);
+	  //create the private set for the embedding layer nnlm_dim_50_imdb
+	  load_private_set(pdbClient, "nnlm_50", "/home/ubuntu/shared-1-3/file2/exp1/file2_5.csv", distinctBlockMap, pageIds2, 963812, 50);
 
           std::vector<int> pageIds3;
           pageIds3.push_back(0);
           pageIds3.push_back(1);
 	  pageIds3.push_back(2);
+	  pageIds3.push_back(3);
+	  pageIds3.push_back(4);
+          pageIds3.push_back(5);
+	  pageIds3.push_back(6);
+	  pageIds3.push_back(8);
+          pageIds3.push_back(10);
 
-	  //create the private set for w1 in EURlex-4.3k
-          load_private_set(pdbClient, "EURlex-4.3k", "/home/ubuntu/shared/file2-tensor8.csv", distinctBlockMap, pageIds3, 2000, 200000);
+	  //create the private set for the embedding layer wiki_250_civil
+          load_private_set(pdbClient, "wiki_250", "/home/ubuntu/shared-1-3/file2/exp1/file2_10.csv", distinctBlockMap, pageIds3, 1009375, 250);
 
 	  std::vector<int> pageIds4;
           pageIds4.push_back(0);
+	  pageIds4.push_back(1);
           pageIds4.push_back(2);
+	  pageIds4.push_back(4);
+	  pageIds4.push_back(5);
+	  pageIds4.push_back(6);
+	  pageIds4.push_back(9);
+          pageIds4.push_back(10);
 
-	  //create the private set for w1 in amazoncat-14k
-	  load_private_set(pdbClient, "amazoncat-14k", "/home/ubuntu/shared/file2-tensor12.csv", distinctBlockMap, pageIds4, 1000, 597540);
+	  //create the private set for the embedding layer wiki_500_yelp
+	  load_private_set(pdbClient, "wiki_500", "/home/ubuntu/shared-1-3/file2/exp1/file2_15.csv", distinctBlockMap, pageIds4, 1009375, 500);
 	  
 	  
 	  
 	  //add the block mapping to shared set
-	  //create the block mapping for amazoncat-13k
-	  pdbClient.addSharedMapping("amazoncat-13k", "w1", "FFMatrixBlock", "shared_db", "shared_set", "FFMatrixBlock", "/home/ubuntu/shared/file3-tensor0.csv", 1000, 203882, false, errMsg);
-          pdbClient.addSharedMapping("RCV1-2k", "w1", "FFMatrixBlock", "shared_db", "shared_set", "FFMatrixBlock", "/home/ubuntu/shared/file3-tensor4.csv", 5000, 47236, false, errMsg);
-          pdbClient.addSharedMapping("EURlex-4.3k", "w1", "FFMatrixBlock", "shared_db", "shared_set", "FFMatrixBlock", "/home/ubuntu/shared/file3-tensor8.csv", 2000, 200000, false, errMsg);
-	  pdbClient.addSharedMapping("amazoncat-14k", "w1", "FFMatrixBlock", "shared_db", "shared_set", "FFMatrixBlock", "/home/ubuntu/shared/file3-tensor12.csv", 1000, 597540, false, errMsg);
-	  
-       
-	  
+	  pdbClient.addSharedMapping("nnlm_128", "embedding", "FFMatrixBlock", "shared_db", "shared_set", "FFMatrixBlock", "/home/ubuntu/shared-1-3/file1-3/exp1/file3-tensor0.csv", 963812, 128, false, errMsg);
+          pdbClient.addSharedMapping("nnlm_50", "embedding", "FFMatrixBlock", "shared_db", "shared_set", "FFMatrixBlock", "/home/ubuntu/shared-1-3/file1-3/exp1/file3-tensor5.csv", 963812, 50, false, errMsg);
+          pdbClient.addSharedMapping("wiki_250", "embedding", "FFMatrixBlock", "shared_db", "shared_set", "FFMatrixBlock", "/home/ubuntu/shared-1-3/file1-3/exp1/file3-tensor10.csv", 1009375, 250, false, errMsg);
+	  pdbClient.addSharedMapping("wiki_500", "embedding", "FFMatrixBlock", "shared_db", "shared_set", "FFMatrixBlock", "/home/ubuntu/shared-1-3/file1-3/exp1/file3-tensor15.csv", 1009375, 500, false, errMsg);
 	  
 
   }
 
   //execute the models
-  if (reloadData) {
+  if (whichModelToRun == 1) {
 
-      load_output_sets(pdbClient, "amazoncat-13k");
-      runFF(pdbClient, "amazoncat-13k");
+      load_output_sets(pdbClient, "nnlm_128");
+      runWorkload(pdbClient, "nnlm_128", 128);
+  } else if (whichModelToRun == 2) {
+
+      load_output_sets(pdbClient, "nnlm_50");
+      runWorkload(pdbClient, "nnlm_50", 50);
+
+  } else if (whichModelToRun == 3) {
+
+      load_output_sets(pdbClient, "wiki_250");
+      runWorkload(pdbClient, "wiki_250", 250);
+
+  } else if (whichModelToRun == 4) {
+
+      load_output_sets(pdbClient, "wiki_500");
+      runWorkload(pdbClient, "wiki_500", 500);
 
   } else {
-
-      load_output_sets(pdbClient, "amazoncat-13k");
-      runFF(pdbClient, "amazoncat-13k");
-
-      load_output_sets(pdbClient, "amazoncat-14k");
-      runFF(pdbClient, "amazoncat-14k");
-
-      load_output_sets(pdbClient, "EURlex-4.3k");
-      runFF(pdbClient, "EURlex-4.3k");
-
-      load_output_sets(pdbClient, "RCV1-2k");
-      runFF(pdbClient, "RCV1-2k");
-
+  
+      std::cout << "We will not run any model this time" << std::endl;
   }
 
   return 0;
