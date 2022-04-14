@@ -86,3 +86,24 @@ def read_input_from_db(db_cursor, id, input_dimensions):
     input = np.frombuffer(blob[0], dtype=np.float32)
     input = input.reshape(*input_dimensions)
     return input
+
+def read_input_torch_batch_from_db(db_cursor, startId, endId, input_dimensions):
+    db_cursor.execute(f"SELECT array_data FROM images WHERE id >= {startId} and id < {endId}")
+    rows = db_cursor.fetchall()
+    data = []
+    for row in rows:
+        row = torch.frombuffer(row[0], dtype=torch.float32)
+        row = row.reshape(*input_dimensions)
+        data.append(row)
+    return data
+
+def read_input_tensorflow_batch_from_db(db_cursor, startId, endId, input_dimensions):
+    db_cursor.execute(f"SELECT array_data FROM images WHERE id >= {startId} and id < {endId}")
+    rows = db_cursor.fetchall()
+    print (len(rows))
+    data = []
+    for row in rows:
+        row = np.frombuffer(row[0], dtype=np.float32)
+        row = row.reshape(*input_dimensions)
+        data.append(row)
+    return data
