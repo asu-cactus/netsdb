@@ -118,8 +118,10 @@ public:
              vec.assign(tok.begin(),tok.end());
 
              Handle<FFMatrixMeta> actualBlockMeta;
-	     if (transpose)
+	     if (transpose) {
 		    actualBlockMeta = makeObject<FFMatrixMeta>(atoi(vec[2].c_str()), atoi(vec[1].c_str()), totalRows, totalCols);
+                    std::cout << "block[" << atoi(vec[0].c_str()) << "]=(" << atoi(vec[2].c_str()) << "," << atoi(vec[1].c_str()) << ")\n";
+	     }
 	     else
 		    actualBlockMeta = makeObject<FFMatrixMeta>(atoi(vec[1].c_str()), atoi(vec[2].c_str()), totalRows, totalCols);
 	     insertIndex(dbId, typeId, setId, atoi(vec[0].c_str()), actualBlockMeta);

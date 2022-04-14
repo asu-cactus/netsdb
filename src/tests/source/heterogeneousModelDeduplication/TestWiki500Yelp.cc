@@ -57,19 +57,26 @@ int main(int argc, char *argv[]) {
     int batchSize = 100;
 
     pdb::makeObjectAllocatorBlock(128*1024*1024, true);
+    bool whetherToRegisterLibrary = true;
 
     if (loadData) {
-        ff::createDatabase(pdbClient, "wiki-500");
-        ff::loadLibrary(pdbClient, "libraries/libFFMatrixMeta.so");
-        ff::loadLibrary(pdbClient, "libraries/libFFMatrixData.so");
-        ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlock.so");
-        ff::loadLibrary(pdbClient, "libraries/libFFSingleMatrix.so");
-        ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlockScanner.so");
-        ff::loadLibrary(pdbClient, "libraries/libFFMatrixWriter.so");
-        ff::loadLibrary(pdbClient, "libraries/libFFAggMatrix.so");
-        ff::loadLibrary(pdbClient, "libraries/libFFAggMatrixToOneMatrix.so");
-        ff::loadLibrary(pdbClient, "libraries/libFFTransposeMult.so");
-        ff::loadLibrary(pdbClient, "libraries/libSemanticClassifierSingleBlock.so");
+
+    	ff::createDatabase(pdbClient, "wiki-500");
+
+	if (whetherToRegisterLibrary) {
+
+            ff::loadLibrary(pdbClient, "libraries/libFFMatrixMeta.so");
+            ff::loadLibrary(pdbClient, "libraries/libFFMatrixData.so");
+            ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlock.so");
+            ff::loadLibrary(pdbClient, "libraries/libFFSingleMatrix.so");
+            ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlockScanner.so");
+            ff::loadLibrary(pdbClient, "libraries/libFFMatrixWriter.so");
+            ff::loadLibrary(pdbClient, "libraries/libFFAggMatrix.so");
+            ff::loadLibrary(pdbClient, "libraries/libFFAggMatrixToOneMatrix.so");
+            ff::loadLibrary(pdbClient, "libraries/libFFTransposeMult.so");
+            ff::loadLibrary(pdbClient, "libraries/libSemanticClassifierSingleBlock.so");
+
+	}
 
         //create input set
         pdbClient.createSet<FFMatrixBlock>("wiki-500", "inputs", errMsg,

@@ -1404,6 +1404,9 @@ common_env.Program('bin/classifier',
 common_env.Program('bin/dedupClassifier',
                         ['build/tests/TestSemanticClassificationWithDeduplication.cc', 'build/FF/SimpleFF.cc',
                         'build/FF/FFMatrixUtil.cc', 'build/word2vec/SemanticClassifier.cc'] + all + pdb_client)
+common_env.Program('bin/semanticWithoutDedup',
+                        ['build/tests/heterogeneousModelDeduplication/TextClassifierWithoutDeduplication.cc', 'build/FF/SimpleFF.cc',
+                        'build/FF/FFMatrixUtil.cc', 'build/word2vec/SemanticClassifier.cc'] + all + pdb_client)
 common_env.Program('bin/semantic_nnlm128_yelp', 
                         ['build/tests/heterogeneousModelDeduplication/TestNNLM128Yelp.cc', 'build/FF/SimpleFF.cc',
                         'build/FF/FFMatrixUtil.cc', 'build/word2vec/SemanticClassifier.cc'] + all + pdb_client)
@@ -1905,10 +1908,11 @@ libFFTest = common_env.Alias('libHeteroModel', [
     'bin/pdb-cluster',
     'bin/pdb-server',
     'bin/semanticDedup',
-    'bin/semantic_nnlm128_yelp',
-    'bin/semantic_nnlm50_imdb',
-    'bin/semantic_wiki250_civil',
-    'bin/semantic_wiki500_yelp',
+    'bin/semanticWithoutDedup',
+    #'bin/semantic_nnlm128_yelp',
+    #'bin/semantic_nnlm50_imdb',
+    #'bin/semantic_wiki250_civil',
+    #'bin/semantic_wiki500_yelp',
     # 'bin/dedupClassifier',
     # 'bin/FCProjTest',
     # Other libraries from src/FF

@@ -163,8 +163,9 @@ void load_independent_input_sets(pdb::PDBClient pdbClient, std::string databaseN
 
 void load_output_sets(pdb::PDBClient pdbClient, std::string databaseName) {
 
-     ff::createSet(pdbClient, databaseName, "outputs", "Outputs", 256);
 
+     ff::createSet(pdbClient, databaseName, "outputs", "Outputs", 256);
+     ff::createSet(pdbClient, databaseName, "intermediate", "Intermediate", 256);
 }
 
 void load_private_set(pdb::PDBClient pdbClient, std::string databaseName, std::string private_blocks_path, std::map<int, std::pair<int, int>> & distinctBlockMap, std::vector<int> pageIds, int totalX, int totalY) {
@@ -199,7 +200,7 @@ void load_private_set(pdb::PDBClient pdbClient, std::string databaseName, std::s
      }
 
      //load T1
-     load_set(pdbClient, databaseName, "embedding", listOfPrivateBlocks, pageSharing, 10000, 50, "shared_db", "shared_set");
+     load_set(pdbClient, databaseName, "embedding", listOfPrivateBlocks, pageSharing, 50, 10000, "shared_db", "shared_set");
 
 }
 
@@ -209,32 +210,41 @@ void runWorkload(pdb::PDBClient pdbClient, std::string databaseName, int embeddi
 
     pdb::makeObjectAllocatorBlock(128*1024*1024, true);
 
+    std::string errMsg;
+
     auto begin = std::chrono::high_resolution_clock::now();
 
     // make the reader
     pdb::Handle<pdb::Computation> readA =
-        makeObject<FFMatrixBlockScanner>(databaseName, "inputs");
-    pdb::Handle<pdb::Computation> readB =
         makeObject<FFMatrixBlockScanner>(databaseName, "embedding");
+    pdb::Handle<pdb::Computation> readB =
+        makeObject<FFMatrixBlockScanner>(databaseName, "inputs");
 
     // make the transpose multiply join
-    pdb::Handle<pdb::Computation> join = pdb::makeObject<FFInputLayerJoin>();
+    pdb::Handle<pdb::Computation> join = pdb::makeObject<FFTransposeMult>();
     join->setInput(0, readA);
     join->setInput(1, readB);
 
     // make the transpose multiply aggregation
     pdb::Handle<pdb::Computation> myAggregation =
         pdb::makeObject<FFAggMatrix>();
+
+    myAggregation->setOutput(databaseName, "intermediate");
     myAggregation->setInput(join);
+
+    pdb::Handle<pdb::Computation> readC =
+        makeObject<FFMatrixBlockScanner>(databaseName, "intermediate");
 
     // merge the all FFMatrixcBlocks to one single FFMatrix
     pdb::Handle<pdb::Computation> myAggregation1 =
         pdb::makeObject<FFAggMatrixToOneMatrix>();
-    myAggregation1->setInput(myAggregation);
+    myAggregation1->setInput(readC);
 
     // make the classifier
     uint32_t sizeDense0 = 16;
     uint32_t sizeDense1 = 1;
+
+
 
     // SemanticClassifierSingleBlock takes the input as FFSingleMatrix
     pdb::Handle<pdb::Computation> classifier =
@@ -242,16 +252,25 @@ void runWorkload(pdb::PDBClient pdbClient, std::string databaseName, int embeddi
     classifier->setInput(myAggregation1);
 
     // make the writer
-    pdb::Handle<pdb::Computation> myWriter = pdb::makeObject<FFMatrixWriter>(databaseName, "outputs");
+    pdb::Handle<pdb::Computation> myWriter = nullptr;
+    myWriter =
+        pdb::makeObject<FFMatrixWriter>(databaseName, "outputs");
     myWriter->setInput(classifier);
 
+    bool materializeHash = false;
 
     auto exe_begin = std::chrono::high_resolution_clock::now();
-    bool materializeHash = false;
-    std::string errMsg;
+
     // run the computation
     if (!pdbClient.executeComputations(errMsg, databaseName, materializeHash,
-                                       myWriter)) {
+                                   myAggregation)) {
+        cout << "Computation failed. Message was: " << errMsg << "\n";
+        exit(1);
+    }
+
+        // run the computation
+    if (!pdbClient.executeComputations(errMsg, "aggregation-1", materializeHash,
+                                   myWriter)) {
         cout << "Computation failed. Message was: " << errMsg << "\n";
         exit(1);
     }
@@ -266,10 +285,14 @@ void runWorkload(pdb::PDBClient pdbClient, std::string databaseName, int embeddi
     std::cout << "****Text Classification Execution Time Duration: ****"
               << std::chrono::duration_cast<std::chrono::duration<float>>(
                      end - exe_begin)
-                     .count() 
+                     .count()
               << " secs." << std::endl;
 
-
+    // verify the results
+    ff::print_stats(pdbClient, databaseName, "outputs");
+    ff::print(pdbClient, databaseName, "outputs");
+    ff::print_stats(pdbClient, databaseName, "intermediate");
+    ff::print(pdbClient, databaseName, "intermediate");
 }
 
 
@@ -308,7 +331,7 @@ void createAndLoadSharedSet(pdb::PDBClient pdbClient, std::map<int, std::pair<in
         for (int j = 0; j < listsOfSharedBlocks[i].size(); j++) {
             std::cout << listsOfSharedBlocks[i][j].blockRowIndex << ":" << listsOfSharedBlocks[i][j].blockColIndex << ":"<< listsOfSharedBlocks[i][j].distinctBlockId << ";";	
 	}
-	load_shared_set(pdbClient, "shared_db", "shared_set", listsOfSharedBlocks[i], 10000, 50, append);
+	load_shared_set(pdbClient, "shared_db", "shared_set", listsOfSharedBlocks[i], 50, 10000, append);
 	if (append == false) {
 	    append = true;
 	}
@@ -384,8 +407,8 @@ int main(int argc, char *argv[]) {
              std::cout << line << std::endl;
              Tokenizer tok(line);
              vec.assign(tok.begin(),tok.end());
-	     distinctBlockMap[atoi(vec[0].c_str())] = std::pair<int, int>(atoi(vec[1].c_str()), atoi(vec[2].c_str()));
-             std::cout << atoi(vec[0].c_str()) << " => " << "(" << atoi(vec[1].c_str()) << ", " << atoi(vec[2].c_str()) << ")";
+	     distinctBlockMap[atoi(vec[0].c_str())] = std::pair<int, int>(atoi(vec[2].c_str()), atoi(vec[1].c_str()));
+             std::cout << atoi(vec[0].c_str()) << " => " << "(" << atoi(vec[2].c_str()) << ", " << atoi(vec[1].c_str()) << ")";
 	  }
       
 
@@ -396,10 +419,10 @@ int main(int argc, char *argv[]) {
 
 
           //load independent input sets
-          load_independent_input_sets(pdbClient, "nnlm_128", 50, 10000, 100, 963812);
-	  load_independent_input_sets(pdbClient, "nnlm_50", 50, 10000, 100, 963812);
-          load_independent_input_sets(pdbClient, "wiki_250", 50, 10000, 100, 1009375);
-	  load_independent_input_sets(pdbClient, "wiki_500", 50, 10000, 100, 1009375);
+          load_independent_input_sets(pdbClient, "nnlm_128", 50, 10000, 100, 970000);
+	  load_independent_input_sets(pdbClient, "nnlm_50", 50, 10000, 100, 970000);
+          load_independent_input_sets(pdbClient, "wiki_250", 50, 10000, 100, 1010000);
+	  load_independent_input_sets(pdbClient, "wiki_500", 50, 10000, 100, 1010000);
 
           std::vector<int> pageIds1;
           pageIds1.push_back(0);
@@ -413,7 +436,7 @@ int main(int argc, char *argv[]) {
           pageIds1.push_back(9);
 
 	  //create the private set for the embedding layer nnlm_dim_128_yelp
-          load_private_set(pdbClient, "nnlm_128", "/home/ubuntu/shared-1-3/file2/exp1/file2_0.csv", distinctBlockMap, pageIds1, 963812, 128);
+          load_private_set(pdbClient, "nnlm_128", "/home/ubuntu/shared-1-3/file2/exp1/file2_0.csv", distinctBlockMap, pageIds1, 150, 970000);
 
           std::vector<int> pageIds2;
 	  pageIds2.push_back(0);
@@ -424,7 +447,7 @@ int main(int argc, char *argv[]) {
 	  pageIds2.push_back(7);
 	  
 	  //create the private set for the embedding layer nnlm_dim_50_imdb
-	  load_private_set(pdbClient, "nnlm_50", "/home/ubuntu/shared-1-3/file2/exp1/file2_5.csv", distinctBlockMap, pageIds2, 963812, 50);
+	  load_private_set(pdbClient, "nnlm_50", "/home/ubuntu/shared-1-3/file2/exp1/file2_5.csv", distinctBlockMap, pageIds2, 50, 970000);
 
           std::vector<int> pageIds3;
           pageIds3.push_back(0);
@@ -438,7 +461,7 @@ int main(int argc, char *argv[]) {
           pageIds3.push_back(10);
 
 	  //create the private set for the embedding layer wiki_250_civil
-          load_private_set(pdbClient, "wiki_250", "/home/ubuntu/shared-1-3/file2/exp1/file2_10.csv", distinctBlockMap, pageIds3, 1009375, 250);
+          load_private_set(pdbClient, "wiki_250", "/home/ubuntu/shared-1-3/file2/exp1/file2_10.csv", distinctBlockMap, pageIds3, 250, 1010000);
 
 	  std::vector<int> pageIds4;
           pageIds4.push_back(0);
@@ -451,15 +474,15 @@ int main(int argc, char *argv[]) {
           pageIds4.push_back(10);
 
 	  //create the private set for the embedding layer wiki_500_yelp
-	  load_private_set(pdbClient, "wiki_500", "/home/ubuntu/shared-1-3/file2/exp1/file2_15.csv", distinctBlockMap, pageIds4, 1009375, 500);
+	  load_private_set(pdbClient, "wiki_500", "/home/ubuntu/shared-1-3/file2/exp1/file2_15.csv", distinctBlockMap, pageIds4, 500, 1010000);
 	  
 	  
 	  
 	  //add the block mapping to shared set
-	  pdbClient.addSharedMapping("nnlm_128", "embedding", "FFMatrixBlock", "shared_db", "shared_set", "FFMatrixBlock", "/home/ubuntu/shared-1-3/file1-3/exp1/file3-tensor0.csv", 963812, 128, false, errMsg);
-          pdbClient.addSharedMapping("nnlm_50", "embedding", "FFMatrixBlock", "shared_db", "shared_set", "FFMatrixBlock", "/home/ubuntu/shared-1-3/file1-3/exp1/file3-tensor5.csv", 963812, 50, false, errMsg);
-          pdbClient.addSharedMapping("wiki_250", "embedding", "FFMatrixBlock", "shared_db", "shared_set", "FFMatrixBlock", "/home/ubuntu/shared-1-3/file1-3/exp1/file3-tensor10.csv", 1009375, 250, false, errMsg);
-	  pdbClient.addSharedMapping("wiki_500", "embedding", "FFMatrixBlock", "shared_db", "shared_set", "FFMatrixBlock", "/home/ubuntu/shared-1-3/file1-3/exp1/file3-tensor15.csv", 1009375, 500, false, errMsg);
+	  pdbClient.addSharedMapping("nnlm_128", "embedding", "FFMatrixBlock", "shared_db", "shared_set", "FFMatrixBlock", "/home/ubuntu/shared-1-3/file1-3/exp1/file3-tensor0.csv", 150, 970000, true, errMsg);
+          pdbClient.addSharedMapping("nnlm_50", "embedding", "FFMatrixBlock", "shared_db", "shared_set", "FFMatrixBlock", "/home/ubuntu/shared-1-3/file1-3/exp1/file3-tensor5.csv", 50, 970000, true, errMsg);
+          pdbClient.addSharedMapping("wiki_250", "embedding", "FFMatrixBlock", "shared_db", "shared_set", "FFMatrixBlock", "/home/ubuntu/shared-1-3/file1-3/exp1/file3-tensor10.csv", 250, 1010000, true, errMsg);
+	  pdbClient.addSharedMapping("wiki_500", "embedding", "FFMatrixBlock", "shared_db", "shared_set", "FFMatrixBlock", "/home/ubuntu/shared-1-3/file1-3/exp1/file3-tensor15.csv", 500, 1010000, true, errMsg);
 	  
 
   }

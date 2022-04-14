@@ -27,6 +27,14 @@ public:
     //   return in1->getBlockColIndex() == in2->getBlockColIndex();
     // });
     // Only this can help with partitioning
+    /*std::cout << "SELECTION: in1.blockRowIndex=" << in1->getBlockRowIndex() << std::endl;
+    std::cout << "SELECTION: in1.blockColIndex=" << in1->getBlockColIndex() << std::endl;
+    std::cout << "SELECTION: in2.blockRowIndex=" << in2->getBlockRowIndex() << std::endl;
+    std::cout << "SELECTION: in2.blockColIndex=" << in2->getBlockColIndex() << std::endl;
+    std::cout << "SELECTION: in1.rowNums=" << in1->getRowNums() << std::endl;
+    std::cout << "SELECTION: in1.colNums=" << in1->getColNums() << std::endl;
+    std::cout << "SELECTION: in2.rowNums=" << in2->getRowNums() << std::endl;
+    std::cout << "SELECTION: in2.colNums=" << in2->getColNums() << std::endl;*/
     return makeLambdaFromMethod(in1, getBlockColIndex) ==
            makeLambdaFromMethod(in2, getBlockColIndex);
 
@@ -37,16 +45,14 @@ public:
     return makeLambda(
         in1, in2, [&](Handle<FFMatrixBlock> &in1, Handle<FFMatrixBlock> &in2) {
           if (FFMatrixBlock::librayCode == EIGEN_CODE) {
-        /*std::cout << "in1.blockRowIndex=" << in1->getBlockRowIndex() << std::endl;
-        std::cout << "in1.blockColIndex=" << in1->getBlockColIndex() << std::endl;
-        std::cout << "in2.blockRowIndex=" << in2->getBlockRowIndex() << std::endl;
-        std::cout << "in2.blockColIndex=" << in2->getBlockColIndex() << std::endl;
-        std::cout << "in1.blockRowIndex=" << in1->getBlockRowIndex() << std::endl;
-        std::cout << "in1.blockColIndex=" << in1->getBlockColIndex() << std::endl;
-        std::cout << "in1.rowNums=" << in1->getRowNums() << std::endl;
-        std::cout << "in1.colNums=" << in1->getColNums() << std::endl;
-        std::cout << "in2.rowNums=" << in2->getRowNums() << std::endl;
-        std::cout << "in2.colNums=" << in2->getColNums() << std::endl;*/
+            /*std::cout << "PROJECTION: in1.blockRowIndex=" << in1->getBlockRowIndex() << std::endl;
+            std::cout << "PROJECTION: in1.blockColIndex=" << in1->getBlockColIndex() << std::endl;
+            std::cout << "PROJECTION: in2.blockRowIndex=" << in2->getBlockRowIndex() << std::endl;
+            std::cout << "PROJECTION: in2.blockColIndex=" << in2->getBlockColIndex() << std::endl;
+            std::cout << "PROJECTION: in1.rowNums=" << in1->getRowNums() << std::endl;
+            std::cout << "PROJECTION: in1.colNums=" << in1->getColNums() << std::endl;
+            std::cout << "PROJECTION: in2.rowNums=" << in2->getRowNums() << std::endl;
+            std::cout << "PROJECTION: in2.colNums=" << in2->getColNums() << std::endl;*/
 
 	  // get the sizes
             uint32_t I = in1->getRowNums();
@@ -61,6 +67,8 @@ public:
                 pdb::makeObject<FFMatrixBlock>(
                     in1->getBlockRowIndex(), in2->getBlockRowIndex(), I, J,
                     in1->getTotalRowNums(), in2->getTotalRowNums(), false);
+	    std::cout << "OUTPUT BLOCK[" << in1->getBlockRowIndex() << "," << in2->getBlockRowIndex() <<"]"
+		    << ": "<< I << "X" << J << " in " << in1->getTotalRowNums() <<"X" << in2->getTotalRowNums() << std::endl;
 
             // get the ptrs
             double *outData = resultFFMatrixBlock->getValue().rawData->c_ptr();
