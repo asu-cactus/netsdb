@@ -100,6 +100,13 @@ int main(int argc, char *argv[]) {
     pdbClient.createSet<FFMatrixBlock>("wiki-500", "outputs", errMsg,
                                        DEFAULT_PAGE_SIZE, "outputs", nullptr,
                                        nullptr, false);
+
+    pdbClient.removeSet("wiki-500", "intermediate", errMsg);
+    pdbClient.createSet<FFMatrixBlock>("wiki-500", "intermediate", errMsg,
+                                       DEFAULT_PAGE_SIZE, "intermediate", nullptr,
+                                       nullptr, false);
+
+
     // make the reader
     pdb::Handle<pdb::Computation> readA =
         makeObject<FFMatrixBlockScanner>("wiki-500", "weights");
@@ -114,16 +121,23 @@ int main(int argc, char *argv[]) {
     // make the transpose multiply aggregation
     pdb::Handle<pdb::Computation> myAggregation =
         pdb::makeObject<FFAggMatrix>();
+
+    myAggregation->setOutput("wiki-500", "intermediate");
     myAggregation->setInput(join);
+
+    pdb::Handle<pdb::Computation> readC =
+        makeObject<FFMatrixBlockScanner>("wiki-500", "intermediate");
 
     // merge the all FFMatrixcBlocks to one single FFMatrix
     pdb::Handle<pdb::Computation> myAggregation1 =
         pdb::makeObject<FFAggMatrixToOneMatrix>();
-    myAggregation1->setInput(myAggregation);
+    myAggregation1->setInput(readC);
 
     // make the classifier
     uint32_t sizeDense0 = 16;
     uint32_t sizeDense1 = 1;
+
+
 
     // SemanticClassifierSingleBlock takes the input as FFSingleMatrix
     pdb::Handle<pdb::Computation> classifier =
@@ -142,7 +156,14 @@ int main(int argc, char *argv[]) {
 
     // run the computation
     if (!pdbClient.executeComputations(errMsg, "WIKI500_YELP", materializeHash,
-                                       myWriter)) {
+                                   myAggregation)) {
+        cout << "Computation failed. Message was: " << errMsg << "\n";
+        exit(1);
+    }
+
+        // run the computation
+    if (!pdbClient.executeComputations(errMsg, "WIKI500_YELP-out", materializeHash,
+                                   myWriter)) {
         cout << "Computation failed. Message was: " << errMsg << "\n";
         exit(1);
     }
