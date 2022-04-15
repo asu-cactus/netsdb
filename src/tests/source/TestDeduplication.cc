@@ -330,7 +330,7 @@ int main(int argc, char* argv[]) {
       std::cout << "############To add block mappings ...###############" << std::endl;
 
      //create the block mapping
-     pdbClient.addSharedMapping(databaseName, tensor2SetName, "FFMatrixBlock", databaseName, sharedSetName, "FFMatrixBlock", "/home/ubuntu/mapping.csv",600, 900000, errMsg);
+     //pdbClient.addSharedMapping(databaseName, tensor2SetName, "FFMatrixBlock", databaseName, sharedSetName, "FFMatrixBlock", "/home/ubuntu/mapping.csv",600, 900000, errMsg);
 
      //scan datasets
      scan_data (pdbClient, databaseName, tensor1SetName);

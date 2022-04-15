@@ -1422,6 +1422,11 @@ common_env.Program('bin/semantic_wiki250_civil',
 common_env.Program('bin/semanticDedup',
                         ['build/tests/TextClassifierDeduplication.cc', 'build/FF/SimpleFF.cc',
                         'build/FF/FFMatrixUtil.cc', 'build/word2vec/SemanticClassifier.cc'] + all + pdb_client)   
+
+common_env.Program('bin/hybridDedup',
+                        ['build/tests/HybridTestWithDeduplication.cc', 'build/FF/SimpleFF.cc',
+                        'build/FF/FFMatrixUtil.cc', 'build/word2vec/SemanticClassifier.cc'] + all + pdb_client)
+
 # Testing
 pdbTest = common_env.Command(
     'test', 'scripts/integratedTests.py', 'python3 $SOURCE -o $TARGET')
@@ -1908,6 +1913,7 @@ libFFTest = common_env.Alias('libHeteroModel', [
     'bin/pdb-cluster',
     'bin/pdb-server',
     'bin/semanticDedup',
+    'bin/hybridDedup',
     'bin/semanticWithoutDedup',
     #'bin/semantic_nnlm128_yelp',
     #'bin/semantic_nnlm50_imdb',
