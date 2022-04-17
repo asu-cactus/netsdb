@@ -100,7 +100,6 @@ def read_input_torch_batch_from_db(db_cursor, startId, endId, input_dimensions):
 def read_input_tensorflow_batch_from_db(db_cursor, startId, endId, input_dimensions):
     db_cursor.execute(f"SELECT array_data FROM images WHERE id >= {startId} and id < {endId}")
     rows = db_cursor.fetchall()
-    print (len(rows))
     data = []
     for row in rows:
         row = np.frombuffer(row[0], dtype=np.float32)

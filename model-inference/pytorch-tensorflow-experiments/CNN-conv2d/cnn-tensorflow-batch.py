@@ -1,14 +1,15 @@
-import psycopg2
-import tensorflow as tf
 import time
 import argparse
 import connectorx as cx
 import numpy as np
-from utils import get_db_connection, create_tables, load_input_to_db, load_input_to_file, read_kernel_data, load_kernel_to_file, read_input_from_db, read_input_tensorflow_batch_from_db
+from tensorflow import keras
+import tensorflow as tf
+from keras import layers, models
+from utils import get_db_connection, create_tables, load_input_to_db, load_input_to_file, read_input_tensorflow_batch_from_db
 
 # defaults
 default_number_of_images = 100
-# batchsize, channels, width, height
+# width, height, channels
 default_input_size = "224, 224, 3"
 # number of filters, channels, width, height
 default_kernel_size = "7, 7, 3, 64"
@@ -40,6 +41,7 @@ useConnectorX = args.connectorX
 
 input_dimensions = [int(item) for item in args.inputsize.split(',')]
 kernel_dimensions = [int(item) for item in args.kernelsize.split(',')]
+num_of_filters = kernel_dimensions[3]
 stride = args.stride
 load_data_from_file = True if args.loadFromFile == 'Y' else False
 input_file_path = 'cnn-tensorflow-input'
@@ -55,22 +57,32 @@ def printTime(kernelLoadTime, inputLoadTime, conv2dOpTime):
     print("Input load duration: ", inputLoadTime)
     print("Conv2d ops duration: ", conv2dOpTime)
 
+def saveModel(kernel_dimensions, input_dimensions):
+    # Create kernel weights
+    kernels = np.random.rand(*kernel_dimensions).astype('f')
+    print ("filter", kernels.shape)
+    print ("filter", kernels.dtype)
+    
+    # Create Model
+    model = models.Sequential()
+    model.add(layers.Conv2D(num_of_filters, (kernel_dimensions[0], kernel_dimensions[1]), input_shape=tuple(input_dimensions)))
+    w = model.layers[0].get_weights()
+    bias = w[1]
+    model.layers[0].set_weights([kernels, bias])
+    model.compile()
+    model.save('conv2d-model')
+
 # load input to file
 if load_data_from_file:
     print ("Using File")
-    # 1 - Create data into file  
-    load_input_to_file(input_file_path, input_dimensions, number_of_images)
+
+    # 1. Load model
+    startModelLoad = time.time()
+    loaded_model = keras.models.load_model('conv2d-model')
+    endModelLoad = time.time()
+    modelLoadTime = endModelLoad - startModelLoad
     
-    # 2. Create kernel data into file
-    load_kernel_to_file(kernel_file_path, kernel_dimensions)
-    
-    # 3. read kernel data
-    startKernelLoad = time.time()
-    filter = read_kernel_data(True, kernel_file_path, None, kernel_id, kernel_dimensions)
-    endKernelLoad = time.time()
-    kernelLoadTime = endKernelLoad - startKernelLoad
-    
-    # 4. Read input data from file
+    # 2. Read input data from file
     inputLoadTime = 0
     conv2dOpTime = 0
 
@@ -83,47 +95,35 @@ if load_data_from_file:
             input.append(np.load(input_file_path + str(currentId) + '.npy'))
             currentId = currentId + 1
 
-        inputEndTime = time.time()
         input = tf.stack(input)
+        inputEndTime = time.time()
         inputLoadTime = inputLoadTime + (inputEndTime - inputStartTime)
 
         # Log Input
-        # print ("input", input.shape)
-        # print ("input", input.dtype)
-        print ("filter", filter.shape)
-        print ("filter", filter.dtype)
+        print ("input", input.shape)
+        print ("input", input.dtype)
 
         # 5. Perform Conv2d operation
         startTime = time.time()
-        output = tf.nn.conv2d(input, filter, strides=stride, padding='VALID')
-        inputEndTime = time.time()
-        conv2dOpTime = conv2dOpTime + (inputEndTime - startTime)
+        output = loaded_model.predict(input)
+        endTime = time.time()
+        conv2dOpTime = conv2dOpTime + (endTime - startTime)
         
         # Log Output
         print ("Output Shape: ", output.shape)
     
     # Print results
-    printTime(kernelLoadTime, inputLoadTime, conv2dOpTime)
+    printTime(modelLoadTime, inputLoadTime, conv2dOpTime)
 elif useConnectorX:
     print ("Using ConnectorX")
-    # connect to postgresql database
-    db_connection = get_db_connection()
-    db_cursor = db_connection.cursor()
-    create_tables(db_cursor)
+    
+    # 1. Load model
+    startModelLoad = time.time()
+    loaded_model = keras.models.load_model('conv2d-model')
+    endModelLoad = time.time()
+    modelLoadTime = endModelLoad - startModelLoad
 
-    # 1. Create data into db  
-    load_input_to_db(db_connection, input_dimensions, number_of_images)
-
-    # 2. Create kernel data into file
-    load_kernel_to_file(kernel_file_path, kernel_dimensions)
-
-    # 3. read kernel data
-    startKernelLoad = time.time()
-    filter = read_kernel_data(True, kernel_file_path, None, kernel_id, kernel_dimensions)
-    endKernelLoad = time.time()
-    kernelLoadTime = endKernelLoad - startKernelLoad
-
-    # 4. Read input data from db
+    # 2. Read input data from db
     inputLoadTime = 0
     conv2dOpTime = 0
 
@@ -131,7 +131,7 @@ elif useConnectorX:
         inputStartTime = time.time()
         input = []
         currentId = id
-
+        
         query = f"SELECT * FROM images where id >= {currentId} and id < {currentId + batch_size}"
         data = cx.read_sql(conn_string, query)
 
@@ -144,46 +144,36 @@ elif useConnectorX:
 
         input = np.array(input)
         inputEndTime = time.time()
-        
         inputLoadTime = inputLoadTime + (inputEndTime - inputStartTime)
         
         # Log Input
         print ("input", input.shape)
         print ("input", input.dtype)
-        print ("filter", filter.shape)
-        print ("filter", filter.dtype)
 
         # 5. Perform Conv2d operation
         startTime = time.time()
-        output = tf.nn.conv2d(input, filter, strides=stride, padding='VALID')
-        inputEndTime = time.time()
-        conv2dOpTime = conv2dOpTime + (inputEndTime - startTime)
+        output = loaded_model.predict(input)
+        endTime = time.time()
+        conv2dOpTime = conv2dOpTime + (endTime - startTime)
         
         # Log Output
         print ("Output Shape: ", output.shape)
     
     # Print results
-    printTime(kernelLoadTime, inputLoadTime, conv2dOpTime)
+    printTime(modelLoadTime, inputLoadTime, conv2dOpTime)
 else:
     print ("Using psycopg2")
     # connect to postgresql database
     db_connection = get_db_connection()
     db_cursor = db_connection.cursor()
-    create_tables(db_cursor)
+    
+    # 3. Load model
+    startModelLoad = time.time()
+    loaded_model = keras.models.load_model('conv2d-model')
+    endModelLoad = time.time()
+    modelLoadTime = endModelLoad - startModelLoad
 
-    # 1. Create data into db  
-    load_input_to_db(db_connection, input_dimensions, number_of_images)
-
-    # 2. Create kernel data into file
-    load_kernel_to_file(kernel_file_path, kernel_dimensions)
-
-    # 3. read kernel data
-    startKernelLoad = time.time()
-    filter = read_kernel_data(True, kernel_file_path, None, kernel_id, kernel_dimensions)
-    endKernelLoad = time.time()
-    kernelLoadTime = endKernelLoad - startKernelLoad
-
-    # 4. Read input data from db
+    # 2. Read input data from db
     inputLoadTime = 0
     conv2dOpTime = 0
 
@@ -201,17 +191,17 @@ else:
         # Log Input
         print ("input", input.shape)
         print ("input", input.dtype)
-        print ("filter", filter.shape)
-        print ("filter", filter.dtype)
 
         # 5. Perform Conv2d operation
         startTime = time.time()
-        output = tf.nn.conv2d(input, filter, strides=stride, padding='VALID')
-        inputEndTime = time.time()
-        conv2dOpTime = conv2dOpTime + (inputEndTime - startTime)
+        output = loaded_model.predict(input)
+        endTime = time.time()
+        conv2dOpTime = conv2dOpTime + (endTime - startTime)
         
         # Log Output
         print ("Output Shape: ", output.shape)
     
     # Print results
-    printTime(kernelLoadTime, inputLoadTime, conv2dOpTime)
+    printTime(modelLoadTime, inputLoadTime, conv2dOpTime)
+    db_cursor.close()
+    db_connection.close()
