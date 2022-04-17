@@ -51,7 +51,7 @@ void create_database(pdb::PDBClient &pdbClient, std::string dbName,
   for (auto &s : sets) {
     pdbClient.removeSet(dbName, s, errMsg);
     if (!pdbClient.createSet<conv2d_memory_fusion::Image>(
-            dbName, s, errMsg, (size_t)2047 * (size_t)1024 * (size_t)1024, s)) {
+            dbName, s, errMsg, (size_t)1800 * (size_t)1024 * (size_t)1024, s)) {
       cout << "Not able to create set " + s + ": " + errMsg;
     } else {
       cout << "Created set " << s << ".\n";
@@ -335,8 +335,8 @@ void test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbName,
                                 "result", "result_chunked", "result_chunked1", "result_chunked2"};
   std::string errMsg;
 
-  int block_x = 16;
-  int block_y = 16;
+  int block_x = 32;
+  int block_y = 32;
   int kernel = 1;//kernel shape should be $kernelx$kernel (e.g., 7x7)
   int strides = 1;
   int padding = 0;
