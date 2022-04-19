@@ -110,8 +110,8 @@ add_custom_target(HEADER_ONLY_TARGET SOURCES "${PDB_HEADERS}")
 FIND_PACKAGE(FLEX REQUIRED)
 
 # set the output paths
-SET(LogicalPlanFlexOutput ${CMAKE_SOURCE_DIR}/src/logicalPlan/source/Lexer.c)
-SET(LinearAlgebraDSLFlexOutput ${CMAKE_SOURCE_DIR}/src/linearAlgebraDSL/source/LALexer.c)
+SET(LogicalPlanFlexOutput ${CMAKE_SOURCE_DIR}/src/logicalPlan/source/Lexer.c src/LogReg/headers/Logistic_Regression.h)
+SET(LinearAlgebraDSLFlexOutput ${CMAKE_SOURCE_DIR}/src/linearAlgebraDSL/source/LALexer.c src/LogReg/headers/Logistic_Regression.h)
 
 # find the UUID package
 FIND_PACKAGE(UUID REQUIRED)
@@ -142,8 +142,8 @@ ENDIF ()
 FIND_PACKAGE(BISON REQUIRED)
 
 # set the output paths
-SET(LogicalPlanParserOutput ${CMAKE_SOURCE_DIR}/src/logicalPlan/source/Parser.c)
-SET(LinearAlgebraDSLParserOutput ${CMAKE_SOURCE_DIR}/src/linearAlgebraDSL/source/LAParser.c)
+SET(LogicalPlanParserOutput ${CMAKE_SOURCE_DIR}/src/logicalPlan/source/Parser.c src/LogReg/headers/Logistic_Regression.h)
+SET(LinearAlgebraDSLParserOutput ${CMAKE_SOURCE_DIR}/src/linearAlgebraDSL/source/LAParser.c src/LogReg/headers/Logistic_Regression.h src/FF/headers/SimpleLogReg.h)
 
 # setup the commands
 IF (BISON_FOUND)
@@ -183,7 +183,7 @@ ADD_CUSTOM_COMMAND(OUTPUT "${BUILT_IN_OBJECT_TYPE_ID}"
         BUILD_BYPRODUCTS "${BUILT_IN_OBJECT_TYPE_ID}")
 
 # setup the command to generate the object ids
-SET(BUILT_IN_PDB_OBJECTS ${CMAKE_SOURCE_DIR}/src/objectModel/headers/BuiltinPDBObjects.h)
+SET(BUILT_IN_PDB_OBJECTS ${CMAKE_SOURCE_DIR}/src/objectModel/headers/BuiltinPDBObjects.h src/LogReg/headers/Logistic_Regression.h)
 SET(BUILT_IN_PDB_OBJECTS_GENERATED ${CMAKE_SOURCE_DIR}/src/objectModel/headers/BuiltinPDBObjects.h
                                    ${CMAKE_SOURCE_DIR}/src/objectModel/headers/BuiltinPDBObjects.cc)
 ADD_CUSTOM_COMMAND(
@@ -203,7 +203,7 @@ add_library(server-functionalities OBJECT ${SERVER_FUNCTIONALITIES_SOURCE} ${BUI
 add_library(communication OBJECT ${COMMUNICATION_SOURCE} ${BUILT_IN_OBJECT_TYPE_ID})
 add_library(catalog OBJECT ${CATALOG_SOURCE})
 add_library(dispatcher OBJECT ${DISPATCHER_SOURCE})
-add_library(lib-pdb-server OBJECT ${PDB_SERVER_SOURCE} ${BUILT_IN_OBJECT_TYPE_ID})
+add_library(lib-pdb-server OBJECT ${PDB_SERVER_SOURCE} ${BUILT_IN_OBJECT_TYPE_ID} src/LogReg/headers/Logistic_Regression.h)
 add_library(query-execution OBJECT ${QUERY_EXECUTION_SOURCE})
 add_library(query-planning OBJECT ${QUERY_PANNING_SOURCE})
 add_library(query-intermediary-rep OBJECT ${QUERY_INTERMEDIARY_REP_SOURCE})
@@ -212,8 +212,8 @@ add_library(memory OBJECT ${MEMORY_SOURCE})
 add_library(storage OBJECT ${STORAGE_SOURCE})
 add_library(distribution-manager OBJECT ${DISTRIBUTION_MANAGER_SOURCE})
 add_library(lambdas OBJECT ${LAMBDAS_SOURCE})
-add_library(logical-plan OBJECT ${LOGICAL_PLAN_SOURCE})
-add_library(linear-algebra OBJECT ${LINEAR_ALGEBRA_DSL_SOURCE})
+add_library(logical-plan OBJECT ${LOGICAL_PLAN_SOURCE} src/LogReg/headers/Logistic_Regression.h)
+add_library(linear-algebra OBJECT ${LINEAR_ALGEBRA_DSL_SOURCE} src/LogReg/headers/Logistic_Regression.h)
 add_library(boost-filesystem OBJECT ${BOOST_FILESYSTEM_SOURCE})
 add_library(program-options OBJECT ${PROGRAM_OPTIONS_SOURCE} ${BUILT_IN_OBJECT_TYPE_ID} ${BUILT_IN_PDB_OBJECTS})
 add_library(system OBJECT ${SYSTEM_SOURCE})
@@ -282,8 +282,8 @@ target_link_libraries(pdb-tests-common PRIVATE ${CMAKE_DL_LIBS})
 target_link_libraries(pdb-tests-common PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 
 # form the parsers for the logical plan and linear algebra
-add_library(logical-plan-parser OBJECT ${LogicalPlanFlexOutput} ${LogicalPlanParserOutput})
-add_library(linear-algebra-parser OBJECT ${LinearAlgebraDSLFlexOutput} ${LinearAlgebraDSLParserOutput} ${BUILT_IN_OBJECT_TYPE_ID} ${BUILT_IN_PDB_OBJECTS})
+add_library(logical-plan-parser OBJECT ${LogicalPlanFlexOutput} ${LogicalPlanParserOutput} src/LogReg/headers/Logistic_Regression.h)
+add_library(linear-algebra-parser OBJECT ${LinearAlgebraDSLFlexOutput} ${LinearAlgebraDSLParserOutput} ${BUILT_IN_OBJECT_TYPE_ID} ${BUILT_IN_PDB_OBJECTS} src/LogReg/headers/Logistic_Regression.h)
 
 # set the pdb-cluster build target
 set(SOURCE_FILES_PDB_CLUSTER ${PROJECT_SOURCE_DIR}/src/mainServer/source/MasterMain.cc)

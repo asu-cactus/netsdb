@@ -1329,6 +1329,7 @@ common_env.Program('bin/word2vec', ['build/word2vec/Word2Vec.cc',
                                     'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
 common_env.Program('bin/FFTest', ['build/tests/FFTest.cc',
                                   'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
+common_env.Program('bin/LogisticRegressionTest',  ['build/tests/LogisticRegressionTest.cc', 'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
 common_env.Program('bin/FFTestWithoutDeduplication', ['build/tests/FFTestWithoutDeduplication.cc',
                                   'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc'] + all + pdb_client)
 common_env.Program('bin/FFTestWithDeduplication', ['build/tests/FFTestWithDeduplication.cc',
@@ -1980,6 +1981,50 @@ libFFTest = common_env.Alias('libFFTest', [
     'bin/FFTestWithoutDeduplication',
     'bin/FFTestWithDeduplication',
     'bin/FFTest',
+    'bin/RedditFeatureExtractor',
+    'bin/loadRedditCommentsIndexPartition',
+    # Other libraries from src/FF
+    'libraries/libFFMatrixBlock.so',
+    'libraries/libFFMatrixMeta.so',
+    'libraries/libFFMatrixData.so',
+    'libraries/libFFMatrixBlockScanner.so',
+    'libraries/libFFInputLayerJoin.so',
+    'libraries/libFFMatrixWriter.so',
+    'libraries/libFFAggMatrix.so',
+    'libraries/libFFTransposeBiasSum.so',
+    'libraries/libFFTransposeMult.so',
+    'libraries/libFFReluBiasSum.so',
+    'libraries/libFFRowAggregate.so',
+    'libraries/libFFOutputLayer.so',
+    'libraries/libFFMatrixMultiSel.so',
+    'libraries/libInferenceResult.so',
+    'libraries/libInferenceResultPartition.so',
+    'libraries/libFFMatrixPartitioner.so',
+    # Reddit libraries
+    'libraries/libRedditComment.so',
+    'libraries/libRedditCommentLabelJoin.so',
+    'libraries/libRedditCommentInferenceJoin.so',
+
+    'libraries/libRedditCommentFeatures.so',
+    'libraries/libRedditCommentsToFeatures.so',
+    'libraries/libRedditCommentsChunk.so',
+    'libraries/libRedditCommentsToChunks.so',
+    'libraries/libRedditCommentFeatureChunks.so',
+    'libraries/libRedditCommentFeaturesToChunks.so',
+    'libraries/libRedditCommentChunksToBlocks.so',
+    'libraries/libRedditCommentBlockToMatrix.so',
+    'libraries/libRedditCommentChunkToComments.so',
+    'libraries/libRedditMatrixBlockPartition.so',
+])
+
+libLogRegTest = common_env.Alias('libLogRegTest', [
+    'bin/pdb-cluster',
+    'bin/pdb-server',
+    'bin/testDedup',
+    'bin/FFTestWithoutDeduplication',
+    'bin/FFTestWithDeduplication',
+    # 'bin/FFTest',
+    'bin/LogisticRegressionTest',
     'bin/RedditFeatureExtractor',
     'bin/loadRedditCommentsIndexPartition',
     # Other libraries from src/FF

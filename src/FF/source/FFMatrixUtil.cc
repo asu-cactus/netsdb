@@ -29,11 +29,11 @@ void load_matrix_data(pdb::PDBClient &pdbClient, string path,
   is >> totalX;
 
   while (is.peek() == ',' || is.peek() == ' ')
-    is.ignore();
+      is.ignore();
 
   is >> totalY;
 
-  cout << totalX << ", " << totalY << endl;
+  cout << "\nSetName: " << setName << " has total size (X,Y): " << totalX << ", " << totalY << endl;
 
   vector<vector<double>> matrix;
 
@@ -78,13 +78,29 @@ void load_matrix_data(pdb::PDBClient &pdbClient, string path,
                 exit(1);
               }
 
-              is >> val;
-              while (is.peek() == ',' || is.peek() == ' ')
-                is.ignore();
-
-              // row = i * blockX + ii, col = j * blockY + jj
-              double data = curX >= totalX || curY >= totalY ? 0 : val;
-              (*(myData->getRawDataHandle()))[ii * actual_blockY + jj] = data;
+              if(curX >= totalX || curY >= totalY) {
+                  (*(myData->getRawDataHandle()))[ii * actual_blockY + jj] = 0;
+                  // cout << "load_matrix_data: " << setName << "[" << curX << "," << curY << "]" << ": " << 0 << endl;
+                  // 0.24e31, 12431, ...., 0, 0 , 0
+              }
+              else {
+                  is >> val;
+                  while (is.peek() == ',' || is.peek() == ' ')
+                      is.ignore();
+                  // cout << "load_matrix_data: " << setName << "[" << curX << "," << curY << "]" << ": " << val << endl;
+                  (*(myData->getRawDataHandle()))[ii * actual_blockY + jj] = val;
+              }
+//              is >> val;
+//              while (is.peek() == ',' || is.peek() == ' ')
+//                is.ignore();
+//              // cout << "[PRELIM] load_matrix_data: " << setName << "[" << ii * actual_blockY + jj << "]" << ": " << val << endl;
+//
+//              // row = i * blockX + ii, col = j * blockY + jj
+//              double data = curX >= totalX || curY >= totalY ? 0 : val;
+//
+//              cout << "load_matrix_data: " << setName << "[" << curX << "," << curY << "]" << ": " << data << endl;
+//
+//              (*(myData->getRawDataHandle()))[ii * actual_blockY + jj] = data;
               jj++;
             }
             ii++;
@@ -149,12 +165,17 @@ void load_matrix_data(pdb::PDBClient &pdbClient, string path,
   // load the data stats
   is >> totalX;
 
+  string line;
+  getline(is, line);
+  cout << line << endl;
+
+
   while (is.peek() == ',' || is.peek() == ' ')
     is.ignore();
 
   is >> totalY;
 
-  cout << totalX << ", " << totalY << endl;
+  cout << "\nSetName: " << setName << " has total size (X,Y): " << totalX << ", " << totalY << endl;
 
   vector<vector<double>> matrix;
 
@@ -163,6 +184,7 @@ void load_matrix_data(pdb::PDBClient &pdbClient, string path,
     vector<double> line;
     for (int j = 0; j < totalY; j++) {
       is >> val;
+      cout << "load_matrix_data: " << setName << "[" << i << "," << j << "]" << ": " << val << endl;
       line.push_back(val);
       while (is.peek() == ',' || is.peek() == ' ')
         is.ignore();
@@ -276,6 +298,7 @@ void loadMatrix(pdb::PDBClient &pdbClient, pdb::String dbName,
               double data = curX >= totalX || curY >= totalY ? 0
                             : (bool)gen()                    ? distn(e2)
                                                              : distp(e2);
+                cout << "loadMatrix: " << setName << "[" << (ii * actual_blockY + jj) << "]" << ": " << data << endl;
               (*(myData->getRawDataHandle()))[ii * actual_blockY + jj] = data;
               jj++;
             }
@@ -323,6 +346,7 @@ void loadMatrix(pdb::PDBClient &pdbClient, pdb::String dbName,
 }
 
 void load_matrix_from_file(string path, vector<vector<double>> &matrix) {
+    cout << "Checkpoint load_matrix_from_file" << endl;
   if (path.size() == 0) {
     throw runtime_error("Invalid filepath: " + path);
   }
@@ -338,20 +362,22 @@ void load_matrix_from_file(string path, vector<vector<double>> &matrix) {
 
   // load the data stats
   is >> totalX;
+  // totalX = 1462623;
 
   while (is.peek() == ',' || is.peek() == ' ')
     is.ignore();
 
   is >> totalY;
+  // totalY = 1;
 
-  cout << totalX << ", " << totalY << endl;
+  cout << "load_matrix_from_file: " << totalX << ", " << totalY << endl;
 
   double val;
   for (int i = 0; i < totalX; i++) {
     vector<double> line;
     for (int j = 0; j < totalY; j++) {
       is >> val;
-      line.push_back(val);
+      line.push_back(val<1 ? 0 : 1);
       while (is.peek() == ',' || is.peek() == ' ')
         is.ignore();
     }
