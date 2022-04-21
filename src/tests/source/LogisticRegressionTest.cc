@@ -130,7 +130,7 @@ int main(int argc, char *argv[]) {
 
         auto iterator = pdbClient.getSetIterator<FFMatrixBlock>("ff", "output");
 
-        for(auto r:iterator) {
+        for(auto r:iterator) {  // How to iterate over this and labels_test?
 //            cout << "Label: " << labels_test[total_count][0] << " at Index: " << total_count << "  Data Row: ";
 //            double *data_temp = r->getRawDataHandle()->c_ptr();
 //            for(int j=0;j<r->getColNums();j++) {
@@ -145,13 +145,13 @@ int main(int argc, char *argv[]) {
             int i = 0;
             int j = r->getBlockRowIndex() * r->getRowNums();
             while (i < r->getRowNums() * r->getColNums()) {
-                // cout << "Here!!! (" << total_count << "): " << i << " " << j << endl;
-                if (!generate && j >= labels_test.size()) {
+                cout << "Here!!! (" << total_count << "): " << i << " " << j << endl;
+                if (!generate && j >= labels_test[0].size()) {
                     cout << "While Break: " << generate << " " << j << endl;
                     break;
                 }
                 int pos1 = data[i]; // data[i] > data[i + 1] ? 0 : 1;
-                int pos2 = labels_test[j][0]; // labels_test[j][0] > labels_test[j][1] ? 0 : 1;
+                int pos2 = labels_test[0][j]; // labels_test[j][0] > labels_test[j][1] ? 0 : 1;
 
                 if (pos1 == pos2) {
                     correct_count++;
@@ -161,7 +161,7 @@ int main(int argc, char *argv[]) {
             }
         }
         if (!generate)
-            cout << "Accuracy: " << correct_count << "/" << labels_test.size() << std::endl;
+            cout << "Accuracy: " << correct_count << "/" << labels_test[0].size() << std::endl;
         std::cout << "count=" << total_count << std::endl;
     }
 
