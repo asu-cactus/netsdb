@@ -165,11 +165,6 @@ void load_matrix_data(pdb::PDBClient &pdbClient, string path,
   // load the data stats
   is >> totalX;
 
-  string line;
-  getline(is, line);
-  cout << line << endl;
-
-
   while (is.peek() == ',' || is.peek() == ' ')
     is.ignore();
 
@@ -377,12 +372,13 @@ void load_matrix_from_file(string path, vector<vector<double>> &matrix) {
     vector<double> line;
     for (int j = 0; j < totalY; j++) {
       is >> val;
-      line.push_back(val<1 ? 0 : 1);
+      line.push_back(val);
       while (is.peek() == ',' || is.peek() == ' ')
         is.ignore();
     }
     matrix.push_back(line);
   }
+    cout << "Loaded Matrix Size: " << matrix.size() << ", " << matrix[0].size() << endl;
 }
 
 bool is_empty_set(pdb::PDBClient &pdbClient, pdb::CatalogClient &catalogClient,

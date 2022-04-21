@@ -82,22 +82,22 @@ int main(int argc, char *argv[]) {
         ff::createSet(pdbClient, "ff", "b", "B", 64);
     }
 
-    ff::createSet(pdbClient, "ff", "output", "Output", 512); // Tried: 256 [Failed], 1024 [OO Memory], 128 [Failed]
+    ff::createSet(pdbClient, "ff", "output", "Output", 512);
     ff::createSet(pdbClient, "ff", "y", "Y", 64);
 
 
     std::cout << "Generate & ReloadData: " << generate << " " << reloadData << std::endl;
     if(!generate && reloadData) { // First time, we reload data from .out files
         std::cout << "Loading data from folder: " << string(argv[7]) << std::endl;
-        input_path = string(argv[7]) + "/input.out";
+        input_path = string(argv[7]) + "/input.out"; // input.out is col-major
         labels_path = string(argv[7]) + "/label.out";
         w_path = string(argv[7]) + "/weight.out";
-        b_path = string(argv[7]) + "/bias.out";
+        b_path = string(argv[7]) + "/bias.out"; // same length as inputs & labels
         std::cout << input_path << " " << labels_path << " " << w_path << " " << b_path << std::endl;
 
         (void)ff::load_matrix_data(pdbClient, input_path, "ff", "inputs", block_x, block_y, false, false, errMsg);
         (void)ff::load_matrix_data(pdbClient, w_path, "ff", "w", block_x, block_y, false, false, errMsg);
-        (void)ff::load_matrix_data(pdbClient, b_path, "ff", "b", block_x, block_y, false, false, errMsg);
+        (void)ff::load_matrix_data(pdbClient, b_path, "ff", "b", block_x, 1, false, false, errMsg);
     } else if (reloadData) {
         std::cout << "To load matrix for ff:inputs" << std::endl;
         ff::loadMatrix(pdbClient, "ff", "inputs", batch_size, numFeatures, block_x, block_y, false, false, errMsg);
@@ -131,29 +131,35 @@ int main(int argc, char *argv[]) {
         auto iterator = pdbClient.getSetIterator<FFMatrixBlock>("ff", "output");
 
         for(auto r:iterator) {
+//            cout << "Label: " << labels_test[total_count][0] << " at Index: " << total_count << "  Data Row: ";
+//            double *data_temp = r->getRawDataHandle()->c_ptr();
+//            for(int j=0;j<r->getColNums();j++) {
+//                cout << data_temp[total_count*r->getColNums()+j] << ", ";
+//            }
+//            cout << endl;
             total_count++;
             double *data = r->getRawDataHandle()->c_ptr();
+//            if (data[total_count*r->getColNums()]==labels_test[total_count][0]) {
+//                correct_count++;
+//            }
             int i = 0;
             int j = r->getBlockRowIndex() * r->getRowNums();
             while (i < r->getRowNums() * r->getColNums()) {
-                if (!generate && j >= labels_test.size())
+                // cout << "Here!!! (" << total_count << "): " << i << " " << j << endl;
+                if (!generate && j >= labels_test.size()) {
+                    cout << "While Break: " << generate << " " << j << endl;
                     break;
-
-                cout << data[i] << ", " << data[i + 1] << endl;
-
-                if (!generate) {
-                    int pos1 = data[i] > data[i + 1] ? 0 : 1;
-                    int pos2 = labels_test[j][0] > labels_test[j][1] ? 0 : 1;
-
-                    if (pos1 == pos2)
-                        correct_count++;
                 }
+                int pos1 = data[i]; // data[i] > data[i + 1] ? 0 : 1;
+                int pos2 = labels_test[j][0]; // labels_test[j][0] > labels_test[j][1] ? 0 : 1;
 
+                if (pos1 == pos2) {
+                    correct_count++;
+                }
                 i += r->getColNums();
                 j++;
             }
         }
-
         if (!generate)
             cout << "Accuracy: " << correct_count << "/" << labels_test.size() << std::endl;
         std::cout << "count=" << total_count << std::endl;
