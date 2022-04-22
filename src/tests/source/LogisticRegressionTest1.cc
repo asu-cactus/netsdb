@@ -98,9 +98,12 @@ int main(int argc, char *argv[]) {
         b_path = string(argv[8]) + "/bias.out"; // same length as inputs & labels
         std::cout << input_path << " " << labels_path << " " << w_path << " " << b_path << std::endl;
 
-        (void)ff::load_matrix_data(pdbClient, input_path, "ff", "inputs", numFeatures, block_x, true, true, errMsg);
-        (void)ff::load_matrix_data(pdbClient, w_path, "ff", "w", block_x, numFeatures, true, true, errMsg);
-        (void)ff::load_matrix_data(pdbClient, b_path, "ff", "b", block_x, 1, true, true, errMsg);
+	//5000x6
+        (void)ff::load_matrix_data(pdbClient, input_path, "ff", "inputs", block_x, numFeatures, true, true, errMsg);
+        //6x1
+	(void)ff::load_matrix_data(pdbClient, w_path, "ff", "w", numFeatures, block_y, true, true, errMsg);
+        //5000x1
+	(void)ff::load_matrix_data(pdbClient, b_path, "ff", "b", block_x, 1, true, true, errMsg);
 
 	ff::print(pdbClient, "ff", "inputs");
 	ff::print(pdbClient, "ff", "w");
@@ -132,17 +135,17 @@ int main(int argc, char *argv[]) {
         for(auto r:iterator) {  // How to iterate over this and labels_test?
             total_count++;
             double *data = r->getRawDataHandle()->c_ptr();
-            int actual_row = r->getBlockRowIndex() * r->getRowNums();
-            int actual_col = 0;
-	    double curData = data[0];
-	    double label = labels_test[0][actual_row];
-	    std::cout << curData << ":" << label << std::endl;
-	    if (abs(curData - label) < 0.000001) {
+            for (int i = 0; i < block_x; i++) {
+	          int curData = data[i];
+	          int label = labels_test[i][0];
+	          std::cout << curData << ":" << label << std::endl;
+	          if (curData == label) {
 		    correct_count++;
+                  }
             }
-        }
-        cout << "Accuracy: " << correct_count << "/" << labels_test[0].size() << std::endl;
-        std::cout << "count=" << total_count << std::endl;
+            cout << "Accuracy: " << correct_count << "/" << block_x << std::endl;
+            std::cout << "count=" << total_count << std::endl;
+       }
     }
 
     return 0;

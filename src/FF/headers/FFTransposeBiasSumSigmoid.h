@@ -49,8 +49,8 @@ public:
             std::cout << "in1.colNums=" << in1->getColNums() << std::endl;
             std::cout << "in2.rowNums=" << in2->getRowNums() << std::endl;
             std::cout << "in2.colNums=" << in2->getColNums() << std::endl;*/
-            uint32_t I = in1->getRowNums();
-            uint32_t J = in1->getColNums();
+            uint32_t I = in1->getRowNums();//5000
+            uint32_t J = in1->getColNums(); //1
             
             if (in1->getRowNums() != in2->getRowNums() ||
                 in2->getColNums() != 1) {
@@ -60,8 +60,8 @@ public:
 
             pdb::Handle<FFMatrixBlock> resultFFMatrixBlock =
                 pdb::makeObject<FFMatrixBlock>(
-                    in1->getBlockColIndex(), in1->getBlockRowIndex(), J, I,
-                    in1->getTotalColNums(), in1->getTotalRowNums(), false);
+                    in1->getBlockRowIndex(), in1->getBlockColIndex(), I, J,
+                    in1->getTotalRowNums(), in1->getTotalColNums(), false);
 
             double *outData = resultFFMatrixBlock->getValue().rawData->c_ptr();
             double *in1Data = in1->getValue().rawData->c_ptr();
@@ -79,14 +79,14 @@ public:
                 sumMatrix(outData, I, J);
 
             sumMatrix = currentMatrix1 + currentMatrix2;
-            sumMatrix.transposeInPlace();
+            //sumMatrix.transposeInPlace();
 
-            int row_idx = in1->getBlockColIndex();
-            int col_idx = in1->getBlockRowIndex();
-            int block_x = J;
-            int block_y = I;
-            int X = in1->getTotalColNums();
-            int Y = in1->getTotalRowNums();
+            int row_idx = in1->getBlockRowIndex();//0
+            int col_idx = in1->getBlockColIndex();//0
+            int block_x = I;//5000
+            int block_y = J;//1
+            int X = in1->getTotalRowNums();
+            int Y = in1->getTotalColNums();
 
             for (int i = 0; i < block_x; i++) {
               int act_x = row_idx * block_x + i;

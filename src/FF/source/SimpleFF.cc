@@ -511,8 +511,9 @@ void inference_unit_log_reg1(pdb::PDBClient &pdbClient, std::string database, st
 
         // join w,x as one compute unit for compute localization
         pdb::Handle<pdb::Computation> join_W_IN = pdb::makeObject<FFInputLayerJoin>();
-        join_W_IN->setInput(0, read_W);
-        join_W_IN->setInput(1, read_IN);
+	//pdb::Handle<pdb::Computation> join_W_IN = pdb::makeObject<FFTransposeMulti>();
+        join_W_IN->setInput(0, read_IN); //5000x6 
+        join_W_IN->setInput(1, read_W); //6x1
 
         // define the computation w*x
         //pdb::Handle<pdb::Computation> aggregate_W_IN = pdb::makeObject<FFAggMatrix>();
@@ -527,12 +528,12 @@ void inference_unit_log_reg1(pdb::PDBClient &pdbClient, std::string database, st
         exp_of_W_IN_plus_B->setInput(1, read_B);
 
         // compute y_intermediate = exp(w*x + b) where sigmoid operation is still pending
-        pdb::Handle<pdb::Computation> aggregate_y = pdb::makeObject<FFMatrixWriter>(database, "output");
-        aggregate_y->setInput(exp_of_W_IN_plus_B);
+        pdb::Handle<pdb::Computation> write_y = pdb::makeObject<FFMatrixWriter>(database, "output");
+        write_y->setInput(exp_of_W_IN_plus_B);
 
         auto timer_begin_y = std::chrono::high_resolution_clock::now();
         // execute the computation
-        if (!pdbClient.executeComputations(errMsg, "inference-unit", materializeHash, aggregate_y)) {
+        if (!pdbClient.executeComputations(errMsg, "inference-unit", materializeHash, write_y)) {
             cout << "Computation failed. Message was: " << errMsg << "\n";
             exit(1);
         }
