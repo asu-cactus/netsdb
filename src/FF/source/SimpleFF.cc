@@ -435,8 +435,8 @@ void inference_unit_log_reg(pdb::PDBClient &pdbClient, std::string database, std
 
         // join w,x as one compute unit for compute localization
         pdb::Handle<pdb::Computation> join_W_IN = pdb::makeObject<FFTransposeMult>();
-        join_W_IN->setInput(0, read_W);
-        join_W_IN->setInput(1, read_IN);
+        join_W_IN->setInput(0, read_IN); // 5000x6
+        join_W_IN->setInput(1, read_W); // 1x6
 
         // define the computation w*x
         pdb::Handle<pdb::Computation> aggregate_W_IN = pdb::makeObject<FFAggMatrix>();
@@ -447,7 +447,7 @@ void inference_unit_log_reg(pdb::PDBClient &pdbClient, std::string database, std
 
         // define the computation: join (w*x) and b along with exp() operation on each element
         pdb::Handle<pdb::Computation> exp_of_W_IN_plus_B = pdb::makeObject<FFTransposeBiasSum>();
-        exp_of_W_IN_plus_B->setInput(0, aggregate_W_IN);
+        exp_of_W_IN_plus_B->setInput(0, join_W_IN);  // used to be aggregate_W_IN
         exp_of_W_IN_plus_B->setInput(1, read_B);
 
         // compute y_intermediate = exp(w*x + b) where sigmoid operation is still pending

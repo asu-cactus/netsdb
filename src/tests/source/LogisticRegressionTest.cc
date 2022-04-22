@@ -35,6 +35,7 @@ int main(int argc, char *argv[]) {
     string input_path, labels_path, w_path, b_path;
     int block_x, block_y, batch_size;
     int numFeatures, numNeurons, numLabels;
+    double sigmoidThreshold;
     if(argc<3) {
         cout << "Usage: blockDimensionX blockDimensionY batchSize numFeatures numNeurons numLabels"
                 "path/to/weights/and/bias(leave empty if generate random)"
@@ -61,6 +62,7 @@ int main(int argc, char *argv[]) {
     numFeatures = atoi(argv[4]);
     numNeurons = atoi(argv[5]); // For LogReg, numFeatures and numNeurons can be made same
     numLabels = atoi(argv[6]);
+    sigmoidThreshold = 0.5; // atoi(argv[8]); // Currently, taking it to be 0.5
 
     cout << "Using Block Dimensions " << block_x << ", " << block_y << endl;
 
@@ -95,16 +97,14 @@ int main(int argc, char *argv[]) {
         b_path = string(argv[7]) + "/bias.out"; // same length as inputs & labels
         std::cout << input_path << " " << labels_path << " " << w_path << " " << b_path << std::endl;
 
-        (void)ff::load_matrix_data(pdbClient, input_path, "ff", "inputs", block_x, block_y, false, false, errMsg);
-        (void)ff::load_matrix_data(pdbClient, w_path, "ff", "w", block_x, block_y, false, false, errMsg);
-        (void)ff::load_matrix_data(pdbClient, b_path, "ff", "b", block_x, 1, false, false, errMsg);
+        (void)ff::load_matrix_data(pdbClient, input_path, "ff", "inputs", 5000, 6, true, true, errMsg);
+        (void)ff::load_matrix_data(pdbClient, w_path, "ff", "w", 1, 6, true, true, errMsg);
+        (void)ff::load_matrix_data(pdbClient, b_path, "ff", "b", 5000, 1, true, true, errMsg);
     } else if (reloadData) {
         std::cout << "To load matrix for ff:inputs" << std::endl;
         ff::loadMatrix(pdbClient, "ff", "inputs", batch_size, numFeatures, block_x, block_y, false, false, errMsg);
-
         std::cout << "To load matrix for ff:w" << std::endl;
-        ff::loadMatrix(pdbClient, "ff", "w", numLabels, numNeurons, block_x, block_x, false, false, errMsg);
-        // 2 x 1
+        ff::loadMatrix(pdbClient, "ff", "w", numLabels, numNeurons, block_x, block_y, false, false, errMsg);
         std::cout << "To load matrix for ff:b" << std::endl;
         ff::loadMatrix(pdbClient, "ff", "b", numLabels, 1, block_x, 1, false, true, errMsg);
     }
@@ -130,38 +130,27 @@ int main(int argc, char *argv[]) {
 
         auto iterator = pdbClient.getSetIterator<FFMatrixBlock>("ff", "output");
 
-        for(auto r:iterator) {  // How to iterate over this and labels_test?
-//            cout << "Label: " << labels_test[total_count][0] << " at Index: " << total_count << "  Data Row: ";
-//            double *data_temp = r->getRawDataHandle()->c_ptr();
-//            for(int j=0;j<r->getColNums();j++) {
-//                cout << data_temp[total_count*r->getColNums()+j] << ", ";
-//            }
-//            cout << endl;
-            total_count++;
-            double *data = r->getRawDataHandle()->c_ptr();
-//            if (data[total_count*r->getColNums()]==labels_test[total_count][0]) {
-//                correct_count++;
-//            }
-            int i = 0;
-            int j = r->getBlockRowIndex() * r->getRowNums();
-            while (i < r->getRowNums() * r->getColNums()) {
-                cout << "Here!!! (" << total_count << "): " << i << " " << j << endl;
-                if (!generate && j >= labels_test[0].size()) {
-                    cout << "While Break: " << generate << " " << j << endl;
-                    break;
+        for(auto r:iterator) {
+            total_count = r->getColNums();
+            if(total_count<100) {
+                cout << "Label: " << labels_test[total_count][0] << " at Index: " << total_count << "  Data Row: ";
+                double *data_temp = r->getRawDataHandle()->c_ptr();
+                for(int j=0;j<r->getColNums();j++) {
+                    cout << data_temp[j] << ", ";
                 }
-                int pos1 = data[i]; // data[i] > data[i + 1] ? 0 : 1;
-                int pos2 = labels_test[0][j]; // labels_test[j][0] > labels_test[j][1] ? 0 : 1;
+                cout << endl;
+            }
 
-                if (pos1 == pos2) {
+            double *data = r->getRawDataHandle()->c_ptr();
+            for(int i=0;i<r->getColNums();i++) {
+                if((data[i]<sigmoidThreshold && labels_test[i][0]==0) || (data[i]>=sigmoidThreshold && labels_test[i][0]==1)) {
                     correct_count++;
                 }
-                i += r->getColNums();
-                j++;
             }
+            total_count++;
         }
         if (!generate)
-            cout << "Accuracy: " << correct_count << "/" << labels_test[0].size() << std::endl;
+            cout << "Accuracy: " << correct_count << "/" << total_count << std::endl;
         std::cout << "count=" << total_count << std::endl;
     }
 

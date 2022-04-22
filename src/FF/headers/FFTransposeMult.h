@@ -59,9 +59,11 @@ public:
             uint32_t J = in2->getRowNums();
 
             if (in1->getColNums() != in2->getColNums()) {
+                std::cout << in1->getColNums() << " " << in2->getColNums() << std::endl;
               std::cerr << "Block dimemsions mismatch! " << std::endl;
               exit(1);
             }
+              std::cout << "Checkpoint: TransposeMult" << std::endl;
 
             pdb::Handle<FFMatrixBlock> resultFFMatrixBlock =
                 pdb::makeObject<FFMatrixBlock>(
@@ -86,7 +88,15 @@ public:
                                      Eigen::RowMajor>>
                 productMatrix(outData, I, J);
 
-            productMatrix = currentMatrix1 * currentMatrix2.transpose();
+            // currentMatrix1 [1x6]     currentMatrix2 []
+            productMatrix = currentMatrix1 * currentMatrix2.transpose();  // Is this element-element or cross-matmul
+
+            for(int i=0;i<I;i++) {
+                for(int j=0;j<J;j++) {
+                    int pos = i * I + j;
+                    cout << "MatMul: [" << i*I << "," << j << "] " << outData[pos] << " " << in1Data[pos] << " " << in2Data[i + j * I] << endl;
+                }
+            }
 
             return resultFFMatrixBlock;
           } else {
