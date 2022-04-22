@@ -93,7 +93,6 @@ int main(int argc, char *argv[]) {
     if(reloadData) { // First time, we reload data from .out files
         std::cout << "Loading data from folder: " << string(argv[8]) << std::endl;
         input_path = string(argv[8]) + "/input.out"; // input.out is col-major
-        labels_path = string(argv[8]) + "/label.out";
         w_path = string(argv[8]) + "/weight.out";
         b_path = string(argv[8]) + "/bias.out"; // same length as inputs & labels
         std::cout << input_path << " " << labels_path << " " << w_path << " " << b_path << std::endl;
@@ -122,6 +121,7 @@ int main(int argc, char *argv[]) {
     
     vector<vector<double>> labels_test;
 
+    labels_path = string(argv[8]) + "/label.out";
     std::cout << "Checkpoint: If loop for load_matrix_from_file" << std::endl;
     ff::load_matrix_from_file(labels_path, labels_test);
 
