@@ -51,8 +51,7 @@ public:
             for (int i = 0; i < I; i++) {
               for (int j = 0; j < J; j++) {
                 int pos = i * I + j;
-                outData[pos] = in1Data[pos] / in2Data[i];
-                // cout << "Output Layer: [" << pos << "] " << outData[pos] << " " << in1Data[pos] << " " << in2Data[i] << endl;
+                outData[pos] = in1Data[pos] / (1 + in1Data[pos]); // used to be in2Data[i].
               }
             }
 

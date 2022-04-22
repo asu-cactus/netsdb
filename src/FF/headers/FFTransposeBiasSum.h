@@ -51,12 +51,15 @@ public:
             std::cout << "in2.colNums=" << in2->getColNums() << std::endl;*/
             uint32_t I = in1->getRowNums();
             uint32_t J = in1->getColNums();
-            
+
+              std::cout << in1->getRowNums() << " " << in1->getColNums() << " " << in2->getRowNums() << " " << in2->getColNums() << std::endl;
             if (in1->getRowNums() != in2->getRowNums() ||
                 in2->getColNums() != 1) {
+
               std::cerr << "Block dimemsions mismatch!" << std::endl;
               exit(1);
             }
+              std::cout << "Checkpoint: FFTranposeBiasSum " << std::endl;
 
             pdb::Handle<FFMatrixBlock> resultFFMatrixBlock =
                 pdb::makeObject<FFMatrixBlock>(
@@ -69,32 +72,32 @@ public:
 
             Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
                                      Eigen::RowMajor>>
-                currentMatrix1(in1Data, I, J);
+                currentMatrix1(in1Data, I, 1);
             Eigen::Map<
                 Eigen::Matrix<double, Eigen::Dynamic, 1, Eigen::ColMajor>>
                 currentMatrix2(in2Data, I, 1);
 
             Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
                                      Eigen::RowMajor>>
-                sumMatrix(outData, I, J);
+                sumMatrix(outData, I, 1);
+              std::cout << "Checkpoint: FFTranposeBiasSum Eigen Assignment Done" << std::endl;
+            sumMatrix = currentMatrix1 + currentMatrix2; // currentMatrix1.colwise() + currentMatrix2;
+              std::cout << "Checkpoint: FFTranposeBiasSum sumMatrix Add Done" << std::endl;
 
-            sumMatrix = currentMatrix1.colwise() + currentMatrix2;
-            sumMatrix.transposeInPlace();
-
-            int row_idx = in1->getBlockColIndex();
-            int col_idx = in1->getBlockRowIndex();
-            int block_x = J;
-            int block_y = I;
-            int X = in1->getTotalColNums();
-            int Y = in1->getTotalRowNums();
-
+            int row_idx = in1->getBlockRowIndex();
+            int col_idx = in1->getBlockColIndex();
+            int block_x = I;
+            int block_y = J;
+            int X = in1->getTotalRowNums();
+            int Y = in1->getTotalColNums();
+            cout << row_idx << " " << col_idx << " " << block_x << " " << block_y << " " << X << " " << Y << endl;
             for (int i = 0; i < block_x; i++) {
               int act_x = row_idx * block_x + i;
               for (int j = 0; j < block_y; j++) {
                 int act_y = col_idx * block_y + j;
 
                 if (act_x < X && act_y < Y) {
-                  int cur_pos = i * block_x + j;
+                  int cur_pos = i * block_y + j;
                   outData[cur_pos] = exp(outData[cur_pos]);
                 }
               }
