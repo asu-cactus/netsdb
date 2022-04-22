@@ -80,27 +80,14 @@ void load_matrix_data(pdb::PDBClient &pdbClient, string path,
 
               if(curX >= totalX || curY >= totalY) {
                   (*(myData->getRawDataHandle()))[ii * actual_blockY + jj] = 0;
-                  // cout << "load_matrix_data: " << setName << "[" << curX << "," << curY << "]" << ": " << 0 << endl;
-                  // 0.24e31, 12431, ...., 0, 0 , 0
-              }
+
+	      }
               else {
                   is >> val;
                   while (is.peek() == ',' || is.peek() == ' ')
                       is.ignore();
-                  // cout << "load_matrix_data: " << setName << "[" << curX << "," << curY << "]" << ": " << val << endl;
                   (*(myData->getRawDataHandle()))[ii * actual_blockY + jj] = val;
               }
-//              is >> val;
-//              while (is.peek() == ',' || is.peek() == ' ')
-//                is.ignore();
-//              // cout << "[PRELIM] load_matrix_data: " << setName << "[" << ii * actual_blockY + jj << "]" << ": " << val << endl;
-//
-//              // row = i * blockX + ii, col = j * blockY + jj
-//              double data = curX >= totalX || curY >= totalY ? 0 : val;
-//
-//              cout << "load_matrix_data: " << setName << "[" << curX << "," << curY << "]" << ": " << data << endl;
-//
-//              (*(myData->getRawDataHandle()))[ii * actual_blockY + jj] = data;
               jj++;
             }
             ii++;

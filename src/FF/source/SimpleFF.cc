@@ -11,6 +11,7 @@
 #include "FFReluBiasSum.h"
 #include "FFRowAggregate.h"
 #include "FFTransposeBiasSum.h"
+#include "FFTransposeBiasSumSigmoid.h"
 #include "FFTransposeMult.h"
 #include "FFMatrixPartitioner.h"
 #include "FFMatrixUtil.h"
@@ -422,6 +423,7 @@ void inference_unit(pdb::PDBClient &pdbClient, string database, string w1,
   }
 }
 
+
 // Inference_Unit for Logistic Regression
 void inference_unit_log_reg(pdb::PDBClient &pdbClient, std::string database, std::string w, std::string inputs, std::string b, std::string output, double dropout_rate, bool enablePartition) {
     string errMsg;
@@ -435,8 +437,8 @@ void inference_unit_log_reg(pdb::PDBClient &pdbClient, std::string database, std
 
         // join w,x as one compute unit for compute localization
         pdb::Handle<pdb::Computation> join_W_IN = pdb::makeObject<FFTransposeMult>();
-        join_W_IN->setInput(0, read_W);
-        join_W_IN->setInput(1, read_IN);
+        join_W_IN->setInput(0, read_IN); // 5000x6
+        join_W_IN->setInput(1, read_W); // 1x6
 
         // define the computation w*x
         pdb::Handle<pdb::Computation> aggregate_W_IN = pdb::makeObject<FFAggMatrix>();
@@ -447,7 +449,7 @@ void inference_unit_log_reg(pdb::PDBClient &pdbClient, std::string database, std
 
         // define the computation: join (w*x) and b along with exp() operation on each element
         pdb::Handle<pdb::Computation> exp_of_W_IN_plus_B = pdb::makeObject<FFTransposeBiasSum>();
-        exp_of_W_IN_plus_B->setInput(0, aggregate_W_IN);
+        exp_of_W_IN_plus_B->setInput(0, join_W_IN);  // used to be aggregate_W_IN
         exp_of_W_IN_plus_B->setInput(1, read_B);
 
         // compute y_intermediate = exp(w*x + b) where sigmoid operation is still pending
@@ -493,6 +495,50 @@ void inference_unit_log_reg(pdb::PDBClient &pdbClient, std::string database, std
         auto timer_end_y = std::chrono::high_resolution_clock::now();
         cout << "Checkpoint: executeComputations" << endl;
         std::cout << "Inference-unit Stage Time Duration: " << std::chrono::duration_cast<std::chrono::duration<float>>(timer_end_y - timer_begin_y).count() << " secs." << std::endl;
+    }
+}
+
+// Inference_Unit for Logistic Regression
+void inference_unit_log_reg1(pdb::PDBClient &pdbClient, std::string database, std::string w, std::string inputs, std::string b, std::string output, bool enablePartition) {
+    string errMsg;
+
+    {
+        const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+        // read w,inputs
+        pdb::Handle<pdb::Computation> read_W = makeObject<FFMatrixBlockScanner>(database, w);
+        pdb::Handle<pdb::Computation> read_IN = makeObject<FFMatrixBlockScanner>(database, inputs);
+
+        // join w,x as one compute unit for compute localization
+        pdb::Handle<pdb::Computation> join_W_IN = pdb::makeObject<FFInputLayerJoin>();
+        join_W_IN->setInput(0, read_W);
+        join_W_IN->setInput(1, read_IN);
+
+        // define the computation w*x
+        //pdb::Handle<pdb::Computation> aggregate_W_IN = pdb::makeObject<FFAggMatrix>();
+        //aggregate_W_IN->setInput(join_W_IN);
+
+        // read b
+        pdb::Handle<pdb::Computation> read_B = pdb::makeObject<FFMatrixBlockScanner>(database, b);
+
+        // define the computation: join (w*x) and b along with exp() operation on each element
+        pdb::Handle<pdb::Computation> exp_of_W_IN_plus_B = pdb::makeObject<FFTransposeBiasSumSigmoid>();
+        exp_of_W_IN_plus_B->setInput(0, join_W_IN);
+        exp_of_W_IN_plus_B->setInput(1, read_B);
+
+        // compute y_intermediate = exp(w*x + b) where sigmoid operation is still pending
+        pdb::Handle<pdb::Computation> aggregate_y = pdb::makeObject<FFMatrixWriter>(database, "output");
+        aggregate_y->setInput(exp_of_W_IN_plus_B);
+
+        auto timer_begin_y = std::chrono::high_resolution_clock::now();
+        // execute the computation
+        if (!pdbClient.executeComputations(errMsg, "inference-unit", materializeHash, aggregate_y)) {
+            cout << "Computation failed. Message was: " << errMsg << "\n";
+            exit(1);
+        }
+        auto timer_end_y = std::chrono::high_resolution_clock::now();
+        std::cout << "Inference-unit Stage Time Duration: " << std::chrono::duration_cast<std::chrono::duration<float>>(timer_end_y - timer_begin_y).count() << " secs." << std::endl;
+
     }
 }
 

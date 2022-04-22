@@ -37,7 +37,11 @@ void inference_unit(pdb::PDBClient &pdbClient, std::string database, std::string
                std::string b1, std::string bo,
                std::string output, double dropout_rate, bool enablePartition=false);
 
+
 void inference_unit_log_reg(pdb::PDBClient &pdbClient, std::string database, std::string w, std::string inputs, std::string b, std::string output, double dropout_rate, bool enablePartition=false);
+
+
+void inference_unit_log_reg1(pdb::PDBClient &pdbClient, std::string database, std::string w, std::string inputs, std::string b, std::string output, bool enablePartition=false);
 
 void inference(pdb::PDBClient &pdbClient, std::string database, std::string w1,
                std::string w2, std::string wo, std::string inputs,
