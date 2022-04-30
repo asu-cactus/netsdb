@@ -48,28 +48,40 @@
 using namespace std;
 
 // 1st parameter is the program itself
-// 2nd - 5th parameter gives the number of rowNum, colNum, block_x and block_y
-// testing for higgs, an example for 2nd - 5th parameters are: 2000,28,100,28
-// 6th parameter specifies whether to classification ("C") or regression ("R")
-// Starting with the 7th parameter, each parameter will represent one path of a tree. The following is 2 running examples.
-// $bin/rfgenericUDF 2000 28 100 28 C /home/jiaqingchen/netsdb/graphs/higgs/higgs_0.txt /home/jiaqingchen/netsdb/graphs/higgs/higgs_1.txt
-// $bin/rfgenericUDF 2000 90 100 90 R /home/jiaqingchen/netsdb/graphs/year/year_0.txt /home/jiaqingchen/netsdb/graphs/year/year_1.txt
+// 2nd parameter gives whether to create set or not
+// 3rd - 6th parameter gives the number of rowNum, colNum, block_x and block_y
+// testing for higgs, an example for 3rd - 6th parameters are: 2000,28,100,28
+// 7th parameter specifies whether to classification ("C") or regression ("R")
+// Starting with the 8th parameter, each parameter will represent one path of a tree. The following is 2 running examples.
+// $bin/rfgenericUDF Y 2000 28 100 28 C /home/jiaqingchen/netsdb/graphs/higgs/higgs_0.txt /home/jiaqingchen/netsdb/graphs/higgs/higgs_1.txt
+// $bin/rfgenericUDF N 2000 90 100 90 R /home/jiaqingchen/netsdb/graphs/year/year_0.txt /home/jiaqingchen/netsdb/graphs/year/year_1.txt
 int main(int argc, char *argv[]) {
 
     makeObjectAllocatorBlock(1024 * 1024 * 1024, true);
 
-    int rowNum = std::stoi(argv[1]);
-    int colNum = std::stoi(argv[2]);
-    int block_x = std::stoi(argv[3]);
-    int block_y = std::stoi(argv[4]);
+    bool createSetOrNot = true;
+
+    if ( argc > 1 ) {
+        if ( strcmp( argv[1], "Y") == 0 ) {
+            createSetOrNot = true;
+        } else {
+            createSetOrNot = false;
+        }
+    }
+
+	int rowNum = std::stoi(argv[2]);
+	int colNum = std::stoi(argv[3]);
+	int block_x = std::stoi(argv[4]);
+	int block_y = std::stoi(argv[5]);
+
+	string errMsg;
 
     // "C" represents classification and "R" represents regression
-    std::string type = std::string(argv[5]);
+    std::string type = std::string(argv[6]);
 
-    string errMsg;
     pdb::Vector<std::string> treePath;
 
-    for(int i = 6; i < argc; i++){
+    for(int i = 7; i < argc; i++){
         treePath.push_back(std::string(argv[i]));
     }
     
@@ -78,32 +90,26 @@ int main(int argc, char *argv[]) {
     pdb::PDBClient pdbClient(8108, masterIp, clientLogger, false, true);
     pdb::CatalogClient catalogClient(8108, masterIp, clientLogger);
 
-    ff::createDatabase(pdbClient, "decisiontree");
-
-    ff::loadLibrary(pdbClient, "libraries/libFFMatrixMeta.so");
-    ff::loadLibrary(pdbClient, "libraries/libFFMatrixData.so");
-    ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlock.so");
-    ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlockScanner.so");
-    ff::loadLibrary(pdbClient, "libraries/libFFMatrixWriter.so");
-    ff::loadLibrary(pdbClient, "libraries/libFFMatrixPartitioner.so");
-
-    ff::createSet(pdbClient, "decisiontree", "inputs", "inputs", 64);
-    ff::createSet(pdbClient, "decisiontree", "labels", "labels", 64);
-    
-    std::cout << "To load shared libraries of Random Forest generic UDF" << std::endl;
-    ff::loadLibrary(pdbClient, "libraries/libTreeNode.so");
-    ff::loadLibrary(pdbClient, "libraries/libTree.so");
-    ff::loadLibrary(pdbClient, "libraries/libRandomForest.so");
-    ff::loadLibrary(pdbClient, "libraries/libRFGenericUDF.so");
-
-    //std::cout << "To load matrix for decision tree inputs" << std::endl;
-    ff::loadMatrix(pdbClient, "decisiontree", "inputs", rowNum, colNum, block_x,
-                   block_y, false, false, errMsg);
+    if(createSetOrNot == true){
+        ff::createDatabase(pdbClient, "decisiontree");
+        ff::loadLibrary(pdbClient, "libraries/libFFMatrixMeta.so");
+        ff::loadLibrary(pdbClient, "libraries/libFFMatrixData.so");
+        ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlock.so");
+        ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlockScanner.so");
+        ff::loadLibrary(pdbClient, "libraries/libFFMatrixWriter.so");
+        ff::loadLibrary(pdbClient, "libraries/libFFMatrixPartitioner.so");
+        ff::createSet(pdbClient, "decisiontree", "inputs", "inputs", 64);
+        ff::createSet(pdbClient, "decisiontree", "labels", "labels", 64);
+        ff::loadLibrary(pdbClient, "libraries/libTreeNode.so");
+        ff::loadLibrary(pdbClient, "libraries/libTree.so");
+        ff::loadLibrary(pdbClient, "libraries/libRandomForest.so");
+        ff::loadLibrary(pdbClient, "libraries/libRFGenericUDF.so");
+        ff::loadMatrix(pdbClient, "decisiontree", "inputs", rowNum, colNum, block_x, block_y, false, false, errMsg);
+    }else{
+        std::cout << "Not create a set and not load new data to the input set" << std::endl;
+    }
 
     makeObjectAllocatorBlock(1024 * 1024 * 1024, true);
-    
-    //std::cout << "To print the inputs" << std::endl;
-    //ff::print(pdbClient, "decisiontree", "inputs");
 
     auto begin = std::chrono::high_resolution_clock::now();
     
@@ -118,7 +124,7 @@ int main(int argc, char *argv[]) {
     labelWriter = pdb::makeObject<FFMatrixWriter>("decisiontree", "labels");
     labelWriter->setInput(rfgenericUDF);
 
-    bool materializeHash = false;
+    bool materializeHash = true;
     //std::cout << "To run the Computation" << std::endl;
     auto exe_begin = std::chrono::high_resolution_clock::now();
     if (!pdbClient.executeComputations(errMsg, "decisiontree", materializeHash, labelWriter)) {

@@ -44,8 +44,8 @@ namespace decisiontree{
 		~RandomForest() {}
 
 		RandomForest(pdb::Vector<pdb::Vector<pdb::Handle<decisiontree::Node>>> forestIn){
-			forest = forestIn;
-			numTree = forestIn.size();
+			this->forest = forestIn;
+			this->numTree = forestIn.size();
 		}
 
 		pdb::Vector<pdb::Vector<pdb::Handle<decisiontree::Node>>> get_forest() {
@@ -73,6 +73,20 @@ namespace decisiontree{
 
 		pdb::Handle<pdb::Vector<float>> predict(Handle<FFMatrixBlock>& in){
 
+			std::vector<std::vector<decisiontree::Node>> vectForest;
+
+			for(int j = 0; j < numTree; j++){
+				pdb::Vector<pdb::Handle<decisiontree::Node>> tree = forest[j];
+				// set a new vetor to store the whole tree
+				std::vector<decisiontree::Node> vectNode;
+				for(int i = 0; i < tree.size(); i++){
+					pdb::Handle<decisiontree::Node> thisNodePtr = tree[i];
+					decisiontree::Node thisNode = decisiontree::Node(thisNodePtr->nodeID,thisNodePtr->indexID,thisNodePtr->isLeaf,thisNodePtr->leftChild,thisNodePtr->rightChild,thisNodePtr->returnClass);
+					vectNode.push_back(thisNode);
+				}
+				vectForest.push_back(vectNode);
+			}
+			
 			// get the input features matrix information
 			uint32_t inNumRow = in->getRowNums();
 			uint32_t inNumCol = in->getColNums();
@@ -81,7 +95,7 @@ namespace decisiontree{
 
 			// set the output matrix
 			pdb::Handle<pdb::Vector<float>> resultMatrix = pdb::makeObject<pdb::Vector<float>>();
-			std::vector<float> thisResultMatrix;
+			std::vector<float> thisResultMatrix(numTree);
 
 			// set the node of the tree
 			decisiontree::Node * treeNode = nullptr;
@@ -90,20 +104,11 @@ namespace decisiontree{
 
 			for (int i = 0; i < inNumRow; i++){
 				for(int j = 0; j < numTree; j++){
-					pdb::Vector<pdb::Handle<decisiontree::Node>> tree = forest[j];
-					// set a new vetor to store the whole tree
-					std::vector<decisiontree::Node> vectNode;
-					for(int i = 0; i < tree.size(); i++){
-						pdb::Handle<decisiontree::Node> thisNodePtr = tree[i];
-						decisiontree::Node thisNode = decisiontree::Node(thisNodePtr->nodeID,thisNodePtr->indexID,thisNodePtr->isLeaf,thisNodePtr->leftChild,thisNodePtr->rightChild,thisNodePtr->returnClass);
-						vectNode.push_back(thisNode);
-					}
+					//std::sort(vectNode.begin(), vectNode.end(), compareByNodeID);
 
-					std::sort(vectNode.begin(), vectNode.end(), compareByNodeID);
-					
 					// inference
 					// pass the root node of the tree
-					treeNode = & vectNode.at(0);
+					treeNode = & vectForest[j].at(0);
 					while(treeNode->isLeaf == false){
 						inputValue = inData[i*inNumCol+treeNode->indexID];
 						if(inputValue <= treeNode->returnClass){
@@ -112,11 +117,10 @@ namespace decisiontree{
 							* treeNode = * (treeNode + (treeNode->rightChild));
 						}
 					}
-					thisResultMatrix.push_back(treeNode->returnClass);
+					thisResultMatrix[j] = treeNode->returnClass;
 				}
 				float voteResult = most_common(thisResultMatrix.begin(), thisResultMatrix.end());
 				resultMatrix->push_back(voteResult);
-				thisResultMatrix.clear();
 			}
 			return resultMatrix;
 		}

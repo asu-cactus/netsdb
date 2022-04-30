@@ -45,6 +45,7 @@ class RFGenericDT: public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
     int numTrees;
     pdb::String fileName = "";
     std::vector<int> rootNodes;
+    std::vector<std::vector<decisiontree::Node>> vectForest;
 
   public:
 
@@ -85,11 +86,6 @@ class RFGenericDT: public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
             uint32_t inBlockRowIndex = in->getBlockRowIndex();
             uint32_t inBlockColIndex = in->getBlockColIndex();
 
-            // testing purpose
-            //std::cout << "Finish load the metadata" << std::endl;
-            //std::cout << inNumRow << "," << inNumCol << std::endl;
-            //std::cout << inBlockRowIndex << "," << inBlockColIndex << std::endl;
-
             float *inData = in->getValue().rawData->c_ptr();
 
             if(this->forestPtr == nullptr){
@@ -99,33 +95,9 @@ class RFGenericDT: public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
                 long long result=strtoll(line.c_str(), NULL, 16);
                 this->forestPtr = (decisiontree::RandomForest *)result;
               }
-            }
-
-            // testing purpose
-            //std::cout << "Address of the node pointer: " << Nodeptr << std::endl;
-            //std::cout << "Address of the RF information pointer: " << Infoptr << std::endl;
-
-            /*
-            for(int i = 0; i < *Infoptr; i++){
-              this->rootNodes.push_back(*(Infoptr+i+1));
-            }
-            this->numTrees = this->rootNodes.size();
-            */
-
-            // set the output matrix
-            pdb::Handle<pdb::Vector<float>> resultMatrix = pdb::makeObject<pdb::Vector<float>>();
-            std::vector<float> thisResultMatrix;
-
-            //pdb::Handle<pdb::Vector<float>> resultMatrix = pdb::makeObject<pdb::Vector<float>>();
-
-            float inputValue;
-            //std::vector<float> thisResultMatrix;
-            decisiontree::Node * treeNode = nullptr;
-            int numTree = forestPtr->numTree;
-            pdb::Vector<pdb::Vector<pdb::Handle<decisiontree::Node>>> thisForest = forestPtr->forest;
-
-            for (int i = 0; i < inNumRow; i++){
-              for(int j = 0; j < numTree; j++){
+              pdb::Vector<pdb::Vector<pdb::Handle<decisiontree::Node>>> thisForest = forestPtr->forest;
+              numTrees = forestPtr->numTree;
+              for(int j = 0; j < numTrees; j++){
                 pdb::Vector<pdb::Handle<decisiontree::Node>> tree = thisForest[j];
                 // set a new vetor to store the whole tree
                 std::vector<decisiontree::Node> vectNode;
@@ -134,12 +106,24 @@ class RFGenericDT: public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
                   decisiontree::Node thisNode = decisiontree::Node(thisNodePtr->nodeID,thisNodePtr->indexID,thisNodePtr->isLeaf,thisNodePtr->leftChild,thisNodePtr->rightChild,thisNodePtr->returnClass);
                   vectNode.push_back(thisNode);
                 }
+                vectForest.push_back(vectNode);
+              }
+            }
 
-                std::sort(vectNode.begin(), vectNode.end(), decisiontree::RandomForest::compareByNodeID);
+            // set the output matrix
+            pdb::Handle<pdb::Vector<float>> resultMatrix = pdb::makeObject<pdb::Vector<float>>();
+            std::vector<float> thisResultMatrix(numTrees);
+
+            float inputValue;
+            decisiontree::Node * treeNode = nullptr;
+
+            for (int i = 0; i < inNumRow; i++){
+              for(int j = 0; j < numTrees; j++){
+                //std::sort(vectNode.begin(), vectNode.end(), decisiontree::RandomForest::compareByNodeID);
 
                 // inference
                 // pass the root node of the tree
-                treeNode = & vectNode.at(0);
+                treeNode = & vectForest[j].at(0);
                 while(treeNode->isLeaf == false){
                   inputValue = inData[i*inNumCol+treeNode->indexID];
                   if(inputValue <= treeNode->returnClass){
@@ -148,11 +132,10 @@ class RFGenericDT: public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
                     * treeNode = * (treeNode + (treeNode->rightChild));
                   }
                 }
-                thisResultMatrix.push_back(treeNode->returnClass);
+                thisResultMatrix[j] = treeNode->returnClass;
               }
               float voteResult = most_common(thisResultMatrix.begin(), thisResultMatrix.end());
               resultMatrix->push_back(voteResult);
-              thisResultMatrix.clear();
             }
             pdb::Handle<FFMatrixBlock> resultMatrixBlock = pdb::makeObject<FFMatrixBlock>(inBlockRowIndex, inBlockColIndex, inNumRow, 1, resultMatrix);
             return resultMatrixBlock;

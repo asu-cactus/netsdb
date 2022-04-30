@@ -1,7 +1,6 @@
 # SConstuct
 # for PDB
 
-
 from os.path import isfile, isdir, join, abspath
 from os import listdir
 import os
@@ -52,7 +51,7 @@ elif common_env['PLATFORM'] == 'posix':
     # for debugging
     # Needs to be turned on for KMeans and TPCH
     common_env.Append(
-        CXXFLAGS='-std=c++14 -g3 -O3 -fPIC -fno-tree-vectorize  -march=native -Winline  -Wno-deprecated-declarations')
+        CXXFLAGS='-std=c++14 -g -O3 -fPIC -fno-tree-vectorize  -march=native -Winline  -Wno-deprecated-declarations')
     #common_env.Append(CXXFLAGS = '-std=c++14 -g  -Oz -ldl -lstdc++ -Wno-deprecated-declarations')
     #LIBPYTORCH_PATH = "/home/ubuntu/anaconda3/envs/py37_torch/lib/python3.7/site-packages/torch/lib"
     LIBPYTORCH_PATH = "/home/ubuntu/pytorch/torch/lib"
@@ -69,14 +68,14 @@ common_env.Replace(CXX="clang++")
 # common_env.Append(CCFLAGS='-DDEBUG_SHUFFLING')
 common_env.Append(CCFLAGS='-DINITIALIZE_ALLOCATOR_BLOCK')
 # common_env.Append(CCFLAGS='-DENABLE_SHALLOW_COPY')
-common_env.Append(CCFLAGS='-DDEFAULT_BATCH_SIZE=1')
+common_env.Append(CCFLAGS='-DDEFAULT_BATCH_SIZE=20')
 common_env.Append(CCFLAGS='-DREMOVE_SET_WITH_EVICTION')
 common_env.Append(CCFLAGS='-DAUTO_TUNING')
 common_env.Append(CCFLAGS='-DPROFILING')
 common_env.Append(CCFLAGS='-DPROFILING_CACHE')
 common_env.Append(CCFLAGS='-DUSE_LOCALITY_SET')
 # we need this for self learning, so that if no partition lambda is found we use random policy
-common_env.Append(CCFLAGS='-DRANDOME_DISPATCHER')
+#common_env.Append(CCFLAGS='-DRANDOME_DISPATCHER')
 # common_env.Append(CCFLAGS='-DAPPLY_REINFORCEMENT_LEARNING')
 common_env.Append(CCFLAGS='-DPROFILING_CACHE')
 common_env.Append(CCFLAGS='-DENABLE_LARGE_GRAPH')
@@ -84,7 +83,7 @@ common_env.Append(CCFLAGS='-DENABLE_LARGE_GRAPH')
 common_env.Append(CCFLAGS='-DJOIN_HASH_TABLE_SIZE_RATIO=1.5')
 common_env.Append(CCFLAGS='-DHASH_PARTITIONED_JOIN_SIZE_RATIO=2.0')
 common_env.Append(CCFLAGS='-DPROFILING')
-common_env.Append(CCFLAGS='-DJOIN_COST_THRESHOLD=0')
+common_env.Append(CCFLAGS='-DJOIN_COST_THRESHOLD=1000')
 common_env.Append(CCFLAGS='-DENABLE_COMPRESSION')
 # common_env.Append(CCFLAGS='-DPDB_DEBUG')
 common_env.Append(CCFLAGS='-DEVICT_STOP_THRESHOLD=0.90')

@@ -51,6 +51,9 @@ namespace decisiontree{
     ENABLE_DEEP_COPY
 
     pdb::Vector<pdb::Vector<pdb::Handle<decisiontree::Node>>> forest;
+    std::vector<std::vector<decisiontree::Node>> vectForest;
+    int numTrees;
+    pdb::Handle<decisiontree::Node> thisNodePtr;
 
     static bool compareByNodeID(const decisiontree::Node &a, const decisiontree::Node &b){
       return a.nodeID < b.nodeID;
@@ -63,7 +66,7 @@ namespace decisiontree{
     RFGenericUDF(pdb::Vector<std::string> treePathIn, std::string typeIn) {
 
       // the # of trees of the input
-      int numTrees = treePathIn.size();
+      numTrees = treePathIn.size();
       // "C" represents classification and "R" represents regression
       std::string type = typeIn;
 
@@ -204,9 +207,9 @@ namespace decisiontree{
         forest.push_back(tree);
       }
 
-      std::cout << "numbers of trees in the forest: " << forest.size() << std::endl;
+      std::cout << "numbers of trees in the forest: " << numTrees << std::endl;
       std::cout << "numbers of nodes in each tree: " << std::endl;
-      for(int i = 0; i < forest.size(); i++){
+      for(int i = 0; i < numTrees; i++){
         std::cout << "numbers of nodes in tree " << i << " is " << forest[i].size() << std::endl;
       }
     }
@@ -233,44 +236,47 @@ namespace decisiontree{
     Lambda<Handle<FFMatrixBlock>>
     getProjection(Handle<FFMatrixBlock> in) override {
         return makeLambda(in, [this](Handle<FFMatrixBlock> &in) {
-            // load the metadata
-            uint32_t inNumRow = in->getRowNums();
-            uint32_t inNumCol = in->getColNums();
-            uint32_t inBlockRowIndex = in->getBlockRowIndex();
-            uint32_t inBlockColIndex = in->getBlockColIndex();
-
+          
+          for(int j = 0; j < numTrees; j++){
+            pdb::Vector<pdb::Handle<decisiontree::Node>> tree = forest[j];
+            // set a new vetor to store the whole tree
+            std::vector<decisiontree::Node> vectNode;
+            for(int k = 0; k < tree.size(); k++){
+              thisNodePtr = tree[k];
+              decisiontree::Node thisNode = decisiontree::Node(thisNodePtr->nodeID,thisNodePtr->indexID,thisNodePtr->isLeaf,thisNodePtr->leftChild,thisNodePtr->rightChild,thisNodePtr->returnClass);
+              vectNode.push_back(thisNode);
+            }
+            vectForest.push_back(vectNode);
+          }
+          
+          // load the metadata
+          uint32_t inNumRow = in->getRowNums();
+          uint32_t inNumCol = in->getColNums();
+          uint32_t inBlockRowIndex = in->getBlockRowIndex();
+          uint32_t inBlockColIndex = in->getBlockColIndex();
+          
             // testing purpose
-            std::cout << "Finish load the metadata" << std::endl;
-            std::cout << inNumRow << "," << inNumCol << std::endl;
-            std::cout << inBlockRowIndex << "," << inBlockColIndex << std::endl;
+            //std::cout << "Finish load the metadata" << std::endl;
+            //std::cout << inNumRow << "," << inNumCol << std::endl;
+            //std::cout << inBlockRowIndex << "," << inBlockColIndex << std::endl;
 
             float *inData = in->getValue().rawData->c_ptr();
 
             // set the output matrix
             pdb::Handle<pdb::Vector<float>> resultMatrix = pdb::makeObject<pdb::Vector<float>>();
-            std::vector<float> thisResultMatrix;
+            std::vector<float> thisResultMatrix(numTrees);
             
             // set the node of the tree
             decisiontree::Node * treeNode = nullptr;
-
             float inputValue;
 
             for (int i = 0; i < inNumRow; i++){
-              for(int j = 0; j < forest.size(); j++){
-                pdb::Vector<pdb::Handle<decisiontree::Node>> tree = forest[j];
-                // set a new vetor to store the whole tree
-                std::vector<decisiontree::Node> vectNode;
-                for(int i = 0; i < tree.size(); i++){
-                  pdb::Handle<decisiontree::Node> thisNodePtr = tree[i];
-                  decisiontree::Node thisNode = decisiontree::Node(thisNodePtr->nodeID,thisNodePtr->indexID,thisNodePtr->isLeaf,thisNodePtr->leftChild,thisNodePtr->rightChild,thisNodePtr->returnClass);
-                  vectNode.push_back(thisNode);
-                }
-
-                std::sort(vectNode.begin(), vectNode.end(), compareByNodeID);
+              for(int j = 0; j < numTrees; j++){
+                //std::sort(vectNode.begin(), vectNode.end(), compareByNodeID);
 
                 // inference
                 // pass the root node of the tree
-                treeNode = & vectNode.at(0);
+                treeNode = & vectForest[j].at(0);
                 while(treeNode->isLeaf == false){
                   inputValue = inData[i*inNumCol+treeNode->indexID];
                   if(inputValue <= treeNode->returnClass){
@@ -279,11 +285,10 @@ namespace decisiontree{
                     * treeNode = * (treeNode + (treeNode->rightChild));
                   }
                 }
-                thisResultMatrix.push_back(treeNode->returnClass);
+                thisResultMatrix[j] = treeNode->returnClass;
               }
               float voteResult = most_common(thisResultMatrix.begin(), thisResultMatrix.end());
               resultMatrix->push_back(voteResult);
-              thisResultMatrix.clear();
             }
             pdb::Handle<FFMatrixBlock> resultMatrixBlock = pdb::makeObject<FFMatrixBlock>(inBlockRowIndex, inBlockColIndex, inNumRow, 1, resultMatrix);
             return resultMatrixBlock;

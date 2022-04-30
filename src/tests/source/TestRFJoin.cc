@@ -58,6 +58,8 @@ using namespace pdb;
 // $bin/rfJoin Y 11000 28 1000 28 C /home/jiaqingchen/netsdb/graphs/higgs/higgs_0.txt /home/jiaqingchen/netsdb/graphs/higgs/higgs_1.txt /home/jiaqingchen/netsdb/graphs/higgs/higgs_2.txt /home/jiaqingchen/netsdb/graphs/higgs/higgs_3.txt /home/jiaqingchen/netsdb/graphs/higgs/higgs_4.txt /home/jiaqingchen/netsdb/graphs/higgs/higgs_5.txt /home/jiaqingchen/netsdb/graphs/higgs/higgs_6.txt /home/jiaqingchen/netsdb/graphs/higgs/higgs_7.txt /home/jiaqingchen/netsdb/graphs/higgs/higgs_8.txt /home/jiaqingchen/netsdb/graphs/higgs/higgs_9.txt
 int main(int argc, char *argv[]) {
 
+    makeObjectAllocatorBlock(1024 * 1024 * 1024, true);
+
     bool createSetOrNot = true;
 
     if ( argc > 1 ) {
@@ -75,17 +77,26 @@ int main(int argc, char *argv[]) {
 
 	string errMsg;
 
-	makeObjectAllocatorBlock(1024 * 1024 * 1024, true);
-
 	string masterIp = "localhost";
 	pdb::PDBLoggerPtr clientLogger = make_shared<pdb::PDBLogger>("clientLog");
 	pdb::PDBClient pdbClient(8108, masterIp, clientLogger, false, true);
 	pdb::CatalogClient catalogClient(8108, masterIp, clientLogger);
 
-	pdbClient.registerType("libraries/libTreeNode.so", errMsg);
-	pdbClient.registerType("libraries/libTree.so", errMsg);
-    pdbClient.registerType("libraries/libRandomForest.so", errMsg);
-
+    if(createSetOrNot == true){
+        pdbClient.registerType("libraries/libTreeNode.so", errMsg);
+        pdbClient.registerType("libraries/libTree.so", errMsg);
+        pdbClient.registerType("libraries/libRandomForest.so", errMsg);
+        pdbClient.registerType("libraries/libRFJoin.so", errMsg);
+        pdbClient.registerType("libraries/libFFMatrixMeta.so", errMsg);
+        pdbClient.registerType("libraries/libFFMatrixData.so", errMsg);
+        pdbClient.registerType("libraries/libFFMatrixBlock.so", errMsg);
+        pdbClient.registerType("libraries/libFFMatrixBlockScanner.so", errMsg);
+        pdbClient.registerType("libraries/libFFMatrixWriter.so", errMsg);
+        pdbClient.registerType("libraries/libFFMatrixPartitioner.so", errMsg);
+    } else{
+        std::cout << "Not load shared libraries" << std::endl;
+    }
+    
     string dbName = "rf_db";
     string setName = "rf_set";
 
@@ -279,24 +290,21 @@ int main(int argc, char *argv[]) {
     pdb::PDBClient pdbClientDT(8108, masterIp, clientLoggerDT, false, true);
     pdb::CatalogClient catalogClientDT(8108, masterIp, clientLoggerDT);
 
-    ff::loadLibrary(pdbClientDT, "libraries/libFFMatrixMeta.so");
-    ff::loadLibrary(pdbClientDT, "libraries/libFFMatrixData.so");
-    ff::loadLibrary(pdbClientDT, "libraries/libFFMatrixBlock.so");
-    ff::loadLibrary(pdbClientDT, "libraries/libFFMatrixBlockScanner.so");
-    ff::loadLibrary(pdbClientDT, "libraries/libFFMatrixWriter.so");
-    ff::loadLibrary(pdbClientDT, "libraries/libFFMatrixPartitioner.so");
-
-    std::cout << "To load Random Forest RFJoin shared library" << std::endl;
-    ff::loadLibrary(pdbClientDT, "libraries/libRFJoin.so");
-
     if(createSetOrNot == true){
-        ff::createDatabase(pdbClientDT, "decisiontreeBC");
-        ff::createSet(pdbClientDT, "decisiontreeBC", "inputs", "inputs", 64);
-        ff::createSet(pdbClientDT, "decisiontreeBC", "labels", "labels", 64);
-        //std::cout << "To load matrix for decision tree inputs" << std::endl;
-        ff::loadMatrix(pdbClientDT, "decisiontreeBC", "inputs", rowNum, colNum, block_x,block_y, false, false, errMsg);
-        //std::cout << "To print the inputs" << std::endl;
-        //ff::print(pdbClientDT, "decisiontreeBC", "inputs");
+        ff::createDatabase(pdbClientDT, "decisiontree");
+        ff::loadLibrary(pdbClientDT, "libraries/libFFMatrixMeta.so");
+        ff::loadLibrary(pdbClientDT, "libraries/libFFMatrixData.so");
+        ff::loadLibrary(pdbClientDT, "libraries/libFFMatrixBlock.so");
+        ff::loadLibrary(pdbClientDT, "libraries/libFFMatrixBlockScanner.so");
+        ff::loadLibrary(pdbClientDT, "libraries/libFFMatrixWriter.so");
+        ff::loadLibrary(pdbClientDT, "libraries/libFFMatrixPartitioner.so");
+        ff::createSet(pdbClientDT, "decisiontree", "inputs", "inputs", 64);
+        ff::createSet(pdbClientDT, "decisiontree", "labels", "labels", 64);
+        ff::loadLibrary(pdbClientDT, "libraries/libRFJoin.so");
+        ff::loadLibrary(pdbClientDT,"libraries/libTreeNode.so");
+        ff::loadLibrary(pdbClientDT,"libraries/libTree.so");
+        ff::loadLibrary(pdbClientDT,"libraries/libRandomForest.so");
+        ff::loadMatrix(pdbClientDT, "decisiontree", "inputs", rowNum, colNum, block_x,block_y, false, false, errMsg);
     } else{
         std::cout << "Not create a set and not load new data to the input set" << std::endl;
     }
@@ -304,21 +312,20 @@ int main(int argc, char *argv[]) {
     auto begin = std::chrono::high_resolution_clock::now();
     
     pdb::Handle<pdb::Computation> input1 = pdb::makeObject<ScanUserSet<decisiontree::RandomForest>>(dbName, setName);
-    pdb::Handle<pdb::Computation> inputMatrix = pdb::makeObject<FFMatrixBlockScanner>("decisiontreeBC", "inputs");
+    pdb::Handle<pdb::Computation> inputMatrix = pdb::makeObject<FFMatrixBlockScanner>("decisiontree", "inputs");
 
     pdb::Handle<pdb::Computation> join = pdb::makeObject<decisiontree::RFJoin>();
     join->setInput(0, input1);
     join->setInput(1, inputMatrix);
 
-    pdb::Handle<pdb::Computation> labelWriter = pdb::makeObject<FFMatrixWriter>("decisiontreeBC", "labels");
+    pdb::Handle<pdb::Computation> labelWriter = pdb::makeObject<FFMatrixWriter>("decisiontree", "labels");
     labelWriter->setInput(join);
-    
-    //bool materializeHash = false;
+
     bool materializeHash = true;
     //std::cout << "To run the Computation" << std::endl;
     auto exe_begin = std::chrono::high_resolution_clock::now();
 
-    if (!pdbClientDT.executeComputations(errMsg, "decisiontreeBC", materializeHash, labelWriter)) {
+    if (!pdbClientDT.executeComputations(errMsg, "decisiontree", materializeHash, labelWriter)) {
     	cout << "Computation failed. Message was: " << errMsg << "\n";
     	exit(1);
     }
@@ -335,9 +342,9 @@ int main(int argc, char *argv[]) {
 
     //verify the results
     std::cout << "To print the status" << std::endl;
-    ff::print_stats(pdbClientDT, "decisiontreeBC", "labels");
+    ff::print_stats(pdbClientDT, "decisiontree", "labels");
     std::cout << "To print the results" << std::endl;
-    ff::print(pdbClientDT, "decisiontreeBC", "labels");
+    ff::print(pdbClientDT, "decisiontree", "labels");
 	return 0;
 }
 

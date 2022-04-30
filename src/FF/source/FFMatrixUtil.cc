@@ -39,7 +39,7 @@ void load_matrix_data(pdb::PDBClient &pdbClient, string path,
 
   float val;
   int total = 0;
-  pdb::makeObjectAllocatorBlock(size * 112 * 1024, true);
+  pdb::makeObjectAllocatorBlock(64 * 1024 * 1024, true);
 
   pdb::Handle<pdb::Vector<pdb::Handle<FFMatrixBlock>>> storeMatrix1 =
       pdb::makeObject<pdb::Vector<pdb::Handle<FFMatrixBlock>>>();
@@ -117,7 +117,7 @@ void load_matrix_data(pdb::PDBClient &pdbClient, string path,
       }
       std::cout << "Dispatched " << storeMatrix1->size() << " blocks."
                 << std::endl;
-      pdb::makeObjectAllocatorBlock(size * 112 * 1024, true);
+      pdb::makeObjectAllocatorBlock(64* 1024 * 1024, true);
       storeMatrix1 = pdb::makeObject<pdb::Vector<pdb::Handle<FFMatrixBlock>>>();
     }
   }
@@ -175,7 +175,7 @@ void load_matrix_data(pdb::PDBClient &pdbClient, string path,
   }
 
   int total = 0;
-  pdb::makeObjectAllocatorBlock(1 * 112 * 1024, true);
+  pdb::makeObjectAllocatorBlock(64 * 1024 * 1024, true);
 
   pdb::Handle<pdb::Vector<pdb::Handle<FFMatrixBlock>>> storeMatrix1 =
       pdb::makeObject<pdb::Vector<pdb::Handle<FFMatrixBlock>>>();
@@ -233,7 +233,7 @@ void loadMatrix(pdb::PDBClient &pdbClient, pdb::String dbName,
                        std::default_random_engine());
 
   int total = 0;
-  pdb::makeObjectAllocatorBlock(size * 112 * 1024, true);
+  pdb::makeObjectAllocatorBlock(64 *1024 * 1024, true);
 
   pdb::Handle<pdb::Vector<pdb::Handle<FFMatrixBlock>>> storeMatrix1 =
       pdb::makeObject<pdb::Vector<pdb::Handle<FFMatrixBlock>>>();
@@ -309,7 +309,7 @@ void loadMatrix(pdb::PDBClient &pdbClient, pdb::String dbName,
       }
       std::cout << "Dispatched " << storeMatrix1->size() << " blocks."
                 << std::endl;
-      pdb::makeObjectAllocatorBlock(size * 112 * 1024, true);
+      pdb::makeObjectAllocatorBlock(64 * 1024 * 1024, true);
       storeMatrix1 = pdb::makeObject<pdb::Vector<pdb::Handle<FFMatrixBlock>>>();
     }
   }
