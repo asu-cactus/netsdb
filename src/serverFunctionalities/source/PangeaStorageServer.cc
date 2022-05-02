@@ -168,8 +168,6 @@ void PangeaStorageServer::cleanup(bool flushOrNot) {
             writeBackRecords(a.first, flushOrNot);
     }
     std::cout << "Now there are " << totalObjects << " new objects stored in storage" << std::endl;
-    PDB_COUT << "sleep for 1 second to wait for all data gets flushed" << std::endl;
-    sleep(1);
     PDB_COUT << "cleaned up for storage..." << std::endl;
 }
 

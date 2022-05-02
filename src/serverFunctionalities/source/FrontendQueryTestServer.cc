@@ -705,7 +705,6 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
                 }
             }
 
-            getFunctionality<PangeaStorageServer>().cleanup(false);
             Handle<SetIdentifier> result = nullptr;
 
             if (needsRemoveCombinerSet == true) {
@@ -725,7 +724,6 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
 
 
             // now, we send back the result
-            getFunctionality<PangeaStorageServer>().cleanup(false);
             if (result == nullptr) {
                 result = makeObject<SetIdentifier>(outDatabaseName, outSetName);
                 result->setNumPages(outputSet->getNumPages());
