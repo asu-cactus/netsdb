@@ -40,7 +40,7 @@ $BODY$
 	declare mostvalue real;
 	declare mostposition int := 0;
 	declare single_array real[28];
-	declare cur_records scroll cursor for SELECT * from higgs;
+	declare cur_records scroll cursor for SELECT * from higgs LIMIT 1000;
 
 begin
 	for i in 1..1
