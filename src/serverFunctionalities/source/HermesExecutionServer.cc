@@ -1486,9 +1486,13 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
       TupleSetJobStage_TYPEID,
       make_shared<SimpleRequestHandler<TupleSetJobStage>>([&](Handle<TupleSetJobStage> request,
                                                               PDBCommunicatorPtr sendUsingMe) {
-        getAllocator().cleanInactiveBlocks((size_t) ((size_t) 32 * (size_t) 1024 * (size_t) 1024));
 
-        getAllocator().cleanInactiveBlocks((size_t) ((size_t) 256 * (size_t) 1024 * (size_t) 1024));
+#ifdef PROFILING
+       auto scheduleBegin = std::chrono::high_resolution_clock::now();
+#endif
+        //getAllocator().cleanInactiveBlocks((size_t) ((size_t) 32 * (size_t) 1024 * (size_t) 1024));
+
+        //getAllocator().cleanInactiveBlocks((size_t) ((size_t) 256 * (size_t) 1024 * (size_t) 1024));
         PDB_COUT << "Backend got Tuple JobStage message with Id=" << request->getStageId()
                  << std::endl;
         request->print();
@@ -1498,11 +1502,6 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
         const UseTemporaryAllocationBlock block1{256 * 1024 * 1024};
 #else
         const UseTemporaryAllocationBlock block1{32 * 1024 * 1024};
-#endif
-#ifdef PROFILING
-        std::string out = getAllocator().printInactiveBlocks();
-        std::cout << "TupleSetJobStage-backend: print inactive blocks:" << std::endl;
-        std::cout << out << std::endl;
 #endif
         Handle<SetIdentifier> sourceContext = request->getSourceContext();
         if (getCurPageScanner() == nullptr) {
@@ -1520,18 +1519,52 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
           if (request->isRepartitionJoin() == true) {
             std::cout << "run pipeline for hash partitioned join" << std::endl;
             pipeline->runPipelineWithHashPartitionSink(this);
-          } else if (((request->isRepartition() == false) ||
+#ifdef PROFILING
+            auto runEnd = std::chrono::high_resolution_clock::now();
+            std::cout << "Time Duration for running the job stage at BackEnd is "
+                          << std::chrono::duration_cast<std::chrono::duration<float>>(runEnd -
+                                                                                      scheduleBegin)
+                                 .count()
+                          << " seconds." << std::endl;
+#endif
+
+
+	  } else if (((request->isRepartition() == false) ||
               (request->isCombining() == false)) &&
               (request->isBroadcasting() == false)) {
             //pipeline or local join
             std::cout << "run pipeline..." << std::endl;
             pipeline->runPipeline(this);
+#ifdef PROFILING
+            auto runEnd = std::chrono::high_resolution_clock::now();
+            std::cout << "Time Duration for running the job stage at BackEnd is "
+                          << std::chrono::duration_cast<std::chrono::duration<float>>(runEnd -
+                                                                                      scheduleBegin)
+                                 .count()
+                          << " seconds." << std::endl;
+#endif
           } else if (request->isBroadcasting() == true) {
             std::cout << "run pipeline with broadcasting..." << std::endl;
             pipeline->runPipelineWithBroadcastSink(this);
+#ifdef PROFILING
+            auto runEnd = std::chrono::high_resolution_clock::now();
+            std::cout << "Time Duration for running the job stage at BackEnd is "
+                          << std::chrono::duration_cast<std::chrono::duration<float>>(runEnd -
+                                                                                      scheduleBegin)
+                                 .count()
+                          << " seconds." << std::endl;
+#endif
           } else {
             std::cout << "run pipeline with combiner..." << std::endl;
             pipeline->runPipelineWithShuffleSink(this);
+#ifdef PROFILING
+            auto runEnd = std::chrono::high_resolution_clock::now();
+            std::cout << "Time Duration for running the job stage at BackEnd is "
+                          << std::chrono::duration_cast<std::chrono::duration<float>>(runEnd -
+                                                                                      scheduleBegin)
+                                 .count()
+                          << " seconds." << std::endl;
+#endif
           }
           if ((sourceContext->isAggregationResult() == true) &&
               (sourceContext->getSetType() == PartitionedHashSetType)) {
@@ -1587,6 +1620,14 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
         Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(res, errMsg);
         // return the result
         res = sendUsingMe->sendObject(response, errMsg);
+#ifdef PROFILING
+       auto scheduleEnd = std::chrono::high_resolution_clock::now();
+       std::cout << "Time Duration for scheduling the job stage at BackEnd is "
+                          << std::chrono::duration_cast<std::chrono::duration<float>>(scheduleEnd -
+                                                                                      scheduleBegin)
+                                 .count()
+                          << " seconds." << std::endl;
+#endif
         return make_pair(res, errMsg);
       }));
 

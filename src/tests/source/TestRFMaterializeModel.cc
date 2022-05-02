@@ -297,7 +297,6 @@ int main(int argc, char *argv[]) {
         ff::loadLibrary(pdbClientDT, "libraries/libFFMatrixWriter.so");
         ff::loadLibrary(pdbClientDT, "libraries/libFFMatrixPartitioner.so");
         ff::createSet(pdbClientDT, "decisiontree", "inputs", "inputs", 64);
-        ff::createSet(pdbClientDT, "decisiontree", "labels", "labels", 64);
         ff::loadLibrary(pdbClientDT, "libraries/libRFGenericDT.so");
         ff::loadLibrary(pdbClientDT,"libraries/libTreeNode.so");
         ff::loadLibrary(pdbClientDT,"libraries/libTree.so");
@@ -308,6 +307,8 @@ int main(int argc, char *argv[]) {
     }
 
     auto begin = std::chrono::high_resolution_clock::now();
+    
+    ff::createSet(pdbClientDT, "decisiontree", "labels", "labels", 64);
     
     pdb::Handle<pdb::Computation> inputMatrix = pdb::makeObject<FFMatrixBlockScanner>("decisiontree", "inputs");
 

@@ -99,7 +99,6 @@ int main(int argc, char *argv[]) {
         ff::loadLibrary(pdbClient, "libraries/libFFMatrixWriter.so");
         ff::loadLibrary(pdbClient, "libraries/libFFMatrixPartitioner.so");
         ff::createSet(pdbClient, "decisiontree", "inputs", "inputs", 64);
-        ff::createSet(pdbClient, "decisiontree", "labels", "labels", 64);
         ff::loadLibrary(pdbClient, "libraries/libTreeNode.so");
         ff::loadLibrary(pdbClient, "libraries/libTree.so");
         ff::loadLibrary(pdbClient, "libraries/libRandomForest.so");
@@ -109,14 +108,20 @@ int main(int argc, char *argv[]) {
         std::cout << "Not create a set and not load new data to the input set" << std::endl;
     }
 
+    auto begin = std::chrono::high_resolution_clock::now();
+    
+    //we need create the output set each time
+    ff::createSet(pdbClient, "decisiontree", "labels", "labels", 64);
+
     makeObjectAllocatorBlock(1024 * 1024 * 1024, true);
 
-    auto begin = std::chrono::high_resolution_clock::now();
     
     pdb::Handle<pdb::Computation> inputMatrix = pdb::makeObject<FFMatrixBlockScanner>("decisiontree", "inputs");
 
     //std::cout << "To make object of decision tree UDF shared libraries" << std::endl;
     pdb::Handle<pdb::Computation> rfgenericUDF = pdb::makeObject<decisiontree::RFGenericUDF>(treePath, type);
+
+    
     rfgenericUDF->setInput(inputMatrix);
 
     //std::cout << "To set the Computation" << std::endl;

@@ -506,7 +506,11 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
         TupleSetJobStage_TYPEID,
         make_shared<SimpleRequestHandler<TupleSetJobStage>>([&](Handle<TupleSetJobStage> request,
                                                                 PDBCommunicatorPtr sendUsingMe) {
-            std::string errMsg;
+
+#ifdef PROFILING
+            auto scheduleBegin = std::chrono::high_resolution_clock::now();
+#endif    
+	    std::string errMsg;
             bool success;
             PDB_COUT << "Frontend got a request for TupleSetJobStage" << std::endl;
             request->print();
@@ -514,11 +518,6 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
             makeObjectAllocatorBlock(256 * 1024 * 1024, true);
 #else
             makeObjectAllocatorBlock(32 * 1024 * 1024, true);
-#endif
-#ifdef PROFILING
-            std::string out = getAllocator().printInactiveBlocks();
-            std::cout << "TupleSetJobStage: print inactive blocks:" << std::endl;
-            std::cout << out << std::endl;
 #endif
             PDBCommunicatorPtr communicatorToBackend = make_shared<PDBCommunicator>();
             if (communicatorToBackend->connectToLocalServer(
@@ -529,6 +528,15 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
                 return std::make_pair(false, errMsg);
             }
             PDB_COUT << "Frontend connected to backend" << std::endl;
+#ifdef PROFILING
+            auto connectionEnd = std::chrono::high_resolution_clock::now();
+            std::cout << "Time Duration for establishing connection to backend at frontEnd is"
+                          << std::chrono::duration_cast<std::chrono::duration<float>>(connectionEnd -
+                                                                                      scheduleBegin)
+                                 .count()
+                          << " seconds." << std::endl;
+#endif
+
             Handle<TupleSetJobStage> newRequest =
                 deepCopyToCurrentAllocationBlock<TupleSetJobStage>(request);
 
@@ -668,8 +676,6 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
                 }
             }
 
-
-            if (success == true) {
                 if (combinerSet != nullptr) {
                     Handle<SetIdentifier> combinerContext =
                         makeObject<SetIdentifier>(combinerDatabaseName, combinerSetName);
@@ -689,6 +695,15 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
 
                 newRequest->print();
 
+#ifdef PROFILING
+                auto newRequestCreationEnd = std::chrono::high_resolution_clock::now();
+                std::cout << "Time Duration for creating new request at frontEnd is"
+                          << std::chrono::duration_cast<std::chrono::duration<float>>(newRequestCreationEnd -
+                                                                                      connectionEnd)
+                                 .count()
+                          << " seconds." << std::endl;
+#endif
+
                 if (!communicatorToBackend->sendObject(newRequest, errMsg)) {
                     std::cout << errMsg << std::endl;
                     errMsg = std::string("can't send message to backend: ") + errMsg;
@@ -703,10 +718,27 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
                         errMsg = std::string("backend failure: ") + errMsg;
                     }
                 }
-            }
 
+#ifdef PROFILING
+            auto receivingResponseEnd = std::chrono::high_resolution_clock::now();
+            std::cout << "Time Duration for receiving the response at frontEnd is"
+                          << std::chrono::duration_cast<std::chrono::duration<float>>(receivingResponseEnd -
+					                                              newRequestCreationEnd)
+                                 .count()
+                          << " seconds." << std::endl;
+#endif
+          
             getFunctionality<PangeaStorageServer>().cleanup(false);
-            Handle<SetIdentifier> result = nullptr;
+#ifdef PROFILING
+            auto cleanupEnd = std::chrono::high_resolution_clock::now();
+            std::cout << "Time Duration for cleaning up at frontEnd is"
+                          << std::chrono::duration_cast<std::chrono::duration<float>>(cleanupEnd -
+                                                                                      receivingResponseEnd)
+                                 .count()
+                          << " seconds." << std::endl;
+#endif
+
+	    Handle<SetIdentifier> result = nullptr;
 
             if (needsRemoveCombinerSet == true) {
                 result = makeObject<SetIdentifier>(combinerDatabaseName, combinerSetName);
@@ -725,12 +757,19 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
 
 
             // now, we send back the result
-            getFunctionality<PangeaStorageServer>().cleanup(false);
             if (result == nullptr) {
                 result = makeObject<SetIdentifier>(outDatabaseName, outSetName);
                 result->setNumPages(outputSet->getNumPages());
                 result->setPageSize(outputSet->getPageSize());
             }
+#ifdef PROFILING
+            auto preparingResultsEnd = std::chrono::high_resolution_clock::now();
+            std::cout << "Time Duration for preparing the results at frontEnd is"
+                          << std::chrono::duration_cast<std::chrono::duration<float>>(preparingResultsEnd-
+					                                              receivingResponseEnd)
+                                 .count()
+                          << " seconds." << std::endl;
+#endif
             std::cout << "sending back result with " << result->getNumPages() << " pages" << std::endl;
             if (success == true) {
                 PDB_COUT << "Stage is done. " << std::endl;
@@ -745,6 +784,20 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
             if (success == false) {
                 // TODO:restart backend
             }
+
+#ifdef PROFILING
+            auto scheduleEnd = std::chrono::high_resolution_clock::now();
+	    std::cout << "Time Duration for sending out the results at frontEnd is"
+                          << std::chrono::duration_cast<std::chrono::duration<float>>(scheduleEnd -
+                                                                                      preparingResultsEnd)
+                                 .count()
+                          << " seconds." << std::endl;
+            std::cout << "Time Duration for scheduling the job stage at frontEnd is"
+                          << std::chrono::duration_cast<std::chrono::duration<float>>(scheduleEnd -
+                                                                                      scheduleBegin)
+                                 .count()
+                          << " seconds." << std::endl;
+#endif
             return std::make_pair(success, errMsg);
 
         }));

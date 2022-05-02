@@ -218,13 +218,15 @@ void PangeaStorageServer::cleanup(bool flushOrNot) {
     }
     pthread_mutex_unlock(&counterMutex);
     const LockGuard guard{workingMutex};
+
     for (auto& a : allRecords) {
         while (a.second.size() > 0)
             writeBackRecords(a.first, flushOrNot);
     }
+
     std::cout << "Now there are " << totalObjects << " new objects stored in storage" << std::endl;
     PDB_COUT << "sleep for 1 second to wait for all data gets flushed" << std::endl;
-    sleep(1);
+    //sleep(1);
     PDB_COUT << "cleaned up for storage..." << std::endl;
 }
 
