@@ -119,8 +119,9 @@ int main(int argc, char *argv[]) {
     pdb::Handle<pdb::Computation> inputMatrix = pdb::makeObject<FFMatrixBlockScanner>("decisiontree", "inputs");
 
     //std::cout << "To make object of decision tree UDF shared libraries" << std::endl;
+    auto model_begin = std::chrono::high_resolution_clock::now();
     pdb::Handle<pdb::Computation> rfgenericUDF = pdb::makeObject<decisiontree::RFGenericUDF>(treePath, type);
-
+    auto model_end = std::chrono::high_resolution_clock::now();
     
     rfgenericUDF->setInput(inputMatrix);
 
@@ -143,8 +144,8 @@ int main(int argc, char *argv[]) {
               << std::chrono::duration_cast<std::chrono::duration<double>>(end - exe_begin).count()
               << " secs." << std::endl;
 
-    std::cout << "****Random Forest UDF End-End Time Duration: ****"
-              << std::chrono::duration_cast<std::chrono::duration<double>>(end - begin).count()
+    std::cout << "****Random Forest UDF Load Model Time Duration: ****"
+              << std::chrono::duration_cast<std::chrono::duration<double>>(model_end-model_begin).count()
               << " secs." << std::endl;
 
     //verify the results
