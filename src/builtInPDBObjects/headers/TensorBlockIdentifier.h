@@ -7,6 +7,7 @@
 #include "Handle.h"
 #include "DataTypes.h"
 #include "PDBVector.h"
+#include <cmath>
 
 // PRELOAD %TensorBlockIdentifier%
 
