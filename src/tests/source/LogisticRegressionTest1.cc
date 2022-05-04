@@ -78,14 +78,14 @@ int main(int argc, char *argv[]) {
 	ff::loadLibrary(pdbClient, "libraries/libFFTransposeBiasSumSigmoid.so");
 
 
-        ff::createSet(pdbClient, "ff", "inputs", "inputs", 1);
-        ff::createSet(pdbClient, "ff", "label", "label", 1);
+        ff::createSet(pdbClient, "ff", "inputs", "inputs", 1024);
+        ff::createSet(pdbClient, "ff", "label", "label", 1024);
 
-        ff::createSet(pdbClient, "ff", "w", "W", 1);
-        ff::createSet(pdbClient, "ff", "b", "B", 1);
+        ff::createSet(pdbClient, "ff", "w", "W", 128);
+        ff::createSet(pdbClient, "ff", "b", "B", 1024);
     }
 
-    ff::createSet(pdbClient, "ff", "output", "Output", 1);
+    ff::createSet(pdbClient, "ff", "output", "Output", 2048);
 
 
     std::cout << "Generate & ReloadData: " << generate << " " << reloadData << std::endl;
@@ -93,7 +93,7 @@ int main(int argc, char *argv[]) {
     if(reloadData) { // First time, we reload data from .out files
         std::cout << "Loading data from folder: " << string(argv[8]) << std::endl;
         input_path = string(argv[8]) + "/input.out"; // input.out is col-major
-        w_path = string(argv[8]) + "/weight.out";
+        w_path = string(argv[8]) + "/weight_t.out";
         b_path = string(argv[8]) + "/bias.out"; // same length as inputs & labels
         std::cout << input_path << " " << labels_path << " " << w_path << " " << b_path << std::endl;
 
@@ -125,12 +125,16 @@ int main(int argc, char *argv[]) {
     std::cout << "Checkpoint: If loop for load_matrix_from_file" << std::endl;
     ff::load_matrix_from_file(labels_path, labels_test);
 
+    std::cout << "Checkpoint: Output Labels Matrix loaded: " << labels_test.size() << std::endl;
+
     int total_count = 0;
     int correct_count = 0;
     {
-        pdb::UseTemporaryAllocationBlock tempBlock{1024*1024*128};
+        pdb::UseTemporaryAllocationBlock tempBlock{1024*1024*1024};
 
         auto iterator = pdbClient.getSetIterator<FFMatrixBlock>("ff", "output");
+        std::cout << "Checkpoint: If loop for load_matrix_from_file" << std::endl;
+        vector<vector<double>> confusion_matrix = {{0,0},{0,0}};
 
         for(auto r:iterator) {  // How to iterate over this and labels_test?
             total_count++;
@@ -138,13 +142,18 @@ int main(int argc, char *argv[]) {
             for (int i = 0; i < block_x; i++) {
 	          int curData = data[i];
 	          int label = labels_test[i][0];
-	          std::cout << curData << ":" << label << std::endl;
+	          // std::cout << curData << ":" << label << std::endl;
+              confusion_matrix[label][curData]++;
 	          if (curData == label) {
-		    correct_count++;
+		            correct_count++;
                   }
             }
             cout << "Accuracy: " << correct_count << "/" << block_x << std::endl;
-            std::cout << "count=" << total_count << std::endl;
+            std::cout << "Total Count: " << total_count << std::endl;
+            cout << "\nConfusion Matrix: " << endl;
+            cout << "TP: " << confusion_matrix[0][0] << "  FN: " << confusion_matrix[0][1] << endl;
+            cout << "FP: " << confusion_matrix[1][0] << "  TN: " << confusion_matrix[1][1] << endl;
+            std::cout << "*****FFTest End-to-End Time Duration: ****" << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count() << " secs." << std::endl;
        }
     }
 
