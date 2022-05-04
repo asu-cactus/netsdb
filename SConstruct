@@ -2024,8 +2024,25 @@ libLogRegTest = common_env.Alias('libLogRegTest', [
     'bin/pdb-cluster',
     'bin/pdb-server',
     # 'bin/FFTest',
-    'bin/LogisticRegressionTest1',
     'bin/LogisticRegressionTest',
+    # Other libraries from src/FF
+    'libraries/libFFMatrixBlock.so',
+    'libraries/libFFMatrixMeta.so',
+    'libraries/libFFMatrixData.so',
+    'libraries/libFFMatrixBlockScanner.so',
+    'libraries/libFFInputLayerJoin.so',
+    'libraries/libFFMatrixWriter.so',
+    'libraries/libFFAggMatrix.so',
+    'libraries/libFFTransposeBiasSum.so',
+    'libraries/libFFTransposeBiasSumSigmoid.so',
+    'libraries/libFFTransposeMult.so',
+])
+
+libLogRegTest1 = common_env.Alias('libLogRegTest1', [
+    'bin/pdb-cluster',
+    'bin/pdb-server',
+    # 'bin/FFTest',
+    'bin/LogisticRegressionTest1',
     # Other libraries from src/FF
     'libraries/libFFMatrixBlock.so',
     'libraries/libFFMatrixMeta.so',
