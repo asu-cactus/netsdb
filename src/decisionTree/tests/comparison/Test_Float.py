@@ -7,6 +7,7 @@ import random
 import sys
 import time
 import math
+from joblib import Parallel, delayed
 
 class Node:
     def _initialize_instance_fields(self):
@@ -80,6 +81,20 @@ def most_common(input_array):
             max = t
             most_value = input_array[i]
     return most_value
+
+def predict(tree, inputs):
+    thisResultMatrix = np.ndarray(shape=(1000000,1), dtype='float32')
+    for i in range(1000000):
+        treeNode = tree[0]
+        while treeNode.isLeaf == False:
+            inputValue = inputs[i][treeNode.indexID]
+            if inputValue <= treeNode.returnClass:
+                treeNode = tree[(treeNode.leftChild)]
+            else:
+                treeNode = tree[(treeNode.rightChild)]
+        thisResultMatrix[i][0] = treeNode.returnClass
+    return thisResultMatrix
+
 
 def main():
     args = sys.argv[1:]
@@ -230,43 +245,27 @@ def main():
         i += 1
     
     # set the input array size
-    inNumRow = 10000
+    inNumRow = 1000000
     inNumFeature = 28
 
     # randomly generate the inputs
-    input = np.array([[0 for x in range(inNumFeature)] for y in range(inNumRow)], dtype='float32')
+    inputs = np.ndarray(shape=(inNumRow,inNumFeature), dtype='float32', order='F')
 
     for i in range(inNumRow):
         for j in range(inNumFeature):
-            input[i][j] = np.float32(round(random.uniform(0.0, 1.0), 3))
+            inputs[i][j] = np.float32(round(random.uniform(0.0, 1.0), 3))
     
-    #print("finish generate the input matrix")
-    # set the output array before voting
-    thisResultMatrix = np.array([[0 for x in range(numTrees)] for y in range(inNumRow)], dtype='float32')
-
     # set the final output array
-    resultMatrix = np.array([0 for _ in range(inNumRow)], dtype='float32')
+    resultMatrix = np.ndarray(shape=(inNumRow,1), dtype='float32', order='F')
 
-    #print("start the inference")
     # do the inference
     time_start = time.time()
-    for i in range(0, inNumRow):
-        j = 0
-        while j < numTrees:
-            # pass the root node of the tree
-            treeNode = forest[j][0]
-            while treeNode.isLeaf == False:
-                inputValue = input[i][treeNode.indexID]
-                if inputValue <= treeNode.returnClass:
-                    treeNode = forest[j][(treeNode.leftChild)]
-                else:
-                    treeNode = forest[j][(treeNode.rightChild)]
-            thisResultMatrix[i][j] = treeNode.returnClass
-            j += 1
-        voteResult = most_common(thisResultMatrix[i])
-        resultMatrix[i] = voteResult
+    results = Parallel(n_jobs=2)(delayed(predict)(tree, inputs) for tree in forest)
+    total_results = np.array(results)
+    for i in range(1000000):
+        one_result = np.ravel(total_results[:,i])
+        resultMatrix[i] = np.unique(one_result).argmax()
     time_end=time.time()
-
     print("Float in Python Inference Time: ", end = '')
     print((time_end-time_start), " secs.")
     print("\n", end = '')
