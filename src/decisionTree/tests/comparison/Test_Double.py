@@ -1,6 +1,6 @@
 # run examples:
-# python3 Test_Float.py C ../higgs/higgs_0.txt ../higgs/higgs_1.txt
-# python3 Test_Float.py C ../higgs/higgs_0.txt ../higgs/higgs_1.txt ../higgs/higgs_2.txt ../higgs/higgs_3.txt ../higgs/higgs_4.txt ../higgs/higgs_5.txt ../higgs/higgs_6.txt ../higgs/higgs_7.txt ../higgs/higgs_8.txt ../higgs/higgs_9.txt
+# python3 Test_Double.py C ../higgs/higgs_0.txt ../higgs/higgs_1.txt
+# python3 Test_Double.py C ../higgs/higgs_0.txt ../higgs/higgs_1.txt ../higgs/higgs_2.txt ../higgs/higgs_3.txt ../higgs/higgs_4.txt ../higgs/higgs_5.txt ../higgs/higgs_6.txt ../higgs/higgs_7.txt ../higgs/higgs_8.txt ../higgs/higgs_9.txt
 import pandas as pd
 import numpy as np
 import random
