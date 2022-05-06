@@ -83,8 +83,8 @@ def most_common(input_array):
     return most_value
 
 def predict(tree, inputs):
-    thisResultMatrix = np.ndarray(shape=(1000000,1), dtype='float32')
-    for i in range(1000000):
+    thisResultMatrix = np.ndarray(shape=(100,1), dtype='float32')
+    for i in range(100):
         treeNode = tree[0]
         while treeNode.isLeaf == False:
             inputValue = inputs[i][treeNode.indexID]
@@ -245,7 +245,7 @@ def main():
         i += 1
     
     # set the input array size
-    inNumRow = 1000000
+    inNumRow = 100
     inNumFeature = 28
 
     # randomly generate the inputs
@@ -262,7 +262,7 @@ def main():
     time_start = time.time()
     results = Parallel(n_jobs=2)(delayed(predict)(tree, inputs) for tree in forest)
     total_results = np.array(results)
-    for i in range(1000000):
+    for i in range(100):
         one_result = np.ravel(total_results[:,i])
         resultMatrix[i] = np.unique(one_result).argmax()
     time_end=time.time()
