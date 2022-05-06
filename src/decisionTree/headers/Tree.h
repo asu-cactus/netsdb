@@ -80,9 +80,9 @@ namespace decisiontree{
 				while(treeNode->isLeaf == false){
 					inputValue = inData[i*inNumCol+treeNode->indexID];
 					if(inputValue <= treeNode->returnClass){
-						* treeNode = * (treeNode + (treeNode->leftChild));
+						treeNode = (treeNode + (treeNode->leftChild));
 					}else{
-						* treeNode = * (treeNode + (treeNode->rightChild));
+						treeNode = (treeNode + (treeNode->rightChild));
 					}
 				}
 				std::cout << treeNode->returnClass << " ";
