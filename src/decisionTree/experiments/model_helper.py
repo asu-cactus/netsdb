@@ -2,6 +2,7 @@ import connectorx as cx
 import psycopg2
 import json
 import time
+import os
 
 def calulate_time(start_time,end_time):
     diff = (end_time-start_time)*1000
@@ -24,17 +25,18 @@ def fetch_data(dataset,config):
 def run_inference(framework,df,input_size,batch_size,predict):
     start_time = time.time()
     results = []
-    iterations = (input_size/batch_size)
+    iterations = (input_size//batch_size)
     for i in range(iterations):
-        batch = data[i*batch_size:(i+1)*batch_size]
-        results.extend(predict(thisdata).tolist())
+        batch = df[i*batch_size:(i+1)*batch_size]
+        output = predict(batch)
+        results.extend(output)
     end_time = time.time()
     print("Time Taken to predict on "+framework+" is:", calulate_time(start_time,end_time))
     return results
 
 def write_data(framework,results):
     start_time = time.time()
-    with open(os.path.join('results','results.txt', 'w')) as f:
+    with open(os.path.join('results','results.txt'), 'w') as f:
         for item in results:
             f.write("%s\n" % item)
     end_time = time.time()
