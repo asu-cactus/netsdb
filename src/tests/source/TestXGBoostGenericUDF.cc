@@ -1,5 +1,5 @@
-#ifndef TEST_XGB_GENERIC_UDF_CC
-#define TEST_XGB_GENERIC_UDF_CC
+#ifndef TEST_XGBOOST_GENERIC_UDF_CC
+#define TEST_XGBOOST_GENERIC_UDF_CC
 
 #include <cstdlib>
 #include <cstring>
@@ -56,8 +56,8 @@ void loadSharedLibraries() {
     ff::loadLibrary(pdbClient, "libraries/libFFMatrixPartitioner.so");
     ff::loadLibrary(pdbClient, "libraries/libTreeNode.so"); // TODO: Create the file behind this Library
     ff::loadLibrary(pdbClient, "libraries/libTree.so"); // TODO: Create the file behind this Library
-    ff::loadLibrary(pdbClient, "libraries/libRandomForest.so"); // TODO: Create the file behind this Library
-    ff::loadLibrary(pdbClient, "libraries/libRFGenericUDF.so"); // TODO: Create the file behind this Library
+    ff::loadLibrary(pdbClient, "libraries/libForest.so"); // TODO: Create the file behind this Library
+    ff::loadLibrary(pdbClient, "libraries/libXGBoostGenericUDF.so"); // TODO: Create the file behind this Library
 }
 
 int main(int argc, char *argv[]) {

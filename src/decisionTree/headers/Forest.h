@@ -79,8 +79,10 @@ namespace decisiontree {
         }
 
         // Decision of an XGBoost Tree (for class-1, not class-0): sigmoid(log(previous_tree_pred(initial_value=0)/(1-previous_tree_pred(initial_value=0))) + learning_rate*(val2/(val1+val2)))
-        template<class InputIt, class T = typename std::iterator_traits<InputIt>::value_type> T aggregate_decisions(InputIt begin, InputIt end){
-            std::map<T, int> counts; // TODO: This function code needs to be re-written for XGBoost
+        static template<class InputIt, class T = typename std::iterator_traits<InputIt>::value_type> T aggregate_decisions(InputIt begin, InputIt end){
+//          std::map<T, int> counts; // TODO: This function code needs to be re-written for XGBoost
+            // Default LR Value Source: https://xgboost.readthedocs.io/en/stable/parameter.html?highlight=0.3#parameters-for-tree-booster
+            double learning_rate = 0.3; // TODO: Hard-coding XGBoost Library default value. Change this to a parameter if modified.
             for (InputIt it = begin; it != end; ++it) {
                 if (counts.find(*it) != counts.end()) {
                     ++counts[*it];
