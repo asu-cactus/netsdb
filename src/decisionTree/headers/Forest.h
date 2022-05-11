@@ -88,7 +88,7 @@ namespace decisiontree {
             for (InputIt it = begin; it != end; ++it) {
                 aggregated_decision += (*it); // Should not be multiplied by Learning Rate
             }
-
+            // Reference: https://stats.stackexchange.com/questions/395697/what-is-an-intuitive-interpretation-of-the-leaf-values-in-xgboost-base-learners
             double sigmoid_of_decision = 1/(1+exp(-1.0*aggregated_decision)); // Sigmoid of the aggregated decision is the final output
             return sigmoid_of_decision > threshold ? 2.0 : 1.0; // Delaying Class Assignment. Class Labels as per RF Code is 1.0 and 2.0
         }
