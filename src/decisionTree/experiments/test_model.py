@@ -23,6 +23,7 @@ args = sys.argv
 
 DATASET = "higgs"
 CLASSFIER = "xgboost"
+gpu = False
 if len(args) == 3:
     DATASET = args[1]
     CLASSFIER = args[2] 
@@ -36,7 +37,9 @@ train_size = datasetconfig["train"]
 input_size = datasetconfig["rows"]
 batch_size = datasetconfig["batch"]
 if len(args) > 3:
-    batch_size = int(args[3]) 
+    batch_size = int(args[3])
+    if args[-1] == "gpu":
+        gpu = True
 print("Batch",batch_size)
 
 
@@ -50,157 +53,161 @@ y_col = datasetconfig["y_col"]
 x_col = list(df_train.columns)
 x_col.remove(y_col)
 
-FRAMEWORK = "Sklearn"
-start_time = time.time()
-model = joblib.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
-results = run_inference(FRAMEWORK, df_train[x_col], input_size, batch_size, model.predict)
-write_data(FRAMEWORK, results)
-end_time = time.time()
-print("TOTAL Time Taken "+FRAMEWORK+" is:", calulate_time(start_time,end_time))
-find_accuracy(FRAMEWORK,df_train[y_col],results)
+if not gpu:
 
-del model
-del results
-gc.collect()
+    FRAMEWORK = "Sklearn"
+    start_time = time.time()
+    model = joblib.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
+    results = run_inference(FRAMEWORK, df_train[x_col], input_size, batch_size, model.predict)
+    write_data(FRAMEWORK, results)
+    end_time = time.time()
+    print("TOTAL Time Taken "+FRAMEWORK+" is:", calulate_time(start_time,end_time))
+    find_accuracy(FRAMEWORK,df_train[y_col],results)
 
-# FRAMEWORK = "HummingbirdONNXCPU"
-# sklearnmodel = joblib.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
-# data = df[x_col]
-# model = hummingbird.ml.convert(sklearnmodel, "onnx", np.array(df[x_col]))
+    del model
+    del results
+    gc.collect()
 
-# results = run_inference(FRAMEWORK, data, input_size, batch_size, model.predict)
-# write_data(FRAMEWORK, results)
+    # FRAMEWORK = "HummingbirdONNXCPU"
+    # sklearnmodel = joblib.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
+    # data = df[x_col]
+    # model = hummingbird.ml.convert(sklearnmodel, "onnx", np.array(df[x_col]))
 
-# del model
-# del sklearnmodel
-# del sess
-# del input_name
-# del label_name
-# del predict
-# del results
-# gc.collect()
+    # results = run_inference(FRAMEWORK, data, input_size, batch_size, model.predict)
+    # write_data(FRAMEWORK, results)
 
-FRAMEWORK = "HummingbirdPytorchCPU"
-start_time = time.time()
-device = torch.device('cpu')
-model = torch.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+"_torch.pkl"),map_location=device)
-results = run_inference(FRAMEWORK, df_train[x_col], input_size, batch_size, model.predict)
-write_data(FRAMEWORK, results)
-end_time = time.time()
-print("TOTAL Time Taken "+FRAMEWORK+" is:", calulate_time(start_time,end_time))
-find_accuracy(FRAMEWORK,df_train[y_col],results)
+    # del model
+    # del sklearnmodel
+    # del sess
+    # del input_name
+    # del label_name
+    # del predict
+    # del results
+    # gc.collect()
+
+    FRAMEWORK = "HummingbirdPytorchCPU"
+    start_time = time.time()
+    device = torch.device('cpu')
+    model = torch.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+"_torch.pkl"),map_location=device)
+    results = run_inference(FRAMEWORK, df_train[x_col], input_size, batch_size, model.predict)
+    write_data(FRAMEWORK, results)
+    end_time = time.time()
+    print("TOTAL Time Taken "+FRAMEWORK+" is:", calulate_time(start_time,end_time))
+    find_accuracy(FRAMEWORK,df_train[y_col],results)
 
 
-del model
-del device
-del results
-gc.collect()
+    del model
+    del device
+    del results
+    gc.collect()
 
-FRAMEWORK = "HummingbirdPytorchGPU"
-start_time = time.time()
-device = torch.device('cuda')
-model = torch.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+"_torch.pkl"),map_location=device)
-results = run_inference(FRAMEWORK, df_train[x_col], input_size, batch_size, model.predict)
-write_data(FRAMEWORK, results)
-end_time = time.time()
-print("TOTAL Time Taken "+FRAMEWORK+" is:", calulate_time(start_time,end_time))
-find_accuracy(FRAMEWORK,df_train[y_col],results)
+    FRAMEWORK = "HummingbirdTorchScriptCPU"
+    start_time = time.time()
+    data = df_train[x_col]
+    sklearnmodel = joblib.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
+    single_batch = np.array(data[0:batch_size], dtype=np.float32)
+    torch_data = np.array(single_batch, dtype=np.float32)
+    model = hummingbird.ml.convert(sklearnmodel, "torch.jit", torch_data)
+    def predict(batch):
+        batch = np.array(batch, dtype=np.float32)
+        return model.predict(batch)
 
-del model
-del device
-del results
-gc.collect()
+    results = run_inference(FRAMEWORK, data, input_size, batch_size, predict)
+    write_data(FRAMEWORK, results)
+    end_time = time.time()
+    print("TOTAL Time Taken "+FRAMEWORK+" is:", calulate_time(start_time,end_time))
+    find_accuracy(FRAMEWORK,df_train[y_col],results)
 
-FRAMEWORK = "HummingbirdTorchScriptCPU"
-start_time = time.time()
-data = df_train[x_col]
-sklearnmodel = joblib.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
-single_batch = np.array(data[0:batch_size], dtype=np.float32)
-torch_data = np.array(single_batch, dtype=np.float32)
-model = hummingbird.ml.convert(sklearnmodel, "torch.jit", torch_data)
-def predict(batch):
-    batch = np.array(batch, dtype=np.float32)
-    return model.predict(batch)
+    del model
+    del sklearnmodel
+    del results
+    del predict
+    gc.collect()
 
-results = run_inference(FRAMEWORK, data, input_size, batch_size, predict)
-write_data(FRAMEWORK, results)
-end_time = time.time()
-print("TOTAL Time Taken "+FRAMEWORK+" is:", calulate_time(start_time,end_time))
-find_accuracy(FRAMEWORK,df_train[y_col],results)
+    FRAMEWORK = "ONNXCPU"
+    start_time = time.time()
+    data = df_train[x_col]
+    sess = rt.InferenceSession(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".onnx"),providers=['CPUExecutionProvider'])
+    input_name = sess.get_inputs()[0].name
+    label_name = sess.get_outputs()[0].name
+    def predict(batch):
+        output = sess.run([label_name], {input_name:np.array(batch,dtype=np.float32)})[0]
+        return output
 
-del model
-del sklearnmodel
-del results
-del predict
-gc.collect()
+    results = run_inference(FRAMEWORK, data, input_size, batch_size, predict)
+    write_data(FRAMEWORK, results)
+    end_time = time.time()
+    print("TOTAL Time Taken "+FRAMEWORK+" is:", calulate_time(start_time,end_time))
+    find_accuracy(FRAMEWORK,df_train[y_col],results)
 
-FRAMEWORK = "HummingbirdTorchScriptGPU"
-start_time = time.time()
-data = df_train[x_col]
-sklearnmodel = joblib.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
-single_batch = np.array(data[0:batch_size], dtype=np.float32)
-torch_data = np.array(single_batch, dtype=np.float32)
-model = hummingbird.ml.convert(sklearnmodel, "torch.jit", torch_data,"cuda")
-def predict(batch):
-    batch = np.array(batch, dtype=np.float32)
-    return model.predict(batch)
+    del sess
+    del input_name
+    del label_name
+    del results
+    del predict
+    gc.collect()
+else:
+    FRAMEWORK = "HummingbirdPytorchGPU"
+    start_time = time.time()
+    device = torch.device('cuda')
+    model = torch.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+"_torch.pkl"),map_location=device)
+    results = run_inference(FRAMEWORK, df_train[x_col], input_size, batch_size, model.predict)
+    write_data(FRAMEWORK, results)
+    end_time = time.time()
+    print("TOTAL Time Taken "+FRAMEWORK+" is:", calulate_time(start_time,end_time))
+    find_accuracy(FRAMEWORK,df_train[y_col],results)
 
-results = run_inference(FRAMEWORK, data, input_size, batch_size, predict)
-write_data(FRAMEWORK, results)
-end_time = time.time()
-print("TOTAL Time Taken "+FRAMEWORK+" is:", calulate_time(start_time,end_time))
-find_accuracy(FRAMEWORK,df_train[y_col],results)
+    del model
+    del device
+    del results
+    gc.collect()
 
-del model
-del sklearnmodel
-del results
-del predict
-gc.collect()
 
-FRAMEWORK = "ONNXCPU"
-start_time = time.time()
-data = df_train[x_col]
-sess = rt.InferenceSession(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".onnx"),providers=['CPUExecutionProvider'])
-input_name = sess.get_inputs()[0].name
-label_name = sess.get_outputs()[0].name
-def predict(batch):
-    output = sess.run([label_name], {input_name:np.array(batch,dtype=np.float32)})[0]
-    return output
 
-results = run_inference(FRAMEWORK, data, input_size, batch_size, predict)
-write_data(FRAMEWORK, results)
-end_time = time.time()
-print("TOTAL Time Taken "+FRAMEWORK+" is:", calulate_time(start_time,end_time))
-find_accuracy(FRAMEWORK,df_train[y_col],results)
+    FRAMEWORK = "HummingbirdTorchScriptGPU"
+    start_time = time.time()
+    data = df_train[x_col]
+    sklearnmodel = joblib.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
+    single_batch = np.array(data[0:batch_size], dtype=np.float32)
+    torch_data = np.array(single_batch, dtype=np.float32)
+    model = hummingbird.ml.convert(sklearnmodel, "torch.jit", torch_data,"cuda")
+    def predict(batch):
+        batch = np.array(batch, dtype=np.float32)
+        return model.predict(batch)
 
-del sess
-del input_name
-del label_name
-del results
-del predict
-gc.collect()
+    results = run_inference(FRAMEWORK, data, input_size, batch_size, predict)
+    write_data(FRAMEWORK, results)
+    end_time = time.time()
+    print("TOTAL Time Taken "+FRAMEWORK+" is:", calulate_time(start_time,end_time))
+    find_accuracy(FRAMEWORK,df_train[y_col],results)
 
-FRAMEWORK = "ONNXGPU"
-start_time = time.time()
-data = df_train[x_col]
-sess = rt.InferenceSession(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".onnx"),providers=['CUDAExecutionProvider'])
-input_name = sess.get_inputs()[0].name
-label_name = sess.get_outputs()[0].name
-def predict(batch):
-    output = sess.run([label_name], {input_name:np.array(batch,dtype=np.float32)})[0]
-    return output
+    del model
+    del sklearnmodel
+    del results
+    del predict
+    gc.collect()
 
-results = run_inference(FRAMEWORK, data, input_size, batch_size, predict)
-write_data(FRAMEWORK, results)
-end_time = time.time()
-print("TOTAL Time Taken "+FRAMEWORK+" is:", calulate_time(start_time,end_time))
-find_accuracy(FRAMEWORK,df_train[y_col],results)
+    FRAMEWORK = "ONNXGPU"
+    start_time = time.time()
+    data = df_train[x_col]
+    sess = rt.InferenceSession(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".onnx"),providers=['CUDAExecutionProvider'])
+    input_name = sess.get_inputs()[0].name
+    label_name = sess.get_outputs()[0].name
+    def predict(batch):
+        output = sess.run([label_name], {input_name:np.array(batch,dtype=np.float32)})[0]
+        return output
 
-del sess
-del input_name
-del label_name
-del results
-del predict
-gc.collect()
+    results = run_inference(FRAMEWORK, data, input_size, batch_size, predict)
+    write_data(FRAMEWORK, results)
+    end_time = time.time()
+    print("TOTAL Time Taken "+FRAMEWORK+" is:", calulate_time(start_time,end_time))
+    find_accuracy(FRAMEWORK,df_train[y_col],results)
 
-FRAMEWORK = "TVM"
+    del sess
+    del input_name
+    del label_name
+    del results
+    del predict
+    gc.collect()
+
+    FRAMEWORK = "TVM"
