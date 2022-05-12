@@ -19,7 +19,7 @@ import gc
 from model_helper import *
 
 DATASET = "higgs"
-CLASSFIER = "randomforest"
+CLASSFIER = "xgboost"
 config = json.load(open("config.json"))
 datasetconfig = config[DATASET]
 train_size = datasetconfig["train"]
@@ -45,6 +45,23 @@ write_data(FRAMEWORK, results)
 del model
 del results
 gc.collect()
+
+# FRAMEWORK = "HummingbirdONNXCPU"
+# sklearnmodel = joblib.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
+# data = df[x_col]
+# model = hummingbird.ml.convert(sklearnmodel, "onnx", np.array(df[x_col]))
+
+# results = run_inference(FRAMEWORK, data, input_size, batch_size, model.predict)
+# write_data(FRAMEWORK, results)
+
+# del model
+# del sklearnmodel
+# del sess
+# del input_name
+# del label_name
+# del predict
+# del results
+# gc.collect()
 
 FRAMEWORK = "HummingbirdPytorchCPU"
 device = torch.device('cpu')

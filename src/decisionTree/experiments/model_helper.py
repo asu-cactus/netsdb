@@ -3,6 +3,8 @@ import psycopg2
 import json
 import time
 import os
+import numpy as np
+import pandas as pd
 
 def calulate_time(start_time,end_time):
     diff = (end_time-start_time)*1000
@@ -36,9 +38,13 @@ def run_inference(framework,df,input_size,batch_size,predict):
 
 def write_data(framework,results):
     start_time = time.time()
+    # arr = np.array(results)
+    # df = pd.DataFrame(arr)
+    # df.to_csv(os.path.join('results','results.txt'), index=False) 
     with open(os.path.join('results','results.txt'), 'w') as f:
         for item in results:
             f.write("%s\n" % item)
+    
     end_time = time.time()
     print("Time Taken to write results to a text file for "+framework+" is:", calulate_time(start_time,end_time))
     
