@@ -20,3 +20,15 @@ postgres=# CREATE TABLE higgs(label REAL NOT NULL, leptonpT REAL NOT NULL, lepto
 postgres=# copy higgs from 'HIGGS.csv' with CSV;
 postgres=# copy higgs from 'HIGGS.csv' with CSV;
 ```
+
+To run a certain experiment
+
+Datasets: higgs
+
+Classifiers: xgboost, randomforest
+
+```
+python train_model.py dataset classifier
+
+python test_model.py dataset classifier batch_size 2>&1 | tee dataset_classifier_batch_size.txt
+```

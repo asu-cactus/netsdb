@@ -1,3 +1,6 @@
+import warnings
+warnings.filterwarnings('ignore')
+
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report
 from xgboost import XGBClassifier
@@ -18,10 +21,20 @@ from onnxmltools.convert.xgboost.operator_converters.XGBoost import (
 from onnxmltools.convert import convert_xgboost as convert_xgboost_booster
 import torch
 import os
+import sys
 from model_helper import *
+
+args = sys.argv
 
 DATASET = "higgs"
 CLASSFIER = "xgboost"
+if len(args) == 3:
+    DATASET = args[1]
+    CLASSFIER = args[2] 
+
+print(DATASET)
+print(CLASSFIER)
+
 config = json.load(open("config.json"))
 datasetconfig = config[DATASET]
 train_size = datasetconfig["train"]
