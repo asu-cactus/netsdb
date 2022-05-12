@@ -5,6 +5,7 @@ import time
 import os
 import numpy as np
 import pandas as pd
+from sklearn.metrics import classification_report
 
 def calulate_time(start_time,end_time):
     diff = (end_time-start_time)*1000
@@ -47,4 +48,8 @@ def write_data(framework,results):
     
     end_time = time.time()
     print("Time Taken to write results to a text file for "+framework+" is:", calulate_time(start_time,end_time))
-    
+
+def find_accuracy(framework,y_actual, y_pred):
+    print("Classification Report", framework)
+    print(classification_report(y_actual,y_pred))
+    print("################")

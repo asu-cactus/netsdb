@@ -39,8 +39,9 @@ x_col.remove(y_col)
 
 FRAMEWORK = "Sklearn"
 model = joblib.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
-results = run_inference(FRAMEWORK, df[x_col], input_size, batch_size, model.predict)
+results = run_inference(FRAMEWORK, df_train[x_col], input_size, batch_size, model.predict)
 write_data(FRAMEWORK, results)
+find_accuracy(FRAMEWORK,df_train[y_col],results)
 
 del model
 del results
@@ -66,8 +67,9 @@ gc.collect()
 FRAMEWORK = "HummingbirdPytorchCPU"
 device = torch.device('cpu')
 model = torch.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+"_torch.pkl"),map_location=device)
-results = run_inference(FRAMEWORK, df[x_col], input_size, batch_size, model.predict)
+results = run_inference(FRAMEWORK, df_train[x_col], input_size, batch_size, model.predict)
 write_data(FRAMEWORK, results)
+find_accuracy(FRAMEWORK,df_train[y_col],results)
 
 del model
 del device
@@ -77,8 +79,9 @@ gc.collect()
 FRAMEWORK = "HummingbirdPytorchGPU"
 device = torch.device('cuda')
 model = torch.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+"_torch.pkl"),map_location=device)
-results = run_inference(FRAMEWORK, df[x_col], input_size, batch_size, model.predict)
+results = run_inference(FRAMEWORK, df_train[x_col], input_size, batch_size, model.predict)
 write_data(FRAMEWORK, results)
+find_accuracy(FRAMEWORK,df_train[y_col],results)
 
 del model
 del device
@@ -86,7 +89,7 @@ del results
 gc.collect()
 
 FRAMEWORK = "HummingbirdTorchScriptCPU"
-data = df[x_col]
+data = df_train[x_col]
 sklearnmodel = joblib.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
 single_batch = np.array(data[0:batch_size], dtype=np.float32)
 torch_data = np.array(single_batch, dtype=np.float32)
@@ -97,6 +100,7 @@ def predict(batch):
 
 results = run_inference(FRAMEWORK, data, input_size, batch_size, predict)
 write_data(FRAMEWORK, results)
+find_accuracy(FRAMEWORK,df_train[y_col],results)
 
 del model
 del sklearnmodel
@@ -105,7 +109,7 @@ del predict
 gc.collect()
 
 FRAMEWORK = "HummingbirdTorchScriptGPU"
-data = df[x_col]
+data = df_train[x_col]
 sklearnmodel = joblib.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
 single_batch = np.array(data[0:batch_size], dtype=np.float32)
 torch_data = np.array(single_batch, dtype=np.float32)
@@ -116,6 +120,7 @@ def predict(batch):
 
 results = run_inference(FRAMEWORK, data, input_size, batch_size, predict)
 write_data(FRAMEWORK, results)
+find_accuracy(FRAMEWORK,df_train[y_col],results)
 
 del model
 del sklearnmodel
@@ -124,7 +129,7 @@ del predict
 gc.collect()
 
 FRAMEWORK = "ONNXCPU"
-data = df[x_col]
+data = df_train[x_col]
 sess = rt.InferenceSession(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".onnx"),providers=['CPUExecutionProvider'])
 input_name = sess.get_inputs()[0].name
 label_name = sess.get_outputs()[0].name
@@ -134,6 +139,7 @@ def predict(batch):
 
 results = run_inference(FRAMEWORK, data, input_size, batch_size, predict)
 write_data(FRAMEWORK, results)
+find_accuracy(FRAMEWORK,df_train[y_col],results)
 
 del sess
 del input_name
@@ -143,7 +149,7 @@ del predict
 gc.collect()
 
 FRAMEWORK = "ONNXGPU"
-data = df[x_col]
+data = df_train[x_col]
 sess = rt.InferenceSession(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".onnx"),providers=['CUDAExecutionProvider'])
 input_name = sess.get_inputs()[0].name
 label_name = sess.get_outputs()[0].name
@@ -153,6 +159,7 @@ def predict(batch):
 
 results = run_inference(FRAMEWORK, data, input_size, batch_size, predict)
 write_data(FRAMEWORK, results)
+find_accuracy(FRAMEWORK,df_train[y_col],results)
 
 del sess
 del input_name
