@@ -42,8 +42,17 @@ public:
         this->partitionByCol = partitionByCol;
       }
 
+
   FFMatrixBlock(int blockRowIndexIn, int blockColIndexIn, int rowNumsIn,
-                int colNumsIn, pdb::Handle<pdb::Vector<float>> rawDataIn, bool partitionByCol = true)
+                int colNumsIn, int totalRows, int totalCols, int distinctBlockId, bool partitionByCol = true)
+      : data(rowNumsIn, colNumsIn) {
+        meta = pdb::makeObject<FFMatrixMeta>(blockRowIndexIn, blockColIndexIn, totalRows, totalCols);
+	meta->distinctBlockId = distinctBlockId;
+        this->partitionByCol = partitionByCol;
+      }
+
+  FFMatrixBlock(int blockRowIndexIn, int blockColIndexIn, int rowNumsIn,
+                int colNumsIn, pdb::Handle<pdb::Vector<double>> rawDataIn, bool partitionByCol = true)
       : data(rowNumsIn, colNumsIn, rawDataIn)  {
         meta = pdb::makeObject<FFMatrixMeta>(blockRowIndexIn, blockColIndexIn);
         this->partitionByCol = partitionByCol;
@@ -51,7 +60,7 @@ public:
 
   FFMatrixBlock(int blockRowIndexIn, int blockColIndexIn, int rowNumsIn,
                 int colNumsIn, int totalRows, int totalCols,
-                pdb::Handle<pdb::Vector<float>> rawDataIn, bool partitionByCol = true)
+                pdb::Handle<pdb::Vector<double>> rawDataIn, bool partitionByCol = true)
       : data(rowNumsIn, colNumsIn, rawDataIn) {
         meta = pdb::makeObject<FFMatrixMeta>(blockRowIndexIn, blockColIndexIn, totalRows, totalCols);
         this->partitionByCol = partitionByCol;
@@ -68,18 +77,18 @@ public:
   }
 
   bool isLastColBlock() {
-    int numYBlocks = ceil(getTotalColNums() / (float)getColNums());
+    int numYBlocks = ceil(getTotalColNums() / (double)getColNums());
     return getBlockColIndex() == numYBlocks - 1;
   }
 
   bool isLastRowBlock() {
-    int numXBlocks = ceil(getTotalRowNums() / (float)getRowNums());
+    int numXBlocks = ceil(getTotalRowNums() / (double)getRowNums());
     return getBlockRowIndex() == numXBlocks - 1;
   }
 
   int getColNums() { return data.colNums; }
 
-  pdb::Handle<pdb::Vector<float>> &getRawDataHandle() { return data.rawData; }
+  pdb::Handle<pdb::Vector<double>> &getRawDataHandle() { return data.rawData; }
 
   pdb::Handle<FFMatrixMeta> &getKey() { return meta; }
 
@@ -96,11 +105,11 @@ public:
   int getTotalColNums() { return meta->totalCols; }
 
   int getNumRowBlocks() {
-      return ceil(getTotalRowNums() / (float)getRowNums());
+      return ceil(getTotalRowNums() / (double)getRowNums());
   }
 
   int getNumColBlocks() {
-      return ceil(getTotalColNums() / (float)getColNums());
+      return ceil(getTotalColNums() / (double)getColNums());
   }
 
   // This is needed for row-wise computation
@@ -115,12 +124,12 @@ public:
       sumRowData.rowNums = data.rowNums;
       sumRowData.colNums = 1;
       int bufferLength = sumRowData.rowNums * sumRowData.colNums;
-      sumRowData.rawData = pdb::makeObject<pdb::Vector<float>>(bufferLength, bufferLength);
+      sumRowData.rawData = pdb::makeObject<pdb::Vector<double>>(bufferLength, bufferLength);
 
-      Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>
+      Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>
           currentMatrix((data.rawData)->c_ptr(), data.rowNums, data.colNums);
 
-      Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>
+      Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>
           rowSumMatrix((sumRowData.rawData)->c_ptr(), sumRowData.rowNums, sumRowData.colNums);
 
       rowSumMatrix = currentMatrix.rowwise().sum();
@@ -140,13 +149,86 @@ public:
   }  
 
   size_t hash() const override{
-     if (partitionByCol)
+     if (partitionByCol) 
          return pdb::Hasher<int>::hash(meta->blockColIndex);  
      else
          return pdb::Hasher<int>::hash(meta->blockRowIndex);        
   }
 
+  // This is a overloaded + operator that will be invoked in the aggregation
+  FFMatrixBlock &operator+(FFMatrixBlock &other) {
+    /** //TODO
+     * The current implementation only merges several FFMatrixBlock into a single matrix
+     * so the output is ready to be sent to a UDF-based classifier. The ideal way is we 
+     * can support concatenating the blocks along the feature's dimension. It can both 
+     * x and y.  
+     * */
 
+    /**
+     * Following code is used for debug, keep it here temporary*
+    std::cout << "entering the overloaded + " << this->hash() << std::endl;
+    std::cout << "block 1 INFO: " << std::endl;
+    std::cout << " inNumRow: " << this->getRowNums() << " inNumCol: " << this->getColNums() << " inBlockRowIndex: " << 
+                    this->getBlockRowIndex() << " inBlockColIndex: " << this->getBlockColIndex() << 
+                    " inTotalRowNums: " << this->getTotalRowNums() << " inTotalColNums: " << this->getTotalColNums() <<   std::endl;
+    std::cout << "block 2 INFO: " << std::endl;
+    std::cout << " inNumRow: " << other.getRowNums() << " inNumCol: " << other.getColNums() << " inBlockRowIndex: " << 
+                    other.getBlockRowIndex() << " inBlockColIndex: " << other.getBlockColIndex() << 
+                    " inTotalRowNums: " << other.getTotalRowNums() << " inTotalColNums: " << other.getTotalColNums() <<   std::endl;
+    */
+      
+    int totalRows = this->getTotalRowNums();
+    int totalCols = this->getTotalColNums();
+    int rowStart = other.getBlockRowIndex() * other.getRowNums();
+    int colStart = other.getBlockColIndex() * other.getColNums();
+    if ((other.getBlockRowIndex() < 0) || (rowStart >other.getTotalRowNums()) || (other.getRowNums() <=0)
+		    || (other.getBlockColIndex() <0) || (colStart>other.getTotalColNums()) || (other.getColNums() <=0)) {
+        return *this;
+    }
+
+    if ((this->getRowNums() == totalRows) && (this->getColNums() == totalCols)) {
+    // the block (this) is already enlarged, the rest thing is adding the other block to 
+    // its corresponding position
+      for (int i = 0; i < other.getRowNums(); i++) {
+        for (int j = 0; j < other.getColNums(); j++) {
+          int finalRowIndex = rowStart + i;
+          int finalColIndex = colStart + j;
+	  /*std::cout << "other.getBlockRowIndex()=" << other.getBlockRowIndex()
+		    << " other.getBlockColIndex()=" << other.getBlockColIndex()
+		    << " other.getRowNums()=" << other.getRowNums()
+		    << " other.getColNums()=" << other.getColNums()
+		    << " i=" << i << " j=" << j
+		  << " finalRowIndex=" << finalRowIndex << " totalCols=" << totalCols << " finalColIndex=" << finalColIndex
+		  << " totalRows=" << totalRows << std::endl;*/
+          (*((this->data).rawData))[finalRowIndex * totalCols + finalColIndex] =
+                        (*(other.data.rawData))[i * other.data.colNums + j];
+        }
+      }
+      return *this;
+    } else {
+      // need to create a large single block and add the blocks value to the created one
+      pdb::Handle<FFMatrixBlock> result = pdb::makeObject<FFMatrixBlock>(0, 0, totalRows, totalCols, totalRows, totalCols);
+      // Add block (this)
+      for (int i = 0; i < this->getRowNums(); i++) {
+        for (int j = 0; j < this->getColNums(); j++) {
+          int finalRowIndex = rowStart + i;
+          int finalColIndex = colStart + j;
+          (*((result->data).rawData))[finalRowIndex * totalCols + finalColIndex] =
+                        (*(this->data.rawData))[i * this->data.colNums + j];
+        }
+      }
+      // Add block (other)
+      for (int i = 0; i < other.getRowNums(); i++) {
+        for (int j = 0; j < other.getColNums(); j++) {
+          int finalRowIndex = rowStart + i;
+          int finalColIndex = colStart + j;
+          (*((result->data).rawData))[finalRowIndex * totalCols + finalColIndex] =
+                        (*(other.data.rawData))[i * other.data.colNums + j];
+        }
+      }
+      return *result;
+    }
+  }
 };
 
 #endif

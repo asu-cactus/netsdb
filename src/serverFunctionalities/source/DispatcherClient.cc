@@ -4,9 +4,6 @@
 #include "DispatcherClient.h"
 #include "SimpleRequest.h"
 #include "DispatcherRegisterPartitionPolicy.h"
-#include "DispatcherGetSetRequest.h"
-#include "SimpleRequestResult.h"
-//#include "DispatcherGetSetResult.h"
 
 namespace pdb {
 
@@ -51,41 +48,6 @@ bool DispatcherClient::registerSet(std::pair<std::string, std::string> setAndDat
         setAndDatabase.second,
         policy);
 }
-
-bool DispatcherClient::MM_getSet(const std::string &dbName, const std::string &setName, std::string &errMsg) {
-
-    // the fileName stored the pointer is dbName+setName, so no need to return anything at this point
-    // make a request and return true/false
-    return simpleRequest<DispatcherGetSetRequest, SimpleRequestResult, bool>(
-              logger, port, address, false, 1024,
-              [&](Handle<SimpleRequestResult> result) {
-                bool pointerReady = false;
-
-                // do we have the correct thing
-                if(result != nullptr) {
-                    //uint32_t treeID = treeID2Set.find(std::pair<std::string, std::string>(dbName, setName));
-                    //treeID2PointerAdd[treeID] = result-> fileName;
-                    std::cout << "Received result from server" << std::endl;
-                    if (!result->getRes().first) {
-                        errMsg = "Error setting up a piece of memory for " + dbName +":" + setName+ ": " + result->getRes().second;
-                        logger->error(errMsg);
-                        tree2pointer["trees/"+dbName+setName] = pointerReady;
-                        return false;
-                    }
-                    pointerReady = true;
-                    tree2pointer["trees/"+dbName+setName] = pointerReady;
-                    return true;
-                }
-
-                // otherwise
-                errMsg = "Error setting up a piece of memory: got nothing back from the DispatcherServer";
-                std::cout << "Received nothing back" << std::endl;
-                tree2pointer["trees/"+dbName+setName] = pointerReady;
-                return false;
-              },
-              dbName, setName);
-}
-
 }
 
 #include "StorageClientTemplate.cc"

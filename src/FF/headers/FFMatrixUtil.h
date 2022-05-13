@@ -15,7 +15,7 @@ namespace ff {
 void load_matrix_data(pdb::PDBClient &pdbClient, std::string path,
                       pdb::String dbName, pdb::String setName, int blockX,
                       int blockY, bool dont_pad_x, bool dont_pad_y,
-                      std::string &errMsg, int size = 1, bool partitionByCol = true);
+                      std::string &errMsg, int size = 128, bool partitionByCol = true);
 
 void load_matrix_data(pdb::PDBClient &pdbClient, std::string path,
                       pdb::String dbName, pdb::String setName, int pad_x,
@@ -24,7 +24,7 @@ void load_matrix_data(pdb::PDBClient &pdbClient, std::string path,
 void loadMatrix(pdb::PDBClient &pdbClient, pdb::String dbName,
                 pdb::String setName, int totalX, int totalY, int blockX,
                 int blockY, bool dont_pad_x, bool dont_pad_y,
-                std::string &errMsg, int size = 1,
+                std::string &errMsg, int size = 128,
                 bool partitionByCol = true);
 
 void load_matrix_from_file(std::string path,

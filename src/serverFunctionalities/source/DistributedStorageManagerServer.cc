@@ -22,6 +22,7 @@
 #include "DistributedStorageClearSet.h"
 #include "DistributedStorageCleanup.h"
 #include "DistributedStorageAddSharedPage.h"
+#include "DistributedStorageAddSharedMapping.h"
 #include "Computation.h"
 #include "ComputationNode.h"
 #include "QuerySchedulerServer.h"
@@ -34,6 +35,7 @@
 #include "StorageAddSet.h"
 #include "StorageAddTempSet.h"
 #include "StorageAddSharedPage.h"
+#include "StorageAddSharedMapping.h"
 #include "StorageRemoveDatabase.h"
 #include "StorageRemoveUserSet.h"
 #include "StorageRemoveHashSet.h"
@@ -47,8 +49,6 @@
 #include "DoneWithResult.h"
 #include "RuleBasedDataPlacementOptimizerForLoadJob.h"
 #include "DRLBasedDataPlacementOptimizerForLoadJob.h"
-#include "DispatcherGetSetRequest.h"
-//#include "DispatcherGetSetResult.h"
 
 #include <chrono>
 #include <ctime>
@@ -81,6 +81,55 @@ DistributedStorageManagerServer::~DistributedStorageManagerServer() {
 }
 
 void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
+
+
+    /**
+     * Handler that add Shared block mapping information to the specific node
+     */
+    forMe.registerHandler(
+        DistributedStorageAddSharedMapping_TYPEID,
+        make_shared<SimpleRequestHandler<DistributedStorageAddSharedMapping>>(
+            [&](Handle<DistributedStorageAddSharedMapping> request, PDBCommunicatorPtr sendUsingMe) {
+            const UseTemporaryAllocationBlock tempBlock{1 * 1024 * 1024};
+            std::string errMsg;
+            mutex lock;
+            auto successfulNodes = std::vector<std::string>();
+            auto failureNodes = std::vector<std::string>();
+            auto nodesToBroadcastTo = std::vector<std::string>();
+
+            std::vector<std::string> allNodes;
+            const auto nodes = getFunctionality<ResourceManagerServer>().getAllNodes();
+            for (int i = 0; i < nodes->size(); i++) {
+                std::string address = static_cast<std::string>((*nodes)[i]->getAddress());
+                std::string port = std::to_string((*nodes)[i]->getPort());
+                allNodes.push_back(address + ":" + port);
+            }
+            nodesToBroadcastTo = allNodes;
+
+            Handle<StorageAddSharedMapping> storageCmd =
+                    makeObject<StorageAddSharedMapping>(request->getSharingDatabase(), request->getSharingSetName(),
+    request->getSharingType(), request->getSharedDatabase(), request->getSharedSetName(), request->getSharedType(),
+    request->getFileName(), request->getTotalRows(), request->getTotalCols(), request->getTranspose());
+            getFunctionality<DistributedStorageManagerServer>()
+                    .broadcast<StorageAddSharedMapping, Object, SimpleRequestResult>(
+                        storageCmd,
+                        nullptr,
+                        nodesToBroadcastTo,
+                        generateAckHandler(successfulNodes, failureNodes, lock),
+                        [&](std::string errMsg, std::string serverName) {
+                            lock.lock();
+                            std::cout << "Server " << serverName << " received an error: " << errMsg
+                                      << std::endl;
+                            failureNodes.push_back(serverName);
+                            lock.unlock();
+                        });
+
+            bool res = true;
+            Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(res, errMsg);
+            res = sendUsingMe->sendObject(response, errMsg);
+            return make_pair(res, errMsg);
+            }));
+
 
     /**
      * Handler that add Shared Page information to the specific node
@@ -1168,76 +1217,6 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
 
             ));
 
-    // handles a request to get a set from a db
-  forMe.registerHandler(
-      DispatcherGetSetRequest_TYPEID,
-      make_shared<SimpleRequestHandler<DispatcherGetSetRequest>>(
-          [&](Handle<DispatcherGetSetRequest> request, PDBCommunicatorPtr sendUsingMe) {
-
-            // allocate a block for the response
-            const UseTemporaryAllocationBlock tempBlock{1 * 1024 * 1024};
-
-            // this is where we put the error
-            std::string errMsg;
-
-            mutex lock;
-
-            auto successfulNodes = std::vector<std::string>();
-            auto failureNodes = std::vector<std::string>();
-
-            std::vector<std::string> allNodes;
-            std::cout << "to wait for all requests get processed" << std::endl;
-            getFunctionality<DispatcherServer>().waitAllRequestsProcessed();
-            std::cout << "All data requests have been served" << std::endl;
-            const auto nodes = getFunctionality<ResourceManagerServer>().getAllNodes();
-            for (int i = 0; i < nodes->size(); i++) {
-                std::string address = static_cast<std::string>((*nodes)[i]->getAddress());
-                std::string port = std::to_string((*nodes)[i]->getPort());
-                allNodes.push_back(address + ":" + port);
-            }
-
-            std::string databaseName = request->getDatabaseName();
-            std::string setName = request->getSetName();
-            std::string fullSetName = databaseName + "." + setName;
-
-            getFunctionality<DistributedStorageManagerServer>()
-                    .broadcast<DispatcherGetSetRequest, Object, SimpleRequestResult>(
-                        request,
-                        nullptr,
-                        allNodes,
-                        generatePointerFileHandler(successfulNodes, failureNodes, lock));
-
-            bool res = true;
-            if (failureNodes.size() > 0) {
-                res = false;
-                errMsg = "";
-                for (int i = 0; i < failureNodes.size(); i++) {
-                    errMsg += failureNodes[i] + std::string(";");
-                }
-            }
-
-            //Handle<DispatcherGetSetResult> response;
-            Handle<SimpleRequestResult> response;
-
-            if(res) {
-                // create the response object
-                //response = makeObject<DispatcherGetSetResult>(databaseName, setName, fileNames.at(0), errMsg);
-                response = makeObject<SimpleRequestResult>(res, errMsg);
-
-            } else {
-                // set the error
-                errMsg = "Could not return the pointer of the set: " + (std::string) request->databaseName + ":" + (std::string) request->setName;
-
-                // create the response object in case of an error
-                // response = makeObject<DispatcherGetSetResult>(databaseName, setName, "", errMsg);
-                response = makeObject<SimpleRequestResult>(res, errMsg);
-            }
-
-            // sends result to requester
-            res = sendUsingMe->sendObject(response, errMsg);
-            return make_pair(res, errMsg);
-          }));
-
     // Below handler is to force to remove a hash set from the HermesExecutionServer by forwarding the
     // DistributedStorageRemoveHashSet
 
@@ -1524,29 +1503,6 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
 std::function<void(Handle<SimpleRequestResult>, std::string)>
 DistributedStorageManagerServer::generateAckHandler(std::vector<std::string>& success,
                                                     std::vector<std::string>& failures,
-                                                    mutex& lock) {
-    return [&](Handle<SimpleRequestResult> response, std::string server) {
-        lock.lock();
-
-        // TODO: Better error handling
-
-        if (!response->getRes().first) {
-            PDB_COUT << "BROADCAST CALLBACK FAIL: " << server << ": " << response->getRes().first
-                     << " : " << response->getRes().second << std::endl;
-            failures.push_back(server);
-        } else {
-            PDB_COUT << "BROADCAST CALLBACK SUCCESS: " << server << ": " << response->getRes().first
-                     << " : " << response->getRes().second << std::endl;
-            success.push_back(server);
-        }
-        lock.unlock();
-    };
-}
-
-std::function<void(Handle<SimpleRequestResult>, std::string)>
-DistributedStorageManagerServer::generatePointerFileHandler(std::vector<std::string>& success,
-                                                    std::vector<std::string>& failures,
-                                                    //std::vector<std::string>& filenames,
                                                     mutex& lock) {
     return [&](Handle<SimpleRequestResult> response, std::string server) {
         lock.lock();

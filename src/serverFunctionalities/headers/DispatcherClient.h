@@ -1,3 +1,4 @@
+
 #ifndef OBJECTQUERYMODEL_DISPATCHERCLIENT_H
 #define OBJECTQUERYMODEL_DISPATCHERCLIENT_H
 
@@ -7,7 +8,6 @@
 #include "PDBObject.h"
 #include "PartitionPolicy.h"
 #include "CatalogClient.h"
-#include "TreeNode.h"
 
 namespace pdb {
 
@@ -37,8 +37,6 @@ public:
                      PartitionPolicy::Policy policy,
                      std::string& errMsg);
 
-    bool MM_getSet(const std::string &dbName, const std::string &setName, std::string &errMsg);
-
     /**
      *
      * @param setAndDatabase
@@ -60,10 +58,6 @@ private:
     int port;
     std::string address;
     PDBLoggerPtr logger;
-    // the fileName stored the pointer is dbName+setName
-    // there is no need to create two maps
-    std::map<string, bool> tree2pointer;
-    //std::map<uint32_t, string> treeID2PointerAdd;
 };
 }
 

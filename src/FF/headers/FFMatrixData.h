@@ -19,24 +19,24 @@ public:
 
   FFMatrixData(int rowNumsIn, int colNumsIn)
       : rowNums(rowNumsIn), colNums(colNumsIn) {
-    rawData = pdb::makeObject<pdb::Vector<float>>(rowNumsIn * colNumsIn,
+    rawData = pdb::makeObject<pdb::Vector<double>>(rowNumsIn * colNumsIn,
                                                    rowNumsIn * colNumsIn);
   }
 
   FFMatrixData(int rowNumsIn, int colNumsIn,
-               pdb::Handle<pdb::Vector<float>> rawDataIn)
+               pdb::Handle<pdb::Vector<double>> rawDataIn)
       : rowNums(rowNumsIn), colNums(colNumsIn), rawData(rawDataIn) {
-    rawData = pdb::makeObject<pdb::Vector<float>>(rowNumsIn * colNumsIn,
+    rawData = pdb::makeObject<pdb::Vector<double>>(rowNumsIn * colNumsIn,
                                                    rowNumsIn * colNumsIn);
   }
 
   FFMatrixData() {}
 
-  pdb::Handle<pdb::Vector<float>> rawData;
-  pdb::Handle<pdb::Vector<float>> bias;
+  pdb::Handle<pdb::Vector<double>> rawData;
+  pdb::Handle<pdb::Vector<double>> bias;
 
   FFMatrixData &operator+(FFMatrixData &other) {
-    float *myData, *otherData;
+    double *myData, *otherData;
 
     myData = rawData->c_ptr();
     otherData = other.rawData->c_ptr();

@@ -39,10 +39,19 @@ public:
         in1, in2, [&](Handle<FFMatrixBlock> &in1, Handle<FFMatrixBlock> &in2) {
           if (FFMatrixBlock::librayCode == EIGEN_CODE) {
             // get the sizes
-
+            /*std::cout << "in1.blockRowIndex=" << in1->getBlockRowIndex() << std::endl;
+            std::cout << "in1.blockColIndex=" << in1->getBlockColIndex() << std::endl;
+            std::cout << "in2.blockRowIndex=" << in2->getBlockRowIndex() << std::endl;
+            std::cout << "in2.blockColIndex=" << in2->getBlockColIndex() << std::endl;
+            std::cout << "in1.blockRowIndex=" << in1->getBlockRowIndex() << std::endl;
+            std::cout << "in1.blockColIndex=" << in1->getBlockColIndex() << std::endl;
+            std::cout << "in1.rowNums=" << in1->getRowNums() << std::endl;
+            std::cout << "in1.colNums=" << in1->getColNums() << std::endl;
+            std::cout << "in2.rowNums=" << in2->getRowNums() << std::endl;
+            std::cout << "in2.colNums=" << in2->getColNums() << std::endl;*/
             uint32_t I = in1->getRowNums();
             uint32_t J = in1->getColNums();
-
+            
             if (in1->getRowNums() != in2->getRowNums() ||
                 in2->getColNums() != 1) {
               std::cerr << "Block dimemsions mismatch!" << std::endl;
@@ -54,18 +63,18 @@ public:
                     in1->getBlockColIndex(), in1->getBlockRowIndex(), J, I,
                     in1->getTotalColNums(), in1->getTotalRowNums(), false);
 
-            float *outData = resultFFMatrixBlock->getValue().rawData->c_ptr();
-            float *in1Data = in1->getValue().rawData->c_ptr();
-            float *in2Data = in2->getValue().rawData->c_ptr();
+            double *outData = resultFFMatrixBlock->getValue().rawData->c_ptr();
+            double *in1Data = in1->getValue().rawData->c_ptr();
+            double *in2Data = in2->getValue().rawData->c_ptr();
 
-            Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic,
+            Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
                                      Eigen::RowMajor>>
                 currentMatrix1(in1Data, I, J);
             Eigen::Map<
-                Eigen::Matrix<float, Eigen::Dynamic, 1, Eigen::ColMajor>>
+                Eigen::Matrix<double, Eigen::Dynamic, 1, Eigen::ColMajor>>
                 currentMatrix2(in2Data, I, 1);
 
-            Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic,
+            Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
                                      Eigen::RowMajor>>
                 sumMatrix(outData, I, J);
 

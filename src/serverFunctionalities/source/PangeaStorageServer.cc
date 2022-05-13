@@ -1,3 +1,4 @@
+
 #ifndef PANGEA_STORAGE_SERVER_C
 #define PANGEA_STORAGE_SERVER_C
 
@@ -27,6 +28,7 @@
 #include "StorageTestSetCopy.h"
 #include "BackendTestSetCopy.h"
 #include "StorageAddSharedPage.h"
+#include "StorageAddSharedMapping.h"
 #include "StorageAddTempSet.h"
 #include "StorageAddTempSetResult.h"
 #include "StorageRemoveDatabase.h"
@@ -49,12 +51,8 @@
 #include "PDBFlushProducerWork.h"
 #include "PDBFlushConsumerWork.h"
 #include "ExportableObject.h"
-//#include "JoinTupleBase.h"
-#include "DispatcherGetSetRequest.h"
-#include "TreeNode.h"
-#include "GetSetWork.h"
-#include "BackendGetSet.h"
-//#include "DispatcherGetSetResult.h"
+#include "JoinTupleBase.h"
+#include "SharedFFMatrixBlockSet.h"
 //#include <hdfs/hdfs.h>
 #include <cstdio>
 #include <memory>
@@ -72,59 +70,6 @@
 
 namespace pdb {
 
-/*
-// export the set to a piece of memory and save the pointer of that memory in a file
-bool PangeaStorageServer::exportToPointerInFile(std::string dbName,
-                                       std::string setName,
-                                       std::string& errMsg) {
-    SetPtr setToExport =
-        getFunctionality<PangeaStorageServer>().getSet(std::make_pair(dbName, setName));
-    if (setToExport == nullptr) {
-        errMsg = "Error in exportToFile: set doesn't exist: " + dbName + ":" + setName;
-        std::cout << errMsg << std::endl;
-        return false;
-    }
-    setToExport->setPinned(true);
-    std::vector<PageIteratorPtr>* pageIters = setToExport->getIterators();
-    int numIterators = pageIters->size();
-    //std::vector<std::string> vect;
-    std::vector<decisiontree::Node> vect;
-    for (int i = 0; i < numIterators; i++) {
-        PageIteratorPtr iter = pageIters->at(i);
-        while (iter->hasNext()) {
-            PDBPagePtr nextPage = iter->next();
-            if (nextPage != nullptr) {
-                Record<Vector<Handle<decisiontree::Node>>>* myRec =
-                    (Record<Vector<Handle<decisiontree::Node>>>*)(nextPage->getBytes());
-                Handle<Vector<Handle<decisiontree::Node>>> inputVec = myRec->getRootObject();
-                int vecSize = inputVec->size();
-                for (int j = 0; j < vecSize; j++) {
-                    Handle<decisiontree::Node> thisNodePtr = (*inputVec)[j];
-                    // the following will build a decisiontree::Node object
-                    decisiontree::Node thisNode = decisiontree::Node(thisNodePtr->nodeID,thisNodePtr->indexID,thisNodePtr->isLeaf,thisNodePtr->leftChild,thisNodePtr->rightChild,thisNodePtr->returnClass);
-                    // testing purpose
-                    std::cout << "NodeID is: " << thisNode.nodeID << std::endl;
-                    vect.push_back(thisNode);
-                }
-            }
-        }
-    }
-    int numNodes = vect.size();
-    int memSize = (4 * sizeof(int) + 1 * sizeof(long) + 1 * sizeof(bool)) * numNodes;
-    decisiontree::Node* tree = static_cast<decisiontree::Node*>(mmap(NULL, memSize, PROT_READ | PROT_WRITE, MAP_ANON | MAP_SHARED, 0, 0));
-    for(int i = 0; i < numNodes; i++){
-        *(tree + i) = vect.at(i);
-    }
-    std::string fileName = "trees/"+dbName+setName;
-    ofstream file(fileName);
-    if (file){
-        file << tree << "\n";
-    }
-    setToExport->setPinned(false);
-    delete pageIters;
-    return true;
-}
-*/
 
 size_t PangeaStorageServer::bufferRecord(pair<std::string, std::string> databaseAndSet,
                                          Record<Vector<Handle<Object>>>* addMe) {
@@ -218,15 +163,11 @@ void PangeaStorageServer::cleanup(bool flushOrNot) {
     }
     pthread_mutex_unlock(&counterMutex);
     const LockGuard guard{workingMutex};
-
     for (auto& a : allRecords) {
         while (a.second.size() > 0)
             writeBackRecords(a.first, flushOrNot);
     }
-
     std::cout << "Now there are " << totalObjects << " new objects stored in storage" << std::endl;
-    PDB_COUT << "sleep for 1 second to wait for all data gets flushed" << std::endl;
-    //sleep(1);
     PDB_COUT << "cleaned up for storage..." << std::endl;
 }
 
@@ -516,135 +457,6 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
 
             ));
 
-    // this handler accepts a request to get information from a set
-    forMe.registerHandler(
-        DispatcherGetSetRequest_TYPEID,
-        make_shared<SimpleRequestHandler<DispatcherGetSetRequest>>(
-            [&](Handle<DispatcherGetSetRequest> request, PDBCommunicatorPtr sendUsingMe) {
-                std::cout << "Front-end received DispatcherGetSetRequest" << std::endl;
-                //std::string errMsg;
-                //bool success;
-                //bool result;
-
-                std::string dbName = request->getDatabaseName();
-                std::string setName = request->getSetName();
-                SetPtr set = getFunctionality<PangeaStorageServer>().getSet(std::pair<std::string, std::string>(dbName, setName));
-
-                bool res;
-                std::string errMsg;
-
-                if (set == nullptr) {
-                    res = false;
-                    errMsg = "Fatal Error: Set doesn't exist!";
-                    std::cout << errMsg << std::endl;
-                    return make_pair(res, errMsg);
-                } else {
-                    // first we need to create a separate connection to backend
-                    PDBCommunicatorPtr communicatorToBackend = make_shared<PDBCommunicator>();
-                    if (communicatorToBackend->connectToLocalServer(
-                            getFunctionality<PangeaStorageServer>().getLogger(),
-                            getFunctionality<PangeaStorageServer>().getPathToBackEndServer(),
-                            errMsg)) {
-                        res = false;
-                        std::cout << errMsg << std::endl;
-                        return make_pair(res, errMsg);
-                    }
-
-                    DatabaseID dbId = set->getDbID();
-                    UserTypeID typeId = set->getTypeID();
-                    SetID setId = set->getSetID();
-
-                    std::cout << "Frontend obtained BackendGetSet message with dbId=" << dbId 
-                        << ", typeId=" << typeId << ", setId=" << setId << std::endl;
-                    
-                    {
-                        const UseTemporaryAllocationBlock myBlock{1024};
-                        Handle<BackendGetSet> msg =
-                            makeObject<BackendGetSet>(dbId, typeId, setId, dbName, setName);
-                        if (!communicatorToBackend->sendObject<BackendGetSet>(msg, errMsg)) {
-                            res = false;
-                            std::cout << errMsg << std::endl;
-                            return make_pair(res, errMsg);
-                        }
-                    }
-
-                    {
-                        const UseTemporaryAllocationBlock myBlock{
-                            communicatorToBackend->getSizeOfNextObject()};
-                        communicatorToBackend->getNextObject<SimpleRequestResult>(res, errMsg);
-                    }
-
-                    {
-                        const UseTemporaryAllocationBlock block{1024};
-                        Handle<SimpleRequestResult> response =
-                            makeObject<SimpleRequestResult>(res, errMsg);
-
-                        std::cout << "Send back reply: " << res << " from Front-end server" << std::endl;
-
-                        // return the result
-                        res = sendUsingMe->sendObject(response, errMsg);
-                    }
-                    return make_pair(res, errMsg);
-                }
-
-            }));
-
-/*
-                Handle<SimpleRequestResult> res;
-                // connect to backend
-                PDBCommunicatorPtr communicatorToBackend = make_shared<PDBCommunicator>();
-                if (communicatorToBackend->connectToLocalServer(
-                    getFunctionality<PangeaStorageServer>().getLogger(),
-                    getFunctionality<PangeaStorageServer>().getPathToBackEndServer(),
-                    errMsg)) {
-                    std::cout << errMsg << std::endl;
-                    success = false;
-                } else if (!communicatorToBackend->sendObject(request, errMsg)) {
-                    std::cout << errMsg << std::endl;
-                    errMsg = std::string("Front-end can't send message to Back-end: ") + errMsg;
-                    success = false;
-                } else {
-                    PDB_COUT << "PangeaStorage sent request to Back-end" << std::endl;
-                    // wait for backend to finish.
-                    res = communicatorToBackend->getNextObject<SimpleRequestResult>(success, errMsg);
-                    if (!success) {
-                        std::cout << "Error waiting for Back-end to save the table in the memory. " << errMsg << std::endl;
-                        errMsg = std::string("Back-end failed to save the table in the memory: ") + errMsg;
-                    }
-                }
-                // make the response
-                if(success){
-                    result = res->getRes().first;
-                } else {
-                    result = false;
-                }
-                std::cout << "Send back reply: " << result << " from Front-end server" << std::endl;
-                const UseTemporaryAllocationBlock tempBlock{1024};
-                Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(result, errMsg);
-                
-                // return the result
-                success = sendUsingMe->sendObject(response, errMsg);
-                return make_pair(success, errMsg);
-            }
-
-            ));
-*/
-
-    /*
-    // this handler accepts a request to get some information from a set
-    forMe.registerHandler(
-        DispatcherGetSetRequest_TYPEID,
-        make_shared<SimpleRequestHandler<DispatcherGetSetRequest>>([&](Handle<DispatcherGetSetRequest> request, PDBCommunicatorPtr sendUsingMe) {
-            std::cout << "Server received DispatcherGetSetRequest" << std::endl;
-            std::string errMsg;
-            bool res = getFunctionality<PangeaStorageServer>().exportToPointerInFile(request->getDatabaseName(),request->getSetName(), errMsg);
-            const UseTemporaryAllocationBlock tempBlock{1024};
-            std::cout << "Send back reply: " << res << " from Server" << std::endl;
-            Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(res,errMsg);
-            res = sendUsingMe->sendObject(response, errMsg);
-            return make_pair(res, errMsg);
-        }));
-    */
 
     // this handler accepts a request to add a database
     forMe.registerHandler(
@@ -1180,6 +992,63 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
             std::cout << "end StorageAddObjectInLoop" << std::endl;
             return make_pair(everythingOK, errMsg);
         }));
+
+
+    // this handler accepts a request to store information regarding shared data
+    forMe.registerHandler(
+        StorageAddSharedMapping_TYPEID,
+        make_shared<SimpleRequestHandler<StorageAddSharedMapping>>([&](Handle<StorageAddSharedMapping> request,
+                                                                    PDBCommunicatorPtr sendUsingMe)     {
+                std::cout << "received StorageAddSharedMapping" << std::endl;
+                std::string errMsg;
+                auto databaseAndSet = make_pair((std::string)request->getSharingDatabase(),
+                                                (std::string)request->getSharingSetName());
+                std::cout << "to link shared blocks to " << request->getSharingDatabase() <<
+                        ":" << request->getSharingSetName() << std::endl;
+                SetPtr mySet = getFunctionality<PangeaStorageServer>().getSet(databaseAndSet);
+                if (mySet == nullptr) {
+                    std::cout << "Set doesn't exist: " << request->getSharingDatabase() << ":" << request->getSharingSetName() << std::endl;
+                    exit(1);
+                } 
+		
+                bool res = true;
+
+                auto sharedDatabaseAndSet = make_pair((std::string)request->getSharedDatabase(),
+                                                (std::string)request->getSharedSetName());
+
+
+
+		std::cout << "shared set:" << request->getSharedDatabase() << ":" << request->getSharedSetName() << std::endl;
+                SetPtr mySet1 = getFunctionality<PangeaStorageServer>().getSet(sharedDatabaseAndSet);
+		if (mySet1 == nullptr) {
+                    std::cout << "Set doesn't exist: " << request->getSharedDatabase() << ":" << request->getSharedSetName() << std::endl;
+                    exit(1);
+                }
+		SharedFFMatrixBlockSetPtr mySharedSet =  std::dynamic_pointer_cast<pdb::SharedFFMatrixBlockSet>(mySet1);
+                if(mySharedSet == nullptr) {
+                     std::cout << "Error: empty shared set" << std::endl;
+                } else {
+                     const UseTemporaryAllocationBlock myBlock{128*1024*1024};
+                     SetKey key;
+                     key.dbId = mySharedSet->getDbID();
+                     key.typeId = mySharedSet->getTypeID();
+                     key.setId = mySharedSet->getSetID();
+                     std::cout << "shared set: dbId=" << key.dbId
+                          << ", typeId=" << key.typeId
+                          << ", setId=" << key.setId << std::endl;
+                     std::string fileName = request->getFileName();
+		     size_t totalRows = request->getTotalRows();
+		     size_t totalCols = request->getTotalCols();
+		     bool transpose = request->getTranspose();
+		     mySharedSet->loadIndexFromFile(mySet->getDbID(), mySet->getTypeID(), mySet->getSetID(), fileName, totalRows, totalCols, transpose );
+		}
+
+                const UseTemporaryAllocationBlock tempBlock{1024};
+                Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(res, errMsg);
+
+                res = sendUsingMe->sendObject(response, errMsg);
+                return make_pair(res, errMsg);
+    }));
 
 
     // this handler accepts a request to store information regarding shared data

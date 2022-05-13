@@ -94,9 +94,6 @@ private:
     std::function<void(Handle<SimpleRequestResult>, std::string)> generateAckHandler(
         std::vector<std::string>& success, std::vector<std::string>& failures, mutex& lock);
 
-    std::function<void(Handle<SimpleRequestResult>, std::string)> generatePointerFileHandler(
-        std::vector<std::string>& success, std::vector<std::string>& failures, mutex& lock);
-    
     bool selfLearningOrNot;
 
 

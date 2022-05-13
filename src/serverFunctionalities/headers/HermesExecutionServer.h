@@ -9,26 +9,6 @@
 #include "DataTypes.h"
 #include "HashSetManager.h"
 #include "DataProxy.h"
-#include "TreeNode.h"
-#include "Tree.h"
-#include "RandomForest.h"
-#include "BackendGetSet.h"
-
-#include <iostream>
-#include <fstream>
-#include <future>
-#include <thread>
-#include <sstream>
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <sys/mman.h>
-#include <unistd.h>
-#include <cassert>
-#include <algorithm>
-#include <set>
-#include <cstring>
-#include <exception>
 #include <string>
 
 namespace pdb {
@@ -112,10 +92,7 @@ public:
         return this->nodeId;
     }
 
-    static bool compareByNodeID(const decisiontree::Node &a, const decisiontree::Node &b){
-      return a.nodeID < b.nodeID;
-    }
-    
+
     // from the ServerFunctionality interface... registers the HermesExecutionServer's        //
     // handlers
     void registerHandlers(PDBServer& forMe) override;

@@ -1,5 +1,8 @@
+
 #ifndef PANGEA_STORAGE_SERVER_H
 #define PANGEA_STORAGE_SERVER_H
+
+
 
 #include "ServerFunctionality.h"
 #include "PDBServer.h"
@@ -12,30 +15,13 @@
 #include "SharedMem.h"
 #include "TempSet.h"
 #include "PDBWork.h"
-#include "TreeNode.h"
-#include "GetSetWork.h"
-#include "BackendGetSet.h"
-#include <iostream>
-#include <fstream>
-#include <future>
-#include <thread>
-#include <sstream>
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <sys/mman.h>
-#include <unistd.h>
-#include <cassert>
-#include <algorithm>
-#include <set>
-#include <cstring>
-#include <exception>
 #include <vector>
 #include <string>
 #include <map>
 #include <boost/filesystem.hpp>
 #include <pthread.h>
 #include <memory>
+
 
 namespace pdb {
 
@@ -65,6 +51,10 @@ typedef std::shared_ptr<PangeaStorageServer> PangeaStorageServerPtr;
 //-- StoragePinBytes: to pin bytes of specified length in one set
 //-- StorageUnpinPage: to unpin a page from one set
 //-- StorageGetSetPages: to trigger a parallel scan over a set
+
+
+
+
 
 class PangeaStorageServer : public ServerFunctionality {
 
@@ -165,6 +155,7 @@ public:
      */
     bool removeDatabase(std::string dbName);
 
+
     /**
      * Add a new and empty type
      */
@@ -179,13 +170,6 @@ public:
      * Remove a type from the typeName to typeId mapping
      */
     bool removeType(std::string typeName);
-
-    /*
-    // export the pointer to a piece of memory
-    bool exportToPointerInFile(std::string dbName,
-                                       std::string setName,
-                                       std::string& errMsg);
-    */
 
     /**
      * Add a new and empty set
@@ -253,6 +237,7 @@ public:
      * Remove an existing temporary set
      */
     bool removeTempSet(SetID setId);
+
 
     /**
      * Returns a temporary set specified

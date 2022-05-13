@@ -44,9 +44,9 @@ public:
                     in1->getTotalRowNums(), in1->getTotalColNums(), false);
 
             // get the ptrs
-            float *outData = resultFFMatrixBlock->getValue().rawData->c_ptr();
-            float *in1Data = in1->getValue().rawData->c_ptr();
-            float *in2Data = in2->getValue().rawData->c_ptr();
+            double *outData = resultFFMatrixBlock->getValue().rawData->c_ptr();
+            double *in1Data = in1->getValue().rawData->c_ptr();
+            double *in2Data = in2->getValue().rawData->c_ptr();
 
             for (int i = 0; i < I; i++) {
               for (int j = 0; j < J; j++) {

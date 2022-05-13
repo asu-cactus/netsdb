@@ -34,7 +34,7 @@ public:
     std::pair<bool, std::string> getRes() {
         return std::make_pair(res, errMsg);
     }
-    
+
 private:
     bool res;
     String errMsg;

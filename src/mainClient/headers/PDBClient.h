@@ -11,7 +11,6 @@
 #include "PDBObject.h"
 #include "PDBVector.h"
 #include "PartitionPolicy.h"
-
 #include "SimpleRequest.h"
 
 /**
@@ -26,7 +25,6 @@
  */
 
 namespace pdb {
-
 class PDBClient : public ServerFunctionality {
 
 public:
@@ -125,6 +123,20 @@ public:
                    NodeID nodeId,
                    std::string& errMsg); 
 
+
+  /* Link shared Meta to target meta for a private set at a specific node*/
+  bool addSharedMapping(std::string sharingDatabase,
+                  std::string sharingSetName,
+                  std::string sharingTypeName,
+                  std::string sharedDatabase,
+                  std::string sharedSetName,
+                  std::string sharedTypeName,
+		  std::string fileName,
+                  size_t totalRows,
+		  size_t totalCols,
+		  bool transpose,
+                  std::string errMsg); 
+
   /* Flushes data currently in memory into disk. */
   bool flushData(std::string &errMsg);
 
@@ -215,8 +227,6 @@ public:
   template <class DataType>
   bool sendBytes(std::pair<std::string, std::string> setAndDatabase,
                  char *bytes, size_t numBytes, std::string &errMsg);
-  
-  bool MM_getSet(const std::string &dbName, const std::string &setName, std::string &errMsg);
 
   /****
    * Methods for invoking Query-related operations
@@ -236,6 +246,8 @@ public:
   template <class... Types>
   bool executeComputations(std::string &errMsg, std::string jobName, bool preCompile, Handle<Computation> firstParam,
                            Handle<Types>... args);
+
+
 
   /* Deletes a set. */
   bool deleteSet(std::string databaseName, std::string setName);

@@ -1,57 +1,17 @@
+
 #ifndef HERMES_EXECUTION_SERVER_CC
 #define HERMES_EXECUTION_SERVER_CC
 
-#include <openssl/md5.h>
 #include "PDBDebug.h"
-#include "JoinMap.h"
-#include "PangeaStorageServer.h"
-#include "SimpleRequestResult.h"
-#include "CatalogServer.h"
-#include "StorageAddData.h"
-#include "StorageAddObjectInLoop.h"
-#include "StorageAddDatabase.h"
-#include "StorageAddSet.h"
-#include "StorageClearSet.h"
-#include "StorageGetData.h"
-#include "StorageGetStats.h"
-#include "StorageGetDataResponse.h"
-#include "StorageGetSetPages.h"
-#include "StoragePinPage.h"
-#include "StoragePinBytes.h"
-#include "StorageUnpinPage.h"
-#include "StoragePagePinned.h"
-#include "StorageBytesPinned.h"
-#include "StorageNoMorePage.h"
-#include "StorageTestSetScan.h"
-#include "BackendTestSetScan.h"
-#include "StorageTestSetCopy.h"
-#include "BackendTestSetCopy.h"
-#include "StorageAddSharedPage.h"
-#include "StorageAddTempSet.h"
-#include "StorageAddTempSetResult.h"
-#include "StorageRemoveDatabase.h"
-#include "StorageRemoveTempSet.h"
-#include "StorageExportSet.h"
-#include "StorageRemoveUserSet.h"
-#include "StorageRemoveHashSet.h"
-#include "StorageCleanup.h"
-#include "StorageCollectStats.h"
-#include "StorageCollectStatsResponse.h"
-#include "PDBScanWork.h"
-#include "UseTemporaryAllocationBlock.h"
-#include "SimpleRequestHandler.h"
-#include "Record.h"
-#include "InterfaceFunctions.h"
-#include "DeleteSet.h"
-#include "DefaultDatabase.h"
-#include "DataTypes.h"
-#include "SharedMem.h"
-#include "PDBFlushProducerWork.h"
-#include "PDBFlushConsumerWork.h"
-#include "ExportableObject.h"
-//#include "JoinTupleBase.h"
 #include "GenericWork.h"
 #include "HermesExecutionServer.h"
+#include "StoragePagePinned.h"
+#include "StorageNoMorePage.h"
+#include "StorageRemoveHashSet.h"
+#include "SimpleRequestHandler.h"
+#include "SimpleRequestResult.h"
+#include "BackendTestSetScan.h"
+#include "BackendTestSetCopy.h"
 #include "BackendExecuteSelection.h"
 #include "PageCircularBufferIterator.h"
 #include "TestScanWork.h"
@@ -65,38 +25,9 @@
 #include "PipelineStage.h"
 #include "PartitionedHashSet.h"
 #include "SharedHashSet.h"
+#include "JoinMap.h"
 #include "RecordIterator.h"
-#include "DispatcherGetSetRequest.h"
-#include "GetSetWork.h"
-#include "BackendGetSet.h"
-#include "TreeNode.h"
-#include "Tree.h"
-#include "RandomForest.h"
-
 #include <vector>
-#include <cstdio>
-#include <memory>
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <signal.h>
-#include <stdio.h>
-#include <map>
-#include <iterator>
-#include <future>
-#include <thread>
-#include <sstream>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <sys/mman.h>
-#include <unistd.h>
-#include <cassert>
-#include <algorithm>
-#include <set>
-#include <cstring>
-#include <exception>
-#include <pthread.h>
-#include <snappy.h>
 
 #ifndef JOIN_HASH_TABLE_SIZE_RATIO
 #define JOIN_HASH_TABLE_SIZE_RATIO 1.5
@@ -108,200 +39,9 @@
 
 namespace pdb {
 
+
 void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
 
-  // this handler accepts a request to get some information from a set
-  forMe.registerHandler(
-    BackendGetSet_TYPEID,
-    make_shared<SimpleRequestHandler<BackendGetSet>>(
-      [&](Handle<BackendGetSet> request, PDBCommunicatorPtr sendUsingMe) {
-        std::cout << "Back-end received BackendGetSet request" << std::endl;
-        std::string errMsg;
-        bool res = false;
-
-        DatabaseID dbId = request->getDatabaseID();
-        UserTypeID typeId = request->getUserTypeID();
-        SetID setId = request->getSetID();
-        std::string dbName = request->getDatabaseName();
-        std::string setName = request->getSetName();
-
-        std::string setType;
-        if(dbName.find("rf") != string::npos){
-          setType = "RF";
-        }else{
-          setType = "DT";
-        }
-
-        std::cout << "Backend received BackendGetSet message with dbId=" << dbId
-                 << ", typeId=" << typeId << ", setId=" << setId << std::endl;
-
-        std::cout << "Backend received BackendGetSet message with dbName=" << dbName
-                 << ", setName=" << setName << std::endl;
-
-        int numThreads = getFunctionality<HermesExecutionServer>().getConf()->getNumThreads();
-        NodeID nodeId = getFunctionality<HermesExecutionServer>().getNodeID();
-        pdb::PDBLoggerPtr logger = getFunctionality<HermesExecutionServer>().getLogger();
-        SharedMemPtr shm = getFunctionality<HermesExecutionServer>().getSharedMem();
-        int backendCircularBufferSize = 3;
-
-        pdb::PDBCommunicatorPtr communicatorToFrontend = make_shared<PDBCommunicator>();
-        communicatorToFrontend->connectToInternetServer(logger,getFunctionality<HermesExecutionServer>().getConf()->getPort(),"localhost",errMsg);
-        DataProxyPtr proxy = make_shared<DataProxy>(nodeId, communicatorToFrontend, getSharedMem(), logger);
-        PageScannerPtr scanner = make_shared<PageScanner>(communicatorToFrontend, shm, logger, numThreads, backendCircularBufferSize, nodeId);
-
-        if (getFunctionality<HermesExecutionServer>().setCurPageScanner(scanner) == false) {
-          res = false;
-          errMsg = "Error: A job is already running!";
-          std::cout << errMsg << std::endl;
-          return make_pair(res, errMsg);
-        }
-
-        std::vector<PageCircularBufferIteratorPtr> iterators = scanner->getSetIterators(nodeId, dbId, typeId, setId);
-        int numIterators = iterators.size();
-        std::cout << "The number of the iterators: " << numIterators << std::endl;
-        if (numIterators != numThreads) {
-          res = false;
-          errMsg = "Error: number of iterators doesn't match number of threads!";
-          std::cout << errMsg << std::endl;
-          return make_pair(res, errMsg);
-        }
-
-        std::vector<decisiontree::Node> vect;
-        pdb::Vector<pdb::Vector<pdb::Handle<decisiontree::Node>>> forest;
-        int numNodeinForest = 0;
-
-        for (int i = 0; i < numIterators; i++) {
-          std::cout << "Create a PageCircularBufferIteratorPtr" << std::endl;
-          PageCircularBufferIteratorPtr iter =  iterators.at(i);
-          std::cout << "Create a PDBPagePtr" << std::endl;
-          PDBPagePtr page;
-          while (iter->hasNext()) {
-            std::cout << "Get next iter" << std::endl;
-            page = iter->next();
-            // page still can be nullptr, so we MUST check nullptr here.
-            if (page != nullptr) {
-              std::cout << "The PDBPagePtr page is not nullptr!" << std::endl;
-              std::cout << "processing page with pageId=" << page->getPageID() << std::endl;
-
-              if(setType == "DT"){
-                pdb::Record<pdb::Vector<pdb::Handle<decisiontree::Node>>>* temp = (pdb::Record<pdb::Vector<pdb::Handle<decisiontree::Node>>>*)page->getBytes();
-                pdb::Handle<pdb::Vector<pdb::Handle<decisiontree::Node>>> inputVec = temp->getRootObject();
-                int vecSize = inputVec->size();
-                for (int j = 0; j < vecSize; j++) {
-                  pdb::Handle<decisiontree::Node> thisNodePtr = (*inputVec)[j];
-                  // the following will build a decisiontree::Node object
-                  decisiontree::Node thisNode = decisiontree::Node(thisNodePtr->nodeID,thisNodePtr->indexID,thisNodePtr->isLeaf,thisNodePtr->leftChild,thisNodePtr->rightChild,thisNodePtr->returnClass);
-                  // testing purpose
-                  std::cout << "Decision tree NodeID is: " << thisNode.nodeID << std::endl;
-                  vect.push_back(thisNode);
-                }
-              }else if(setType == "RF"){
-                pdb::Record<pdb::Vector<pdb::Handle<decisiontree::RandomForest>>>* temp = (pdb::Record<pdb::Vector<pdb::Handle<decisiontree::RandomForest>>>*)page->getBytes();
-                pdb::Handle<pdb::Vector<pdb::Handle<decisiontree::RandomForest>>> inputVec = temp->getRootObject();
-                pdb::Handle<decisiontree::RandomForest> thisRandomForestPtr = (*inputVec)[0];
-                decisiontree::RandomForest thisRandomForest = decisiontree::RandomForest(thisRandomForestPtr->forest);
-                forest = thisRandomForest.forest;
-
-                // get the total number of nodes to calculate the size of memory
-                for(int m = 0; m < forest.size(); m++){
-                  pdb::Vector<pdb::Handle<decisiontree::Node>> tree = forest[m];
-                  numNodeinForest = numNodeinForest + tree.size();
-                }
-              }else{
-                std::cout << "Set Type Error!" << std::endl;
-              }
-
-              // clean the page;
-              if (proxy->unpinUserPage(nodeId, page->getDbID(), page->getTypeID(), page->getSetID(), page) == false) {
-                logger->writeLn("Can not add finished page to cleaner.");
-                return make_pair(res, errMsg);
-              }
-            } else {
-              std::cout << "The PDBPagePtr page is nullptr!" << std::endl;
-            }
-          }
-        }
-
-        if(setType == "DT"){
-          int numNodes = vect.size();
-          int memSize = (4 * sizeof(int) + 1 * sizeof(float) + 1 * sizeof(bool)) * numNodes;
-          decisiontree::Node* tree = static_cast<decisiontree::Node*>(mmap(NULL, memSize, PROT_READ | PROT_WRITE, MAP_ANON | MAP_SHARED, 0, 0));
-          for(int t = 0; t < numNodes; t++){
-            *(tree + t) = vect.at(t);
-          }
-
-          // testing purpose
-          std::cout << "Address of the tree pointer: " << tree << std::endl;
-          std::cout << "root node's nodeID: " << tree-> nodeID << std::endl;
-          std::cout << "root's left child node's data: " << (tree+(tree->leftChild))-> returnClass << std::endl;
-
-          std::string fileName = dbName+setName;
-          ofstream file(fileName);
-          if (file){
-            file << tree << "\n";
-          }
-          file.close();
-        }else if(setType == "RF"){
-          std::cout << "total number of nodes is " << numNodeinForest << std::endl;
-          int nodememSize = (4 * sizeof(int) + 1 * sizeof(float) + 1 * sizeof(bool)) * numNodeinForest;
-          std::cout << "total memory of nodes is " << nodememSize << std::endl;
-          int totalmemSize = nodememSize + 4;
-          std::cout << "total memory is " << totalmemSize << std::endl;
-          decisiontree::RandomForest * startPtr = static_cast<decisiontree::RandomForest*>(mmap(NULL, totalmemSize, PROT_READ | PROT_WRITE, MAP_ANON | MAP_SHARED, 0, 0));
-
-          //print the original address
-          std::cout << "original address: " << startPtr << std::endl;
-          * startPtr = decisiontree::RandomForest(forest);
-          std::cout << "mmap the memory successfully" << std::endl;
-          
-          std::string fileName = dbName+setName;
-          ofstream file(fileName);
-          if (file){
-            file << startPtr << "\n";
-          }
-          file.close();
-
-          // testing purpose: reload the pointer from tree file
-          ifstream fin(fileName);
-          string line;
-          decisiontree::RandomForest * newPtr = nullptr;
-          while (getline(fin, line)){
-            // print the string obtained from file
-            //std::cout << "string obtained from file: " << line << std::endl;
-            long long result=strtoll(line.c_str(), NULL, 16);
-            newPtr = (decisiontree::RandomForest*)result;
-            // print the new address we get from the file
-            std::cout << "address loading from file: " << newPtr << std::endl;
-          }
-
-          // print some values of the loading forest
-          std::cout << "number of trees is " << newPtr->numTree << std::endl;
-          pdb::Vector<pdb::Vector<pdb::Handle<decisiontree::Node>>> thisForest = newPtr->forest;
-          std::cout << "testing on the first tree" << std::endl;
-          pdb::Vector<pdb::Handle<decisiontree::Node>> tree = thisForest[0];
-          std::cout << "number of nodes in the first tree is " << tree.size() << std::endl;
-        }else{
-          std::cout << "Set Type Error!" << std::endl;
-        }
-
-        if (this->setCurPageScanner(nullptr) == false) {
-          res = false;
-          errMsg = "Error: No job is running!";
-          std::cout << errMsg << std::endl;
-        }
-
-        printCacheStats();
-
-        res = true;
-        const UseTemporaryAllocationBlock block{1024};
-        std::cout << "Send back reply: " << res << " from Back-end server" << std::endl;
-        Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(res, errMsg);
-
-        // return the result
-        res = sendUsingMe->sendObject(response, errMsg);
-        return make_pair(res, errMsg);
-
-      }));
 
   // register a handler to process StoragePagePinned messages that are reponses to the same
   // StorageGetSetPages message initiated by the current PageScanner instance.
@@ -1486,13 +1226,9 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
       TupleSetJobStage_TYPEID,
       make_shared<SimpleRequestHandler<TupleSetJobStage>>([&](Handle<TupleSetJobStage> request,
                                                               PDBCommunicatorPtr sendUsingMe) {
+        getAllocator().cleanInactiveBlocks((size_t) ((size_t) 32 * (size_t) 1024 * (size_t) 1024));
 
-#ifdef PROFILING
-       auto scheduleBegin = std::chrono::high_resolution_clock::now();
-#endif
-        //getAllocator().cleanInactiveBlocks((size_t) ((size_t) 32 * (size_t) 1024 * (size_t) 1024));
-
-        //getAllocator().cleanInactiveBlocks((size_t) ((size_t) 256 * (size_t) 1024 * (size_t) 1024));
+        getAllocator().cleanInactiveBlocks((size_t) ((size_t) 256 * (size_t) 1024 * (size_t) 1024));
         PDB_COUT << "Backend got Tuple JobStage message with Id=" << request->getStageId()
                  << std::endl;
         request->print();
@@ -1502,6 +1238,11 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
         const UseTemporaryAllocationBlock block1{256 * 1024 * 1024};
 #else
         const UseTemporaryAllocationBlock block1{32 * 1024 * 1024};
+#endif
+#ifdef PROFILING
+        std::string out = getAllocator().printInactiveBlocks();
+        std::cout << "TupleSetJobStage-backend: print inactive blocks:" << std::endl;
+        std::cout << out << std::endl;
 #endif
         Handle<SetIdentifier> sourceContext = request->getSourceContext();
         if (getCurPageScanner() == nullptr) {
@@ -1519,52 +1260,18 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
           if (request->isRepartitionJoin() == true) {
             std::cout << "run pipeline for hash partitioned join" << std::endl;
             pipeline->runPipelineWithHashPartitionSink(this);
-#ifdef PROFILING
-            auto runEnd = std::chrono::high_resolution_clock::now();
-            std::cout << "Time Duration for running the job stage at BackEnd is "
-                          << std::chrono::duration_cast<std::chrono::duration<float>>(runEnd -
-                                                                                      scheduleBegin)
-                                 .count()
-                          << " seconds." << std::endl;
-#endif
-
-
-	  } else if (((request->isRepartition() == false) ||
+          } else if (((request->isRepartition() == false) ||
               (request->isCombining() == false)) &&
               (request->isBroadcasting() == false)) {
             //pipeline or local join
             std::cout << "run pipeline..." << std::endl;
             pipeline->runPipeline(this);
-#ifdef PROFILING
-            auto runEnd = std::chrono::high_resolution_clock::now();
-            std::cout << "Time Duration for running the job stage at BackEnd is "
-                          << std::chrono::duration_cast<std::chrono::duration<float>>(runEnd -
-                                                                                      scheduleBegin)
-                                 .count()
-                          << " seconds." << std::endl;
-#endif
           } else if (request->isBroadcasting() == true) {
             std::cout << "run pipeline with broadcasting..." << std::endl;
             pipeline->runPipelineWithBroadcastSink(this);
-#ifdef PROFILING
-            auto runEnd = std::chrono::high_resolution_clock::now();
-            std::cout << "Time Duration for running the job stage at BackEnd is "
-                          << std::chrono::duration_cast<std::chrono::duration<float>>(runEnd -
-                                                                                      scheduleBegin)
-                                 .count()
-                          << " seconds." << std::endl;
-#endif
           } else {
             std::cout << "run pipeline with combiner..." << std::endl;
             pipeline->runPipelineWithShuffleSink(this);
-#ifdef PROFILING
-            auto runEnd = std::chrono::high_resolution_clock::now();
-            std::cout << "Time Duration for running the job stage at BackEnd is "
-                          << std::chrono::duration_cast<std::chrono::duration<float>>(runEnd -
-                                                                                      scheduleBegin)
-                                 .count()
-                          << " seconds." << std::endl;
-#endif
           }
           if ((sourceContext->isAggregationResult() == true) &&
               (sourceContext->getSetType() == PartitionedHashSetType)) {
@@ -1620,14 +1327,6 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
         Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(res, errMsg);
         // return the result
         res = sendUsingMe->sendObject(response, errMsg);
-#ifdef PROFILING
-       auto scheduleEnd = std::chrono::high_resolution_clock::now();
-       std::cout << "Time Duration for scheduling the job stage at BackEnd is "
-                          << std::chrono::duration_cast<std::chrono::duration<float>>(scheduleEnd -
-                                                                                      scheduleBegin)
-                                 .count()
-                          << " seconds." << std::endl;
-#endif
         return make_pair(res, errMsg);
       }));
 

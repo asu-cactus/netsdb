@@ -78,23 +78,6 @@ void setup(pdb::PDBClient &pdbClient, string database) {
   loadLibrary(pdbClient, "libraries/libFFTransposeBiasSum.so");
   loadLibrary(pdbClient, "libraries/libFFRowAggregate.so");
   loadLibrary(pdbClient, "libraries/libFFOutputLayer.so");
-
-  // createSet(pdbClient, database, "y1", "Y1");
-
-  // createSet(pdbClient, database, "y2", "Y2");
-
-  // createSet(pdbClient, database, "yo", "YO");
-
-  // {
-  //   const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
-
-  //   if (!is_empty_set(pdbClient, database, "y1") ||
-  //       !is_empty_set(pdbClient, database, "y2") ||
-  //       !is_empty_set(pdbClient, database, "yo")) {
-  //         cout << "Old data exists!" << endl;
-  //         exit(1);
-  //       }
-  // }
 }
 
 void cleanup(pdb::PDBClient &pdblient, string database) {
@@ -106,9 +89,10 @@ void cleanup(pdb::PDBClient &pdblient, string database) {
 
 static bool materializeHash = true;
 
+
 void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
                        string w2, string wo, string inputs, string b1,
-                       string b2, string bo, float dropout_rate, bool enablePartition) {
+                       string b2, string bo, double dropout_rate, bool enablePartition) {
   string errMsg;
 
   {
@@ -306,7 +290,7 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
 
 void inference(pdb::PDBClient &pdbClient, string database, string w1, string w2,
                string wo, string inputs, string b1, string b2, string bo,
-               string output, float dropout_rate, bool enablePartition) {
+               string output, double dropout_rate, bool enablePartition) {
   string errMsg;
   inference_compute(pdbClient, database, w1, w2, wo, inputs, b1, b2, bo,
                     dropout_rate, enablePartition);
@@ -343,9 +327,107 @@ void inference(pdb::PDBClient &pdbClient, string database, string w1, string w2,
   }
 }
 
+void inference_unit(pdb::PDBClient &pdbClient, string database, string w1,
+               string wo, string inputs, string b1, string bo,
+               string output, double dropout_rate, bool enablePartition) {
+  string errMsg;
+
+  {
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+
+    // make the computation
+    pdb::Handle<pdb::Computation> readA =
+        makeObject<FFMatrixBlockScanner>(database, w1);
+    pdb::Handle<pdb::Computation> readB =
+        makeObject<FFMatrixBlockScanner>(database, inputs);
+
+    pdb::Handle<pdb::Computation> join = pdb::makeObject<FFTransposeMult>();
+    join->setInput(0, readA);
+    join->setInput(1, readB);
+
+    // make the aggregation
+    pdb::Handle<pdb::Computation> myAggregation =
+        pdb::makeObject<FFAggMatrix>();
+    myAggregation->setInput(join);
+
+    pdb::Handle<pdb::Computation> readC =
+        makeObject<FFMatrixBlockScanner>(database, b1);
+
+    pdb::Handle<pdb::Computation> reluBias =
+        pdb::makeObject<FFReluBiasSum>(dropout_rate);
+    reluBias->setInput(0, myAggregation);
+    reluBias->setInput(1, readC);
+
+    // make the computation
+    pdb::Handle<pdb::Computation> readD =
+        makeObject<FFMatrixBlockScanner>(database, wo);
+
+    pdb::Handle<pdb::Computation> join1 = pdb::makeObject<FFInputLayerJoin>();
+    join1->setInput(0, readD);
+    join1->setInput(1, reluBias);
+
+    // make the aggregation
+    pdb::Handle<pdb::Computation> myAggregation1 =
+        pdb::makeObject<FFAggMatrix>();
+    myAggregation1->setInput(join1);
+
+    pdb::Handle<pdb::Computation> readE =
+        makeObject<FFMatrixBlockScanner>(database, bo);
+
+    pdb::Handle<pdb::Computation> reluBias1 =
+        pdb::makeObject<FFTransposeBiasSum>();
+    reluBias1->setInput(0, myAggregation1);
+    reluBias1->setInput(1, readE);
+
+    pdb::Handle<pdb::Computation> intermediateWriter =
+        pdb::makeObject<FFMatrixWriter>(database, "yo");
+    intermediateWriter->setInput(reluBias1);
+
+    auto begin0 = std::chrono::high_resolution_clock::now();
+    // run the computation
+    if (!pdbClient.executeComputations(errMsg, "inference-unit-intermediate", materializeHash, intermediateWriter)) {
+      cout << "Computation failed. Message was: " << errMsg << "\n";
+      exit(1);
+    }
+    auto end0 = std::chrono::high_resolution_clock::now();
+    std::cout << "Inference-unit Intermediate Stage Time Duration: "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end0 - begin0).count()
+              << " secs." << std::endl;
+
+    pdb::Handle<pdb::Computation> readF =
+        makeObject<FFMatrixBlockScanner>(database, "yo");
+
+    pdb::Handle<pdb::Computation> expSum = pdb::makeObject<FFRowAggregate>();
+    expSum->setInput(readF);
+
+    pdb::Handle<pdb::Computation> softmax = pdb::makeObject<FFOutputLayer>();
+    softmax->setInput(0, readF);
+    softmax->setInput(1, expSum);
+
+    // make the writer
+    pdb::Handle<pdb::Computation> sumWriter =
+        pdb::makeObject<FFMatrixWriter>(database, output);
+    sumWriter->setInput(softmax);
+
+    auto begin = std::chrono::high_resolution_clock::now();
+    // run the computation
+    if (!pdbClient.executeComputations(errMsg, "inference-unit", materializeHash, sumWriter)) {
+      cout << "Computation failed. Message was: " << errMsg << "\n";
+      exit(1);
+    }
+    auto end = std::chrono::high_resolution_clock::now();
+    std::cout << "Inference-unit Stage Time Duration: "
+              << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
+              << " secs." << std::endl;
+  }
+}
+
+
+
+
 void inference(pdb::PDBClient &pdbClient, string database, string w1, string w2,
                string wo, string inputs, string b1, string b2, string bo,
-               pdb::Handle<pdb::Computation> &output, float dropout_rate, bool enablePartition) {
+               pdb::Handle<pdb::Computation> &output, double dropout_rate, bool enablePartition) {
   string errMsg;
   inference_compute(pdbClient, database, w1, w2, wo, inputs, b1, b2, bo,
                     dropout_rate, enablePartition);

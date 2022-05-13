@@ -1,3 +1,4 @@
+
 #ifndef WORKER_MAIN_CC
 #define WORKER_MAIN_CC
 
@@ -12,15 +13,14 @@
 int main(int argc, char* argv[]) {
 
     std::cout << "Starting up a PDB server!!\n";
-    std::cout << "[Usage] #nodeId #numThreads(optional) #sharedMemSize(optional, unit: MB)"
-                 "#masterIp(optional) #localIp(optional) #batchSize(optional)"
+    std::cout << "[Usage] #nodeId #numThreads(optional) #sharedMemSize(optional, unit: MB) "
+                 "#masterIp(optional) #localIp(optional)"
               << std::endl;
 
     ConfigurationPtr conf = make_shared<Configuration>();
     int nodeId = 0;
     int numThreads = 1;
     size_t sharedMemSize = (size_t)12 * (size_t)1024 * (size_t)1024 * (size_t)1024;
-    int batchSize = 1;
     bool standalone = true;
     std::string masterIp;
     std::string localIp = conf->getServerAddress();
@@ -73,40 +73,10 @@ int main(int argc, char* argv[]) {
             localIp = workerAccess;
         }
     }
-
-    if (argc == 7) {
-        nodeId = atoi(argv[1]);
-        numThreads = atoi(argv[2]);
-        sharedMemSize = (size_t)(atoi(argv[3])) * (size_t)1024 * (size_t)1024;
-        standalone = false;
-        string masterAccess(argv[4]);
-        size_t pos = masterAccess.find(":");
-        if (pos != string::npos) {
-            masterPort = stoi(masterAccess.substr(pos + 1, masterAccess.size()));
-
-            masterIp = masterAccess.substr(0, pos);
-        } else {
-            masterPort = 8108;
-            masterIp = masterAccess;
-        }
-        string workerAccess(argv[5]);
-        pos = workerAccess.find(":");
-        if (pos != string::npos) {
-            localPort = stoi(workerAccess.substr(pos + 1, workerAccess.size()));
-            localIp = workerAccess.substr(0, pos);
-            conf->setPort(localPort);
-        } else {
-            localPort = 8108;
-            localIp = workerAccess;
-        }
-        batchSize = atoi(argv[6]);
-    }
-
     conf->initDirs();
     std::cout << "Node Id =" << nodeId << std::endl;
     std::cout << "Thread number =" << numThreads << std::endl;
     std::cout << "Shared memory size =" << sharedMemSize << std::endl;
-    std::cout << "Batch size =" << batchSize << std::endl;
 
     if (standalone == true) {
         std::cout << "We are now running in standalone mode" << std::endl;
@@ -126,7 +96,6 @@ int main(int argc, char* argv[]) {
     conf->setNumThreads(numThreads);
     conf->setShmSize(sharedMemSize);
     SharedMemPtr shm = make_shared<SharedMem>(conf->getShmSize(), logger);
-    conf->setBatchSize(batchSize);
 
     std::string ipcFile =
         std::string("/tmp/") + localIp + std::string("_") + std::to_string(localPort);
