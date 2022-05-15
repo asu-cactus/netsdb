@@ -5,9 +5,6 @@
 #ifndef NETSDB_FOREST_H
 #define NETSDB_FOREST_H
 
-#ifndef DECISION_TREE_H
-#define DECISION_TREE_H
-
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
@@ -51,7 +48,7 @@ namespace decisiontree {
 
         Forest(pdb::Vector<pdb::Vector<pdb::Handle<decisiontree::Node>>> forestIn, ModelType type=ModelType::RandomForest) {
             this->forest = forestIn;
-            this->numTree = forestIn.size();
+            this->numTrees = forestIn.size();
             this->modelType = type;
         }
 
@@ -65,7 +62,7 @@ namespace decisiontree {
 
         void set_forest(pdb::Vector<pdb::Vector<pdb::Handle<decisiontree::Node>>> forestIn) {
             forest = forestIn;
-            numTree = forestIn.size();
+            numTrees = forestIn.size();
         }
 
         template<class InputIt, class T = typename std::iterator_traits<InputIt>::value_type> T most_common(InputIt begin, InputIt end){
@@ -83,7 +80,7 @@ namespace decisiontree {
         }
 
         // Decision of an XGBoost Tree (for class-1, not class-0): sigmoid(log(previous_tree_pred(initial_value=0)/(1-previous_tree_pred(initial_value=0))) + learning_rate*(current_tree_prob))
-        static template<class InputIt, class T = typename std::iterator_traits<InputIt>::value_type> T aggregate_decisions(InputIt begin, InputIt end){
+        template<class InputIt, class T = typename std::iterator_traits<InputIt>::value_type> T aggregate_decisions(InputIt begin, InputIt end){
 //          std::map<T, int> counts; // TODO: This function code needs to be re-written for XGBoost
             // Default LR Value Source: https://xgboost.readthedocs.io/en/stable/parameter.html?highlight=0.3#parameters-for-tree-booster
             double learning_rate = 0.3; // TODO: Hard-coding XGBoost Library default value. Change this to a parameter if modified.
@@ -113,7 +110,7 @@ namespace decisiontree {
 
         pdb::Handle<pdb::Vector<float>> predict(Handle<FFMatrixBlock>& in) {
             std::vector<std::vector<decisiontree::Node>> vectForest;
-            for(int j = 0; j < numTree; j++){
+            for(int j = 0; j < numTrees; j++){
                 pdb::Vector<pdb::Handle<decisiontree::Node>> tree = forest[j];
                 // set a new vector to store the whole tree
                 std::vector<decisiontree::Node> vectNode;
@@ -129,11 +126,11 @@ namespace decisiontree {
             uint32_t inNumRow = in->getRowNums();
             uint32_t inNumCol = in->getColNums();
 
-            float *inData = in->getValue().rawData->c_ptr();
+            float *inData = (float *) in->getValue().rawData->c_ptr(); // Need to cast from Double to Float
 
             // set the output matrix
             pdb::Handle<pdb::Vector<float>> resultMatrix = pdb::makeObject<pdb::Vector<float>>();
-            std::vector<float> thisResultMatrix(numTree);
+            std::vector<float> thisResultMatrix(numTrees);
 
             // set the node of the tree
             decisiontree::Node * treeNode = nullptr;
@@ -141,7 +138,7 @@ namespace decisiontree {
             float inputValue;
 
             for (int i = 0; i < inNumRow; i++){
-                for(int j = 0; j < numTree; j++){
+                for(int j = 0; j < numTrees; j++){
                     //std::sort(vectNode.begin(), vectNode.end(), compareByNodeID);
                     // inference
                     // pass the root node of the tree

@@ -31,11 +31,11 @@
 #include "PDBClient.h"
 #include "StorageClient.h"
 #include "PDBClient.h"
-#include "BaselineNode.h"
-#include "MyPrediction.h"
+// #include "BaselineNode.h"
+// #include "MyPrediction.h"
 #include "TreeNode.h"
 #include "Tree.h"
-#include "RandomForest.h"
+#include "Forest.h"
 #include "FFMatrixBlockScanner.h"
 #include "FFTransposeMult.h"
 #include "FFAggMatrix.h"
@@ -47,7 +47,7 @@
 
 using namespace std;
 
-void loadSharedLibraries() {
+void loadSharedLibraries(pdb::PDBClient pdbClient) {
     ff::loadLibrary(pdbClient, "libraries/libFFMatrixMeta.so");
     ff::loadLibrary(pdbClient, "libraries/libFFMatrixData.so");
     ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlock.so");
@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
     bool createSet;
 
     if(argc>1) {
-        if(argv[1].compare("Y")==0) {
+        if(string(argv[1]).compare("Y")==0) {
             createSet = true;
         } else {
             createSet = false;
@@ -94,8 +94,8 @@ int main(int argc, char *argv[]) {
     pdb::PDBClient pdbClient(8108, masterIp, clientLogger, false, true);
     pdb::CatalogClient catalogClient(8108, masterIp, clientLogger);
 
-    if(createSetOrNot == true){
-        loadSharedLibraries();
+    if(createSet == true){
+        loadSharedLibraries(pdbClient);
 
         ff::createDatabase(pdbClient, "decisiontree");
         ff::createSet(pdbClient, "decisiontree", "inputs", "inputs", 64);
@@ -108,10 +108,10 @@ int main(int argc, char *argv[]) {
 
     makeObjectAllocatorBlock(1024 * 1024 * 1024, true);
 
-    pdb::Handle<pdb::Computation> inputMatrix = pdb::makeObject<FFMatrixBlobkScanner>("decisiontree", "inputs");
+    pdb::Handle<pdb::Computation> inputMatrix = pdb::makeObject<FFMatrixBlockScanner>("decisiontree", "inputs");
 
     auto model_begin = chrono::high_resolution_clock::now();
-    pdb::Handle<pdb::Computation> xgbGenericUDF = pdb::makeObject<decisionTree::XGBoostGenericUDF>(treePath, task_type);
+    pdb::Handle<pdb::Computation> xgbGenericUDF = pdb::makeObject<decisiontree::XGBoostGenericUDF>(treePath, task_type);
     auto model_end = chrono::high_resolution_clock::now();
 
     xgbGenericUDF->setInput(inputMatrix);
@@ -146,3 +146,5 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
+
+#endif

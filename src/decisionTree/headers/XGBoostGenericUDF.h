@@ -141,23 +141,35 @@ namespace decisiontree {
                         }
                     }
 
-                    decisiontree::Node& currParentNode = std::find_if(tree.begin(),tree.end(),[&pNodeID = parentNodeID](const decisiontree::Node& iNode) -> bool { return pNodeID == iNode->nodeID; });
-                    if(currParentNode) {
-                        if(currParentNode->leftChild == -1) {
-                            currParentNode->leftChild = childNodeID;
-                        }
-                        else {
-                            currParentNode->rightChild = childNodeID;
+                    // decisiontree::Node& currParentNode = std::find_if(tree.begin(),tree.end(),[&pNodeID = parentNodeID](const decisiontree::Node& iNode) -> bool { return pNodeID == iNode->nodeID; });
+                    // if(currParentNode) {
+                    //     if(currParentNode->leftChild == -1) {
+                    //         currParentNode->leftChild = childNodeID;
+                    //     }
+                    //     else {
+                    //         currParentNode->rightChild = childNodeID;
+                    //     }
+                    // }
+                    
+                    for(int i=0;i<tree.size();++i) {
+                        if(tree[i]->nodeID == parentNodeID) {
+                            if(tree[i]->leftChild == -1) {
+                                tree[i]->leftChild = childNodeID;
+                            }
+                            else {
+                                tree[i]->rightChild = childNodeID;
+                            }
                         }
                     }
+                    
                 }
 
                 forest.push_back(tree);
             }
             // STATS ABOUT THE FOREST
-            std::cout << "Number of trees in the forest: " << numTrees << std::endl;
+            std::cout << "Number of trees in the forest: " << num_trees << std::endl;
             std::cout << "Number of nodes in each tree: " << std::endl;
-            for(int i = 0; i < numTrees; i++){
+            for(int i = 0; i < num_trees; i++){
                 std::cout << "Number of nodes in tree[" << i << "] is: " << forest[i].size() << std::endl;
             }
         }
@@ -165,7 +177,7 @@ namespace decisiontree {
     public:
         ENABLE_DEEP_COPY
 
-        pdb::Vector<pdb::Vector<pdb::Handle<decisiontree::Node>> forest;
+        pdb::Vector<pdb::Vector<pdb::Handle<decisiontree::Node>>> forest;
         std::vector<std::vector<decisiontree::Node>> vectorForest;
         int num_trees;
         pdb::Handle<decisiontree::Node> thisNodePtr;
@@ -185,7 +197,7 @@ namespace decisiontree {
 
         Lambda<Handle<FFMatrixBlock>> getProjection(Handle<FFMatrixBlock> in) override {
             return makeLambda(in, [this](Handle<FFMatrixBlock> &in) {
-                for(int j = 0; j < numTrees; j++){
+                for(int j = 0; j < num_trees; j++){
                     pdb::Vector<pdb::Handle<decisiontree::Node>> tree = forest[j];
                     // set a new vector to store the whole tree
                     std::vector<decisiontree::Node> vectorNode;
@@ -203,7 +215,7 @@ namespace decisiontree {
                 uint32_t inBlockRowIndex = in->getBlockRowIndex();
                 uint32_t inBlockColIndex = in->getBlockColIndex();
 
-                float *inData = in->getValue().rawData->c_ptr();
+                // float *inData = in->getValue().rawData->c_ptr();
 
                 // set the output matrix
                 pdb::Handle<pdb::Vector<float>> resultMatrix = pdb::makeObject<pdb::Vector<float>>();
