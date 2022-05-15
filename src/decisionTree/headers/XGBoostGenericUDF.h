@@ -210,26 +210,34 @@ namespace decisiontree {
                 std::vector<float> thisResultMatrix(num_trees);
 
                 // set the node of the tree
-                decisiontree::Node * treeNode = nullptr;
-                float inputValue;
+                // decisiontree::Node * treeNode = nullptr;
+                // float inputValue;
 
-                for (int i = 0; i < inNumRow; i++){
-                    for(int j = 0; j < num_trees; j++){
-                        treeNode = &vectorForest[j].at(0); // Root Node
-                        while(treeNode->isLeaf == false){
-                            inputValue = inData[i*inNumCol+treeNode->indexID];
-                            if(inputValue <= treeNode->returnClass){
-                                treeNode = (treeNode + (treeNode->leftChild));
-                            }else{
-                                treeNode = (treeNode + (treeNode->rightChild));
-                            }
-                        }
-                        thisResultMatrix[j] = treeNode->returnClass;
-                    }
-                    float aggregateResult = decisiontree::Forest::aggregate_decisions(thisResultMatrix.begin(), thisResultMatrix.end());
-                    resultMatrix->push_back(aggregateResult);
-                }
+                // Instantiate Forest Object
+                Forest::ModelType modelType = Forest::ModelType::XGBoost;
+                Forest forest = Forest(modelType);
+
+                pdb::Handle<pdb::Vector<float>> resultMatrix = forest.predict(in);
+
+                // for (int i = 0; i < inNumRow; i++){
+                //     for(int j = 0; j < num_trees; j++){
+                //         treeNode = &vectorForest[j].at(0); // Root Node
+                //         while(treeNode->isLeaf == false){
+                //             inputValue = inData[i*inNumCol+treeNode->indexID];
+                //             if(inputValue <= treeNode->returnClass){
+                //                 treeNode = (treeNode + (treeNode->leftChild));
+                //             }else{
+                //                 treeNode = (treeNode + (treeNode->rightChild));
+                //             }
+                //         }
+                //         thisResultMatrix[j] = treeNode->returnClass;
+                //     }
+                //     float aggregateResult = decisiontree::Forest::aggregate_decisions(thisResultMatrix.begin(), thisResultMatrix.end());
+                //     resultMatrix->push_back(aggregateResult);
+                // }
+
                 pdb::Handle<FFMatrixBlock> resultMatrixBlock = pdb::makeObject<FFMatrixBlock>(inBlockRowIndex, inBlockColIndex, inNumRow, 1, resultMatrix);
+
                 return resultMatrixBlock;
             });
         }

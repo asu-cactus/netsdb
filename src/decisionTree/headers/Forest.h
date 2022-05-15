@@ -45,6 +45,10 @@ namespace decisiontree {
         Forest() {}
         ~Forest() {}
 
+        Forest(ModelType type=ModelType::RandomForest) {
+            this->modelType = type;
+        }
+
         Forest(pdb::Vector<pdb::Vector<pdb::Handle<decisiontree::Node>>> forestIn, ModelType type=ModelType::RandomForest) {
             this->forest = forestIn;
             this->numTree = forestIn.size();

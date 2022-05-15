@@ -43,7 +43,7 @@
 #include "FFMatrixBlock.h"
 #include "FFMatrixUtil.h"
 #include "SimpleFF.h"
-#include "RFGenericUDF.h"
+#include "XGBoostGenericUDF.h"
 
 using namespace std;
 
