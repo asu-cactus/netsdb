@@ -104,7 +104,7 @@ namespace decisiontree {
                         indexID = std::stoi(currentLine.substr(findStartPosition+4, findEndPosition));
                     }
                     if((findStartPosition = currentLine.find("<")) != string::npos && (findEndPosition = currentLine.find_first_of("]")) != string::npos) { // Verified there is no > character for Inner node
-                        returnClass = std::stof(currentLine.substr(findStartPosition+1, findEndPosition));
+                        returnClass = std::stod(currentLine.substr(findStartPosition+1, findEndPosition));
                     }
                     tree.push_back(pdb::makeObject<decisiontree::Node>(nodeID, indexID, false, -1, -1, returnClass));
                 }
@@ -118,7 +118,7 @@ namespace decisiontree {
                     }
                     // Output Class of XGBoost always a Double/Float. ProbabilityValue for Classification, ResultValue for Regression
                     if((findStartPosition = currentLine.find("leaf")) != string::npos && (findEndPosition = currentLine.find("]")) != string::npos) {
-                        returnClass = std::stof(currentLine.substr(findStartPosition+5, findEndPosition-1));
+                        returnClass = std::stod(currentLine.substr(findStartPosition+5, findEndPosition-1));
                     }
                     tree.push_back(pdb::makeObject<decisiontree::Node>(nodeID, -1, true, -1, -1, returnClass));
                 }
@@ -183,7 +183,7 @@ namespace decisiontree {
         pdb::Handle<decisiontree::Node> thisNodePtr;
 
         XGBoostGenericUDF() {}
-        ~XGBoostGenericUDF() {}
+        // ~XGBoostGenericUDF() {}
 
         XGBoostGenericUDF(pdb::Vector<std::string> treePathIn, bool isClassificationTask) {
             num_trees = treePathIn.size();
@@ -218,7 +218,7 @@ namespace decisiontree {
                 // float *inData = in->getValue().rawData->c_ptr();
 
                 // set the output matrix
-                pdb::Handle<pdb::Vector<float>> resultMatrix = pdb::makeObject<pdb::Vector<float>>();
+                pdb::Handle<pdb::Vector<double>> resultMatrix = pdb::makeObject<pdb::Vector<double>>(); // TODO: Change all Double References to Float
                 std::vector<float> thisResultMatrix(num_trees);
 
                 // set the node of the tree
@@ -229,7 +229,7 @@ namespace decisiontree {
                 Forest::ModelType modelType = Forest::ModelType::XGBoost;
                 Forest forest = Forest(modelType);
 
-                pdb::Handle<pdb::Vector<float>> resultMatrix = forest.predict(in);
+                resultMatrix = forest.predict(in);
 
                 // for (int i = 0; i < inNumRow; i++){
                 //     for(int j = 0; j < num_trees; j++){

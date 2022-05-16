@@ -39,10 +39,11 @@ namespace decisiontree {
         int numTrees;
         ModelType modelType;
 
-        Forest() {}
-        ~Forest() {}
+        Forest() {
+            this->modelType = ModelType::RandomForest;
+        }
 
-        Forest(ModelType type=ModelType::RandomForest) {
+        Forest(ModelType type) {
             this->modelType = type;
         }
 
@@ -108,7 +109,7 @@ namespace decisiontree {
             }
         }
 
-        pdb::Handle<pdb::Vector<float>> predict(Handle<FFMatrixBlock>& in) {
+        pdb::Handle<pdb::Vector<double>> predict(Handle<FFMatrixBlock>& in) { // TODO: Change all Double References to Float
             std::vector<std::vector<decisiontree::Node>> vectForest;
             for(int j = 0; j < numTrees; j++){
                 pdb::Vector<pdb::Handle<decisiontree::Node>> tree = forest[j];
@@ -126,11 +127,11 @@ namespace decisiontree {
             uint32_t inNumRow = in->getRowNums();
             uint32_t inNumCol = in->getColNums();
 
-            float *inData = (float *) in->getValue().rawData->c_ptr(); // Need to cast from Double to Float
+            double *inData = in->getValue().rawData->c_ptr(); // Need to cast from Double to Float
 
             // set the output matrix
-            pdb::Handle<pdb::Vector<float>> resultMatrix = pdb::makeObject<pdb::Vector<float>>();
-            std::vector<float> thisResultMatrix(numTrees);
+            pdb::Handle<pdb::Vector<double>> resultMatrix = pdb::makeObject<pdb::Vector<double>>();
+            std::vector<double> thisResultMatrix(numTrees);
 
             // set the node of the tree
             decisiontree::Node * treeNode = nullptr;

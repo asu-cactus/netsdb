@@ -54,10 +54,10 @@ void loadSharedLibraries(pdb::PDBClient pdbClient) {
     ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlockScanner.so");
     ff::loadLibrary(pdbClient, "libraries/libFFMatrixWriter.so");
     ff::loadLibrary(pdbClient, "libraries/libFFMatrixPartitioner.so");
-    ff::loadLibrary(pdbClient, "libraries/libTreeNode.so"); // TODO: Create the file behind this Library
-    ff::loadLibrary(pdbClient, "libraries/libTree.so"); // TODO: Create the file behind this Library
-    ff::loadLibrary(pdbClient, "libraries/libForest.so"); // TODO: Create the file behind this Library
-    ff::loadLibrary(pdbClient, "libraries/libXGBoostGenericUDF.so"); // TODO: Create the file behind this Library
+    ff::loadLibrary(pdbClient, "libraries/libTreeNode.so");
+    ff::loadLibrary(pdbClient, "libraries/libTree.so");
+    ff::loadLibrary(pdbClient, "libraries/libForest.so");
+    ff::loadLibrary(pdbClient, "libraries/libXGBoostGenericUDF.so");
 }
 
 int main(int argc, char *argv[]) {
@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
 
     string errMsg;
 
-    string task_type = string(argv[6]);  // TODO: Consider an Enum for this
+    bool isClassification_task = string(argv[6]) == "C" ? true : false;  // TODO: Consider an Enum for this
 
     pdb::Vector<string> treePath;
 
@@ -111,7 +111,7 @@ int main(int argc, char *argv[]) {
     pdb::Handle<pdb::Computation> inputMatrix = pdb::makeObject<FFMatrixBlockScanner>("decisiontree", "inputs");
 
     auto model_begin = chrono::high_resolution_clock::now();
-    pdb::Handle<pdb::Computation> xgbGenericUDF = pdb::makeObject<decisiontree::XGBoostGenericUDF>(treePath, task_type);
+    pdb::Handle<pdb::Computation> xgbGenericUDF = pdb::makeObject<decisiontree::XGBoostGenericUDF>(treePath, isClassification_task);
     auto model_end = chrono::high_resolution_clock::now();
 
     xgbGenericUDF->setInput(inputMatrix);

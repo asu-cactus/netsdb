@@ -55,7 +55,7 @@ namespace decisiontree{
 			uint32_t inNumRow = in->getRowNums();
 			uint32_t inNumCol = in->getColNums();
 
-			float *inData = in->getValue().rawData->c_ptr();
+			float *inData = (float *) in->getValue().rawData->c_ptr(); // TODO: Need to remove Cast and Logically fix this
 
 			// set the output matrix
 			pdb::Handle<pdb::Vector<float>> resultMatrix = pdb::makeObject<pdb::Vector<float>>();
