@@ -40,9 +40,10 @@ datasetconfig = config[DATASET]
 train_size = datasetconfig["train"]
 
 
-df = fetch_data(DATASET,config)
-df = df.astype({"label": int})
-df_train = df.sample(frac=train_size)
+df = fetch_data(DATASET,config,"train")
+df_train = df.astype({"label": int})
+# df_train = df.sample(frac=train_size)
+print(len(df_train))
 
 num_trees = config["num_trees"]
 depth = config["depth"]
@@ -67,19 +68,34 @@ print("Time taken to train the classifier "+str(calulate_time(train_start_time, 
 print(classification_report(df_train[y_col],classifier.predict(df_train[x_col])))
 
 #saving the model using joblib
+joblib_time_start = time.time()
 joblib.dump(classifier, os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
+joblib_time_end = time.time()
+print("Time taken to save classifier using joblib "+str(calulate_time(joblib_time_start, joblib_time_end)))
 
 #converting to pytorch model using hummingbird
+humming_torch_time_start = time.time()
 model = hml.convert(classifier, 'torch')
+humming_torch_time_end = time.time()
+print("Time taken to convert to torch using hummingbird "+str(calulate_time(humming_torch_time_start, humming_torch_time_end)))
+save_torch_time_start = time.time()
 torch.save(model, os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+"_torch.pkl"))
-
+save_torch_time_end = time.time()
+print("Time taken to save torch model "+str(calulate_time(save_torch_time_start, save_torch_time_end)))
 #converting to ONNX model
 if CLASSFIER == "randomforest":
+    onnx_time_start = time.time()
     initial_type = [('float_input', FloatTensorType([None, 28]))]
     model_onnx = convert_sklearn(classifier,'pipeline_xgboost', initial_types=initial_type)
+    onnx_time_end = time.time()
+    print("Time taken to convert onnx using hummingbird "+str(calulate_time(onnx_time_start, onnx_time_end)))
+    onnx_write_time_start = time.time()
     with open(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".onnx"), "wb") as f:
         f.write(model_onnx.SerializeToString())
+    onnx_write_time_end = time.time()
+    print("Time taken to write onnx model "+str(calulate_time(onnx_write_time_start, onnx_write_time_end)))
 elif CLASSFIER == "xgboost":
+    onnx_time_start = time.time()
     update_registered_converter(
     XGBClassifier, 'XGBoostXGBClassifier',
     calculate_linear_classifier_output_shapes, convert_xgboost,
@@ -88,8 +104,13 @@ elif CLASSFIER == "xgboost":
     classifier, 'pipeline_xgboost',
     [('input', FloatTensorType([None, 28]))],
     target_opset={'': 12, 'ai.onnx.ml': 2})
+    onnx_time_end = time.time()
+    print("Time taken to convert onnx using hummingbird "+str(calulate_time(onnx_time_start, onnx_time_end)))
+    onnx_write_time_start = time.time()
     with open(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".onnx"), "wb") as f:
         f.write(model_onnx.SerializeToString())
+    onnx_write_time_end = time.time()
+    print("Time taken to write onnx model "+str(calulate_time(onnx_write_time_start, onnx_write_time_end)))
     
     # import onnxruntime as rt
     # sess = rt.InferenceSession(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".onnx"),providers=['CPUExecutionProvider'])

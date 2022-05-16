@@ -11,14 +11,15 @@ def calulate_time(start_time,end_time):
     diff = (end_time-start_time)*1000
     return diff
 
-def fetch_data(dataset,config):
+def fetch_data(dataset,config,suffix):
     try:
         pgsqlconfig = config["pgsqlconfig"]
         datasetconfig = config[dataset]
-        query = datasetconfig["query"]
+        query = datasetconfig["query"]+"_"+suffix
         dbURL = "postgresql://"+pgsqlconfig["username"]+":"+pgsqlconfig["password"]+"@"+pgsqlconfig["host"]+":"+pgsqlconfig["port"]+"/"+pgsqlconfig["dbname"]
         start_time = time.time()
-        dataframe = data = cx.read_sql(dbURL, query)
+        dataframe = cx.read_sql(dbURL, query)
+        dataframe = dataframe.astype({"label": int})
         end_time = time.time()
         print("Time Taken to load "+dataset+" as a dataframe is:", calulate_time(start_time,end_time))
         return dataframe

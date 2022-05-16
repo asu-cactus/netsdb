@@ -43,9 +43,9 @@ if len(args) > 3:
 print("Batch",batch_size)
 
 
-df = fetch_data(DATASET,config)
-df = df.astype({"label": int})
-df_train = df.sample(frac=train_size)
+df_train = fetch_data(DATASET,config,"test")
+# df = df.astype({"label": int})
+# df_train = df.sample(frac=train_size)
 
 num_trees = config["num_trees"]
 depth = config["depth"]
@@ -146,7 +146,7 @@ if not gpu:
     del results
     del predict
     gc.collect()
-else:
+# else:
     FRAMEWORK = "HummingbirdPytorchGPU"
     start_time = time.time()
     device = torch.device('cuda')

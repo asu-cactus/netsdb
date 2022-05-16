@@ -30,5 +30,13 @@ Classifiers: xgboost, randomforest
 ```
 python train_model.py dataset classifier
 
-python test_model.py dataset classifier batch_size 2>&1 | tee dataset_classifier_batch_size.txt
+python test_model.py dataset classifier batch_size [gpu]
+
+python train_model.py higgs randomforest
+
+python train_model.py higgs xgboost
+
+python test_model.py higgs randomforest 100000
+
+python test_model.py higgs randomforest 100000 gpu
 ```
