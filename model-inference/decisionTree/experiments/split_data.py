@@ -26,8 +26,8 @@ print(len(df))
 print(len(train))
 print(len(test))
 
-train.to_csv(datasetconfig["filename"]+"_train.csv",index=False)
-test.to_csv(datasetconfig["filename"]+"_test.csv",index=False)
+train.to_csv(datasetconfig["filename"]+"_train.csv",index=False,header=False)
+test.to_csv(datasetconfig["filename"]+"_test.csv",index=False,header=False)
 
 print("SAVED",datasetconfig["filename"]+"_train.csv",datasetconfig["filename"]+"_test.csv")
 
