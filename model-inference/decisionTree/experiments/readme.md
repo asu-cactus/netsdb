@@ -8,7 +8,7 @@
 sudo apt update
 sudo apt install wget gzip
 wget https://archive.ics.uci.edu/ml/machine-learning-databases/00280/HIGGS.csv.gz
-gzip
+gzip -d HIGGS.csv.gz
 sudo apt install postgresql postgresql-contrib
 sudo -i -u postgres
 psql
@@ -19,6 +19,17 @@ postgres=# CREATE TABLE higgs(label REAL NOT NULL, leptonpT REAL NOT NULL, lepto
 
 postgres=# copy higgs from 'HIGGS.csv' with CSV;
 postgres=# copy higgs from 'HIGGS.csv' with CSV;
+```
+
+TO MOUNT THE DRIVE ON EC2
+
+```
+sudo file -s /dev/nvme1n1
+sudo mkfs -t xfs /dev/nvme1n1
+sudo mkdir /mnt/data
+sudo mount /dev/nvme1n1 /mnt/data
+cd /mnt
+sudo chmod 777 data
 ```
 
 To run a certain experiment

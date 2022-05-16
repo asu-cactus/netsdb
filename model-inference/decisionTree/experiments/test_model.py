@@ -44,6 +44,7 @@ print("Batch",batch_size)
 
 
 df_train = fetch_data(DATASET,config,"test")
+input_size = len(df_train)
 # df = df.astype({"label": int})
 # df_train = df.sample(frac=train_size)
 
@@ -146,7 +147,7 @@ if not gpu:
     del results
     del predict
     gc.collect()
-# else:
+else:
     FRAMEWORK = "HummingbirdPytorchGPU"
     start_time = time.time()
     device = torch.device('cuda')

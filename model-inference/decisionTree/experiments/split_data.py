@@ -22,6 +22,10 @@ print("LOADED",datasetconfig["filename"]+".csv")
 
 train, test = train_test_split(df, test_size=test)
 
+print(len(df))
+print(len(train))
+print(len(test))
+
 train.to_csv(datasetconfig["filename"]+"_train.csv",index=False)
 test.to_csv(datasetconfig["filename"]+"_test.csv",index=False)
 

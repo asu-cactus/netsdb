@@ -5,6 +5,7 @@ import time
 import os
 import numpy as np
 import pandas as pd
+import math
 from sklearn.metrics import classification_report
 
 def calulate_time(start_time,end_time):
@@ -29,7 +30,7 @@ def fetch_data(dataset,config,suffix):
 def run_inference(framework,df,input_size,batch_size,predict):
     start_time = time.time()
     results = []
-    iterations = (input_size//batch_size)
+    iterations = math.ceil(input_size/batch_size)
     for i in range(iterations):
         batch = df[i*batch_size:(i+1)*batch_size]
         output = predict(batch)
