@@ -32,6 +32,17 @@ cd /mnt
 sudo chmod 777 data
 ```
 
+REQUIRED LIBRARIES
+
+```
+conda activate python3
+pip install xgboost
+pip install hummingbird_ml[extra]
+pip install skl2onnx
+pip install onnxmltools
+pip install onnxruntime
+```
+
 To run a certain experiment
 
 Datasets: higgs
