@@ -1,0 +1,19 @@
+higgs
+randomforest
+Time Taken to load higgs as a dataframe is: 25494.391441345215
+8800000
+Time taken to train the classifier 314798.6171245575
+              precision    recall  f1-score   support
+
+           0       0.70      0.63      0.66   4136162
+           1       0.70      0.76      0.73   4663838
+
+    accuracy                           0.70   8800000
+   macro avg       0.70      0.69      0.69   8800000
+weighted avg       0.70      0.70      0.70   8800000
+
+Time taken to save classifier using joblib 6.384611129760742
+Time taken to convert to torch using hummingbird 64.31031227111816
+Time taken to save torch model 3.046751022338867
+Time taken to convert onnx using hummingbird 160.47239303588867
+Time taken to write onnx model 1.5807151794433594
