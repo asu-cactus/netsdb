@@ -1,7 +1,6 @@
 # SConstuct
 # for PDB
 
-
 from os.path import isfile, isdir, join, abspath
 from os import listdir
 import os
@@ -52,7 +51,7 @@ elif common_env['PLATFORM'] == 'posix':
     # for debugging
     # Needs to be turned on for KMeans and TPCH
     common_env.Append(
-        CXXFLAGS='-std=c++14 -g3 -O3 -fPIC -fno-tree-vectorize  -march=native -Winline  -Wno-deprecated-declarations')
+        CXXFLAGS='-std=c++14 -g -O3 -fPIC -fno-tree-vectorize  -march=native -Winline  -Wno-deprecated-declarations')
     #common_env.Append(CXXFLAGS = '-std=c++14 -g  -Oz -ldl -lstdc++ -Wno-deprecated-declarations')
     #LIBPYTORCH_PATH = "/home/ubuntu/anaconda3/envs/py37_torch/lib/python3.7/site-packages/torch/lib"
     LIBPYTORCH_PATH = "/home/ubuntu/libtorch/lib"
@@ -69,14 +68,14 @@ common_env.Replace(CXX="clang++")
 # common_env.Append(CCFLAGS='-DDEBUG_SHUFFLING')
 common_env.Append(CCFLAGS='-DINITIALIZE_ALLOCATOR_BLOCK')
 # common_env.Append(CCFLAGS='-DENABLE_SHALLOW_COPY')
-common_env.Append(CCFLAGS='-DDEFAULT_BATCH_SIZE=1')
+common_env.Append(CCFLAGS='-DDEFAULT_BATCH_SIZE=20')
 common_env.Append(CCFLAGS='-DREMOVE_SET_WITH_EVICTION')
 common_env.Append(CCFLAGS='-DAUTO_TUNING')
 common_env.Append(CCFLAGS='-DPROFILING')
 common_env.Append(CCFLAGS='-DPROFILING_CACHE')
 common_env.Append(CCFLAGS='-DUSE_LOCALITY_SET')
 # we need this for self learning, so that if no partition lambda is found we use random policy
-common_env.Append(CCFLAGS='-DRANDOME_DISPATCHER')
+#common_env.Append(CCFLAGS='-DRANDOME_DISPATCHER')
 # common_env.Append(CCFLAGS='-DAPPLY_REINFORCEMENT_LEARNING')
 common_env.Append(CCFLAGS='-DPROFILING_CACHE')
 common_env.Append(CCFLAGS='-DENABLE_LARGE_GRAPH')
@@ -84,7 +83,7 @@ common_env.Append(CCFLAGS='-DENABLE_LARGE_GRAPH')
 common_env.Append(CCFLAGS='-DJOIN_HASH_TABLE_SIZE_RATIO=1.5')
 common_env.Append(CCFLAGS='-DHASH_PARTITIONED_JOIN_SIZE_RATIO=2.0')
 common_env.Append(CCFLAGS='-DPROFILING')
-common_env.Append(CCFLAGS='-DJOIN_COST_THRESHOLD=0')
+common_env.Append(CCFLAGS='-DJOIN_COST_THRESHOLD=1000')
 common_env.Append(CCFLAGS='-DENABLE_COMPRESSION')
 # common_env.Append(CCFLAGS='-DPDB_DEBUG')
 common_env.Append(CCFLAGS='-DEVICT_STOP_THRESHOLD=0.90')
@@ -1458,6 +1457,58 @@ common_env.Program('bin/hybridDedup',
                         ['build/tests/HybridTestWithDeduplication.cc', 'build/FF/SimpleFF.cc',
                         'build/FF/FFMatrixUtil.cc', 'build/word2vec/SemanticClassifier.cc'] + all + pdb_client)
 
+# Decision Tree
+common_env.SharedLibrary('libraries/libSpecializedBC.so',
+                        ['build/decisionTree/SpecializedBC.cc'] + all)
+common_env.SharedLibrary('libraries/libJoinforBaselineDT.so',
+                        ['build/decisionTree/JoinforBaselineDT.cc'] + all)
+common_env.SharedLibrary('libraries/libJoinforBaselineDT_N.so',
+                        ['build/decisionTree/JoinforBaselineDT_N.cc'] + all)
+common_env.SharedLibrary('libraries/libRFJoin.so',
+                        ['build/decisionTree/RFJoin.cc'] + all)
+common_env.SharedLibrary('libraries/libRFGenericUDF.so',
+                        ['build/decisionTree/RFGenericUDF.cc'] + all)
+common_env.SharedLibrary('libraries/libRFGenericDT.so',
+                        ['build/decisionTree/RFGenericDT.cc'] + all)
+common_env.SharedLibrary('libraries/libTreeNode.so',
+                        ['build/decisionTree/TreeNode.cc'] + all)
+common_env.SharedLibrary('libraries/libTree.so',
+                        ['build/decisionTree/Tree.cc'] + all)
+common_env.SharedLibrary('libraries/libRandomForest.so',
+                        ['build/decisionTree/RandomForest.cc'] + all)
+common_env.SharedLibrary('libraries/libGenericDT.so',
+                        ['build/decisionTree/GenericDT.cc'] + all)
+common_env.SharedLibrary('libraries/libGenericUDF.so',
+                        ['build/decisionTree/GenericUDF.cc'] + all)
+common_env.SharedLibrary('libraries/libBaselineNode.so',
+                        ['build/decisionTree/BaselineNode.cc'] + all)
+common_env.SharedLibrary('libraries/libMyPrediction.so',
+                        ['build/decisionTree/MyPrediction.cc'] + all)
+#common_env.Program('bin/decisionTreeSpecializedBC', 
+#                        ['build/tests/TestSpecializedBC.cc', 'build/FF/FFMatrixUtil.cc',
+#                        'build/FF/SimpleFF.cc'] + all + pdb_client)
+#common_env.Program('bin/materializemodel', 
+#                        ['build/tests/TestMaterializeModel.cc', 'build/FF/FFMatrixUtil.cc',
+#                        'build/FF/SimpleFF.cc'] + all + pdb_client)
+#common_env.Program('bin/baselineBC', 
+#                        ['build/tests/TestBaselineBC.cc', 'build/FF/FFMatrixUtil.cc',
+#                        'build/FF/SimpleFF.cc'] + all + pdb_client)
+#common_env.Program('bin/baselineBC_N', 
+#                        ['build/tests/TestBaselineBC_N.cc', 'build/FF/FFMatrixUtil.cc',
+#                        'build/FF/SimpleFF.cc'] + all + pdb_client)
+#common_env.Program('bin/genericUDF', 
+#                        ['build/tests/TestGenericUDF.cc', 'build/FF/FFMatrixUtil.cc',
+#                        'build/FF/SimpleFF.cc'] + all + pdb_client)
+common_env.Program('bin/rfgenericUDF', 
+                        ['build/tests/TestRFGenericUDF.cc', 'build/FF/FFMatrixUtil.cc',
+                        'build/FF/SimpleFF.cc'] + all + pdb_client)
+common_env.Program('bin/rfJoin', 
+                        ['build/tests/TestRFJoin.cc', 'build/FF/FFMatrixUtil.cc',
+                        'build/FF/SimpleFF.cc'] + all + pdb_client)
+common_env.Program('bin/rfmaterializemodel', 
+                        ['build/tests/TestRFMaterializeModel.cc', 'build/FF/FFMatrixUtil.cc',
+                        'build/FF/SimpleFF.cc'] + all + pdb_client)
+
 # Testing
 pdbTest = common_env.Command(
     'test', 'scripts/integratedTests.py', 'python3 $SOURCE -o $TARGET')
@@ -1790,10 +1841,10 @@ mainTests = common_env.Alias('mainTests', [
     'bin/pdb-cluster',
     'bin/pdb-server',
     'bin/test47',
-    'bin/test47Join',
-    'bin/test47JoinB',
-    'bin/test47JoinC',
-    'bin/test47JoinD',
+    #'bin/test47Join',
+    #'bin/test47JoinB',
+    #'bin/test47JoinC',
+    #'bin/test47JoinD',
     #  'bin/test52',
     #  'bin/test53',
     #  'bin/test54',
@@ -2069,6 +2120,7 @@ libLSTMTest = common_env.Alias('libLSTMTest', [
     'libraries/libLSTMHiddenState.so',
 ])
 
+
 libDTXGBoostTest = common_env.Alias('libDTXGBoostTest', [
     'bin/pdb-cluster',
     'bin/pdb-server',
@@ -2090,6 +2142,7 @@ libDTXGBoostTest = common_env.Alias('libDTXGBoostTest', [
     'libraries/libFFMatrixWriter.so',
     'libraries/libMatrixBlock.so',
     'libraries/libFFMatrixPartitioner.so',
+
     # 'libraries/libSpecializedBC.so',
     # 'libraries/libGenericDT.so',
     # 'libraries/libGenericUDF.so',
