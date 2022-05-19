@@ -76,8 +76,8 @@ int main(int argc, char *argv[]) {
 
     int rowNum = std::stoi(argv[2]);  //total size of input feature vectors
     int colNum = std::stoi(argv[3]);  //number of features
-    int block_x = rowNum; //num features
-    int block_y = std::atoi(argv[4]); //batch size
+    int block_x = std::atoi(argv[4]); //batch size
+    int block_y = colNum; //numFeatures
 
     string errMsg;
 
