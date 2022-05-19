@@ -97,6 +97,7 @@ namespace decisiontree
 
             for (int n = 0; n < numTrees; ++n)
             {
+		std::cout << "Processing the tree at " << treePathIn[n] << std::endl;    
                 std::string inputFileName = std::string(treePathIn[n]);
                 std::ifstream inputFile;
                 inputFile.open(inputFileName.data());
@@ -110,7 +111,7 @@ namespace decisiontree
 
                 while (getline(inputFile, line))
                 {
-                    if (line == "digraph Tree {" || line == "node [shape=box] ;" || line == "}")
+                    if ((line.find("digraph Tree {")!=std::string::npos) || (line.find("node [shape=box] ;")!=std::string::npos) || (line.find("}")!=std::string::npos))
                     {
                         continue;
                     }
@@ -142,10 +143,12 @@ namespace decisiontree
                 int findEndPosition;
                 pdb::Vector<pdb::Handle<decisiontree::Node>> tree;
 
+		std::cout << "Processing inner nodes" << std::endl;
                 for (int i = 0; i < innerNodes.size(); ++i)
                 { // Construct Inner Nodes
                     string currentLine = innerNodes[i];
-                    int nodeID;
+                    std::cout << currentLine << std::endl;
+		    int nodeID;
                     int indexID;
                     float returnClass;
 
@@ -164,9 +167,11 @@ namespace decisiontree
                     tree.push_back(pdb::makeObject<decisiontree::Node>(nodeID, indexID, false, -1, -1, returnClass));
                 }
 
+		std::cout << "Processing leaf nodes" << std::endl;
                 for (int i = 0; i < leafNodes.size(); ++i)
                 { // Construct Leaf Nodes
                     string currentLine = leafNodes[i];
+		    std::cout << currentLine << std::endl;
                     int nodeID;
                     float returnClass = -1.0f;
                     if ((findEndPosition = currentLine.find_first_of("label")) != string::npos)
@@ -181,11 +186,13 @@ namespace decisiontree
                     tree.push_back(pdb::makeObject<decisiontree::Node>(nodeID, -1, true, -1, -1, returnClass));
                 }
 
+                std::cout << "Processing relationships" << std::endl;
                 for (int i = 0; i < relationships.size(); ++i)
                 { // Construct Directed Edges between Nodes
                     int parentNodeID;
                     int childNodeID;
                     std::string currentLine = relationships[i];
+		    std::cout << currentLine << std::endl;
                     if ((findMidPosition = currentLine.find_first_of("->")) != std::string::npos)
                     {
                         parentNodeID = std::stoi(currentLine.substr(0, findMidPosition - 1));
@@ -220,8 +227,8 @@ namespace decisiontree
                         }
                     }
                 }
-
                 forest.push_back(tree);
+		std::cout << "finished processing a tree" << std::endl;
             }
 
             // STATS ABOUT THE FOREST
