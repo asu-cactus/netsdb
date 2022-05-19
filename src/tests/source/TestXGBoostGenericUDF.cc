@@ -43,7 +43,7 @@
 #include "FFMatrixBlock.h"
 #include "FFMatrixUtil.h"
 #include "SimpleFF.h"
-#include "XGBoostGenericUDF.h"
+#include "EnsembleTreeGenericUDF.h"
 
 using namespace std;
 
@@ -57,7 +57,7 @@ void loadSharedLibraries(pdb::PDBClient pdbClient) {
     ff::loadLibrary(pdbClient, "libraries/libTreeNode.so");
     ff::loadLibrary(pdbClient, "libraries/libTree.so");
     ff::loadLibrary(pdbClient, "libraries/libForest.so");
-    ff::loadLibrary(pdbClient, "libraries/libXGBoostGenericUDF.so");
+    ff::loadLibrary(pdbClient, "libraries/libEnsembleTreeGenericUDF.so");
 }
 
 int main(int argc, char *argv[]) {
@@ -74,20 +74,16 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    int rowNum = std::stoi(argv[2]);
-    int colNum = std::stoi(argv[3]);
-    int block_x = std::stoi(argv[4]);
-    int block_y = std::stoi(argv[5]);
+    int rowNum = std::stoi(argv[2]);  //total size of input feature vectors
+    int colNum = std::stoi(argv[3]);  //number of features
+    int block_x = colNum; //num features
+    int block_y = std::stoi(argv[4]); //batch size
 
     string errMsg;
 
-    bool isClassification_task = string(argv[6]) == "C" ? true : false;  // TODO: Consider an Enum for this
+    bool isClassification_task = string(argv[5]) == "C" ? true : false;  // TODO: Consider an Enum for this
 
-    pdb::Vector<string> treePath;
-
-    for(int i=7; i < argc; i++) {
-        treePath.push_back(string(argv[i]));
-    }
+    std::string forestFolderPath = std::string(argv[6]);
 
     string masterIp = "localhost";
     pdb::PDBLoggerPtr clientLogger = make_shared<pdb::PDBLogger>("DecisionTreeClientLog");
@@ -96,7 +92,6 @@ int main(int argc, char *argv[]) {
 
     if(createSet == true){
         loadSharedLibraries(pdbClient);
-
         ff::createDatabase(pdbClient, "decisiontree");
         ff::createSet(pdbClient, "decisiontree", "inputs", "inputs", 64);
         ff::loadMatrix(pdbClient, "decisiontree", "inputs", rowNum, colNum, block_x, block_y, false, false, errMsg);
@@ -111,7 +106,7 @@ int main(int argc, char *argv[]) {
     pdb::Handle<pdb::Computation> inputMatrix = pdb::makeObject<FFMatrixBlockScanner>("decisiontree", "inputs");
 
     auto model_begin = chrono::high_resolution_clock::now();
-    pdb::Handle<pdb::Computation> xgbGenericUDF = pdb::makeObject<decisiontree::XGBoostGenericUDF>(treePath, isClassification_task);
+    pdb::Handle<pdb::Computation> xgbGenericUDF = pdb::makeObject<decisiontree::EnsembleTreeGenericUDF>(forestFolderPath, ModelType::XGBoost, isClassification_task);
     auto model_end = chrono::high_resolution_clock::now();
 
     xgbGenericUDF->setInput(inputMatrix);

@@ -90,4 +90,11 @@ typedef struct {
     SetID setId;
 } SetKey;
 
+enum struct ModelType
+{
+    RandomForest,
+    XGBoost,
+    LightGBM
+}; 
+
 #endif

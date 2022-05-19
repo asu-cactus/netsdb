@@ -51,7 +51,7 @@ elif common_env['PLATFORM'] == 'posix':
     # for debugging
     # Needs to be turned on for KMeans and TPCH
     common_env.Append(
-        CXXFLAGS='-std=c++14 -g -O3 -fPIC -fno-tree-vectorize  -march=native -Winline  -Wno-deprecated-declarations')
+        CXXFLAGS='-std=c++17 -g -O3 -fPIC -fno-tree-vectorize  -march=native -Winline  -Wno-deprecated-declarations')
     #common_env.Append(CXXFLAGS = '-std=c++14 -g  -Oz -ldl -lstdc++ -Wno-deprecated-declarations')
     #LIBPYTORCH_PATH = "/home/ubuntu/anaconda3/envs/py37_torch/lib/python3.7/site-packages/torch/lib"
     LIBPYTORCH_PATH = "/home/ubuntu/libtorch/lib"
@@ -1397,8 +1397,8 @@ common_env.SharedLibrary('libraries/libFullyConnectedNetwork.so',
 #                         ['build/decisionTree/JoinforBaselineDT_N.cc'] + all)
 # common_env.SharedLibrary('libraries/libRFJoin.so',
 #                         ['build/decisionTree/RFJoin.cc'] + all)
-common_env.SharedLibrary('libraries/libXGBoostGenericUDF.so',
-                        ['build/decisionTree/XGBoostGenericUDF.cc'] + all)
+common_env.SharedLibrary('libraries/libEnsembleTreeGenericUDF.so',
+                        ['build/decisionTree/EnsembleTreeGenericUDF.cc'] + all)
 # common_env.SharedLibrary('libraries/libRFGenericDT.so',
 #                         ['build/decisionTree/RFGenericDT.cc'] + all)
 common_env.SharedLibrary('libraries/libTreeNode.so',
@@ -1458,32 +1458,32 @@ common_env.Program('bin/hybridDedup',
                         'build/FF/FFMatrixUtil.cc', 'build/word2vec/SemanticClassifier.cc'] + all + pdb_client)
 
 # Decision Tree
-common_env.SharedLibrary('libraries/libSpecializedBC.so',
-                        ['build/decisionTree/SpecializedBC.cc'] + all)
-common_env.SharedLibrary('libraries/libJoinforBaselineDT.so',
-                        ['build/decisionTree/JoinforBaselineDT.cc'] + all)
-common_env.SharedLibrary('libraries/libJoinforBaselineDT_N.so',
-                        ['build/decisionTree/JoinforBaselineDT_N.cc'] + all)
-common_env.SharedLibrary('libraries/libRFJoin.so',
-                        ['build/decisionTree/RFJoin.cc'] + all)
-common_env.SharedLibrary('libraries/libRFGenericUDF.so',
-                        ['build/decisionTree/RFGenericUDF.cc'] + all)
-common_env.SharedLibrary('libraries/libRFGenericDT.so',
-                        ['build/decisionTree/RFGenericDT.cc'] + all)
-common_env.SharedLibrary('libraries/libTreeNode.so',
-                        ['build/decisionTree/TreeNode.cc'] + all)
-common_env.SharedLibrary('libraries/libTree.so',
-                        ['build/decisionTree/Tree.cc'] + all)
-common_env.SharedLibrary('libraries/libRandomForest.so',
-                        ['build/decisionTree/RandomForest.cc'] + all)
-common_env.SharedLibrary('libraries/libGenericDT.so',
-                        ['build/decisionTree/GenericDT.cc'] + all)
-common_env.SharedLibrary('libraries/libGenericUDF.so',
-                        ['build/decisionTree/GenericUDF.cc'] + all)
-common_env.SharedLibrary('libraries/libBaselineNode.so',
-                        ['build/decisionTree/BaselineNode.cc'] + all)
-common_env.SharedLibrary('libraries/libMyPrediction.so',
-                        ['build/decisionTree/MyPrediction.cc'] + all)
+#common_env.SharedLibrary('libraries/libSpecializedBC.so',
+#                        ['build/decisionTree/SpecializedBC.cc'] + all)
+#common_env.SharedLibrary('libraries/libJoinforBaselineDT.so',
+#                        ['build/decisionTree/JoinforBaselineDT.cc'] + all)
+#common_env.SharedLibrary('libraries/libJoinforBaselineDT_N.so',
+#                        ['build/decisionTree/JoinforBaselineDT_N.cc'] + all)
+#common_env.SharedLibrary('libraries/libRFJoin.so',
+#                        ['build/decisionTree/RFJoin.cc'] + all)
+#common_env.SharedLibrary('libraries/libRFGenericUDF.so',
+#                        ['build/decisionTree/RFGenericUDF.cc'] + all)
+#common_env.SharedLibrary('libraries/libRFGenericDT.so',
+#                        ['build/decisionTree/RFGenericDT.cc'] + all)
+#common_env.SharedLibrary('libraries/libTreeNode.so',
+#                        ['build/decisionTree/TreeNode.cc'] + all)
+#common_env.SharedLibrary('libraries/libTree.so',
+#                        ['build/decisionTree/Tree.cc'] + all)
+#common_env.SharedLibrary('libraries/libRandomForest.so',
+#                        ['build/decisionTree/RandomForest.cc'] + all)
+#common_env.SharedLibrary('libraries/libGenericDT.so',
+#                        ['build/decisionTree/GenericDT.cc'] + all)
+#common_env.SharedLibrary('libraries/libGenericUDF.so',
+#                        ['build/decisionTree/GenericUDF.cc'] + all)
+#common_env.SharedLibrary('libraries/libBaselineNode.so',
+#                        ['build/decisionTree/BaselineNode.cc'] + all)
+#common_env.SharedLibrary('libraries/libMyPrediction.so',
+#                        ['build/decisionTree/MyPrediction.cc'] + all)
 #common_env.Program('bin/decisionTreeSpecializedBC', 
 #                        ['build/tests/TestSpecializedBC.cc', 'build/FF/FFMatrixUtil.cc',
 #                        'build/FF/SimpleFF.cc'] + all + pdb_client)
@@ -1499,15 +1499,15 @@ common_env.SharedLibrary('libraries/libMyPrediction.so',
 #common_env.Program('bin/genericUDF', 
 #                        ['build/tests/TestGenericUDF.cc', 'build/FF/FFMatrixUtil.cc',
 #                        'build/FF/SimpleFF.cc'] + all + pdb_client)
-common_env.Program('bin/rfgenericUDF', 
-                        ['build/tests/TestRFGenericUDF.cc', 'build/FF/FFMatrixUtil.cc',
-                        'build/FF/SimpleFF.cc'] + all + pdb_client)
-common_env.Program('bin/rfJoin', 
-                        ['build/tests/TestRFJoin.cc', 'build/FF/FFMatrixUtil.cc',
-                        'build/FF/SimpleFF.cc'] + all + pdb_client)
-common_env.Program('bin/rfmaterializemodel', 
-                        ['build/tests/TestRFMaterializeModel.cc', 'build/FF/FFMatrixUtil.cc',
-                        'build/FF/SimpleFF.cc'] + all + pdb_client)
+#common_env.Program('bin/rfgenericUDF', 
+#                        ['build/tests/TestRFGenericUDF.cc', 'build/FF/FFMatrixUtil.cc',
+#                        'build/FF/SimpleFF.cc'] + all + pdb_client)
+#common_env.Program('bin/rfJoin', 
+#                        ['build/tests/TestRFJoin.cc', 'build/FF/FFMatrixUtil.cc',
+#                        'build/FF/SimpleFF.cc'] + all + pdb_client)
+#common_env.Program('bin/rfmaterializemodel', 
+#                        ['build/tests/TestRFMaterializeModel.cc', 'build/FF/FFMatrixUtil.cc',
+#                        'build/FF/SimpleFF.cc'] + all + pdb_client)
 
 # Testing
 pdbTest = common_env.Command(
@@ -2124,17 +2124,7 @@ libLSTMTest = common_env.Alias('libLSTMTest', [
 libDTXGBoostTest = common_env.Alias('libDTXGBoostTest', [
     'bin/pdb-cluster',
     'bin/pdb-server',
-    # 'bin/decisionTreeSpecializedBC',
-    # 'bin/materializemodel',
-    # 'bin/genericUDF',
-    # 'bin/rfgenericUDF',
-    # 'bin/rfJoin',
-    # 'bin/rfmaterializemodel',
     'bin/XGBoostGenericUDF',
-    # 'bin/rfJoin',
-    # 'bin/rfmaterializemodel',
-    # 'bin/baselineBC',
-    # 'bin/baselineBC_N',
     'libraries/libFFMatrixBlock.so',
     'libraries/libFFMatrixMeta.so',
     'libraries/libFFMatrixData.so',
@@ -2142,22 +2132,10 @@ libDTXGBoostTest = common_env.Alias('libDTXGBoostTest', [
     'libraries/libFFMatrixWriter.so',
     'libraries/libMatrixBlock.so',
     'libraries/libFFMatrixPartitioner.so',
-
-    # 'libraries/libSpecializedBC.so',
-    # 'libraries/libGenericDT.so',
-    # 'libraries/libGenericUDF.so',
-    # 'libraries/libJoinforBaselineDT.so',
-    # 'libraries/libJoinforBaselineDT_N.so',
-    # 'libraries/libRFJoin.so',
-    # 'libraries/libRFGenericUDF.so',
-    'libraries/libXGBoostGenericUDF.so',
-    # 'libraries/libRFGenericDT.so',
+    'libraries/libEnsembleTreeGenericUDF.so',
     'libraries/libTreeNode.so',
     'libraries/libTree.so',
-    # 'libraries/libRandomForest.so',
     'libraries/libForest.so',
-    'libraries/libBaselineNode.so',
-    'libraries/libMyPrediction.so'
 ])
 
 libConv2DProjTest = common_env.Alias('libConv2DProjTest', [

@@ -14,7 +14,21 @@
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
-
+#include <string>
+#include <filesystem>
+#include <future>
+#include <thread>
+#include <sstream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <unistd.h>
+#include <cassert>
+#include <memory>
+#include <algorithm>
+#include <map>
+#include <set>
 #include "FFMatrixBlockScanner.h"
 #include "FFTransposeMult.h"
 #include "FFAggMatrix.h"
@@ -25,6 +39,8 @@
 #include "PDBClient.h"
 #include "StorageClient.h"
 
+using std::filesystem::directory_iterator;
+
 namespace decisiontree
 {
 
@@ -33,15 +49,7 @@ namespace decisiontree
     public:
         ENABLE_DEEP_COPY
 
-        enum struct ModelType
-        {
-            RandomForest,
-            XGBoost,
-            LightGBM
-        }; // TODO: Find a better place
-
         pdb::Vector<pdb::Vector<pdb::Handle<decisiontree::Node>>> forest;
-        std::vector<std::vector<decisiontree::Node>> vectorForest;
         int numTrees;
         ModelType modelType;
 
@@ -62,24 +70,181 @@ namespace decisiontree
             this->modelType = type;
         }
 
-        Forest(std::vector<std::vector<decisiontree::Node>> vectForestIn, ModelType type)
-        {
-            this->vectorForest = vectForestIn;
-            this->numTrees = vectForestIn.size();
-            this->modelType = type;
-        }
+	Forest(std::string pathToFolder, ModelType modelType, bool isClassification) 
+	{
+	    this->constructForestFromFolder(pathToFolder, modelType, isClassification);
+	
+	}
+
+	void constructForestFromFolder(std::string pathToFolder, ModelType modelType, bool isClassification) {
+	
+	    std::vector<std::string> treePaths;
+
+            for (const auto & file : directory_iterator(pathToFolder)) {
+	  
+		  treePaths.push_back(file.path());  
+	    
+	    } 
+
+	    constructForestFromPaths(treePaths, modelType, isClassification);
+	
+	}
+
+	void constructForestFromPaths(std::vector<std::string> & treePathIn, ModelType modelType, bool isClassification) {
+
+	    this->modelType = modelType;
+            this->numTrees = treePathIn.size();
+
+            for (int n = 0; n < numTrees; ++n)
+            {
+                std::string inputFileName = std::string(treePathIn[n]);
+                std::ifstream inputFile;
+                inputFile.open(inputFileName.data());
+                assert(inputFile.is_open());
+
+                std::string line;
+                std::vector<std::string> relationships;
+                std::vector<std::string> innerNodes;
+                std::vector<std::string> leafNodes;
+                string::size_type position;
+
+                while (getline(inputFile, line))
+                {
+                    if (line == "digraph Tree {" || line == "node [shape=box] ;" || line == "}")
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        position = line.find("->");
+                        if (position != string::npos)
+                        {
+                            relationships.push_back(line);
+                        }
+                        else
+                        { // Find Leaf/Inner Node
+                            if (line.find("leaf") != string::npos)
+                            {
+                                leafNodes.push_back(line);
+                            }
+                            else
+                            {
+                                innerNodes.push_back(line);
+                            }
+                        }
+                    }
+                }
+
+    		inputFile.close();
+
+                int findStartPosition;
+                int findMidPosition;
+                int findEndPosition;
+                pdb::Vector<pdb::Handle<decisiontree::Node>> tree;
+
+                for (int i = 0; i < innerNodes.size(); ++i)
+                { // Construct Inner Nodes
+                    string currentLine = innerNodes[i];
+                    int nodeID;
+                    int indexID;
+                    float returnClass;
+
+                    if ((findEndPosition = currentLine.find_first_of("label")) != string::npos)
+                    {
+                        nodeID = std::stoi(currentLine.substr(0, findEndPosition - 2));
+                    }
+                    if ((findStartPosition = currentLine.find("=\"[f")) != string::npos && (findEndPosition = currentLine.find("<")) != string::npos)
+                    { // Verified there is no > character for Inner node
+                        indexID = std::stoi(currentLine.substr(findStartPosition + 4, findEndPosition));
+                    }
+                    if ((findStartPosition = currentLine.find("<")) != string::npos && (findEndPosition = currentLine.find_first_of("]")) != string::npos)
+                    { // Verified there is no > character for Inner node
+                        returnClass = std::stod(currentLine.substr(findStartPosition + 1, findEndPosition));
+                    }
+                    tree.push_back(pdb::makeObject<decisiontree::Node>(nodeID, indexID, false, -1, -1, returnClass));
+                }
+
+                for (int i = 0; i < leafNodes.size(); ++i)
+                { // Construct Leaf Nodes
+                    string currentLine = leafNodes[i];
+                    int nodeID;
+                    float returnClass = -1.0f;
+                    if ((findEndPosition = currentLine.find_first_of("label")) != string::npos)
+                    {
+                        nodeID = std::stoi(currentLine.substr(0, findEndPosition - 2));
+                    }
+                    // Output Class of XGBoost always a Double/Float. ProbabilityValue for Classification, ResultValue for Regression
+                    if ((findStartPosition = currentLine.find("leaf")) != string::npos && (findEndPosition = currentLine.find("]")) != string::npos)
+                    {
+                        returnClass = std::stod(currentLine.substr(findStartPosition + 5, findEndPosition - 1));
+                    }
+                    tree.push_back(pdb::makeObject<decisiontree::Node>(nodeID, -1, true, -1, -1, returnClass));
+                }
+
+                for (int i = 0; i < relationships.size(); ++i)
+                { // Construct Directed Edges between Nodes
+                    int parentNodeID;
+                    int childNodeID;
+                    std::string currentLine = relationships[i];
+                    if ((findMidPosition = currentLine.find_first_of("->")) != std::string::npos)
+                    {
+                        parentNodeID = std::stoi(currentLine.substr(0, findMidPosition - 1));
+                    }
+                    if (parentNodeID == 0)
+                    {
+                        if ((findEndPosition = currentLine.find_first_of(" [")) != std::string::npos)
+                        {
+                            childNodeID = std::stoi(currentLine.substr(findMidPosition + 3, findEndPosition - 1 - (findMidPosition + 3)));
+                        }
+                    }
+                    else
+                    {
+                        if ((findEndPosition = currentLine.find_first_of(" ;")) != std::string::npos)
+                        {
+                            childNodeID = std::stoi(currentLine.substr(findMidPosition + 3, findEndPosition - 1 - (findMidPosition + 3)));
+                        }
+                    }
+
+                    for (int i = 0; i < tree.size(); ++i)
+                    {
+                        if (tree[i]->nodeID == parentNodeID)
+                        {
+                            if (tree[i]->leftChild == -1)
+                            {
+                                tree[i]->leftChild = childNodeID;
+                            }
+                            else
+                            {
+                                tree[i]->rightChild = childNodeID;
+                            }
+                        }
+                    }
+                }
+
+                forest.push_back(tree);
+            }
+
+            // STATS ABOUT THE FOREST
+            std::cout << "Number of trees in the forest: " << numTrees << std::endl;
+            std::cout << "Number of nodes in each tree: " << std::endl;
+            for (int i = 0; i < numTrees; i++)
+            {
+                std::cout << "Number of nodes in tree[" << i << "] is: " << forest[i].size() << std::endl;
+            }
+	
+	}
 
         static bool compareByNodeID(const decisiontree::Node &a, const decisiontree::Node &b)
         {
             return a.nodeID < b.nodeID;
         }
 
-        pdb::Vector<pdb::Vector<pdb::Handle<decisiontree::Node>>> get_forest()
+        pdb::Vector<pdb::Vector<pdb::Handle<decisiontree::Node>>> & get_forest()
         {
             return forest;
         }
 
-        void set_forest(pdb::Vector<pdb::Vector<pdb::Handle<decisiontree::Node>>> forestIn)
+        void set_forest(pdb::Vector<pdb::Vector<pdb::Handle<decisiontree::Node>>>& forestIn)
         {
             forest = forestIn;
             numTrees = forestIn.size();
@@ -141,22 +306,6 @@ namespace decisiontree
 
         pdb::Handle<pdb::Vector<double>> predict(Handle<FFMatrixBlock> &in)
         {                                 // TODO: Change all Double References to Float
-            if (vectorForest.size() == 0) // If VectorForest is not built yet, build it. This is done to avoid unnecessary computation while having a reasonable approach to backwards compatibility
-            {
-                for (int j = 0; j < numTrees; j++)
-                {
-                    pdb::Vector<pdb::Handle<decisiontree::Node>> tree = forest[j];
-                    // set a new vector to store the whole tree
-                    std::vector<decisiontree::Node> vectNode;
-                    for (int i = 0; i < tree.size(); i++)
-                    {
-                        pdb::Handle<decisiontree::Node> thisNodePtr = tree[i];
-                        decisiontree::Node thisNode = decisiontree::Node(thisNodePtr->nodeID, thisNodePtr->indexID, thisNodePtr->isLeaf, thisNodePtr->leftChild, thisNodePtr->rightChild, thisNodePtr->returnClass);
-                        vectNode.push_back(thisNode);
-                    }
-                    vectorForest.push_back(vectNode);
-                }
-            } // Else, use the one passed through the constructor
 
             // get the input features matrix information
             uint32_t inNumRow = in->getRowNums();
@@ -168,8 +317,6 @@ namespace decisiontree
             pdb::Handle<pdb::Vector<double>> resultMatrix = pdb::makeObject<pdb::Vector<double>>();
             std::vector<double> thisResultMatrix(numTrees);
 
-            // set the node of the tree
-            decisiontree::Node *treeNode = nullptr;
 
             float inputValue;
 
@@ -179,18 +326,20 @@ namespace decisiontree
                 {
                     //  inference
                     //  pass the root node of the tree
-                    treeNode = &vectorForest[j].at(0);
+	            int curIndex = 0;
+                    Handle<decisiontree::Node> treeNode = forest[j][0];
                     while (treeNode->isLeaf == false)
                     {
                         inputValue = inData[i * inNumCol + treeNode->indexID];
                         if (inputValue <= treeNode->returnClass)
                         {
-                            treeNode = treeNode + (treeNode->leftChild);
+			    curIndex = curIndex + treeNode->leftChild;
                         }
                         else
                         {
-                            treeNode = treeNode + (treeNode->rightChild);
+			    curIndex = curIndex + treeNode->rightChild;
                         }
+			treeNode = forest[j][curIndex];
                     }
                     thisResultMatrix[j] = treeNode->returnClass;
                 }

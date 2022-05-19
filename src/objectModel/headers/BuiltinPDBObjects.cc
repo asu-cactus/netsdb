@@ -131,14 +131,17 @@ objectTypeNamesList [getTypeName <StorageUnpinPage> ()] = 129;
 objectTypeNamesList [getTypeName <StringIntPair> ()] = 130;
 objectTypeNamesList [getTypeName <SumResult> ()] = 131;
 objectTypeNamesList [getTypeName <Supervisor> ()] = 132;
-objectTypeNamesList [getTypeName <TensorBlockIdentifier> ()] = 133;
-objectTypeNamesList [getTypeName <TensorBlockMeta> ()] = 134;
-objectTypeNamesList [getTypeName <TopKQueue <Nothing>> ()] = 135;
-objectTypeNamesList [getTypeName <TupleSetExecuteQuery> ()] = 136;
-objectTypeNamesList [getTypeName <TupleSetJobStage> ()] = 137;
-objectTypeNamesList [getTypeName <Vector <Nothing>> ()] = 138;
-objectTypeNamesList [getTypeName <WriteUserSet <Nothing>> ()] = 139;
-objectTypeNamesList [getTypeName <ZB_Company> ()] = 140;
+objectTypeNamesList [getTypeName <TensorBlock2D <Nothing>> ()] = 133;
+objectTypeNamesList [getTypeName <TensorBlockIdentifier> ()] = 134;
+objectTypeNamesList [getTypeName <TensorBlockMeta> ()] = 135;
+objectTypeNamesList [getTypeName <TensorData2D <Nothing>> ()] = 136;
+objectTypeNamesList [getTypeName <TensorMeta2D> ()] = 137;
+objectTypeNamesList [getTypeName <TopKQueue <Nothing>> ()] = 138;
+objectTypeNamesList [getTypeName <TupleSetExecuteQuery> ()] = 139;
+objectTypeNamesList [getTypeName <TupleSetJobStage> ()] = 140;
+objectTypeNamesList [getTypeName <Vector <Nothing>> ()] = 141;
+objectTypeNamesList [getTypeName <WriteUserSet <Nothing>> ()] = 142;
+objectTypeNamesList [getTypeName <ZB_Company> ()] = 143;
 
 // now, record all of the vTables
 {
@@ -1444,8 +1447,18 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 140;
 {
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
-		TensorBlockIdentifier tempObject;
+		TensorBlock2D <Nothing> tempObject;
 		allVTables [133] = tempObject.getVTablePtr ();
+	} catch (NotEnoughSpace &e) {
+		std :: cout << "Not enough memory to allocate TensorBlock2D <Nothing> to extract the vTable.\n";
+	}
+}
+
+{
+	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
+	try {
+		TensorBlockIdentifier tempObject;
+		allVTables [134] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate TensorBlockIdentifier to extract the vTable.\n";
 	}
@@ -1455,7 +1468,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 140;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		TensorBlockMeta tempObject;
-		allVTables [134] = tempObject.getVTablePtr ();
+		allVTables [135] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate TensorBlockMeta to extract the vTable.\n";
 	}
@@ -1464,8 +1477,28 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 140;
 {
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
+		TensorData2D <Nothing> tempObject;
+		allVTables [136] = tempObject.getVTablePtr ();
+	} catch (NotEnoughSpace &e) {
+		std :: cout << "Not enough memory to allocate TensorData2D <Nothing> to extract the vTable.\n";
+	}
+}
+
+{
+	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
+	try {
+		TensorMeta2D tempObject;
+		allVTables [137] = tempObject.getVTablePtr ();
+	} catch (NotEnoughSpace &e) {
+		std :: cout << "Not enough memory to allocate TensorMeta2D to extract the vTable.\n";
+	}
+}
+
+{
+	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
+	try {
 		TopKQueue <Nothing> tempObject;
-		allVTables [135] = tempObject.getVTablePtr ();
+		allVTables [138] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate TopKQueue <Nothing> to extract the vTable.\n";
 	}
@@ -1475,7 +1508,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 140;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		TupleSetExecuteQuery tempObject;
-		allVTables [136] = tempObject.getVTablePtr ();
+		allVTables [139] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate TupleSetExecuteQuery to extract the vTable.\n";
 	}
@@ -1485,7 +1518,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 140;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		TupleSetJobStage tempObject;
-		allVTables [137] = tempObject.getVTablePtr ();
+		allVTables [140] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate TupleSetJobStage to extract the vTable.\n";
 	}
@@ -1495,7 +1528,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 140;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		Vector <Nothing> tempObject;
-		allVTables [138] = tempObject.getVTablePtr ();
+		allVTables [141] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate Vector <Nothing> to extract the vTable.\n";
 	}
@@ -1505,7 +1538,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 140;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		WriteUserSet <Nothing> tempObject;
-		allVTables [139] = tempObject.getVTablePtr ();
+		allVTables [142] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate WriteUserSet <Nothing> to extract the vTable.\n";
 	}
@@ -1515,7 +1548,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 140;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		ZB_Company tempObject;
-		allVTables [140] = tempObject.getVTablePtr ();
+		allVTables [143] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate ZB_Company to extract the vTable.\n";
 	}

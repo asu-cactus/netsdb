@@ -381,7 +381,7 @@ void CatalogServer::registerHandlers(PDBServer &forMe) {
           if (res) {
 
             // grab the bytes
-            auto bytesPointer = bytes.data();
+            const char * bytesPointer = bytes.data();
 
             // do the vtable fix and update res
             res = loadAndRegisterType(typeId, bytesPointer, bytes.size(), errMsg) && res;
