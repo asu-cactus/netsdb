@@ -389,18 +389,18 @@ void print(pdb::PDBClient &pdbClient, string dbName, string setName) {
 
     if (first) {
       first = false;
-      cout << "[STATS] " << setName << " : " << r->getTotalRowNums() << " X " << r->getTotalColNums() << endl;
+      cout << "[STATS] " << setName << endl;
     }
 
-    /*cout << "[PRINT] " << setName << " : " << x << "," << y
+    cout << "[PRINT] " << setName << " : " << x << "," << y
          << "; Block Size: " << bx << "," << by << endl;
-    for (int i = 0; i < bx; i++) {
+    /*for (int i = 0; i < bx; i++) {
       for (int j = 0; j < by; j++) {
         cout << ndata[i * by + j] << ",";
       }
       cout << endl;
-    }
-    cout << endl;*/
+    }*/
+    cout << endl;
     count++;
   }
   std::cout << "count = " << count << std::endl;
