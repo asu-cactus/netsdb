@@ -6,7 +6,7 @@
 
 ```
 sudo apt update
-sudo apt install wget gzip
+sudo apt install wget gzip bzip2 unzip xz-utils
 wget https://archive.ics.uci.edu/ml/machine-learning-databases/00280/HIGGS.csv.gz
 gzip -d HIGGS.csv.gz
 sudo apt install postgresql postgresql-contrib
@@ -36,11 +36,38 @@ REQUIRED LIBRARIES
 
 ```
 conda activate python3
+pip install connectorx
 pip install xgboost
 pip install hummingbird_ml[extra]
 pip install skl2onnx
 pip install onnxmltools
 pip install onnxruntime
+```
+
+DATASETS
+
+```
+#higgs
+wget https://archive.ics.uci.edu/ml/machine-learning-databases/00280/HIGGS.csv.gz
+gzip -d HIGGS.csv.gz
+
+#airline
+wget "http://kt.ijs.si/elena_ikonomovska/datasets/airline/airline_14col.data.bz2"
+bzip2 -dk airline_14col.data.bz2
+
+#fraud
+kaggle datasets download mlg-ulb/creditcardfraud -f creditcard.csv.zip
+unzip creditcard.csv.zip
+
+#year
+wget "https://archive.ics.uci.edu/ml/machine-learning-databases/00203/YearPredictionMSD.txt.zip"
+unzip YearPredictionMSD.txt.zip
+
+#epsilon
+wget https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/binary/epsilon_normalized.xz
+wget https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/binary/epsilon_normalized.t.xz
+unxz epsilon_normalized.xz
+
 ```
 
 To run a certain experiment
