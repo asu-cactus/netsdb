@@ -1,10 +1,12 @@
-//
+
 // Created by venkateshgunda on 5/10/22.
 //
 // Refactored by Jia to move most of the construction and prediction logic to this class and to apply more performance optimizations
 //
 #ifndef NETSDB_FOREST_H
 #define NETSDB_FOREST_H
+
+#define MAX_NUM_NODES_PER_TREE 512
 
 #include <cmath>
 #include <cstdlib>
@@ -136,7 +138,7 @@ namespace pdb
                 int findStartPosition;
                 int findMidPosition;
                 int findEndPosition;
-                pdb::Vector<pdb::Handle<pdb::Node>> tree;
+                pdb::Vector<pdb::Handle<pdb::Node>> tree ( MAX_NUM_NODES_PER_TREE, MAX_NUM_NODES_PER_TREE );
 
 		std::cout << "Processing inner nodes" << std::endl;
                 for (int i = 0; i < innerNodes.size(); ++i)
@@ -159,7 +161,8 @@ namespace pdb
                     { // Verified there is no > character for Inner node
                         returnClass = std::stod(currentLine.substr(findStartPosition + 1, findEndPosition));
                     }
-                    tree.push_back(pdb::makeObject<pdb::Node>(nodeID, indexID, false, -1, -1, returnClass));
+                    tree[nodeID]= pdb::makeObject<pdb::Node>(nodeID, indexID, false, -1, -1, returnClass);
+		    //std::cout << nodeID << ", " << indexID << ", " << returnClass << std::endl;
                 }
 
 		std::cout << "Processing leaf nodes" << std::endl;
@@ -178,7 +181,7 @@ namespace pdb
                     {
                         returnClass = std::stod(currentLine.substr(findStartPosition + 5, findEndPosition - 1));
                     }
-                    tree.push_back(pdb::makeObject<pdb::Node>(nodeID, -1, true, -1, -1, returnClass));
+                    tree[nodeID] = pdb::makeObject<pdb::Node>(nodeID, -1, true, -1, -1, returnClass);
                 }
 
                 std::cout << "Processing relationships" << std::endl;
@@ -206,20 +209,15 @@ namespace pdb
                             childNodeID = std::stoi(currentLine.substr(findMidPosition + 3, findEndPosition - 1 - (findMidPosition + 3)));
                         }
                     }
-
-                    for (int i = 0; i < tree.size(); ++i)
+		    
+                    if (tree[parentNodeID]->leftChild == -1)
                     {
-                        if (tree[i]->nodeID == parentNodeID)
-                        {
-                            if (tree[i]->leftChild == -1)
-                            {
-                                tree[i]->leftChild = childNodeID;
-                            }
-                            else
-                            {
-                                tree[i]->rightChild = childNodeID;
-                            }
-                        }
+                        tree[parentNodeID]->leftChild = childNodeID;
+                    }
+                    else
+                    {
+                        tree[parentNodeID]->rightChild = childNodeID;
+			//std::cout << tree[parentNodeID]->nodeID << ", " << tree[parentNodeID]->indexID  << ", " << tree[parentNodeID]->isLeaf << ", " << tree[parentNodeID]->leftChild << ", " << tree[parentNodeID]->rightChild << ", " << tree[parentNodeID]->returnClass<< std::endl;
                     }
                 }
                 forest.push_back(tree);
@@ -231,9 +229,8 @@ namespace pdb
             std::cout << "Number of nodes in each tree: " << std::endl;
             for (int i = 0; i < numTrees; i++)
             {
-                std::cout << "Number of nodes in tree[" << i << "] is: " << forest[i].size() << std::endl;
+                std::cout << "Number of nodes in forest[" << i << "] is: " << forest[i].size() << std::endl;
             }
-	
 	}
 
         static bool compareByNodeID(const pdb::Node &a, const pdb::Node &b)
@@ -312,11 +309,12 @@ namespace pdb
 
             // get the input features matrix information
             uint32_t inNumRow = in->getRowNums();
+	    uint32_t inNumCol = in->getColNums();
 
-            T *inData = in->getValue().rawData->c_ptr(); // Need to cast from Double to Float
+            T *inData = in->getValue().rawData->c_ptr();
 
             // set the output matrix
-            pdb::Handle<pdb::Vector<T>> resultMatrix = pdb::makeObject<pdb::Vector<T>>(inNumRow);
+            pdb::Handle<pdb::Vector<T>> resultMatrix = pdb::makeObject<pdb::Vector<T>>(inNumRow, inNumRow);
             std::vector<T> thisResultMatrix(numTrees);
 
 
@@ -332,26 +330,27 @@ namespace pdb
                     pdb::Node treeNode = *(forest[j][0]);
                     while (treeNode.isLeaf == false)
                     {
-                        inputValue = inData[treeNode.indexID];
-			std::cout << inputValue << "|" << treeNode.returnClass << ": 0->";
+                        inputValue = inData[i*inNumCol + treeNode.indexID];
+			//std::cout << "(" << inputValue << "|" << treeNode.returnClass << "):" << curIndex;
 
                         if (inputValue <= treeNode.returnClass)
                         {
 			    curIndex = treeNode.leftChild;
-			    std::cout << curIndex << "-L->";
+			    //std::cout << "-L->" << curIndex;
                         }
                         else
                         {
 			    curIndex = treeNode.rightChild;
-			    std::cout << curIndex << "-R->";
+			    //std::cout << "-R->" << curIndex;
                         }
 			treeNode = *(forest[j][curIndex]);
                     }
                     thisResultMatrix[j] = treeNode.returnClass;
+		    //std::cout << "---->" << treeNode.returnClass << std::endl;
                 }
                 T voteResult = compute_result(thisResultMatrix.begin(), thisResultMatrix.end());
                 (*resultMatrix)[i]=voteResult;
-                std::cout << voteResult << std::endl;
+                //std::cout << "=>" << voteResult << std::endl;
 	    }
             return resultMatrix;
         }

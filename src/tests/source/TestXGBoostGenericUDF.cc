@@ -146,7 +146,7 @@ int main(int argc, char *argv[]) {
               << std::chrono::duration_cast<std::chrono::duration<double>>(model_end-model_begin).count()
                                                                         << " secs." << std::endl;
 
-    bool printResult = true;
+    bool printResult = false;
     if (printResult == true) {
           std::cout << "to print result..." << std::endl;
           int count = 0;
