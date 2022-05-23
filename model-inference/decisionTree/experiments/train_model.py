@@ -57,7 +57,7 @@ y = np.array(df_train[y_col])
 train_start_time = time.time()
 classifer = None
 if CLASSFIER == 'randomforest':
-    classifier = RandomForestClassifier(n_estimators = num_trees, max_depth=depth,verbose=3)
+    classifier = RandomForestClassifier(n_estimators = num_trees, max_depth=depth,verbose=3, n_jobs=6)
 elif CLASSFIER == "xgboost":
     classifier = XGBClassifier(n_estimators = num_trees, max_depth=depth,verbosity=3)
 
