@@ -59,6 +59,8 @@ if not gpu:
     FRAMEWORK = "Sklearn"
     start_time = time.time()
     model = joblib.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
+    load_time = time.time()
+    print("Time Taken to load sklearn model", calulate_time(start_time, load_time))
     results = run_inference(FRAMEWORK, df_train[x_col], input_size, batch_size, model.predict)
     write_data(FRAMEWORK, results)
     end_time = time.time()
@@ -90,6 +92,8 @@ if not gpu:
     start_time = time.time()
     device = torch.device('cpu')
     model = torch.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+"_torch.pkl"),map_location=device)
+    load_time = time.time()
+    print("Time Taken to load torch model", calulate_time(start_time, load_time))
     results = run_inference(FRAMEWORK, df_train[x_col], input_size, batch_size, model.predict)
     write_data(FRAMEWORK, results)
     end_time = time.time()
@@ -106,9 +110,13 @@ if not gpu:
     start_time = time.time()
     data = df_train[x_col]
     sklearnmodel = joblib.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
+    load_time = time.time()
+    print("Time Taken to load sklearn model", calulate_time(start_time, load_time))
     single_batch = np.array(data[0:batch_size], dtype=np.float32)
     torch_data = np.array(single_batch, dtype=np.float32)
     model = hummingbird.ml.convert(sklearnmodel, "torch.jit", torch_data)
+    model_conversion_time = time.time()
+    print("Time Taken to convert HummingbirdTorchScript:",calulate_time(load_time, model_conversion_time))
     def predict(batch):
         batch = np.array(batch, dtype=np.float32)
         return model.predict(batch)
@@ -131,6 +139,8 @@ if not gpu:
     sess = rt.InferenceSession(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".onnx"),providers=['CPUExecutionProvider'])
     input_name = sess.get_inputs()[0].name
     label_name = sess.get_outputs()[0].name
+    load_time = time.time()
+    print("Time Taken to load ONNX model", calulate_time(start_time, load_time))
     def predict(batch):
         output = sess.run([label_name], {input_name:np.array(batch,dtype=np.float32)})[0]
         return output
@@ -152,6 +162,8 @@ else:
     start_time = time.time()
     device = torch.device('cuda')
     model = torch.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+"_torch.pkl"),map_location=device)
+    load_time = time.time()
+    print("Time Taken to load Hummingbird Pytorch GPU model", calulate_time(start_time, load_time))
     results = run_inference(FRAMEWORK, df_train[x_col], input_size, batch_size, model.predict)
     write_data(FRAMEWORK, results)
     end_time = time.time()
@@ -169,9 +181,13 @@ else:
     start_time = time.time()
     data = df_train[x_col]
     sklearnmodel = joblib.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
+    load_time = time.time()
+    print("Time Taken to load sklearn model", calulate_time(start_time, load_time))
     single_batch = np.array(data[0:batch_size], dtype=np.float32)
     torch_data = np.array(single_batch, dtype=np.float32)
     model = hummingbird.ml.convert(sklearnmodel, "torch.jit", torch_data,"cuda")
+    model_conversion_time = time.time()
+    print("Time Taken to convert TorchScript GPU model", calulate_time(load_time, model_conversion_time))
     def predict(batch):
         batch = np.array(batch, dtype=np.float32)
         return model.predict(batch)
@@ -194,6 +210,8 @@ else:
     sess = rt.InferenceSession(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".onnx"),providers=['CUDAExecutionProvider'])
     input_name = sess.get_inputs()[0].name
     label_name = sess.get_outputs()[0].name
+    load_time = time.time()
+    print("Time Taken to load ONNX GPU model", calulate_time(start_time, load_time))
     def predict(batch):
         output = sess.run([label_name], {input_name:np.array(batch,dtype=np.float32)})[0]
         return output
