@@ -67,7 +67,7 @@ unzip YearPredictionMSD.txt.zip
 wget https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/binary/epsilon_normalized.xz
 wget https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/binary/epsilon_normalized.t.xz
 unxz epsilon_normalized.xz
-
+unxz epsilon_normalized.t.xz
 ```
 
 To run a certain experiment
