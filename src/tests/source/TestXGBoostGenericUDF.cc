@@ -31,33 +31,21 @@
 #include "PDBClient.h"
 #include "StorageClient.h"
 #include "PDBClient.h"
-// #include "BaselineNode.h"
-// #include "MyPrediction.h"
-#include "TreeNode.h"
-#include "Tree.h"
+#include "Node.h"
 #include "Forest.h"
-#include "FFMatrixBlockScanner.h"
-#include "FFTransposeMult.h"
-#include "FFAggMatrix.h"
-#include "FFMatrixWriter.h"
-#include "FFMatrixBlock.h"
+#include "ScanUserSet.h"
+#include "WriteUserSet.h"
+#include "TensorBlock2D.h"
 #include "FFMatrixUtil.h"
 #include "SimpleFF.h"
-#include "EnsembleTreeGenericUDF.h"
+#include "EnsembleTreeGenericUDFFloat.h"
+#include "EnsembleTreeGenericUDFDouble.h"
+#include "VectorFloatWriter.h"
+#include "VectorDoubleWriter.h"
 
 using namespace std;
 
 void loadSharedLibraries(pdb::PDBClient pdbClient) {
-    ff::loadLibrary(pdbClient, "libraries/libFFMatrixMeta.so");
-    ff::loadLibrary(pdbClient, "libraries/libFFMatrixData.so");
-    ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlock.so");
-    ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlockScanner.so");
-    ff::loadLibrary(pdbClient, "libraries/libFFMatrixWriter.so");
-    ff::loadLibrary(pdbClient, "libraries/libFFMatrixPartitioner.so");
-    ff::loadLibrary(pdbClient, "libraries/libTreeNode.so");
-    ff::loadLibrary(pdbClient, "libraries/libTree.so");
-    ff::loadLibrary(pdbClient, "libraries/libForest.so");
-    ff::loadLibrary(pdbClient, "libraries/libEnsembleTreeGenericUDF.so");
 }
 
 int main(int argc, char *argv[]) {
@@ -81,8 +69,12 @@ int main(int argc, char *argv[]) {
 
     string errMsg;
 
-    bool isClassification_task = string(argv[5]) == "C" ? true : false;  // TODO: Consider an Enum for this
-
+    bool isFloat;
+    if (string(argv[5]).compare("F")==0) {
+        isFloat = true;
+    } else {
+        isFloat = false; 
+    }
     std::string forestFolderPath = std::string(argv[6]);
 
     string masterIp = "localhost";
@@ -93,26 +85,49 @@ int main(int argc, char *argv[]) {
     if(createSet == true){
         loadSharedLibraries(pdbClient);
         ff::createDatabase(pdbClient, "decisiontree");
-        ff::createSet(pdbClient, "decisiontree", "inputs", "inputs", 64);
-        ff::loadMatrix(pdbClient, "decisiontree", "inputs", rowNum, colNum, block_x, block_y, false, false, errMsg);
+	if (isFloat) { 
+           ff::createSetGeneric<TensorBlock2D<float>>(pdbClient, "decisiontree", "inputs", "inputs", 64);
+           ff::loadMatrixGeneric<TensorBlock2D<float>>(pdbClient, "decisiontree", "inputs", rowNum, colNum, block_x, block_y, false, false, errMsg);
+        }
+   	else {
+	   ff::createSetGeneric<TensorBlock2D<double>>(pdbClient, "decisiontree", "inputs", "inputs", 64);
+	   ff::loadMatrixGeneric<TensorBlock2D<double>>(pdbClient, "decisiontree", "inputs", rowNum, colNum, block_x, block_y, false, false, errMsg);
+        }
     }else{
         std::cout << "Not create a set and not load new data to the input set" << std::endl;
     }
 
-    ff::createSet(pdbClient, "decisiontree", "labels", "labels", 64);
+    if (isFloat)
+        ff::createSetGeneric<pdb::Vector<float>>(pdbClient, "decisiontree", "labels", "labels", 64);
+    else
+	ff::createSetGeneric<pdb::Vector<double>>(pdbClient, "decisiontree", "labels", "labels", 64);
 
     makeObjectAllocatorBlock(1024 * 1024 * 1024, true);
 
-    pdb::Handle<pdb::Computation> inputMatrix = pdb::makeObject<FFMatrixBlockScanner>("decisiontree", "inputs");
+    pdb::Handle<pdb::Computation> inputMatrix = nullptr;
+    if (isFloat)
+	 inputMatrix = pdb::makeObject<ScanUserSet<TensorBlock2D<float>>>("decisiontree", "inputs");
+    else
+	 inputMatrix = pdb::makeObject<ScanUserSet<TensorBlock2D<double>>>("decisiontree", "inputs");
 
+    bool isClassificationTask = true;
     auto model_begin = chrono::high_resolution_clock::now();
-    pdb::Handle<pdb::Computation> xgbGenericUDF = pdb::makeObject<decisiontree::EnsembleTreeGenericUDF>(forestFolderPath, ModelType::XGBoost, isClassification_task);
+    pdb::Handle<pdb::Computation> xgbGenericUDF = nullptr;
+
+    if (isFloat)
+         xgbGenericUDF = pdb::makeObject<pdb::EnsembleTreeGenericUDFFloat>(forestFolderPath, ModelType::XGBoost, isClassificationTask);
+    else
+	 xgbGenericUDF = pdb::makeObject<pdb::EnsembleTreeGenericUDFDouble>(forestFolderPath, ModelType::XGBoost, isClassificationTask);
+
     auto model_end = chrono::high_resolution_clock::now();
 
     xgbGenericUDF->setInput(inputMatrix);
 
     pdb::Handle<pdb::Computation> labelWriter = nullptr;
-    labelWriter = pdb::makeObject<FFMatrixWriter>("decisiontree", "labels");
+    if (isFloat)
+         labelWriter = pdb::makeObject<pdb::VectorFloatWriter>("decisiontree", "labels");
+    else
+	 labelWriter = pdb::makeObject<pdb::VectorDoubleWriter>("decisiontree", "labels");
     labelWriter->setInput(xgbGenericUDF);
 
     bool materializeHash = true;
@@ -131,14 +146,33 @@ int main(int argc, char *argv[]) {
               << std::chrono::duration_cast<std::chrono::duration<double>>(model_end-model_begin).count()
                                                                         << " secs." << std::endl;
 
-    //verify the results
-    std::cout << "To print the status" << std::endl;
-    ff::print_stats(pdbClient, "decisiontree", "labels");
-    std::cout << "To print the results" << std::endl;
-    ff::print(pdbClient, "decisiontree", "labels");
+    bool printResult = true;
+    if (printResult == true) {
+          std::cout << "to print result..." << std::endl;
+          int count = 0;
+          if (isFloat) {
 
-    // TODO: Correctness of the results is not measured. Confusion Matrix, Accuracy etc.
+	       SetIterator<Vector<float>> result =
+                   pdbClient.getSetIterator<Vector<float>>("decisiontree", "labels");
+           
+               for (auto a : result) {
+                    count++;
+                    a->print();
+               }
+	  } else {
+	  
+	       SetIterator<Vector<double>> result =
+                   pdbClient.getSetIterator<Vector<double>>("decisiontree", "labels");
 
+	       for (auto a : result) {
+                    count++;
+                    a->print();
+               }
+	  
+	  }
+
+          std::cout << "output count:" << count << "\n";
+    }
     return 0;
 }
 

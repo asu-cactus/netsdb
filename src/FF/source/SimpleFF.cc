@@ -15,6 +15,7 @@
 #include "FFMatrixPartitioner.h"
 #include "FFMatrixUtil.h"
 #include "PDBClient.h"
+#include "TensorBlock2D.h"
 
 namespace ff {
 void loadLibrary(pdb::PDBClient &pdbClient, string path) {
@@ -25,10 +26,14 @@ void loadLibrary(pdb::PDBClient &pdbClient, string path) {
   }
 }
 
-void createSet(pdb::PDBClient &pdbClient, string dbName, string setName, string setName1, int size) {
+
+template <class T>
+void createSetGeneric(pdb::PDBClient &pdbClient, std::string dbName,
+               std::string setName, std::string setName1, int size) {
+
   string errMsg;
   pdbClient.removeSet(dbName, setName, errMsg);
-  if (!pdbClient.createSet<FFMatrixBlock>(
+  if (!pdbClient.createSet<T>(
           dbName, setName, errMsg, (size_t)size * (size_t)1024 * (size_t)1024,
           setName1)) {
     cout << "Not able to create set: " + errMsg;
@@ -36,6 +41,23 @@ void createSet(pdb::PDBClient &pdbClient, string dbName, string setName, string 
   } else {
     cout << "Created set.\n";
   }
+
+}
+
+template void createSetGeneric<pdb::TensorBlock2D<float>>(pdb::PDBClient &pdbClient, std::string dbName,
+               std::string setName, std::string setName1, int size);
+
+template void createSetGeneric<pdb::TensorBlock2D<double>>(pdb::PDBClient &pdbClient, std::string dbName,
+               std::string setName, std::string setName1, int size);
+
+template void createSetGeneric<pdb::Vector<float>>(pdb::PDBClient &pdbClient, std::string dbName,
+               std::string setName, std::string setName1, int size);
+
+template void createSetGeneric<pdb::Vector<double>>(pdb::PDBClient &pdbClient, std::string dbName,
+               std::string setName, std::string setName1, int size);
+
+void createSet(pdb::PDBClient &pdbClient, string dbName, string setName, string setName1, int size) {
+  createSetGeneric<FFMatrixBlock>(pdbClient, dbName, setName, setName1, size);
 }
 
 void createSet(pdb::PDBClient &pdbClient, string dbName, string setName,

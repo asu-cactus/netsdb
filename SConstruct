@@ -1397,16 +1397,8 @@ common_env.SharedLibrary('libraries/libFullyConnectedNetwork.so',
 #                         ['build/decisionTree/JoinforBaselineDT_N.cc'] + all)
 # common_env.SharedLibrary('libraries/libRFJoin.so',
 #                         ['build/decisionTree/RFJoin.cc'] + all)
-common_env.SharedLibrary('libraries/libEnsembleTreeGenericUDF.so',
-                        ['build/decisionTree/EnsembleTreeGenericUDF.cc'] + all)
 # common_env.SharedLibrary('libraries/libRFGenericDT.so',
 #                         ['build/decisionTree/RFGenericDT.cc'] + all)
-common_env.SharedLibrary('libraries/libTreeNode.so',
-                        ['build/decisionTree/TreeNode.cc'] + all)
-common_env.SharedLibrary('libraries/libTree.so',
-                        ['build/decisionTree/Tree.cc'] + all)
-common_env.SharedLibrary('libraries/libForest.so',
-                        ['build/decisionTree/Forest.cc'] + all)
 # common_env.SharedLibrary('libraries/libGenericDT.so',
 #                         ['build/decisionTree/GenericDT.cc'] + all)
 # common_env.SharedLibrary('libraries/libGenericUDF.so',
@@ -2125,17 +2117,6 @@ libDTXGBoostTest = common_env.Alias('libDTXGBoostTest', [
     'bin/pdb-cluster',
     'bin/pdb-server',
     'bin/XGBoostGenericUDF',
-    'libraries/libFFMatrixBlock.so',
-    'libraries/libFFMatrixMeta.so',
-    'libraries/libFFMatrixData.so',
-    'libraries/libFFMatrixBlockScanner.so',
-    'libraries/libFFMatrixWriter.so',
-    'libraries/libMatrixBlock.so',
-    'libraries/libFFMatrixPartitioner.so',
-    'libraries/libEnsembleTreeGenericUDF.so',
-    'libraries/libTreeNode.so',
-    'libraries/libTree.so',
-    'libraries/libForest.so',
 ])
 
 libConv2DProjTest = common_env.Alias('libConv2DProjTest', [

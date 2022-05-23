@@ -46,15 +46,15 @@ using namespace std;
 #endif
 
 #ifndef DEFAULT_SHAREDMEM_SIZE
-#define DEFAULT_SHAREDMEM_SIZE ((size_t)4 * (size_t)1024 * (size_t)1024 * (size_t)1024)
+#define DEFAULT_SHAREDMEM_SIZE ((size_t)16 * (size_t)1024 * (size_t)1024 * (size_t)1024)
 #endif
 
 #ifndef DEFAULT_NUM_THREADS
-#define DEFAULT_NUM_THREADS 2
+#define DEFAULT_NUM_THREADS 4
 #endif
 
 #ifndef DEFAULT_BATCH_SIZE
-#define DEFAULT_BATCH_SIZE 1
+#define DEFAULT_BATCH_SIZE 20
 #endif
 
 
@@ -64,11 +64,11 @@ using namespace std;
 
 // unit: KB
 #ifndef DEFAULT_MEM_SIZE
-#define DEFAULT_MEM_SIZE ((size_t)(61) * (size_t)(1024) * (size_t)(1024))
+#define DEFAULT_MEM_SIZE ((size_t)(31) * (size_t)(1024) * (size_t)(1024))
 #endif
 
 #ifndef DEFAULT_NUM_CORES
-#define DEFAULT_NUM_CORES 8 
+#define DEFAULT_NUM_CORES 4
 #endif
 
 // create a smart pointer for Configuration objects

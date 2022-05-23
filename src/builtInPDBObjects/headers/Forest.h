@@ -1,7 +1,8 @@
 //
 // Created by venkateshgunda on 5/10/22.
 //
-
+// Refactored by Jia to move most of the construction and prediction logic to this class and to apply more performance optimizations
+//
 #ifndef NETSDB_FOREST_H
 #define NETSDB_FOREST_H
 
@@ -29,19 +30,16 @@
 #include <algorithm>
 #include <map>
 #include <set>
-#include "FFMatrixBlockScanner.h"
-#include "FFTransposeMult.h"
-#include "FFAggMatrix.h"
-#include "FFMatrixWriter.h"
-#include "FFMatrixBlock.h"
-#include "TreeNode.h"
-#include "Tree.h"
+#include "TensorBlock2D.h"
+#include "Node.h"
 #include "PDBClient.h"
 #include "StorageClient.h"
 
+// PRELOAD %Forest%
+
 using std::filesystem::directory_iterator;
 
-namespace decisiontree
+namespace pdb
 {
 
     class Forest : public Object
@@ -49,21 +47,18 @@ namespace decisiontree
     public:
         ENABLE_DEEP_COPY
 
-        pdb::Vector<pdb::Vector<pdb::Handle<decisiontree::Node>>> forest;
+        pdb::Vector<pdb::Vector<pdb::Handle<pdb::Node>>> forest;
         int numTrees;
         ModelType modelType;
 
-        Forest()
-        {
-            this->modelType = ModelType::RandomForest;
-        }
+        Forest() {}
 
         Forest(ModelType type)
         {
             this->modelType = type;
         }
 
-        Forest(pdb::Vector<pdb::Vector<pdb::Handle<decisiontree::Node>>> forestIn, ModelType type)
+        Forest(pdb::Vector<pdb::Vector<pdb::Handle<pdb::Node>>> forestIn, ModelType type)
         {
             this->forest = forestIn;
             this->numTrees = forestIn.size();
@@ -141,7 +136,7 @@ namespace decisiontree
                 int findStartPosition;
                 int findMidPosition;
                 int findEndPosition;
-                pdb::Vector<pdb::Handle<decisiontree::Node>> tree;
+                pdb::Vector<pdb::Handle<pdb::Node>> tree;
 
 		std::cout << "Processing inner nodes" << std::endl;
                 for (int i = 0; i < innerNodes.size(); ++i)
@@ -164,7 +159,7 @@ namespace decisiontree
                     { // Verified there is no > character for Inner node
                         returnClass = std::stod(currentLine.substr(findStartPosition + 1, findEndPosition));
                     }
-                    tree.push_back(pdb::makeObject<decisiontree::Node>(nodeID, indexID, false, -1, -1, returnClass));
+                    tree.push_back(pdb::makeObject<pdb::Node>(nodeID, indexID, false, -1, -1, returnClass));
                 }
 
 		std::cout << "Processing leaf nodes" << std::endl;
@@ -183,7 +178,7 @@ namespace decisiontree
                     {
                         returnClass = std::stod(currentLine.substr(findStartPosition + 5, findEndPosition - 1));
                     }
-                    tree.push_back(pdb::makeObject<decisiontree::Node>(nodeID, -1, true, -1, -1, returnClass));
+                    tree.push_back(pdb::makeObject<pdb::Node>(nodeID, -1, true, -1, -1, returnClass));
                 }
 
                 std::cout << "Processing relationships" << std::endl;
@@ -241,17 +236,17 @@ namespace decisiontree
 	
 	}
 
-        static bool compareByNodeID(const decisiontree::Node &a, const decisiontree::Node &b)
+        static bool compareByNodeID(const pdb::Node &a, const pdb::Node &b)
         {
             return a.nodeID < b.nodeID;
         }
 
-        pdb::Vector<pdb::Vector<pdb::Handle<decisiontree::Node>>> & get_forest()
+        pdb::Vector<pdb::Vector<pdb::Handle<pdb::Node>>> & get_forest()
         {
             return forest;
         }
 
-        void set_forest(pdb::Vector<pdb::Vector<pdb::Handle<decisiontree::Node>>>& forestIn)
+        void set_forest(pdb::Vector<pdb::Vector<pdb::Handle<pdb::Node>>>& forestIn)
         {
             forest = forestIn;
             numTrees = forestIn.size();
@@ -311,21 +306,21 @@ namespace decisiontree
             }
         }
 
-        pdb::Handle<pdb::Vector<double>> predict(Handle<FFMatrixBlock> &in)
+        template <class T>
+        pdb::Handle<pdb::Vector<T>> predict(Handle<TensorBlock2D<T>> &in)
         {                                 // TODO: Change all Double References to Float
 
             // get the input features matrix information
             uint32_t inNumRow = in->getRowNums();
-            uint32_t inNumCol = in->getColNums();
 
-            double *inData = in->getValue().rawData->c_ptr(); // Need to cast from Double to Float
+            T *inData = in->getValue().rawData->c_ptr(); // Need to cast from Double to Float
 
             // set the output matrix
-            pdb::Handle<pdb::Vector<double>> resultMatrix = pdb::makeObject<pdb::Vector<double>>();
-            std::vector<double> thisResultMatrix(numTrees);
+            pdb::Handle<pdb::Vector<T>> resultMatrix = pdb::makeObject<pdb::Vector<T>>(inNumRow);
+            std::vector<T> thisResultMatrix(numTrees);
 
 
-            float inputValue;
+            T inputValue;
 
             for (int i = 0; i < inNumRow; i++)
             {
@@ -334,25 +329,30 @@ namespace decisiontree
                     //  inference
                     //  pass the root node of the tree
 	            int curIndex = 0;
-                    Handle<decisiontree::Node> treeNode = forest[j][0];
-                    while (treeNode->isLeaf == false)
+                    pdb::Node treeNode = *(forest[j][0]);
+                    while (treeNode.isLeaf == false)
                     {
-                        inputValue = inData[i * inNumCol + treeNode->indexID];
-                        if (inputValue <= treeNode->returnClass)
+                        inputValue = inData[treeNode.indexID];
+			std::cout << inputValue << "|" << treeNode.returnClass << ": 0->";
+
+                        if (inputValue <= treeNode.returnClass)
                         {
-			    curIndex = curIndex + treeNode->leftChild;
+			    curIndex = treeNode.leftChild;
+			    std::cout << curIndex << "-L->";
                         }
                         else
                         {
-			    curIndex = curIndex + treeNode->rightChild;
+			    curIndex = treeNode.rightChild;
+			    std::cout << curIndex << "-R->";
                         }
-			treeNode = forest[j][curIndex];
+			treeNode = *(forest[j][curIndex]);
                     }
-                    thisResultMatrix[j] = treeNode->returnClass;
+                    thisResultMatrix[j] = treeNode.returnClass;
                 }
-                float voteResult = compute_result(thisResultMatrix.begin(), thisResultMatrix.end());
-                resultMatrix->push_back(voteResult);
-            }
+                T voteResult = compute_result(thisResultMatrix.begin(), thisResultMatrix.end());
+                (*resultMatrix)[i]=voteResult;
+                std::cout << voteResult << std::endl;
+	    }
             return resultMatrix;
         }
     };

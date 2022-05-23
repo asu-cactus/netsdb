@@ -5,13 +5,16 @@
 // each set in the database is a tree
 // each row in one set is a decision tree node
 
+
+// PRELOAD %Node%
+
 using namespace pdb;
 
 static float FLOAT_DEFAULT = 0.0;
 static int INTEGER_DEFAULT = 0;
 static bool BOOL_DEFAULT = false;
 
-namespace decisiontree{
+namespace pdb{
 
 	class Node: public Object {
 

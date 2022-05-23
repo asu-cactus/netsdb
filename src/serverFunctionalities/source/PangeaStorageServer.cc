@@ -528,8 +528,9 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                             ":" + request->getTypeName() + " already exists\n";
                     } else {
                         std::string internalTypeName = VTableMap::getInternalTypeName(request->getTypeName());
+			//std::cout << "InternalTypeName for " << request->getTypeName() << " is " << internalTypeName << std::endl;
                         int16_t typeID = VTableMap::getIDByName(internalTypeName, false);
-                        PDB_COUT << "TypeID =" << typeID << std::endl;
+                        //PDB_COUT << "TypeID =" << typeID << std::endl;
                         if (typeID == -1) {
                             errMsg = "Could not find type " + request->getTypeName();
                             res = false;
@@ -2040,7 +2041,8 @@ bool PangeaStorageServer::addSet(
             // now we fetch the type id through catalog
             int typeId = VTableMap::getIDByName(typeName, false);
             if ((typeId <= 0) || (typeId == 8191)) {
-                PDB_COUT << "type doesn't  exist for name=" << typeName
+		VTableMap::listVtableLabels();
+		std::cout << "type doesn't  exist for name=" << typeName
                          << ", and we store it as default type" << std::endl;
                 typeName = "UnknownUserData";
                 this->addType(typeName, (UserTypeID)-1);
