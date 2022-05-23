@@ -1,0 +1,60 @@
+higgs
+xgboost
+Batch 100
+Time Taken to load higgs as a dataframe is: 6398.858308792114
+Time Taken to predict on Sklearn is: 100636.21807098389
+Time Taken to write results to a text file for Sklearn is: 1398.7319469451904
+TOTAL Time Taken Sklearn is: 102518.07165145874
+Classification Report Sklearn
+              precision    recall  f1-score   support
+
+           0       0.71      0.70      0.71   1034715
+           1       0.74      0.75      0.74   1165285
+
+    accuracy                           0.73   2200000
+   macro avg       0.72      0.72      0.72   2200000
+weighted avg       0.73      0.73      0.73   2200000
+
+################
+Time Taken to predict on HummingbirdPytorchCPU is: 18389.209508895874
+Time Taken to write results to a text file for HummingbirdPytorchCPU is: 1490.6070232391357
+TOTAL Time Taken HummingbirdPytorchCPU is: 20129.847049713135
+Classification Report HummingbirdPytorchCPU
+              precision    recall  f1-score   support
+
+           0       0.71      0.70      0.71   1034715
+           1       0.74      0.75      0.74   1165285
+
+    accuracy                           0.73   2200000
+   macro avg       0.72      0.72      0.72   2200000
+weighted avg       0.73      0.73      0.73   2200000
+
+################
+Time Taken to predict on HummingbirdTorchScriptCPU is: 13304.879665374756
+Time Taken to write results to a text file for HummingbirdTorchScriptCPU is: 1449.930191040039
+TOTAL Time Taken HummingbirdTorchScriptCPU is: 15775.24447441101
+Classification Report HummingbirdTorchScriptCPU
+              precision    recall  f1-score   support
+
+           0       0.71      0.70      0.71   1034715
+           1       0.74      0.75      0.74   1165285
+
+    accuracy                           0.73   2200000
+   macro avg       0.72      0.72      0.72   2200000
+weighted avg       0.73      0.73      0.73   2200000
+
+################
+Time Taken to predict on ONNXCPU is: 4956.878423690796
+Time Taken to write results to a text file for ONNXCPU is: 1434.1468811035156
+TOTAL Time Taken ONNXCPU is: 6657.755613327026
+Classification Report ONNXCPU
+              precision    recall  f1-score   support
+
+           0       0.71      0.70      0.71   1034715
+           1       0.74      0.75      0.74   1165285
+
+    accuracy                           0.73   2200000
+   macro avg       0.72      0.72      0.72   2200000
+weighted avg       0.73      0.73      0.73   2200000
+
+################
