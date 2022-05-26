@@ -24,7 +24,7 @@ args = sys.argv
 DATASET = "higgs"
 CLASSFIER = "xgboost"
 gpu = False
-if len(args) == 3:
+if len(args) >= 3:
     DATASET = args[1]
     CLASSFIER = args[2] 
 
