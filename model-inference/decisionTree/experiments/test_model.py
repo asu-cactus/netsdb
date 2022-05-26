@@ -24,6 +24,7 @@ args = sys.argv
 DATASET = "higgs"
 CLASSFIER = "xgboost"
 gpu = False
+print(args,len(args))
 if len(args) >= 3:
     DATASET = args[1]
     CLASSFIER = args[2] 
@@ -59,6 +60,7 @@ if not gpu:
     FRAMEWORK = "Sklearn"
     start_time = time.time()
     model = joblib.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
+    model.set_params(verbose =0)
     load_time = time.time()
     print("Time Taken to load sklearn model", calulate_time(start_time, load_time))
     results = run_inference(FRAMEWORK, df_train[x_col], input_size, batch_size, model.predict)
