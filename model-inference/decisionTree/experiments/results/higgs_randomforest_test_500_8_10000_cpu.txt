@@ -1,65 +1,67 @@
+higgs randomforest 10000
+['test_model.py', 'higgs', 'randomforest', '10000'] 4
 higgs
-xgboost
+randomforest
 Batch 10000
-Time Taken to load higgs as a dataframe is: 6257.024765014648
-Time Taken to load sklearn model 257.1573257446289
-Time Taken to predict on Sklearn is: 18965.6925201416
-Time Taken to write results to a text file for Sklearn is: 1476.9237041473389
-TOTAL Time Taken Sklearn is: 21348.134994506836
+Time Taken to load higgs as a dataframe is: 6111.915588378906
+Time Taken to load sklearn model 212.9673957824707
+Time Taken to predict on Sklearn is: 74462.82267570496
+Time Taken to write results to a text file for Sklearn is: 1423.6781597137451
+TOTAL Time Taken Sklearn is: 76748.63886833191
 Classification Report Sklearn
               precision    recall  f1-score   support
 
-           0       0.75      0.73      0.74   1034715
-           1       0.77      0.79      0.78   1165285
+           0       0.70      0.64      0.67   1034715
+           1       0.70      0.75      0.73   1165285
 
-    accuracy                           0.76   2200000
-   macro avg       0.76      0.76      0.76   2200000
-weighted avg       0.76      0.76      0.76   2200000
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
 
 ################
-Time Taken to load torch model 3.880739212036133
-Time Taken to predict on HummingbirdPytorchCPU is: 157701.26962661743
-Time Taken to write results to a text file for HummingbirdPytorchCPU is: 1500.411033630371
-TOTAL Time Taken HummingbirdPytorchCPU is: 159429.98600006104
+Time Taken to load torch model 3.933429718017578
+Time Taken to predict on HummingbirdPytorchCPU is: 166728.47652435303
+Time Taken to write results to a text file for HummingbirdPytorchCPU is: 1479.1197776794434
+TOTAL Time Taken HummingbirdPytorchCPU is: 168435.96982955933
 Classification Report HummingbirdPytorchCPU
               precision    recall  f1-score   support
 
-           0       0.75      0.73      0.74   1034715
-           1       0.77      0.79      0.78   1165285
+           0       0.70      0.64      0.67   1034715
+           1       0.70      0.75      0.73   1165285
 
-    accuracy                           0.76   2200000
-   macro avg       0.76      0.76      0.76   2200000
-weighted avg       0.76      0.76      0.76   2200000
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
 
 ################
-Time Taken to load sklearn model 248.30913543701172
-Time Taken to convert HummingbirdTorchScript: 31787.31060028076
-Time Taken to predict on HummingbirdTorchScriptCPU is: 97474.9026298523
-Time Taken to write results to a text file for HummingbirdTorchScriptCPU is: 1472.4748134613037
-TOTAL Time Taken HummingbirdTorchScriptCPU is: 130983.18028450012
+Time Taken to load sklearn model 421.5424060821533
+Time Taken to convert HummingbirdTorchScript: 7390.843391418457
+Time Taken to predict on HummingbirdTorchScriptCPU is: 84163.81096839905
+Time Taken to write results to a text file for HummingbirdTorchScriptCPU is: 1441.512107849121
+TOTAL Time Taken HummingbirdTorchScriptCPU is: 93417.90199279785
 Classification Report HummingbirdTorchScriptCPU
               precision    recall  f1-score   support
 
-           0       0.75      0.73      0.74   1034715
-           1       0.77      0.79      0.78   1165285
+           0       0.70      0.64      0.67   1034715
+           1       0.70      0.75      0.73   1165285
 
-    accuracy                           0.76   2200000
-   macro avg       0.76      0.76      0.76   2200000
-weighted avg       0.76      0.76      0.76   2200000
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
 
 ################
-Time Taken to load ONNX model 620.4614639282227
-Time Taken to predict on ONNXCPU is: 24625.691652297974
-Time Taken to write results to a text file for ONNXCPU is: 1446.502923965454
-TOTAL Time Taken ONNXCPU is: 26692.832946777344
+Time Taken to load ONNX model 580.0280570983887
+Time Taken to predict on ONNXCPU is: 32925.73809623718
+Time Taken to write results to a text file for ONNXCPU is: 1415.1716232299805
+TOTAL Time Taken ONNXCPU is: 34921.11682891846
 Classification Report ONNXCPU
               precision    recall  f1-score   support
 
-           0       0.75      0.73      0.74   1034715
-           1       0.77      0.79      0.78   1165285
+           0       0.70      0.64      0.67   1034715
+           1       0.70      0.75      0.73   1165285
 
-    accuracy                           0.76   2200000
-   macro avg       0.76      0.76      0.76   2200000
-weighted avg       0.76      0.76      0.76   2200000
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
 
 ################
