@@ -61,6 +61,8 @@ if not gpu:
     start_time = time.time()
     model = joblib.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
     model.set_params(verbose =0)
+    model.set_params(n_jobs =-1)
+    # model.set_params(verbosity =3)
     load_time = time.time()
     print("Time Taken to load sklearn model", calulate_time(start_time, load_time))
     results = run_inference(FRAMEWORK, df_train[x_col], input_size, batch_size, model.predict)
@@ -112,6 +114,8 @@ if not gpu:
     start_time = time.time()
     data = df_train[x_col]
     sklearnmodel = joblib.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
+    sklearnmodel.set_params(verbose =0)
+    sklearnmodel.set_params(n_jobs =-1)
     load_time = time.time()
     print("Time Taken to load sklearn model", calulate_time(start_time, load_time))
     single_batch = np.array(data[0:batch_size], dtype=np.float32)
@@ -183,6 +187,8 @@ else:
     start_time = time.time()
     data = df_train[x_col]
     sklearnmodel = joblib.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
+    sklearnmodel.set_params(n_jobs =-1)
+    sklearnmodel.set_params(verbose =0)
     load_time = time.time()
     print("Time Taken to load sklearn model", calulate_time(start_time, load_time))
     single_batch = np.array(data[0:batch_size], dtype=np.float32)
