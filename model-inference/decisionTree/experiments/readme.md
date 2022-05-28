@@ -89,3 +89,9 @@ python test_model.py higgs randomforest 100000
 
 python test_model.py higgs randomforest 100000 gpu
 ```
+
+Get CPU Usage
+
+```
+echo "CPU Usage: "$[100-$(vmstat 1 2|tail -1|awk '{print $15}')]"%"
+```
