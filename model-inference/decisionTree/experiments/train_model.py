@@ -59,7 +59,7 @@ classifer = None
 if CLASSFIER == 'randomforest':
     classifier = RandomForestClassifier(n_estimators = num_trees, max_depth=depth,verbose=3,n_jobs=-1)
 elif CLASSFIER == "xgboost":
-    classifier = XGBClassifier(n_estimators = num_trees, max_depth=depth,verbosity=3)
+    classifier = XGBClassifier(n_estimators = num_trees, max_depth=depth,verbosity=3,n_jobs=-1)
 
 classifier.fit(x,y) 
 train_end_time = time.time()
