@@ -150,8 +150,10 @@ def parse_args():
             "Comma-separated list of frameworks to run against the baselines;" "'all' run onnx-ml, hb-pytorch, hb-torchscript"
         ),
     )
+
+    ##CHANGE
     parser.add_argument(
-        "-cpus", default=6, type=int, help=("#CPUs to use for the benchmarks; 0 means psutil.cpu_count(logical=False)")
+        "-cpus", default=0, type=int, help=("#CPUs to use for the benchmarks; 0 means psutil.cpu_count(logical=False)")
     )
     parser.add_argument(
         "-batch_size", default=10000, type=int, help=("Supported batch size. By default we score one record at a time.")
