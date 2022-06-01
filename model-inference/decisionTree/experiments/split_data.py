@@ -12,13 +12,18 @@ datasetconfig = config[DATASET]
 pgsqlconfig = config["pgsqlconfig"]
 test = float(datasetconfig["test"])
 table_name = datasetconfig["table"]
+header = datasetconfig["header"]
 
 if len(args) > 1:
     DATASET = args[-1]
 
-df = pd.read_csv(datasetconfig["filename"]+".csv",header=None)
+df = None
+if header:
+    df = pd.read_csv(datasetconfig["filename"])
+else:
+    df = pd.read_csv(datasetconfig["filename"],header=None)
 
-print("LOADED",datasetconfig["filename"]+".csv")
+print("LOADED",datasetconfig["filename"])
 
 train, test = train_test_split(df, test_size=test)
 
