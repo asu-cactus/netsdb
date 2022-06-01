@@ -322,6 +322,7 @@ namespace pdb
 
             for (int i = 0; i < inNumRow; i++)
             {
+		int featureStartIndex = i*inNumCol;
                 for (int j = 0; j < numTrees; j++)
                 {
                     //  inference
@@ -330,7 +331,7 @@ namespace pdb
                     pdb::Node treeNode = *(forest[j][0]);
                     while (treeNode.isLeaf == false)
                     {
-                        inputValue = inData[i*inNumCol + treeNode.indexID];
+                        inputValue = inData[featureStartIndex + treeNode.indexID];
 			//std::cout << "(" << inputValue << "|" << treeNode.returnClass << "):" << curIndex;
 
                         if (inputValue <= treeNode.returnClass)

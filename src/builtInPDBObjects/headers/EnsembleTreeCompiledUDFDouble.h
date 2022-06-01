@@ -1,5 +1,5 @@
-#ifndef ENSEMBLE_TREE_GENERIC_UDF_DOUBLE_H
-#define ENSEMBLE_TREE_GENERIC_UDF_DOUBLE_H
+#ifndef ENSEMBLE_TREE_COMPILED_UDF_DOUBLE_H
+#define ENSEMBLE_TREE_COMPILED_UDF_DOUBLE_H
 
 
 #include <cmath>
@@ -33,28 +33,25 @@
 #include "Lambda.h"
 #include "LambdaCreationFunctions.h"
 #include "SelectionComp.h"
-#include "Node.h"
-#include "Forest.h"
 
-
-// PRELOAD %EnsembleTreeGenericUDFDouble%
+// PRELOAD %EnsembleTreeCompiledUDFDouble%
 
 
 namespace pdb 
 {
-    class EnsembleTreeGenericUDFDouble : public SelectionComp<Vector<double>, TensorBlock2D<double>>
+    class EnsembleTreeCompiledUDFDouble : public SelectionComp<Vector<double>, TensorBlock2D<double>>
     {
 
     public:
         ENABLE_DEEP_COPY
 
-	Handle<pdb::Forest> forest;
+	void (*func_name) (double * input, double * output, size_t numRows, size_t numCols);
 
-        EnsembleTreeGenericUDFDouble() {}
+        EnsembleTreeCompiledUDFDouble() {}
 
-        EnsembleTreeGenericUDFDouble(std::string forestPathIn, ModelType modelType, bool isClassificationTask)
+        EnsembleTreeCompiledUDFDouble(void (*func_name) (double * input, double * output, size_t numRows, size_t numCols))
         {
-            forest = makeObject<pdb::Forest>(forestPathIn, modelType, isClassificationTask);
+            this->func_name = func_name;
         }
 
         Lambda<bool> getSelection(Handle<TensorBlock2D<double>> checkMe) override
@@ -69,8 +66,18 @@ namespace pdb
             return makeLambda(in, [this](Handle<TensorBlock2D<double>> &in) {
 
 
+		TensorBlock2D<double> & block = *in;
+
+		// get the input array of doubles
+                double * input = (block.data.rawData)->c_ptr();
+            
+	        size_t numRows =  block.getRowNums();
+		size_t numCols =  block.getColNums();
+
                 // set the output matrix
-                pdb::Handle<pdb::Vector<double>> resultMatrix = forest->predict(in);
+                Handle<Vector<double>> resultMatrix = makeObject<pdb::Vector<double>>(numRows, numRows);
+		double * output = resultMatrix->c_ptr();
+		func_name(input, output, numRows, numCols);
 
                 return resultMatrix; });
         }

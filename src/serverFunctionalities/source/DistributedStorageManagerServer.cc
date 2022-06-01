@@ -23,6 +23,8 @@
 #include "DistributedStorageCleanup.h"
 #include "DistributedStorageAddSharedPage.h"
 #include "DistributedStorageAddSharedMapping.h"
+#include "DistributedStorageAddModel.h"
+#include "DistributedStorageAddModelResponse.h"
 #include "Computation.h"
 #include "ComputationNode.h"
 #include "QuerySchedulerServer.h"
@@ -42,6 +44,8 @@
 #include "StorageExportSet.h"
 #include "StorageClearSet.h"
 #include "StorageCleanup.h"
+#include "StorageAddModel.h"
+#include "StorageAddModelResponse.h"
 #include "Configuration.h"
 #include "SelfLearningServer.h"
 #include "SetScan.h"
@@ -51,6 +55,8 @@
 #include "DRLBasedDataPlacementOptimizerForLoadJob.h"
 
 #include <chrono>
+#include <algorithm>
+#include <vector>
 #include <ctime>
 #include <unistd.h>
 #include <snappy.h>
@@ -927,6 +933,9 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
             return make_pair(res, errMsg);
         }));
 
+
+
+
     forMe.registerHandler(
         DistributedStorageRemoveTempSet_TYPEID,
         make_shared<SimpleRequestHandler<DistributedStorageRemoveTempSet>>(
@@ -1498,6 +1507,54 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
             return std::make_pair(true, errMsg);
 
         }));
+
+    forMe.registerHandler(
+        DistributedStorageAddModel_TYPEID,
+        make_shared<SimpleRequestHandler<DistributedStorageAddModel>>(
+            [&](Handle<DistributedStorageAddModel> request, PDBCommunicatorPtr sendUsingMe) {
+                const UseTemporaryAllocationBlock tempBlock{8 * 1024 * 1024};
+                std::cout << "received DistributedStorageAddModel message" << std::endl;
+                std::string errMsg;
+                bool res = true;
+                mutex lock;
+
+                auto successfulNodes = std::vector<std::string>();
+                auto failureNodes = std::vector<std::string>();
+                auto nodesToBroadcast = std::vector<std::string>();
+
+                std::string pathToModel = request->getPathToModel();
+                std::string modelMaterializationType = request->getModelMaterializationType();
+		std::string modelType = request->getModelType();
+
+                std::vector<std::string> allNodes;
+                const auto nodes = getFunctionality<ResourceManagerServer>().getAllNodes();
+                for (int i = 0; i < nodes->size(); i++) {
+                     std::string address = static_cast<std::string>((*nodes)[i]->getAddress());
+                     std::string port = std::to_string((*nodes)[i]->getPort());
+                     allNodes.push_back(address + ":" + port);
+                }
+                nodesToBroadcast = allNodes;
+                Handle<StorageAddModel> storageCmd = makeObject<StorageAddModel>(
+                        request->getPathToModel(), request->getModelMaterializationType(), request->getModelType());
+
+
+		std::vector<void *> pointers;
+		for (int i = 0; i < nodesToBroadcast.size(); i++) {
+		    pointers.push_back(nullptr);
+		}
+                getFunctionality<DistributedStorageManagerServer>()
+                        .broadcast<StorageAddModel, Object, StorageAddModelResponse>(
+                            storageCmd,
+                            nullptr,
+                            nodesToBroadcast,
+                            generateResponseHandler(successfulNodes, failureNodes, lock, pointers, nodesToBroadcast));
+                res = true;
+
+                Handle<DistributedStorageAddModelResponse> response = makeObject<DistributedStorageAddModelResponse>(pathToModel, modelMaterializationType, modelType, pointers);
+                res = sendUsingMe->sendObject(response, errMsg);
+                return make_pair(res, errMsg);
+            }));
+
 }
 
 std::function<void(Handle<SimpleRequestResult>, std::string)>
@@ -1522,7 +1579,30 @@ DistributedStorageManagerServer::generateAckHandler(std::vector<std::string>& su
     };
 }
 
+std::function<void(Handle<StorageAddModelResponse>, std::string)>
+DistributedStorageManagerServer::generateResponseHandler(std::vector<std::string>& success,
+                                                    std::vector<std::string>& failures,
+                                                    mutex& lock,
+						    std::vector<void *>& pointers,
+						    std::vector<std::string>& nodesToBroadcast) {
+    return [&](Handle<StorageAddModelResponse> response, std::string server) {
+        lock.lock();
 
+        auto it = std::find(nodesToBroadcast.begin(), nodesToBroadcast.end(), server);
+	void * modelPointer = nullptr;
+	if (it != nodesToBroadcast.end()){
+	    int index = it - nodesToBroadcast.begin();
+            modelPointer = response->getModelPointer();
+	    pointers[index] = modelPointer;
+	}
+        if (!modelPointer) {
+            failures.push_back(server);
+        } else {
+            success.push_back(server);
+        }
+        lock.unlock();
+    };
+}
 }
 
 #endif
