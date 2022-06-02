@@ -1,5 +1,5 @@
-#ifndef ENSEMBLE_TREE_GENERIC_UDF_FLOAT_H
-#define ENSEMBLE_TREE_GENERIC_UDF_FLOAT_H
+#ifndef ENSEMBLE_TREE_COMPILED_UDF_FLOAT_H
+#define ENSEMBLE_TREE_COMPILED_UDF_FLOAT_H
 
 
 #include <cmath>
@@ -33,28 +33,25 @@
 #include "Lambda.h"
 #include "LambdaCreationFunctions.h"
 #include "SelectionComp.h"
-#include "Node.h"
-#include "Forest.h"
 
-
-// PRELOAD %EnsembleTreeGenericUDFFloat%
+// PRELOAD %EnsembleTreeCompiledUDFFloat%
 
 
 namespace pdb 
 {
-    class EnsembleTreeGenericUDFFloat : public SelectionComp<Vector<float>, TensorBlock2D<float>>
+    class EnsembleTreeCompiledUDFFloat : public SelectionComp<Vector<float>, TensorBlock2D<float>>
     {
 
     public:
         ENABLE_DEEP_COPY
 
-	Handle<pdb::Forest> forest;
+	void (*func_name) (float * input, float * output, size_t numRows, size_t numCols);
 
-        EnsembleTreeGenericUDFFloat() {}
+        EnsembleTreeCompiledUDFFloat() {}
 
-        EnsembleTreeGenericUDFFloat(std::string forestPathIn, ModelType modelType, bool isClassificationTask)
+        EnsembleTreeCompiledUDFFloat(void (*func_name) (float * input, float * output, size_t numRows, size_t numCols))
         {
-            forest = makeObject<pdb::Forest>(forestPathIn, modelType, isClassificationTask);
+            this->func_name = func_name;
         }
 
         Lambda<bool> getSelection(Handle<TensorBlock2D<float>> checkMe) override
@@ -67,10 +64,20 @@ namespace pdb
         Lambda<Handle<Vector<float>>> getProjection(Handle<TensorBlock2D<float>> in) override
         {
             return makeLambda(in, [this](Handle<TensorBlock2D<float>> &in) {
+                Handle<Vector<float>> resultMatrix  = nullptr;
 
+		TensorBlock2D<float> & block = *in;
+
+		// get the input array of floats
+                float * input = (block.data.rawData)->c_ptr();
+            
+	        size_t numRows =  block.getRowNums();
+		size_t numCols =  block.getColNums();
 
                 // set the output matrix
-                pdb::Handle<pdb::Vector<float>> resultMatrix = forest->predict(in);
+                resultMatrix = makeObject<pdb::Vector<float>>(numRows, numRows);
+		float * output = resultMatrix->c_ptr();
+		func_name(input, output, numRows, numCols);
 
                 return resultMatrix; });
         }

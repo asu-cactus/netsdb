@@ -5,6 +5,7 @@
 
 #include "BroadcastServer.h"
 #include "SimpleRequestResult.h"
+#include "StorageAddModelResponse.h"
 
 namespace pdb {
 
@@ -72,6 +73,12 @@ public:
 
     void registerHandlers(PDBServer& forMe) override;
 
+    void getModelPointers(std::string pathToModel,  std::vector<void *> &modelPointers) {
+    
+	    if (modelMap.count(pathToModel) > 0)
+		    modelPointers = modelMap[pathToModel];
+    }
+
 private:
     bool findNodesForDatabase(const std::string& databaseName,
                               std::vector<std::string>& nodesForDatabase,
@@ -94,6 +101,12 @@ private:
     std::function<void(Handle<SimpleRequestResult>, std::string)> generateAckHandler(
         std::vector<std::string>& success, std::vector<std::string>& failures, mutex& lock);
 
+
+    //handler for handle each response to the StorageAddModel request
+    std::function<void(Handle<StorageAddModelResponse>, std::string)> generateResponseHandler(
+        std::vector<std::string>& success, std::vector<std::string>& failures, mutex& lock, std::vector<void *> &pointers, 
+	std::vector<std::string>& nodesToBroadcast);
+
     bool selfLearningOrNot;
 
 
@@ -103,6 +116,9 @@ private:
     //a map from database name, set name to id in DATA table
     std::map<std::pair<std::string, std::string>, long> idMap; 
 
+
+    //a map maps model path to the pointers to the materialized models in the backends of workers
+    std::map<std::string, std::vector<void *>> modelMap;
 
 };
 }
