@@ -188,7 +188,9 @@ public:
      * (3) "conv"
      * (4) "ffnn"
      */
-    void * materializeModel(std::string pathToModel, std::string modelMaterializationType, std::string modelType, std::string & errMsg);
+    void * materializeModel(std::string pathToModel, std::string modelMaterializationType, std::string modelType, std::string & errMsg) {
+	    return nullptr;
+    }
 
 
 private:
