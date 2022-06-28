@@ -1357,6 +1357,29 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
       }));
 
 
+
+    forMe.registerHandler(
+      StorageAddModel_TYPEID,
+      make_shared<SimpleRequestHandler<StorageAddModel>>([&](
+          Handle<StorageAddModel> request, PDBCommunicatorPtr sendUsingMe) {
+        std::string errMsg;
+        bool success = true;
+        std::string pathToModel = request->getPathToModel();
+	std::string modelMaterializationType = request->getModelMaterializationType();
+	std::string modelType = request->getModelType();
+
+	//based on above information, let's materialize the model
+	void * modelPointer = materializeModel(pathToModel, modelMaterializationType, modelType, errMsg);
+
+	PDB_COUT << "to send back reply" << std::endl;
+        const UseTemporaryAllocationBlock block{1024};
+        Handle<StorageAddModelResponse> response = makeObject<StorageAddModelResponse>(pathToModel, modelMaterializationType, modelType, modelPointer);
+        // return the result
+        success = sendUsingMe->sendObject(response, errMsg);
+        return make_pair(success, errMsg);
+
+      }));
+
   // register a handler to process the BackendTestSetScan message
   forMe.registerHandler(
       BackendTestSetCopy_TYPEID,

@@ -4,6 +4,9 @@ warnings.filterwarnings('ignore')
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report
 from xgboost import XGBClassifier
+import treelite
+import treelite_runtime
+import treelite.sklearn
 import pickle
 import joblib
 import numpy as np
@@ -66,6 +69,23 @@ if not gpu:
     load_time = time.time()
     print("Time Taken to load sklearn model", calulate_time(start_time, load_time))
     results = run_inference(FRAMEWORK, df_train[x_col], input_size, batch_size, model.predict)
+    write_data(FRAMEWORK, results)
+    end_time = time.time()
+    print("TOTAL Time Taken "+FRAMEWORK+" is:", calulate_time(start_time,end_time))
+    find_accuracy(FRAMEWORK,df_train[y_col],results)
+
+    del model
+    del results
+    gc.collect()
+
+
+    FRAMEWORK = "TreeLite"
+    start_time = time.time()
+    libpath = os.path.join("models", DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".so")
+    predictor = treelite_runtime.Predictor(libpath, verbose=True)
+    load_time = time.time()
+    print("Time Taken to load TreeLite model", calulate_time(start_time, load_time))
+    results = run_inference(FRAMEWORK, df_train[x_col], input_size, batch_size, predictor.predict)
     write_data(FRAMEWORK, results)
     end_time = time.time()
     print("TOTAL Time Taken "+FRAMEWORK+" is:", calulate_time(start_time,end_time))

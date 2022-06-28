@@ -4,6 +4,9 @@ warnings.filterwarnings('ignore')
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report
 from xgboost import XGBClassifier
+import treelite
+import treelite_runtime
+import treelite.sklearn
 import pandas
 import pickle
 import joblib
@@ -111,8 +114,22 @@ elif CLASSFIER == "xgboost":
         f.write(model_onnx.SerializeToString())
     onnx_write_time_end = time.time()
     print("Time taken to write onnx model "+str(calulate_time(onnx_write_time_start, onnx_write_time_end)))
-    
-    # import onnxruntime as rt
+    # import the model to treelite 
+
+#converting to TreeLite model
+#Prerequisite: install treelite (https://treelite.readthedocs.io/en/latest/install.html)
+if CLASSFIER == "xgboost":
+    treelite_time_begin = time.time()
+    model_path = os.path.join("models", DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".model")
+    classifier.save_model(model_path)
+    treelite_model = treelite.Model.load(model_path, model_format='xgboost')
+    toolchain = 'gcc'
+    libpath = os.path.join("models", DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".so")
+    treelite_model.export_lib(toolchain=toolchain, libpath, verbose=True)
+    treelite_time_end = time.time()
+    print("Time taken to convert and write treelite model "+str(calulate_time(treelite_time_start, treelite_time_end)))
+
+    #import onnxruntime as rt
     # sess = rt.InferenceSession(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".onnx"),providers=['CPUExecutionProvider'])
     # pred_onx = sess.run(None, {"input": x[:5].astype(np.float32)})
     # print("predictions", pred_onx[0])

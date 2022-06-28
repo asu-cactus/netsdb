@@ -177,6 +177,19 @@ public:
 
     }
 
+    /*
+     * We plan to support three materialization types:
+     * (1) "compiled": the model is compiled to assembly code
+     * (2) "fast": the model is stored to facilitate the RapidScorer algorithm
+     * (3) "naive": the model is materialized for naive tree traversal
+     * We plan to support following models:
+     * (1) "randomforest"
+     * (2) "gdbt"
+     * (3) "conv"
+     * (4) "ffnn"
+     */
+    void * materializeModel(std::string pathToModel, std::string modelMaterializationType, std::string modelType, std::string & errMsg);
+
 
 private:
     ConfigurationPtr conf;
