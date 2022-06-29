@@ -31,10 +31,19 @@ def run_inference(framework,df,input_size,batch_size,predict):
     start_time = time.time()
     results = []
     iterations = math.ceil(input_size/batch_size)
-    for i in range(iterations):
-        batch = df[i*batch_size:(i+1)*batch_size]
-        output = predict(batch)
-        results.extend(output)
+    if framework == "TreeLite":
+        import treelite
+        import treelite_runtime
+        for i in range(iterations):
+            batch = treelite_runtime.DMatrix(df[i*batch_size:(i+1)*batch_size])
+            output = predict(batch)
+            output = np.where(output > 0.5, 1, 0)
+            results.extend(output)
+    else:
+        for i in range(iterations):
+            batch = df[i*batch_size:(i+1)*batch_size]
+            output = predict(batch)
+            results.extend(output)
     end_time = time.time()
     print("Time Taken to predict on "+framework+" is:", calulate_time(start_time,end_time))
     return results
