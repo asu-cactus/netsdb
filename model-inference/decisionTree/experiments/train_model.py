@@ -77,6 +77,16 @@ joblib_time_end = time.time()
 print("Time taken to save classifier using joblib "+str(calulate_time(joblib_time_start, joblib_time_end)))
 
 #converting to pytorch model using hummingbird
+humming_pytorch_time_start = time.time()
+model = hummingbird.ml.convert(classifier, 'pytorch')
+humming_pytorch_time_end = time.time()
+print("Time Taken to convert HummingbirdPyTorch:",calulate_time(humming_pytorch_time_start, humming_pytorch_time_end))
+save_pytorch_time_start = time.time()
+model.save(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+"_pytorch.pkl"))
+save_pytorch_time_end = time.time()
+print("Time taken to save pytorch model "+str(calulate_time(save_pytorch_time_start, save_pytorch_time_end)))
+
+#converting to torch model using hummingbird
 humming_torch_time_start = time.time()
 model = hml.convert(classifier, 'torch')
 humming_torch_time_end = time.time()
@@ -85,6 +95,7 @@ save_torch_time_start = time.time()
 torch.save(model, os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+"_torch.pkl"))
 save_torch_time_end = time.time()
 print("Time taken to save torch model "+str(calulate_time(save_torch_time_start, save_torch_time_end)))
+
 #converting to ONNX model
 if CLASSFIER == "randomforest":
     onnx_time_start = time.time()

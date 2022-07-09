@@ -15,6 +15,7 @@ treelite_model = treelite.Model.load("./model.model", model_format='xgboost')
 #treelite_model = treelite.Model.from_xgboost(model)
 #treelite_model = treelite.sklearn.import_model(model)
 toolchain = 'gcc'
+treelite_model.compile(dirpath='./mymodel', verbose=True)
 treelite_model.export_lib(toolchain=toolchain, libpath='./higgs_treelite_xgboost.so', verbose=True)
 predictor = treelite_runtime.Predictor('./higgs_treelite_xgboost.so', verbose=True)
 

@@ -113,11 +113,15 @@ if not gpu:
 
     elif FRAMEWORK == "HummingbirdPytorchCPU":
         import hummingbird.ml
+        import torch
         start_time = time.time()
-        device = torch.device('cpu')
-        model = torch.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+"_torch.pkl"),map_location=device)
+        model = hummingbird.ml.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+"_pytorch.pkl"))
         load_time = time.time()
-        print("Time Taken to load torch model", calulate_time(start_time, load_time))
+        print("Time Taken to load pytorch model", calulate_time(start_time, load_time))
+        #model = hummingbird.ml.convert(sklearnmodel, 'pytorch')
+        #model_conversion_time = time.time()
+        #model.save(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+"_pytorch.pkl"))
+        #print("Time Taken to convert HummingbirdPyTorch:",calulate_time(load_time, model_conversion_time))
         results = run_inference(FRAMEWORK, df_train[x_col], input_size, batch_size, model.predict)
         write_data(FRAMEWORK, results)
         end_time = time.time()
@@ -126,12 +130,12 @@ if not gpu:
 
 
         del model
-        del device
         del results
         gc.collect()
 
     elif FRAMEWORK == "HummingbirdTorchScriptCPU":
         import torch
+        import hummingbird.ml
         start_time = time.time()
         data = df_train[x_col]
         sklearnmodel = joblib.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))

@@ -39,6 +39,12 @@ def run_inference(framework,df,input_size,batch_size,predict):
             output = predict(batch)
             output = np.where(output > 0.5, 1, 0)
             results.extend(output)
+    elif framework == "HummingbirdPytorchCPU":
+        import torch
+        for i in range(iterations):
+            batch = df[i*batch_size:(i+1)*batch_size]
+            output = predict(batch.to_numpy())
+            results.extend(output)
     else:
         for i in range(iterations):
             batch = df[i*batch_size:(i+1)*batch_size]
