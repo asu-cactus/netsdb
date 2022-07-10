@@ -164,6 +164,38 @@ if not gpu:
         del predict
         gc.collect()
 
+
+    elif FRAMEWORK == "HummingbirdTVMCPU":
+        import hummingbird.ml
+        start_time = time.time()
+        data = df_train[x_col]
+        sklearnmodel = joblib.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
+        sklearnmodel.set_params(verbose =0)
+        sklearnmodel.set_params(n_jobs =-1)
+        load_time = time.time()
+        print("Time Taken to load sklearn model", calulate_time(start_time, load_time))
+        single_batch = np.array(data[0:batch_size], dtype=np.float32)
+        torch_data = np.array(single_batch, dtype=np.float32)
+        model = hummingbird.ml.convert(sklearnmodel, "tvm", torch_data)
+        model_conversion_time = time.time()
+        print("Time Taken to convert HummingbirdTVM:",calulate_time(load_time, model_conversion_time))
+        def predict(batch):
+            batch = np.array(batch, dtype=np.float32)
+            return model.predict(batch)
+
+        results = run_inference(FRAMEWORK, data, input_size, batch_size, predict)
+        write_data(FRAMEWORK, results)
+        end_time = time.time()
+        print("TOTAL Time Taken "+FRAMEWORK+" is:", calulate_time(start_time,end_time))
+        find_accuracy(FRAMEWORK,df_train[y_col],results)
+
+        del model
+        del sklearnmodel
+        del results
+        del predict
+        gc.collect()
+
+
     elif FRAMEWORK == "ONNXCPU":
         import onnxruntime as rt
         from skl2onnx import convert_sklearn
