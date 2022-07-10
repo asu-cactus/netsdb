@@ -24,6 +24,8 @@ https://tvm.apache.org/docs/install/from_source.html
 
 If you meet error "collect2: fatal error: cannot find ‘ld’", try to change the linker, e.g., you may change 'fuse-ld=lld' to 'fuse-ld=gold' in the ./CMakeFiles/tvm_runtime.dir/link.txt, ./CMakeFiles/tvm.dir/link.txt, and ./CMakeFiles/tvm_allvisible.dir/link.txt.
 
+Remember to run 'make install' from the build directory after successfully compiling tvm to shared libraries.
+
 #### To Use PyTorch/TorchScript as backend
 
 https://pytorch.org/
@@ -35,3 +37,11 @@ https://www.postgresql.org/download/
 ## ConnectX
 
 https://github.com/sfu-db/connector-x#installation
+
+## XGBoost
+
+pip3 install xgboost
+
+## LightGBM
+
+pip3 install lightgbm
