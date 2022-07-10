@@ -76,18 +76,22 @@ Datasets: higgs
 
 Classifiers: xgboost, randomforest
 
+Frameworks: Sklearn, ONNXCPU, TreeLite, HummingbirdPytorchCPU, HummingbirdTorchScriptCPU, HummingbirdTVMCPU
+
 ```
 python train_model.py dataset classifier
 
-python test_model.py dataset classifier batch_size [gpu]
+python test_model.py dataset classifier framework batch_size [gpu]
+
+
+**Examples**
 
 python train_model.py higgs randomforest
 
 python train_model.py higgs xgboost
 
-python test_model.py higgs randomforest 100000
+python test_model.py higgs randomforest Sklearn 100000
 
-python test_model.py higgs randomforest 100000 gpu
 ```
 
 Get CPU Usage
