@@ -62,9 +62,8 @@ if not gpu:
     
         start_time = time.time()
         model = joblib.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
-        model.set_params(verbose =0)
-        model.set_params(n_jobs =-1)
-        # model.set_params(verbosity =3)
+        #model.set_params(n_jobs =-1)
+        #model.set_params(verbosity =0)
         load_time = time.time()
         print("Time Taken to load sklearn model", calulate_time(start_time, load_time))
         results = run_inference(FRAMEWORK, df_train[x_col], input_size, batch_size, model.predict)
@@ -195,6 +194,37 @@ if not gpu:
         del predict
         gc.collect()
 
+    elif FRAMEWORK == "TFDF":
+        import tensorflow as tf
+        import tensorflow_decision_forests as tfdf
+        import scikit_learn_model_converter
+
+        start_time = time.time()
+        data = df_train[x_col]
+        sklearnmodel = joblib.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
+        load_time = time.time()
+        print("Time Taken to load sklearn model", calulate_time(start_time, load_time))
+
+        model = scikit_learn_model_converter.convert(sklearnmodel, intermediate_write_path="intermediate_path", )
+        model.compile(metrics=["accuracy"])
+        model_conversion_time = time.time()
+        print("Time Taken to convert TensorFlow::",calulate_time(load_time, model_conversion_time))
+
+        def predict(batch):
+            batch = tf.constant(batch)
+            return model.predict(batch)
+
+        results = run_inference(FRAMEWORK, data, input_size, batch_size, predict)
+        write_data(FRAMEWORK, results)
+        end_time = time.time()
+        print("TOTAL Time Taken "+FRAMEWORK+" is:", calulate_time(start_time,end_time))
+        find_accuracy(FRAMEWORK,df_train[y_col],results)
+
+        del model
+        del sklearnmodel
+        del results
+        del predict
+        gc.collect()
 
     elif FRAMEWORK == "ONNXCPU":
         import onnxruntime as rt
