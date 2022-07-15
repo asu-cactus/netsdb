@@ -206,7 +206,7 @@ if not gpu:
         print("Time Taken to load sklearn model", calulate_time(start_time, load_time))
 
         model = scikit_learn_model_converter.convert(sklearnmodel, intermediate_write_path="intermediate_path", )
-        model.compile(metrics=["accuracy"])
+        #model.compile(metrics=["accuracy"])
         model_conversion_time = time.time()
         print("Time Taken to convert TensorFlow::",calulate_time(load_time, model_conversion_time))
 
