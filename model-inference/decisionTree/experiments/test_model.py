@@ -20,15 +20,15 @@ from model_helper import *
 args = sys.argv
 
 DATASET = "higgs"
-CLASSFIER = "xgboost"
+CLASSIFIER = "xgboost"
 gpu = False
 print(args,len(args))
 if len(args) >= 4:
     DATASET = args[1]
-    CLASSFIER = args[2] 
+    CLASSIFIER = args[2] 
     FRAMEWORK = args[3]
 print(DATASET)
-print(CLASSFIER)
+print(CLASSIFIER)
 print(FRAMEWORK)
 
 config = json.load(open("config.json"))
@@ -61,7 +61,7 @@ if not gpu:
     if FRAMEWORK == "Sklearn":
     
         start_time = time.time()
-        model = joblib.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
+        model = joblib.load(os.path.join("models",DATASET+"_"+CLASSIFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
         #model.set_params(n_jobs =-1)
         #model.set_params(verbosity =0)
         load_time = time.time()
@@ -80,7 +80,7 @@ if not gpu:
     elif FRAMEWORK == "TreeLite":
 
         start_time = time.time()
-        libpath = os.path.join("models", DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".so")
+        libpath = os.path.join("models", DATASET+"_"+CLASSIFIER+"_"+str(num_trees)+"_"+str(depth)+".so")
         predictor = treelite_runtime.Predictor(libpath, verbose=True)
         load_time = time.time()
         print("Time Taken to load TreeLite model", calulate_time(start_time, load_time))
@@ -94,7 +94,7 @@ if not gpu:
         gc.collect()
 
     # FRAMEWORK = "HummingbirdONNXCPU"
-    # sklearnmodel = joblib.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
+    # sklearnmodel = joblib.load(os.path.join("models",DATASET+"_"+CLASSIFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
     # data = df[x_col]
     # model = hummingbird.ml.convert(sklearnmodel, "onnx", np.array(df[x_col]))
 
@@ -114,12 +114,12 @@ if not gpu:
         import hummingbird.ml
         import torch
         start_time = time.time()
-        model = hummingbird.ml.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+"_pytorch.pkl"))
+        model = hummingbird.ml.load(os.path.join("models",DATASET+"_"+CLASSIFIER+"_"+str(num_trees)+"_"+str(depth)+"_pytorch.pkl"))
         load_time = time.time()
         print("Time Taken to load pytorch model", calulate_time(start_time, load_time))
         #model = hummingbird.ml.convert(sklearnmodel, 'pytorch')
         #model_conversion_time = time.time()
-        #model.save(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+"_pytorch.pkl"))
+        #model.save(os.path.join("models",DATASET+"_"+CLASSIFIER+"_"+str(num_trees)+"_"+str(depth)+"_pytorch.pkl"))
         #print("Time Taken to convert HummingbirdPyTorch:",calulate_time(load_time, model_conversion_time))
         results = run_inference(FRAMEWORK, df_train[x_col], input_size, batch_size, model.predict)
         write_data(FRAMEWORK, results)
@@ -137,7 +137,7 @@ if not gpu:
         import hummingbird.ml
         start_time = time.time()
         data = df_train[x_col]
-        sklearnmodel = joblib.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
+        sklearnmodel = joblib.load(os.path.join("models",DATASET+"_"+CLASSIFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
         sklearnmodel.set_params(verbose =0)
         sklearnmodel.set_params(n_jobs =-1)
         load_time = time.time()
@@ -168,7 +168,7 @@ if not gpu:
         import hummingbird.ml
         start_time = time.time()
         data = df_train[x_col]
-        sklearnmodel = joblib.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
+        sklearnmodel = joblib.load(os.path.join("models",DATASET+"_"+CLASSIFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
         sklearnmodel.set_params(verbose =0)
         sklearnmodel.set_params(n_jobs =-1)
         load_time = time.time()
@@ -198,14 +198,18 @@ if not gpu:
         import tensorflow as tf
         import tensorflow_decision_forests as tfdf
         import scikit_learn_model_converter
+        import xgboost_model_converter
 
         start_time = time.time()
         data = df_train[x_col]
-        sklearnmodel = joblib.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
+        sklearnmodel = joblib.load(os.path.join("models",DATASET+"_"+CLASSIFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
         load_time = time.time()
         print("Time Taken to load sklearn model", calulate_time(start_time, load_time))
-
-        model = scikit_learn_model_converter.convert(sklearnmodel, intermediate_write_path="intermediate_path", )
+        model = None
+        if CLASSIFIER == "randomforest":
+            model = scikit_learn_model_converter.convert(sklearnmodel, intermediate_write_path="intermediate_path", )
+        else:
+            model = xgboost_model_converter.convert(sklearnmodel, intermediate_write_path="intermediate_path", )
         #model.compile(metrics=["accuracy"])
         model_conversion_time = time.time()
         print("Time Taken to convert TensorFlow::",calulate_time(load_time, model_conversion_time))
@@ -232,7 +236,7 @@ if not gpu:
         from skl2onnx.common.data_types import FloatTensorType
         start_time = time.time()
         data = df_train[x_col]
-        sess = rt.InferenceSession(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".onnx"),providers=['CPUExecutionProvider'])
+        sess = rt.InferenceSession(os.path.join("models",DATASET+"_"+CLASSIFIER+"_"+str(num_trees)+"_"+str(depth)+".onnx"),providers=['CPUExecutionProvider'])
         input_name = sess.get_inputs()[0].name
         label_name = sess.get_outputs()[0].name
         load_time = time.time()
@@ -262,7 +266,7 @@ else:
     if FRAMEWORK == "HummingbirdPytorchGPU":
         start_time = time.time()
         device = torch.device('cuda')
-        model = torch.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+"_torch.pkl"),map_location=device)
+        model = torch.load(os.path.join("models",DATASET+"_"+CLASSIFIER+"_"+str(num_trees)+"_"+str(depth)+"_torch.pkl"),map_location=device)
         load_time = time.time()
         print("Time Taken to load Hummingbird Pytorch GPU model", calulate_time(start_time, load_time))
         results = run_inference(FRAMEWORK, df_train[x_col], input_size, batch_size, model.predict)
@@ -281,7 +285,7 @@ else:
     elif FRAMEWORK == "HummingbirdTorchScriptGPU":
         start_time = time.time()
         data = df_train[x_col]
-        sklearnmodel = joblib.load(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
+        sklearnmodel = joblib.load(os.path.join("models",DATASET+"_"+CLASSIFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
         sklearnmodel.set_params(n_jobs =-1)
         sklearnmodel.set_params(verbose =0)
         load_time = time.time()
@@ -310,7 +314,7 @@ else:
     elif FRAMEWORK == "ONNXGPU":
         start_time = time.time()
         data = df_train[x_col]
-        sess = rt.InferenceSession(os.path.join("models",DATASET+"_"+CLASSFIER+"_"+str(num_trees)+"_"+str(depth)+".onnx"),providers=['CUDAExecutionProvider'])
+        sess = rt.InferenceSession(os.path.join("models",DATASET+"_"+CLASSIFIER+"_"+str(num_trees)+"_"+str(depth)+".onnx"),providers=['CUDAExecutionProvider'])
         input_name = sess.get_inputs()[0].name
         label_name = sess.get_outputs()[0].name
         load_time = time.time()
