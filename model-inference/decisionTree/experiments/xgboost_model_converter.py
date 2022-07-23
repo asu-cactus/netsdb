@@ -14,9 +14,6 @@
 
 import json
 import numpy as np
-import contextlib
-import enum
-import functools
 import os
 import tempfile
 from typing import Any, Dict, List, Optional, TypeVar, Union
@@ -27,18 +24,13 @@ import tensorflow_decision_forests as tfdf
 
 
 
-def getTrees(xgboost_model):
-    params = xgboost_model.get_xgb_params()
-    objective = params["objective"]
-    base_score = params["base_score"]
-    if base_score is None:
-        base_score = 0.5
+def get_trees(xgboost_model):
     booster = xgboost_model.get_booster()
     # The json format was available in October 2017.
     # XGBoost 0.7 was the first version released with it.
     js_tree_list = booster.get_dump(with_stats=True, dump_format='json')
     js_trees = [json.loads(s) for s in js_tree_list]
-    return objective, base_score, js_trees
+    return js_trees
 
 
 def convert(
@@ -99,7 +91,7 @@ def build_tfdf_model(
       bias=bias,
   )
 
-  objective, base_score, js_trees = getTrees(xgboost_model)
+  js_trees = get_trees(xgboost_model)
 
   params = xgboost_model.get_xgb_params()
 
@@ -143,16 +135,15 @@ def _convert_xgboost_node_to_tfdf_node(
   """Converts a node within a xgboost tree into a TFDF node."""
 
   if 'children' in jsnode:
-      #print(jsnode['split'][1:])
       feature = tfdf.py_tree.dataspec.SimpleColumnSpec(
               name = f"feature_{jsnode['split'][1:]}",
               type = tfdf.py_tree.dataspec.ColumnType.NUMERICAL,
               col_idx = jsnode['split'],)
       neg_child = _convert_xgboost_node_to_tfdf_node(
-              jsnode['children'][1],
+              jsnode['children'][0],
               )
       pos_child = _convert_xgboost_node_to_tfdf_node(
-              jsnode['children'][0],
+              jsnode['children'][1],
               )
       return tfdf.py_tree.node.NonLeafNode(
               condition = tfdf.py_tree.condition.NumericalHigherThanCondition(
