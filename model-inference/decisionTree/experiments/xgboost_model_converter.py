@@ -12,6 +12,7 @@
 
 """Utilities for converting XGBoost models into Tensorflow models."""
 
+import contextlib
 import json
 import numpy as np
 import os
