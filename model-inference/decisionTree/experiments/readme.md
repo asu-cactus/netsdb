@@ -19,7 +19,10 @@ postgres=# CREATE TABLE higgs(label REAL NOT NULL, leptonpT REAL NOT NULL, lepto
 
 postgres=# copy higgs from 'HIGGS.csv' with CSV;
 postgres=# copy higgs from 'HIGGS.csv' with CSV;
+
+You can use split_data.py to split a dataset into training part and testing part, and load both parts to PostgreSQL, which is a prerequisite for running train_model.py and test_model.py.
 ```
+
 
 TO MOUNT THE DRIVE ON EC2
 

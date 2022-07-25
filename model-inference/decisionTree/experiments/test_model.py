@@ -19,6 +19,12 @@ from model_helper import *
 
 args = sys.argv
 
+if len(args) < 4:
+    print("Usage: python3 ./test_model.py DATASET CLASSIFIER FRAMEWORK QUERY_SIZE BATCH_SIZE [gpu/cpu]")
+    print("For HummingbirdTVM, QUERY_SIZE must be equivalent to BATCH_SIZE.")
+    print("For Sklearn, TreeLite, ONNX, only QUERY_SIZE is used to split the inference into multiple queries, and BATCH_SIZE will not be used.")
+    print("For other platforms, both QUERY_SIZE and BATCH_SIZE will be used.")
+
 DATASET = "higgs"
 CLASSIFIER = "xgboost"
 gpu = False
@@ -65,7 +71,6 @@ sklearnmodel.set_params(verbose =0)
 sklearnmodel.set_params(n_jobs =-1)
 load_time = time.time()
 print("Time Taken to load sklearn model", calulate_time(start_time, load_time))
-
 
 if not gpu:
 
@@ -143,6 +148,7 @@ if not gpu:
 
     elif FRAMEWORK == "HummingbirdTVMCPU":
         import hummingbird.ml
+        assert batch_size == query_size, "For TVM, batch_size must be equivalent to query_size"
         start_time = time.time()
         data = df_test[x_col]
         model = convert_to_hummingbird_model(sklearnmodel, "tvm", data, batch_size, "cpu")
@@ -168,7 +174,6 @@ if not gpu:
         import tensorflow_decision_forests as tfdf
         import scikit_learn_model_converter
         import xgboost_model_converter
-
         start_time = time.time()
         data = df_test[x_col]
         model = None
