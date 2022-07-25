@@ -27,35 +27,59 @@ def fetch_data(dataset,config,suffix):
     except psycopg2.Error as e:
         print("Postgres Database error: " + e + "/n")
 
-def run_inference(framework,df,input_size,batch_size,predict):
+def get_data(data, size=-1):
+    np_data = data.to_numpy() if not isinstance(data, np.ndarray) else data
+
+    if size != -1:
+        np_data = np_data[0:size, :]
+
+    return np_data
+
+
+def convert_to_hummingbird_model(model, backend, test_data, batch_size, device):
+    from hummingbird.ml import constants
+    from hummingbird.ml import convert, convert_batch
+    remainder_size = test_data.shape[0] % batch_size 
+    extra_config = {constants.N_THREADS: os.cpu_count()}
+    batch_data = None
+    if backend == "tvm":
+        single_batch = np.array(test_data[0:batch_size], dtype=np.float32)
+        batch_data = np.array(single_batch, dtype=np.float32)
+        model = convert(model, backend, batch_data, device=device, extra_config=extra_config)
+    else:
+        batch_data = get_data(test_data, batch_size)
+        model = convert_batch(model, backend, batch_data, remainder_size, device=device, extra_config=extra_config)
+    return model
+
+def run_inference(framework,df,input_size,query_size,predict):
     start_time = time.time()
     results = []
-    iterations = math.ceil(input_size/batch_size)
+    iterations = math.ceil(input_size/query_size)
     if framework == "TreeLite":
         import treelite
         import treelite_runtime
         for i in range(iterations):
-            batch = treelite_runtime.DMatrix(df[i*batch_size:(i+1)*batch_size])
-            output = predict(batch)
+            query_data = treelite_runtime.DMatrix(df[i*query_size:(i+1)*query_size])
+            output = predict(query_data)
             output = np.where(output > 0.5, 1, 0)
             results.extend(output)
     elif framework == "TFDF":
         import tensorflow as tf
         for i in range(iterations):
-            batch = df[i*batch_size:(i+1)*batch_size]
-            output = predict(batch)
+            query_data = df[i*query_size:(i+1)*query_size]
+            output = predict(query_data).flatten()
             output = np.where(output > 0.5, 1, 0)
             results.extend(output)
     elif framework == "HummingbirdPytorchCPU":
         import torch
         for i in range(iterations):
-            batch = df[i*batch_size:(i+1)*batch_size]
-            output = predict(batch.to_numpy())
+            query_data = df[i*query_size:(i+1)*query_size]
+            output = predict(query_data.to_numpy())
             results.extend(output)
     else:
         for i in range(iterations):
-            batch = df[i*batch_size:(i+1)*batch_size]
-            output = predict(batch)
+            query_data = df[i*query_size:(i+1)*query_size]
+            output = predict(query_data)
             results.extend(output)
     end_time = time.time()
     print("Time Taken to predict on "+framework+" is:", calulate_time(start_time,end_time))
@@ -66,6 +90,7 @@ def write_data(framework,results):
     # arr = np.array(results)
     # df = pd.DataFrame(arr)
     # df.to_csv(os.path.join('results','results.txt'), index=False) 
+    #print(results[0:10])
     with open(os.path.join('results','results.txt'), 'w') as f:
         for item in results:
             f.write("%s\n" % item)
