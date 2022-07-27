@@ -63,6 +63,7 @@ def convert(
     path = intermediate_write_path
   with intermediate_write_directory:
     tfdf_model = build_tfdf_model(xgboost_model, path)
+    tfdf_model.num_threads = os.cpu_count()
   # The resultant tfdf model only receives the features that are used
   # to split samples in nodes in the trees as input. But we want to pass the
   # full design matrix as an input to match the scikit-learn API, thus we
