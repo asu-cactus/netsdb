@@ -7,15 +7,15 @@ from sklearn.model_selection import train_test_split
 args = sys.argv
 DATASET = "higgs"
 
+if len(args) > 1:
+    DATASET = args[-1]
+
 config = json.load(open("config.json"))
 datasetconfig = config[DATASET]
 pgsqlconfig = config["pgsqlconfig"]
 test = float(datasetconfig["test"])
 table_name = datasetconfig["table"]
 header = datasetconfig["header"]
-
-if len(args) > 1:
-    DATASET = args[-1]
 
 df = None
 if header:

@@ -34,7 +34,8 @@ def parse_arguments():
  
 
 def load_data(config):
-    df_train = fetch_data(DATASET,config,"train").astype({"label": int})
+    y_col = config[DATASET]["y_col"]
+    df_train = fetch_data(DATASET,config,"train").astype({y_col: int})
     print(f"Number of training examples: {len(df_train)}")
     return df_train
 

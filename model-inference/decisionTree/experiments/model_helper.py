@@ -20,7 +20,7 @@ def fetch_data(dataset,config,suffix):
         dbURL = "postgresql://"+pgsqlconfig["username"]+":"+pgsqlconfig["password"]+"@"+pgsqlconfig["host"]+":"+pgsqlconfig["port"]+"/"+pgsqlconfig["dbname"]
         start_time = time.time()
         dataframe = cx.read_sql(dbURL, query)
-        dataframe = dataframe.astype({"label": int})
+        dataframe = dataframe.astype({datasetconfig["y_col"]: int})
         end_time = time.time()
         print("Time Taken to load "+dataset+" as a dataframe is:", calulate_time(start_time,end_time))
         return dataframe
