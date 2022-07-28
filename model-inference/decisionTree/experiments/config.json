@@ -11,7 +11,7 @@
     "higgs": {
         "rows": 11000000,
         "batch_size": 100000,
-	"query_size": 100000,
+        "query_size": 100000,
         "type": "classification",
         "info": "https://archive.ics.uci.edu/ml/datasets/HIGGS",
         "query": "SELECT label,leptonpT,leptoneta,leptonphi,missingenergymagnitude,missingenergyphi,jet1pt,jet1eta,jet1phi,jet1btag,jet2pt,jet2eta,jet2phi,jet2btag,jet3pt,jet3eta,jet3phi,jet3btag,jet4pt,jet4eta,jet4phi,jet4btag,mjj,mjjj,mlv,mjlv,mbb,mwbb,mwwbb from higgs",
@@ -26,7 +26,7 @@
     "airline": {
         "rows": 115069017,
         "batch_size": 100000,
-	"query_size": 100000,
+        "query_size": 100000,
         "type": "regression",
         "info": "http://kt.ijs.si/elena_ikonomovska/data.html",
         "query": "",
@@ -41,10 +41,10 @@
     "fraud": {
         "rows": 284808,
         "batch_size": 100000,
-	"query_size": 100000,
+        "query_size": 100000,
         "type": "classification",
         "info": "https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud",
-        "query": "",
+        "query": "SELECT * FROM fraud",
         "create": "CREATE TABLE ** (time DECIMAL NOT NULL, v1 DECIMAL NOT NULL, v2 DECIMAL NOT NULL, v3 DECIMAL NOT NULL, v4 DECIMAL NOT NULL, v5 DECIMAL NOT NULL, v6 DECIMAL NOT NULL, v7 DECIMAL NOT NULL, v8 DECIMAL NOT NULL, v9 DECIMAL NOT NULL, v10 DECIMAL NOT NULL, v11 DECIMAL NOT NULL, v12 DECIMAL NOT NULL, v13 DECIMAL NOT NULL, v14 DECIMAL NOT NULL, v15 DECIMAL NOT NULL, v16 DECIMAL NOT NULL, v17 DECIMAL NOT NULL, v18 DECIMAL NOT NULL, v19 DECIMAL NOT NULL, v20 DECIMAL NOT NULL, v21 DECIMAL NOT NULL, v22 DECIMAL NOT NULL, v23 DECIMAL NOT NULL, v24 DECIMAL NOT NULL, v25 DECIMAL NOT NULL, v26 DECIMAL NOT NULL, v27 DECIMAL NOT NULL, v28 DECIMAL NOT NULL, amount DECIMAL NOT NULL, class INTEGER NOT NULL)",
         "train": 0.8,
         "test": 0.2,
@@ -56,7 +56,7 @@
     "year": {
         "rows": 515345,
         "batch_size": 100000,
-	"query_size": 100000,
+        "query_size": 100000,
         "type": "classification",
         "info": "https://archive.ics.uci.edu/ml/datasets/yearpredictionmsd",
         "desc": "train: first 463,715 examples,test: last 51,630 examples",
@@ -72,7 +72,7 @@
     "epsilon": {
         "rows": 0,
         "batch_size": 100000,
-	"query_size": 100000,
+        "query_size": 100000,
         "type": "classification",
         "desc": "train 400000 test 100000",
         "info": "https://archive.ics.uci.edu/ml/datasets/yearpredictionmsd",
