@@ -1,5 +1,5 @@
 {
-    "num_trees": 500,
+    "num_trees": 10,
     "depth": 8,
     "pgsqlconfig": {
         "host": "localhost",
@@ -27,7 +27,7 @@
         "rows": 115069017,
         "batch_size": 100000,
         "query_size": 100000,
-        "type": "regression",
+        "type": "classification",
         "info": "http://kt.ijs.si/elena_ikonomovska/data.html",
         "query": "",
         "create": "CREATE TABLE ** (year INTEGER NOT NULL, month INTEGER NOT NULL, dayOfMonth INTEGER NOT NULL, dayOfWeek INTEGER NOT NULL, crsDepartureTime INTEGER NOT NULL, crsArrivalTime INTEGER NOT NULL, uniqueCarrier CHAR(6) NOT NULL, flightNumber INTEGER NOT NULL, actualElapsedTime INTEGER NOT NULL, origin CHAR(3) NOT NULL, destination CHAR(3) NOT NULL, distance INTEGER NOT NULL, diverted INTEGER NOT NULL, arrivalDelay INTEGER NOT NULL)",
@@ -57,7 +57,7 @@
         "rows": 515345,
         "batch_size": 100000,
         "query_size": 100000,
-        "type": "classification",
+        "type": "regression",
         "info": "https://archive.ics.uci.edu/ml/datasets/yearpredictionmsd",
         "desc": "train: first 463,715 examples,test: last 51,630 examples",
         "query": "",
