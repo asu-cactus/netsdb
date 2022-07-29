@@ -36,6 +36,10 @@ Remember to run 'make install' from the build directory after successfully compi
 
 https://pytorch.org/
 
+## Tensorflow
+
+https://www.tensorflow.org/install
+
 ## PostgreSQL
 
 https://www.postgresql.org/download/
@@ -51,3 +55,5 @@ pip3 install xgboost
 ## LightGBM
 
 pip3 install lightgbm
+
+

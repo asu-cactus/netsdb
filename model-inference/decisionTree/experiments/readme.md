@@ -49,18 +49,6 @@ cd /mnt
 sudo chmod 777 data
 ```
 
-REQUIRED LIBRARIES
-
-```
-conda activate python3
-pip install connectorx
-pip install xgboost
-pip install hummingbird_ml[extra]
-pip install skl2onnx
-pip install onnxmltools
-pip install onnxruntime
-```
-
 DATASETS
 
 ```
@@ -98,22 +86,22 @@ Frameworks: Sklearn, ONNXCPU, TreeLite, HummingbirdPytorchCPU, HummingbirdTorchS
 ```
 python split_data.py dataset
 
-python train_model.py -d dataset -c classifier
+python train_model.py -d dataset -m model
 
-python convert_trained_model_to_framework.py -d dataset -c classifier -f framework
+python convert_trained_model_to_framework.py -d dataset -m model -f framework
 
-python test_model.py dataset classifier framework batch_size [gpu]
+python test_model.py dataset model framework batch_size [gpu]
 
 
 **Examples**
 
 python split_data.py higgs
 
-python train_model.py -d higgs -c randomforest
-python train_model.py -d higgs -c xgboost
+python train_model.py -d higgs -m randomforest
+python train_model.py -d higgs -m xgboost
 
-python convert_trained_model_to_framework.py -d higgs -c randomforest -f pytorch,torch,tf-df,onnx
-python convert_trained_model_to_framework.py -d higgs -c xgboost -f pytorch,torch,onnx,treelite
+python convert_trained_model_to_framework.py -d higgs -m randomforest -f pytorch,torch,tf-df,onnx
+python convert_trained_model_to_framework.py -d higgs -m xgboost -f pytorch,torch,onnx,treelite
 
 python test_model.py higgs randomforest Sklearn 100000
 
