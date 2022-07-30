@@ -172,7 +172,7 @@ def convert_to_treelite_model(model, num_trees, depth):
         treelite_model = treelite.Model.load(model_path, model_format='xgboost')
         toolchain = 'gcc'
         libpath = os.path.join("models", DATASET+"_"+MODEL+"_"+str(num_trees)+"_"+str(depth)+".so")
-        treelite_model.export_lib(toolchain, libpath, verbose=True, params={"dump_array_as_elf": 1})
+        treelite_model.export_lib(toolchain, libpath, verbose=True, params={"parallel_comp":os.cpu_count(), "dump_array_as_elf": 1})
         treelite_time_end = time.time()
         print("Time taken to convert and write treelite model "+str(calulate_time(treelite_time_start, treelite_time_end)))
 
