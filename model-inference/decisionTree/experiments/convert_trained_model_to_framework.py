@@ -66,8 +66,6 @@ def parse_arguments():
 def check_argument_conflicts(args):
     model = args.model.lower()
     frameworks = args.frameworks.lower().split(",")
-    if ("tf-df" in frameworks or "tfdf" in frameworks) and model == "xgboost":
-        raise ValueError("TF-DF models only supports randomforest algorithm, but does not support randomforest algorithm.")
     if "treelite" in frameworks and model == "randomforest":
         raise ValueError("TreeLite models only supports xgboost algorithm, but does not support randomforest algorithm.")
 
@@ -99,18 +97,24 @@ def convert_to_tf_df_model(model, num_trees, depth):
     #converting to TF-DF model
     import tensorflow as tf
     import scikit_learn_model_converter
+    import xgboost_model_converter
 
     if MODEL == "randomforest":
         tfdf_time_start = time.time()
-        #model_path = "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/higgs_randomforest_10_8.pkl"
-        #loaded_model = joblib.load(model_path)
         tensorflow_model = scikit_learn_model_converter.convert(model,  intermediate_write_path="intermediate_path", )
         libpath = os.path.join("models", DATASET+"_"+MODEL+"_"+str(num_trees)+"_"+str(depth)+"_tfdf")
         tf.saved_model.save(obj=tensorflow_model, export_dir=libpath)
         tfdf_time_end = time.time()
         print("Time taken to save tfdf randomforest model "+str(calulate_time(tfdf_time_start, tfdf_time_end)))
+    elif MODEL == "xgboost":
+        tfdf_time_start = time.time()
+        tensorflow_model = xgboost_model_converter.convert(model, intermediate_write_path="intermediate_path",)
+        libpath = os.path.join("models", DATASET+"_"+MODEL+"_"+str(num_trees)+"_"+str(depth)+"_tfdf")
+        tf.saved_model.save(obj=tensorflow_model, export_dir=libpath)
+        tfdf_time_end = time.time()
+        print("Time taken to save tfdf xgboost model "+str(calulate_time(tfdf_time_start, tfdf_time_end)))
     else:
-        print(f"TF-DF models only supports randomforest algorithm, but does not support {MODEL} algorithm.")
+        print(f"TF-DF models only supports randomforest and xgboost algorithms, but does not support {MODEL} algorithm.")
 
 def convert_to_onnx_model(model, num_trees, depth):
     #converting to ONNX model
@@ -168,15 +172,10 @@ def convert_to_treelite_model(model, num_trees, depth):
         treelite_model = treelite.Model.load(model_path, model_format='xgboost')
         toolchain = 'gcc'
         libpath = os.path.join("models", DATASET+"_"+MODEL+"_"+str(num_trees)+"_"+str(depth)+".so")
-        treelite_model.export_lib(toolchain, libpath, verbose=True)
+        treelite_model.export_lib(toolchain, libpath, verbose=True, params={"dump_array_as_elf": 1})
         treelite_time_end = time.time()
         print("Time taken to convert and write treelite model "+str(calulate_time(treelite_time_start, treelite_time_end)))
 
-        #import onnxruntime as rt
-        # sess = rt.InferenceSession(os.path.join("models",DATASET+"_"+MODEL+"_"+str(num_trees)+"_"+str(depth)+".onnx"),providers=['CPUExecutionProvider'])
-        # pred_onx = sess.run(None, {"input": x[:5].astype(np.float32)})
-        # print("predictions", pred_onx[0])
-        # # print("predict_proba", pred_onx[1][:1])
     else:
         print(f"TreeLite models only supports xgboost algorithm, but does not support {MODEL} algorithm.")
 
