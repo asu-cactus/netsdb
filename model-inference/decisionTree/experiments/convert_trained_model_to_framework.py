@@ -22,6 +22,7 @@ import os
 import argparse
 from enum import Enum
 from model_helper import *
+from train_model import get_relative_path
 
 class LearningTask(Enum):
     REGRESSION = 1
@@ -66,10 +67,12 @@ def parse_arguments():
 def check_argument_conflicts(args):
     model = args.model.lower()
     frameworks = args.frameworks.lower().split(",")
+    if ("tf-df" in frameworks or "tfdf" in frameworks) and model == "xgboost":
+        raise ValueError("TF-DF models only supports randomforest algorithm, but does not support randomforest algorithm.")
     if "treelite" in frameworks and model == "randomforest":
         raise ValueError("TreeLite models only supports xgboost algorithm, but does not support randomforest algorithm.")
 
-def convert_to_pytorch_model(model, num_trees, depth):
+def convert_to_pytorch_model(model, config):
     #converting to pytorch model using hummingbird
     humming_pytorch_time_start = time.time()
     model = hml.convert(model, 'pytorch')
@@ -77,11 +80,11 @@ def convert_to_pytorch_model(model, num_trees, depth):
     print("Time Taken to convert HummingbirdPyTorch:",calulate_time(humming_pytorch_time_start, humming_pytorch_time_end))
     
     save_pytorch_time_start = time.time()
-    model.save(os.path.join("models",DATASET+"_"+MODEL+"_"+str(num_trees)+"_"+str(depth)+"_pytorch.pkl"))
+    model.save(get_relative_path("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}_pytorch.pkl"))
     save_pytorch_time_end = time.time()
     print("Time taken to save pytorch model "+str(calulate_time(save_pytorch_time_start, save_pytorch_time_end)))
 
-def convert_to_torch_model(model, num_trees, depth):
+def convert_to_torch_model(model, config):
     #converting to torch model using hummingbird
     humming_torch_time_start = time.time()
     model = hml.convert(model, 'torch')
@@ -89,11 +92,11 @@ def convert_to_torch_model(model, num_trees, depth):
     print("Time taken to convert to torch using hummingbird "+str(calulate_time(humming_torch_time_start, humming_torch_time_end)))
     
     save_torch_time_start = time.time()
-    torch.save(model, os.path.join("models",DATASET+"_"+MODEL+"_"+str(num_trees)+"_"+str(depth)+"_torch.pkl"))
+    torch.save(model, get_relative_path("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}_torch.pkl"))
     save_torch_time_end = time.time()
     print("Time taken to save torch model "+str(calulate_time(save_torch_time_start, save_torch_time_end)))
 
-def convert_to_tf_df_model(model, num_trees, depth):
+def convert_to_tf_df_model(model, config):
     #converting to TF-DF model
     import tensorflow as tf
     import scikit_learn_model_converter
@@ -101,31 +104,32 @@ def convert_to_tf_df_model(model, num_trees, depth):
 
     if MODEL == "randomforest":
         tfdf_time_start = time.time()
+        #model_path = "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/higgs_randomforest_10_8.pkl"
+        #loaded_model = joblib.load(model_path)
         tensorflow_model = scikit_learn_model_converter.convert(model,  intermediate_write_path="intermediate_path", )
-        libpath = os.path.join("models", DATASET+"_"+MODEL+"_"+str(num_trees)+"_"+str(depth)+"_tfdf")
+        libpath = get_relative_path("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}_tfdf")
         tf.saved_model.save(obj=tensorflow_model, export_dir=libpath)
         tfdf_time_end = time.time()
         print("Time taken to save tfdf randomforest model "+str(calulate_time(tfdf_time_start, tfdf_time_end)))
     elif MODEL == "xgboost":
         tfdf_time_start = time.time()
         tensorflow_model = xgboost_model_converter.convert(model, intermediate_write_path="intermediate_path",)
-        libpath = os.path.join("models", DATASET+"_"+MODEL+"_"+str(num_trees)+"_"+str(depth)+"_tfdf")
+        libpath = get_relative_path("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}_tfdf")
         tf.saved_model.save(obj=tensorflow_model, export_dir=libpath)
         tfdf_time_end = time.time()
         print("Time taken to save tfdf xgboost model "+str(calulate_time(tfdf_time_start, tfdf_time_end)))
-    else:
-        print(f"TF-DF models only supports randomforest and xgboost algorithms, but does not support {MODEL} algorithm.")
 
-def convert_to_onnx_model(model, num_trees, depth):
+def convert_to_onnx_model(model, config):
     #converting to ONNX model
     if MODEL == "randomforest":
         onnx_time_start = time.time()
-        initial_type = [('float_input', FloatTensorType([None, 28]))]
+        initial_type = [('float_input', FloatTensorType([None, config[DATASET]['num_features']]))]
         model_onnx = convert_sklearn(model,'pipeline_xgboost', initial_types=initial_type)
         onnx_time_end = time.time()
         print("Time taken to convert onnx using hummingbird "+str(calulate_time(onnx_time_start, onnx_time_end)))
+        
         onnx_write_time_start = time.time()
-        with open(os.path.join("models",DATASET+"_"+MODEL+"_"+str(num_trees)+"_"+str(depth)+".onnx"), "wb") as f:
+        with open(get_relative_path("models", f"{DATASET}+{MODEL}_{config['num_trees']}_{config['depth']}.onnx"), "wb") as f:
             f.write(model_onnx.SerializeToString())
         onnx_write_time_end = time.time()
         print("Time taken to write onnx model "+str(calulate_time(onnx_write_time_start, onnx_write_time_end)))
@@ -149,63 +153,64 @@ def convert_to_onnx_model(model, num_trees, depth):
         model_onnx = convert_sklearn(
             model, 
             'pipeline_xgboost',
-            [('input', FloatTensorType([None, 28]))],
+            [('input', FloatTensorType([None, config[DATASET]['num_features']]))],
             target_opset={'': 12, 'ai.onnx.ml': 2}
         )
         onnx_time_end = time.time()
         print("Time taken to convert onnx using hummingbird "+str(calulate_time(onnx_time_start, onnx_time_end)))
+
         onnx_write_time_start = time.time()
-        with open(os.path.join("models",DATASET+"_"+MODEL+"_"+str(num_trees)+"_"+str(depth)+".onnx"), "wb") as f:
+        with open(get_relative_path("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.onnx"), "wb") as f:
             f.write(model_onnx.SerializeToString())
         onnx_write_time_end = time.time()
         print("Time taken to write onnx model "+str(calulate_time(onnx_write_time_start, onnx_write_time_end)))
-        # import the model to treelite 
 
 
-def convert_to_treelite_model(model, num_trees, depth):
+def convert_to_treelite_model(model, config):
     #converting to TreeLite model
     #Prerequisite: install treelite (https://treelite.readthedocs.io/en/latest/install.html)
     if MODEL == "xgboost":
         treelite_time_start = time.time()
-        model_path = os.path.join("models", DATASET+"_"+MODEL+"_"+str(num_trees)+"_"+str(depth)+".model")
+        model_path = get_relative_path("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.model")
         model.save_model(model_path)
         treelite_model = treelite.Model.load(model_path, model_format='xgboost')
         toolchain = 'gcc'
-        libpath = os.path.join("models", DATASET+"_"+MODEL+"_"+str(num_trees)+"_"+str(depth)+".so")
-        treelite_model.export_lib(toolchain, libpath, verbose=True, params={"parallel_comp":os.cpu_count(), "dump_array_as_elf": 1})
+        libpath = get_relative_path("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.so")
+        treelite_model.export_lib(toolchain, libpath, verbose=True)
         treelite_time_end = time.time()
         print("Time taken to convert and write treelite model "+str(calulate_time(treelite_time_start, treelite_time_end)))
 
+        #import onnxruntime as rt
+        # sess = rt.InferenceSession(get_relative_path("models",DATASET+"_"+MODEL+"_"+str(num_trees)+"_"+str(depth)+".onnx"),providers=['CPUExecutionProvider'])
+        # pred_onx = sess.run(None, {"input": x[:5].astype(np.float32)})
+        # print("predictions", pred_onx[0])
+        # # print("predict_proba", pred_onx[1][:1])
     else:
         print(f"TreeLite models only supports xgboost algorithm, but does not support {MODEL} algorithm.")
 
-def convert(model, num_trees, depth):
+def convert(model, config):
     if FRAMEWORKS is None:
         return
 
     frameworks = FRAMEWORKS.lower().split(",")
     if "pytorch" in frameworks:
-        convert_to_pytorch_model(model, num_trees, depth)
+        convert_to_pytorch_model(model,config)
     if "torch" in frameworks:
-        convert_to_torch_model(model, num_trees, depth)
+        convert_to_torch_model(model, config)
     if "tf-df" in frameworks or 'tfdf' in frameworks:
-        convert_to_tf_df_model(model, num_trees, depth)
+        convert_to_tf_df_model(model, config)
     if "onnx" in frameworks:
-        convert_to_onnx_model(model, num_trees, depth)
+        convert_to_onnx_model(model, config)
     if "treelite" in frameworks:
-        convert_to_treelite_model(model, num_trees, depth)
+        convert_to_treelite_model(model, config)
 
 
-def load_model(num_trees, depth):
-
-    model_path = os.path.join("models", DATASET+"_"+MODEL+"_"+str(num_trees)+"_"+str(depth)+".pkl")
-    model = joblib.load(model_path)
+def load_model(config):
+    model = joblib.load(get_relative_path("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.pkl"))
     return model
 
 if __name__ ==  "__main__":
     parse_arguments()
-    config = json.load(open("config.json"))
-    num_trees = config["num_trees"]
-    depth = config["depth"]
-    model = load_model(num_trees, depth)
-    convert(model, num_trees, depth)
+    config = json.load(open(get_relative_path("config.json")))
+    model = load_model(config)
+    convert(model, config)
