@@ -111,6 +111,7 @@ def convert_to_tf_df_model(model, config):
         tf.saved_model.save(obj=tensorflow_model, export_dir=libpath)
         tfdf_time_end = time.time()
         print("Time taken to save tfdf randomforest model "+str(calulate_time(tfdf_time_start, tfdf_time_end)))
+
     elif MODEL == "xgboost":
         tfdf_time_start = time.time()
         tensorflow_model = xgboost_model_converter.convert(model, intermediate_write_path="intermediate_path",)
@@ -118,6 +119,7 @@ def convert_to_tf_df_model(model, config):
         tf.saved_model.save(obj=tensorflow_model, export_dir=libpath)
         tfdf_time_end = time.time()
         print("Time taken to save tfdf xgboost model "+str(calulate_time(tfdf_time_start, tfdf_time_end)))
+
 
 def convert_to_onnx_model(model, config):
     #converting to ONNX model
