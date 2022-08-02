@@ -205,7 +205,7 @@ if not gpu:
         from skl2onnx.common.data_types import FloatTensorType
         #https://github.com/microsoft/onnxruntime-openenclave/blob/openenclave-public/docs/ONNX_Runtime_Perf_Tuning.md
         sess_opt = rt.SessionOptions()
-        sess_opt.intra_op_num_threads = 2
+        sess_opt.intra_op_num_threads = os.cpu_count() 
         sess_opt.execution_mode = rt.ExecutionMode.ORT_SEQUENTIAL
         start_time = time.time()
         data = df_test[x_col]
