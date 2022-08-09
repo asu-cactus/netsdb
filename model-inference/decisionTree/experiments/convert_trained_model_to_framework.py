@@ -67,8 +67,6 @@ def parse_arguments():
 def check_argument_conflicts(args):
     model = args.model.lower()
     frameworks = args.frameworks.lower().split(",")
-    if ("tf-df" in frameworks or "tfdf" in frameworks) and model == "xgboost":
-        raise ValueError("TF-DF models only supports randomforest algorithm, but does not support randomforest algorithm.")
     if "treelite" in frameworks and model == "randomforest":
         raise ValueError("TreeLite models only supports xgboost algorithm, but does not support randomforest algorithm.")
 
