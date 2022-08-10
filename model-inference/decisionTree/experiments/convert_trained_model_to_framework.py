@@ -129,7 +129,7 @@ def convert_to_onnx_model(model, config):
         print("Time taken to convert onnx using hummingbird "+str(calulate_time(onnx_time_start, onnx_time_end)))
         
         onnx_write_time_start = time.time()
-        with open(get_relative_path("models", f"{DATASET}+{MODEL}_{config['num_trees']}_{config['depth']}.onnx"), "wb") as f:
+        with open(get_relative_path("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.onnx"), "wb") as f:
             f.write(model_onnx.SerializeToString())
         onnx_write_time_end = time.time()
         print("Time taken to write onnx model "+str(calulate_time(onnx_write_time_start, onnx_write_time_end)))
