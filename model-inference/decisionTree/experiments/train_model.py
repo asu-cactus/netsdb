@@ -49,6 +49,9 @@ def load_data(config):
     return df_train
 
 def train(config, df_train):
+ 
+    print("start training...")
+
     # Prepare data
     y_col = config[DATASET]["y_col"]
     x_col = list(df_train.columns)

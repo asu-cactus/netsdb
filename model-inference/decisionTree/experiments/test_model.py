@@ -58,7 +58,6 @@ print("Batch Size:", batch_size)
 
 df_test = fetch_data(DATASET,config,"test")
 input_size = len(df_test)
-
 num_trees = config["num_trees"]
 depth = config["depth"]
 y_col = datasetconfig["y_col"]
@@ -71,13 +70,14 @@ sklearnmodel.set_params(verbose =0)
 sklearnmodel.set_params(n_jobs =-1)
 load_time = time.time()
 print("Time Taken to load sklearn model", calulate_time(start_time, load_time))
+data = df_test[x_col].to_numpy()
 
 if not gpu:
 
     if FRAMEWORK == "Sklearn":
         start_time = time.time()
         #scikit-learn will use all data in a query as one batch  
-        results = run_inference(FRAMEWORK, df_test[x_col], input_size, query_size, sklearnmodel.predict)
+        results = run_inference(FRAMEWORK, data, input_size, query_size, sklearnmodel.predict)
         write_data(FRAMEWORK, results)
         end_time = time.time()
         print("TOTAL Time Taken "+FRAMEWORK+" is:", calulate_time(start_time,end_time))
@@ -93,7 +93,7 @@ if not gpu:
         predictor = treelite_runtime.Predictor(libpath, verbose=True)
         load_time = time.time()
         print("Time Taken to load TreeLite model", calulate_time(start_time, load_time))
-        results = run_inference(FRAMEWORK, df_test[x_col], input_size, query_size, predictor.predict)
+        results = run_inference(FRAMEWORK, data, input_size, query_size, predictor.predict)
         write_data(FRAMEWORK, results)
         end_time = time.time()
         print("TOTAL Time Taken "+FRAMEWORK+" is:", calulate_time(start_time,end_time))
@@ -107,11 +107,11 @@ if not gpu:
         import hummingbird.ml
         import torch
         start_time = time.time()
-        model = convert_to_hummingbird_model(sklearnmodel, "torch", df_test[x_col], batch_size, "cpu")
+        model = convert_to_hummingbird_model(sklearnmodel, "torch", data, batch_size, "cpu")
         model_conversion_time = time.time()
         print("Time Taken to convert HummingbirdPyTorch:",calulate_time(start_time, model_conversion_time))
 
-        results = run_inference(FRAMEWORK, df_test[x_col], input_size, query_size, model.predict)
+        results = run_inference(FRAMEWORK, data, input_size, query_size, model.predict)
         write_data(FRAMEWORK, results)
         end_time = time.time()
         print("TOTAL Time Taken "+FRAMEWORK+" is:", calulate_time(start_time,end_time))
@@ -126,7 +126,6 @@ if not gpu:
         import torch
         import hummingbird.ml
         start_time = time.time()
-        data = df_test[x_col]
         model = convert_to_hummingbird_model(sklearnmodel, "torch.jit", data, batch_size, "cpu")
         model_conversion_time = time.time()
         print("Time Taken to convert HummingbirdTorchScript:",calulate_time(start_time, model_conversion_time))
@@ -150,7 +149,6 @@ if not gpu:
         import hummingbird.ml
         assert batch_size == query_size, "For TVM, batch_size must be equivalent to query_size"
         start_time = time.time()
-        data = df_test[x_col]
         model = convert_to_hummingbird_model(sklearnmodel, "tvm", data, batch_size, "cpu")
         model_conversion_time = time.time()
         print("Time Taken to convert HummingbirdTVM:",calulate_time(load_time, model_conversion_time))
@@ -175,7 +173,6 @@ if not gpu:
         import scikit_learn_model_converter
         import xgboost_model_converter
         start_time = time.time()
-        data = df_test[x_col]
         model = None
         if CLASSIFIER == "randomforest":
             model = scikit_learn_model_converter.convert(sklearnmodel, intermediate_write_path="intermediate_path", )
@@ -208,7 +205,6 @@ if not gpu:
         sess_opt.intra_op_num_threads = os.cpu_count() 
         sess_opt.execution_mode = rt.ExecutionMode.ORT_SEQUENTIAL
         start_time = time.time()
-        data = df_test[x_col]
         sess = rt.InferenceSession(os.path.join("models",DATASET+"_"+CLASSIFIER+"_"+str(num_trees)+"_"+str(depth)+".onnx"),providers=['CPUExecutionProvider'], sess_options=sess_opt)
         input_name = sess.get_inputs()[0].name
         label_name = sess.get_outputs()[0].name

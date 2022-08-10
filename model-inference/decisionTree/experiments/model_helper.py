@@ -19,7 +19,10 @@ def fetch_data(dataset,config,suffix):
         query = datasetconfig["query"]+"_"+suffix
         dbURL = "postgresql://"+pgsqlconfig["username"]+":"+pgsqlconfig["password"]+"@"+pgsqlconfig["host"]+":"+pgsqlconfig["port"]+"/"+pgsqlconfig["dbname"]
         start_time = time.time()
+        print(dbURL)
+        print(query)
         dataframe = cx.read_sql(dbURL, query)
+        print(datasetconfig["y_col"])
         dataframe = dataframe.astype({datasetconfig["y_col"]: int})
         end_time = time.time()
         print("Time Taken to load "+dataset+" as a dataframe is:", calulate_time(start_time,end_time))
@@ -74,7 +77,7 @@ def run_inference(framework,df,input_size,query_size,predict):
         import torch
         for i in range(iterations):
             query_data = df[i*query_size:(i+1)*query_size]
-            output = predict(query_data.to_numpy())
+            output = predict(query_data)
             results.extend(output)
     else:
         for i in range(iterations):
