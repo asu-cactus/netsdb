@@ -1,12 +1,11 @@
 import connectorx as cx
 import psycopg2
-import json
 import time
 import os
 import numpy as np
-import pandas as pd
 import math
 from sklearn.metrics import classification_report
+import treelite_runtime
 
 def calulate_time(start_time,end_time):
     diff = (end_time-start_time)*1000
@@ -59,22 +58,21 @@ def run_inference(framework,df,input_size,query_size,predict):
     results = []
     iterations = math.ceil(input_size/query_size)
     if framework == "TreeLite":
-        import treelite
-        import treelite_runtime
         for i in range(iterations):
             query_data = treelite_runtime.DMatrix(df[i*query_size:(i+1)*query_size])
             output = predict(query_data)
             output = np.where(output > 0.5, 1, 0)
-            results.extend(output)
+            if output.shape == ():
+                results.append(output)
+            else:
+                results.extend(output)
     elif framework == "TFDF":
-        import tensorflow as tf
         for i in range(iterations):
             query_data = df[i*query_size:(i+1)*query_size]
             output = predict(query_data).flatten()
             output = np.where(output > 0.5, 1, 0)
             results.extend(output)
     elif framework == "HummingbirdPytorchCPU":
-        import torch
         for i in range(iterations):
             query_data = df[i*query_size:(i+1)*query_size]
             output = predict(query_data)
