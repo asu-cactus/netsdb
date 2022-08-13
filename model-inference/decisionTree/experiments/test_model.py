@@ -150,10 +150,15 @@ if not gpu:
         assert batch_size == query_size, "For TVM, batch_size must be equivalent to query_size"
         start_time = time.time()
         model = convert_to_hummingbird_model(sklearnmodel, "tvm", data, batch_size, "cpu")
+        remainder_size = len(data) % batch_size
+        if remainder_size > 0:
+            remainder_model = convert_to_hummingbird_model(sklearnmodel, "tvm", data, remainder_size, "cpu")
         model_conversion_time = time.time()
         print("Time Taken to convert HummingbirdTVM:",calulate_time(load_time, model_conversion_time))
-        def predict(batch):
+        def predict(batch, use_remainder_model):
             batch = np.array(batch, dtype=np.float32)
+            if use_remainder_model:
+                return remainder_model.predict(batch)
             return model.predict(batch)
 
         results = run_inference(FRAMEWORK, data, input_size, query_size, predict)

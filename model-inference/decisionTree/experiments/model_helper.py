@@ -1,12 +1,11 @@
 import connectorx as cx
 import psycopg2
-import json
 import time
 import os
 import numpy as np
-import pandas as pd
 import math
 from sklearn.metrics import classification_report
+import treelite_runtime
 
 def calulate_time(start_time,end_time):
     diff = (end_time-start_time)*1000
@@ -46,8 +45,9 @@ def convert_to_hummingbird_model(model, backend, test_data, batch_size, device):
     extra_config = {constants.N_THREADS: os.cpu_count()}
     batch_data = None
     if backend == "tvm":
-        single_batch = np.array(test_data[0:batch_size], dtype=np.float32)
-        batch_data = np.array(single_batch, dtype=np.float32)
+        # single_batch = np.array(test_data[0:batch_size], dtype=np.float32)
+        # batch_data = np.array(single_batch, dtype=np.float32)
+        batch_data = np.array(test_data[0:batch_size], dtype=np.float32)
         model = convert(model, backend, batch_data, device=device, extra_config=extra_config)
     else:
         batch_data = get_data(test_data, batch_size)
@@ -59,31 +59,38 @@ def run_inference(framework,df,input_size,query_size,predict):
     results = []
     iterations = math.ceil(input_size/query_size)
     if framework == "TreeLite":
-        import treelite
-        import treelite_runtime
+        def aggregate_function():
+            def append(output):
+                results.append(output)
+            def extend(output):
+                results.extend(output)
+            return append if query_size == 1 else extend
+
+        aggregate_func = aggregate_function()
         for i in range(iterations):
             query_data = treelite_runtime.DMatrix(df[i*query_size:(i+1)*query_size])
             output = predict(query_data)
             output = np.where(output > 0.5, 1, 0)
-            results.extend(output)
+            aggregate_func(output)
+
     elif framework == "TFDF":
-        import tensorflow as tf
         for i in range(iterations):
             query_data = df[i*query_size:(i+1)*query_size]
             output = predict(query_data).flatten()
             output = np.where(output > 0.5, 1, 0)
             results.extend(output)
     elif framework == "HummingbirdPytorchCPU":
-        import torch
         for i in range(iterations):
             query_data = df[i*query_size:(i+1)*query_size]
             output = predict(query_data)
+            results.extend(output)
+    elif framework == "HummingbirdTVMCPU":
+        for i in range(iterations):
+            query_data = df[i*query_size:(i+1)*query_size]
+            output = predict(query_data, len(query_data)!=query_size)
             results.extend(output)
     else:
-        for i in range(iterations):
-            query_data = df[i*query_size:(i+1)*query_size]
-            output = predict(query_data)
-            results.extend(output)
+        raise ValueError(f"Framework {framework} is not supported.")
     end_time = time.time()
     print("Time Taken to predict on "+framework+" is:", calulate_time(start_time,end_time))
     return results
