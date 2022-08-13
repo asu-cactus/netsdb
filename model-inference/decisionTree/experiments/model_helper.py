@@ -59,14 +59,20 @@ def run_inference(framework,df,input_size,query_size,predict):
     results = []
     iterations = math.ceil(input_size/query_size)
     if framework == "TreeLite":
+        def aggregate_function():
+            def append(output):
+                results.append(output)
+            def extend(output):
+                results.extend(output)
+            return append if query_size == 1 else extend
+
+        aggregate_func = aggregate_function()
         for i in range(iterations):
             query_data = treelite_runtime.DMatrix(df[i*query_size:(i+1)*query_size])
             output = predict(query_data)
             output = np.where(output > 0.5, 1, 0)
-            if output.shape == ():
-                results.append(output)
-            else:
-                results.extend(output)
+            aggregate_func(output)
+
     elif framework == "TFDF":
         for i in range(iterations):
             query_data = df[i*query_size:(i+1)*query_size]
