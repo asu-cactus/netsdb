@@ -45,8 +45,9 @@ def convert_to_hummingbird_model(model, backend, test_data, batch_size, device):
     extra_config = {constants.N_THREADS: os.cpu_count()}
     batch_data = None
     if backend == "tvm":
-        single_batch = np.array(test_data[0:batch_size], dtype=np.float32)
-        batch_data = np.array(single_batch, dtype=np.float32)
+        # single_batch = np.array(test_data[0:batch_size], dtype=np.float32)
+        # batch_data = np.array(single_batch, dtype=np.float32)
+        batch_data = np.array(test_data[0:batch_size], dtype=np.float32)
         model = convert(model, backend, batch_data, device=device, extra_config=extra_config)
     else:
         batch_data = get_data(test_data, batch_size)
@@ -77,11 +78,13 @@ def run_inference(framework,df,input_size,query_size,predict):
             query_data = df[i*query_size:(i+1)*query_size]
             output = predict(query_data)
             results.extend(output)
-    else:
+    elif framework == "HummingbirdTVMCPU":
         for i in range(iterations):
             query_data = df[i*query_size:(i+1)*query_size]
-            output = predict(query_data)
+            output = predict(query_data, len(query_data)!=query_size)
             results.extend(output)
+    else:
+        raise ValueError(f"Framework {framework} is not supported.")
     end_time = time.time()
     print("Time Taken to predict on "+framework+" is:", calulate_time(start_time,end_time))
     return results
