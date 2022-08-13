@@ -1,5 +1,5 @@
 {
-    "num_trees": 100,
+    "num_trees": 1600,
     "depth": 8,
     "pgsqlconfig": {
         "host": "localhost",
@@ -24,21 +24,37 @@
         "table": "higgs",
         "header": 0
     },
-    "airline": {
+    "airline_classification": {
+        "num_features": 13,
+	"rows": 115069017,
+	"batch_size": 100000,
+        "query_size": 100000,
+        "type": "classification",
+	"info": "http://kt.ijs.si/elena_ikonomovska/datasets/airline/airline_14col.data.bz2",
+	"query": "SELECT Year,Month,DayofMonth,DayofWeek,CRSDepTime,CRSArrTime,UniqueCarrier,FlightNum,ActualElapsedTime,Origin,Dest,Distance,Diverted,ArrDelay FROM airline_classification",
+        "create": "CREATE TABLE ** (Year INTEGER NOT NULL, Month INTEGER NOT NULL, DayOfMonth INTEGER NOT NULL, DayOfWeek INTEGER NOT NULL, CRSDepTime INTEGER NOT NULL, CRSArrTime INTEGER NOT NULL, UniqueCarrier INTEGER NOT NULL, FlightNum INTEGER NOT NULL, ActualElapsedTime INTEGER NOT NULL, Origin INTEGER NOT NULL, Dest INTEGER NOT NULL, Distance INTEGER NOT NULL, Diverted INTEGER NOT NULL, ArrDelay INTEGER NOT NULL)",
+        "train": 0.8,
+        "test": 0.2,
+        "y_col": "arrdelay",
+        "filename": "dataset/airline_classification.csv",
+        "table": "airline_classification",
+        "header": 1 
+    },
+    "airline_regression": {
         "num_features": 13,
         "rows": 115069017,
         "batch_size": 100000,
         "query_size": 100000,
         "type": "regression",
         "info": "http://kt.ijs.si/elena_ikonomovska/datasets/airline/airline_14col.data.bz2",
-        "query": "SELECT year, month, dayOfMonth, dayOfWeek, crsDepartureTime, crsArrivalTime, uniqueCarrier, flightNumber, actualElapsedTime, origin, destination, distance, diverted, arrivalDelay FROM airline",
-        "create": "CREATE TABLE ** (year INTEGER NOT NULL, month INTEGER NOT NULL, dayOfMonth INTEGER NOT NULL, dayOfWeek INTEGER NOT NULL, crsDepartureTime INTEGER NOT NULL, crsArrivalTime INTEGER NOT NULL, uniqueCarrier CHAR(6) NOT NULL, flightNumber INTEGER NOT NULL, actualElapsedTime INTEGER NOT NULL, origin CHAR(3) NOT NULL, destination CHAR(3) NOT NULL, distance INTEGER NOT NULL, diverted INTEGER NOT NULL, arrivalDelay INTEGER NOT NULL)",
+	"query": "SELECT Year,Month,DayofMonth,DayofWeek,CRSDepTime,CRSArrTime,UniqueCarrier,FlightNum,ActualElapsedTime,Origin,Dest,Distance,Diverted,ArrDelay FROM airline_regression",
+        "create": "CREATE TABLE ** (Year INTEGER NOT NULL, Month INTEGER NOT NULL, DayOfMonth INTEGER NOT NULL, DayOfWeek INTEGER NOT NULL, CRSDepTime INTEGER NOT NULL, CRSArrTime INTEGER NOT NULL, UniqueCarrier INTEGER NOT NULL, FlightNum INTEGER NOT NULL, ActualElapsedTime INTEGER NOT NULL, Origin INTEGER NOT NULL, Dest INTEGER NOT NULL, Distance INTEGER NOT NULL, Diverted INTEGER NOT NULL, ArrDelay INTEGER NOT NULL)",
         "train": 0.8,
         "test": 0.2,
-        "y_col": "arrivaldelay",
-        "filename": "airline_14col.data",
-        "table": "airline",
-        "header": 0
+        "y_col": "arrdelay",
+        "filename": "dataset/airline_regression.csv",
+        "table": "airline_regression",
+        "header": 1 
     },
     "fraud": {
         "num_features": 28,

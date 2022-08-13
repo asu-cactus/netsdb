@@ -22,7 +22,8 @@ def fetch_data(dataset,config,suffix):
         print(query)
         dataframe = cx.read_sql(dbURL, query)
         print(datasetconfig["y_col"])
-        dataframe = dataframe.astype({datasetconfig["y_col"]: int})
+        if datasetconfig["type"] == "classification":
+            dataframe = dataframe.astype({datasetconfig["y_col"]: int})
         end_time = time.time()
         print("Time Taken to load "+dataset+" as a dataframe is:", calulate_time(start_time,end_time))
         return dataframe
@@ -79,18 +80,11 @@ def run_inference(framework,df,input_size,query_size,predict):
             output = predict(query_data).flatten()
             output = np.where(output > 0.5, 1, 0)
             results.extend(output)
-    elif framework == "HummingbirdPytorchCPU":
+    else:
         for i in range(iterations):
             query_data = df[i*query_size:(i+1)*query_size]
             output = predict(query_data)
             results.extend(output)
-    elif framework == "HummingbirdTVMCPU":
-        for i in range(iterations):
-            query_data = df[i*query_size:(i+1)*query_size]
-            output = predict(query_data, len(query_data)!=query_size)
-            results.extend(output)
-    else:
-        raise ValueError(f"Framework {framework} is not supported.")
     end_time = time.time()
     print("Time Taken to predict on "+framework+" is:", calulate_time(start_time,end_time))
     return results

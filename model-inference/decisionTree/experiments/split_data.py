@@ -5,7 +5,7 @@ import psycopg2
 from sklearn.model_selection import train_test_split
 
 args = sys.argv
-DATASET = "higgs"
+DATASET = "airline_classification"
 
 if len(args) > 1:
     DATASET = args[-1]
@@ -48,10 +48,18 @@ create_query = datasetconfig["create"]
 create_query = create_query.split("**")
 
 with connection.cursor() as cursor:
+    cursor.execute("DROP TABLE IF EXISTS " + datasetconfig["table"]+"_train")
+    connection.commit()
+
+with connection.cursor() as cursor:
     cursor.execute(create_query[0]+datasetconfig["table"]+"_train"+create_query[1])
     with open(datasetconfig["filename"]+"_train.csv") as f:
         cursor.copy_expert("COPY "+datasetconfig["table"]+"_train"+" FROM STDIN WITH CSV", f)
     print("LOADED "+datasetconfig["table"]+"_train"+" to DB")
+    connection.commit()
+
+with connection.cursor() as cursor:
+    cursor.execute("DROP TABLE IF EXISTS " + datasetconfig["table"]+"_test" )
     connection.commit()
 
 with connection.cursor() as cursor:
