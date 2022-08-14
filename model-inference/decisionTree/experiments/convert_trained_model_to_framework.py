@@ -36,8 +36,8 @@ LEARNINGTASK = LearningTask.CLASSIFICATION
 def parse_arguments():
     global DATASET, MODEL, FRAMEWORKS, LEARNINGTASK
     parser = argparse.ArgumentParser(description='Arguments for train_model.')
-    parser.add_argument("-d", "--dataset", type=str, choices=['higgs', 'airline', 'fraud', 'year', 'epsilon'],
-        help="Dataset to be trained. Choose from ['higgs', 'airline', 'fraud', 'year', 'epsilon']")
+    parser.add_argument("-d", "--dataset", type=str, choices=['higgs', 'airline_classification', 'airline_regression', 'fraud', 'year', 'epsilon'],
+        help="Dataset to be trained. Choose from ['higgs', 'airline_classification', 'airline_regression', 'fraud', 'year', 'epsilon']")
     parser.add_argument("-m", "--model", type=str, choices=['randomforest', 'xgboost'],
         help="Model name. Choose from ['randomforest', 'xgboost']")
     parser.add_argument("-f", "--frameworks", type=str,

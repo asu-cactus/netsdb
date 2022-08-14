@@ -70,7 +70,9 @@ sklearnmodel.set_params(verbose =0)
 sklearnmodel.set_params(n_jobs =-1)
 load_time = time.time()
 print("Time Taken to load sklearn model", calulate_time(start_time, load_time))
+df_test[x_col] = df_test[x_col].astype(float)
 data = df_test[x_col].to_numpy()
+
 
 if not gpu:
 
