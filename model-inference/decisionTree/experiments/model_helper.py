@@ -73,12 +73,16 @@ def run_inference(framework,df,input_size,query_size,predict):
             output = predict(query_data)
             output = np.where(output > 0.5, 1, 0)
             aggregate_func(output)
-
     elif framework == "TFDF":
         for i in range(iterations):
             query_data = df[i*query_size:(i+1)*query_size]
             output = predict(query_data).flatten()
             output = np.where(output > 0.5, 1, 0)
+            results.extend(output)
+    elif framework == "HummingbirdTVMCPU":
+        for i in range(iterations):
+            query_data = df[i*query_size:(i+1)*query_size]
+            output = predict(query_data, len(query_data)!=query_size)
             results.extend(output)
     else:
         for i in range(iterations):
