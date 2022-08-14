@@ -14,7 +14,7 @@ import os
 import argparse
 from model_helper import *
 
-DATASET = "higgs"
+DATASET = "airline_classification"
 MODEL = "xgboost"
 
 def get_relative_path(path, *paths):
@@ -27,8 +27,8 @@ def get_relative_path(path, *paths):
 def parse_arguments():
     global DATASET, MODEL
     parser = argparse.ArgumentParser(description='Arguments for train_model.')
-    parser.add_argument("-d", "--dataset", type=str, choices=['higgs', 'airline', 'fraud', 'year', 'epsilon'],
-        help="Dataset to be trained. Choose from ['higgs', 'airline', 'fraud', 'year', 'epsilon']")
+    parser.add_argument("-d", "--dataset", type=str, choices=['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon'],
+        help="Dataset to be trained. Choose from ['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon']")
     parser.add_argument("-m", "--model", type=str, choices=['randomforest', 'xgboost'],
         help="Model name. Choose from ['randomforest', 'xgboost']")
     args = parser.parse_args()

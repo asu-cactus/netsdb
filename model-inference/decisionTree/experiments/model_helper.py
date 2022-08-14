@@ -22,7 +22,8 @@ def fetch_data(dataset,config,suffix):
         print(query)
         dataframe = cx.read_sql(dbURL, query)
         print(datasetconfig["y_col"])
-        dataframe = dataframe.astype({datasetconfig["y_col"]: int})
+        if datasetconfig["type"] == "classification":
+            dataframe = dataframe.astype({datasetconfig["y_col"]: int})
         end_time = time.time()
         print("Time Taken to load "+dataset+" as a dataframe is:", calulate_time(start_time,end_time))
         return dataframe
