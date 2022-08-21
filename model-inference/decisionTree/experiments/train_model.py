@@ -17,13 +17,6 @@ from model_helper import *
 DATASET = "airline_classification"
 MODEL = "xgboost"
 
-def get_relative_path(path, *paths):
-    return os.path.join(
-        os.path.dirname(__file__),
-        path,
-        *paths
-    )
-
 def parse_arguments():
     global DATASET, MODEL
     parser = argparse.ArgumentParser(description='Arguments for train_model.')
@@ -100,7 +93,7 @@ def train(config, df_train):
     train_start_time = time.time()
     model.fit(x,y) 
     train_end_time = time.time()
-    print(f"Time taken to train the model: {calulate_time(train_start_time, train_end_time)}")
+    print(f"Time taken to train the model: {calculate_time(train_start_time, train_end_time)}")
         
     # Compute metrics
     if config[DATASET]["type"] == "classification":
@@ -111,13 +104,13 @@ def train(config, df_train):
 
     # Save the model using joblib
     joblib_time_start = time.time()
-    joblib.dump(model, get_relative_path("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.pkl"))
+    joblib.dump(model, relative2abspath("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.pkl"))
     joblib_time_end = time.time()
-    print(f"Time taken to save model using joblib: {calulate_time(joblib_time_start, joblib_time_end)}")
+    print(f"Time taken to save model using joblib: {calculate_time(joblib_time_start, joblib_time_end)}")
 
 
 if __name__ ==  "__main__":
     parse_arguments()
-    config = json.load(open(get_relative_path("config.json")))
+    config = json.load(open(relative2abspath("config.json")))
     df_train = load_data(config)
     train(config, df_train)
