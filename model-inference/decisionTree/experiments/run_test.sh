@@ -1,23 +1,35 @@
 #! /bin/bash
-DATASET="fraud"
-MODELS="xgboost randomforest"
-# FRAMEWORKS="Sklearn TreeLite HummingbirdPytorchCPU HummingbirdTorchScriptCPU HummingbirdTVMCPU TFDF ONNXCPU"
-FRAMEWORKS="Sklearn TreeLite HummingbirdPytorchCPU HummingbirdTorchScriptCPU HummingbirdTVMCPU ONNXCPU"
+DATASET="year"
+MODELS="randomforest xgboost"
+# TESTSIZE="1000"
+# BATCHSIZES="100 1000"
+FRAMEWORKS="Sklearn TreeLite HummingbirdPytorchCPU HummingbirdTorchScriptCPU HummingbirdTVMCPU TFDF ONNXCPU"
+# FRAMEWORKS="Sklearn TreeLite HummingbirdPytorchCPU HummingbirdTorchScriptCPU HummingbirdTVMCPU ONNXCPU"
 
 # Warmup
 python test_model.py -d $DATASET -m xgboost -f Sklearn --batch_size 1000 --query_size 1000
 
-# switch $DATASET
-# case "fraud"
-#     BATCHSIZES = "1 10 100 1000 10000 56962"
-# case "higgs"
-#     BATCHSIZES = ""
-# endswitch
+switch $DATASET
+case "higgs"
+    TESTSIZE="2200000"
+    BATCHSIZES="1 10 100 1000 10000 100000 2200000"
+case "airline_classification"
+    TESTSIZE="23013804"
+    BATCHSIZES="1 10 100 1000 10000 100000 1000000 23013804"
+case "airline_regression"
+    TESTSIZE="23013804"
+    BATCHSIZES="1 10 100 1000 10000 100000 1000000 23013804"
+case "fraud"
+    TESTSIZE="56962"
+    BATCHSIZES="1 10 100 1000 10000 56962"
+case "year"
+    TESTSIZE="103069"
+    BATCHSIZES="1 10 100 1000 10000 100000 103069"
+case "epsilon"
+    TESTSIZE="100000"
+    BATCHSIZES="1 10 100 1000 10000 100000"
+endswitch
 
-
-TESTSIZE="56962"
-# BATCHSIZES="1 10 100 1000 10000 56962"
-BATCHSIZES="1000 10000"
 
 for MODEL in $MODELS
     do 

@@ -10,7 +10,6 @@ import joblib
 import numpy as np
 import time
 import json
-import os
 import argparse
 from model_helper import *
 
@@ -33,16 +32,8 @@ def parse_arguments():
     print(f"DATASET: {DATASET}")
     print(f"MODEL: {MODEL}")
     return args
- 
-
-def load_data(config):
-    y_col = config[DATASET]["y_col"]
-    df_train = fetch_data(DATASET,config,"train").astype({y_col: int})
-    print(f"Number of training examples: {len(df_train)}")
-    return df_train
 
 def train(config, df_train):
- 
     print("start training...")
 
     # Prepare data
@@ -112,5 +103,6 @@ def train(config, df_train):
 if __name__ ==  "__main__":
     parse_arguments()
     config = json.load(open(relative2abspath("config.json")))
-    df_train = load_data(config)
+    df_train = df_train = fetch_data(DATASET,config,"train")
+    print(f"Number of training examples: {len(df_train)}")
     train(config, df_train)

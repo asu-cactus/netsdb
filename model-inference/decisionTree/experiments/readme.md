@@ -94,6 +94,7 @@ python test_model.py dataset model framework batch_size [gpu]
 
 
 **Examples**
+python data_processing.py higgs
 
 python split_data.py higgs
 

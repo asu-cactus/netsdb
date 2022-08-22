@@ -4,7 +4,7 @@ import time
 import os
 import numpy as np
 import math
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, mean_squared_error
 import treelite_runtime
 
 def calculate_time(start_time,end_time):
@@ -17,17 +17,18 @@ def fetch_data(dataset, config, suffix, time_consume=None):
         datasetconfig = config[dataset]
         query = datasetconfig["query"]+"_"+suffix
         dbURL = "postgresql://"+pgsqlconfig["username"]+":"+pgsqlconfig["password"]+"@"+pgsqlconfig["host"]+":"+pgsqlconfig["port"]+"/"+pgsqlconfig["dbname"]
-        start_time = time.time()
         print(dbURL)
         print(query)
+        start_time = time.time()
         dataframe = cx.read_sql(dbURL, query)
-        print(datasetconfig["y_col"])
-        if datasetconfig["type"] == "classification":
-            dataframe = dataframe.astype({datasetconfig["y_col"]: int})
         end_time = time.time()
         data_loading_time = calculate_time(start_time,end_time)
-        time_consume["data loading time"] = data_loading_time
-        print(f"Time Taken to load {dataset} as a dataframe is: {data_loading_time}", )
+        if time_consume is not None:
+            time_consume["data loading time"] = data_loading_time
+        print(f"Time Taken to load {dataset} as a dataframe is: {data_loading_time}")
+
+        if datasetconfig["type"] == "classification":
+            dataframe = dataframe.astype({datasetconfig["y_col"]: int})
         return dataframe
     except psycopg2.Error as e:
         print("Postgres Database error: " + e + "/n")
@@ -111,6 +112,11 @@ def write_data(framework, results, time_consume):
 def find_accuracy(framework,y_actual, y_pred):
     print("Classification Report", framework)
     print(classification_report(y_actual,y_pred))
+    print("################")
+
+def find_MSE(framework,y_actual, y_pred):
+    print("Regression Report", framework)
+    print(f"MSE: {mean_squared_error(y_actual, y_pred)}")
     print("################")
 
 def relative2abspath(path, *paths):

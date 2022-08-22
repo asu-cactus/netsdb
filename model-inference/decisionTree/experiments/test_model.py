@@ -16,6 +16,7 @@ DATASET = "higgs"
 MODEL = "xgboost"
 FRAMEWORK = "Sklearn"
 
+
 def parse_arguments(config):
     global DATASET, MODEL, FRAMEWORK
     parser = argparse.ArgumentParser(description="""
@@ -63,6 +64,10 @@ def parse_arguments(config):
     if not args.query_size:
         args.query_size = config[DATASET]["query_size"]
 
+    if DATASET == "year" or DATASET == "airline_regression":
+        args.task_type = "regression"
+    else:
+        args.task_type = "classification"
     # Print arguments
     print(f"DATASET: {DATASET}")
     print(f"MODEL: {MODEL}")
@@ -197,7 +202,10 @@ def test_cpu(args, features, label, sklearnmodel, config, time_consume):
         total_framework_time = calculate_time(start_time, time.time())
     else:
         raise ValueError(f"{FRAMEWORK} is not supported.")
-    find_accuracy(FRAMEWORK, label, results)
+    if args.task_type == "classification":
+        find_accuracy(FRAMEWORK, label, results)
+    else:
+        find_MSE(FRAMEWORK, label, results)
     return (time_consume, conversion_time, total_framework_time, config)
 
 def test_gpu(args, features, label, sklearnmodel, config, time_consume):
@@ -243,7 +251,10 @@ def test_gpu(args, features, label, sklearnmodel, config, time_consume):
         total_framework_time = calculate_time(start_time, time.time())
     else:
         raise ValueError(f"{FRAMEWORK} is not supported.")
-    find_accuracy(FRAMEWORK, label, results)
+    if args.task_type == "classification":
+        find_accuracy(FRAMEWORK, label, results)
+    else:
+        find_MSE(FRAMEWORK, label, results)
     return (time_consume, conversion_time, total_framework_time, config)
 
 def test_postprocess(time_consume, conversion_time, total_framework_time, config):

@@ -1,10 +1,6 @@
 import warnings
-from sklearn.utils import check_random_state
 warnings.filterwarnings('ignore')
 
-# from sklearn.ensemble import RandomForestClassifier
-# from sklearn.metrics import classification_report
-from xgboost import XGBClassifier, XGBRegressor
 import treelite
 import treelite.sklearn
 import joblib
@@ -12,28 +8,20 @@ import time
 import json
 import hummingbird.ml as hml
 from skl2onnx.common.data_types import FloatTensorType
-from skl2onnx import convert_sklearn, update_registered_converter
-from skl2onnx.common.shape_calculator import (
-    calculate_linear_classifier_output_shapes,
-    calculate_linear_regressor_output_shapes)
-from onnxmltools.convert.xgboost.operator_converters.XGBoost import convert_xgboost
+from skl2onnx import convert_sklearn
+import onnxmltools
 import torch
 import os
 import argparse
-from enum import Enum
 from model_helper import *
 
-class LearningTask(Enum):
-    REGRESSION = 1
-    CLASSIFICATION = 2
 
 DATASET = "higgs"
 MODEL = "xgboost"
 FRAMEWORKS = None
-LEARNINGTASK = LearningTask.CLASSIFICATION
 
 def parse_arguments():
-    global DATASET, MODEL, FRAMEWORKS, LEARNINGTASK
+    global DATASET, MODEL, FRAMEWORKS
     parser = argparse.ArgumentParser(description='Arguments for train_model.')
     parser.add_argument("-d", "--dataset", type=str, choices=['higgs', 'airline_classification', 'airline_regression', 'fraud', 'year', 'epsilon'],
         help="Dataset to be trained. Choose from ['higgs', 'airline_classification', 'airline_regression', 'fraud', 'year', 'epsilon']")
@@ -57,9 +45,6 @@ def parse_arguments():
     print(f"DATASET: {DATASET}")
     print(f"MODEL: {MODEL}")
     print(f"FRAMEWORKS: {FRAMEWORKS}")
-
-    if DATASET == "year" or DATASET == "airline_regression":
-        LEARNINGTASK = LearningTask.REGRESSION
 
     return args
 
@@ -95,8 +80,6 @@ def convert_to_tf_df_model(model, config):
 
     if MODEL == "randomforest":
         tfdf_time_start = time.time()
-        #model_path = "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/higgs_randomforest_10_8.pkl"
-        #loaded_model = joblib.load(model_path)
         tensorflow_model = scikit_learn_model_converter.convert(model,  intermediate_write_path="intermediate_path", )
         libpath = relative2abspath("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}_tfdf")
         tf.saved_model.save(obj=tensorflow_model, export_dir=libpath)
@@ -128,33 +111,14 @@ def convert_to_onnx_model(model, config):
         print("Time taken to write onnx model "+str(calculate_time(onnx_write_time_start, onnx_write_time_end)))
     elif MODEL == "xgboost":
         onnx_time_start = time.time()
-        if LEARNINGTASK == LearningTask.CLASSIFICATION:
-            ModelClass = XGBClassifier
-            model_name = 'XGBoostXGBClassifier'
-            shape_fct = calculate_linear_classifier_output_shapes
-        else:
-            ModelClass = XGBRegressor
-            model_name = 'XGBoostXGBRegressor'
-            shape_fct = calculate_linear_regressor_output_shapes
-        update_registered_converter(
-            ModelClass, 
-            model_name,
-            shape_fct, 
-            convert_xgboost,
-            options={'nocl': [True, False], 'zipmap': [True, False, 'columns']}
-        )
-        model_onnx = convert_sklearn(
-            model, 
-            'pipeline_xgboost',
-            [('input', FloatTensorType([None, config[DATASET]['num_features']]))],
-            target_opset={'': 12, 'ai.onnx.ml': 2}
-        )
+        initial_types = [('float_input', FloatTensorType([None, config[DATASET]['num_features']]))]
+        onnx_model = onnxmltools.convert_xgboost(model, initial_types=initial_types)
         onnx_time_end = time.time()
         print("Time taken to convert onnx using hummingbird "+str(calculate_time(onnx_time_start, onnx_time_end)))
 
         onnx_write_time_start = time.time()
-        with open(relative2abspath("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.onnx"), "wb") as f:
-            f.write(model_onnx.SerializeToString())
+        model_save_path = relative2abspath("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.onnx")
+        onnxmltools.utils.save_model(onnx_model, model_save_path)
         onnx_write_time_end = time.time()
         print("Time taken to write onnx model "+str(calculate_time(onnx_write_time_start, onnx_write_time_end)))
 
