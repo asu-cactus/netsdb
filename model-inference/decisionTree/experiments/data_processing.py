@@ -22,7 +22,7 @@ def download_data(url):
     return local_url
 
 
-def prepare_airline(dataset_save_path):
+def prepare_airline(dataset_save_path, nrows=None):
     url = "http://kt.ijs.si/elena_ikonomovska/datasets/airline/airline_14col.data.bz2"
     local_url = download_data(url)
     
@@ -52,7 +52,7 @@ def prepare_airline(dataset_save_path):
         "ActualElapsedTime": dtype, "Distance": dtype,
         "Diverted": dtype, "ArrDelay": dtype,
     }
-    df = pd.read_csv(local_url, names=cols, dtype=dtype_columns)
+    df = pd.read_csv(local_url, names=cols, dtype=dtype_columns, nrows=nrows)
     
     print("Dataframe loaded.")
     # Encode categoricals as numeric
@@ -66,7 +66,7 @@ def prepare_airline(dataset_save_path):
     df.to_csv(dataset_save_path, index=False)
 
 
-def prepare_bosch(dataset_save_path):
+def prepare_bosch(dataset_save_path, nrows=None):
     filename = "train_numeric.csv.zip"
     local_url = relative2abspath(dataset_folder, filename)
     # local_url = os.path.join(dataset_folder, filename)
@@ -75,11 +75,11 @@ def prepare_bosch(dataset_save_path):
                 filename + " -p " + dataset_folder)
     print("Downloaded bosch dataset.")
 
-    df = pd.read_csv(local_url, index_col=0, compression='zip', dtype=np.float32)
+    df = pd.read_csv(local_url, index_col=0, compression='zip', dtype={"Response": np.int8}, nrows=nrows)
     df.to_csv(dataset_save_path, index=False)
 
 
-def prepare_year(dataset_save_path):
+def prepare_year(dataset_save_path, nrows=None):
     url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/00203/YearPredictionMSD.txt.zip'
     # local_url = os.path.join(dataset_folder, os.path.basename(url))
     # if not os.path.isfile(local_url):
@@ -87,23 +87,31 @@ def prepare_year(dataset_save_path):
     local_url = download_data(url)
     print("Downloaded year dataset.")
 
-    df = pd.read_csv(local_url, header=None)
+    df = pd.read_csv(local_url, header=None, nrows=nrows)
     df.to_csv(dataset_save_path, index=False)
 
 
-def prepare_epsilon(dataset_save_path):
+def prepare_epsilon(dataset_save_path, nrows=None):
     train_data, test_data = epsilon()
     print("Downloaded epsilon dataset.")
+    if nrows is not None:
+        train_data = train_data[:nrows]
+        test_data = test_data[:nrows]
+
     df = pd.concat([train_data, test_data], ignore_index=True)
     df.to_csv(dataset_save_path, index=False)
 
 
-def prepare_covtype(dataset_save_path):  # pylint: disable=unused-argument
-    raise NotImplementedError
-    X, y = datasets.fetch_covtype(return_X_y=True)  # pylint: disable=unexpected-keyword-arg
+def prepare_covtype(dataset_save_path, nrows=None): 
+    df = datasets.fetch_covtype(as_frame=True)["frame"]
+    if nrows is not None:
+        df = df[:nrows]
+    df.to_csv(dataset_save_path, index=False)
+
 
 if __name__ ==  "__main__":
     DATASET='airline_regression'
+    nrows = 5000
     args = sys.argv
     if len(args) > 1:
         DATASET = args[-1]
@@ -112,15 +120,15 @@ if __name__ ==  "__main__":
     if not os.path.exists(dataset_folder):
         os.makedirs(dataset_folder)
     if DATASET == 'year':
-        prepare_year(dataset_save_path)
+        prepare_year(dataset_save_path, nrows=nrows)
     elif DATASET == 'airline_regression' or DATASET == 'airline_classification':
-        prepare_airline(dataset_save_path)
+        prepare_airline(dataset_save_path, nrows=nrows)
     elif DATASET == 'epsilon':
-        prepare_epsilon(dataset_save_path)
+        prepare_epsilon(dataset_save_path, nrows=nrows)
     elif DATASET == 'bosch':
-        prepare_bosch(dataset_save_path)
+        prepare_bosch(dataset_save_path, nrows=nrows)
     elif DATASET == 'covtype':
-        prepare_covtype(dataset_save_path)
+        prepare_covtype(dataset_save_path, nrows=nrows)
     else:
         raise ValueError(f"{DATASET} not supported")
 

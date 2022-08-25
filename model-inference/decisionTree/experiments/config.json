@@ -22,7 +22,7 @@
         "y_col": "label",
         "filename": "HIGGS.csv",
         "table": "higgs",
-        "header": 0
+        "header": false
     },
     "airline_classification": {
         "num_features": 13,
@@ -38,7 +38,7 @@
         "y_col": "arrdelay",
         "filename": "airline_classification.csv",
         "table": "airline_classification",
-        "header": 1
+        "header": true
     },
     "airline_regression": {
         "num_features": 13,
@@ -54,7 +54,7 @@
         "y_col": "arrdelay",
         "filename": "airline_regression.csv",
         "table": "airline_regression",
-        "header": 1
+        "header": true
     },
     "fraud": {
         "num_features": 28,
@@ -70,7 +70,7 @@
         "y_col": "class",
         "filename": "creditcard.csv",
         "table": "fraud",
-        "header": 1
+        "header": true
     },
     "year": {
         "num_features": 90,
@@ -87,7 +87,7 @@
         "y_col": "year",
         "filename": "YearPredictionMSD.txt",
         "table": "year",
-        "header": 0
+        "header": false
     },
     "epsilon": {
         "num_features": 2000,
@@ -104,23 +104,38 @@
         "y_col": 0,
         "filename": "epsilon_normalized.csv",
         "table": "epsilon",
-        "header": 1
+        "header": true
     },
     "bosch": {
-        "num_features": 0,
+        "num_features": 968,
         "rows": 0,
         "batch_size": 100000,
         "query_size": 100000,
         "type": "classification",
-        "desc": "",
         "info": "https://www.kaggle.com/c/bosch-production-line-performance",
-        "query": "",
+        "query": "SELECT * from bosch",
         "create": "",
         "train": 0.8,
         "test": 0.2,
-        "y_col": 0,
+        "y_col": "response",
         "filename": "bosch.csv",
         "table": "bosch",
-        "header": 0
+        "header": true
+    },
+    "covtype": {
+        "num_features": 54,
+        "rows": 581012,
+        "batch_size": 100000,
+        "query_size": 100000,
+        "type": "classification",
+        "info": "https://archive.ics.uci.edu/ml/datasets/covertype",
+        "query": "SELECT * from covtype",
+        "create": "",
+        "train": 0.8,
+        "test": 0.2,
+        "y_col": "cover_type",
+        "filename": "covtype.csv",
+        "table": "covtype",
+        "header": true
     }
 }

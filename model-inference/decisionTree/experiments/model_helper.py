@@ -11,7 +11,12 @@ def calculate_time(start_time,end_time):
     diff = (end_time-start_time)*1000
     return diff
 
+def load_data_from_pickle(dataset):
+    raise NotImplementedError
+
 def fetch_data(dataset, config, suffix, time_consume=None):
+    if dataset == "covtype":
+        load_data_from_pickle(dataset)
     try:
         pgsqlconfig = config["pgsqlconfig"]
         datasetconfig = config[dataset]
@@ -129,5 +134,8 @@ def relative2abspath(path, *paths):
 def check_argument_conflicts(args):
     model = args.model.lower()
     frameworks = args.frameworks.lower().split(",")
+    dataset = args.dataset.lower()
     if "treelite" in frameworks and model == "randomforest":
         raise ValueError("TreeLite models only supports xgboost algorithm, but does not support randomforest algorithm.")
+    if dataset == "bosch" and model == "randomforest":
+        raise ValueError("Sklearn implementation of randomforest algorithm does not support datasets with missing values.")

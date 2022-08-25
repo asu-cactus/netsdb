@@ -1,6 +1,4 @@
 import warnings
-
-from yaml import load
 warnings.filterwarnings('ignore')
 
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
@@ -19,8 +17,8 @@ MODEL = "xgboost"
 def parse_arguments():
     global DATASET, MODEL
     parser = argparse.ArgumentParser(description='Arguments for train_model.')
-    parser.add_argument("-d", "--dataset", type=str, choices=['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon'],
-        help="Dataset to be trained. Choose from ['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon']")
+    parser.add_argument("-d", "--dataset", type=str, choices=['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype'],
+        help="Dataset to be trained. Choose from ['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype']")
     parser.add_argument("-m", "--model", type=str, choices=['randomforest', 'xgboost'],
         help="Model name. Choose from ['randomforest', 'xgboost']")
     args = parser.parse_args()
