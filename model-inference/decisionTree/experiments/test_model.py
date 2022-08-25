@@ -1,166 +1,178 @@
 import warnings
 warnings.filterwarnings('ignore')
 
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report
+from xgboost import XGBClassifier
+import treelite
 import treelite_runtime
+import treelite.sklearn
+import pickle
 import joblib
 import numpy as np
 import time
 import json
 import os
-import csv
-import argparse
+import gc
+import sys
 from model_helper import *
 
-# Default arguments
+args = sys.argv
+
+if len(args) < 4:
+    print("Usage: python3 ./test_model.py DATASET CLASSIFIER FRAMEWORK QUERY_SIZE BATCH_SIZE [gpu/cpu]")
+    print("For HummingbirdTVM, QUERY_SIZE must be equivalent to BATCH_SIZE.")
+    print("For Sklearn, TreeLite, ONNX, only QUERY_SIZE is used to split the inference into multiple queries, and BATCH_SIZE will not be used.")
+    print("For other platforms, both QUERY_SIZE and BATCH_SIZE will be used.")
+
 DATASET = "higgs"
-MODEL = "xgboost"
-FRAMEWORK = "Sklearn"
+CLASSIFIER = "xgboost"
+gpu = False
+print(args,len(args))
+if len(args) >= 4:
+    DATASET = args[1]
+    CLASSIFIER = args[2] 
+    FRAMEWORK = args[3]
+print(DATASET)
+print(CLASSIFIER)
+print(FRAMEWORK)
+
+config = json.load(open("config.json"))
+datasetconfig = config[DATASET]
+train_size = datasetconfig["train"]
+input_size = datasetconfig["rows"]
+query_size = datasetconfig["query_size"]
+batch_size = datasetconfig["batch_size"]
+
+if len(args) > 4:
+    query_size = int(args[4])
+
+if len(args) > 5:
+    batch_size = int(args[5])
+    
+if args[-1] == "gpu":
+        gpu = True
+
+print("Query Size:", query_size)
+print("Batch Size:", batch_size)
+
+df_test = fetch_data(DATASET,config,"test")
+input_size = len(df_test)
+num_trees = config["num_trees"]
+depth = config["depth"]
+y_col = datasetconfig["y_col"]
+x_col = list(df_test.columns)
+x_col.remove(y_col)
+
+start_time = time.time()
+sklearnmodel = joblib.load(os.path.join("models",DATASET+"_"+CLASSIFIER+"_"+str(num_trees)+"_"+str(depth)+".pkl"))
+sklearnmodel.set_params(verbose =0)
+sklearnmodel.set_params(n_jobs =-1)
+load_time = time.time()
+print("Time Taken to load sklearn model", calulate_time(start_time, load_time))
+df_test[x_col] = df_test[x_col].astype(float)
+data = df_test[x_col].to_numpy()
 
 
-def parse_arguments(config):
-    global DATASET, MODEL, FRAMEWORK
-    parser = argparse.ArgumentParser(description="""
-        Parse arguments for test_model.py
-        Usage: python3 ./test_model.py DATASET MODEL FRAMEWORK QUERY_SIZE BATCH_SIZE [gpu/cpu]
-        For Sklearn, TreeLite, ONNX, only QUERY_SIZE is used to split the inference into multiple queries, and BATCH_SIZE will not be used.
-        For other platforms, both QUERY_SIZE and BATCH_SIZE will be used.
-    """)
-    parser.add_argument(
-        "-d", "--dataset", type=str, 
-        choices=['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon'],
-        help="Dataset to be tested.")
-    parser.add_argument(
-        "-m", "--model", type=str,  
-        choices=['randomforest', 'xgboost'],
-        help="Model name. Choose from ['randomforest', 'xgboost']")
-    parser.add_argument(
-        "-f", "--frameworks", type=str,
-        choices=[
-            'Sklearn', 
-            'TreeLite', 
-            'HummingbirdPytorchCPU', 
-            'HummingbirdTorchScriptCPU', 
-            'HummingbirdTVMCPU', 
-            'TFDF',
-            'ONNXCPU', 
-            'HummingbirdPytorchGPU',
-            'HummingbirdTorchScriptGPU',
-            'ONNXGPU'
-        ],
-        help="Framework to run the decision forest model.")
-    parser.add_argument("--batch_size", type=int, 
-        help="Batch size for testing. For Sklearn, TreeLite, ONNX, batch_size will not be used.")
-    parser.add_argument("--query_size", type=int, help="Query size for testing.")
-    args = parser.parse_args()
-    check_argument_conflicts(args)
-    if args.dataset:
-        DATASET = args.dataset
-    if args.model:
-        MODEL = args.model
-    if args.frameworks:
-        FRAMEWORK = args.frameworks
-    if not args.batch_size:
-        args.batch_size = config[DATASET]["batch_size"]
-    if not args.query_size:
-        args.query_size = config[DATASET]["query_size"]
-
-    if DATASET == "year" or DATASET == "airline_regression":
-        args.task_type = "regression"
-    else:
-        args.task_type = "classification"
-    # Print arguments
-    print(f"DATASET: {DATASET}")
-    print(f"MODEL: {MODEL}")
-    print(f"FRAMEWORK: {FRAMEWORK}")
-    print(f"Query Size: {args.query_size}")
-    print(f"Batch Size: {args.batch_size}")
-    return args
-
-
-def load_data(config, time_consume):
-    df_test = fetch_data(DATASET, config, "test", time_consume=time_consume)
-    y_col = config[DATASET]["y_col"]
-    x_col = list(df_test.columns)
-    x_col.remove(y_col)
-    features = df_test[x_col].to_numpy(dtype=np.float32)
-    label = df_test[y_col]
-    return (features, label)
-
-def load_sklearn_model(config, time_consume):
-    start_time = time.time()
-    relative_path = relative2abspath("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.pkl")
-    sklearnmodel = joblib.load(relative_path)
-    sklearnmodel.set_params(verbose =0)
-    sklearnmodel.set_params(n_jobs =-1)
-    load_time = time.time()
-    sklearnmodel_loading_time = calculate_time(start_time, load_time)
-    time_consume["sklearn loading time"] = sklearnmodel_loading_time
-    print(f"Time Taken to load sklearn model: {sklearnmodel_loading_time}")
-    return sklearnmodel
-
-
-def test(*argv):
-    if FRAMEWORK.endswith("GPU"):
-        test_postprocess(*test_gpu(*argv))
-    else:
-        test_postprocess(*test_cpu(*argv))
-
-def test_cpu(args, features, label, sklearnmodel, config, time_consume):
-    input_size = len(label)
+if not gpu:
 
     if FRAMEWORK == "Sklearn":
         start_time = time.time()
         #scikit-learn will use all data in a query as one batch  
-        conversion_time = 0.0
-        results = run_inference(FRAMEWORK, features, input_size, args.query_size, sklearnmodel.predict, time_consume)
-        write_data(FRAMEWORK, results, time_consume) 
-        total_framework_time = calculate_time(start_time, time.time())
+        results = run_inference(FRAMEWORK, data, input_size, query_size, sklearnmodel.predict)
+        write_data(FRAMEWORK, results)
+        end_time = time.time()
+        print("TOTAL Time Taken "+FRAMEWORK+" is:", calulate_time(start_time,end_time))
+        find_accuracy(FRAMEWORK,df_test[y_col],results)
+
+        del results
+        gc.collect()
+
 
     elif FRAMEWORK == "TreeLite":
         start_time = time.time()
-        libpath = relative2abspath("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.so")
+        libpath = os.path.join("models", DATASET+"_"+CLASSIFIER+"_"+str(num_trees)+"_"+str(depth)+".so")
         predictor = treelite_runtime.Predictor(libpath, verbose=True)
-        conversion_time = calculate_time(start_time, time.time())
-        results = run_inference(FRAMEWORK, features, input_size, args.query_size, predictor.predict, time_consume)
-        write_data(FRAMEWORK, results, time_consume)
-        total_framework_time = calculate_time(start_time, time.time())
+        load_time = time.time()
+        print("Time Taken to load TreeLite model", calulate_time(start_time, load_time))
+        results = run_inference(FRAMEWORK, data, input_size, query_size, predictor.predict)
+        write_data(FRAMEWORK, results)
+        end_time = time.time()
+        print("TOTAL Time Taken "+FRAMEWORK+" is:", calulate_time(start_time,end_time))
+        find_accuracy(FRAMEWORK,df_test[y_col],results)
+
+        del results
+        gc.collect()
 
     #https://github.com/microsoft/hummingbird/blob/main/hummingbird/ml/convert.py#L447
     elif FRAMEWORK == "HummingbirdPytorchCPU":
+        import hummingbird.ml
+        import torch
         start_time = time.time()
-        model = convert_to_hummingbird_model(sklearnmodel, "torch", features, args.batch_size, "cpu")
-        conversion_time = calculate_time(start_time, time.time())
-        results = run_inference(FRAMEWORK, features, input_size, args.query_size, model.predict, time_consume)
-        write_data(FRAMEWORK, results, time_consume)
-        total_framework_time = calculate_time(start_time, time.time())
+        model = convert_to_hummingbird_model(sklearnmodel, "torch", data, batch_size, "cpu")
+        model_conversion_time = time.time()
+        print("Time Taken to convert HummingbirdPyTorch:",calulate_time(start_time, model_conversion_time))
+
+        results = run_inference(FRAMEWORK, data, input_size, query_size, model.predict)
+        write_data(FRAMEWORK, results)
+        end_time = time.time()
+        print("TOTAL Time Taken "+FRAMEWORK+" is:", calulate_time(start_time,end_time))
+        find_accuracy(FRAMEWORK,df_test[y_col],results)
+
+
+        del model
+        del results
+        gc.collect()
 
     elif FRAMEWORK == "HummingbirdTorchScriptCPU":
+        import torch
+        import hummingbird.ml
         start_time = time.time()
-        model = convert_to_hummingbird_model(sklearnmodel, "torch.jit", features, args.batch_size, "cpu")
-        conversion_time = calculate_time(start_time, time.time())
+        model = convert_to_hummingbird_model(sklearnmodel, "torch.jit", data, batch_size, "cpu")
+        model_conversion_time = time.time()
+        print("Time Taken to convert HummingbirdTorchScript:",calulate_time(start_time, model_conversion_time))
         def predict(batch):
+            batch = np.array(batch, dtype=np.float32)
             return model.predict(batch)
 
-        results = run_inference(FRAMEWORK, features, input_size, args.query_size, predict, time_consume)
-        write_data(FRAMEWORK, results, time_consume)
-        total_framework_time = calculate_time(start_time, time.time())
+        results = run_inference(FRAMEWORK, data, input_size, query_size, predict)
+        write_data(FRAMEWORK, results)
+        end_time = time.time()
+        print("TOTAL Time Taken "+FRAMEWORK+" is:", calulate_time(start_time,end_time))
+        find_accuracy(FRAMEWORK,df_test[y_col],results)
+
+        del model
+        del results
+        del predict
+        gc.collect()
+
 
     elif FRAMEWORK == "HummingbirdTVMCPU":
-        assert args.batch_size == args.query_size, "For TVM, batch_size must be equivalent to query_size"
+        import hummingbird.ml
+        assert batch_size == query_size, "For TVM, batch_size must be equivalent to query_size"
         start_time = time.time()
-        model = convert_to_hummingbird_model(sklearnmodel, "tvm", features, args.batch_size, "cpu")
-        remainder_size = input_size % args.batch_size
+        model = convert_to_hummingbird_model(sklearnmodel, "tvm", data, batch_size, "cpu")
+        remainder_size = len(data) % batch_size
         if remainder_size > 0:
-            remainder_model = convert_to_hummingbird_model(sklearnmodel, "tvm", features, remainder_size, "cpu")
-        conversion_time = calculate_time(start_time, time.time())
+            remainder_model = convert_to_hummingbird_model(sklearnmodel, "tvm", data, remainder_size, "cpu")
+        model_conversion_time = time.time()
+        print("Time Taken to convert HummingbirdTVM:",calulate_time(load_time, model_conversion_time))
         def predict(batch, use_remainder_model):
+            batch = np.array(batch, dtype=np.float32)
             if use_remainder_model:
                 return remainder_model.predict(batch)
             return model.predict(batch)
 
-        results = run_inference(FRAMEWORK, features, input_size, args.query_size, predict, time_consume)
-        write_data(FRAMEWORK, results, time_consume)
-        total_framework_time = calculate_time(start_time, time.time())
+        results = run_inference(FRAMEWORK, data, input_size, query_size, predict)
+        write_data(FRAMEWORK, results)
+        end_time = time.time()
+        print("TOTAL Time Taken "+FRAMEWORK+" is:", calulate_time(start_time,end_time))
+        find_accuracy(FRAMEWORK,df_test[y_col],results)
+
+        del model
+        del results
+        del predict
+        gc.collect()
 
     elif FRAMEWORK == "TFDF":
         import tensorflow as tf
@@ -168,125 +180,135 @@ def test_cpu(args, features, label, sklearnmodel, config, time_consume):
         import scikit_learn_model_converter
         import xgboost_model_converter
         start_time = time.time()
-        if MODEL == "randomforest":
+        model = None
+        if CLASSIFIER == "randomforest":
             model = scikit_learn_model_converter.convert(sklearnmodel, intermediate_write_path="intermediate_path", )
         else:
             model = xgboost_model_converter.convert(sklearnmodel, intermediate_write_path="intermediate_path", )
-        conversion_time = calculate_time(start_time, time.time())
+        model_conversion_time = time.time()
+        print("Time Taken to convert TensorFlow::",calulate_time(load_time, model_conversion_time))
+
         def predict(batch):
             batch = tf.constant(batch)
-            return model.predict(batch, batch_size=args.batch_size)
+            return model.predict(batch, batch_size = batch_size)
 
-        results = run_inference(FRAMEWORK, features, input_size, args.query_size, predict, time_consume)
-        write_data(FRAMEWORK, results, time_consume)
-        total_framework_time = calculate_time(start_time, time.time())
+        results = run_inference(FRAMEWORK, data, input_size, query_size, predict)
+        write_data(FRAMEWORK, results)
+        end_time = time.time()
+        print("TOTAL Time Taken "+FRAMEWORK+" is:", calulate_time(start_time,end_time))
+        find_accuracy(FRAMEWORK,df_test[y_col],results)
+
+        del model
+        del results
+        del predict
+        gc.collect()
 
     elif FRAMEWORK == "ONNXCPU":
         import onnxruntime as rt
+        from skl2onnx import convert_sklearn
+        from skl2onnx.common.data_types import FloatTensorType
         #https://github.com/microsoft/onnxruntime-openenclave/blob/openenclave-public/docs/ONNX_Runtime_Perf_Tuning.md
         sess_opt = rt.SessionOptions()
         sess_opt.intra_op_num_threads = os.cpu_count() 
         sess_opt.execution_mode = rt.ExecutionMode.ORT_SEQUENTIAL
         start_time = time.time()
-        relative_path = relative2abspath("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.onnx")
-        sess = rt.InferenceSession(relative_path,providers=['CPUExecutionProvider'], sess_options=sess_opt)
+        sess = rt.InferenceSession(os.path.join("models",DATASET+"_"+CLASSIFIER+"_"+str(num_trees)+"_"+str(depth)+".onnx"),providers=['CPUExecutionProvider'], sess_options=sess_opt)
         input_name = sess.get_inputs()[0].name
         label_name = sess.get_outputs()[0].name
-        conversion_time = calculate_time(start_time, time.time())
+        load_time = time.time()
+        print("Time Taken to load ONNX model", calulate_time(start_time, load_time))
         def predict(batch):
-            output = sess.run([label_name], {input_name:batch})[0]
+            output = sess.run([label_name], {input_name:np.array(batch,dtype=np.float32)})[0]
             return output
 
-        results = run_inference(FRAMEWORK, features, input_size, args.query_size, predict, time_consume)
-        write_data(FRAMEWORK, results, time_consume)
-        total_framework_time = calculate_time(start_time, time.time())
-    else:
-        raise ValueError(f"{FRAMEWORK} is not supported.")
-    if args.task_type == "classification":
-        find_accuracy(FRAMEWORK, label, results)
-    else:
-        find_MSE(FRAMEWORK, label, results)
-    return (time_consume, conversion_time, total_framework_time, config)
+        results = run_inference(FRAMEWORK, data, input_size, query_size, predict)
+        write_data(FRAMEWORK, results)
+        end_time = time.time()
+        print("TOTAL Time Taken "+FRAMEWORK+" is:", calulate_time(start_time,end_time))
+        find_accuracy(FRAMEWORK,df_test[y_col],results)
 
-def test_gpu(args, features, label, sklearnmodel, config, time_consume):
-    input_size = len(label)
+        del sess
+        del input_name
+        del label_name
+        del results
+        del predict
+        gc.collect()
+
+    else:
+        print(FRAMEWORK + " is not supported")
+
+else:
+
     if FRAMEWORK == "HummingbirdPytorchGPU":
-        import torch
-        device = torch.device('cuda')
         start_time = time.time()
-        relative_path = relative2abspath("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}_torch.pkl")
-        model = torch.load(relative_path,map_location=device)
-        conversion_time = calculate_time(start_time, time.time())
-        results = run_inference(FRAMEWORK, features, input_size, args.query_size, model.predict, time_consume)
-        write_data(FRAMEWORK, results, time_consume)
-        total_framework_time = calculate_time(start_time, time.time())
+        device = torch.device('cuda')
+        model = torch.load(os.path.join("models",DATASET+"_"+CLASSIFIER+"_"+str(num_trees)+"_"+str(depth)+"_torch.pkl"),map_location=device)
+        load_time = time.time()
+        print("Time Taken to load Hummingbird Pytorch GPU model", calulate_time(start_time, load_time))
+        results = run_inference(FRAMEWORK, df_test[x_col], input_size, query_size, model.predict)
+        write_data(FRAMEWORK, results)
+        end_time = time.time()
+        print("TOTAL Time Taken "+FRAMEWORK+" is:", calulate_time(start_time,end_time))
+        find_accuracy(FRAMEWORK,df_test[y_col],results)
+
+        del model
+        del device
+        del results
+        gc.collect()
+
+
 
     elif FRAMEWORK == "HummingbirdTorchScriptGPU":
-        import hummingbird.ml as hml
         start_time = time.time()
-        torch_data = features[0:args.query_size]
-        model = hml.convert(sklearnmodel, "torch.jit", torch_data,"cuda")
-        conversion_time = calculate_time(start_time, time.time())
+        data = df_test[x_col]
+        single_batch = np.array(data[0:query_size], dtype=np.float32)
+        torch_data = np.array(single_batch, dtype=np.float32)
+        model = hummingbird.ml.convert(sklearnmodel, "torch.jit", torch_data,"cuda")
+        model_conversion_time = time.time()
+        print("Time Taken to convert TorchScript GPU model", calulate_time(start_time, model_conversion_time))
         def predict(batch):
+            batch = np.array(batch, dtype=np.float32)
             return model.predict(batch)
 
-        results = run_inference(FRAMEWORK, features, input_size, args.query_size, predict, time_consume)
-        write_data(FRAMEWORK, results, time_consume)
-        total_framework_time = calculate_time(start_time, time.time())
+        results = run_inference(FRAMEWORK, data, input_size, query_size, predict)
+        write_data(FRAMEWORK, results)
+        end_time = time.time()
+        print("TOTAL Time Taken "+FRAMEWORK+" is:", calulate_time(start_time,end_time))
+        find_accuracy(FRAMEWORK,df_test[y_col],results)
+
+        del model
+        del sklearnmodel
+        del results
+        del predict
+        gc.collect()
 
     elif FRAMEWORK == "ONNXGPU":
-        import onnxruntime as rt
         start_time = time.time()
-        relative_path = relative2abspath("models",f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.onnx")
-        sess = rt.InferenceSession(relative_path,providers=['CUDAExecutionProvider'])
+        data = df_test[x_col]
+        sess = rt.InferenceSession(os.path.join("models",DATASET+"_"+CLASSIFIER+"_"+str(num_trees)+"_"+str(depth)+".onnx"),providers=['CUDAExecutionProvider'])
         input_name = sess.get_inputs()[0].name
         label_name = sess.get_outputs()[0].name
-        conversion_time = calculate_time(start_time, time.time())
+        load_time = time.time()
+        print("Time Taken to load ONNX GPU model", calulate_time(start_time, load_time))
         def predict(batch):
-            output = sess.run([label_name], {input_name:batch})[0]
+            output = sess.run([label_name], {input_name:np.array(batch,dtype=np.float32)})[0]
             return output
 
-        results = run_inference(FRAMEWORK, features, input_size, args.query_size, predict, time_consume)
-        write_data(FRAMEWORK, results, time_consume)
-        total_framework_time = calculate_time(start_time, time.time())
+        results = run_inference(FRAMEWORK, data, input_size, query_size, predict)
+        write_data(FRAMEWORK, results)
+        end_time = time.time()
+        print("TOTAL Time Taken "+FRAMEWORK+" is:", calulate_time(start_time,end_time))
+        find_accuracy(FRAMEWORK,df_test[y_col],results)
+
+        del sess
+        del input_name
+        del label_name
+        del results
+        del predict
+        gc.collect()
+
     else:
-        raise ValueError(f"{FRAMEWORK} is not supported.")
-    if args.task_type == "classification":
-        find_accuracy(FRAMEWORK, label, results)
-    else:
-        find_MSE(FRAMEWORK, label, results)
-    return (time_consume, conversion_time, total_framework_time, config)
-
-def test_postprocess(time_consume, conversion_time, total_framework_time, config):
-    # Print conversion time and total time used on framework
-    print(f"Time Taken to convert {FRAMEWORK} model: {conversion_time}")
-    print(f"TOTAL Time Taken for {FRAMEWORK}: {total_framework_time}")
-
-    # Update output dictionary (time consumption at each step)
-    time_consume["conversion time"] = conversion_time
-    time_consume["total framework time"] = total_framework_time
-
-    # Save output dictionary to csv
-    filename_suffix = "GPU" if FRAMEWORK.endswith("GPU") else "CPU"
-    num_trees, depth = config['num_trees'], config['depth']
-    output_file_path = relative2abspath("results", f"{DATASET}_{num_trees}_{depth}_{filename_suffix}.csv")
-    file_exists = os.path.isfile(output_file_path)
-    with open (output_file_path, 'a') as csvfile:
-        headers = list(time_consume.keys())
-        writer = csv.DictWriter(csvfile, delimiter=',', lineterminator='\n',fieldnames=headers)
-        if not file_exists:
-            writer.writeheader()  # file doesn't exist yet, write a header
-        writer.writerow(time_consume)
+        print(FRAMEWORK+" is not supported")
 
 
-if __name__ ==  "__main__":
-    config = json.load(open(relative2abspath("config.json")))
-    args = parse_arguments(config)
-    time_consume = {
-        "query size": args.query_size,
-        "batch_size": args.batch_size,
-        "model": MODEL,
-        "framework": FRAMEWORK}
-    features, label = load_data(config, time_consume)
-    sklearnmodel = load_sklearn_model(config, time_consume)
-    test(args, features, label, sklearnmodel, config, time_consume)
+del sklearnmodel

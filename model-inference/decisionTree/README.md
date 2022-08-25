@@ -56,8 +56,4 @@ pip3 install xgboost
 
 pip3 install lightgbm
 
-## Catboost
-
-pip3 install catboost
-
 

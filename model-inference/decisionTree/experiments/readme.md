@@ -94,7 +94,6 @@ python test_model.py dataset model framework batch_size [gpu]
 
 
 **Examples**
-python data_processing.py higgs
 
 python split_data.py higgs
 
@@ -104,9 +103,8 @@ python train_model.py -d higgs -m xgboost
 python convert_trained_model_to_framework.py -d higgs -m randomforest -f pytorch,torch,tf-df,onnx
 python convert_trained_model_to_framework.py -d higgs -m xgboost -f pytorch,torch,onnx,treelite,tf-df
 
-python test_model.py -d higgs -m xgboost -f TreeLite --batch_size 1000 --query_size 1000
-or modify and run run_test.sh 
-nohup ./run_test.sh &> ./results/test_output.txt &
+python test_model.py higgs randomforest Sklearn 100000
+
 ```
 
 Get CPU Usage
