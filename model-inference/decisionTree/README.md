@@ -56,6 +56,12 @@ pip3 install xgboost
 
 pip3 install lightgbm
 
+### LLeaves (Model Compiler for LightGBM Models)
+
+pip3 install lleaves
+
+conda install -c conda-forge lleaves
+
 ## Catboost
 
 pip3 install catboost

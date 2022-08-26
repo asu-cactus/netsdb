@@ -77,6 +77,26 @@ def train(config, df_train):
             n_jobs=-1,
             **task_spec_args
         )
+    elif MODEL == "lightgbm":
+        from lightgbm import LGBMClassifier, LGBMRegressor
+        if config[DATASET]["type"] == "classification":
+            ModelClass = LGBMClassifier
+            task_spec_args["scale_pos_weight"] = len(y) / np.count_nonzero(y)
+            task_spec_args["objective"] = "binary"
+        elif config[DATASET]["type"] == "regression":
+            ModelClass = LGBMRegressor
+            task_spec_args["objective"] = "regression"
+        else:
+            raise ValueError("Task type in config.json must be one of ['classification', 'regression']")
+        model = ModelClass(
+            max_depth=config["depth"],
+            n_estimators=config["num_trees"],
+            num_leaves=256,
+            reg_lambda=1,
+            n_jobs=-1,
+            **task_spec_args
+        )
+
 
     # Train model
     train_start_time = time.time()
@@ -94,6 +114,7 @@ def train(config, df_train):
     # Save the model using joblib
     joblib_time_start = time.time()
     joblib.dump(model, relative2abspath("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.pkl"))
+    # TODO: If LightGBM, one option to convert to LLVM is to store the txt file. Else, read the pkl, then store it as txt file in the converter itself.
     joblib_time_end = time.time()
     print(f"Time taken to save model using joblib: {calculate_time(joblib_time_start, joblib_time_end)}")
 
