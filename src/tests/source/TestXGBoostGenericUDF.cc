@@ -86,11 +86,11 @@ int main(int argc, char *argv[]) {
         loadSharedLibraries(pdbClient);
         ff::createDatabase(pdbClient, "decisiontree");
 	if (isFloat) { 
-           ff::createSetGeneric<TensorBlock2D<float>>(pdbClient, "decisiontree", "inputs", "inputs", 64);
+           ff::createSetGeneric<TensorBlock2D<float>>(pdbClient, "decisiontree", "inputs", "inputs", 32);
            ff::loadMatrixGeneric<TensorBlock2D<float>>(pdbClient, "decisiontree", "inputs", rowNum, colNum, block_x, block_y, false, false, errMsg);
         }
    	else {
-	   ff::createSetGeneric<TensorBlock2D<double>>(pdbClient, "decisiontree", "inputs", "inputs", 64);
+	   ff::createSetGeneric<TensorBlock2D<double>>(pdbClient, "decisiontree", "inputs", "inputs", 32);
 	   ff::loadMatrixGeneric<TensorBlock2D<double>>(pdbClient, "decisiontree", "inputs", rowNum, colNum, block_x, block_y, false, false, errMsg);
         }
     }else{

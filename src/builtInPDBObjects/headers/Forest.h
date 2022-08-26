@@ -89,7 +89,6 @@ namespace pdb
 
         void processInnerNodes(std::vector<std::string> & innerNodes, ModelType modelType, pdb::Vector<pdb::Handle<pdb::Node>> & tree)
 	{
-	    std::cout << "Processing inner nodes" << std::endl;
 
             int findStartPosition;
             int findMidPosition;
@@ -99,7 +98,6 @@ namespace pdb
             { 
 	       // Construct Inner Nodes
                string currentLine = innerNodes[i];
-               std::cout << currentLine << std::endl;
                int nodeID;
                int indexID;
                float returnClass;
@@ -134,14 +132,12 @@ namespace pdb
                     }
 	       }
                tree[nodeID]= pdb::makeObject<pdb::Node>(nodeID, indexID, false, -1, -1, returnClass);
-               std::cout << nodeID << ", " << indexID << ", " << returnClass << std::endl;
            }
 	}
 
 
 	void processLeafNodes(std::vector<std::string> & leafNodes, ModelType modelType, pdb::Vector<pdb::Handle<pdb::Node>> & tree)
         {
-	    std::cout << "Processing leaf nodes" << std::endl;
 
             int findStartPosition;
             int findMidPosition;
@@ -151,7 +147,6 @@ namespace pdb
             { 
 		// Construct Leaf Nodes
                 string currentLine = leafNodes[i];
-                std::cout << currentLine << std::endl;
                 int nodeID;
                 float returnClass = -1.0f;
 		if (modelType == ModelType::RandomForest) {
@@ -178,13 +173,11 @@ namespace pdb
 		
 		}
                 tree[nodeID] = pdb::makeObject<pdb::Node>(nodeID, -1, true, -1, -1, returnClass);
-                std::cout << nodeID << ", " << returnClass << std::endl;
 	    }
         }
 
 	void processRelationships(std::vector<std::string> & relationships, ModelType modelType, pdb::Vector<pdb::Handle<pdb::Node>> & tree)
         {
-		std::cout << "Processing relationships" << std::endl;
 
                 int findStartPosition;
                 int findMidPosition;
@@ -195,7 +188,6 @@ namespace pdb
                     int parentNodeID;
                     int childNodeID;
                     std::string currentLine = relationships[i];
-                    std::cout << currentLine << std::endl;
 
                     if (modelType == ModelType::RandomForest) {
                         if ((findMidPosition = currentLine.find_first_of("->")) != std::string::npos)
@@ -205,7 +197,6 @@ namespace pdb
 			if (parentNodeID == 0) {
 			
 			    if ((findEndPosition = currentLine.find_first_of("[label")) != std::string::npos) {
-
                                 childNodeID = std::stoi(currentLine.substr(findMidPosition + 4, findEndPosition - 1));
 
                             }
@@ -225,9 +216,9 @@ namespace pdb
 
                             parentNodeID = std::stoi(currentLine.substr(4, findMidPosition - 1));
                         }
-			if ((findEndPosition = currentLine.find_first_of(";")) != std::string::npos) {
+			if ((findEndPosition = currentLine.find_first_of("[")) != std::string::npos) {
 
-                                childNodeID = std::stoi(currentLine.substr(findMidPosition + 4, findEndPosition-1));
+                                childNodeID = std::stoi(currentLine.substr(findMidPosition + 3, findEndPosition-1));
                         }
 		    
 		    }
@@ -241,7 +232,6 @@ namespace pdb
                         tree[parentNodeID]->rightChild = childNodeID;
                     }
 
-                    std::cout << tree[parentNodeID]->nodeID << ", " << tree[parentNodeID]->indexID  << ", " << tree[parentNodeID]->isLeaf << ", " << tree[parentNodeID]->leftChild << ", " << tree[parentNodeID]->rightChild << ", " << tree[parentNodeID]->returnClass<< std::endl;
                 }
 
 
@@ -254,7 +244,6 @@ namespace pdb
 
             for (int n = 0; n < numTrees; ++n)
             {
-		std::cout << "Processing the tree at " << treePathIn[n] << std::endl;    
                 std::string inputFileName = std::string(treePathIn[n]);
                 std::ifstream inputFile;
                 inputFile.open(inputFileName.data());
@@ -302,7 +291,6 @@ namespace pdb
 		processRelationships(relationships, modelType, tree);
 
                 forest.push_back(tree);
-		std::cout << "finished processing a tree" << std::endl;
             }
 
             // STATS ABOUT THE FOREST
@@ -413,26 +401,22 @@ namespace pdb
                     while (treeNode.isLeaf == false)
                     {
                         inputValue = inData[featureStartIndex + treeNode.indexID];
-			//std::cout << "(" << inputValue << "|" << treeNode.returnClass << "):" << curIndex;
 
                         if (inputValue <= treeNode.returnClass)
                         {
 			    curIndex = treeNode.leftChild;
-			    //std::cout << "-L->" << curIndex;
                         }
                         else
                         {
 			    curIndex = treeNode.rightChild;
-			    //std::cout << "-R->" << curIndex;
                         }
+
 			treeNode = *(forest[j][curIndex]);
                     }
                     thisResultMatrix[j] = treeNode.returnClass;
-		    //std::cout << "---->" << treeNode.returnClass << std::endl;
                 }
                 T voteResult = compute_result(thisResultMatrix.begin(), thisResultMatrix.end());
                 (*resultMatrix)[i]=voteResult;
-                //std::cout << "=>" << voteResult << std::endl;
 	    }
             return resultMatrix;
         }
