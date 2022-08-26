@@ -111,30 +111,26 @@ namespace pdb
                        nodeID = std::stoi(currentLine.substr(4, findEndPosition - 1));
                    }
 		   if ((findStartPosition = currentLine.find("X[")) != string::npos && (findEndPosition = currentLine.find("] <=")) != string::npos)
-                    { // Verified there is no > character for Inner node
+                    { 
                         indexID = std::stoi(currentLine.substr(findStartPosition + 2, findEndPosition));
                     }
 
 		   if ((findStartPosition = currentLine.find("<= ")) != string::npos && (findEndPosition = currentLine.find_first_of("\\ngini")) != string::npos)
-                    { // Verified there is no > character for Inner node
+                    { 
                         returnClass = std::stod(currentLine.substr(findStartPosition + 3, findEndPosition));
                     }
 	       } else {
 	           if ((findEndPosition = currentLine.find_first_of("[ label")) != string::npos)
                    {
                        nodeID = std::stoi(currentLine.substr(4, findEndPosition - 1));
-		       std::cout << "nodeID=" << nodeID << std::endl;
                    }
 		   if ((findStartPosition = currentLine.find("f")) != string::npos && (findEndPosition = currentLine.find("<")) != string::npos)
-                    { // Verified there is no > character for Inner node
+                    { 
                         indexID = std::stoi(currentLine.substr(findStartPosition + 1, findEndPosition));
-			std::cout << "indexID=" << indexID << std::endl;
                     }
 		   if ((findStartPosition = currentLine.find("<")) != string::npos && (findEndPosition = currentLine.find_first_of("]")) != string::npos)
-                    { // Verified there is no > character for Inner node
-			std::cout << currentLine.substr(findStartPosition + 1, findEndPosition - 2) << std::endl;
+                    { 
                         returnClass = std::stod(currentLine.substr(findStartPosition + 1, findEndPosition));
-			std::cout << "returnClass=" << returnClass << std::endl;
                     }
 	       }
                tree[nodeID]= pdb::makeObject<pdb::Node>(nodeID, indexID, false, -1, -1, returnClass);
@@ -172,13 +168,11 @@ namespace pdb
 
 	            if ((findEndPosition = currentLine.find_first_of("[")) != string::npos)
                     {
-			std::cout << currentLine.substr(4, findEndPosition-1) << std::endl;
                         nodeID = std::stoi(currentLine.substr(4, findEndPosition-1));
                     }
                     // Output Class of XGBoost always a Double/Float. ProbabilityValue for Classification, ResultValue for Regression
                     if ((findStartPosition = currentLine.find("leaf=")) != string::npos && (findEndPosition = currentLine.find("]")) != string::npos)
                     {
-			std::cout << currentLine.substr(findStartPosition+5, findEndPosition-3) << std::endl;
                         returnClass = std::stod(currentLine.substr(findStartPosition+5, findEndPosition-3));
                     }	
 		
@@ -229,7 +223,6 @@ namespace pdb
 
 		        if ((findMidPosition = currentLine.find_first_of("->")) != std::string::npos) {
 
-			    std::cout << currentLine.substr(4, findMidPosition - 1) << std::endl;
                             parentNodeID = std::stoi(currentLine.substr(4, findMidPosition - 1));
                         }
 			if ((findEndPosition = currentLine.find_first_of(";")) != std::string::npos) {
@@ -248,7 +241,7 @@ namespace pdb
                         tree[parentNodeID]->rightChild = childNodeID;
                     }
 
-                    //std::cout << tree[parentNodeID]->nodeID << ", " << tree[parentNodeID]->indexID  << ", " << tree[parentNodeID]->isLeaf << ", " << tree[parentNodeID]->leftChild << ", " << tree[parentNodeID]->rightChild << ", " << tree[parentNodeID]->returnClass<< std::endl;
+                    std::cout << tree[parentNodeID]->nodeID << ", " << tree[parentNodeID]->indexID  << ", " << tree[parentNodeID]->isLeaf << ", " << tree[parentNodeID]->leftChild << ", " << tree[parentNodeID]->rightChild << ", " << tree[parentNodeID]->returnClass<< std::endl;
                 }
 
 
