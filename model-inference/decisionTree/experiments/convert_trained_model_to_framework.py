@@ -23,8 +23,8 @@ FRAMEWORKS = None
 def parse_arguments():
     global DATASET, MODEL, FRAMEWORKS
     parser = argparse.ArgumentParser(description='Arguments for train_model.')
-    parser.add_argument("-d", "--dataset", type=str, choices=['higgs', 'airline_classification', 'airline_regression', 'fraud', 'year', 'epsilon'],
-        help="Dataset to be trained. Choose from ['higgs', 'airline_classification', 'airline_regression', 'fraud', 'year', 'epsilon']")
+    parser.add_argument("-d", "--dataset", type=str, choices=['higgs', 'airline_classification', 'airline_regression', 'fraud', 'year', 'epsilon', 'bosch', 'covtype'],
+        help="Dataset to be trained. Choose from ['higgs', 'airline_classification', 'airline_regression', 'fraud', 'year', 'epsilon', 'bosch' 'covtype]")
     parser.add_argument("-m", "--model", type=str, choices=['randomforest', 'xgboost'],
         help="Model name. Choose from ['randomforest', 'xgboost']")
     parser.add_argument("-f", "--frameworks", type=str,
@@ -160,7 +160,6 @@ def convert(model, config):
         convert_to_onnx_model(model, config)
     if "treelite" in frameworks:
         convert_to_treelite_model(model, config)
-
 
 def load_model(config):
     model = joblib.load(relative2abspath("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.pkl"))
