@@ -142,7 +142,10 @@ def convert_to_treelite_model(model, config):
     if MODEL in {"xgboost", "lightgbm"}:
         treelite_time_start = time.time()
         model_path = relative2abspath("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.model")
-        model.save_model(model_path)  # TODO: Why are we saving this directly to a .model format?
+        if MODEL == "lightgbm":  # TODO: Rewrite this Logic.
+            model.booster_.save_model(model_path)
+        else:
+            model.save_model(model_path)  # TODO: Why are we saving this directly to a .model format?
         treelite_model = treelite.Model.load(model_path, model_format=MODEL)
         toolchain = 'gcc'
         libpath = relative2abspath("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.so")
@@ -167,10 +170,12 @@ def convert_to_lleaves_model(model, config):
     if MODEL == 'lightgbm':
         lleaves_start_time = time.time()
         model_path = relative2abspath("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.txt")
-        model.save_model(model_path)
+        model.booster_.save_model(model_path)
         lleaves_model = lleaves.Model(model_file=model_path)
         model_cache_path = relative2abspath("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.elf")
         lleaves_model.compile(cache=model_cache_path)  # NOTE: Same logic to be used for testing. This time, the elf file is loaded instead of compiled.
+        lleaves_time_end = time.time()
+        print("Time taken to convert and write Lleaves model "+str(calculate_time(lleaves_start_time, lleaves_time_end)))
     else:
         print(f"LLeaves is only supported for LightGBM at the moment. Does not support {MODEL}.")
 
@@ -190,6 +195,8 @@ def convert(model, config):
         convert_to_onnx_model(model, config)
     if "treelite" in frameworks:
         convert_to_treelite_model(model, config)
+    if "lleaves" in frameworks:
+        convert_to_lleaves_model(model, config)
 
 
 def load_model(config):

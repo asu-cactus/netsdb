@@ -34,6 +34,7 @@ print(len(df))
 print(len(train))
 print(len(test))
 
+# TODO: Currently, filename is HIGGS.csv_train.csv. Strip the file extension when saving.
 train_csv_path = relative2abspath(dataset_folder, f"{datasetconfig['filename']}_train.csv")
 train.to_csv(train_csv_path,index=False,header=False)
 test_csv_path = relative2abspath(dataset_folder, f"{datasetconfig['filename']}_test.csv")
@@ -48,6 +49,7 @@ connection = psycopg2.connect(
     host = pgsqlconfig["host"],
     port = pgsqlconfig["port"]
 )
+# print(connection.closed)
 
 # Make query to create table
 if DATASET == "epsilon":
@@ -58,24 +60,25 @@ else:
     create_query = datasetconfig["create"]
 train_create_query = create_query.replace("**", f"{datasetconfig['table']}_train", 1)
 test_create_query = create_query.replace("**", f"{datasetconfig['table']}_test", 1)
+print("Checkpoint-1")
 
 # Create train table
 with connection.cursor() as cursor:
     cursor.execute("DROP TABLE IF EXISTS " + datasetconfig["table"]+"_train")
     connection.commit()
-
+print("Checkpoint-2")
 with connection.cursor() as cursor:
     cursor.execute(train_create_query)
     with open(train_csv_path) as f:
         cursor.copy_expert("COPY "+datasetconfig["table"]+"_train"+" FROM STDIN WITH CSV", f)
     print("LOADED "+datasetconfig["table"]+"_train"+" to DB")
     connection.commit()
-
+print("Checkpoint-3")
 # Create test table
 with connection.cursor() as cursor:
     cursor.execute("DROP TABLE IF EXISTS " + datasetconfig["table"]+"_test" )
     connection.commit()
-
+print("Checkpoint-4")
 with connection.cursor() as cursor:
     cursor.execute(test_create_query)
     with open(test_csv_path) as f:
