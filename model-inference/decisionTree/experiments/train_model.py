@@ -26,7 +26,7 @@ def parse_arguments():
         DATASET = args.dataset
     if args.model:
         MODEL = args.model
-
+    check_argument_conflicts(args)
     print(f"DATASET: {DATASET}")
     print(f"MODEL: {MODEL}")
     return args
@@ -101,6 +101,6 @@ def train(config, df_train):
 if __name__ ==  "__main__":
     parse_arguments()
     config = json.load(open(relative2abspath("config.json")))
-    df_train = df_train = fetch_data(DATASET,config,"train")
+    df_train = fetch_data(DATASET,config,"train")
     print(f"Number of training examples: {len(df_train)}")
     train(config, df_train)
