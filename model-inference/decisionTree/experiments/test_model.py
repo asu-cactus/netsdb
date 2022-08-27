@@ -249,6 +249,24 @@ def test_gpu(args, features, label, sklearnmodel, config, time_consume):
         results = run_inference(FRAMEWORK, features, input_size, args.query_size, predict, time_consume)
         write_data(FRAMEWORK, results, time_consume)
         total_framework_time = calculate_time(start_time, time.time())
+    
+    elif FRAMEWORK == "HummingbirdTVMGPU":
+        assert args.batch_size == args.query_size, "For TVM, batch_size must be equivalent to query_size"
+        start_time = time.time()
+        model = convert_to_hummingbird_model(sklearnmodel, "tvm", features, args.batch_size, "gpu")
+        remainder_size = input_size % args.batch_size
+        if remainder_size > 0:
+            remainder_model = convert_to_hummingbird_model(sklearnmodel, "tvm", features, remainder_size, "gpu")
+        conversion_time = calculate_time(start_time, time.time())
+        def predict(batch, use_remainder_model):
+            if use_remainder_model:
+                return remainder_model.predict(batch)
+            return model.predict(batch)
+
+        results = run_inference(FRAMEWORK, features, input_size, args.query_size, predict, time_consume)
+        write_data(FRAMEWORK, results, time_consume)
+        total_framework_time = calculate_time(start_time, time.time())
+
     else:
         raise ValueError(f"{FRAMEWORK} is not supported.")
     if args.task_type == "classification":
