@@ -298,6 +298,7 @@ def test_postprocess(time_consume, conversion_time, total_framework_time, config
 
 
 if __name__ ==  "__main__":
+    print("==============EXPERIMENT STARTING=========================")
     config = json.load(open(relative2abspath("config.json")))
     args = parse_arguments(config)
     time_consume = {
