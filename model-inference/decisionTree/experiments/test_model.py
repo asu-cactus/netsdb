@@ -215,7 +215,7 @@ def test_gpu(args, features, label, sklearnmodel, config, time_consume):
         device = torch.device('cuda')
         start_time = time.time()
         relative_path = relative2abspath("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}_torch.pkl")
-        model = convert_to_hummingbird_model(sklearnmodel, "torch", features, args.batch_size, "gpu")
+        model = convert_to_hummingbird_model(sklearnmodel, "torch", features, args.batch_size, "cuda")
         conversion_time = calculate_time(start_time, time.time())
         results = run_inference(FRAMEWORK, features, input_size, args.query_size, model.predict, time_consume)
         write_data(FRAMEWORK, results, time_consume)
