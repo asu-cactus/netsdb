@@ -31,11 +31,10 @@
 #include "PDBClient.h"
 #include "StorageClient.h"
 #include "PDBClient.h"
-#include "Node.h"
+#include "TensorBlock2D.h"
 #include "Forest.h"
 #include "ScanUserSet.h"
 #include "WriteUserSet.h"
-#include "TensorBlock2D.h"
 #include "FFMatrixUtil.h"
 #include "SimpleFF.h"
 #include "EnsembleTreeGenericUDFFloat.h"
@@ -86,12 +85,12 @@ int main(int argc, char *argv[]) {
         loadSharedLibraries(pdbClient);
         ff::createDatabase(pdbClient, "decisiontree");
 	if (isFloat) { 
-           ff::createSetGeneric<TensorBlock2D<float>>(pdbClient, "decisiontree", "inputs", "inputs", 32);
-           ff::loadMatrixGeneric<TensorBlock2D<float>>(pdbClient, "decisiontree", "inputs", rowNum, colNum, block_x, block_y, false, false, errMsg);
+           ff::createSetGeneric<pdb::TensorBlock2D<float>>(pdbClient, "decisiontree", "inputs", "inputs", 32);
+           ff::loadMatrixGeneric<pdb::TensorBlock2D<float>>(pdbClient, "decisiontree", "inputs", rowNum, colNum, block_x, block_y, false, false, errMsg);
         }
    	else {
-	   ff::createSetGeneric<TensorBlock2D<double>>(pdbClient, "decisiontree", "inputs", "inputs", 32);
-	   ff::loadMatrixGeneric<TensorBlock2D<double>>(pdbClient, "decisiontree", "inputs", rowNum, colNum, block_x, block_y, false, false, errMsg);
+	   ff::createSetGeneric<pdb::TensorBlock2D<double>>(pdbClient, "decisiontree", "inputs", "inputs", 32);
+	   ff::loadMatrixGeneric<pdb::TensorBlock2D<double>>(pdbClient, "decisiontree", "inputs", rowNum, colNum, block_x, block_y, false, false, errMsg);
         }
     }else{
         std::cout << "Not create a set and not load new data to the input set" << std::endl;
@@ -102,13 +101,13 @@ int main(int argc, char *argv[]) {
     else
 	ff::createSetGeneric<pdb::Vector<double>>(pdbClient, "decisiontree", "labels", "labels", 64);
 
-    makeObjectAllocatorBlock(1024 * 1024 * 1024, true);
+    pdb::makeObjectAllocatorBlock(1024 * 1024 * 1024, true);
 
     pdb::Handle<pdb::Computation> inputMatrix = nullptr;
     if (isFloat)
-	 inputMatrix = pdb::makeObject<ScanUserSet<TensorBlock2D<float>>>("decisiontree", "inputs");
+	 inputMatrix = pdb::makeObject<pdb::ScanUserSet<pdb::TensorBlock2D<float>>>("decisiontree", "inputs");
     else
-	 inputMatrix = pdb::makeObject<ScanUserSet<TensorBlock2D<double>>>("decisiontree", "inputs");
+	 inputMatrix = pdb::makeObject<pdb::ScanUserSet<pdb::TensorBlock2D<double>>>("decisiontree", "inputs");
 
     bool isClassificationTask = true;
     auto model_begin = chrono::high_resolution_clock::now();
@@ -152,8 +151,8 @@ int main(int argc, char *argv[]) {
           int count = 0;
           if (isFloat) {
 
-	       SetIterator<Vector<float>> result =
-                   pdbClient.getSetIterator<Vector<float>>("decisiontree", "labels");
+		  pdb::SetIterator<pdb::Vector<float>> result =
+                   pdbClient.getSetIterator<pdb::Vector<float>>("decisiontree", "labels");
            
                for (auto a : result) {
                     count++;
@@ -161,8 +160,8 @@ int main(int argc, char *argv[]) {
                }
 	  } else {
 	  
-	       SetIterator<Vector<double>> result =
-                   pdbClient.getSetIterator<Vector<double>>("decisiontree", "labels");
+		  pdb::SetIterator<pdb::Vector<double>> result =
+                   pdbClient.getSetIterator<pdb::Vector<double>>("decisiontree", "labels");
 
 	       for (auto a : result) {
                     count++;

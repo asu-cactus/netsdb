@@ -7,6 +7,7 @@
 #define NETSDB_FOREST_H
 
 #define MAX_NUM_NODES_PER_TREE 512
+#define MAX_NUM_TREES 1600
 
 #include <cmath>
 #include <cstdlib>
@@ -33,7 +34,6 @@
 #include <map>
 #include <set>
 #include "TensorBlock2D.h"
-#include "Node.h"
 #include "PDBClient.h"
 #include "StorageClient.h"
 
@@ -44,12 +44,22 @@ using std::filesystem::directory_iterator;
 namespace pdb
 {
 
+    typedef struct {
+    
+         int indexID;
+         bool isLeaf;
+         int leftChild;
+         int rightChild;
+         // returnClass will be the vaule to compare while this is not a leaf node
+         float returnClass; 
+    } Node;
+
     class Forest : public Object
     {
     public:
         ENABLE_DEEP_COPY
 
-        pdb::Vector<pdb::Vector<pdb::Node>> forest;
+        Node forest[MAX_NUM_TREES][MAX_NUM_NODES_PER_TREE];
         int numTrees;
         ModelType modelType;
 
@@ -57,13 +67,6 @@ namespace pdb
 
         Forest(ModelType type)
         {
-            this->modelType = type;
-        }
-
-        Forest(pdb::Vector<pdb::Vector<pdb::Node>> forestIn, ModelType type)
-        {
-            this->forest = forestIn;
-            this->numTrees = forestIn.size();
             this->modelType = type;
         }
 
@@ -87,7 +90,7 @@ namespace pdb
 	
 	}
 
-        void processInnerNodes(std::vector<std::string> & innerNodes, ModelType modelType, pdb::Vector<pdb::Node> & tree)
+        void processInnerNodes(std::vector<std::string> & innerNodes, ModelType modelType, int treeID)
 	{
 
             int findStartPosition;
@@ -131,18 +134,17 @@ namespace pdb
                         returnClass = std::stod(currentLine.substr(findStartPosition + 1, findEndPosition));
                     }
 	       }
-	       tree[nodeID].nodeID = nodeID;
-	       tree[nodeID].indexID = indexID;
-               tree[nodeID].isLeaf = false;         
-               tree[nodeID].leftChild = -1;
-               tree[nodeID].rightChild = -1;
-               tree[nodeID].returnClass = returnClass;
+	       forest[treeID][nodeID].indexID = indexID;
+               forest[treeID][nodeID].isLeaf = false;         
+               forest[treeID][nodeID].leftChild = -1;
+               forest[treeID][nodeID].rightChild = -1;
+               forest[treeID][nodeID].returnClass = returnClass;
            }
 
 	}
 
 
-	void processLeafNodes(std::vector<std::string> & leafNodes, ModelType modelType, pdb::Vector<pdb::Node> & tree)
+	void processLeafNodes(std::vector<std::string> & leafNodes, ModelType modelType, int treeID)
         {
 
             int findStartPosition;
@@ -178,16 +180,15 @@ namespace pdb
                     }	
 		
         	}
-	        tree[nodeID].nodeID = nodeID;
-                tree[nodeID].indexID = -1;
-                tree[nodeID].isLeaf = true;
-                tree[nodeID].leftChild = -1;
-                tree[nodeID].rightChild = -1;
-                tree[nodeID].returnClass = returnClass;
+                forest[treeID][nodeID].indexID = -1;
+                forest[treeID][nodeID].isLeaf = true;
+                forest[treeID][nodeID].leftChild = -1;
+                forest[treeID][nodeID].rightChild = -1;
+                forest[treeID][nodeID].returnClass = returnClass;
 	    }
         }
 
-	void processRelationships(std::vector<std::string> & relationships, ModelType modelType, pdb::Vector<pdb::Node> & tree)
+	void processRelationships(std::vector<std::string> & relationships, ModelType modelType, int treeID)
         {
 
                 int findStartPosition;
@@ -235,13 +236,13 @@ namespace pdb
 		    
 		    }
 
-                    if (tree[parentNodeID].leftChild == -1)
+                    if (forest[treeID][parentNodeID].leftChild == -1)
                     {
-                        tree[parentNodeID].leftChild = childNodeID;
+                        forest[treeID][parentNodeID].leftChild = childNodeID;
                     }
                     else
                     {
-                        tree[parentNodeID].rightChild = childNodeID;
+                        forest[treeID][parentNodeID].rightChild = childNodeID;
                     }
 
                 }
@@ -296,39 +297,16 @@ namespace pdb
 
     		inputFile.close();
 
-                pdb::Vector<pdb::Node> tree ( MAX_NUM_NODES_PER_TREE, MAX_NUM_NODES_PER_TREE );
+                processInnerNodes(innerNodes, modelType, n);
+                processLeafNodes(leafNodes, modelType, n);
+		processRelationships(relationships, modelType, n);
 
-                processInnerNodes(innerNodes, modelType, tree);
-                processLeafNodes(leafNodes, modelType, tree);
-		processRelationships(relationships, modelType, tree);
-
-                forest.push_back(tree);
             }
 
             // STATS ABOUT THE FOREST
             std::cout << "Number of trees in the forest: " << numTrees << std::endl;
-            std::cout << "Number of nodes in each tree: " << std::endl;
-            for (int i = 0; i < numTrees; i++)
-            {
-                std::cout << "Number of nodes in forest[" << i << "] is: " << forest[i].size() << std::endl;
-            }
 	}
 
-        static bool compareByNodeID(const pdb::Node &a, const pdb::Node &b)
-        {
-            return a.nodeID < b.nodeID;
-        }
-
-        pdb::Vector<pdb::Vector<pdb::Node>> & get_forest()
-        {
-            return forest;
-        }
-
-        void set_forest(pdb::Vector<pdb::Vector<pdb::Node>>& forestIn)
-        {
-            forest = forestIn;
-            numTrees = forestIn.size();
-        }
 
         template <class InputIt, class T = typename std::iterator_traits<InputIt>::value_type>
         T most_common(InputIt begin, InputIt end)
@@ -409,7 +387,7 @@ namespace pdb
                     //  inference
                     //  pass the root node of the tree
 	            int curIndex = 0;
-                    pdb::Node treeNode = forest[j][0];
+                    Node treeNode = forest[j][0];
                     while (treeNode.isLeaf == false)
                     {
                         inputValue = inData[featureStartIndex + treeNode.indexID];

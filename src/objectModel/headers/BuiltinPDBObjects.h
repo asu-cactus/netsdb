@@ -10,7 +10,6 @@
 #include "/home/ubuntu/netsdb/src/builtInPDBObjects/headers/ExecuteQuery.h"
 #include "/home/ubuntu/netsdb/src/builtInPDBObjects/headers/ResourceInfo.h"
 #include "/home/ubuntu/netsdb/src/builtInPDBObjects/headers/NodeInfo.h"
-#include "/home/ubuntu/netsdb/src/builtInPDBObjects/headers/Node.h"
 #include "/home/ubuntu/netsdb/src/builtInPDBObjects/headers/StorageCollectStatsResponse.h"
 #include "/home/ubuntu/netsdb/src/builtInPDBObjects/headers/DistributedStorageAddSharedPage.h"
 #include "/home/ubuntu/netsdb/src/builtInPDBObjects/headers/DistributedStorageRemoveSet.h"
