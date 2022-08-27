@@ -1,3 +1,4 @@
+import pickle
 import connectorx as cx
 import psycopg2
 import time
@@ -7,16 +8,27 @@ import math
 from sklearn.metrics import classification_report, mean_squared_error
 import treelite_runtime
 
+dataset_folder = "dataset/"
+
 def calculate_time(start_time,end_time):
     diff = (end_time-start_time)*1000
     return diff
 
-def load_data_from_pickle(dataset):
-    raise NotImplementedError
+def load_data_from_pickle(dataset, config, suffix, time_consume):
+    start_time = time.time()
+    pkl_path = relative2abspath(dataset_folder, f"{config[dataset]['filename']}_{suffix}.pkl")
+    dataframe = pickle.load(open(pkl_path, "rb"))
+    end_time = time.time()
+    data_loading_time = calculate_time(start_time,end_time)
+    if time_consume is not None:
+        time_consume["data loading time"] = data_loading_time
+    print(f"Time Taken to load {dataset} as a dataframe is: {data_loading_time}")
+    # import pdb; pdb.set_trace()
+    return dataframe
 
 def fetch_data(dataset, config, suffix, time_consume=None):
-    if dataset == "covtype":
-        load_data_from_pickle(dataset)
+    if dataset == "epsilon": # Does not fit PostgreSQL
+        return load_data_from_pickle(dataset, config, suffix, time_consume)
     try:
         pgsqlconfig = config["pgsqlconfig"]
         datasetconfig = config[dataset]
@@ -133,9 +145,12 @@ def relative2abspath(path, *paths):
 
 def check_argument_conflicts(args):
     model = args.model.lower()
-    frameworks = args.frameworks.lower().split(",")
+
+    if hasattr(args, "frameworks"):
+        frameworks = args.frameworks.lower().split(",")
+        if "treelite" in frameworks and model == "randomforest":
+            raise ValueError("TreeLite models only supports xgboost algorithm, but does not support randomforest algorithm.")
+    
     dataset = args.dataset.lower()
-    if "treelite" in frameworks and model == "randomforest":
-        raise ValueError("TreeLite models only supports xgboost algorithm, but does not support randomforest algorithm.")
     if dataset == "bosch" and model == "randomforest":
         raise ValueError("Sklearn implementation of randomforest algorithm does not support datasets with missing values.")
