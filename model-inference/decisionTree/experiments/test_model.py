@@ -254,10 +254,10 @@ def test_gpu(args, features, label, sklearnmodel, config, time_consume):
     elif FRAMEWORK == "HummingbirdTVMGPU":
         assert args.batch_size == args.query_size, "For TVM, batch_size must be equivalent to query_size"
         start_time = time.time()
-        model = convert_to_hummingbird_model(sklearnmodel, "tvm", features, args.batch_size, "cpu")
+        model = convert_to_hummingbird_model(sklearnmodel, "tvm", features, args.batch_size, "cuda")
         remainder_size = input_size % args.batch_size
         if remainder_size > 0:
-            remainder_model = convert_to_hummingbird_model(sklearnmodel, "tvm", features, remainder_size, "cpu")
+            remainder_model = convert_to_hummingbird_model(sklearnmodel, "tvm", features, remainder_size, "cuda")
         conversion_time = calculate_time(start_time, time.time())
         def predict(batch, use_remainder_model):
             if use_remainder_model:
