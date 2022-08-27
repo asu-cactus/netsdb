@@ -45,7 +45,8 @@ def parse_arguments(config):
             'ONNXCPU', 
             'HummingbirdPytorchGPU',
             'HummingbirdTorchScriptGPU',
-            'ONNXGPU'
+            'ONNXGPU',
+            'HummingbirdTVMGPU'
         ],
         help="Framework to run the decision forest model.")
     parser.add_argument("--batch_size", type=int, 
