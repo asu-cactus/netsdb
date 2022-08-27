@@ -1,0 +1,270 @@
+DATASET: higgs
+MODEL: randomforest
+Time Taken to load higgs as a dataframe is: 28221.390962600708
+Number of training examples: 8800000
+start training...
+Time taken to train the model: 70638.14520835876
+              precision    recall  f1-score   support
+
+           0       0.69      0.64      0.66   4136013
+           1       0.70      0.75      0.72   4663987
+
+    accuracy                           0.70   8800000
+   macro avg       0.70      0.69      0.69   8800000
+weighted avg       0.70      0.70      0.70   8800000
+
+Time taken to save model using joblib: 4.656314849853516
+
+
+
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 100
+Batch Size: 100
+Time Taken to load higgs as a dataframe is: 4893.474102020264
+Time Taken to load sklearn model: 60.45079231262207
+Time Taken to predict on HummingbirdPytorchGPU is 20477.891445159912
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 1074.2216110229492
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.69      0.63      0.66   1034864
+           1       0.70      0.75      0.72   1165136
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.69      0.69   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 3950.7062435150146
+TOTAL Time Taken for HummingbirdPytorchGPU: 25502.933740615845
+==============EXPERIMENT ENDING=========================
+
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 10000
+Batch Size: 10000
+Time Taken to load higgs as a dataframe is: 4906.791925430298
+Time Taken to load sklearn model: 62.84666061401367
+Time Taken to predict on HummingbirdPytorchGPU is 505.29956817626953
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 1168.6334609985352
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.69      0.63      0.66   1034864
+           1       0.70      0.75      0.72   1165136
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.69      0.69   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 4004.774808883667
+TOTAL Time Taken for HummingbirdPytorchGPU: 5678.94983291626
+==============EXPERIMENT ENDING=========================
+
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 1000000
+Batch Size: 1000000
+Time Taken to load higgs as a dataframe is: 4900.0303745269775
+Time Taken to load sklearn model: 60.1198673248291
+Time Taken to predict on HummingbirdPytorchGPU is 333.93144607543945
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 1220.226526260376
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.69      0.63      0.66   1034864
+           1       0.70      0.75      0.72   1165136
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.69      0.69   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 3943.824291229248
+TOTAL Time Taken for HummingbirdPytorchGPU: 5498.114109039307
+==============EXPERIMENT ENDING=========================
+
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 100
+Batch Size: 100
+Time Taken to load higgs as a dataframe is: 4914.763689041138
+Time Taken to load sklearn model: 62.59918212890625
+Time Taken to predict on HummingbirdTorchScriptGPU is 13844.98929977417
+Time Taken to write results to a text file for HummingbirdTorchScriptGPU is 1185.7340335845947
+Classification Report HummingbirdTorchScriptGPU
+              precision    recall  f1-score   support
+
+           0       0.69      0.63      0.66   1034864
+           1       0.70      0.75      0.72   1165136
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.69      0.69   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert HummingbirdTorchScriptGPU model: 3319.4456100463867
+TOTAL Time Taken for HummingbirdTorchScriptGPU: 18350.295782089233
+==============EXPERIMENT ENDING=========================
+
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 10000
+Batch Size: 10000
+Time Taken to load higgs as a dataframe is: 4899.991273880005
+Time Taken to load sklearn model: 62.27827072143555
+Time Taken to predict on HummingbirdTorchScriptGPU is 959.2978954315186
+Time Taken to write results to a text file for HummingbirdTorchScriptGPU is 1058.7973594665527
+Classification Report HummingbirdTorchScriptGPU
+              precision    recall  f1-score   support
+
+           0       0.69      0.63      0.66   1034864
+           1       0.70      0.75      0.72   1165136
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.69      0.69   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert HummingbirdTorchScriptGPU model: 3271.040916442871
+TOTAL Time Taken for HummingbirdTorchScriptGPU: 5289.257764816284
+==============EXPERIMENT ENDING=========================
+
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 1000000
+Batch Size: 1000000
+Time Taken to load higgs as a dataframe is: 4953.209400177002
+Time Taken to load sklearn model: 62.511444091796875
+Time Taken to predict on HummingbirdTorchScriptGPU is 857.0075035095215
+Time Taken to write results to a text file for HummingbirdTorchScriptGPU is 1071.275234222412
+Classification Report HummingbirdTorchScriptGPU
+              precision    recall  f1-score   support
+
+           0       0.69      0.63      0.66   1034864
+           1       0.70      0.75      0.72   1165136
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.69      0.69   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert HummingbirdTorchScriptGPU model: 3720.0441360473633
+TOTAL Time Taken for HummingbirdTorchScriptGPU: 5648.4692096710205
+==============EXPERIMENT ENDING=========================
+
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: ONNXGPU
+Query Size: 100
+Batch Size: 100
+Time Taken to load higgs as a dataframe is: 4930.742979049683
+Time Taken to load sklearn model: 62.506675720214844
+Time Taken to predict on ONNXGPU is 2903.618574142456
+Time Taken to write results to a text file for ONNXGPU is 1116.8012619018555
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.69      0.64      0.66   1034864
+           1       0.70      0.74      0.72   1165136
+
+    accuracy                           0.69   2200000
+   macro avg       0.69      0.69      0.69   2200000
+weighted avg       0.69      0.69      0.69   2200000
+
+################
+Time Taken to convert ONNXGPU model: 1320.9068775177002
+TOTAL Time Taken for ONNXGPU: 5341.434955596924
+==============EXPERIMENT ENDING=========================
+
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: ONNXGPU
+Query Size: 10000
+Batch Size: 10000
+Time Taken to load higgs as a dataframe is: 4901.86071395874
+Time Taken to load sklearn model: 60.266733169555664
+Time Taken to predict on ONNXGPU is 1014.7669315338135
+Time Taken to write results to a text file for ONNXGPU is 1088.4263515472412
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.69      0.64      0.66   1034864
+           1       0.70      0.74      0.72   1165136
+
+    accuracy                           0.69   2200000
+   macro avg       0.69      0.69      0.69   2200000
+weighted avg       0.69      0.69      0.69   2200000
+
+################
+Time Taken to convert ONNXGPU model: 1331.5765857696533
+TOTAL Time Taken for ONNXGPU: 3434.8878860473633
+==============EXPERIMENT ENDING=========================
+
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: ONNXGPU
+Query Size: 1000000
+Batch Size: 1000000
+Time Taken to load higgs as a dataframe is: 4906.203269958496
+Time Taken to load sklearn model: 61.39087677001953
+Time Taken to predict on ONNXGPU is 1432.936668395996
+Time Taken to write results to a text file for ONNXGPU is 1143.390417098999
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.69      0.64      0.66   1034864
+           1       0.70      0.74      0.72   1165136
+
+    accuracy                           0.69   2200000
+   macro avg       0.69      0.69      0.69   2200000
+weighted avg       0.69      0.69      0.69   2200000
+
+################
+Time Taken to convert ONNXGPU model: 1317.7728652954102
+TOTAL Time Taken for ONNXGPU: 3894.21010017395
+==============EXPERIMENT ENDING=========================
