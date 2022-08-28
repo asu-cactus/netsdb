@@ -1407,8 +1407,8 @@ common_env.SharedLibrary('libraries/libFullyConnectedNetwork.so',
 #                         ['build/decisionTree/BaselineNode.cc'] + all)
 # common_env.SharedLibrary('libraries/libMyPrediction.so',
 #                         ['build/decisionTree/MyPrediction.cc'] + all)
-common_env.Program('bin/XGBoostGenericUDF', 
-                        ['build/tests/TestXGBoostGenericUDF.cc', 'build/FF/FFMatrixUtil.cc',
+common_env.Program('bin/testDecisionForest', 
+                        ['build/tests/TestDecisionForest.cc', 'build/FF/FFMatrixUtil.cc',
                         'build/FF/SimpleFF.cc'] + all + pdb_client)
 
 # Semantic Classifier
@@ -2113,10 +2113,10 @@ libLSTMTest = common_env.Alias('libLSTMTest', [
 ])
 
 
-libDTXGBoostTest = common_env.Alias('libDTXGBoostTest', [
+libDFTest = common_env.Alias('libDFTest', [
     'bin/pdb-cluster',
     'bin/pdb-server',
-    'bin/XGBoostGenericUDF',
+    'bin/testDecisionForest',
 ])
 
 libConv2DProjTest = common_env.Alias('libConv2DProjTest', [
