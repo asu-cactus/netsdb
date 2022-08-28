@@ -93,6 +93,8 @@ namespace pdb
         void processInnerNodes(std::vector<std::string> & innerNodes, ModelType modelType, int treeID)
 	{
 
+	    std::cout << "process inner nodes" << std::endl;
+
             int findStartPosition;
             int findMidPosition;
             int findEndPosition;
@@ -109,15 +111,18 @@ namespace pdb
 	       if (modelType == ModelType::RandomForest) {
                    if ((findEndPosition = currentLine.find_first_of("[label")) != string::npos)
                    {
-                       nodeID = std::stoi(currentLine.substr(4, findEndPosition - 1));
+		       std::cout << currentLine.substr(0, findEndPosition - 1) << std::endl;
+                       nodeID = std::stoi(currentLine.substr(0, findEndPosition - 1));
                    }
 		   if ((findStartPosition = currentLine.find("X[")) != string::npos && (findEndPosition = currentLine.find("] <=")) != string::npos)
                     { 
+			std::cout << currentLine.substr(findStartPosition + 2, findEndPosition) << std::endl;
                         indexID = std::stoi(currentLine.substr(findStartPosition + 2, findEndPosition));
                     }
 
 		   if ((findStartPosition = currentLine.find("<= ")) != string::npos && (findEndPosition = currentLine.find_first_of("\\ngini")) != string::npos)
                     { 
+			std::cout << currentLine.substr(findStartPosition + 3, findEndPosition) << std::endl;
                         returnClass = std::stod(currentLine.substr(findStartPosition + 3, findEndPosition));
                     }
 	       } else {
@@ -147,6 +152,7 @@ namespace pdb
 	void processLeafNodes(std::vector<std::string> & leafNodes, ModelType modelType, int treeID)
         {
 
+            std::cout << "process leaf nodes" << std::endl;
             int findStartPosition;
             int findMidPosition;
             int findEndPosition;
@@ -190,6 +196,7 @@ namespace pdb
 
 	void processRelationships(std::vector<std::string> & relationships, ModelType modelType, int treeID)
         {
+		std::cout << "process relationships" << std::endl;
 
                 int findStartPosition;
                 int findMidPosition;
@@ -204,20 +211,22 @@ namespace pdb
                     if (modelType == ModelType::RandomForest) {
                         if ((findMidPosition = currentLine.find_first_of("->")) != std::string::npos)
                         {
+			    std::cout << currentLine.substr(0, findMidPosition-1) << std::endl;
                             parentNodeID = std::stoi(currentLine.substr(0, findMidPosition-1));
                         }
 			if (parentNodeID == 0) {
 			
 			    if ((findEndPosition = currentLine.find_first_of("[label")) != std::string::npos) {
 
-                                childNodeID = std::stoi(currentLine.substr(findMidPosition + 4, findEndPosition - 1));
+				std::cout << currentLine.substr(findMidPosition + 3, findEndPosition - 1) << std::endl;
+                                childNodeID = std::stoi(currentLine.substr(findMidPosition + 3, findEndPosition - 1));
 
                             }
 			} else {
 			
 			    if ((findEndPosition = currentLine.find_first_of(";")) != std::string::npos) {
 
-                                childNodeID = std::stoi(currentLine.substr(findMidPosition + 4, findEndPosition-1));
+                                childNodeID = std::stoi(currentLine.substr(findMidPosition + 3, findEndPosition-1));
 
                             }
 			
@@ -258,6 +267,7 @@ namespace pdb
             for (int n = 0; n < numTrees; ++n)
             {
                 std::string inputFileName = std::string(treePathIn[n]);
+		std::cout << inputFileName << std::endl;
                 std::ifstream inputFile;
                 inputFile.open(inputFileName.data());
                 assert(inputFile.is_open());
