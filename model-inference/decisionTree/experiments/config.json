@@ -22,23 +22,23 @@
         "y_col": "label",
         "filename": "HIGGS.csv",
         "table": "higgs",
-        "header": 0
+        "header": false
     },
     "airline_classification": {
         "num_features": 13,
-	"rows": 115069017,
-	"batch_size": 100000,
+        "rows": 115069017,
+        "batch_size": 100000,
         "query_size": 100000,
         "type": "classification",
-	"info": "http://kt.ijs.si/elena_ikonomovska/datasets/airline/airline_14col.data.bz2",
-	"query": "SELECT Year,Month,DayofMonth,DayofWeek,CRSDepTime,CRSArrTime,UniqueCarrier,FlightNum,ActualElapsedTime,Origin,Dest,Distance,Diverted,ArrDelay FROM airline_classification",
+        "info": "http://kt.ijs.si/elena_ikonomovska/datasets/airline/airline_14col.data.bz2",
+        "query": "SELECT Year,Month,DayofMonth,DayofWeek,CRSDepTime,CRSArrTime,UniqueCarrier,FlightNum,ActualElapsedTime,Origin,Dest,Distance,Diverted,ArrDelay FROM airline_classification",
         "create": "CREATE TABLE ** (Year INTEGER NOT NULL, Month INTEGER NOT NULL, DayOfMonth INTEGER NOT NULL, DayOfWeek INTEGER NOT NULL, CRSDepTime INTEGER NOT NULL, CRSArrTime INTEGER NOT NULL, UniqueCarrier INTEGER NOT NULL, FlightNum INTEGER NOT NULL, ActualElapsedTime INTEGER NOT NULL, Origin INTEGER NOT NULL, Dest INTEGER NOT NULL, Distance INTEGER NOT NULL, Diverted INTEGER NOT NULL, ArrDelay INTEGER NOT NULL)",
         "train": 0.8,
         "test": 0.2,
         "y_col": "arrdelay",
-        "filename": "dataset/airline_classification.csv",
+        "filename": "airline_classification.csv",
         "table": "airline_classification",
-        "header": 1 
+        "header": true
     },
     "airline_regression": {
         "num_features": 13,
@@ -47,14 +47,14 @@
         "query_size": 100000,
         "type": "regression",
         "info": "http://kt.ijs.si/elena_ikonomovska/datasets/airline/airline_14col.data.bz2",
-	"query": "SELECT Year,Month,DayofMonth,DayofWeek,CRSDepTime,CRSArrTime,UniqueCarrier,FlightNum,ActualElapsedTime,Origin,Dest,Distance,Diverted,ArrDelay FROM airline_regression",
+        "query": "SELECT Year,Month,DayofMonth,DayofWeek,CRSDepTime,CRSArrTime,UniqueCarrier,FlightNum,ActualElapsedTime,Origin,Dest,Distance,Diverted,ArrDelay FROM airline_regression",
         "create": "CREATE TABLE ** (Year INTEGER NOT NULL, Month INTEGER NOT NULL, DayOfMonth INTEGER NOT NULL, DayOfWeek INTEGER NOT NULL, CRSDepTime INTEGER NOT NULL, CRSArrTime INTEGER NOT NULL, UniqueCarrier INTEGER NOT NULL, FlightNum INTEGER NOT NULL, ActualElapsedTime INTEGER NOT NULL, Origin INTEGER NOT NULL, Dest INTEGER NOT NULL, Distance INTEGER NOT NULL, Diverted INTEGER NOT NULL, ArrDelay INTEGER NOT NULL)",
         "train": 0.8,
         "test": 0.2,
         "y_col": "arrdelay",
-        "filename": "dataset/airline_regression.csv",
+        "filename": "airline_regression.csv",
         "table": "airline_regression",
-        "header": 1 
+        "header": true
     },
     "fraud": {
         "num_features": 28,
@@ -70,40 +70,72 @@
         "y_col": "class",
         "filename": "creditcard.csv",
         "table": "fraud",
-        "header": 1
+        "header": true
     },
     "year": {
-        "num_features": 28,
+        "num_features": 90,
         "rows": 515345,
         "batch_size": 100000,
         "query_size": 100000,
         "type": "regression",
         "info": "https://archive.ics.uci.edu/ml/datasets/yearpredictionmsd",
         "desc": "train: first 463,715 examples,test: last 51,630 examples",
-        "query": "",
+        "query": "SELECT * from year",
         "create": "CREATE TABLE ** (year INTEGER NOT NULL, tAvg1 DECIMAL NOT NULL,tAvg2 DECIMAL NOT NULL,tAvg3 DECIMAL NOT NULL,tAvg4 DECIMAL NOT NULL,tAvg5 DECIMAL NOT NULL,tAvg6 DECIMAL NOT NULL,tAvg7 DECIMAL NOT NULL,tAvg8 DECIMAL NOT NULL,tAvg9 DECIMAL NOT NULL,tAvg10 DECIMAL NOT NULL,tAvg11 DECIMAL NOT NULL,tAvg12 DECIMAL NOT NULL,tCov1 DECIMAL NOT NULL,tCov2 DECIMAL NOT NULL,tCov3 DECIMAL NOT NULL,tCov4 DECIMAL NOT NULL,tCov5 DECIMAL NOT NULL,tCov6 DECIMAL NOT NULL,tCov7 DECIMAL NOT NULL,tCov8 DECIMAL NOT NULL,tCov9 DECIMAL NOT NULL,tCov10 DECIMAL NOT NULL,tCov11 DECIMAL NOT NULL,tCov12 DECIMAL NOT NULL,tCov13 DECIMAL NOT NULL,tCov14 DECIMAL NOT NULL,tCov15 DECIMAL NOT NULL,tCov16 DECIMAL NOT NULL,tCov17 DECIMAL NOT NULL,tCov18 DECIMAL NOT NULL,tCov19 DECIMAL NOT NULL,tCov20 DECIMAL NOT NULL,tCov21 DECIMAL NOT NULL,tCov22 DECIMAL NOT NULL,tCov23 DECIMAL NOT NULL,tCov24 DECIMAL NOT NULL,tCov25 DECIMAL NOT NULL,tCov26 DECIMAL NOT NULL,tCov27 DECIMAL NOT NULL,tCov28 DECIMAL NOT NULL,tCov29 DECIMAL NOT NULL,tCov30 DECIMAL NOT NULL,tCov31 DECIMAL NOT NULL,tCov32 DECIMAL NOT NULL,tCov33 DECIMAL NOT NULL,tCov34 DECIMAL NOT NULL,tCov35 DECIMAL NOT NULL,tCov36 DECIMAL NOT NULL,tCov37 DECIMAL NOT NULL,tCov38 DECIMAL NOT NULL,tCov39 DECIMAL NOT NULL,tCov40 DECIMAL NOT NULL,tCov41 DECIMAL NOT NULL,tCov42 DECIMAL NOT NULL,tCov43 DECIMAL NOT NULL,tCov44 DECIMAL NOT NULL,tCov45 DECIMAL NOT NULL,tCov46 DECIMAL NOT NULL,tCov47 DECIMAL NOT NULL,tCov48 DECIMAL NOT NULL,tCov49 DECIMAL NOT NULL,tCov50 DECIMAL NOT NULL,tCov51 DECIMAL NOT NULL,tCov52 DECIMAL NOT NULL,tCov53 DECIMAL NOT NULL,tCov54 DECIMAL NOT NULL,tCov55 DECIMAL NOT NULL,tCov56 DECIMAL NOT NULL,tCov57 DECIMAL NOT NULL,tCov58 DECIMAL NOT NULL,tCov59 DECIMAL NOT NULL,tCov60 DECIMAL NOT NULL,tCov61 DECIMAL NOT NULL,tCov62 DECIMAL NOT NULL,tCov63 DECIMAL NOT NULL,tCov64 DECIMAL NOT NULL,tCov65 DECIMAL NOT NULL,tCov66 DECIMAL NOT NULL,tCov67 DECIMAL NOT NULL,tCov68 DECIMAL NOT NULL,tCov69 DECIMAL NOT NULL,tCov70 DECIMAL NOT NULL,tCov71 DECIMAL NOT NULL,tCov72 DECIMAL NOT NULL,tCov73 DECIMAL NOT NULL,tCov74 DECIMAL NOT NULL,tCov75 DECIMAL NOT NULL,tCov76 DECIMAL NOT NULL,tCov77 DECIMAL NOT NULL,tCov78 DECIMAL NOT NULL)",
         "train": 0.8,
         "test": 0.2,
-        "y_col": "",
+        "y_col": "year",
         "filename": "YearPredictionMSD.txt",
         "table": "year",
-        "header": 0
+        "header": false
     },
     "epsilon": {
-        "num_features": 28,
-        "rows": 0,
+        "num_features": 2000,
+        "rows": 500000,
         "batch_size": 100000,
         "query_size": 100000,
         "type": "classification",
         "desc": "train 400000 test 100000",
         "info": "https://archive.ics.uci.edu/ml/datasets/yearpredictionmsd",
-        "query": "",
+        "query": "SELECT * from epsilon",
         "create": "",
         "train": 0.8,
         "test": 0.2,
-        "y_col": "",
-        "filename": "",
+        "y_col": 0,
+        "filename": "epsilon.pkl",
         "table": "epsilon",
-        "header": 0
+        "header": true
+    },
+    "bosch": {
+        "num_features": 968,
+        "rows": 1183747,
+        "batch_size": 100000,
+        "query_size": 100000,
+        "type": "classification",
+        "info": "https://www.kaggle.com/c/bosch-production-line-performance",
+        "query": "SELECT * from bosch",
+        "create": "",
+        "train": 0.8,
+        "test": 0.2,
+        "y_col": "response",
+        "filename": "bosch.csv",
+        "table": "bosch",
+        "header": true
+    },
+    "covtype": {
+        "num_features": 54,
+        "rows": 581012,
+        "batch_size": 100000,
+        "query_size": 100000,
+        "type": "classification",
+        "info": "https://archive.ics.uci.edu/ml/datasets/covertype",
+        "query": "SELECT * from covtype",
+        "create": "",
+        "train": 0.8,
+        "test": 0.2,
+        "y_col": "cover_type",
+        "filename": "covtype.csv",
+        "table": "covtype",
+        "header": true
     }
 }
