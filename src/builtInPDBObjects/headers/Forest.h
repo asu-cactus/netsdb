@@ -375,38 +375,40 @@ namespace pdb
 
             // set the output matrix
             pdb::Handle<pdb::Vector<T>> resultMatrix = pdb::makeObject<pdb::Vector<T>>(inNumRow, inNumRow);
-            std::vector<T> thisResultMatrix(numTrees);
+	    std::vector<T> thisResultMatrix (numTrees);
 
+	    T * outData = resultMatrix->c_ptr();
 
             T inputValue;
+	    Node treeNode;
+	    int featureStartIndex;
+	    int curIndex;
 
             for (int i = 0; i < inNumRow; i++)
             {
-		int featureStartIndex = i*inNumCol;
+		featureStartIndex = i*inNumCol;
                 for (int j = 0; j < numTrees; j++)
                 {
                     //  inference
                     //  pass the root node of the tree
-	            int curIndex = 0;
-                    Node treeNode = forest[j][0];
+		    Node * tree = forest[j];
+                    treeNode = tree[0];
                     while (treeNode.isLeaf == false)
                     {
-                        inputValue = inData[featureStartIndex + treeNode.indexID];
 
-                        if (inputValue <= treeNode.returnClass)
+                        if (inData[featureStartIndex + treeNode.indexID] <= treeNode.returnClass)
                         {
-			    curIndex = treeNode.leftChild;
+			    treeNode = tree[treeNode.leftChild];
                         }
                         else
                         {
-			    curIndex = treeNode.rightChild;
+			    treeNode = tree[treeNode.rightChild];
                         }
-			treeNode = forest[j][curIndex];
                     }
                     thisResultMatrix[j] = treeNode.returnClass;
                 }
                 T voteResult = compute_result(thisResultMatrix.begin(), thisResultMatrix.end());
-                (*resultMatrix)[i]=voteResult;
+		outData[i]=voteResult;
 	    }
             return resultMatrix;
         }

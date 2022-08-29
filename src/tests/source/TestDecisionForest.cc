@@ -50,9 +50,9 @@ int main(int argc, char *argv[]) {
 
     bool createSet;
 
-    if ((argc <= 5)||(argc > 9)) {
+    if ((argc <= 6)||(argc > 10)) {
     
-        std::cout << "Usage: \n To load data: bin/testDecisionForest Y numInstances numFeatures batch_size isFloat[F/D] pageSizeInMB\n To run the inference: bin/testDecisionForest N numInstances numFeatures batchSize isFloat[F/D] pageSizeInMB pathToModelFolder modelType[XGBoost/RandomForest]\n Example: \n bin/testDecisionForest Y 2200000 28 275000 F 32\n bin/testDecisionForest N 2200000 28 275000 F 32 model-inference/decisionTree/experiments/models/higgs_xgboost_500_8_netsdb XGBoost\n";
+        std::cout << "Usage: \n To load data: bin/testDecisionForest Y numInstances numFeatures batch_size isFloat[F/D] pageSizeInMB pathToLoadDataFile(N for generating data randomly)\n To run the inference: bin/testDecisionForest N numInstances numFeatures batchSize isFloat[F/D] pageSizeInMB pathToLoadDataFile pathToModelFolder modelType[XGBoost/RandomForest]\n Example: \n bin/testDecisionForest Y 2200000 28 275000 F 32 model-inference/decisionTree/experiments/HIGGS.csv_test.csv\n bin/testDecisionForest N 2200000 28 275000 F 32 model-inference/decisionTree/experiments/HIGGS.csv_test.csv model-inference/decisionTree/experiments/models/higgs_xgboost_500_8_netsdb XGBoost\n";
         exit(-1);
     }
 
@@ -65,6 +65,7 @@ int main(int argc, char *argv[]) {
     string forestFolderPath;
     ModelType modelType = ModelType::XGBoost;
     int pageSize = 64;
+    string dataFilePath = "";
 
     if(argc >= 6) {
 
@@ -91,13 +92,17 @@ int main(int argc, char *argv[]) {
     }
 
     if (argc >= 8) {
-        forestFolderPath = std::string(argv[7]);
+        dataFilePath = std::string(argv[7]);
     }
 
     if (argc >= 9) {
-        if (string(argv[8]).compare("XGBoost") == 0) {
+        forestFolderPath = std::string(argv[8]);
+    }
+
+    if (argc >= 10) {
+        if (string(argv[9]).compare("XGBoost") == 0) {
             modelType = ModelType::XGBoost;
-        } else if (string(argv[8]).compare("RandomForest") == 0) {
+        } else if (string(argv[9]).compare("RandomForest") == 0) {
             modelType = ModelType::RandomForest;
         } else {
             std::cerr << "Unsupported model type: " << argv[7] << std::endl;
@@ -115,16 +120,24 @@ int main(int argc, char *argv[]) {
         ff::createDatabase(pdbClient, "decisionForest");
 	if (isFloat) { 
            ff::createSetGeneric<pdb::TensorBlock2D<float>>(pdbClient, "decisionForest", "inputs", "inputs", pageSize);
-           ff::loadMatrixGeneric<pdb::TensorBlock2D<float>>(pdbClient, "decisionForest", "inputs", rowNum, colNum, block_x, block_y, false, false, errMsg);
-        }
+           if (dataFilePath.compare("N") == 0) {
+	       ff::loadMatrixGeneric<pdb::TensorBlock2D<float>>(pdbClient, "decisionForest", "inputs", rowNum, colNum, block_x, block_y, false, false, errMsg);		   
+	   } else {
+	       ff::loadMatrixGenericFromFile<pdb::TensorBlock2D<float>>(pdbClient, dataFilePath, "decisionForest", "inputs", rowNum, colNum, block_x, block_y, errMsg, 128);
+	   }
+	}
    	else {
 	   ff::createSetGeneric<pdb::TensorBlock2D<double>>(pdbClient, "decisionForest", "inputs", "inputs", pageSize);
-	   ff::loadMatrixGeneric<pdb::TensorBlock2D<double>>(pdbClient, "decisionForest", "inputs", rowNum, colNum, block_x, block_y, false, false, errMsg);
-        }
+	   if (dataFilePath.compare("N") == 0) {
+               ff::loadMatrixGeneric<pdb::TensorBlock2D<double>>(pdbClient, "decisionForest", "inputs", rowNum, colNum, block_x, block_y, false, false, errMsg);
+           } else {
+	       ff::loadMatrixGenericFromFile<pdb::TensorBlock2D<double>>(pdbClient, dataFilePath, "decisionForest", "inputs", rowNum, colNum, block_x, block_y, errMsg, 128);
+           }
+	}
     } else{
         std::cout << "Not create a set and not load new data to the input set" << std::endl;
     }
-
+   
     if (createSet == false) {
         if (isFloat)
             ff::createSetGeneric<pdb::Vector<float>>(pdbClient, "decisionForest", "labels", "labels", 64);
