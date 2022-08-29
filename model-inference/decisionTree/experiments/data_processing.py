@@ -80,13 +80,21 @@ def prepare_airline(is_classification, dataset_folder, nrows=None):
     
     return df
 
+def prepare_fraud(dataset_folder, nrows=None):
+    filename = "creditcard.csv"
+    local_url = relative2abspath(dataset_folder, filename)
+    os.system("kaggle datasets download mlg-ulb/creditcardfraud -f" +
+              filename + " -p " + dataset_folder)
+    df = pd.read_csv(local_url + ".zip", dtype=np.float32, nrows=nrows)
+    df = df.astype({"Class": np.int8})
+    return df
 
 def prepare_bosch(dataset_folder, nrows=None):
     filename = "train_numeric.csv.zip"
     local_url = relative2abspath(dataset_folder, filename)
     # local_url = os.path.join(dataset_folder, filename)
     if not os.path.isfile(local_url):
-        os.system("~/.local/bin/kaggle competitions download -c bosch-production-line-performance -f " +
+        os.system("kaggle competitions download -c bosch-production-line-performance -f " +
                 filename + " -p " + dataset_folder)
     print("Downloaded bosch dataset.")
     df = pd.read_csv(local_url, index_col=0, compression='zip', dtype=np.float32, nrows=nrows)
@@ -221,6 +229,8 @@ if __name__ ==  "__main__":
         df = prepare_airline(is_classification, dataset_folder, nrows=nrows)
     elif dataset == 'epsilon':
         df = prepare_epsilon(nrows=nrows)
+    elif dataset == "fraud":
+        df = prepare_fraud(dataset_folder, nrows=nrows)
     elif dataset == 'bosch':
         df = prepare_bosch(dataset_folder, nrows=nrows)
     elif dataset == 'covtype':
