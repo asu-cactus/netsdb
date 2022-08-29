@@ -101,6 +101,12 @@ def run_inference(framework, features, input_size, query_size, predict, time_con
             query_data = features[i*query_size:(i+1)*query_size]
             output = predict(query_data, len(query_data)!=query_size)
             results.extend(output)
+    elif framework in {"Lleaves", "LightGBM"}:
+        for i in range(iterations):
+            query_data = features[i*query_size:(i+1)*query_size]
+            output = predict(query_data)
+            output = np.where(output > 0.5, 1, 0)
+            results.extend(output)
     else:
         for i in range(iterations):
             query_data = features[i*query_size:(i+1)*query_size]
