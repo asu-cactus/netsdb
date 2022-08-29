@@ -24,10 +24,10 @@ def parse_arguments():
     # check_argument_conflicts(args)  # TODO: Move this function from the bottom to here, after checking with Prof.
     global DATASET, MODEL, FRAMEWORKS
     parser = argparse.ArgumentParser(description='Arguments for train_model.')
-    parser.add_argument("-d", "--dataset", type=str, choices=['higgs', 'airline_classification', 'airline_regression', 'fraud', 'year', 'epsilon'],
-        help="Dataset to be trained. Choose from ['higgs', 'airline_classification', 'airline_regression', 'fraud', 'year', 'epsilon']")
+    parser.add_argument("-d", "--dataset", type=str, choices=['higgs', 'airline_classification', 'airline_regression', 'fraud', 'year', 'epsilon', 'bosch', 'covtype'],
+        help="Dataset to be trained. Choose from ['higgs', 'airline_classification', 'airline_regression', 'fraud', 'year', 'epsilon', 'bosch', 'covtype']")
     parser.add_argument("-m", "--model", type=str, choices=['randomforest', 'xgboost', 'lightgbm'],
-        help="Model name. Choose from ['randomforest', 'xgboost', 'lighgbm]")
+        help="Model name. Choose from ['randomforest', 'xgboost', 'lightgbm']")
     parser.add_argument("-f", "--frameworks", type=str,
         help="Zero to multiple values from ['pytorch', 'torch', 'tf-df', 'onnx', 'treelite', 'lleaves'], seperated by ','")
     args = parser.parse_args()
@@ -197,7 +197,6 @@ def convert(model, config):
         convert_to_treelite_model(model, config)
     if "lleaves" in frameworks:
         convert_to_lleaves_model(model, config)
-
 
 def load_model(config):
     model = joblib.load(relative2abspath("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.pkl"))

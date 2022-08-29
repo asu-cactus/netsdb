@@ -56,13 +56,11 @@ pip3 install xgboost
 
 pip3 install lightgbm
 
-### LLeaves (Model Compiler for LightGBM Models)
+### LLeaves (Model Compiler for LightGBM Model)
 
-pip3 install lleaves
+pip3 install lleaves (or) conda install -c conda-forge lleaves
 
-conda install -c conda-forge lleaves
-
-## Catboost
+## Catboost (This is not a framework. Only used to load the "epsilon" dataset)
 
 pip3 install catboost
 
