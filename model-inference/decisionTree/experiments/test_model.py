@@ -274,7 +274,7 @@ def test_gpu(args, features, label, sklearnmodel, config, time_consume):
             print(MODEL + " support will be added to "+ FRAMEWORK)
         from cuml import ForestInference
         start_time = time.time()
-        model = ForestInference.load_from_sklearn(clf,output_class=True, storage_type='auto')
+        model = ForestInference.load_from_sklearn(sklearnmodel,output_class=True, storage_type='auto')
         results = run_inference(FRAMEWORK, features, input_size, args.query_size, model.predict, time_consume)
         write_data(FRAMEWORK, results, time_consume)
         total_framework_time = calculate_time(start_time, time.time())
