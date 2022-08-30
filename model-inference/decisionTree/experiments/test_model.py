@@ -298,11 +298,19 @@ def test_gpu(args, features, label, sklearnmodel, config, time_consume):
         total_framework_time = calculate_time(start_time, time.time())
     
     elif FRAMEWORK == "NvidiaFILGPU":
-        if MODEL != "randomforest":
-            print(MODEL + " support will be added to "+ FRAMEWORK)
         from cuml import ForestInference
         start_time = time.time()
-        model = ForestInference.load_from_sklearn(sklearnmodel,output_class=True, storage_type='auto')
+        model = None
+        if MODEL == 'randomforest':
+            model = ForestInference.load_from_sklearn(sklearnmodel,output_class=True, storage_type='auto')
+        elif MODEL == 'xgboost':
+            relative_path = relative2abspath("models",f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.model")
+            model = ForestInference.load("higgs_xgboost_1600_8.model",output_class=True, storage_type='auto')
+        else:
+            print(MODEL + " support will be added to "+ FRAMEWORK)
+            exit()
+
+        # model = ForestInference.load_from_sklearn(sklearnmodel,output_class=True, storage_type='auto')
         conversion_time = calculate_time(start_time, time.time())
         results = run_inference(FRAMEWORK, features, input_size, args.query_size, model.predict, time_consume)
         write_data(FRAMEWORK, results, time_consume)
