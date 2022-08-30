@@ -119,6 +119,12 @@ def train(config, df_train):
     joblib_time_end = time.time()
     print(f"Time taken to save model using joblib: {calculate_time(joblib_time_start, joblib_time_end)}")
 
+    if MODEL == 'xgboost':
+        save_model_time_start = time.time()
+        model.save_model(relative2abspath("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.model"))
+        save_model_time_end = time.time()
+        print(f"Time taken to save model using joblib: {calculate_time(save_model_time_start, save_model_time_end)}")
+
 
 if __name__ ==  "__main__":
     parse_arguments()
