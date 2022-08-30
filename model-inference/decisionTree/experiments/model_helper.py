@@ -101,6 +101,12 @@ def run_inference(framework, features, input_size, query_size, predict, time_con
             query_data = features[i*query_size:(i+1)*query_size]
             output = predict(query_data, len(query_data)!=query_size)
             results.extend(output)
+    elif framework in {"Lleaves", "LightGBM"}:
+        for i in range(iterations):
+            query_data = features[i*query_size:(i+1)*query_size]
+            output = predict(query_data)
+            output = np.where(output > 0.5, 1, 0)
+            results.extend(output)
     else:
         for i in range(iterations):
             query_data = features[i*query_size:(i+1)*query_size]
@@ -150,6 +156,8 @@ def check_argument_conflicts(args):
         frameworks = args.frameworks.lower().split(",")
         if "treelite" in frameworks and model == "randomforest":
             raise ValueError("TreeLite models only supports xgboost algorithm, but does not support randomforest algorithm.")
+        if "lleaves" in frameworks and not model == "lightgbm":
+            raise ValueError("LLeaves Framework supports compilation of LightGBM Models.")
     
     dataset = args.dataset.lower()
     if dataset == "bosch" and model == "randomforest":

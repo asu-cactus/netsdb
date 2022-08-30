@@ -209,6 +209,123 @@ void load_matrix_data(pdb::PDBClient &pdbClient, string path,
 }
 
 template <class T>
+void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
+                      pdb::String dbName, pdb::String setName, int totalX, int totalY, int blockX,
+                      int blockY,
+                      string &errMsg, int size, bool partitionByCol) {
+  if (path.size() == 0) {
+    throw runtime_error("Invalid filepath: " + path);
+  }
+
+
+
+  // open the input file
+  ifstream inFile(path);
+
+  double val;
+  int total = 0;
+  pdb::makeObjectAllocatorBlock(size * 1024 * 1024, true);
+
+  pdb::Handle<pdb::Vector<pdb::Handle<T>>> storeMatrix =
+      pdb::makeObject<pdb::Vector<pdb::Handle<T>>>();
+
+  bool end = false; 
+  bool rollback = false;
+  std::string line;
+
+  int i = 0;
+  int j = 0;
+  int ii = 0;
+  int jj = 0;
+
+
+  int numXBlocks = ceil(totalX / (double)blockX);
+  int numYBlocks = ceil(totalY / (double)blockY);
+
+  pdb::Handle<T> myData = pdb::makeObject<T>(i, j, blockX, blockY,
+                                             totalX, totalY, partitionByCol);;
+  while (!end) {
+      if (!rollback) {
+          if (!std::getline(inFile, line)) {
+	      end = true;
+	      break;
+	  } else {
+	      total++;
+	  }
+      }
+      rollback = false;
+      
+
+      try {
+          if (myData == nullptr) {      
+              myData =
+                  pdb::makeObject<T>(i, j, blockX, blockY,
+                                             totalX, totalY, partitionByCol);
+          }
+
+	  std::string::size_type pos = 0;
+	  std::string::size_type new_pos;
+	  while((new_pos = line.find(',', pos)) != std::string::npos)
+          {
+		std::string token = line.substr(pos, new_pos-pos);
+		float val = stod(token);
+                (*(myData->getRawDataHandle()))[ii * blockY + jj] = val;
+                jj ++;
+		if (jj == blockX) {
+			jj = 0;
+			ii = ii+1;
+			if (ii == blockY) {
+			   ii = 0;
+	                   storeMatrix->push_back(myData);
+			   j++;
+                           if (j == numXBlocks) {
+                               j = 0;
+                               i ++;
+
+                               if (i == numYBlocks) {
+                                   break;
+                                }
+
+                            }
+			    myData =
+                  pdb::makeObject<T>(i, j, blockX, blockY,
+                                             totalX, totalY, partitionByCol);
+			}
+		}
+                pos = new_pos + 1;
+          }
+
+
+      } catch (pdb::NotEnoughSpace &n) {
+          if (!pdbClient.sendData<T>(
+              pair<string, string>(setName, dbName), storeMatrix, errMsg)) {
+                  cout << "Failed to send data to dispatcher server" << endl;
+                  exit(1);
+              }
+              std::cout << "Dispatched " << storeMatrix->size() << " blocks."
+                << std::endl;
+              pdb::makeObjectAllocatorBlock(size * 1024 * 1024, true);
+              storeMatrix = pdb::makeObject<pdb::Vector<pdb::Handle<T>>>();
+	      rollback = true;
+
+	      myData = nullptr;
+	  
+      }
+
+  }
+
+  if (!pdbClient.sendData<T>(
+      pair<string, string>(setName, dbName), storeMatrix, errMsg)) {
+      cout << "Failed to send data to dispatcher server" << endl;
+      exit(1);
+  }
+
+  // to write back all buffered records
+  pdbClient.flushData(errMsg);
+}
+
+
+template <class T>
 void loadMatrixGeneric(pdb::PDBClient &pdbClient, pdb::String dbName,
                 pdb::String setName, int totalX, int totalY, int blockX,
                 int blockY, bool dont_pad_x, bool dont_pad_y, string &errMsg,
@@ -273,7 +390,7 @@ void loadMatrixGeneric(pdb::PDBClient &pdbClient, pdb::String dbName,
               }
 
               // row = i * blockX + ii, col = j * blockY + jj
-              double data = curX >= totalX || curY >= totalY ? 0
+              float data = curX >= totalX || curY >= totalY ? 0
                             : (bool)gen()                    ? distn(e2)
                                                              : distp(e2);
               (*(myData->getRawDataHandle()))[ii * actual_blockY + jj] = data;
@@ -297,15 +414,15 @@ void loadMatrixGeneric(pdb::PDBClient &pdbClient, pdb::String dbName,
         jj = 0;
       }
       if (!pdbClient.sendData<T>(
-              pair<string, string>(setName, dbName), storeMatrix1, errMsg)) {
-        cout << "Failed to send data to dispatcher server" << endl;
-        exit(1);
+          pair<string, string>(setName, dbName), storeMatrix1, errMsg)) {
+          cout << "Failed to send data to dispatcher server" << endl;
+          exit(1);
       }
     } catch (pdb::NotEnoughSpace &e) {
       if (!pdbClient.sendData<T>(
-              pair<string, string>(setName, dbName), storeMatrix1, errMsg)) {
-        cout << "Failed to send data to dispatcher server" << endl;
-        exit(1);
+          pair<string, string>(setName, dbName), storeMatrix1, errMsg)) {
+          cout << "Failed to send data to dispatcher server" << endl;
+          exit(1);
       }
       std::cout << "Dispatched " << storeMatrix1->size() << " blocks."
                 << std::endl;
@@ -341,6 +458,17 @@ template void loadMatrixGeneric<pdb::TensorBlock2D<float>>(pdb::PDBClient &pdbCl
 template void loadMatrixGeneric<pdb::TensorBlock2D<double>>(pdb::PDBClient &pdbClient, pdb::String dbName,
                 pdb::String setName, int totalX, int totalY, int blockX,
                 int blockY, bool dont_pad_x, bool dont_pad_y, string &errMsg,
+                int size=128, bool partitionByCol=true);
+
+
+template void loadMatrixGenericFromFile<pdb::TensorBlock2D<float>>(pdb::PDBClient &pdbClient, std::string filePath, pdb::String dbName,
+                pdb::String setName, int totalX, int totalY, int blockX,
+                int blockY, string &errMsg,
+                int size=128, bool partitionByCol=true);
+
+template void loadMatrixGenericFromFile<pdb::TensorBlock2D<double>>(pdb::PDBClient &pdbClient, std::string filePath, pdb::String dbName,
+                pdb::String setName, int totalX, int totalY, int blockX,
+                int blockY, string &errMsg,
                 int size=128, bool partitionByCol=true);
 
 void load_matrix_from_file(string path, vector<vector<double>> &matrix) {

@@ -59,7 +59,7 @@ void DispatcherServer::registerHandlers(PDBServer& forMe) {
             if (request->isShallowCopy() == false) {
                 std::cout << "Not shallow copy" << std::endl;
                 std::cout << "To send " << numBytes << " data" << std::endl;
-                const UseTemporaryAllocationBlock tempBlock{numBytes + 4*1024*1024};
+                const UseTemporaryAllocationBlock tempBlock{(size_t)numBytes + (size_t)128*(size_t)1024*(size_t)1024};
                 dataToSend = sendUsingMe->getNextObject<Vector<Handle<Object>>>(res, errMsg);
             } else {
 #ifdef ENABLE_COMPRESSION

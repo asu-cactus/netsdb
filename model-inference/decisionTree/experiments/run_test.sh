@@ -1,9 +1,9 @@
 #! /bin/bash
 DATASET="higgs"
-MODELS="randomforest xgboost"
+MODELS="randomforest xgboost lightgbm"
 # TESTSIZE="1000"
 # BATCHSIZES="100 1000"
-FRAMEWORKS="Sklearn TreeLite HummingbirdPytorchCPU HummingbirdTorchScriptCPU HummingbirdTVMCPU TFDF ONNXCPU"
+FRAMEWORKS="Sklearn TreeLite HummingbirdPytorchCPU HummingbirdTorchScriptCPU HummingbirdTVMCPU TFDF ONNXCPU LightGBM Lleaves"
 # FRAMEWORKS="Sklearn ONNXCPU"
 
 # Warmup
@@ -65,4 +65,4 @@ for MODEL in $MODELS
 done
 
 # If you are running on a server, you can shut it down after the experiments are done
-# sudo showdown now -h
+sudo shutdown now -h
