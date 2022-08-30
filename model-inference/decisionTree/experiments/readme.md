@@ -84,13 +84,13 @@ Classifiers: xgboost, randomforest
 Frameworks: Sklearn, ONNXCPU, TreeLite, HummingbirdPytorchCPU, HummingbirdTorchScriptCPU, HummingbirdTVMCPU
 
 ```
-python split_data.py dataset
+python data_processing.py -d [dataset]
 
-python train_model.py -d dataset -m model
+python train_model.py -d [dataset] -m [model]
 
-python convert_trained_model_to_framework.py -d dataset -m model -f framework
+python convert_trained_model_to_framework.py -d [dataset] -m [model] -f [framework]
 
-python test_model.py dataset model framework batch_size [gpu]
+python test_model.py -d [dataset] -m [model] -f [framework] --batch_size [batch_size] --query_size [query_size]
 
 
 **Examples**
