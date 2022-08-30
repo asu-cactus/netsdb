@@ -1,3 +1,4 @@
+from pickle import FRAME
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -31,8 +32,8 @@ def parse_arguments(config):
         help="Dataset to be tested.")
     parser.add_argument(
         "-m", "--model", type=str,  
-        choices=['randomforest', 'xgboost'],
-        help="Model name. Choose from ['randomforest', 'xgboost']")
+        choices=['randomforest', 'xgboost', 'lightgbm'],
+        help="Model name. Choose from ['randomforest', 'xgboost', 'lightgbm']")
     parser.add_argument(
         "-f", "--frameworks", type=str,
         choices=[
@@ -45,7 +46,9 @@ def parse_arguments(config):
             'ONNXCPU', 
             'HummingbirdPytorchGPU',
             'HummingbirdTorchScriptGPU',
-            'ONNXGPU'
+            'ONNXGPU',
+            'LightGBM',
+            'Lleaves'
         ],
         help="Framework to run the decision forest model.")
     parser.add_argument("--batch_size", type=int, 
@@ -197,6 +200,31 @@ def test_cpu(args, features, label, sklearnmodel, config, time_consume):
             output = sess.run([label_name], {input_name:batch})[0]
             return output
 
+        results = run_inference(FRAMEWORK, features, input_size, args.query_size, predict, time_consume)
+        write_data(FRAMEWORK, results, time_consume)
+        total_framework_time = calculate_time(start_time, time.time())
+    elif FRAMEWORK == "LightGBM":
+        import lightgbm
+        # LightGBM Model Conversion & Inference
+        start_time = time.time()
+        model_path = relative2abspath("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.txt")
+        model = lightgbm.Booster(model_file=model_path)
+        conversion_time = calculate_time(start_time, time.time())
+        def predict(batch):
+            return model.predict(batch)
+        results = run_inference(FRAMEWORK, features, input_size, args.query_size, predict, time_consume)
+        write_data(FRAMEWORK, results, time_consume)
+        total_framework_time = calculate_time(start_time, time.time())
+    elif FRAMEWORK == "Lleaves":
+        import lleaves
+        # Lleaves Model Conversion & Inference
+        start_time = time.time()
+        model_path = relative2abspath("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.txt")
+        model = lleaves.Model(model_file=model_path)
+        model.compile()
+        conversion_time = calculate_time(start_time, time.time())
+        def predict(batch):
+            return model.predict(batch)
         results = run_inference(FRAMEWORK, features, input_size, args.query_size, predict, time_consume)
         write_data(FRAMEWORK, results, time_consume)
         total_framework_time = calculate_time(start_time, time.time())

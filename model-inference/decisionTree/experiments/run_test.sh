@@ -1,9 +1,9 @@
 #! /bin/bash
 DATASET="higgs"
-MODELS="randomforest xgboost"
+MODELS="randomforest xgboost lightgbm"
 # TESTSIZE="1000"
 # BATCHSIZES="100 1000"
-FRAMEWORKS="Sklearn TreeLite HummingbirdPytorchCPU HummingbirdTorchScriptCPU HummingbirdTVMCPU TFDF ONNXCPU"
+FRAMEWORKS="Sklearn TreeLite HummingbirdPytorchCPU HummingbirdTorchScriptCPU HummingbirdTVMCPU TFDF ONNXCPU LightGBM Lleaves"
 # FRAMEWORKS="Sklearn ONNXCPU"
 
 # Warmup

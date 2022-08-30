@@ -85,7 +85,7 @@ def build_tfdf_model(
   """Converts a XGBoost model into a TFDF model."""
   bias = 0.0
 
-  gbt_builder = tfdf.builder.GradientBoostedTreeBuilder(
+  gbt_builder = tfdf.builder.GradientBoostedTreeBuilder(  # TODO: Understand this, and see the same implementation for LightGBM.
       path=path,
       objective=tfdf.py_tree.objective.ClassificationObjective(label="label",
           classes=[str(c) for c in xgboost_model.classes_],
