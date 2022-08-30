@@ -286,7 +286,6 @@ def test_gpu(args, features, label, sklearnmodel, config, time_consume):
         find_accuracy(FRAMEWORK, label, results)
     else:
         find_MSE(FRAMEWORK, label, results)
-    print("=======================================")
     return (time_consume, conversion_time, total_framework_time, config)
 
 def test_postprocess(time_consume, conversion_time, total_framework_time, config):
