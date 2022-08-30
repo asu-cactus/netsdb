@@ -221,7 +221,8 @@ def test_cpu(args, features, label, sklearnmodel, config, time_consume):
         start_time = time.time()
         model_path = relative2abspath("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.txt")
         model = lleaves.Model(model_file=model_path)
-        model.compile()
+        model_cache_path = relative2abspath("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.elf")
+        model.compile(cache=model_cache_path)  # NOTE: Using Cache because of the extremely long compilation times for 500, 1600 Trees Models.
         conversion_time = calculate_time(start_time, time.time())
         def predict(batch):
             return model.predict(batch)
