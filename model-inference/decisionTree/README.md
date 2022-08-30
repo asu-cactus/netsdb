@@ -56,7 +56,7 @@ pip3 install xgboost
 
 pip3 install lightgbm
 
-## Catboost
+## Catboost (This is not a framework. Only used to load the "epsilon" dataset)
 
 pip3 install catboost
 

@@ -14,7 +14,7 @@ gzip -d HIGGS.csv.gz
 #Install postgres DBMS
 sudo apt install postgresql postgresql-contrib
 
-##The following steps are optional. They show you how to login and create a table/relation. 
+##The following steps are optional. They show you how to login and create a table/relation.
 ##The python script split_data.py will create the
 #Login in
 sudo -i -u postgres
@@ -22,12 +22,12 @@ sudo -i -u postgres
 #Run postgres DBMS
 psql
 
-#Default username and password are both "postgres", which are used in our config.json file. 
+#Default username and password are both "postgres", which are used in our config.json file.
 #In case you want to change the password, you can do the following:
 postgres=# \password postgres
 Enter new password: <new-password>
 
-#Create Table and load 
+#Create Table and load
 postgres=# CREATE TABLE higgs(label REAL NOT NULL, leptonpT REAL NOT NULL, leptoneta REAL NOT NULL, leptonphi REAL NOT NULL, missingenergymagnitude REAL NOT NULL, missingenergyphi REAL NOT NULL, jet1pt REAL NOT NULL, jet1eta REAL NOT NULL, jet1phi REAL NOT NULL, jet1btag REAL NOT NULL, jet2pt REAL NOT NULL, jet2eta REAL NOT NULL, jet2phi REAL NOT NULL, jet2btag REAL NOT NULL, jet3pt REAL NOT NULL, jet3eta REAL NOT NULL, jet3phi REAL NOT NULL, jet3btag REAL NOT NULL, jet4pt REAL NOT NULL, jet4eta REAL NOT NULL, jet4phi REAL NOT NULL, jet4btag REAL NOT NULL, mjj REAL NOT NULL, mjjj REAL NOT NULL, mlv REAL NOT NULL, mjlv REAL NOT NULL, mbb REAL NOT NULL, mwbb REAL NOT NULL, mwwbb REAL NOT NULL);
 
 postgres=# copy higgs from 'HIGGS.csv' with CSV;
@@ -35,8 +35,8 @@ postgres=# copy higgs from 'HIGGS.csv' with CSV;
 #Quite postgres DBMS
 postgres=# \q
 ```
-You must first run split_data.py to split a dataset into training part and testing part, and load both parts to PostgreSQL, which is a prerequisite for running train_model.py and test_model.py.
 
+You must first run split_data.py to split a dataset into training part and testing part, and load both parts to PostgreSQL, which is a prerequisite for running train_model.py and test_model.py.
 
 TO MOUNT THE DRIVE ON EC2
 
@@ -94,9 +94,7 @@ python test_model.py dataset model framework batch_size [gpu]
 
 
 **Examples**
-python data_processing.py higgs
-
-python split_data.py higgs
+python data_processing.py -d higgs
 
 python train_model.py -d higgs -m randomforest
 python train_model.py -d higgs -m xgboost
@@ -105,7 +103,7 @@ python convert_trained_model_to_framework.py -d higgs -m randomforest -f pytorch
 python convert_trained_model_to_framework.py -d higgs -m xgboost -f pytorch,torch,onnx,treelite,tf-df
 
 python test_model.py -d higgs -m xgboost -f TreeLite --batch_size 1000 --query_size 1000
-or modify and run run_test.sh 
+or modify and run run_test.sh
 nohup ./run_test.sh &> ./results/test_output.txt &
 ```
 
@@ -114,3 +112,31 @@ Get CPU Usage
 ```
 echo "CPU Usage: "$[100-$(vmstat 1 2|tail -1|awk '{print $15}')]"%"
 ```
+
+GPU Environment Setup
+
+g2dn.2xlarge, with Deep Learning AMI GPU PyTorch 1.12.0 (Ubuntu 20.04) 20220817 AMI ( ami-0f5b2957914692f92)
+
+Install the following libraries
+
+```
+sudo conda install -c conda-forge py-xgboost-gpu
+sudo conda install pyyaml
+sudo conda install connectorx
+sudo conda install psycopg2
+conda install -c conda-forge treelite
+sudo conda install -c conda-forge pandas
+pip install hummingbird-ml[extra]
+pip install onnxruntime
+pip install skl2onnx
+pip install onnxmltools
+pip install tensorflow
+pip install tensorflow_decision_forests –upgrade
+pip install plotly
+```
+
+tvm gpu must be built from source, code will be added later.
+
+rapids installation instructions will be updated later
+
+pip install apache-tvm, will install prebuilt library, might not run on multithreaded CPUs and does not support GPU.
