@@ -33,7 +33,6 @@
 #include "Lambda.h"
 #include "LambdaCreationFunctions.h"
 #include "SelectionComp.h"
-#include "Node.h"
 #include "Forest.h"
 
 

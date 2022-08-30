@@ -33,6 +33,13 @@ void loadMatrixGeneric(pdb::PDBClient &pdbClient, pdb::String dbName,
                 int blockY, bool dont_pad_x, bool dont_pad_y, std::string &errMsg,
                 int size=128, bool partitionByCol=true);
 
+template <class T>
+void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path, pdb::String dbName,
+                pdb::String setName, int totalX, int totalY, int blockX,
+                int blockY, std::string &errMsg,
+                int size=128, bool partitionByCol=true);
+
+
 void load_matrix_from_file(std::string path,
                            std::vector<std::vector<double>> &matrix);
 
