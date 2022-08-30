@@ -1,6 +1,10 @@
 import warnings
 warnings.filterwarnings('ignore')
 
+# from sklearn.ensemble import RandomForestClassifier
+# from sklearn.metrics import classification_report
+import xgboost
+from xgboost import XGBClassifier, XGBRegressor
 import treelite
 import treelite.sklearn
 import joblib
@@ -29,17 +33,17 @@ def parse_arguments():
     parser.add_argument("-m", "--model", type=str, choices=['randomforest', 'xgboost', 'lightgbm'],
         help="Model name. Choose from ['randomforest', 'xgboost', 'lightgbm']")
     parser.add_argument("-f", "--frameworks", type=str,
-        help="Zero to multiple values from ['pytorch', 'torch', 'tf-df', 'onnx', 'treelite', 'lleaves'], seperated by ','")
+        help="Zero to multiple values from ['pytorch', 'torch', 'tf-df', 'onnx', 'treelite', 'lleaves', 'netsdb'], seperated by ','")
     args = parser.parse_args()
     if args.dataset:
         DATASET = args.dataset.lower()
     if args.model:
         MODEL = args.model.lower()
     if args.frameworks:
-        framework_options = ['pytorch', 'torch', 'tf-df', 'onnx', 'treelite', 'lleaves']
+        framework_options = ['pytorch', 'torch', 'tf-df', 'onnx', 'treelite', 'lleaves', 'netsdb']
         for framework in args.frameworks.lower().split(","):
             if framework not in framework_options:
-                raise ValueError(f"Framework {framework} is not supported. Choose from ['pytorch', 'torch', 'tf-df', 'onnx', 'treelite', 'lleaves']")
+                raise ValueError(f"Framework {framework} is not supported. Choose from ['pytorch', 'torch', 'tf-df', 'onnx', 'treelite', 'lleaves', 'netsdb']")
         FRAMEWORKS = args.frameworks  # TODO: Better to store these as a List? Instead of as a string.
 
     check_argument_conflicts(args)  # TODO: Maybe, this is good to do it at the beginning of function itself?
@@ -136,6 +140,7 @@ def convert_to_onnx_model(model, config):
         print("Time taken to write onnx model "+str(calculate_time(onnx_write_time_start, onnx_write_time_end)))
 
 
+
 def convert_to_treelite_model(model, config):
     #converting to TreeLite model
     #Prerequisite: install treelite (https://treelite.readthedocs.io/en/latest/install.html)
@@ -153,11 +158,6 @@ def convert_to_treelite_model(model, config):
         treelite_time_end = time.time()
         print("Time taken to convert and write treelite model "+str(calculate_time(treelite_time_start, treelite_time_end)))
 
-        #import onnxruntime as rt
-        # sess = rt.InferenceSession(get_relative_path("models",DATASET+"_"+MODEL+"_"+str(num_trees)+"_"+str(depth)+".onnx"),providers=['CPUExecutionProvider'])
-        # pred_onx = sess.run(None, {"input": x[:5].astype(np.float32)})
-        # print("predictions", pred_onx[0])
-        # # print("predict_proba", pred_onx[1][:1])
     else:
         print(f"TreeLite only supports conversion from xgboost, lightgbm and sk-learn based models. Does not support {MODEL}.")
 
@@ -178,6 +178,40 @@ def convert_to_lleaves_model(model, config):
         print("Time taken to convert, compile and write Lleaves model "+str(calculate_time(lleaves_start_time, lleaves_time_end)))
     else:
         print(f"LLeaves is only supported for LightGBM at the moment. Does not support {MODEL}.")
+
+
+
+def convert_to_netsdb_model(model, config):
+    #converting to netsDB model
+    from sklearn.tree import export_graphviz
+    import graphviz
+    import os
+    
+    netsdb_model_path = os.path.join("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}_netsdb")
+
+    if os.path.exists(netsdb_model_path) == False:
+        os.mkdir(netsdb_model_path)
+    
+    if MODEL == "randomforest":
+        estimators = model.estimators_
+
+        for index, model in enumerate(estimators):
+            output_file_path = os.path.join(netsdb_model_path, str(index)+'.txt')
+            data = export_graphviz(model)
+            f = open(output_file_path, 'w')
+            f.write(data) 
+            f.close()
+
+    elif MODEL == "xgboost":
+        num_trees = config['num_trees']
+        
+        for index in range(num_trees):
+            output_file_path = os.path.join(netsdb_model_path, str(index)+'.txt') 
+            data = xgboost.to_graphviz(model, num_trees=index)
+            f = open(output_file_path, 'w')
+            f.write(str(data)) 
+            f.close()
+
 
 
 def convert(model, config):
@@ -206,6 +240,9 @@ def convert(model, config):
         print_logs(convert_to_treelite_model,model,config,"TreeLite")
     if "lleaves" in frameworks:
         print_logs(convert_to_lleaves_model,model,config,"Lleaves")
+    if "netsdb" in frameworks:
+        print_logs(convert_to_netsdb_model, model, config, "netsdb")
+
 
 def load_model(config):
     model = joblib.load(relative2abspath("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.pkl"))

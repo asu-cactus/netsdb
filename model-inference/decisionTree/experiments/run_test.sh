@@ -65,4 +65,4 @@ for MODEL in $MODELS
 done
 
 # If you are running on a server, you can shut it down after the experiments are done
-# sudo showdown now -h
+sudo shutdown now -h
