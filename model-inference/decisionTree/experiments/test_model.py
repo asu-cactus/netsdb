@@ -46,7 +46,8 @@ def parse_arguments(config):
             'HummingbirdPytorchGPU',
             'HummingbirdTorchScriptGPU',
             'ONNXGPU',
-            'HummingbirdTVMGPU'
+            'HummingbirdTVMGPU',
+            'NvidiaFILGPU'
         ],
         help="Framework to run the decision forest model.")
     parser.add_argument("--batch_size", type=int, 
@@ -265,6 +266,16 @@ def test_gpu(args, features, label, sklearnmodel, config, time_consume):
             return model.predict(batch)
 
         results = run_inference(FRAMEWORK, features, input_size, args.query_size, predict, time_consume)
+        write_data(FRAMEWORK, results, time_consume)
+        total_framework_time = calculate_time(start_time, time.time())
+    
+    elif FRAMEWORK == "NvidiaFILGPU":
+        if MODEL != "randomforest":
+            print(MODEL + " support will be added to "+ FRAMEWORK)
+        from cuml import ForestInference
+        start_time = time.time()
+        model = ForestInference.load_from_sklearn(clf,output_class=True, storage_type='auto')
+        results = run_inference(FRAMEWORK, features, input_size, args.query_size, model.predict, time_consume)
         write_data(FRAMEWORK, results, time_consume)
         total_framework_time = calculate_time(start_time, time.time())
 
