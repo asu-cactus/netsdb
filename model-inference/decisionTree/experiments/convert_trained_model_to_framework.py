@@ -175,28 +175,37 @@ def convert_to_lleaves_model(model, config):
         model_cache_path = relative2abspath("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.elf")
         lleaves_model.compile(cache=model_cache_path)  # NOTE: Same logic to be used for testing. This time, the elf file is loaded instead of compiled.
         lleaves_time_end = time.time()
-        print("Time taken to convert and write Lleaves model "+str(calculate_time(lleaves_start_time, lleaves_time_end)))
+        print("Time taken to convert, compile and write Lleaves model "+str(calculate_time(lleaves_start_time, lleaves_time_end)))
     else:
         print(f"LLeaves is only supported for LightGBM at the moment. Does not support {MODEL}.")
 
 
 def convert(model, config):
+    def print_logs(function,model,config,framework_name):
+        border = '-'*30
+        print(border)
+        print(f'Converting model to {framework_name}...')
+        print(border)
+        function(model,config)
+        print(border)
+        print(f'Converted model to {framework_name}')
+        print(border + '\n\n')
     if FRAMEWORKS is None:
         return
 
     frameworks = FRAMEWORKS.lower().split(",")
     if "pytorch" in frameworks:
-        convert_to_pytorch_model(model,config)
+        print_logs(convert_to_pytorch_model,model,config,"PyTorch")
     if "torch" in frameworks:
-        convert_to_torch_model(model, config)
+        print_logs(convert_to_torch_model,model,config,"Torch")
     if "tf-df" in frameworks or 'tfdf' in frameworks:
-        convert_to_tf_df_model(model, config)
+        print_logs(convert_to_tf_df_model,model,config,"TF-DF")
     if "onnx" in frameworks:
-        convert_to_onnx_model(model, config)
+        print_logs(convert_to_onnx_model,model,config,"ONNX")
     if "treelite" in frameworks:
-        convert_to_treelite_model(model, config)
+        print_logs(convert_to_treelite_model,model,config,"TreeLite")
     if "lleaves" in frameworks:
-        convert_to_lleaves_model(model, config)
+        print_logs(convert_to_lleaves_model,model,config,"Lleaves")
 
 def load_model(config):
     model = joblib.load(relative2abspath("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.pkl"))
