@@ -275,6 +275,7 @@ def test_gpu(args, features, label, sklearnmodel, config, time_consume):
         from cuml import ForestInference
         start_time = time.time()
         model = ForestInference.load_from_sklearn(sklearnmodel,output_class=True, storage_type='auto')
+        conversion_time = calculate_time(start_time, time.time())
         results = run_inference(FRAMEWORK, features, input_size, args.query_size, model.predict, time_consume)
         write_data(FRAMEWORK, results, time_consume)
         total_framework_time = calculate_time(start_time, time.time())
@@ -285,6 +286,7 @@ def test_gpu(args, features, label, sklearnmodel, config, time_consume):
         find_accuracy(FRAMEWORK, label, results)
     else:
         find_MSE(FRAMEWORK, label, results)
+    print("=======================================")
     return (time_consume, conversion_time, total_framework_time, config)
 
 def test_postprocess(time_consume, conversion_time, total_framework_time, config):
