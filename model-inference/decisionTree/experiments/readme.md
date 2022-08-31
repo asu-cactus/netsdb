@@ -35,7 +35,7 @@ postgres=# copy higgs from 'HIGGS.csv' with CSV;
 #Quite postgres DBMS
 postgres=# \q
 ```
-You must first run split_data.py to split a dataset into training part and testing part, and load both parts to PostgreSQL, which is a prerequisite for running train_model.py and test_model.py.
+~~You must first run split_data.py to split a dataset into training part and testing part, and load both parts to PostgreSQL, which is a prerequisite for running train_model.py and test_model.py.~~
 
 
 TO MOUNT THE DRIVE ON EC2
