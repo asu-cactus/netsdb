@@ -11,4 +11,3 @@ for model_file in models:
         clf = joblib.load(relative2abspath('models',model_file))
         clf.save_model(relative2abspath('models',model_file.split('.')[0]+'.model'))
         print(model_file.split('.')[0]+'.model')
-        break
