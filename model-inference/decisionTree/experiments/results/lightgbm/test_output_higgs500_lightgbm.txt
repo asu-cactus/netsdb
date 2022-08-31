@@ -1,0 +1,237 @@
+nohup: ignoring input
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: Sklearn
+Query Size: 1000
+Batch Size: 1000
+postgresql://postgres:postgres@localhost:5432/postgres
+SELECT label,leptonpT,leptoneta,leptonphi,missingenergymagnitude,missingenergyphi,jet1pt,jet1eta,jet1phi,jet1btag,jet2pt,jet2eta,jet2phi,jet2btag,jet3pt,jet3eta,jet3phi,jet3btag,jet4pt,jet4eta,jet4phi,jet4btag,mjj,mjjj,mlv,mjlv,mbb,mwbb,mwwbb from higgs_test
+Time Taken to load higgs as a dataframe is: 6025.412082672119
+[06:48:16] WARNING: ../src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 189.65387344360352
+[06:48:16] WARNING: ../src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to predict on Sklearn is 26294.999599456787
+Time Taken to write results to a text file for Sklearn is 1584.6564769744873
+Classification Report Sklearn
+              precision    recall  f1-score   support
+
+           0       0.84      0.55      0.67   1034988
+           1       0.70      0.91      0.79   1165012
+
+    accuracy                           0.74   2200000
+   macro avg       0.77      0.73      0.73   2200000
+weighted avg       0.76      0.74      0.73   2200000
+
+################
+Time Taken to convert Sklearn model: 0.0
+TOTAL Time Taken for Sklearn: 27879.71258163452
+python test_model.py -d higgs -m lightgbm -f Lleaves --batch_size 1 --query_size 1
+DATASET: higgs
+MODEL: lightgbm
+FRAMEWORK: Lleaves
+Query Size: 1
+Batch Size: 1
+postgresql://postgres:postgres@localhost:5432/postgres
+SELECT label,leptonpT,leptoneta,leptonphi,missingenergymagnitude,missingenergyphi,jet1pt,jet1eta,jet1phi,jet1btag,jet2pt,jet2eta,jet2phi,jet2btag,jet3pt,jet3eta,jet3phi,jet3btag,jet4pt,jet4eta,jet4phi,jet4btag,mjj,mjjj,mlv,mjlv,mbb,mwbb,mwwbb from higgs_test
+Time Taken to load higgs as a dataframe is: 5905.407905578613
+Time Taken to load sklearn model: 714.5540714263916
+Time Taken to predict on Lleaves is 648891.7081356049
+Time Taken to write results to a text file for Lleaves is 1740.2098178863525
+Classification Report Lleaves
+              precision    recall  f1-score   support
+
+           0       0.83      0.54      0.66   1034988
+           1       0.69      0.90      0.78   1165012
+
+    accuracy                           0.73   2200000
+   macro avg       0.76      0.72      0.72   2200000
+weighted avg       0.76      0.73      0.72   2200000
+
+################
+Time Taken to convert Lleaves model: 703632.1549415588
+TOTAL Time Taken for Lleaves: 1354264.1382217407
+
+
+
+python test_model.py -d higgs -m lightgbm -f Lleaves --batch_size 10 --query_size 10
+DATASET: higgs
+MODEL: lightgbm
+FRAMEWORK: Lleaves
+Query Size: 10
+Batch Size: 10
+postgresql://postgres:postgres@localhost:5432/postgres
+SELECT label,leptonpT,leptoneta,leptonphi,missingenergymagnitude,missingenergyphi,jet1pt,jet1eta,jet1phi,jet1btag,jet2pt,jet2eta,jet2phi,jet2btag,jet3pt,jet3eta,jet3phi,jet3btag,jet4pt,jet4eta,jet4phi,jet4btag,mjj,mjjj,mlv,mjlv,mbb,mwbb,mwwbb from higgs_test
+Time Taken to load higgs as a dataframe is: 6055.1393032073975
+Time Taken to load sklearn model: 719.8634147644043
+Time Taken to predict on Lleaves is 190586.19022369385
+Time Taken to write results to a text file for Lleaves is 2007.439374923706
+Classification Report Lleaves
+              precision    recall  f1-score   support
+
+           0       0.83      0.54      0.66   1034988
+           1       0.69      0.90      0.78   1165012
+
+    accuracy                           0.73   2200000
+   macro avg       0.76      0.72      0.72   2200000
+weighted avg       0.76      0.73      0.72   2200000
+
+################
+Time Taken to convert Lleaves model: 724861.7713451385
+TOTAL Time Taken for Lleaves: 917455.4650783539
+
+
+
+python test_model.py -d higgs -m lightgbm -f Lleaves --batch_size 100 --query_size 100
+DATASET: higgs
+MODEL: lightgbm
+FRAMEWORK: Lleaves
+Query Size: 100
+Batch Size: 100
+postgresql://postgres:postgres@localhost:5432/postgres
+SELECT label,leptonpT,leptoneta,leptonphi,missingenergymagnitude,missingenergyphi,jet1pt,jet1eta,jet1phi,jet1btag,jet2pt,jet2eta,jet2phi,jet2btag,jet3pt,jet3eta,jet3phi,jet3btag,jet4pt,jet4eta,jet4phi,jet4btag,mjj,mjjj,mlv,mjlv,mbb,mwbb,mwwbb from higgs_test
+Time Taken to load higgs as a dataframe is: 5978.649377822876
+Time Taken to load sklearn model: 692.4712657928467
+Time Taken to predict on Lleaves is 40788.26189041138
+Time Taken to write results to a text file for Lleaves is 1546.6902256011963
+Classification Report Lleaves
+              precision    recall  f1-score   support
+
+           0       0.83      0.54      0.66   1034988
+           1       0.69      0.90      0.78   1165012
+
+    accuracy                           0.73   2200000
+   macro avg       0.76      0.72      0.72   2200000
+weighted avg       0.76      0.73      0.72   2200000
+
+################
+Time Taken to convert Lleaves model: 693950.9754180908
+TOTAL Time Taken for Lleaves: 736285.9952449799
+
+
+
+python test_model.py -d higgs -m lightgbm -f Lleaves --batch_size 1000 --query_size 1000
+DATASET: higgs
+MODEL: lightgbm
+FRAMEWORK: Lleaves
+Query Size: 1000
+Batch Size: 1000
+postgresql://postgres:postgres@localhost:5432/postgres
+SELECT label,leptonpT,leptoneta,leptonphi,missingenergymagnitude,missingenergyphi,jet1pt,jet1eta,jet1phi,jet1btag,jet2pt,jet2eta,jet2phi,jet2btag,jet3pt,jet3eta,jet3phi,jet3btag,jet4pt,jet4eta,jet4phi,jet4btag,mjj,mjjj,mlv,mjlv,mbb,mwbb,mwwbb from higgs_test
+Time Taken to load higgs as a dataframe is: 6023.350477218628
+Time Taken to load sklearn model: 731.7774295806885
+Time Taken to predict on Lleaves is 12460.495233535767
+Time Taken to write results to a text file for Lleaves is 1689.0437602996826
+Classification Report Lleaves
+              precision    recall  f1-score   support
+
+           0       0.83      0.54      0.66   1034988
+           1       0.69      0.90      0.78   1165012
+
+    accuracy                           0.73   2200000
+   macro avg       0.76      0.72      0.72   2200000
+weighted avg       0.76      0.73      0.72   2200000
+
+################
+Time Taken to convert Lleaves model: 692264.3938064575
+TOTAL Time Taken for Lleaves: 706414.0026569366
+
+
+
+python test_model.py -d higgs -m lightgbm -f Lleaves --batch_size 10000 --query_size 10000
+DATASET: higgs
+MODEL: lightgbm
+FRAMEWORK: Lleaves
+Query Size: 10000
+Batch Size: 10000
+postgresql://postgres:postgres@localhost:5432/postgres
+SELECT label,leptonpT,leptoneta,leptonphi,missingenergymagnitude,missingenergyphi,jet1pt,jet1eta,jet1phi,jet1btag,jet2pt,jet2eta,jet2phi,jet2btag,jet3pt,jet3eta,jet3phi,jet3btag,jet4pt,jet4eta,jet4phi,jet4btag,mjj,mjjj,mlv,mjlv,mbb,mwbb,mwwbb from higgs_test
+Time Taken to load higgs as a dataframe is: 6007.845640182495
+Time Taken to load sklearn model: 688.1654262542725
+Time Taken to predict on Lleaves is 7903.495788574219
+Time Taken to write results to a text file for Lleaves is 1778.3434391021729
+Classification Report Lleaves
+              precision    recall  f1-score   support
+
+           0       0.83      0.54      0.66   1034988
+           1       0.69      0.90      0.78   1165012
+
+    accuracy                           0.73   2200000
+   macro avg       0.76      0.72      0.72   2200000
+weighted avg       0.76      0.73      0.72   2200000
+
+################
+Time Taken to convert Lleaves model: 672551.9847869873
+TOTAL Time Taken for Lleaves: 682233.8967323303
+
+
+
+python test_model.py -d higgs -m lightgbm -f Lleaves --batch_size 100000 --query_size 100000
+DATASET: higgs
+MODEL: lightgbm
+FRAMEWORK: Lleaves
+Query Size: 100000
+Batch Size: 100000
+postgresql://postgres:postgres@localhost:5432/postgres
+SELECT label,leptonpT,leptoneta,leptonphi,missingenergymagnitude,missingenergyphi,jet1pt,jet1eta,jet1phi,jet1btag,jet2pt,jet2eta,jet2phi,jet2btag,jet3pt,jet3eta,jet3phi,jet3btag,jet4pt,jet4eta,jet4phi,jet4btag,mjj,mjjj,mlv,mjlv,mbb,mwbb,mwwbb from higgs_test
+Time Taken to load higgs as a dataframe is: 5870.105981826782
+Time Taken to load sklearn model: 716.6533470153809
+Time Taken to predict on Lleaves is 6887.869834899902
+Time Taken to write results to a text file for Lleaves is 1806.7851066589355
+Classification Report Lleaves
+              precision    recall  f1-score   support
+
+           0       0.83      0.54      0.66   1034988
+           1       0.69      0.90      0.78   1165012
+
+    accuracy                           0.73   2200000
+   macro avg       0.76      0.72      0.72   2200000
+weighted avg       0.76      0.73      0.72   2200000
+
+################
+Time Taken to convert Lleaves model: 714143.4462070465
+TOTAL Time Taken for Lleaves: 722838.1972312927
+
+
+
+python test_model.py -d higgs -m lightgbm -f Lleaves --batch_size 2200000 --query_size 2200000
+DATASET: higgs
+MODEL: lightgbm
+FRAMEWORK: Lleaves
+Query Size: 2200000
+Batch Size: 2200000
+postgresql://postgres:postgres@localhost:5432/postgres
+SELECT label,leptonpT,leptoneta,leptonphi,missingenergymagnitude,missingenergyphi,jet1pt,jet1eta,jet1phi,jet1btag,jet2pt,jet2eta,jet2phi,jet2btag,jet3pt,jet3eta,jet3phi,jet3btag,jet4pt,jet4eta,jet4phi,jet4btag,mjj,mjjj,mlv,mjlv,mbb,mwbb,mwwbb from higgs_test
+Time Taken to load higgs as a dataframe is: 6074.11789894104
+Time Taken to load sklearn model: 709.7411155700684
+Time Taken to predict on Lleaves is 7109.543323516846
+Time Taken to write results to a text file for Lleaves is 1729.280948638916
+Classification Report Lleaves
+              precision    recall  f1-score   support
+
+           0       0.83      0.54      0.66   1034988
+           1       0.69      0.90      0.78   1165012
+
+    accuracy                           0.73   2200000
+   macro avg       0.76      0.72      0.72   2200000
+weighted avg       0.76      0.73      0.72   2200000
+
+################
+Time Taken to convert Lleaves model: 701746.5305328369
+TOTAL Time Taken for Lleaves: 710585.435628891
+
+
+
