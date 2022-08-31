@@ -305,7 +305,7 @@ def test_gpu(args, features, label, sklearnmodel, config, time_consume):
             model = ForestInference.load_from_sklearn(sklearnmodel,output_class=True, storage_type='auto')
         elif MODEL == 'xgboost':
             relative_path = relative2abspath("models",f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.model")
-            model = ForestInference.load("higgs_xgboost_1600_8.model",output_class=True, storage_type='auto')
+            model = ForestInference.load(relative_path,output_class=True, storage_type='auto')
         else:
             print(MODEL + " support will be added to "+ FRAMEWORK)
             exit()
