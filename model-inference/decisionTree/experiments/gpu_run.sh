@@ -1,7 +1,7 @@
 #! /bin/bash
 DATASET="higgs"
 MODELS="randomforest xgboost"
-FRAMEWORKS= "HummingbirdPytorchGPU HummingbirdTorchScriptGPU ONNXGPU HummingbirdTVMGPU NvidiaFILGPU"
+FRAMEWORKS="HummingbirdPytorchGPU HummingbirdTorchScriptGPU ONNXGPU HummingbirdTVMGPU NvidiaFILGPU"
 
 # Warmup
 python test_model.py -d $DATASET -m xgboost -f Sklearn --batch_size 1000 --query_size 1000
