@@ -350,6 +350,8 @@ if __name__ ==  "__main__":
     print("\n\n\n==============EXPERIMENT STARTING=========================")
     config = json.load(open(relative2abspath("config.json")))
     args = parse_arguments(config)
+    print("Trees",config['num_trees'])
+    print("Depth",config['depth'])    
     time_consume = {
         "query size": args.query_size,
         "batch_size": args.batch_size,
