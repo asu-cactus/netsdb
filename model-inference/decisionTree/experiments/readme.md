@@ -79,9 +79,9 @@ To run a certain experiment
 
 Datasets: higgs
 
-Classifiers: xgboost, randomforest
+Classifiers: xgboost, randomforest, lightgbm
 
-Frameworks: Sklearn, ONNXCPU, TreeLite, HummingbirdPytorchCPU, HummingbirdTorchScriptCPU, HummingbirdTVMCPU
+Frameworks: Sklearn, ONNXCPU, TreeLite, HummingbirdPytorchCPU, HummingbirdTorchScriptCPU, HummingbirdTVMCPU, LightGBM, Lleaves
 
 ```
 python data_processing.py -d [dataset]
@@ -98,9 +98,11 @@ python data_processing.py -d higgs
 
 python train_model.py -d higgs -m randomforest
 python train_model.py -d higgs -m xgboost
+python train_model.py -d higgs -m lightgbm
 
 python convert_trained_model_to_framework.py -d higgs -m randomforest -f pytorch,torch,tf-df,onnx
 python convert_trained_model_to_framework.py -d higgs -m xgboost -f pytorch,torch,onnx,treelite,tf-df
+python convert_trained_model_to_framework.py -d higgs -m lightgbm -f pytorch,torch,onnx,treelite,lightgbm,lleaves
 
 python test_model.py -d higgs -m xgboost -f TreeLite --batch_size 1000 --query_size 1000
 or modify and run run_test.sh
