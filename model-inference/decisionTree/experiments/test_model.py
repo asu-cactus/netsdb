@@ -48,7 +48,7 @@ def parse_arguments(config):
             'HummingbirdTorchScriptGPU',
             'ONNXGPU',
             'HummingbirdTVMGPU',
-            'NvidiaFILGPU'
+            'NvidiaFILGPU',
             'LightGBM',
             'Lleaves'
         ],
