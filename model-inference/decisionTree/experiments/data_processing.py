@@ -5,12 +5,12 @@ import pickle
 from model_helper import relative2abspath, dataset_folder
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split
 from urllib.request import urlretrieve
 import psycopg2
 from sklearn import datasets
-from catboost.datasets import epsilon
+from sklearn.utils import shuffle
 import argparse
+import math
 
 
 def parse_arguments():
@@ -110,6 +110,7 @@ def prepare_year(dataset_folder, nrows=None):
     return df
 
 def prepare_epsilon(nrows=None):
+    from catboost.datasets import epsilon
     train_data, test_data = epsilon()
     print("Downloaded epsilon dataset.")
     if nrows is not None:
@@ -142,7 +143,7 @@ def get_connection(pgsqlconfig):
         port = pgsqlconfig["port"]
     )
 
-def make_query(dataset, datasetconfig, df):
+def make_query(dataset, datasetconfig, column_names):
     # Make query to create table
     if dataset == "epsilon":
         feature_names = ", ".join([f"feature{i} DECIMAL NOT NULL" for i in range(datasetconfig["num_features"])])
@@ -153,7 +154,6 @@ def make_query(dataset, datasetconfig, df):
         label_name = f"{datasetconfig['y_col']} INTEGER NOT NULL"
         create_query = f"CREATE TABLE ** ({feature_names}, {label_name})"
     elif dataset == "covtype":
-        column_names = list(df.columns)
         feature_names = ", ".join([f"{col_name} DECIMAL NOT NULL" for col_name in column_names[:-1]])
         label_name = f"{column_names[-1]} INTEGER NOT NULL"
         create_query = f"CREATE TABLE ** ({feature_names}, {label_name})"
@@ -168,6 +168,7 @@ def save_as_pickle(train, test, dataset_folder, filename):
     pickle.dump(train, open(train_pkl_path, "wb"))
     test_csv_path = relative2abspath(dataset_folder, f"{filename}_test.pkl")
     pickle.dump(test, open(test_csv_path, "wb"))
+    print(f"{dataset} is saved as train and test pickle files.")
 
 
 def save_to_csv(train, test, dataset_folder, filename):
@@ -176,6 +177,7 @@ def save_to_csv(train, test, dataset_folder, filename):
     train.to_csv(train_csv_path,index=False,header=False)
     test_csv_path = relative2abspath(dataset_folder, f"{filename}_test.csv")
     test.to_csv(test_csv_path,index=False,header=False)
+    print(f"{dataset} is saved as train and test CSVs.")
     return (train_csv_path, test_csv_path)
 
 def create_tables(
@@ -239,10 +241,10 @@ if __name__ ==  "__main__":
         raise ValueError(f"{dataset} not supported")
 
     # Split dataset
-    train, test = train_test_split(df, random_state=77, test_size=datasetconfig["test"])
-    del df
-    gc.collect()
-
+    # df = shuffle(df, random_state=77)
+    train_size = math.floor(len(df) * datasetconfig["train"])
+    train = df.head(train_size)
+    test = df.tail(len(df) - train_size)
 
     ### Store datset
     ## For wide datasets such as "epsilon", save as pickle file
@@ -253,8 +255,12 @@ if __name__ ==  "__main__":
     # First step: save dataframes to csv
     train_csv_path, test_csv_path = save_to_csv(train, test, dataset_folder, datasetconfig['filename'])
     
+
     # Second step: copy csv to database
+    column_names = list(df.columns)
+    del df 
+    gc.collect()
     connection = get_connection(pgsqlconfig)
-    train_query, test_query = make_query(dataset, datasetconfig, test)
+    train_query, test_query = make_query(dataset, datasetconfig, column_names)
     create_tables(connection, train_query, test_query, train_csv_path, test_csv_path)
 
