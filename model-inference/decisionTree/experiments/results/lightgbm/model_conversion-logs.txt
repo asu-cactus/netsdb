@@ -1,0 +1,179 @@
+==================================================== 10 Trees ====================================================
+
+DATASET: higgs
+MODEL: lightgbm
+FRAMEWORKS: pytorch,torch,onnx,treelite,lleaves
+------------------------------
+Converting model to PyTorch...
+------------------------------
+Time Taken to convert HummingbirdPyTorch: 144.30594444274902
+Time taken to save pytorch model 4.885673522949219
+------------------------------
+Converted model to PyTorch
+------------------------------
+
+
+------------------------------
+Converting model to Torch...
+------------------------------
+Time taken to convert to torch using hummingbird 190.42587280273438
+Time taken to save torch model 2.0067691802978516
+------------------------------
+Converted model to Torch
+------------------------------
+
+
+------------------------------
+Converting model to ONNX...
+------------------------------
+The maximum opset needed by this model is only 9.
+Time taken to convert onnx using onnxmltools 243.2239055633545
+Time taken to write onnx model 2.5746822357177734
+------------------------------
+Converted model to ONNX
+------------------------------
+
+
+------------------------------
+Converting model to TreeLite...
+------------------------------
+[22:53:29] ../src/compiler/ast_native.cc:711: Using ASTNativeCompiler
+[22:53:29] ../src/compiler/ast/split.cc:29: Parallel compilation enabled; member trees will be divided into 8 translation units.
+[22:53:29] ../src/c_api/c_api.cc:92: Code generation finished. Writing code to files...
+[22:53:29] ../src/c_api/c_api.cc:97: Writing file recipe.json...
+[22:53:29] ../src/c_api/c_api.cc:97: Writing file tu4.c...
+[22:53:29] ../src/c_api/c_api.cc:97: Writing file tu3.c...
+[22:53:29] ../src/c_api/c_api.cc:97: Writing file header.h...
+[22:53:29] ../src/c_api/c_api.cc:97: Writing file main.c...
+[22:53:29] ../src/c_api/c_api.cc:97: Writing file tu0.c...
+[22:53:29] ../src/c_api/c_api.cc:97: Writing file tu1.c...
+[22:53:29] ../src/c_api/c_api.cc:97: Writing file tu2.c...
+[22:53:29] /home/ubuntu/.local/lib/python3.9/site-packages/treelite/contrib/util.py:105: Compiling sources files in directory /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/tmp3hj7cxrm into object files (*.o)...
+[22:53:30] /home/ubuntu/.local/lib/python3.9/site-packages/treelite/contrib/util.py:135: Generating dynamic shared library /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/tmp3hj7cxrm/predictor.so...
+[22:53:30] /home/ubuntu/.local/lib/python3.9/site-packages/treelite/contrib/__init__.py:282: Generated shared library in 0.84 seconds
+Time taken to convert and write treelite model 895.9434032440186
+------------------------------
+Converted model to TreeLite
+------------------------------
+
+
+------------------------------
+Converting model to Lleaves...
+------------------------------
+Time taken to convert and write Lleaves model 11017.81415939331
+------------------------------
+Converted model to Lleaves
+------------------------------
+
+
+==================================================== 500 Trees ====================================================
+
+DATASET: higgs
+MODEL: lightgbm
+FRAMEWORKS: pytorch,torch,onnx,treelite,lleaves
+------------------------------
+Converting model to PyTorch...
+------------------------------
+Time Taken to convert HummingbirdPyTorch: 8852.307558059692
+Time taken to save pytorch model 99.29800033569336
+------------------------------
+Converted model to PyTorch
+------------------------------
+
+
+------------------------------
+Converting model to Torch...
+------------------------------
+Time taken to convert to torch using hummingbird 8883.53157043457
+Time taken to save torch model 4.821538925170898
+------------------------------
+Converted model to Torch
+------------------------------
+
+
+------------------------------
+Converting model to ONNX...
+------------------------------
+The maximum opset needed by this model is only 9.
+Time taken to convert onnx using onnxmltools 12751.630783081055
+Time taken to write onnx model 109.45892333984375
+------------------------------
+Converted model to ONNX
+------------------------------
+
+
+------------------------------
+Converting model to TreeLite...
+------------------------------
+[22:56:23] ../src/compiler/ast_native.cc:711: Using ASTNativeCompiler
+[22:56:24] ../src/compiler/ast/split.cc:29: Parallel compilation enabled; member trees will be divided into 8 translation units.
+[22:56:25] ../src/c_api/c_api.cc:92: Code generation finished. Writing code to files...
+[22:56:25] ../src/c_api/c_api.cc:97: Writing file tu6.c...
+[22:56:25] ../src/c_api/c_api.cc:97: Writing file recipe.json...
+[22:56:25] ../src/c_api/c_api.cc:97: Writing file tu5.c...
+[22:56:25] ../src/c_api/c_api.cc:97: Writing file tu4.c...
+[22:56:25] ../src/c_api/c_api.cc:97: Writing file tu3.c...
+[22:56:25] ../src/c_api/c_api.cc:97: Writing file tu7.c...
+[22:56:25] ../src/c_api/c_api.cc:97: Writing file header.h...
+[22:56:25] ../src/c_api/c_api.cc:97: Writing file main.c...
+[22:56:25] ../src/c_api/c_api.cc:97: Writing file tu0.c...
+[22:56:25] ../src/c_api/c_api.cc:97: Writing file tu1.c...
+[22:56:25] ../src/c_api/c_api.cc:97: Writing file tu2.c...
+[22:56:25] /home/ubuntu/.local/lib/python3.9/site-packages/treelite/contrib/util.py:105: Compiling sources files in directory /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/tmp4y5x6eoo into object files (*.o)...
+[23:14:38] /home/ubuntu/.local/lib/python3.9/site-packages/treelite/contrib/util.py:135: Generating dynamic shared library /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/tmp4y5x6eoo/predictor.so...
+[23:14:38] /home/ubuntu/.local/lib/python3.9/site-packages/treelite/contrib/__init__.py:282: Generated shared library in 1093.03 seconds
+Time taken to convert and write treelite model 1094851.553440094
+------------------------------
+Converted model to TreeLite
+------------------------------
+
+
+------------------------------
+Converting model to Lleaves...
+------------------------------
+Time taken to convert and write Lleaves model 678066.8671131134
+------------------------------
+Converted model to Lleaves
+------------------------------
+
+
+==================================================== 1600 Trees ====================================================
+
+Importing plotly failed. Interactive plots will not work.
+DATASET: higgs
+MODEL: lightgbm
+FRAMEWORKS: treelite,lleaves
+------------------------------
+Converting model to TreeLite...
+------------------------------
+[06:57:36] ../src/compiler/ast_native.cc:711: Using ASTNativeCompiler
+[06:57:36] ../src/compiler/ast/split.cc:29: Parallel compilation enabled; member trees will be divided into 8 translation units.
+[06:57:42] ../src/c_api/c_api.cc:92: Code generation finished. Writing code to files...
+[06:57:42] ../src/c_api/c_api.cc:97: Writing file tu6.c...
+[06:57:42] ../src/c_api/c_api.cc:97: Writing file recipe.json...
+[06:57:42] ../src/c_api/c_api.cc:97: Writing file tu5.c...
+[06:57:42] ../src/c_api/c_api.cc:97: Writing file tu4.c...
+[06:57:42] ../src/c_api/c_api.cc:97: Writing file tu3.c...
+[06:57:42] ../src/c_api/c_api.cc:97: Writing file tu7.c...
+[06:57:42] ../src/c_api/c_api.cc:97: Writing file header.h...
+[06:57:42] ../src/c_api/c_api.cc:97: Writing file main.c...
+[06:57:42] ../src/c_api/c_api.cc:97: Writing file tu0.c...
+[06:57:42] ../src/c_api/c_api.cc:97: Writing file tu1.c...
+[06:57:42] ../src/c_api/c_api.cc:97: Writing file tu2.c...
+[06:57:42] /home/ubuntu/.local/lib/python3.9/site-packages/treelite/contrib/util.py:105: Compiling sources files in directory /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/tmpjoxsm6kk into object files (*.o)...
+[01:58:04] /home/ubuntu/.local/lib/python3.9/site-packages/treelite/contrib/util.py:135: Generating dynamic shared library /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/tmpjoxsm6kk/predictor.so...
+[01:58:06] /home/ubuntu/.local/lib/python3.9/site-packages/treelite/contrib/__init__.py:282: Generated shared library in 68424.03 seconds
+Time taken to convert and write treelite model 68432683.90965462
+------------------------------
+Converted model to TreeLite
+------------------------------
+
+
+------------------------------
+Converting model to Lleaves...
+------------------------------
+Time taken to convert, compile and write Lleaves model 3363580.804347992
+------------------------------
+Converted model to Lleaves
+------------------------------
+
