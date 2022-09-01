@@ -1,0 +1,3301 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: Sklearn
+Query Size: 1000
+Batch Size: 1000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 7607.89942741394
+[23:30:55] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 581.965446472168
+[23:30:55] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to predict on Sklearn is 28526.2553691864
+Time Taken to write results to a text file for Sklearn is 1108.6974143981934
+Classification Report Sklearn
+              precision    recall  f1-score   support
+
+           0       0.85      0.59      0.70   1034836
+           1       0.71      0.91      0.80   1165164
+
+    accuracy                           0.76   2200000
+   macro avg       0.78      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert Sklearn model: 0.0
+TOTAL Time Taken for Sklearn: 29635.0417137146
+==============EXPERIMENT ENDING=========================
+
+TESTS START HERE
+*******************************8
+gpu_run.sh: 53: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdPytorchGPU --batch_size 1 --query_size 1
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 1
+Batch Size: 1
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 5000.467777252197
+Time Taken to load sklearn model: 653.5069942474365
+Time Taken to predict on HummingbirdPytorchGPU is 1903393.5174942017
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 1206.1982154846191
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.70      0.64      0.67   1034836
+           1       0.70      0.76      0.73   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 16131.543397903442
+TOTAL Time Taken for HummingbirdPytorchGPU: 1920731.338262558
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdPytorchGPU --batch_size 10 --query_size 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 10
+Batch Size: 10
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 5093.216896057129
+Time Taken to load sklearn model: 510.8671188354492
+Time Taken to predict on HummingbirdPytorchGPU is 193132.018327713
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 1169.6743965148926
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.70      0.64      0.67   1034836
+           1       0.70      0.76      0.73   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 12626.222610473633
+TOTAL Time Taken for HummingbirdPytorchGPU: 206927.98852920532
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdPytorchGPU --batch_size 100 --query_size 100
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 100
+Batch Size: 100
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4906.075477600098
+Time Taken to load sklearn model: 506.58440589904785
+Time Taken to predict on HummingbirdPytorchGPU is 19840.723514556885
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 1103.6608219146729
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.70      0.64      0.67   1034836
+           1       0.70      0.76      0.73   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 12562.993288040161
+TOTAL Time Taken for HummingbirdPytorchGPU: 33507.4520111084
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdPytorchGPU --batch_size 1000 --query_size 1000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4910.569190979004
+Time Taken to load sklearn model: 501.42407417297363
+Time Taken to predict on HummingbirdPytorchGPU is 13587.78977394104
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 1130.7611465454102
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.70      0.64      0.67   1034836
+           1       0.70      0.76      0.73   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 12197.768449783325
+TOTAL Time Taken for HummingbirdPytorchGPU: 26916.39232635498
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdPytorchGPU --batch_size 10000 --query_size 10000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4907.873630523682
+Time Taken to load sklearn model: 504.2104721069336
+Time Taken to predict on HummingbirdPytorchGPU is 13058.09473991394
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 1103.3523082733154
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.70      0.64      0.67   1034836
+           1       0.70      0.76      0.73   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 12377.421617507935
+TOTAL Time Taken for HummingbirdPytorchGPU: 26538.94281387329
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdPytorchGPU --batch_size 100000 --query_size 100000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4917.021989822388
+Time Taken to load sklearn model: 498.612642288208
+Time Taken to predict on HummingbirdPytorchGPU is 13104.426860809326
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 1179.0685653686523
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.70      0.64      0.67   1034836
+           1       0.70      0.76      0.73   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 12122.768640518188
+TOTAL Time Taken for HummingbirdPytorchGPU: 26406.34036064148
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdPytorchGPU --batch_size 2200000 --query_size 2200000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 2200000
+Batch Size: 2200000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4911.2303256988525
+Time Taken to load sklearn model: 503.5090446472168
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 363, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 251, in test_gpu
+    results = run_inference(FRAMEWORK, features, input_size, args.query_size, model.predict, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 113, in run_inference
+    output = predict(query_data)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/containers/batch_container.py", line 75, in predict
+    return self._predict_common(
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/containers/batch_container.py", line 112, in _predict_common
+    return output_proc([predict_func(*inputs)])
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/containers/_sklearn_api_containers.py", line 119, in predict
+    return self._run(self._predict, *inputs)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/containers/_sklearn_api_containers.py", line 67, in _run
+    return function(*inputs)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/containers/sklearn/pytorch_containers.py", line 196, in _predict
+    return self.model.forward(*inputs)[0].cpu().numpy().ravel()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/_executor.py", line 113, in forward
+    outputs = operator(*(variable_map[input_name] for input_name in operator.inputs))
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/operator_converters/_tree_implementations.py", line 385, in forward
+    prev_indices = (self.decision_cond(torch.index_select(x, 1, self.root_nodes), self.root_biases)).long()
+RuntimeError: CUDA out of memory. Tried to allocate 3.28 GiB (GPU 0; 14.56 GiB total capacity; 13.35 GiB already allocated; 374.44 MiB free; 13.37 GiB reserved in total by PyTorch) If reserved memory is >> allocated memory try setting max_split_size_mb to avoid fragmentation.  See documentation for Memory Management and PYTORCH_CUDA_ALLOC_CONF
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdTorchScriptGPU --batch_size 1 --query_size 1
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 1
+Batch Size: 1
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4906.367778778076
+Time Taken to load sklearn model: 504.2731761932373
+Time Taken to predict on HummingbirdTorchScriptGPU is 1208361.2112998962
+Time Taken to write results to a text file for HummingbirdTorchScriptGPU is 1124.6681213378906
+Classification Report HummingbirdTorchScriptGPU
+              precision    recall  f1-score   support
+
+           0       0.70      0.64      0.67   1034836
+           1       0.70      0.76      0.73   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert HummingbirdTorchScriptGPU model: 11602.077960968018
+TOTAL Time Taken for HummingbirdTorchScriptGPU: 1221088.0291461945
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdTorchScriptGPU --batch_size 10 --query_size 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 10
+Batch Size: 10
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4951.7152309417725
+Time Taken to load sklearn model: 510.8320713043213
+Time Taken to predict on HummingbirdTorchScriptGPU is 126706.11214637756
+Time Taken to write results to a text file for HummingbirdTorchScriptGPU is 1120.5503940582275
+Classification Report HummingbirdTorchScriptGPU
+              precision    recall  f1-score   support
+
+           0       0.70      0.64      0.67   1034836
+           1       0.70      0.76      0.73   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert HummingbirdTorchScriptGPU model: 11720.821142196655
+TOTAL Time Taken for HummingbirdTorchScriptGPU: 139547.5571155548
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdTorchScriptGPU --batch_size 100 --query_size 100
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 100
+Batch Size: 100
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4958.4856033325195
+Time Taken to load sklearn model: 510.836124420166
+Time Taken to predict on HummingbirdTorchScriptGPU is 14403.79810333252
+Time Taken to write results to a text file for HummingbirdTorchScriptGPU is 1135.2159976959229
+Classification Report HummingbirdTorchScriptGPU
+              precision    recall  f1-score   support
+
+           0       0.70      0.64      0.67   1034836
+           1       0.70      0.76      0.73   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert HummingbirdTorchScriptGPU model: 11684.611320495605
+TOTAL Time Taken for HummingbirdTorchScriptGPU: 27223.699808120728
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdTorchScriptGPU --batch_size 1000 --query_size 1000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4974.591970443726
+Time Taken to load sklearn model: 507.1682929992676
+Time Taken to predict on HummingbirdTorchScriptGPU is 9172.263145446777
+Time Taken to write results to a text file for HummingbirdTorchScriptGPU is 1160.8572006225586
+Classification Report HummingbirdTorchScriptGPU
+              precision    recall  f1-score   support
+
+           0       0.70      0.64      0.67   1034836
+           1       0.70      0.76      0.73   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert HummingbirdTorchScriptGPU model: 11852.110862731934
+TOTAL Time Taken for HummingbirdTorchScriptGPU: 22185.301065444946
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdTorchScriptGPU --batch_size 10000 --query_size 10000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4958.384037017822
+Time Taken to load sklearn model: 510.6797218322754
+Time Taken to predict on HummingbirdTorchScriptGPU is 8560.458183288574
+Time Taken to write results to a text file for HummingbirdTorchScriptGPU is 1118.5081005096436
+Classification Report HummingbirdTorchScriptGPU
+              precision    recall  f1-score   support
+
+           0       0.70      0.64      0.67   1034836
+           1       0.70      0.76      0.73   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert HummingbirdTorchScriptGPU model: 11827.741622924805
+TOTAL Time Taken for HummingbirdTorchScriptGPU: 21506.78014755249
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdTorchScriptGPU --batch_size 100000 --query_size 100000
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [29,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [47,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [27,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [107,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [49,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [7,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [9,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [67,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [69,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [87,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [127,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [109,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [147,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [129,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [74,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [89,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [187,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [149,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [207,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [154,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [134,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [167,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [24,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [22,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [54,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [14,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [102,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [227,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [42,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [44,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [122,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [34,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [234,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [189,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [94,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [209,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [104,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [124,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [182,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [229,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [114,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [214,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [64,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [4,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [169,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [142,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [62,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [144,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [174,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [82,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [194,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [84,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [277,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [202,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [2,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [184,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [264,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [162,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [222,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [72,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [254,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [77,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [152,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [224,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [37,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [17,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [274,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [157,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [164,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [244,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [52,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [267,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [204,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [92,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [12,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [132,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [112,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [212,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [232,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [117,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [237,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [32,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [97,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [317,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [137,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [177,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [57,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [257,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [192,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [247,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [287,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [172,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [307,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [59,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [197,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [217,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [139,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [39,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [294,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [242,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [99,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [199,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [119,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [179,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [219,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [282,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [304,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [297,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [19,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [284,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [239,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [279,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [314,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [319,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [272,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [312,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [252,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4962.474822998047
+Time Taken to load sklearn model: 506.31117820739746
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 363, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 264, in test_gpu
+    results = run_inference(FRAMEWORK, features, input_size, args.query_size, predict, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 113, in run_inference
+    output = predict(query_data)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 262, in predict
+    return model.predict(batch)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/containers/sklearn/pytorch_containers.py", line 291, in predict
+    return self._run(f_wrapped, *inputs)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/containers/_sklearn_api_containers.py", line 67, in _run
+    return function(*inputs)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/containers/sklearn/pytorch_containers.py", line 289, in <lambda>
+    f_wrapped = lambda x: _torchscript_wrapper(device, f, x, extra_config=self._extra_config)  # noqa: E731
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/containers/sklearn/pytorch_containers.py", line 252, in _torchscript_wrapper
+    return function(*inputs)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/containers/sklearn/pytorch_containers.py", line 196, in _predict
+    return self.model.forward(*inputs)[0].cpu().numpy().ravel()
+RuntimeError: The following operation failed in the TorchScript interpreter.
+Traceback of TorchScript (most recent call last):
+RuntimeError: The following operation failed in the TorchScript interpreter.
+Traceback of TorchScript (most recent call last):
+/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/operator_converters/_tree_implementations.py(394): forward
+/home/ubuntu/.local/lib/python3.9/site-packages/torch/nn/modules/module.py(1118): _slow_forward
+/home/ubuntu/.local/lib/python3.9/site-packages/torch/nn/modules/module.py(1130): _call_impl
+/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/_executor.py(113): forward
+/home/ubuntu/.local/lib/python3.9/site-packages/torch/nn/modules/module.py(1118): _slow_forward
+/home/ubuntu/.local/lib/python3.9/site-packages/torch/nn/modules/module.py(1130): _call_impl
+/home/ubuntu/.local/lib/python3.9/site-packages/torch/jit/_trace.py(967): trace_module
+/home/ubuntu/.local/lib/python3.9/site-packages/torch/jit/_trace.py(750): trace
+/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/_topology.py(105): _jit_trace
+/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/_topology.py(373): convert
+/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/convert.py(111): _convert_sklearn
+/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/convert.py(405): _convert_common
+/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/convert.py(444): convert
+/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py(259): test_gpu
+/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py(109): test
+/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py(363): <module>
+RuntimeError: CUDA error: device-side assert triggered
+CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdTorchScriptGPU --batch_size 2200000 --query_size 2200000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 2200000
+Batch Size: 2200000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4937.371253967285
+Time Taken to load sklearn model: 511.8434429168701
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 363, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 259, in test_gpu
+    model = hml.convert(sklearnmodel, "torch.jit", torch_data,"cuda")
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/convert.py", line 444, in convert
+    return _convert_common(model, backend, test_input, device, extra_config)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/convert.py", line 405, in _convert_common
+    return _convert_sklearn(model, backend_formatted, test_input, device, extra_config)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/convert.py", line 111, in _convert_sklearn
+    hb_model = topology_converter(topology, backend, test_input, device, extra_config=extra_config)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/_topology.py", line 373, in convert
+    executor = _jit_trace(executor, trace_input, device, extra_config)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/_topology.py", line 105, in _jit_trace
+    return torch.jit.trace(executor, trace_input).eval()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/torch/jit/_trace.py", line 750, in trace
+    return trace_module(
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/torch/jit/_trace.py", line 967, in trace_module
+    module._c._create_method_from_trace(
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1118, in _slow_forward
+    result = self.forward(*input, **kwargs)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/_executor.py", line 113, in forward
+    outputs = operator(*(variable_map[input_name] for input_name in operator.inputs))
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1118, in _slow_forward
+    result = self.forward(*input, **kwargs)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/operator_converters/_tree_implementations.py", line 385, in forward
+    prev_indices = (self.decision_cond(torch.index_select(x, 1, self.root_nodes), self.root_biases)).long()
+RuntimeError: CUDA out of memory. Tried to allocate 3.28 GiB (GPU 0; 14.56 GiB total capacity; 13.35 GiB already allocated; 374.44 MiB free; 13.37 GiB reserved in total by PyTorch) If reserved memory is >> allocated memory try setting max_split_size_mb to avoid fragmentation.  See documentation for Memory Management and PYTORCH_CUDA_ALLOC_CONF
+-e 
+
+
+gpu_run.sh: 53: [: ONNXGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f ONNXGPU --batch_size 1 --query_size 1
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: ONNXGPU
+Query Size: 1
+Batch Size: 1
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4965.48056602478
+Time Taken to load sklearn model: 504.52470779418945
+Time Taken to predict on ONNXGPU is 405519.1841125488
+Time Taken to write results to a text file for ONNXGPU is 1167.9589748382568
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.70      0.64      0.67   1034836
+           1       0.70      0.76      0.73   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert ONNXGPU model: 18093.01471710205
+TOTAL Time Taken for ONNXGPU: 424780.20882606506
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: ONNXGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f ONNXGPU --batch_size 10 --query_size 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: ONNXGPU
+Query Size: 10
+Batch Size: 10
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4909.523248672485
+Time Taken to load sklearn model: 508.5787773132324
+Time Taken to predict on ONNXGPU is 1182347.4683761597
+Time Taken to write results to a text file for ONNXGPU is 1185.4147911071777
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.70      0.64      0.67   1034836
+           1       0.70      0.76      0.73   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert ONNXGPU model: 15340.76976776123
+TOTAL Time Taken for ONNXGPU: 1198873.7080097198
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: ONNXGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f ONNXGPU --batch_size 100 --query_size 100
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: ONNXGPU
+Query Size: 100
+Batch Size: 100
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4968.54305267334
+Time Taken to load sklearn model: 517.188549041748
+Time Taken to predict on ONNXGPU is 86597.9437828064
+Time Taken to write results to a text file for ONNXGPU is 1166.2886142730713
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.70      0.64      0.67   1034836
+           1       0.70      0.76      0.73   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert ONNXGPU model: 14489.873170852661
+TOTAL Time Taken for ONNXGPU: 102254.1561126709
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: ONNXGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f ONNXGPU --batch_size 1000 --query_size 1000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: ONNXGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4959.763526916504
+Time Taken to load sklearn model: 511.3205909729004
+Time Taken to predict on ONNXGPU is 57425.32968521118
+Time Taken to write results to a text file for ONNXGPU is 1132.0364475250244
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.70      0.64      0.67   1034836
+           1       0.70      0.76      0.73   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert ONNXGPU model: 14665.158987045288
+TOTAL Time Taken for ONNXGPU: 73222.580909729
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: ONNXGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f ONNXGPU --batch_size 10000 --query_size 10000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: ONNXGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4960.317134857178
+Time Taken to load sklearn model: 524.7106552124023
+Time Taken to predict on ONNXGPU is 51130.22565841675
+Time Taken to write results to a text file for ONNXGPU is 1116.6350841522217
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.70      0.64      0.67   1034836
+           1       0.70      0.76      0.73   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert ONNXGPU model: 15341.997861862183
+TOTAL Time Taken for ONNXGPU: 67588.91677856445
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: ONNXGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f ONNXGPU --batch_size 100000 --query_size 100000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: ONNXGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4964.346885681152
+Time Taken to load sklearn model: 514.6024227142334
+Time Taken to predict on ONNXGPU is 51169.84820365906
+Time Taken to write results to a text file for ONNXGPU is 1092.165231704712
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.70      0.64      0.67   1034836
+           1       0.70      0.76      0.73   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert ONNXGPU model: 15331.528425216675
+TOTAL Time Taken for ONNXGPU: 67593.61553192139
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: ONNXGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f ONNXGPU --batch_size 2200000 --query_size 2200000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: ONNXGPU
+Query Size: 2200000
+Batch Size: 2200000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4958.617925643921
+Time Taken to load sklearn model: 508.1355571746826
+Time Taken to predict on ONNXGPU is 51702.95524597168
+Time Taken to write results to a text file for ONNXGPU is 1172.9099750518799
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.70      0.64      0.67   1034836
+           1       0.70      0.76      0.73   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert ONNXGPU model: 15288.853406906128
+TOTAL Time Taken for ONNXGPU: 68164.78323936462
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdTVMGPU --batch_size 1 --query_size 1
+[01:11:12] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=1))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 1
+Batch Size: 1
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4969.890356063843
+Time Taken to load sklearn model: 512.3987197875977
+Time Taken to predict on HummingbirdTVMGPU is 574121.1373806
+Time Taken to write results to a text file for HummingbirdTVMGPU is 1130.8672428131104
+Classification Report HummingbirdTVMGPU
+              precision    recall  f1-score   support
+
+           0       0.70      0.64      0.67   1034836
+           1       0.70      0.76      0.73   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert HummingbirdTVMGPU model: 17973.546028137207
+TOTAL Time Taken for HummingbirdTVMGPU: 593225.6464958191
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdTVMGPU --batch_size 10 --query_size 10
+[01:21:18] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=10))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 10
+Batch Size: 10
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 5018.340826034546
+Time Taken to load sklearn model: 511.65103912353516
+Time Taken to predict on HummingbirdTVMGPU is 60588.28139305115
+Time Taken to write results to a text file for HummingbirdTVMGPU is 1129.4987201690674
+Classification Report HummingbirdTVMGPU
+              precision    recall  f1-score   support
+
+           0       0.70      0.64      0.67   1034836
+           1       0.70      0.76      0.73   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert HummingbirdTVMGPU model: 17653.340816497803
+TOTAL Time Taken for HummingbirdTVMGPU: 79371.20771408081
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdTVMGPU --batch_size 100 --query_size 100
+[01:22:50] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=100))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 100
+Batch Size: 100
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4958.92596244812
+Time Taken to load sklearn model: 567.0816898345947
+Time Taken to predict on HummingbirdTVMGPU is 8766.472339630127
+Time Taken to write results to a text file for HummingbirdTVMGPU is 1218.7459468841553
+Classification Report HummingbirdTVMGPU
+              precision    recall  f1-score   support
+
+           0       0.70      0.64      0.67   1034836
+           1       0.70      0.76      0.73   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert HummingbirdTVMGPU model: 17963.27304840088
+TOTAL Time Taken for HummingbirdTVMGPU: 27948.57096672058
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdTVMGPU --batch_size 1000 --query_size 1000
+[01:23:34] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=1000))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4990.208148956299
+Time Taken to load sklearn model: 504.8365592956543
+Time Taken to predict on HummingbirdTVMGPU is 4104.439735412598
+Time Taken to write results to a text file for HummingbirdTVMGPU is 1143.3486938476562
+Classification Report HummingbirdTVMGPU
+              precision    recall  f1-score   support
+
+           0       0.70      0.64      0.67   1034836
+           1       0.70      0.76      0.73   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert HummingbirdTVMGPU model: 22907.23490715027
+TOTAL Time Taken for HummingbirdTVMGPU: 28155.1034450531
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdTVMGPU --batch_size 10000 --query_size 10000
+[01:24:23] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=10000))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4968.060731887817
+Time Taken to load sklearn model: 505.48410415649414
+Time Taken to predict on HummingbirdTVMGPU is 3672.7848052978516
+Time Taken to write results to a text file for HummingbirdTVMGPU is 1117.234230041504
+Classification Report HummingbirdTVMGPU
+              precision    recall  f1-score   support
+
+           0       0.70      0.64      0.67   1034836
+           1       0.70      0.76      0.73   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert HummingbirdTVMGPU model: 31679.51250076294
+TOTAL Time Taken for HummingbirdTVMGPU: 36469.608783721924
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdTVMGPU --batch_size 100000 --query_size 100000
+[01:26:32] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=100000))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4960.453748703003
+Time Taken to load sklearn model: 513.2613182067871
+Time Taken to predict on HummingbirdTVMGPU is 3539.1130447387695
+Time Taken to write results to a text file for HummingbirdTVMGPU is 1126.8517971038818
+Classification Report HummingbirdTVMGPU
+              precision    recall  f1-score   support
+
+           0       0.70      0.64      0.67   1034836
+           1       0.70      0.76      0.73   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert HummingbirdTVMGPU model: 112782.1946144104
+TOTAL Time Taken for HummingbirdTVMGPU: 117448.26936721802
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdTVMGPU --batch_size 2200000 --query_size 2200000
+Killed
+-e 
+
+
+gpu_run.sh: 53: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f NvidiaFILGPU --batch_size 1 --query_size 1
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: NvidiaFILGPU
+Query Size: 1
+Batch Size: 1
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 7461.775064468384
+Time Taken to load sklearn model: 703.7515640258789
+[W] [01:27:39.714349] Treelite currently does not support float64 model parameters. Accuracy may degrade slightly relative to native sklearn invocation.
+Time Taken to predict on NvidiaFILGPU is 1060611.4008426666
+Time Taken to write results to a text file for NvidiaFILGPU is 589.7090435028076
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       0.70      0.64      0.67   1034836
+           1       0.70      0.76      0.73   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert NvidiaFILGPU model: 6074.626445770264
+TOTAL Time Taken for NvidiaFILGPU: 1067275.8059501648
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+-e 
+
+
+gpu_run.sh: 53: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f NvidiaFILGPU --batch_size 10 --query_size 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: NvidiaFILGPU
+Query Size: 10
+Batch Size: 10
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4907.855987548828
+Time Taken to load sklearn model: 511.4254951477051
+[W] [01:45:38.618228] Treelite currently does not support float64 model parameters. Accuracy may degrade slightly relative to native sklearn invocation.
+Time Taken to predict on NvidiaFILGPU is 121380.02038002014
+Time Taken to write results to a text file for NvidiaFILGPU is 584.6898555755615
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       0.70      0.64      0.67   1034836
+           1       0.70      0.76      0.73   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert NvidiaFILGPU model: 2688.258171081543
+TOTAL Time Taken for NvidiaFILGPU: 124653.03826332092
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+-e 
+
+
+gpu_run.sh: 53: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f NvidiaFILGPU --batch_size 100 --query_size 100
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: NvidiaFILGPU
+Query Size: 100
+Batch Size: 100
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4905.586004257202
+Time Taken to load sklearn model: 510.15377044677734
+[W] [01:47:57.727603] Treelite currently does not support float64 model parameters. Accuracy may degrade slightly relative to native sklearn invocation.
+Time Taken to predict on NvidiaFILGPU is 14379.515409469604
+Time Taken to write results to a text file for NvidiaFILGPU is 589.0028476715088
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       0.70      0.64      0.67   1034836
+           1       0.70      0.76      0.73   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert NvidiaFILGPU model: 2713.259220123291
+TOTAL Time Taken for NvidiaFILGPU: 17681.84208869934
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+-e 
+
+
+gpu_run.sh: 53: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f NvidiaFILGPU --batch_size 1000 --query_size 1000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: NvidiaFILGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4909.735441207886
+Time Taken to load sklearn model: 516.2508487701416
+[W] [01:48:29.930254] Treelite currently does not support float64 model parameters. Accuracy may degrade slightly relative to native sklearn invocation.
+Time Taken to predict on NvidiaFILGPU is 3092.592239379883
+Time Taken to write results to a text file for NvidiaFILGPU is 590.5048847198486
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       0.70      0.64      0.67   1034836
+           1       0.70      0.76      0.73   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert NvidiaFILGPU model: 2699.2454528808594
+TOTAL Time Taken for NvidiaFILGPU: 6382.407426834106
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+-e 
+
+
+gpu_run.sh: 53: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f NvidiaFILGPU --batch_size 10000 --query_size 10000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: NvidiaFILGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4909.226655960083
+Time Taken to load sklearn model: 507.23814964294434
+[W] [01:48:50.787060] Treelite currently does not support float64 model parameters. Accuracy may degrade slightly relative to native sklearn invocation.
+Time Taken to predict on NvidiaFILGPU is 3448.9188194274902
+Time Taken to write results to a text file for NvidiaFILGPU is 587.108850479126
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       0.70      0.64      0.67   1034836
+           1       0.70      0.76      0.73   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert NvidiaFILGPU model: 2704.284429550171
+TOTAL Time Taken for NvidiaFILGPU: 6740.376949310303
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+-e 
+
+
+gpu_run.sh: 53: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f NvidiaFILGPU --batch_size 100000 --query_size 100000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: NvidiaFILGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4916.850805282593
+Time Taken to load sklearn model: 497.88975715637207
+[W] [01:49:11.960668] Treelite currently does not support float64 model parameters. Accuracy may degrade slightly relative to native sklearn invocation.
+Time Taken to predict on NvidiaFILGPU is 3538.4292602539062
+Time Taken to write results to a text file for NvidiaFILGPU is 586.2534046173096
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       0.70      0.64      0.67   1034836
+           1       0.70      0.76      0.73   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert NvidiaFILGPU model: 2700.9518146514893
+TOTAL Time Taken for NvidiaFILGPU: 6825.705528259277
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+-e 
+
+
+gpu_run.sh: 53: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f NvidiaFILGPU --batch_size 2200000 --query_size 2200000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: NvidiaFILGPU
+Query Size: 2200000
+Batch Size: 2200000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4921.987295150757
+Time Taken to load sklearn model: 504.32300567626953
+[W] [01:49:33.270650] Treelite currently does not support float64 model parameters. Accuracy may degrade slightly relative to native sklearn invocation.
+Time Taken to predict on NvidiaFILGPU is 3789.741039276123
+Time Taken to write results to a text file for NvidiaFILGPU is 613.3077144622803
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       0.70      0.64      0.67   1034836
+           1       0.70      0.76      0.73   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert NvidiaFILGPU model: 2720.8919525146484
+TOTAL Time Taken for NvidiaFILGPU: 7124.028921127319
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdPytorchGPU --batch_size 1 --query_size 1
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 1
+Batch Size: 1
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4917.283296585083
+[01:49:50] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 498.8582134246826
+[01:49:55] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to predict on HummingbirdPytorchGPU is 1976903.3479690552
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 1125.0412464141846
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.85      0.59      0.70   1034836
+           1       0.71      0.91      0.80   1165164
+
+    accuracy                           0.76   2200000
+   macro avg       0.78      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 72740.80967903137
+TOTAL Time Taken for HummingbirdPytorchGPU: 2050769.2799568176
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdPytorchGPU --batch_size 10 --query_size 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 10
+Batch Size: 10
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4964.248418807983
+[02:24:15] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 349.4985103607178
+[02:24:16] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to predict on HummingbirdPytorchGPU is 203312.8342628479
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 1106.3992977142334
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.85      0.59      0.70   1034836
+           1       0.71      0.91      0.80   1165164
+
+    accuracy                           0.76   2200000
+   macro avg       0.78      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 70781.12602233887
+TOTAL Time Taken for HummingbirdPytorchGPU: 275200.4380226135
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdPytorchGPU --batch_size 100 --query_size 100
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 100
+Batch Size: 100
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4962.289094924927
+[02:29:03] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 346.5425968170166
+[02:29:04] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to predict on HummingbirdPytorchGPU is 20879.940509796143
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 1210.099220275879
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.85      0.59      0.70   1034836
+           1       0.71      0.91      0.80   1165164
+
+    accuracy                           0.76   2200000
+   macro avg       0.78      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 70665.98916053772
+TOTAL Time Taken for HummingbirdPytorchGPU: 92756.14333152771
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdPytorchGPU --batch_size 1000 --query_size 1000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4960.299015045166
+[02:30:48] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 343.886137008667
+[02:30:49] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to predict on HummingbirdPytorchGPU is 13320.42908668518
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 1121.3500499725342
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.85      0.59      0.70   1034836
+           1       0.71      0.91      0.80   1165164
+
+    accuracy                           0.76   2200000
+   macro avg       0.78      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 71255.52868843079
+TOTAL Time Taken for HummingbirdPytorchGPU: 85697.39556312561
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdPytorchGPU --batch_size 10000 --query_size 10000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4968.473196029663
+[02:32:26] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 344.01774406433105
+[02:32:27] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to predict on HummingbirdPytorchGPU is 12786.118984222412
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 1105.436086654663
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.85      0.59      0.70   1034836
+           1       0.71      0.91      0.80   1165164
+
+    accuracy                           0.76   2200000
+   macro avg       0.78      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 70492.16651916504
+TOTAL Time Taken for HummingbirdPytorchGPU: 84383.80408287048
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdPytorchGPU --batch_size 100000 --query_size 100000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4954.9994468688965
+[02:34:02] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 344.2568778991699
+[02:34:04] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to predict on HummingbirdPytorchGPU is 12854.483842849731
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 1126.3070106506348
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.85      0.59      0.70   1034836
+           1       0.71      0.91      0.80   1165164
+
+    accuracy                           0.76   2200000
+   macro avg       0.78      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 71323.72522354126
+TOTAL Time Taken for HummingbirdPytorchGPU: 85304.60262298584
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdPytorchGPU --batch_size 2200000 --query_size 2200000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 2200000
+Batch Size: 2200000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4963.939189910889
+[02:35:40] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 349.26629066467285
+[02:35:41] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 363, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 251, in test_gpu
+    results = run_inference(FRAMEWORK, features, input_size, args.query_size, model.predict, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 113, in run_inference
+    output = predict(query_data)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/containers/batch_container.py", line 75, in predict
+    return self._predict_common(
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/containers/batch_container.py", line 112, in _predict_common
+    return output_proc([predict_func(*inputs)])
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/containers/_sklearn_api_containers.py", line 119, in predict
+    return self._run(self._predict, *inputs)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/containers/_sklearn_api_containers.py", line 67, in _run
+    return function(*inputs)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/containers/sklearn/pytorch_containers.py", line 196, in _predict
+    return self.model.forward(*inputs)[0].cpu().numpy().ravel()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/_executor.py", line 113, in forward
+    outputs = operator(*(variable_map[input_name] for input_name in operator.inputs))
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/operator_converters/_tree_implementations.py", line 385, in forward
+    prev_indices = (self.decision_cond(torch.index_select(x, 1, self.root_nodes), self.root_biases)).long()
+RuntimeError: CUDA out of memory. Tried to allocate 3.28 GiB (GPU 0; 14.56 GiB total capacity; 13.35 GiB already allocated; 374.44 MiB free; 13.37 GiB reserved in total by PyTorch) If reserved memory is >> allocated memory try setting max_split_size_mb to avoid fragmentation.  See documentation for Memory Management and PYTORCH_CUDA_ALLOC_CONF
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdTorchScriptGPU --batch_size 1 --query_size 1
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 1
+Batch Size: 1
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4979.489803314209
+[02:37:04] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 310.3375434875488
+[02:37:05] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to predict on HummingbirdTorchScriptGPU is 1271761.6519927979
+Time Taken to write results to a text file for HummingbirdTorchScriptGPU is 1115.4673099517822
+Classification Report HummingbirdTorchScriptGPU
+              precision    recall  f1-score   support
+
+           0       0.85      0.59      0.70   1034836
+           1       0.71      0.91      0.80   1165164
+
+    accuracy                           0.76   2200000
+   macro avg       0.78      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert HummingbirdTorchScriptGPU model: 69928.3857345581
+TOTAL Time Taken for HummingbirdTorchScriptGPU: 1342805.57847023
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdTorchScriptGPU --batch_size 10 --query_size 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 10
+Batch Size: 10
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4911.143779754639
+[02:59:40] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 345.9179401397705
+[02:59:41] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to predict on HummingbirdTorchScriptGPU is 134137.21752166748
+Time Taken to write results to a text file for HummingbirdTorchScriptGPU is 1104.28786277771
+Classification Report HummingbirdTorchScriptGPU
+              precision    recall  f1-score   support
+
+           0       0.85      0.59      0.70   1034836
+           1       0.71      0.91      0.80   1165164
+
+    accuracy                           0.76   2200000
+   macro avg       0.78      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert HummingbirdTorchScriptGPU model: 70071.85173034668
+TOTAL Time Taken for HummingbirdTorchScriptGPU: 205313.42339515686
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdTorchScriptGPU --batch_size 100 --query_size 100
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 100
+Batch Size: 100
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4895.789384841919
+[03:03:18] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 346.149206161499
+[03:03:20] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to predict on HummingbirdTorchScriptGPU is 14031.956195831299
+Time Taken to write results to a text file for HummingbirdTorchScriptGPU is 1086.2860679626465
+Classification Report HummingbirdTorchScriptGPU
+              precision    recall  f1-score   support
+
+           0       0.85      0.59      0.70   1034836
+           1       0.71      0.91      0.80   1165164
+
+    accuracy                           0.76   2200000
+   macro avg       0.78      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert HummingbirdTorchScriptGPU model: 68828.18913459778
+TOTAL Time Taken for HummingbirdTorchScriptGPU: 83946.49577140808
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdTorchScriptGPU --batch_size 1000 --query_size 1000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4895.522356033325
+[03:04:55] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 347.05233573913574
+[03:04:57] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to predict on HummingbirdTorchScriptGPU is 9142.922163009644
+Time Taken to write results to a text file for HummingbirdTorchScriptGPU is 1108.8519096374512
+Classification Report HummingbirdTorchScriptGPU
+              precision    recall  f1-score   support
+
+           0       0.85      0.59      0.70   1034836
+           1       0.71      0.91      0.80   1165164
+
+    accuracy                           0.76   2200000
+   macro avg       0.78      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert HummingbirdTorchScriptGPU model: 68592.41914749146
+TOTAL Time Taken for HummingbirdTorchScriptGPU: 78844.26140785217
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdTorchScriptGPU --batch_size 10000 --query_size 10000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4903.921842575073
+[03:06:27] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 345.583438873291
+[03:06:29] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to predict on HummingbirdTorchScriptGPU is 8569.742679595947
+Time Taken to write results to a text file for HummingbirdTorchScriptGPU is 1229.9890518188477
+Classification Report HummingbirdTorchScriptGPU
+              precision    recall  f1-score   support
+
+           0       0.85      0.59      0.70   1034836
+           1       0.71      0.91      0.80   1165164
+
+    accuracy                           0.76   2200000
+   macro avg       0.78      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert HummingbirdTorchScriptGPU model: 68793.40982437134
+TOTAL Time Taken for HummingbirdTorchScriptGPU: 78593.20950508118
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdTorchScriptGPU --batch_size 100000 --query_size 100000
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [67,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [47,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [49,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [27,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [9,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [7,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [147,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [74,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [109,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [154,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [34,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [207,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [187,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [69,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [167,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [87,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [209,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [127,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [254,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [2,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [77,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [134,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [29,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [182,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [229,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [44,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [42,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [144,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [169,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [62,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [14,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [84,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [194,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [82,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [102,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [162,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [274,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [107,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [264,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [174,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [64,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [137,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [124,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [184,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [204,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [12,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [72,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [142,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [234,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [4,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [287,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [32,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [24,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [19,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [22,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [129,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [197,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [17,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [57,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [114,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [157,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [99,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [89,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [244,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [314,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4924.015760421753
+[03:07:59] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 345.8516597747803
+[03:08:01] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 363, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 264, in test_gpu
+    results = run_inference(FRAMEWORK, features, input_size, args.query_size, predict, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 113, in run_inference
+    output = predict(query_data)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 262, in predict
+    return model.predict(batch)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/containers/sklearn/pytorch_containers.py", line 291, in predict
+    return self._run(f_wrapped, *inputs)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/containers/_sklearn_api_containers.py", line 67, in _run
+    return function(*inputs)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/containers/sklearn/pytorch_containers.py", line 289, in <lambda>
+    f_wrapped = lambda x: _torchscript_wrapper(device, f, x, extra_config=self._extra_config)  # noqa: E731
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/containers/sklearn/pytorch_containers.py", line 252, in _torchscript_wrapper
+    return function(*inputs)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/containers/sklearn/pytorch_containers.py", line 196, in _predict
+    return self.model.forward(*inputs)[0].cpu().numpy().ravel()
+RuntimeError: The following operation failed in the TorchScript interpreter.
+Traceback of TorchScript (most recent call last):
+RuntimeError: The following operation failed in the TorchScript interpreter.
+Traceback of TorchScript (most recent call last):
+/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/operator_converters/_tree_implementations.py(394): forward
+/home/ubuntu/.local/lib/python3.9/site-packages/torch/nn/modules/module.py(1118): _slow_forward
+/home/ubuntu/.local/lib/python3.9/site-packages/torch/nn/modules/module.py(1130): _call_impl
+/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/_executor.py(113): forward
+/home/ubuntu/.local/lib/python3.9/site-packages/torch/nn/modules/module.py(1118): _slow_forward
+/home/ubuntu/.local/lib/python3.9/site-packages/torch/nn/modules/module.py(1130): _call_impl
+/home/ubuntu/.local/lib/python3.9/site-packages/torch/jit/_trace.py(967): trace_module
+/home/ubuntu/.local/lib/python3.9/site-packages/torch/jit/_trace.py(750): trace
+/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/_topology.py(105): _jit_trace
+/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/_topology.py(373): convert
+/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/convert.py(111): _convert_sklearn
+/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/convert.py(153): _convert_xgboost
+/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/convert.py(394): _convert_common
+/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/convert.py(444): convert
+/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py(259): test_gpu
+/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py(109): test
+/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py(363): <module>
+RuntimeError: CUDA error: device-side assert triggered
+CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+
+
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [232,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [317,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [217,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [139,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [172,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [319,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [122,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [214,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [212,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [119,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [267,0,0], thread: [63,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [189,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [149,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+../aten/src/ATen/native/cuda/Indexing.cu:975: indexSelectLargeIndex: block: [304,0,0], thread: [127,0,0] Assertion `srcIndex < srcSelectDimSize` failed.
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdTorchScriptGPU --batch_size 2200000 --query_size 2200000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 2200000
+Batch Size: 2200000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4948.424339294434
+[03:09:20] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 347.9578495025635
+[03:09:22] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 363, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 259, in test_gpu
+    model = hml.convert(sklearnmodel, "torch.jit", torch_data,"cuda")
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/convert.py", line 444, in convert
+    return _convert_common(model, backend, test_input, device, extra_config)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/convert.py", line 394, in _convert_common
+    return _convert_xgboost(model, backend_formatted, test_input, device, extra_config)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/convert.py", line 153, in _convert_xgboost
+    return _convert_sklearn(model, backend, test_input, device, extra_config)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/convert.py", line 111, in _convert_sklearn
+    hb_model = topology_converter(topology, backend, test_input, device, extra_config=extra_config)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/_topology.py", line 373, in convert
+    executor = _jit_trace(executor, trace_input, device, extra_config)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/_topology.py", line 105, in _jit_trace
+    return torch.jit.trace(executor, trace_input).eval()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/torch/jit/_trace.py", line 750, in trace
+    return trace_module(
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/torch/jit/_trace.py", line 967, in trace_module
+    module._c._create_method_from_trace(
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1118, in _slow_forward
+    result = self.forward(*input, **kwargs)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/_executor.py", line 113, in forward
+    outputs = operator(*(variable_map[input_name] for input_name in operator.inputs))
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1118, in _slow_forward
+    result = self.forward(*input, **kwargs)
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/operator_converters/_tree_implementations.py", line 385, in forward
+    prev_indices = (self.decision_cond(torch.index_select(x, 1, self.root_nodes), self.root_biases)).long()
+RuntimeError: CUDA out of memory. Tried to allocate 3.28 GiB (GPU 0; 14.56 GiB total capacity; 13.35 GiB already allocated; 374.44 MiB free; 13.37 GiB reserved in total by PyTorch) If reserved memory is >> allocated memory try setting max_split_size_mb to avoid fragmentation.  See documentation for Memory Management and PYTORCH_CUDA_ALLOC_CONF
+-e 
+
+
+gpu_run.sh: 53: [: ONNXGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f ONNXGPU --batch_size 1 --query_size 1
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: ONNXGPU
+Query Size: 1
+Batch Size: 1
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4906.171560287476
+[03:10:43] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 362.5965118408203
+Time Taken to predict on ONNXGPU is 365455.93643188477
+Time Taken to write results to a text file for ONNXGPU is 1231.5521240234375
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.85      0.59      0.70   1034836
+           1       0.71      0.91      0.80   1165164
+
+    accuracy                           0.76   2200000
+   macro avg       0.78      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert ONNXGPU model: 15309.755086898804
+TOTAL Time Taken for ONNXGPU: 381997.2960948944
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: ONNXGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f ONNXGPU --batch_size 10 --query_size 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: ONNXGPU
+Query Size: 10
+Batch Size: 10
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4962.819814682007
+[03:17:16] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 345.9470272064209
+Time Taken to predict on ONNXGPU is 1047430.9146404266
+Time Taken to write results to a text file for ONNXGPU is 1099.6410846710205
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.85      0.59      0.70   1034836
+           1       0.71      0.91      0.80   1165164
+
+    accuracy                           0.76   2200000
+   macro avg       0.78      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert ONNXGPU model: 13300.430297851562
+TOTAL Time Taken for ONNXGPU: 1061831.0458660126
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: ONNXGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f ONNXGPU --batch_size 100 --query_size 100
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: ONNXGPU
+Query Size: 100
+Batch Size: 100
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4958.273649215698
+[03:35:10] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 348.5064506530762
+Time Taken to predict on ONNXGPU is 62380.02681732178
+Time Taken to write results to a text file for ONNXGPU is 1183.1684112548828
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.85      0.59      0.70   1034836
+           1       0.71      0.91      0.80   1165164
+
+    accuracy                           0.76   2200000
+   macro avg       0.78      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert ONNXGPU model: 13620.097398757935
+TOTAL Time Taken for ONNXGPU: 77183.34484100342
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: ONNXGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f ONNXGPU --batch_size 1000 --query_size 1000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: ONNXGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4958.277463912964
+[03:36:38] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 347.2161293029785
+Time Taken to predict on ONNXGPU is 45366.81532859802
+Time Taken to write results to a text file for ONNXGPU is 1093.468189239502
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.85      0.59      0.70   1034836
+           1       0.71      0.91      0.80   1165164
+
+    accuracy                           0.76   2200000
+   macro avg       0.78      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert ONNXGPU model: 13632.39860534668
+TOTAL Time Taken for ONNXGPU: 60092.73648262024
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: ONNXGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f ONNXGPU --batch_size 10000 --query_size 10000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: ONNXGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 5001.716136932373
+[03:37:50] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 347.64909744262695
+Time Taken to predict on ONNXGPU is 42183.218240737915
+Time Taken to write results to a text file for ONNXGPU is 1138.6487483978271
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.85      0.59      0.70   1034836
+           1       0.71      0.91      0.80   1165164
+
+    accuracy                           0.76   2200000
+   macro avg       0.78      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert ONNXGPU model: 12986.696720123291
+TOTAL Time Taken for ONNXGPU: 56308.61949920654
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: ONNXGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f ONNXGPU --batch_size 100000 --query_size 100000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: ONNXGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4984.485387802124
+[03:38:58] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 349.67970848083496
+Time Taken to predict on ONNXGPU is 39079.46276664734
+Time Taken to write results to a text file for ONNXGPU is 1083.2839012145996
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.85      0.59      0.70   1034836
+           1       0.71      0.91      0.80   1165164
+
+    accuracy                           0.76   2200000
+   macro avg       0.78      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert ONNXGPU model: 12869.550466537476
+TOTAL Time Taken for ONNXGPU: 53032.35459327698
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: ONNXGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f ONNXGPU --batch_size 2200000 --query_size 2200000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: ONNXGPU
+Query Size: 2200000
+Batch Size: 2200000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4970.435857772827
+[03:40:02] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 347.2626209259033
+Time Taken to predict on ONNXGPU is 40360.15462875366
+Time Taken to write results to a text file for ONNXGPU is 1150.9945392608643
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.85      0.59      0.70   1034836
+           1       0.71      0.91      0.80   1165164
+
+    accuracy                           0.76   2200000
+   macro avg       0.78      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert ONNXGPU model: 12918.562173843384
+TOTAL Time Taken for ONNXGPU: 54429.77070808411
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdTVMGPU --batch_size 1 --query_size 1
+[03:42:22] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=1))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 1
+Batch Size: 1
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4956.772565841675
+[03:41:08] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 350.92902183532715
+[03:41:09] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to predict on HummingbirdTVMGPU is 587743.7469959259
+Time Taken to write results to a text file for HummingbirdTVMGPU is 1136.6233825683594
+Classification Report HummingbirdTVMGPU
+              precision    recall  f1-score   support
+
+           0       0.85      0.59      0.70   1034836
+           1       0.71      0.91      0.80   1165164
+
+    accuracy                           0.76   2200000
+   macro avg       0.78      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert HummingbirdTVMGPU model: 76079.15782928467
+TOTAL Time Taken for HummingbirdTVMGPU: 664959.6080780029
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdTVMGPU --batch_size 10 --query_size 10
+[03:53:39] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=10))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 10
+Batch Size: 10
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4958.13775062561
+[03:52:24] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 350.5430221557617
+[03:52:26] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to predict on HummingbirdTVMGPU is 60958.93049240112
+Time Taken to write results to a text file for HummingbirdTVMGPU is 1129.255771636963
+Classification Report HummingbirdTVMGPU
+              precision    recall  f1-score   support
+
+           0       0.85      0.59      0.70   1034836
+           1       0.71      0.91      0.80   1165164
+
+    accuracy                           0.76   2200000
+   macro avg       0.78      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert HummingbirdTVMGPU model: 76312.79349327087
+TOTAL Time Taken for HummingbirdTVMGPU: 138401.05533599854
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdTVMGPU --batch_size 100 --query_size 100
+[03:56:09] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=100))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 100
+Batch Size: 100
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4956.229209899902
+[03:54:55] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 352.5738716125488
+[03:54:56] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to predict on HummingbirdTVMGPU is 8459.952116012573
+Time Taken to write results to a text file for HummingbirdTVMGPU is 1126.9404888153076
+Classification Report HummingbirdTVMGPU
+              precision    recall  f1-score   support
+
+           0       0.85      0.59      0.70   1034836
+           1       0.71      0.91      0.80   1165164
+
+    accuracy                           0.76   2200000
+   macro avg       0.78      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert HummingbirdTVMGPU model: 75866.55879020691
+TOTAL Time Taken for HummingbirdTVMGPU: 85453.53507995605
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdTVMGPU --batch_size 1000 --query_size 1000
+[03:57:50] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=1000))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4966.050863265991
+[03:56:32] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 352.0500659942627
+[03:56:33] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to predict on HummingbirdTVMGPU is 2998.9535808563232
+Time Taken to write results to a text file for HummingbirdTVMGPU is 1117.7902221679688
+Classification Report HummingbirdTVMGPU
+              precision    recall  f1-score   support
+
+           0       0.85      0.59      0.70   1034836
+           1       0.71      0.91      0.80   1165164
+
+    accuracy                           0.76   2200000
+   macro avg       0.78      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert HummingbirdTVMGPU model: 81081.07209205627
+TOTAL Time Taken for HummingbirdTVMGPU: 85197.89671897888
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdTVMGPU --batch_size 10000 --query_size 10000
+[03:59:36] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=10000))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4966.942310333252
+[03:58:09] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 347.23758697509766
+[03:58:10] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to predict on HummingbirdTVMGPU is 2655.618906021118
+Time Taken to write results to a text file for HummingbirdTVMGPU is 1205.5943012237549
+Classification Report HummingbirdTVMGPU
+              precision    recall  f1-score   support
+
+           0       0.85      0.59      0.70   1034836
+           1       0.71      0.91      0.80   1165164
+
+    accuracy                           0.76   2200000
+   macro avg       0.78      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert HummingbirdTVMGPU model: 89692.5458908081
+TOTAL Time Taken for HummingbirdTVMGPU: 93553.83896827698
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdTVMGPU --batch_size 100000 --query_size 100000
+[04:02:41] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=100000))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4966.360092163086
+[03:59:54] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 353.6183834075928
+[03:59:55] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to predict on HummingbirdTVMGPU is 2565.983295440674
+Time Taken to write results to a text file for HummingbirdTVMGPU is 1191.8988227844238
+Classification Report HummingbirdTVMGPU
+              precision    recall  f1-score   support
+
+           0       0.85      0.59      0.70   1034836
+           1       0.71      0.91      0.80   1165164
+
+    accuracy                           0.76   2200000
+   macro avg       0.78      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert HummingbirdTVMGPU model: 169738.18254470825
+TOTAL Time Taken for HummingbirdTVMGPU: 173496.15240097046
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdTVMGPU --batch_size 2200000 --query_size 2200000
+Killed
+-e 
+
+
+gpu_run.sh: 53: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f NvidiaFILGPU --batch_size 1 --query_size 1
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: NvidiaFILGPU
+Query Size: 1
+Batch Size: 1
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 7286.754846572876
+[04:04:34] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 563.4734630584717
+Time Taken to predict on NvidiaFILGPU is 1129277.4209976196
+Time Taken to write results to a text file for NvidiaFILGPU is 679.9125671386719
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       0.85      0.59      0.70   1034836
+           1       0.71      0.91      0.80   1165164
+
+    accuracy                           0.76   2200000
+   macro avg       0.78      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert NvidiaFILGPU model: 6094.649791717529
+TOTAL Time Taken for NvidiaFILGPU: 1136052.0577430725
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Segmentation fault (core dumped)
+-e 
+
+
+gpu_run.sh: 53: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f NvidiaFILGPU --batch_size 10 --query_size 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: NvidiaFILGPU
+Query Size: 10
+Batch Size: 10
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4965.736627578735
+[04:23:48] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 349.9176502227783
+Time Taken to predict on NvidiaFILGPU is 113373.89802932739
+Time Taken to write results to a text file for NvidiaFILGPU is 589.3943309783936
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       0.85      0.59      0.70   1034836
+           1       0.71      0.91      0.80   1165164
+
+    accuracy                           0.76   2200000
+   macro avg       0.78      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert NvidiaFILGPU model: 2636.2969875335693
+TOTAL Time Taken for NvidiaFILGPU: 116599.66039657593
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Segmentation fault (core dumped)
+-e 
+
+
+gpu_run.sh: 53: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f NvidiaFILGPU --batch_size 100 --query_size 100
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: NvidiaFILGPU
+Query Size: 100
+Batch Size: 100
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4946.897506713867
+[04:25:59] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 348.1318950653076
+Time Taken to predict on NvidiaFILGPU is 12424.317836761475
+Time Taken to write results to a text file for NvidiaFILGPU is 589.813232421875
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       0.85      0.59      0.70   1034836
+           1       0.71      0.91      0.80   1165164
+
+    accuracy                           0.76   2200000
+   macro avg       0.78      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert NvidiaFILGPU model: 2633.8417530059814
+TOTAL Time Taken for NvidiaFILGPU: 15648.04482460022
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Segmentation fault (core dumped)
+-e 
+
+
+gpu_run.sh: 53: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f NvidiaFILGPU --batch_size 1000 --query_size 1000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: NvidiaFILGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4983.810186386108
+[04:26:30] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 348.9978313446045
+Time Taken to predict on NvidiaFILGPU is 2273.423433303833
+Time Taken to write results to a text file for NvidiaFILGPU is 592.5095081329346
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       0.85      0.59      0.70   1034836
+           1       0.71      0.91      0.80   1165164
+
+    accuracy                           0.76   2200000
+   macro avg       0.78      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert NvidiaFILGPU model: 2632.065534591675
+TOTAL Time Taken for NvidiaFILGPU: 5498.0714321136475
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+-e 
+
+
+gpu_run.sh: 53: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f NvidiaFILGPU --batch_size 10000 --query_size 10000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: NvidiaFILGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4953.000783920288
+[04:26:49] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 348.5696315765381
+Time Taken to predict on NvidiaFILGPU is 1279.9551486968994
+Time Taken to write results to a text file for NvidiaFILGPU is 584.618091583252
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       0.85      0.59      0.70   1034836
+           1       0.71      0.91      0.80   1165164
+
+    accuracy                           0.76   2200000
+   macro avg       0.78      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert NvidiaFILGPU model: 2642.548084259033
+TOTAL Time Taken for NvidiaFILGPU: 4507.192373275757
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+-e 
+
+
+gpu_run.sh: 53: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f NvidiaFILGPU --batch_size 100000 --query_size 100000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: NvidiaFILGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4956.632137298584
+[04:27:08] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 345.23606300354004
+Time Taken to predict on NvidiaFILGPU is 1333.5888385772705
+Time Taken to write results to a text file for NvidiaFILGPU is 585.8914852142334
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       0.85      0.59      0.70   1034836
+           1       0.71      0.91      0.80   1165164
+
+    accuracy                           0.76   2200000
+   macro avg       0.78      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert NvidiaFILGPU model: 2628.8087368011475
+TOTAL Time Taken for NvidiaFILGPU: 4548.362970352173
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+-e 
+
+
+gpu_run.sh: 53: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f NvidiaFILGPU --batch_size 2200000 --query_size 2200000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: NvidiaFILGPU
+Query Size: 2200000
+Batch Size: 2200000
+Trees 1600
+Depth 8
+Time Taken to load higgs as a dataframe is: 4963.914394378662
+[04:27:27] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 344.8982238769531
+Time Taken to predict on NvidiaFILGPU is 1474.2915630340576
+Time Taken to write results to a text file for NvidiaFILGPU is 589.6124839782715
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       0.85      0.59      0.70   1034836
+           1       0.71      0.91      0.80   1165164
+
+    accuracy                           0.76   2200000
+   macro avg       0.78      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert NvidiaFILGPU model: 2631.622552871704
+TOTAL Time Taken for NvidiaFILGPU: 4695.605516433716
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+-e 
+
+
