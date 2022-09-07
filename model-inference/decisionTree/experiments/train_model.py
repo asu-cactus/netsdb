@@ -31,16 +31,19 @@ def parse_arguments():
     print(f"MODEL: {MODEL}")
     return args
 
-def train(config, df_train):
-    print("start training...")
-
+def train(config, train_data):
     # Prepare data
-    y_col = config[DATASET]["y_col"]
-    x_col = list(df_train.columns)
-    x_col.remove(y_col)
+    if isinstance(train_data, tuple):
+        x, y = train_data
+        print(f"Number of training examples: {len(y)}")
+    else:  
+        print(f"Number of training examples: {len(train_data)}")
+        y_col = config[DATASET]["y_col"]
+        x_col = list(train_data.columns)
+        x_col.remove(y_col)
 
-    x = np.array(df_train[x_col])
-    y = np.array(df_train[y_col])
+        x = np.array(train_data[x_col])
+        y = np.array(train_data[y_col])
 
     # Load model
     # The settings of the models are consistent with Hummingbird: https://github.com/microsoft/hummingbird/blob/main/benchmarks/trees/train.py
@@ -123,6 +126,5 @@ def train(config, df_train):
 if __name__ ==  "__main__":
     parse_arguments()
     config = json.load(open(relative2abspath("config.json")))
-    df_train = fetch_data(DATASET,config,"train")
-    print(f"Number of training examples: {len(df_train)}")
-    train(config, df_train)
+    train_data = fetch_data(DATASET,config,"train")
+    train(config, train_data)

@@ -31,8 +31,7 @@ def download_data(url, dataset_folder):
 
 def prepare_higgs(dataset_folder, nrows):
     url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/00280/HIGGS.csv.gz'
-    local_url = relative2abspath(dataset_folder, os.path.basename(url))
-    download_data(url, dataset_folder)
+    local_url = download_data(url, dataset_folder)
     df = pd.read_csv(local_url, dtype=np.float32, header=None, nrows=nrows)
     df = df.astype({0: np.int8})
     return df
@@ -132,6 +131,14 @@ def prepare_covtype(dataset_folder, nrows=None):
     # Training classifier requires labels [0 1 2 3 4 5 6], but the original data's labels are [1 2 3 4 5 6 7]
     df["Cover_Type"] = df["Cover_Type"] - 1 
     return df
+
+def prepare_criteo(dataset_folder):
+    url = "https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/binary/criteo.kaggle2014.svm.tar.xz"
+    local_url = download_data(url, dataset_folder)
+    train_path = relative2abspath(dataset_folder, "criteo.kaggle2014.svm", "train.txt.svm")
+    test_path = relative2abspath(dataset_folder, "criteo.kaggle2014.svm", "test.txt.svm")
+    if not (os.path.isfile(train_path) and os.path.isfile(test_path)):
+        os.system(f"tar -Jxf {local_url} -O {dataset_folder}")
 
 
 def get_connection(pgsqlconfig):
@@ -237,6 +244,9 @@ if __name__ ==  "__main__":
         df = prepare_bosch(dataset_folder, nrows=nrows)
     elif dataset == 'covtype':
         df = prepare_covtype(dataset_folder, nrows=nrows)
+    elif dataset == 'criteo':
+        prepare_criteo(dataset_folder)
+        exit()
     else:
         raise ValueError(f"{dataset} not supported")
 

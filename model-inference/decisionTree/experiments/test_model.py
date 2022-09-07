@@ -81,12 +81,16 @@ def parse_arguments(config):
 
 
 def load_data(config, time_consume):
-    df_test = fetch_data(DATASET, config, "test", time_consume=time_consume)
+    test_data = fetch_data(DATASET, config, "test", time_consume=time_consume)
+    if isinstance(test_data, tuple):
+        features, label = test_data
+        return (features, label)
+        
     y_col = config[DATASET]["y_col"]
-    x_col = list(df_test.columns)
+    x_col = list(test_data.columns)
     x_col.remove(y_col)
-    features = df_test[x_col].to_numpy(dtype=np.float32)
-    label = df_test[y_col]
+    features = test_data[x_col].to_numpy(dtype=np.float32)
+    label = test_data[y_col]
     return (features, label)
 
 def load_sklearn_model(config, time_consume):
