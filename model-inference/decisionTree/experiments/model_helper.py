@@ -5,10 +5,19 @@ import time
 import os
 import numpy as np
 import math
+from sklearn import datasets
+from joblib import Memory
 from sklearn.metrics import classification_report, mean_squared_error
 import treelite_runtime
 
 dataset_folder = "dataset/"
+
+def relative2abspath(path, *paths):
+    return os.path.join(
+        os.path.dirname(__file__),
+        path,
+        *paths
+    )
 
 def calculate_time(start_time,end_time):
     diff = (end_time-start_time)*1000
@@ -26,9 +35,23 @@ def load_data_from_pickle(dataset, config, suffix, time_consume):
     # import pdb; pdb.set_trace()
     return dataframe
 
+mem = Memory("./mycache")
+
+@mem.cache
+def fetch_criteo(suffix):
+    path = relative2abspath(dataset_folder, "criteo.kaggle2014.svm", f"{suffix}.txt.svm")
+    # TODO: Here the training size is hardcoded.
+    length = 4500000 if suffix == 'train' else -1
+    x, y = datasets.load_svmlight_file(path, length=length, dtype=np.float32)
+    y = y.astype(np.int8, copy=False)
+    return (x, y)
+
 def fetch_data(dataset, config, suffix, time_consume=None):
     if dataset == "epsilon": # Does not fit PostgreSQL
         return load_data_from_pickle(dataset, config, suffix, time_consume)
+    if dataset == "criteo":        
+        return fetch_criteo(suffix)
+
     try:
         pgsqlconfig = config["pgsqlconfig"]
         datasetconfig = config[dataset]
@@ -142,12 +165,6 @@ def find_MSE(framework,y_actual, y_pred):
     print(f"MSE: {mean_squared_error(y_actual, y_pred)}")
     print("################")
 
-def relative2abspath(path, *paths):
-    return os.path.join(
-        os.path.dirname(__file__),
-        path,
-        *paths
-    )
 
 def check_argument_conflicts(args):
     model = args.model.lower()

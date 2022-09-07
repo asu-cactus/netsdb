@@ -13,34 +13,41 @@ from model_helper import *
 
 DATASET = "airline_classification"
 MODEL = "xgboost"
+GPU = False
 
 def parse_arguments():
-    global DATASET, MODEL
+    global DATASET, MODEL, GPU
     parser = argparse.ArgumentParser(description='Arguments for train_model.')
     parser.add_argument("-d", "--dataset", type=str, choices=['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype'],
         help="Dataset to be trained. Choose from ['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype']")
     parser.add_argument("-m", "--model", type=str, choices=['randomforest', 'xgboost', 'lightgbm'],
         help="Model name. Choose from ['randomforest', 'xgboost', 'lightgbm']")
+    parser.add_argument("--gpu", action="store_true", help="Whether or not use gpu to accelerate xgboost training.")
     args = parser.parse_args()
     if args.dataset:
         DATASET = args.dataset
     if args.model:
         MODEL = args.model
+    if args.gpu:
+        GPU = True
     check_argument_conflicts(args)
     print(f"DATASET: {DATASET}")
     print(f"MODEL: {MODEL}")
     return args
 
-def train(config, df_train):
-    print("start training...")
-
+def train(config, train_data):
     # Prepare data
-    y_col = config[DATASET]["y_col"]
-    x_col = list(df_train.columns)
-    x_col.remove(y_col)
+    if isinstance(train_data, tuple):
+        x, y = train_data
+        print(f"Number of training examples: {len(y)}")
+    else:  
+        print(f"Number of training examples: {len(train_data)}")
+        y_col = config[DATASET]["y_col"]
+        x_col = list(train_data.columns)
+        x_col.remove(y_col)
 
-    x = np.array(df_train[x_col])
-    y = np.array(df_train[y_col])
+        x = np.array(train_data[x_col])
+        y = np.array(train_data[y_col])
 
     # Load model
     # The settings of the models are consistent with Hummingbird: https://github.com/microsoft/hummingbird/blob/main/benchmarks/trees/train.py
@@ -71,7 +78,7 @@ def train(config, df_train):
             n_estimators=config["num_trees"],
             max_leaves=256,
             learning_rate=0.1,
-            tree_method="hist",
+            tree_method="gpu_hist" if GPU else "hist",
             reg_lambda=1,
             verbosity=0,
             n_jobs=-1,
@@ -110,7 +117,7 @@ def train(config, df_train):
         metrics_method = metrics.classification_report
     else:
         metrics_method = metrics.mean_squared_error
-    print(metrics_method(df_train[y_col],model.predict(df_train[x_col])))
+    print(metrics_method(train_data[y_col],model.predict(train_data[x_col])))
 
     # Save the model using joblib
     joblib_time_start = time.time()
@@ -123,6 +130,5 @@ def train(config, df_train):
 if __name__ ==  "__main__":
     parse_arguments()
     config = json.load(open(relative2abspath("config.json")))
-    df_train = fetch_data(DATASET,config,"train")
-    print(f"Number of training examples: {len(df_train)}")
-    train(config, df_train)
+    train_data = fetch_data(DATASET,config,"train")
+    train(config, train_data)
