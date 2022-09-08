@@ -1,14 +1,10 @@
 import pickle
-import connectorx as cx
-import psycopg2
 import time
 import os
 import numpy as np
 import math
-from sklearn import datasets
 from joblib import Memory
 from sklearn.metrics import classification_report, mean_squared_error
-import treelite_runtime
 
 dataset_folder = "dataset/"
 
@@ -39,6 +35,7 @@ mem = Memory("./mycache")
 
 @mem.cache
 def fetch_criteo(suffix):
+    from sklearn import datasets
     path = relative2abspath(dataset_folder, "criteo.kaggle2014.svm", f"{suffix}.txt.svm")
     # TODO: Here the training size is hardcoded.
     length = 4500000 if suffix == 'train' else -1
@@ -53,6 +50,8 @@ def fetch_data(dataset, config, suffix, time_consume=None):
         return fetch_criteo(suffix)
 
     try:
+        import connectorx as cx
+        import psycopg2
         pgsqlconfig = config["pgsqlconfig"]
         datasetconfig = config[dataset]
         query = datasetconfig["query"]+"_"+suffix
@@ -100,6 +99,7 @@ def run_inference(framework, features, input_size, query_size, predict, time_con
     results = []
     iterations = math.ceil(input_size/query_size)
     if framework == "TreeLite":
+        import treelite_runtime
         def aggregate_function():
             def append(output):
                 results.append(output)
