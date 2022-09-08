@@ -28,7 +28,16 @@ def parse_arguments(config):
     """)
     parser.add_argument(
         "-d", "--dataset", type=str, 
-        choices=['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype'],
+        choices=[
+            'higgs', 
+            'airline_regression', 
+            'airline_classification', 
+            'fraud', 
+            'year', 
+            'epsilon', 
+            'bosch', 
+            'covtype', 
+            'criteo'],
         help="Dataset to be tested.")
     parser.add_argument(
         "-m", "--model", type=str,  

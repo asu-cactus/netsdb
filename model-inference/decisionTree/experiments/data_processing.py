@@ -16,7 +16,16 @@ import math
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Arguments for data_processing.py')
     parser.add_argument("-d", "--dataset", type=str, required=True,
-        choices=['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype'],
+        choices=[
+            'higgs', 
+            'airline_regression', 
+            'airline_classification', 
+            'fraud', 
+            'year', 
+            'epsilon', 
+            'bosch', 
+            'covtype',
+            'criteo'],
         help="Dataset to be processed. Choose from ['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype']")
     parser.add_argument("-n", "--nrows", type=int, help="Load nrows of the dataset. Warning: only use in development.")
     args = parser.parse_args()

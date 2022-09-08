@@ -18,7 +18,16 @@ GPU = False
 def parse_arguments():
     global DATASET, MODEL, GPU
     parser = argparse.ArgumentParser(description='Arguments for train_model.')
-    parser.add_argument("-d", "--dataset", type=str, choices=['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype'],
+    parser.add_argument("-d", "--dataset", type=str, choices=[
+        'higgs', 
+        'airline_regression', 
+        'airline_classification', 
+        'fraud', 
+        'year', 
+        'epsilon', 
+        'bosch', 
+        'covtype',
+        'criteo'],
         help="Dataset to be trained. Choose from ['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype']")
     parser.add_argument("-m", "--model", type=str, choices=['randomforest', 'xgboost', 'lightgbm'],
         help="Model name. Choose from ['randomforest', 'xgboost', 'lightgbm']")
