@@ -37,9 +37,7 @@ mem = Memory("./mycache")
 def fetch_criteo(suffix):
     from sklearn import datasets
     path = relative2abspath(dataset_folder, "criteo.kaggle2014.svm", f"{suffix}.txt.svm")
-    # TODO: Here the training size is hardcoded.
-    length = 4500000 if suffix == 'train' else -1
-    x, y = datasets.load_svmlight_file(path, length=length, dtype=np.float32)
+    x, y = datasets.load_svmlight_file(path, dtype=np.float32)
     y = y.astype(np.int8, copy=False)
     return (x, y)
 
