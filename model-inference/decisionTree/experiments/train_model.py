@@ -126,7 +126,7 @@ def train(config, train_data):
         metrics_method = metrics.classification_report
     else:
         metrics_method = metrics.mean_squared_error
-    print(metrics_method(train_data[y_col],model.predict(train_data[x_col])))
+    print(metrics_method(y, model.predict(x)))
 
     # Save the model using joblib
     joblib_time_start = time.time()
