@@ -8,13 +8,6 @@ from sklearn.metrics import classification_report, mean_squared_error
 
 dataset_folder = "dataset/"
 
-def relative2abspath(path, *paths):
-    return os.path.join(
-        os.path.dirname(__file__),
-        path,
-        *paths
-    )
-
 def calculate_time(start_time,end_time):
     diff = (end_time-start_time)*1000
     return diff
@@ -163,7 +156,13 @@ def find_MSE(framework,y_actual, y_pred):
     print(f"MSE: {mean_squared_error(y_actual, y_pred)}")
     print("################")
 
-
+def relative2abspath(path, *paths):
+    return os.path.join(
+        os.path.dirname(__file__),
+        path,
+        *paths
+    )
+    
 def check_argument_conflicts(args):
     model = args.model.lower()
 

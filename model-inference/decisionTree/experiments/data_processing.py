@@ -109,7 +109,6 @@ def prepare_bosch(dataset_folder, nrows=None):
     df = df.astype({"Response": np.int8})
     return df
 
-
 def prepare_year(dataset_folder, nrows=None):
     url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/00203/YearPredictionMSD.txt.zip'
     local_url = download_data(url, dataset_folder)
@@ -130,7 +129,6 @@ def prepare_epsilon(nrows=None):
     df.iloc[:, 0] = (df.iloc[:, 0] + 1) // 2
     return df
 
-
 def prepare_covtype(dataset_folder, nrows=None): 
     df = datasets.fetch_covtype(data_home=dataset_folder, as_frame=True)["frame"]
     if nrows is not None:
@@ -146,9 +144,9 @@ def prepare_criteo(dataset_folder):
     local_url = download_data(url, dataset_folder)
     train_path = relative2abspath(dataset_folder, "criteo.kaggle2014.svm", "train.txt.svm")
     test_path = relative2abspath(dataset_folder, "criteo.kaggle2014.svm", "test.txt.svm")
-    if not (os.path.isfile(train_path) and os.path.isfile(test_path)):
-        os.system(f"tar -Jxf {local_url} -O {dataset_folder}")
 
+    if not (os.path.isfile(train_path) and os.path.isfile(test_path)):
+        os.system(f"tar -Jxf {local_url} -C {dataset_folder}")
 
 def get_connection(pgsqlconfig):
     return psycopg2.connect(
