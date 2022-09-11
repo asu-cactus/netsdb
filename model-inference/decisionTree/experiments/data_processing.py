@@ -16,8 +16,8 @@ import math
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Arguments for data_processing.py')
     parser.add_argument("-d", "--dataset", type=str, required=True,
-        choices=['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype'],
-        help="Dataset to be processed. Choose from ['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype']")
+        choices=['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype', 'tpcxai_fraud'],
+        help="Dataset to be processed. Choose from ['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype', 'tpcxai_fraud']")
     parser.add_argument("-n", "--nrows", type=int, help="Load nrows of the dataset. Warning: only use in development.")
     args = parser.parse_args()
     return args
@@ -133,6 +133,55 @@ def prepare_covtype(dataset_folder, nrows=None):
     df["Cover_Type"] = df["Cover_Type"] - 1 
     return df
 
+def prepare_tpcxai_fraud_transactions(dataset_folder,nrows=None):
+    import re
+    from datetime import datetime
+    from tqdm import tqdm
+    import time
+    tqdm.pandas()
+    file_name = 'financial_transactions_train.csv'  # Put the file in same directory
+    df = pd.read_csv(file_name, nrows=nrows)
+
+    start_time = time.time()
+    print('FEATURE ENGINEERING: Conversion of Text to Numerical Features')
+    # Convert Text-based Columns to Numerical Values
+    numericalize_text_feature_fn = lambda input: re.sub(r"[^0-9]","",input).strip()
+    # convert_datetime_feature_fn = lambda input: pd.Series([int(x) for x in datetime.strftime(datetime.strptime(input, "%Y-%m-%dT%H:%M"),"%d%m%Y:%H%M").split(':')])
+    convert_datetime_feature_intermediate_fn = lambda input: datetime.strftime(datetime.strptime(input, "%Y-%m-%dT%H:%M"),"%d%m%Y:%H%M")
+    convert_datetime_feature_final_fn = lambda input: pd.Series([float(x) for x in input.split(':')])
+
+    print('[1] Converting IBAN to Numerical Feature [DE4875000009209924 -> 4875000009209924]')
+    df['IBAN'] = df['IBAN'].progress_apply(numericalize_text_feature_fn)
+    print(f'Time Taken until here: {(time.time()-start_time)} seconds')
+    print('[2] Converting receiverID to Numerical Feature [FOR55821814 -> 55821814]')
+    df['receiverID'] = df['receiverID'].progress_apply(numericalize_text_feature_fn)
+    print(f'Time Taken until here: {(time.time()-start_time)} seconds')
+    print('[3] Converting time to Numerical Feature [2011-01-29T15:28 -> [29012011, 1528]]')
+    print('\t[3.1] STAGE 1: Conversion of Date to the Required Format [2011-01-29T15:28 -> 29012011:1528]')
+    df['time'] = df['time'].progress_apply(convert_datetime_feature_intermediate_fn)
+    print(f'Time Taken until here: {(time.time()-start_time)} seconds')
+    print('\t[3.2] STAGE 2: Conversion of Formatted Date to New Features [29012011:1528 -> [29012011, 1528]]')
+    print('This Stage takes long time to complete after Bar reaches 100% as it also writes to the TWO new Columns [date, time]')
+    df[['date','time']] = df['time'].progress_apply(convert_datetime_feature_final_fn)
+    print(f'Time Taken until here: {(time.time()-start_time)} seconds')
+    print('[4] Change Column Name isFraud to is_fraud due to SQL Case-insensitive Nature')
+    df = df.rename(columns={"isFraud": "is_fraud"}, errors="raise")
+    print(f'Time Taken until here: {(time.time()-start_time)} seconds')
+    print('[5] Move is_fraud (Class Label) to the Last Column')
+    columns = list(df.columns.values)
+    columns.pop(columns.index("is_fraud"))
+    df = df[columns + ["is_fraud"]]
+    print(f'Time Taken until here: {(time.time()-start_time)} seconds')
+
+    # DataType Conversion. All features can be made Integers, hence making them int64
+    dtype=np.float32
+    df = df.astype({"IBAN": dtype, "receiverID": dtype, "date": dtype, "time": dtype, "is_fraud": np.int8})
+
+    print('-'*50)
+    print('Feature Engineering and Creating the New Dataset DONE')
+    print(f'Total Time Taken for Preparing the New Dataset: {(time.time()-start_time)} seconds')
+    return df
+
 
 def get_connection(pgsqlconfig):
     return psycopg2.connect(
@@ -157,6 +206,12 @@ def make_query(dataset, datasetconfig, column_names):
         feature_names = ", ".join([f"{col_name} DECIMAL NOT NULL" for col_name in column_names[:-1]])
         label_name = f"{column_names[-1]} INTEGER NOT NULL"
         create_query = f"CREATE TABLE ** ({feature_names}, {label_name})"
+    elif dataset == "tpcxai_fraud":
+        if datasetconfig['y_col'] in column_names:
+            column_names.remove(datasetconfig['y_col'])
+        feature_names = ", ".join([f"{col_name} DECIMAL NOT NULL" for col_name in column_names])
+        label_name = f"{datasetconfig['y_col']} INTEGER NOT NULL"
+        create_query = f"CREATE TABLE ** ({feature_names}, {label_name})"
     else:
         create_query = datasetconfig["create"]
     train_create_query = create_query.replace("**", f"{datasetconfig['table']}_train", 1)
@@ -172,8 +227,8 @@ def save_as_pickle(train, test, dataset_folder, filename):
 
 
 def save_to_csv(train, test, dataset_folder, filename):
-    
-    train_csv_path = relative2abspath(dataset_folder, f"{filename}_train.csv")
+    filename = filename.split('.')[0]  # Remove Filetype
+    train_csv_path = relative2abspath(dataset_folder, f"{filename.split('.')[0]}_train.csv")
     train.to_csv(train_csv_path,index=False,header=False)
     test_csv_path = relative2abspath(dataset_folder, f"{filename}_test.csv")
     test.to_csv(test_csv_path,index=False,header=False)
@@ -237,6 +292,8 @@ if __name__ ==  "__main__":
         df = prepare_bosch(dataset_folder, nrows=nrows)
     elif dataset == 'covtype':
         df = prepare_covtype(dataset_folder, nrows=nrows)
+    elif dataset=="tpcxai_fraud":
+        df = prepare_tpcxai_fraud_transactions(dataset_folder, nrows=nrows)
     else:
         raise ValueError(f"{dataset} not supported")
 
@@ -258,7 +315,7 @@ if __name__ ==  "__main__":
 
     # Second step: copy csv to database
     column_names = list(df.columns)
-    del df 
+    del df
     gc.collect()
     connection = get_connection(pgsqlconfig)
     train_query, test_query = make_query(dataset, datasetconfig, column_names)
