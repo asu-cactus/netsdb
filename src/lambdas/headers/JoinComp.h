@@ -44,7 +44,7 @@ public:
 template <typename Out, typename In1, typename In2, typename... Rest>
 class JoinComp : public JoinCompBase {
 
-private:
+protected:
     // JiaNote: this is used to pass to lambda tree to update pipeline information for each input
     MultiInputsBase* multiInputsBase = nullptr;
 

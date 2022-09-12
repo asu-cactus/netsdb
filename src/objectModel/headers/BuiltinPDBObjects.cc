@@ -66,93 +66,97 @@ objectTypeNamesList [getTypeName <EnsembleTreeCompiledUDFDouble> ()] = 64;
 objectTypeNamesList [getTypeName <EnsembleTreeCompiledUDFFloat> ()] = 65;
 objectTypeNamesList [getTypeName <EnsembleTreeGenericUDFDouble> ()] = 66;
 objectTypeNamesList [getTypeName <EnsembleTreeGenericUDFFloat> ()] = 67;
-objectTypeNamesList [getTypeName <ExecuteComputation> ()] = 68;
-objectTypeNamesList [getTypeName <ExecuteQuery> ()] = 69;
-objectTypeNamesList [getTypeName <Forest> ()] = 70;
-objectTypeNamesList [getTypeName <GenericBlock> ()] = 71;
-objectTypeNamesList [getTypeName <GetListOfNodes> ()] = 72;
-objectTypeNamesList [getTypeName <HashPartitionedJoinBuildHTJobStage> ()] = 73;
-objectTypeNamesList [getTypeName <Holder<Nothing>> ()] = 74;
-objectTypeNamesList [getTypeName <JoinMap <Nothing>> ()] = 75;
-objectTypeNamesList [getTypeName <JoinPairArray <Nothing>> ()] = 76;
-objectTypeNamesList [getTypeName <KMeansDoubleVector> ()] = 77;
-objectTypeNamesList [getTypeName <KeepGoing> ()] = 78;
-objectTypeNamesList [getTypeName <LambdaIdentifier> ()] = 79;
-objectTypeNamesList [getTypeName <ListOfNodes> ()] = 80;
-objectTypeNamesList [getTypeName <Map <Nothing>> ()] = 81;
-objectTypeNamesList [getTypeName <MyEmployee> ()] = 82;
-objectTypeNamesList [getTypeName <NodeDispatcherData> ()] = 83;
-objectTypeNamesList [getTypeName <NodeInfo> ()] = 84;
-objectTypeNamesList [getTypeName <Nothing> ()] = 85;
-objectTypeNamesList [getTypeName <Object> ()] = 86;
-objectTypeNamesList [getTypeName <OptimizedDepartmentEmployees> ()] = 87;
-objectTypeNamesList [getTypeName <OptimizedEmployee> ()] = 88;
-objectTypeNamesList [getTypeName <OptimizedSupervisor> ()] = 89;
-objectTypeNamesList [getTypeName <PairArray <Nothing>> ()] = 90;
-objectTypeNamesList [getTypeName <PlaceOfQueryPlanner> ()] = 91;
-objectTypeNamesList [getTypeName <QueriesAndPlan> ()] = 92;
-objectTypeNamesList [getTypeName <QueryDone> ()] = 93;
-objectTypeNamesList [getTypeName <QueryOutput <Nothing>> ()] = 94;
-objectTypeNamesList [getTypeName <QueryPermit> ()] = 95;
-objectTypeNamesList [getTypeName <QueryPermitResponse> ()] = 96;
-objectTypeNamesList [getTypeName <RequestResources> ()] = 97;
-objectTypeNamesList [getTypeName <ResourceInfo> ()] = 98;
-objectTypeNamesList [getTypeName <ScanDoubleVectorSet> ()] = 99;
-objectTypeNamesList [getTypeName <ScanUserSet <Nothing>> ()] = 100;
-objectTypeNamesList [getTypeName <Set <Nothing>> ()] = 101;
-objectTypeNamesList [getTypeName <SetIdentifier> ()] = 102;
-objectTypeNamesList [getTypeName <SetScan> ()] = 103;
-objectTypeNamesList [getTypeName <ShutDown> ()] = 104;
-objectTypeNamesList [getTypeName <SimpleRequestResult> ()] = 105;
-objectTypeNamesList [getTypeName <StorageAddData> ()] = 106;
-objectTypeNamesList [getTypeName <StorageAddDatabase> ()] = 107;
-objectTypeNamesList [getTypeName <StorageAddModel> ()] = 108;
-objectTypeNamesList [getTypeName <StorageAddModelResponse> ()] = 109;
-objectTypeNamesList [getTypeName <StorageAddObject> ()] = 110;
-objectTypeNamesList [getTypeName <StorageAddObjectInLoop> ()] = 111;
-objectTypeNamesList [getTypeName <StorageAddSet> ()] = 112;
-objectTypeNamesList [getTypeName <StorageAddSharedMapping> ()] = 113;
-objectTypeNamesList [getTypeName <StorageAddSharedPage> ()] = 114;
-objectTypeNamesList [getTypeName <StorageAddTempSet> ()] = 115;
-objectTypeNamesList [getTypeName <StorageAddTempSetResult> ()] = 116;
-objectTypeNamesList [getTypeName <StorageAddType> ()] = 117;
-objectTypeNamesList [getTypeName <StorageBytesPinned> ()] = 118;
-objectTypeNamesList [getTypeName <StorageCleanup> ()] = 119;
-objectTypeNamesList [getTypeName <StorageClearSet> ()] = 120;
-objectTypeNamesList [getTypeName <StorageCollectStats> ()] = 121;
-objectTypeNamesList [getTypeName <StorageCollectStatsResponse> ()] = 122;
-objectTypeNamesList [getTypeName <StorageExportSet> ()] = 123;
-objectTypeNamesList [getTypeName <StorageGetData> ()] = 124;
-objectTypeNamesList [getTypeName <StorageGetDataResponse> ()] = 125;
-objectTypeNamesList [getTypeName <StorageGetSetPages> ()] = 126;
-objectTypeNamesList [getTypeName <StorageGetStats> ()] = 127;
-objectTypeNamesList [getTypeName <StorageNoMorePage> ()] = 128;
-objectTypeNamesList [getTypeName <StoragePagePinned> ()] = 129;
-objectTypeNamesList [getTypeName <StoragePinBytes> ()] = 130;
-objectTypeNamesList [getTypeName <StoragePinPage> ()] = 131;
-objectTypeNamesList [getTypeName <StorageRemoveDatabase> ()] = 132;
-objectTypeNamesList [getTypeName <StorageRemoveHashSet> ()] = 133;
-objectTypeNamesList [getTypeName <StorageRemoveTempSet> ()] = 134;
-objectTypeNamesList [getTypeName <StorageRemoveUserSet> ()] = 135;
-objectTypeNamesList [getTypeName <StorageTestSetCopy> ()] = 136;
-objectTypeNamesList [getTypeName <StorageTestSetScan> ()] = 137;
-objectTypeNamesList [getTypeName <StorageUnpinPage> ()] = 138;
-objectTypeNamesList [getTypeName <StringIntPair> ()] = 139;
-objectTypeNamesList [getTypeName <SumResult> ()] = 140;
-objectTypeNamesList [getTypeName <Supervisor> ()] = 141;
-objectTypeNamesList [getTypeName <TensorBlock2D <Nothing>> ()] = 142;
-objectTypeNamesList [getTypeName <TensorBlockIdentifier> ()] = 143;
-objectTypeNamesList [getTypeName <TensorBlockMeta> ()] = 144;
-objectTypeNamesList [getTypeName <TensorData2D <Nothing>> ()] = 145;
-objectTypeNamesList [getTypeName <TensorMeta2D> ()] = 146;
-objectTypeNamesList [getTypeName <TopKQueue <Nothing>> ()] = 147;
-objectTypeNamesList [getTypeName <TupleSetExecuteQuery> ()] = 148;
-objectTypeNamesList [getTypeName <TupleSetJobStage> ()] = 149;
-objectTypeNamesList [getTypeName <Vector <Nothing>> ()] = 150;
-objectTypeNamesList [getTypeName <VectorDoubleWriter> ()] = 151;
-objectTypeNamesList [getTypeName <VectorFloatWriter> ()] = 152;
-objectTypeNamesList [getTypeName <WriteUserSet <Nothing>> ()] = 153;
-objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
+objectTypeNamesList [getTypeName <EnsembleTreeUDFDouble> ()] = 68;
+objectTypeNamesList [getTypeName <EnsembleTreeUDFFloat> ()] = 69;
+objectTypeNamesList [getTypeName <ExecuteComputation> ()] = 70;
+objectTypeNamesList [getTypeName <ExecuteQuery> ()] = 71;
+objectTypeNamesList [getTypeName <Forest> ()] = 72;
+objectTypeNamesList [getTypeName <ForestObjectBased> ()] = 73;
+objectTypeNamesList [getTypeName <GenericBlock> ()] = 74;
+objectTypeNamesList [getTypeName <GetListOfNodes> ()] = 75;
+objectTypeNamesList [getTypeName <HashPartitionedJoinBuildHTJobStage> ()] = 76;
+objectTypeNamesList [getTypeName <Holder<Nothing>> ()] = 77;
+objectTypeNamesList [getTypeName <JoinMap <Nothing>> ()] = 78;
+objectTypeNamesList [getTypeName <JoinPairArray <Nothing>> ()] = 79;
+objectTypeNamesList [getTypeName <KMeansDoubleVector> ()] = 80;
+objectTypeNamesList [getTypeName <KeepGoing> ()] = 81;
+objectTypeNamesList [getTypeName <LambdaIdentifier> ()] = 82;
+objectTypeNamesList [getTypeName <ListOfNodes> ()] = 83;
+objectTypeNamesList [getTypeName <Map <Nothing>> ()] = 84;
+objectTypeNamesList [getTypeName <MyEmployee> ()] = 85;
+objectTypeNamesList [getTypeName <NodeDispatcherData> ()] = 86;
+objectTypeNamesList [getTypeName <NodeInfo> ()] = 87;
+objectTypeNamesList [getTypeName <Nothing> ()] = 88;
+objectTypeNamesList [getTypeName <Object> ()] = 89;
+objectTypeNamesList [getTypeName <OptimizedDepartmentEmployees> ()] = 90;
+objectTypeNamesList [getTypeName <OptimizedEmployee> ()] = 91;
+objectTypeNamesList [getTypeName <OptimizedSupervisor> ()] = 92;
+objectTypeNamesList [getTypeName <PairArray <Nothing>> ()] = 93;
+objectTypeNamesList [getTypeName <PlaceOfQueryPlanner> ()] = 94;
+objectTypeNamesList [getTypeName <QueriesAndPlan> ()] = 95;
+objectTypeNamesList [getTypeName <QueryDone> ()] = 96;
+objectTypeNamesList [getTypeName <QueryOutput <Nothing>> ()] = 97;
+objectTypeNamesList [getTypeName <QueryPermit> ()] = 98;
+objectTypeNamesList [getTypeName <QueryPermitResponse> ()] = 99;
+objectTypeNamesList [getTypeName <RequestResources> ()] = 100;
+objectTypeNamesList [getTypeName <ResourceInfo> ()] = 101;
+objectTypeNamesList [getTypeName <ScanDoubleVectorSet> ()] = 102;
+objectTypeNamesList [getTypeName <ScanUserSet <Nothing>> ()] = 103;
+objectTypeNamesList [getTypeName <Set <Nothing>> ()] = 104;
+objectTypeNamesList [getTypeName <SetIdentifier> ()] = 105;
+objectTypeNamesList [getTypeName <SetScan> ()] = 106;
+objectTypeNamesList [getTypeName <ShutDown> ()] = 107;
+objectTypeNamesList [getTypeName <SimpleRequestResult> ()] = 108;
+objectTypeNamesList [getTypeName <StorageAddData> ()] = 109;
+objectTypeNamesList [getTypeName <StorageAddDatabase> ()] = 110;
+objectTypeNamesList [getTypeName <StorageAddModel> ()] = 111;
+objectTypeNamesList [getTypeName <StorageAddModelResponse> ()] = 112;
+objectTypeNamesList [getTypeName <StorageAddObject> ()] = 113;
+objectTypeNamesList [getTypeName <StorageAddObjectInLoop> ()] = 114;
+objectTypeNamesList [getTypeName <StorageAddSet> ()] = 115;
+objectTypeNamesList [getTypeName <StorageAddSharedMapping> ()] = 116;
+objectTypeNamesList [getTypeName <StorageAddSharedPage> ()] = 117;
+objectTypeNamesList [getTypeName <StorageAddTempSet> ()] = 118;
+objectTypeNamesList [getTypeName <StorageAddTempSetResult> ()] = 119;
+objectTypeNamesList [getTypeName <StorageAddType> ()] = 120;
+objectTypeNamesList [getTypeName <StorageBytesPinned> ()] = 121;
+objectTypeNamesList [getTypeName <StorageCleanup> ()] = 122;
+objectTypeNamesList [getTypeName <StorageClearSet> ()] = 123;
+objectTypeNamesList [getTypeName <StorageCollectStats> ()] = 124;
+objectTypeNamesList [getTypeName <StorageCollectStatsResponse> ()] = 125;
+objectTypeNamesList [getTypeName <StorageExportSet> ()] = 126;
+objectTypeNamesList [getTypeName <StorageGetData> ()] = 127;
+objectTypeNamesList [getTypeName <StorageGetDataResponse> ()] = 128;
+objectTypeNamesList [getTypeName <StorageGetSetPages> ()] = 129;
+objectTypeNamesList [getTypeName <StorageGetStats> ()] = 130;
+objectTypeNamesList [getTypeName <StorageNoMorePage> ()] = 131;
+objectTypeNamesList [getTypeName <StoragePagePinned> ()] = 132;
+objectTypeNamesList [getTypeName <StoragePinBytes> ()] = 133;
+objectTypeNamesList [getTypeName <StoragePinPage> ()] = 134;
+objectTypeNamesList [getTypeName <StorageRemoveDatabase> ()] = 135;
+objectTypeNamesList [getTypeName <StorageRemoveHashSet> ()] = 136;
+objectTypeNamesList [getTypeName <StorageRemoveTempSet> ()] = 137;
+objectTypeNamesList [getTypeName <StorageRemoveUserSet> ()] = 138;
+objectTypeNamesList [getTypeName <StorageTestSetCopy> ()] = 139;
+objectTypeNamesList [getTypeName <StorageTestSetScan> ()] = 140;
+objectTypeNamesList [getTypeName <StorageUnpinPage> ()] = 141;
+objectTypeNamesList [getTypeName <StringIntPair> ()] = 142;
+objectTypeNamesList [getTypeName <SumResult> ()] = 143;
+objectTypeNamesList [getTypeName <Supervisor> ()] = 144;
+objectTypeNamesList [getTypeName <TensorBlock2D <Nothing>> ()] = 145;
+objectTypeNamesList [getTypeName <TensorBlockIdentifier> ()] = 146;
+objectTypeNamesList [getTypeName <TensorBlockMeta> ()] = 147;
+objectTypeNamesList [getTypeName <TensorData2D <Nothing>> ()] = 148;
+objectTypeNamesList [getTypeName <TensorMeta2D> ()] = 149;
+objectTypeNamesList [getTypeName <TopKQueue <Nothing>> ()] = 150;
+objectTypeNamesList [getTypeName <TreeNodeObjectBased> ()] = 151;
+objectTypeNamesList [getTypeName <TupleSetExecuteQuery> ()] = 152;
+objectTypeNamesList [getTypeName <TupleSetJobStage> ()] = 153;
+objectTypeNamesList [getTypeName <Vector <Nothing>> ()] = 154;
+objectTypeNamesList [getTypeName <VectorDoubleWriter> ()] = 155;
+objectTypeNamesList [getTypeName <VectorFloatWriter> ()] = 156;
+objectTypeNamesList [getTypeName <WriteUserSet <Nothing>> ()] = 157;
+objectTypeNamesList [getTypeName <ZB_Company> ()] = 158;
 
 // now, record all of the vTables
 {
@@ -808,8 +812,28 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 {
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
-		ExecuteComputation tempObject;
+		EnsembleTreeUDFDouble tempObject;
 		allVTables [68] = tempObject.getVTablePtr ();
+	} catch (NotEnoughSpace &e) {
+		std :: cout << "Not enough memory to allocate EnsembleTreeUDFDouble to extract the vTable.\n";
+	}
+}
+
+{
+	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
+	try {
+		EnsembleTreeUDFFloat tempObject;
+		allVTables [69] = tempObject.getVTablePtr ();
+	} catch (NotEnoughSpace &e) {
+		std :: cout << "Not enough memory to allocate EnsembleTreeUDFFloat to extract the vTable.\n";
+	}
+}
+
+{
+	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
+	try {
+		ExecuteComputation tempObject;
+		allVTables [70] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate ExecuteComputation to extract the vTable.\n";
 	}
@@ -819,7 +843,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		ExecuteQuery tempObject;
-		allVTables [69] = tempObject.getVTablePtr ();
+		allVTables [71] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate ExecuteQuery to extract the vTable.\n";
 	}
@@ -829,7 +853,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		Forest tempObject;
-		allVTables [70] = tempObject.getVTablePtr ();
+		allVTables [72] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate Forest to extract the vTable.\n";
 	}
@@ -838,8 +862,18 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 {
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
+		ForestObjectBased tempObject;
+		allVTables [73] = tempObject.getVTablePtr ();
+	} catch (NotEnoughSpace &e) {
+		std :: cout << "Not enough memory to allocate ForestObjectBased to extract the vTable.\n";
+	}
+}
+
+{
+	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
+	try {
 		GenericBlock tempObject;
-		allVTables [71] = tempObject.getVTablePtr ();
+		allVTables [74] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate GenericBlock to extract the vTable.\n";
 	}
@@ -849,7 +883,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		GetListOfNodes tempObject;
-		allVTables [72] = tempObject.getVTablePtr ();
+		allVTables [75] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate GetListOfNodes to extract the vTable.\n";
 	}
@@ -859,7 +893,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		HashPartitionedJoinBuildHTJobStage tempObject;
-		allVTables [73] = tempObject.getVTablePtr ();
+		allVTables [76] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate HashPartitionedJoinBuildHTJobStage to extract the vTable.\n";
 	}
@@ -869,7 +903,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		Holder<Nothing> tempObject;
-		allVTables [74] = tempObject.getVTablePtr ();
+		allVTables [77] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate Holder<Nothing> to extract the vTable.\n";
 	}
@@ -879,7 +913,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		JoinMap <Nothing> tempObject;
-		allVTables [75] = tempObject.getVTablePtr ();
+		allVTables [78] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate JoinMap <Nothing> to extract the vTable.\n";
 	}
@@ -889,7 +923,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		JoinPairArray <Nothing> tempObject;
-		allVTables [76] = tempObject.getVTablePtr ();
+		allVTables [79] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate JoinPairArray <Nothing> to extract the vTable.\n";
 	}
@@ -899,7 +933,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		KMeansDoubleVector tempObject;
-		allVTables [77] = tempObject.getVTablePtr ();
+		allVTables [80] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate KMeansDoubleVector to extract the vTable.\n";
 	}
@@ -909,7 +943,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		KeepGoing tempObject;
-		allVTables [78] = tempObject.getVTablePtr ();
+		allVTables [81] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate KeepGoing to extract the vTable.\n";
 	}
@@ -919,7 +953,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		LambdaIdentifier tempObject;
-		allVTables [79] = tempObject.getVTablePtr ();
+		allVTables [82] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate LambdaIdentifier to extract the vTable.\n";
 	}
@@ -929,7 +963,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		ListOfNodes tempObject;
-		allVTables [80] = tempObject.getVTablePtr ();
+		allVTables [83] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate ListOfNodes to extract the vTable.\n";
 	}
@@ -939,7 +973,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		Map <Nothing> tempObject;
-		allVTables [81] = tempObject.getVTablePtr ();
+		allVTables [84] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate Map <Nothing> to extract the vTable.\n";
 	}
@@ -949,7 +983,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		MyEmployee tempObject;
-		allVTables [82] = tempObject.getVTablePtr ();
+		allVTables [85] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate MyEmployee to extract the vTable.\n";
 	}
@@ -959,7 +993,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		NodeDispatcherData tempObject;
-		allVTables [83] = tempObject.getVTablePtr ();
+		allVTables [86] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate NodeDispatcherData to extract the vTable.\n";
 	}
@@ -969,7 +1003,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		NodeInfo tempObject;
-		allVTables [84] = tempObject.getVTablePtr ();
+		allVTables [87] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate NodeInfo to extract the vTable.\n";
 	}
@@ -979,7 +1013,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		Nothing tempObject;
-		allVTables [85] = tempObject.getVTablePtr ();
+		allVTables [88] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate Nothing to extract the vTable.\n";
 	}
@@ -989,7 +1023,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		Object tempObject;
-		allVTables [86] = tempObject.getVTablePtr ();
+		allVTables [89] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate Object to extract the vTable.\n";
 	}
@@ -999,7 +1033,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		OptimizedDepartmentEmployees tempObject;
-		allVTables [87] = tempObject.getVTablePtr ();
+		allVTables [90] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate OptimizedDepartmentEmployees to extract the vTable.\n";
 	}
@@ -1009,7 +1043,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		OptimizedEmployee tempObject;
-		allVTables [88] = tempObject.getVTablePtr ();
+		allVTables [91] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate OptimizedEmployee to extract the vTable.\n";
 	}
@@ -1019,7 +1053,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		OptimizedSupervisor tempObject;
-		allVTables [89] = tempObject.getVTablePtr ();
+		allVTables [92] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate OptimizedSupervisor to extract the vTable.\n";
 	}
@@ -1029,7 +1063,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		PairArray <Nothing> tempObject;
-		allVTables [90] = tempObject.getVTablePtr ();
+		allVTables [93] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate PairArray <Nothing> to extract the vTable.\n";
 	}
@@ -1039,7 +1073,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		PlaceOfQueryPlanner tempObject;
-		allVTables [91] = tempObject.getVTablePtr ();
+		allVTables [94] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate PlaceOfQueryPlanner to extract the vTable.\n";
 	}
@@ -1049,7 +1083,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		QueriesAndPlan tempObject;
-		allVTables [92] = tempObject.getVTablePtr ();
+		allVTables [95] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate QueriesAndPlan to extract the vTable.\n";
 	}
@@ -1059,7 +1093,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		QueryDone tempObject;
-		allVTables [93] = tempObject.getVTablePtr ();
+		allVTables [96] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate QueryDone to extract the vTable.\n";
 	}
@@ -1069,7 +1103,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		QueryOutput <Nothing> tempObject;
-		allVTables [94] = tempObject.getVTablePtr ();
+		allVTables [97] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate QueryOutput <Nothing> to extract the vTable.\n";
 	}
@@ -1079,7 +1113,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		QueryPermit tempObject;
-		allVTables [95] = tempObject.getVTablePtr ();
+		allVTables [98] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate QueryPermit to extract the vTable.\n";
 	}
@@ -1089,7 +1123,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		QueryPermitResponse tempObject;
-		allVTables [96] = tempObject.getVTablePtr ();
+		allVTables [99] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate QueryPermitResponse to extract the vTable.\n";
 	}
@@ -1099,7 +1133,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		RequestResources tempObject;
-		allVTables [97] = tempObject.getVTablePtr ();
+		allVTables [100] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate RequestResources to extract the vTable.\n";
 	}
@@ -1109,7 +1143,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		ResourceInfo tempObject;
-		allVTables [98] = tempObject.getVTablePtr ();
+		allVTables [101] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate ResourceInfo to extract the vTable.\n";
 	}
@@ -1119,7 +1153,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		ScanDoubleVectorSet tempObject;
-		allVTables [99] = tempObject.getVTablePtr ();
+		allVTables [102] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate ScanDoubleVectorSet to extract the vTable.\n";
 	}
@@ -1129,7 +1163,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		ScanUserSet <Nothing> tempObject;
-		allVTables [100] = tempObject.getVTablePtr ();
+		allVTables [103] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate ScanUserSet <Nothing> to extract the vTable.\n";
 	}
@@ -1139,7 +1173,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		Set <Nothing> tempObject;
-		allVTables [101] = tempObject.getVTablePtr ();
+		allVTables [104] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate Set <Nothing> to extract the vTable.\n";
 	}
@@ -1149,7 +1183,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		SetIdentifier tempObject;
-		allVTables [102] = tempObject.getVTablePtr ();
+		allVTables [105] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate SetIdentifier to extract the vTable.\n";
 	}
@@ -1159,7 +1193,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		SetScan tempObject;
-		allVTables [103] = tempObject.getVTablePtr ();
+		allVTables [106] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate SetScan to extract the vTable.\n";
 	}
@@ -1169,7 +1203,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		ShutDown tempObject;
-		allVTables [104] = tempObject.getVTablePtr ();
+		allVTables [107] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate ShutDown to extract the vTable.\n";
 	}
@@ -1179,7 +1213,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		SimpleRequestResult tempObject;
-		allVTables [105] = tempObject.getVTablePtr ();
+		allVTables [108] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate SimpleRequestResult to extract the vTable.\n";
 	}
@@ -1189,7 +1223,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StorageAddData tempObject;
-		allVTables [106] = tempObject.getVTablePtr ();
+		allVTables [109] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StorageAddData to extract the vTable.\n";
 	}
@@ -1199,7 +1233,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StorageAddDatabase tempObject;
-		allVTables [107] = tempObject.getVTablePtr ();
+		allVTables [110] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StorageAddDatabase to extract the vTable.\n";
 	}
@@ -1209,7 +1243,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StorageAddModel tempObject;
-		allVTables [108] = tempObject.getVTablePtr ();
+		allVTables [111] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StorageAddModel to extract the vTable.\n";
 	}
@@ -1219,7 +1253,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StorageAddModelResponse tempObject;
-		allVTables [109] = tempObject.getVTablePtr ();
+		allVTables [112] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StorageAddModelResponse to extract the vTable.\n";
 	}
@@ -1229,7 +1263,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StorageAddObject tempObject;
-		allVTables [110] = tempObject.getVTablePtr ();
+		allVTables [113] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StorageAddObject to extract the vTable.\n";
 	}
@@ -1239,7 +1273,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StorageAddObjectInLoop tempObject;
-		allVTables [111] = tempObject.getVTablePtr ();
+		allVTables [114] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StorageAddObjectInLoop to extract the vTable.\n";
 	}
@@ -1249,7 +1283,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StorageAddSet tempObject;
-		allVTables [112] = tempObject.getVTablePtr ();
+		allVTables [115] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StorageAddSet to extract the vTable.\n";
 	}
@@ -1259,7 +1293,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StorageAddSharedMapping tempObject;
-		allVTables [113] = tempObject.getVTablePtr ();
+		allVTables [116] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StorageAddSharedMapping to extract the vTable.\n";
 	}
@@ -1269,7 +1303,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StorageAddSharedPage tempObject;
-		allVTables [114] = tempObject.getVTablePtr ();
+		allVTables [117] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StorageAddSharedPage to extract the vTable.\n";
 	}
@@ -1279,7 +1313,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StorageAddTempSet tempObject;
-		allVTables [115] = tempObject.getVTablePtr ();
+		allVTables [118] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StorageAddTempSet to extract the vTable.\n";
 	}
@@ -1289,7 +1323,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StorageAddTempSetResult tempObject;
-		allVTables [116] = tempObject.getVTablePtr ();
+		allVTables [119] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StorageAddTempSetResult to extract the vTable.\n";
 	}
@@ -1299,7 +1333,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StorageAddType tempObject;
-		allVTables [117] = tempObject.getVTablePtr ();
+		allVTables [120] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StorageAddType to extract the vTable.\n";
 	}
@@ -1309,7 +1343,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StorageBytesPinned tempObject;
-		allVTables [118] = tempObject.getVTablePtr ();
+		allVTables [121] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StorageBytesPinned to extract the vTable.\n";
 	}
@@ -1319,7 +1353,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StorageCleanup tempObject;
-		allVTables [119] = tempObject.getVTablePtr ();
+		allVTables [122] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StorageCleanup to extract the vTable.\n";
 	}
@@ -1329,7 +1363,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StorageClearSet tempObject;
-		allVTables [120] = tempObject.getVTablePtr ();
+		allVTables [123] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StorageClearSet to extract the vTable.\n";
 	}
@@ -1339,7 +1373,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StorageCollectStats tempObject;
-		allVTables [121] = tempObject.getVTablePtr ();
+		allVTables [124] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StorageCollectStats to extract the vTable.\n";
 	}
@@ -1349,7 +1383,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StorageCollectStatsResponse tempObject;
-		allVTables [122] = tempObject.getVTablePtr ();
+		allVTables [125] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StorageCollectStatsResponse to extract the vTable.\n";
 	}
@@ -1359,7 +1393,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StorageExportSet tempObject;
-		allVTables [123] = tempObject.getVTablePtr ();
+		allVTables [126] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StorageExportSet to extract the vTable.\n";
 	}
@@ -1369,7 +1403,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StorageGetData tempObject;
-		allVTables [124] = tempObject.getVTablePtr ();
+		allVTables [127] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StorageGetData to extract the vTable.\n";
 	}
@@ -1379,7 +1413,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StorageGetDataResponse tempObject;
-		allVTables [125] = tempObject.getVTablePtr ();
+		allVTables [128] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StorageGetDataResponse to extract the vTable.\n";
 	}
@@ -1389,7 +1423,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StorageGetSetPages tempObject;
-		allVTables [126] = tempObject.getVTablePtr ();
+		allVTables [129] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StorageGetSetPages to extract the vTable.\n";
 	}
@@ -1399,7 +1433,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StorageGetStats tempObject;
-		allVTables [127] = tempObject.getVTablePtr ();
+		allVTables [130] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StorageGetStats to extract the vTable.\n";
 	}
@@ -1409,7 +1443,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StorageNoMorePage tempObject;
-		allVTables [128] = tempObject.getVTablePtr ();
+		allVTables [131] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StorageNoMorePage to extract the vTable.\n";
 	}
@@ -1419,7 +1453,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StoragePagePinned tempObject;
-		allVTables [129] = tempObject.getVTablePtr ();
+		allVTables [132] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StoragePagePinned to extract the vTable.\n";
 	}
@@ -1429,7 +1463,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StoragePinBytes tempObject;
-		allVTables [130] = tempObject.getVTablePtr ();
+		allVTables [133] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StoragePinBytes to extract the vTable.\n";
 	}
@@ -1439,7 +1473,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StoragePinPage tempObject;
-		allVTables [131] = tempObject.getVTablePtr ();
+		allVTables [134] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StoragePinPage to extract the vTable.\n";
 	}
@@ -1449,7 +1483,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StorageRemoveDatabase tempObject;
-		allVTables [132] = tempObject.getVTablePtr ();
+		allVTables [135] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StorageRemoveDatabase to extract the vTable.\n";
 	}
@@ -1459,7 +1493,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StorageRemoveHashSet tempObject;
-		allVTables [133] = tempObject.getVTablePtr ();
+		allVTables [136] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StorageRemoveHashSet to extract the vTable.\n";
 	}
@@ -1469,7 +1503,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StorageRemoveTempSet tempObject;
-		allVTables [134] = tempObject.getVTablePtr ();
+		allVTables [137] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StorageRemoveTempSet to extract the vTable.\n";
 	}
@@ -1479,7 +1513,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StorageRemoveUserSet tempObject;
-		allVTables [135] = tempObject.getVTablePtr ();
+		allVTables [138] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StorageRemoveUserSet to extract the vTable.\n";
 	}
@@ -1489,7 +1523,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StorageTestSetCopy tempObject;
-		allVTables [136] = tempObject.getVTablePtr ();
+		allVTables [139] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StorageTestSetCopy to extract the vTable.\n";
 	}
@@ -1499,7 +1533,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StorageTestSetScan tempObject;
-		allVTables [137] = tempObject.getVTablePtr ();
+		allVTables [140] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StorageTestSetScan to extract the vTable.\n";
 	}
@@ -1509,7 +1543,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StorageUnpinPage tempObject;
-		allVTables [138] = tempObject.getVTablePtr ();
+		allVTables [141] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StorageUnpinPage to extract the vTable.\n";
 	}
@@ -1519,7 +1553,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		StringIntPair tempObject;
-		allVTables [139] = tempObject.getVTablePtr ();
+		allVTables [142] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate StringIntPair to extract the vTable.\n";
 	}
@@ -1529,7 +1563,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		SumResult tempObject;
-		allVTables [140] = tempObject.getVTablePtr ();
+		allVTables [143] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate SumResult to extract the vTable.\n";
 	}
@@ -1539,7 +1573,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		Supervisor tempObject;
-		allVTables [141] = tempObject.getVTablePtr ();
+		allVTables [144] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate Supervisor to extract the vTable.\n";
 	}
@@ -1549,7 +1583,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		TensorBlock2D <Nothing> tempObject;
-		allVTables [142] = tempObject.getVTablePtr ();
+		allVTables [145] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate TensorBlock2D <Nothing> to extract the vTable.\n";
 	}
@@ -1559,7 +1593,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		TensorBlockIdentifier tempObject;
-		allVTables [143] = tempObject.getVTablePtr ();
+		allVTables [146] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate TensorBlockIdentifier to extract the vTable.\n";
 	}
@@ -1569,7 +1603,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		TensorBlockMeta tempObject;
-		allVTables [144] = tempObject.getVTablePtr ();
+		allVTables [147] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate TensorBlockMeta to extract the vTable.\n";
 	}
@@ -1579,7 +1613,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		TensorData2D <Nothing> tempObject;
-		allVTables [145] = tempObject.getVTablePtr ();
+		allVTables [148] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate TensorData2D <Nothing> to extract the vTable.\n";
 	}
@@ -1589,7 +1623,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		TensorMeta2D tempObject;
-		allVTables [146] = tempObject.getVTablePtr ();
+		allVTables [149] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate TensorMeta2D to extract the vTable.\n";
 	}
@@ -1599,7 +1633,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		TopKQueue <Nothing> tempObject;
-		allVTables [147] = tempObject.getVTablePtr ();
+		allVTables [150] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate TopKQueue <Nothing> to extract the vTable.\n";
 	}
@@ -1608,8 +1642,18 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 {
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
+		TreeNodeObjectBased tempObject;
+		allVTables [151] = tempObject.getVTablePtr ();
+	} catch (NotEnoughSpace &e) {
+		std :: cout << "Not enough memory to allocate TreeNodeObjectBased to extract the vTable.\n";
+	}
+}
+
+{
+	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
+	try {
 		TupleSetExecuteQuery tempObject;
-		allVTables [148] = tempObject.getVTablePtr ();
+		allVTables [152] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate TupleSetExecuteQuery to extract the vTable.\n";
 	}
@@ -1619,7 +1663,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		TupleSetJobStage tempObject;
-		allVTables [149] = tempObject.getVTablePtr ();
+		allVTables [153] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate TupleSetJobStage to extract the vTable.\n";
 	}
@@ -1629,7 +1673,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		Vector <Nothing> tempObject;
-		allVTables [150] = tempObject.getVTablePtr ();
+		allVTables [154] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate Vector <Nothing> to extract the vTable.\n";
 	}
@@ -1639,7 +1683,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		VectorDoubleWriter tempObject;
-		allVTables [151] = tempObject.getVTablePtr ();
+		allVTables [155] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate VectorDoubleWriter to extract the vTable.\n";
 	}
@@ -1649,7 +1693,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		VectorFloatWriter tempObject;
-		allVTables [152] = tempObject.getVTablePtr ();
+		allVTables [156] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate VectorFloatWriter to extract the vTable.\n";
 	}
@@ -1659,7 +1703,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		WriteUserSet <Nothing> tempObject;
-		allVTables [153] = tempObject.getVTablePtr ();
+		allVTables [157] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate WriteUserSet <Nothing> to extract the vTable.\n";
 	}
@@ -1669,7 +1713,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 154;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		ZB_Company tempObject;
-		allVTables [154] = tempObject.getVTablePtr ();
+		allVTables [158] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate ZB_Company to extract the vTable.\n";
 	}
