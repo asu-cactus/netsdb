@@ -19,6 +19,7 @@ def parse_arguments():
         choices=['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype', 'tpcxai_fraud'],
         help="Dataset to be processed. Choose from ['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype', 'tpcxai_fraud']")
     parser.add_argument("-n", "--nrows", type=int, help="Load nrows of the dataset. Warning: only use in development.")
+    parser.add_argument("-sf","--scalefactor", type=int, help="Relevant only for TPCxAI_Fraud. Takes one of the values in 1,3,10 and 30")
     args = parser.parse_args()
     return args
 
@@ -139,7 +140,10 @@ def prepare_tpcxai_fraud_transactions(dataset_folder,nrows=None):
     from tqdm import tqdm
     import time
     tqdm.pandas()
-    file_name = 'financial_transactions_train.csv'  # Put the file in same directory
+
+    SCALE_FACTOR = args.scalefactor if ("scalefactor" in args) else 1
+
+    file_name = f'financial_transactions_train_SF{SCALE_FACTOR}.csv'  # Put the file in same directory
     df = pd.read_csv(file_name, nrows=nrows)
 
     start_time = time.time()
