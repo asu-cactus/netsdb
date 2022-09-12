@@ -28,7 +28,7 @@ def parse_arguments(config):
     """)
     parser.add_argument(
         "-d", "--dataset", type=str, 
-        choices=['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype'],
+        choices=['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype', 'tpcxai_fraud'],
         help="Dataset to be tested.")
     parser.add_argument(
         "-m", "--model", type=str,  
@@ -36,10 +36,7 @@ def parse_arguments(config):
         help="Model name. Choose from ['randomforest', 'xgboost', 'lightgbm']")
     parser.add_argument(
         "-f", "--frameworks", type=str,
-        choices=[
-            'Sklearn', 
-            'TreeLite', 
-            'HummingbirdPytorchCPU', 
+        choices=['Sklearn', 'TreeLite', 'HummingbirdPytorchCPU', 
             'HummingbirdTorchScriptCPU', 
             'HummingbirdTVMCPU', 
             'TFDF',
