@@ -112,6 +112,8 @@ def prepare_year(dataset_folder, nrows=None):
 def prepare_epsilon(nrows=None):
     from catboost.datasets import epsilon
     train_data, test_data = epsilon()
+    test_data[0][test_data[0] <= 0] = 0
+    train_data[0][train_data[0] <= 0] = 0
     print("Downloaded epsilon dataset.")
     if nrows is not None:
         train_data = train_data[:nrows//2]
