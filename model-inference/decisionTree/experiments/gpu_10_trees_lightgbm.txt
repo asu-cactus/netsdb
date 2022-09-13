@@ -1,0 +1,2622 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: Sklearn
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4966.323375701904
+Time Taken to load sklearn model: 329.6670913696289
+Time Taken to predict on Sklearn is 2416.3475036621094
+Time Taken to write results to a text file for Sklearn is 1168.947458267212
+Classification Report Sklearn
+              precision    recall  f1-score   support
+
+           0       0.81      0.38      0.52   1034836
+           1       0.63      0.92      0.75   1165164
+
+    accuracy                           0.67   2200000
+   macro avg       0.72      0.65      0.63   2200000
+weighted avg       0.72      0.67      0.64   2200000
+
+################
+Time Taken to convert Sklearn model: 0.0
+TOTAL Time Taken for Sklearn: 3585.341691970825
+==============EXPERIMENT ENDING=========================
+
+TESTS START HERE
+*******************************8
+gpu_run.sh: 53: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdPytorchGPU --batch_size 1 --query_size 1
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 1
+Batch Size: 1
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 5000.041246414185
+Time Taken to load sklearn model: 77.96287536621094
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 249, in test_gpu
+    model = convert_to_hummingbird_model(sklearnmodel, "torch", features, args.batch_size, "cuda")
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 60, in convert_to_hummingbird_model
+    from hummingbird.ml import constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdPytorchGPU --batch_size 10 --query_size 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 10
+Batch Size: 10
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 5003.206014633179
+Time Taken to load sklearn model: 72.17597961425781
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 249, in test_gpu
+    model = convert_to_hummingbird_model(sklearnmodel, "torch", features, args.batch_size, "cuda")
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 60, in convert_to_hummingbird_model
+    from hummingbird.ml import constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdPytorchGPU --batch_size 100 --query_size 100
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4953.822135925293
+Time Taken to load sklearn model: 74.54109191894531
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 249, in test_gpu
+    model = convert_to_hummingbird_model(sklearnmodel, "torch", features, args.batch_size, "cuda")
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 60, in convert_to_hummingbird_model
+    from hummingbird.ml import constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdPytorchGPU --batch_size 1000 --query_size 1000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4947.157859802246
+Time Taken to load sklearn model: 61.371564865112305
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 249, in test_gpu
+    model = convert_to_hummingbird_model(sklearnmodel, "torch", features, args.batch_size, "cuda")
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 60, in convert_to_hummingbird_model
+    from hummingbird.ml import constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdPytorchGPU --batch_size 10000 --query_size 10000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4955.573081970215
+Time Taken to load sklearn model: 72.30710983276367
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 249, in test_gpu
+    model = convert_to_hummingbird_model(sklearnmodel, "torch", features, args.batch_size, "cuda")
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 60, in convert_to_hummingbird_model
+    from hummingbird.ml import constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdPytorchGPU --batch_size 100000 --query_size 100000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4972.3687171936035
+Time Taken to load sklearn model: 68.05109977722168
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 249, in test_gpu
+    model = convert_to_hummingbird_model(sklearnmodel, "torch", features, args.batch_size, "cuda")
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 60, in convert_to_hummingbird_model
+    from hummingbird.ml import constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdPytorchGPU --batch_size 2200000 --query_size 2200000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 2200000
+Batch Size: 2200000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4948.952674865723
+Time Taken to load sklearn model: 74.04899597167969
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 249, in test_gpu
+    model = convert_to_hummingbird_model(sklearnmodel, "torch", features, args.batch_size, "cuda")
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 60, in convert_to_hummingbird_model
+    from hummingbird.ml import constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdTorchScriptGPU --batch_size 1 --query_size 1
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 1
+Batch Size: 1
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4961.161375045776
+Time Taken to load sklearn model: 63.442230224609375
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 256, in test_gpu
+    import hummingbird.ml as hml
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdTorchScriptGPU --batch_size 10 --query_size 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 10
+Batch Size: 10
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4968.1220054626465
+Time Taken to load sklearn model: 66.2071704864502
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 256, in test_gpu
+    import hummingbird.ml as hml
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdTorchScriptGPU --batch_size 100 --query_size 100
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4943.851947784424
+Time Taken to load sklearn model: 66.95342063903809
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 256, in test_gpu
+    import hummingbird.ml as hml
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdTorchScriptGPU --batch_size 1000 --query_size 1000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4979.959487915039
+Time Taken to load sklearn model: 67.53134727478027
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 256, in test_gpu
+    import hummingbird.ml as hml
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdTorchScriptGPU --batch_size 10000 --query_size 10000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4952.755928039551
+Time Taken to load sklearn model: 61.75851821899414
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 256, in test_gpu
+    import hummingbird.ml as hml
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdTorchScriptGPU --batch_size 100000 --query_size 100000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4989.264726638794
+Time Taken to load sklearn model: 75.58417320251465
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 256, in test_gpu
+    import hummingbird.ml as hml
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdTorchScriptGPU --batch_size 2200000 --query_size 2200000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 2200000
+Batch Size: 2200000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4981.333494186401
+Time Taken to load sklearn model: 75.53720474243164
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 256, in test_gpu
+    import hummingbird.ml as hml
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: ONNXGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f ONNXGPU --batch_size 1 --query_size 1
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: ONNXGPU
+Query Size: 1
+Batch Size: 1
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4973.481178283691
+Time Taken to load sklearn model: 62.3781681060791
+Time Taken to predict on ONNXGPU is 104321.373462677
+Time Taken to write results to a text file for ONNXGPU is 1159.6457958221436
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.69      0.65      0.67   1034836
+           1       0.70      0.74      0.72   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.69      0.69      0.69   2200000
+weighted avg       0.70      0.70      0.69   2200000
+
+################
+Time Taken to convert ONNXGPU model: 2900.637149810791
+TOTAL Time Taken for ONNXGPU: 108381.71911239624
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: ONNXGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f ONNXGPU --batch_size 10 --query_size 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: ONNXGPU
+Query Size: 10
+Batch Size: 10
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4976.304769515991
+Time Taken to load sklearn model: 70.17707824707031
+Time Taken to predict on ONNXGPU is 13173.372745513916
+Time Taken to write results to a text file for ONNXGPU is 1069.5242881774902
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.69      0.65      0.67   1034836
+           1       0.70      0.74      0.72   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.69      0.69      0.69   2200000
+weighted avg       0.70      0.70      0.69   2200000
+
+################
+Time Taken to convert ONNXGPU model: 1365.3366565704346
+TOTAL Time Taken for ONNXGPU: 15608.291149139404
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: ONNXGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f ONNXGPU --batch_size 100 --query_size 100
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: ONNXGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4989.828586578369
+Time Taken to load sklearn model: 67.79170036315918
+Time Taken to predict on ONNXGPU is 2941.4587020874023
+Time Taken to write results to a text file for ONNXGPU is 1091.7577743530273
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.69      0.65      0.67   1034836
+           1       0.70      0.74      0.72   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.69      0.69      0.69   2200000
+weighted avg       0.70      0.70      0.69   2200000
+
+################
+Time Taken to convert ONNXGPU model: 1346.876621246338
+TOTAL Time Taken for ONNXGPU: 5380.1538944244385
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: ONNXGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f ONNXGPU --batch_size 1000 --query_size 1000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: ONNXGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4949.724435806274
+Time Taken to load sklearn model: 64.66937065124512
+Time Taken to predict on ONNXGPU is 1301.1057376861572
+Time Taken to write results to a text file for ONNXGPU is 1060.7831478118896
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.69      0.65      0.67   1034836
+           1       0.70      0.74      0.72   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.69      0.69      0.69   2200000
+weighted avg       0.70      0.70      0.69   2200000
+
+################
+Time Taken to convert ONNXGPU model: 1370.0613975524902
+TOTAL Time Taken for ONNXGPU: 3732.0127487182617
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: ONNXGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f ONNXGPU --batch_size 10000 --query_size 10000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: ONNXGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4953.726768493652
+Time Taken to load sklearn model: 64.59307670593262
+Time Taken to predict on ONNXGPU is 1035.1264476776123
+Time Taken to write results to a text file for ONNXGPU is 1145.738124847412
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.69      0.65      0.67   1034836
+           1       0.70      0.74      0.72   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.69      0.69      0.69   2200000
+weighted avg       0.70      0.70      0.69   2200000
+
+################
+Time Taken to convert ONNXGPU model: 1348.5596179962158
+TOTAL Time Taken for ONNXGPU: 3529.4880867004395
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: ONNXGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f ONNXGPU --batch_size 100000 --query_size 100000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: ONNXGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4943.065881729126
+Time Taken to load sklearn model: 74.24783706665039
+Time Taken to predict on ONNXGPU is 1429.630994796753
+Time Taken to write results to a text file for ONNXGPU is 1050.647258758545
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.69      0.65      0.67   1034836
+           1       0.70      0.74      0.72   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.69      0.69      0.69   2200000
+weighted avg       0.70      0.70      0.69   2200000
+
+################
+Time Taken to convert ONNXGPU model: 1366.4209842681885
+TOTAL Time Taken for ONNXGPU: 3846.7724323272705
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: ONNXGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f ONNXGPU --batch_size 2200000 --query_size 2200000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: ONNXGPU
+Query Size: 2200000
+Batch Size: 2200000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4970.165491104126
+Time Taken to load sklearn model: 65.53959846496582
+Time Taken to predict on ONNXGPU is 1648.1003761291504
+Time Taken to write results to a text file for ONNXGPU is 1061.4957809448242
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.69      0.65      0.67   1034836
+           1       0.70      0.74      0.72   1165164
+
+    accuracy                           0.70   2200000
+   macro avg       0.69      0.69      0.69   2200000
+weighted avg       0.70      0.70      0.69   2200000
+
+################
+Time Taken to convert ONNXGPU model: 1368.2935237884521
+TOTAL Time Taken for ONNXGPU: 4077.95786857605
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdTVMGPU --batch_size 1 --query_size 1
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 1
+Batch Size: 1
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4972.093105316162
+Time Taken to load sklearn model: 66.2081241607666
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 287, in test_gpu
+    model = convert_to_hummingbird_model(sklearnmodel, "tvm", features, args.batch_size, "cuda")
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 60, in convert_to_hummingbird_model
+    from hummingbird.ml import constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdTVMGPU --batch_size 10 --query_size 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 10
+Batch Size: 10
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 5017.839431762695
+Time Taken to load sklearn model: 64.9423599243164
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 287, in test_gpu
+    model = convert_to_hummingbird_model(sklearnmodel, "tvm", features, args.batch_size, "cuda")
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 60, in convert_to_hummingbird_model
+    from hummingbird.ml import constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdTVMGPU --batch_size 100 --query_size 100
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4980.984210968018
+Time Taken to load sklearn model: 64.73827362060547
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 287, in test_gpu
+    model = convert_to_hummingbird_model(sklearnmodel, "tvm", features, args.batch_size, "cuda")
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 60, in convert_to_hummingbird_model
+    from hummingbird.ml import constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdTVMGPU --batch_size 1000 --query_size 1000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4986.62543296814
+Time Taken to load sklearn model: 74.42021369934082
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 287, in test_gpu
+    model = convert_to_hummingbird_model(sklearnmodel, "tvm", features, args.batch_size, "cuda")
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 60, in convert_to_hummingbird_model
+    from hummingbird.ml import constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdTVMGPU --batch_size 10000 --query_size 10000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 5028.145313262939
+Time Taken to load sklearn model: 67.35086441040039
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 287, in test_gpu
+    model = convert_to_hummingbird_model(sklearnmodel, "tvm", features, args.batch_size, "cuda")
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 60, in convert_to_hummingbird_model
+    from hummingbird.ml import constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdTVMGPU --batch_size 100000 --query_size 100000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4966.699123382568
+Time Taken to load sklearn model: 69.83256340026855
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 287, in test_gpu
+    model = convert_to_hummingbird_model(sklearnmodel, "tvm", features, args.batch_size, "cuda")
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 60, in convert_to_hummingbird_model
+    from hummingbird.ml import constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f HummingbirdTVMGPU --batch_size 2200000 --query_size 2200000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 2200000
+Batch Size: 2200000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4989.896297454834
+Time Taken to load sklearn model: 62.16621398925781
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 287, in test_gpu
+    model = convert_to_hummingbird_model(sklearnmodel, "tvm", features, args.batch_size, "cuda")
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 60, in convert_to_hummingbird_model
+    from hummingbird.ml import constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f NvidiaFILGPU --batch_size 1 --query_size 1
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: NvidiaFILGPU
+Query Size: 1
+Batch Size: 1
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4970.887184143066
+Time Taken to load sklearn model: 65.7963752746582
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 302, in test_gpu
+    from cuml import ForestInference
+ModuleNotFoundError: No module named 'cuml'
+-e 
+
+
+gpu_run.sh: 53: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f NvidiaFILGPU --batch_size 10 --query_size 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: NvidiaFILGPU
+Query Size: 10
+Batch Size: 10
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4981.287956237793
+Time Taken to load sklearn model: 64.68081474304199
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 302, in test_gpu
+    from cuml import ForestInference
+ModuleNotFoundError: No module named 'cuml'
+-e 
+
+
+gpu_run.sh: 53: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f NvidiaFILGPU --batch_size 100 --query_size 100
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: NvidiaFILGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4968.910694122314
+Time Taken to load sklearn model: 77.60405540466309
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 302, in test_gpu
+    from cuml import ForestInference
+ModuleNotFoundError: No module named 'cuml'
+-e 
+
+
+gpu_run.sh: 53: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f NvidiaFILGPU --batch_size 1000 --query_size 1000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: NvidiaFILGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 5007.859945297241
+Time Taken to load sklearn model: 69.1072940826416
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 302, in test_gpu
+    from cuml import ForestInference
+ModuleNotFoundError: No module named 'cuml'
+-e 
+
+
+gpu_run.sh: 53: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f NvidiaFILGPU --batch_size 10000 --query_size 10000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: NvidiaFILGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 5002.66170501709
+Time Taken to load sklearn model: 68.26519966125488
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 302, in test_gpu
+    from cuml import ForestInference
+ModuleNotFoundError: No module named 'cuml'
+-e 
+
+
+gpu_run.sh: 53: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f NvidiaFILGPU --batch_size 100000 --query_size 100000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: NvidiaFILGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4975.308179855347
+Time Taken to load sklearn model: 71.04778289794922
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 302, in test_gpu
+    from cuml import ForestInference
+ModuleNotFoundError: No module named 'cuml'
+-e 
+
+
+gpu_run.sh: 53: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d higgs -m randomforest -f NvidiaFILGPU --batch_size 2200000 --query_size 2200000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: NvidiaFILGPU
+Query Size: 2200000
+Batch Size: 2200000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4979.210376739502
+Time Taken to load sklearn model: 65.032958984375
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 302, in test_gpu
+    from cuml import ForestInference
+ModuleNotFoundError: No module named 'cuml'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdPytorchGPU --batch_size 1 --query_size 1
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 1
+Batch Size: 1
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4972.700357437134
+Time Taken to load sklearn model: 317.1842098236084
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 249, in test_gpu
+    model = convert_to_hummingbird_model(sklearnmodel, "torch", features, args.batch_size, "cuda")
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 60, in convert_to_hummingbird_model
+    from hummingbird.ml import constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdPytorchGPU --batch_size 10 --query_size 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 10
+Batch Size: 10
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4972.226858139038
+Time Taken to load sklearn model: 312.6969337463379
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 249, in test_gpu
+    model = convert_to_hummingbird_model(sklearnmodel, "torch", features, args.batch_size, "cuda")
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 60, in convert_to_hummingbird_model
+    from hummingbird.ml import constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdPytorchGPU --batch_size 100 --query_size 100
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4981.969833374023
+Time Taken to load sklearn model: 306.1683177947998
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 249, in test_gpu
+    model = convert_to_hummingbird_model(sklearnmodel, "torch", features, args.batch_size, "cuda")
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 60, in convert_to_hummingbird_model
+    from hummingbird.ml import constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdPytorchGPU --batch_size 1000 --query_size 1000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4979.611158370972
+Time Taken to load sklearn model: 305.8748245239258
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 249, in test_gpu
+    model = convert_to_hummingbird_model(sklearnmodel, "torch", features, args.batch_size, "cuda")
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 60, in convert_to_hummingbird_model
+    from hummingbird.ml import constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdPytorchGPU --batch_size 10000 --query_size 10000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4963.165521621704
+Time Taken to load sklearn model: 305.2971363067627
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 249, in test_gpu
+    model = convert_to_hummingbird_model(sklearnmodel, "torch", features, args.batch_size, "cuda")
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 60, in convert_to_hummingbird_model
+    from hummingbird.ml import constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdPytorchGPU --batch_size 100000 --query_size 100000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 5000.246286392212
+Time Taken to load sklearn model: 303.7533760070801
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 249, in test_gpu
+    model = convert_to_hummingbird_model(sklearnmodel, "torch", features, args.batch_size, "cuda")
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 60, in convert_to_hummingbird_model
+    from hummingbird.ml import constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdPytorchGPU --batch_size 2200000 --query_size 2200000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 2200000
+Batch Size: 2200000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4946.403026580811
+Time Taken to load sklearn model: 314.0885829925537
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 249, in test_gpu
+    model = convert_to_hummingbird_model(sklearnmodel, "torch", features, args.batch_size, "cuda")
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 60, in convert_to_hummingbird_model
+    from hummingbird.ml import constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdTorchScriptGPU --batch_size 1 --query_size 1
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 1
+Batch Size: 1
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4955.456972122192
+Time Taken to load sklearn model: 305.8648109436035
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 256, in test_gpu
+    import hummingbird.ml as hml
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdTorchScriptGPU --batch_size 10 --query_size 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 10
+Batch Size: 10
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4951.98655128479
+Time Taken to load sklearn model: 306.3855171203613
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 256, in test_gpu
+    import hummingbird.ml as hml
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdTorchScriptGPU --batch_size 100 --query_size 100
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4963.04726600647
+Time Taken to load sklearn model: 308.56800079345703
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 256, in test_gpu
+    import hummingbird.ml as hml
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdTorchScriptGPU --batch_size 1000 --query_size 1000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4947.226047515869
+Time Taken to load sklearn model: 304.03947830200195
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 256, in test_gpu
+    import hummingbird.ml as hml
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdTorchScriptGPU --batch_size 10000 --query_size 10000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4957.70001411438
+Time Taken to load sklearn model: 302.7665615081787
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 256, in test_gpu
+    import hummingbird.ml as hml
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdTorchScriptGPU --batch_size 100000 --query_size 100000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4972.112655639648
+Time Taken to load sklearn model: 302.6309013366699
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 256, in test_gpu
+    import hummingbird.ml as hml
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdTorchScriptGPU --batch_size 2200000 --query_size 2200000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 2200000
+Batch Size: 2200000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 5000.7874965667725
+Time Taken to load sklearn model: 308.22253227233887
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 256, in test_gpu
+    import hummingbird.ml as hml
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: ONNXGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f ONNXGPU --batch_size 1 --query_size 1
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: ONNXGPU
+Query Size: 1
+Batch Size: 1
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 5034.994840621948
+Time Taken to load sklearn model: 309.59153175354004
+Time Taken to predict on ONNXGPU is 104738.28363418579
+Time Taken to write results to a text file for ONNXGPU is 1141.629695892334
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.71      0.70      0.71   1034836
+           1       0.74      0.75      0.74   1165164
+
+    accuracy                           0.73   2200000
+   macro avg       0.73      0.72      0.73   2200000
+weighted avg       0.73      0.73      0.73   2200000
+
+################
+Time Taken to convert ONNXGPU model: 1397.2902297973633
+TOTAL Time Taken for ONNXGPU: 107277.26316452026
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: ONNXGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f ONNXGPU --batch_size 10 --query_size 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: ONNXGPU
+Query Size: 10
+Batch Size: 10
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4959.2249393463135
+Time Taken to load sklearn model: 314.04614448547363
+Time Taken to predict on ONNXGPU is 13394.915103912354
+Time Taken to write results to a text file for ONNXGPU is 1071.6321468353271
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.71      0.70      0.71   1034836
+           1       0.74      0.75      0.74   1165164
+
+    accuracy                           0.73   2200000
+   macro avg       0.73      0.72      0.73   2200000
+weighted avg       0.73      0.73      0.73   2200000
+
+################
+Time Taken to convert ONNXGPU model: 1341.5508270263672
+TOTAL Time Taken for ONNXGPU: 15808.159351348877
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: ONNXGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f ONNXGPU --batch_size 100 --query_size 100
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: ONNXGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4950.179815292358
+Time Taken to load sklearn model: 312.7105236053467
+Time Taken to predict on ONNXGPU is 2960.8166217803955
+Time Taken to write results to a text file for ONNXGPU is 1094.0110683441162
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.71      0.70      0.71   1034836
+           1       0.74      0.75      0.74   1165164
+
+    accuracy                           0.73   2200000
+   macro avg       0.73      0.72      0.73   2200000
+weighted avg       0.73      0.73      0.73   2200000
+
+################
+Time Taken to convert ONNXGPU model: 1336.7950916290283
+TOTAL Time Taken for ONNXGPU: 5391.685485839844
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: ONNXGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f ONNXGPU --batch_size 1000 --query_size 1000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: ONNXGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4930.709362030029
+Time Taken to load sklearn model: 311.25593185424805
+Time Taken to predict on ONNXGPU is 1570.5463886260986
+Time Taken to write results to a text file for ONNXGPU is 1069.094181060791
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.71      0.70      0.71   1034836
+           1       0.74      0.75      0.74   1165164
+
+    accuracy                           0.73   2200000
+   macro avg       0.73      0.72      0.73   2200000
+weighted avg       0.73      0.73      0.73   2200000
+
+################
+Time Taken to convert ONNXGPU model: 1358.0782413482666
+TOTAL Time Taken for ONNXGPU: 3997.781276702881
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: ONNXGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f ONNXGPU --batch_size 10000 --query_size 10000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: ONNXGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4984.479188919067
+Time Taken to load sklearn model: 307.50083923339844
+Time Taken to predict on ONNXGPU is 1366.1465644836426
+Time Taken to write results to a text file for ONNXGPU is 1073.4920501708984
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.71      0.70      0.71   1034836
+           1       0.74      0.75      0.74   1165164
+
+    accuracy                           0.73   2200000
+   macro avg       0.73      0.72      0.73   2200000
+weighted avg       0.73      0.73      0.73   2200000
+
+################
+Time Taken to convert ONNXGPU model: 1352.6442050933838
+TOTAL Time Taken for ONNXGPU: 3792.3436164855957
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: ONNXGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f ONNXGPU --batch_size 100000 --query_size 100000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: ONNXGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4983.9723110198975
+Time Taken to load sklearn model: 313.20929527282715
+Time Taken to predict on ONNXGPU is 1113.8465404510498
+Time Taken to write results to a text file for ONNXGPU is 1067.739725112915
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.71      0.70      0.71   1034836
+           1       0.74      0.75      0.74   1165164
+
+    accuracy                           0.73   2200000
+   macro avg       0.73      0.72      0.73   2200000
+weighted avg       0.73      0.73      0.73   2200000
+
+################
+Time Taken to convert ONNXGPU model: 1345.531702041626
+TOTAL Time Taken for ONNXGPU: 3527.1854400634766
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: ONNXGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f ONNXGPU --batch_size 2200000 --query_size 2200000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: ONNXGPU
+Query Size: 2200000
+Batch Size: 2200000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4995.845794677734
+Time Taken to load sklearn model: 315.1743412017822
+Time Taken to predict on ONNXGPU is 1519.3371772766113
+Time Taken to write results to a text file for ONNXGPU is 1072.0455646514893
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.71      0.70      0.71   1034836
+           1       0.74      0.75      0.74   1165164
+
+    accuracy                           0.73   2200000
+   macro avg       0.73      0.72      0.73   2200000
+weighted avg       0.73      0.73      0.73   2200000
+
+################
+Time Taken to convert ONNXGPU model: 1369.969367980957
+TOTAL Time Taken for ONNXGPU: 3961.4195823669434
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdTVMGPU --batch_size 1 --query_size 1
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 1
+Batch Size: 1
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4950.136423110962
+Time Taken to load sklearn model: 314.8221969604492
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 287, in test_gpu
+    model = convert_to_hummingbird_model(sklearnmodel, "tvm", features, args.batch_size, "cuda")
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 60, in convert_to_hummingbird_model
+    from hummingbird.ml import constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdTVMGPU --batch_size 10 --query_size 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 10
+Batch Size: 10
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4952.722549438477
+Time Taken to load sklearn model: 305.65714836120605
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 287, in test_gpu
+    model = convert_to_hummingbird_model(sklearnmodel, "tvm", features, args.batch_size, "cuda")
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 60, in convert_to_hummingbird_model
+    from hummingbird.ml import constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdTVMGPU --batch_size 100 --query_size 100
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 5000.47755241394
+Time Taken to load sklearn model: 313.19499015808105
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 287, in test_gpu
+    model = convert_to_hummingbird_model(sklearnmodel, "tvm", features, args.batch_size, "cuda")
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 60, in convert_to_hummingbird_model
+    from hummingbird.ml import constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdTVMGPU --batch_size 1000 --query_size 1000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4971.005916595459
+Time Taken to load sklearn model: 313.8928413391113
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 287, in test_gpu
+    model = convert_to_hummingbird_model(sklearnmodel, "tvm", features, args.batch_size, "cuda")
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 60, in convert_to_hummingbird_model
+    from hummingbird.ml import constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdTVMGPU --batch_size 10000 --query_size 10000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4934.94439125061
+Time Taken to load sklearn model: 302.3848533630371
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 287, in test_gpu
+    model = convert_to_hummingbird_model(sklearnmodel, "tvm", features, args.batch_size, "cuda")
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 60, in convert_to_hummingbird_model
+    from hummingbird.ml import constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdTVMGPU --batch_size 100000 --query_size 100000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4976.832866668701
+Time Taken to load sklearn model: 312.86048889160156
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 287, in test_gpu
+    model = convert_to_hummingbird_model(sklearnmodel, "tvm", features, args.batch_size, "cuda")
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 60, in convert_to_hummingbird_model
+    from hummingbird.ml import constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f HummingbirdTVMGPU --batch_size 2200000 --query_size 2200000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 2200000
+Batch Size: 2200000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4952.678203582764
+Time Taken to load sklearn model: 306.12897872924805
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 287, in test_gpu
+    model = convert_to_hummingbird_model(sklearnmodel, "tvm", features, args.batch_size, "cuda")
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 60, in convert_to_hummingbird_model
+    from hummingbird.ml import constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/__init__.py", line 15, in <module>
+    from . import supported as hummingbird_constants
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 496, in <module>
+    backends = _build_backend_map()
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/hummingbird/ml/supported.py", line 377, in _build_backend_map
+    import onnx
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/__init__.py", line 6, in <module>
+    from onnx.external_data_helper import load_external_data_for_model, write_external_data_tensors, convert_model_to_external_data
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/external_data_helper.py", line 9, in <module>
+    from .onnx_pb import TensorProto, ModelProto, AttributeProto, GraphProto
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_pb.py", line 4, in <module>
+    from .onnx_ml_pb2 import *  # noqa
+  File "/home/ubuntu/.local/lib/python3.9/site-packages/onnx/onnx_ml_pb2.py", line 5, in <module>
+    from google.protobuf.internal import enum_type_wrapper
+ModuleNotFoundError: No module named 'google.protobuf'
+-e 
+
+
+gpu_run.sh: 53: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f NvidiaFILGPU --batch_size 1 --query_size 1
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: NvidiaFILGPU
+Query Size: 1
+Batch Size: 1
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4952.847480773926
+Time Taken to load sklearn model: 310.89067459106445
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 302, in test_gpu
+    from cuml import ForestInference
+ModuleNotFoundError: No module named 'cuml'
+-e 
+
+
+gpu_run.sh: 53: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f NvidiaFILGPU --batch_size 10 --query_size 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: NvidiaFILGPU
+Query Size: 10
+Batch Size: 10
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4979.849815368652
+Time Taken to load sklearn model: 305.86791038513184
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 302, in test_gpu
+    from cuml import ForestInference
+ModuleNotFoundError: No module named 'cuml'
+-e 
+
+
+gpu_run.sh: 53: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f NvidiaFILGPU --batch_size 100 --query_size 100
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: NvidiaFILGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4962.371826171875
+Time Taken to load sklearn model: 313.77124786376953
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 302, in test_gpu
+    from cuml import ForestInference
+ModuleNotFoundError: No module named 'cuml'
+-e 
+
+
+gpu_run.sh: 53: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f NvidiaFILGPU --batch_size 1000 --query_size 1000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: NvidiaFILGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4977.391719818115
+Time Taken to load sklearn model: 310.09531021118164
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 302, in test_gpu
+    from cuml import ForestInference
+ModuleNotFoundError: No module named 'cuml'
+-e 
+
+
+gpu_run.sh: 53: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f NvidiaFILGPU --batch_size 10000 --query_size 10000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: NvidiaFILGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4956.945180892944
+Time Taken to load sklearn model: 303.5571575164795
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 302, in test_gpu
+    from cuml import ForestInference
+ModuleNotFoundError: No module named 'cuml'
+-e 
+
+
+gpu_run.sh: 53: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f NvidiaFILGPU --batch_size 100000 --query_size 100000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: NvidiaFILGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 4966.556549072266
+Time Taken to load sklearn model: 306.2891960144043
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 302, in test_gpu
+    from cuml import ForestInference
+ModuleNotFoundError: No module named 'cuml'
+-e 
+
+
+gpu_run.sh: 53: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d higgs -m xgboost -f NvidiaFILGPU --batch_size 2200000 --query_size 2200000
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: NvidiaFILGPU
+Query Size: 2200000
+Batch Size: 2200000
+Trees 10
+Depth 8
+Time Taken to load higgs as a dataframe is: 5022.2601890563965
+Time Taken to load sklearn model: 304.45075035095215
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 366, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 109, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 302, in test_gpu
+    from cuml import ForestInference
+ModuleNotFoundError: No module named 'cuml'
+-e 
+
+
