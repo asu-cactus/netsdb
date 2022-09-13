@@ -302,7 +302,7 @@ def test_gpu(args, features, label, sklearnmodel, config, time_consume):
         from cuml import ForestInference
         start_time = time.time()
         model = None
-        if MODEL == 'randomforest':
+        if MODEL == 'randomforest' or MODEL == "lightgbm":
             model = ForestInference.load_from_sklearn(sklearnmodel,output_class=True, storage_type='auto')
         elif MODEL == 'xgboost':
             relative_path = relative2abspath("models",f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.model")
