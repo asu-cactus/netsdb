@@ -1,6 +1,6 @@
 #! /bin/bash
 DATASET="higgs"
-MODELS="lightgbm"
+MODELS="randomforest xgboost lightgbm"
 FRAMEWORKS="HummingbirdPytorchGPU HummingbirdTorchScriptGPU ONNXGPU HummingbirdTVMGPU NvidiaFILGPU"
 
 # Warmup
