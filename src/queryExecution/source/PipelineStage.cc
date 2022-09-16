@@ -623,6 +623,7 @@ void PipelineStage::executePipelineWork(int i,
     PDBPagePtr output = nullptr;
     auto begin = std::chrono::high_resolution_clock::now();
     PipelinePtr curPipeline = newPlan->buildPipeline(
+        i,
         buildTheseTupleSets,
         this->jobStage->getSourceTupleSetSpecifier(),
         this->jobStage->getTargetComputationSpecifier(),

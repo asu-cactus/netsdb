@@ -833,7 +833,8 @@ bool TCAPAnalyzer::analyze(
 
           }
           if ((matchOrNot == false)||(otherMatchOrNot == false)) {
-              join->setJoinType(HashPartitionedJoin);
+              if (join->getJoinType() != CrossProduct)
+		  join->setJoinType(HashPartitionedJoin);
               std::cout << "to create TupleSetJobStage to repartition data for join" << std::endl; 
               hashSetName = sink->getDatabase() + ":" + sink->getSetName();
               Handle<TupleSetJobStage> joinPrepStage = createTupleSetJobStage(
@@ -1004,7 +1005,8 @@ bool TCAPAnalyzer::analyze(
           curInputSetIdentifier->setIndexInInputs(indexInInputs);
 
           if ((matchOrNot == false)||(join->getJoinType() != LocalJoin)) {
-              join->setJoinType(HashPartitionedJoin);
+              if (join->getJoinType() != CrossProduct)
+                  join->setJoinType(HashPartitionedJoin);
               std::cout << "to create a TupleSetJobStage to repartition data for probing" << std::endl;
               Handle<TupleSetJobStage> joinPrepStage = createTupleSetJobStage(
                   jobStageId, sourceTupleSetName, targetTupleSetName, mySpecifier,

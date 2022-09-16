@@ -453,7 +453,8 @@ public:
                                                         consumeMe,
                                                         attsToOpOn,
                                                         projection,
-                                                        whereEveryoneGoes);
+                                                        whereEveryoneGoes,
+							this->joinType);
         } else {
             return nullptr;
         }
@@ -462,7 +463,7 @@ public:
     // JiaNote: to get compute source for HashPartitionedJoin
     ComputeSourcePtr getComputeSource(TupleSpec& outputScheme, ComputePlan& plan) override {
         std::cout << "to get compute source" << std::endl;
-        if ((this->joinType != HashPartitionedJoin) && (this->joinType != LocalJoin)) {
+        if ((this->joinType != HashPartitionedJoin) && (this->joinType != LocalJoin) && (this->joinType != CrossProduct)) {
             return nullptr;
         }
         // loop through each of the attributes that we are supposed to accept, and for each of them,
@@ -510,7 +511,7 @@ public:
         JoinTuplePtr correctJoinTuple =
             findCorrectJoinTuple<In1, In2, Rest...>(typeList, whereEveryoneGoes);
 
-        if (this->joinType == HashPartitionedJoin){
+        if ((this->joinType == HashPartitionedJoin) || (this->joinType == CrossProduct)) {
 
             return correctJoinTuple->getPartitionedSource( this->myPartitionId, 
 
@@ -570,7 +571,9 @@ public:
 
             this->batchSize,
 
-            whereEveryoneGoes
+            whereEveryoneGoes,
+
+	    this->joinType
 
             );
         } else {
@@ -692,6 +695,7 @@ public:
     // pipelinedAttsToIncludeInOutput tells us the set of attributes
     // that are coming through the pipeline that we actually have to write to the output stream
     ComputeExecutorPtr getExecutor(bool needToSwapAtts,
+		                   int threadId,
                                    TupleSpec& hashedInputSchema,
                                    TupleSpec& pipelinedInputSchema,
                                    TupleSpec& pipelinedAttsToOperateOn,
@@ -767,12 +771,15 @@ public:
                                                           pipelinedInputSchema,
                                                           pipelinedAttsToOperateOn,
                                                           pipelinedAttsToIncludeInOutput,
-                                                          needToSwapAtts);
+                                                          needToSwapAtts,
+							  joinType,
+							  threadId);
 
         }
     }
 
     ComputeExecutorPtr getExecutor(bool needToSwapAtts,
+		                   int threadId,
                                    TupleSpec& hashedInputSchema,
                                    TupleSpec& pipelinedInputSchema,
                                    TupleSpec& pipelinedAttsToOperateOn,
