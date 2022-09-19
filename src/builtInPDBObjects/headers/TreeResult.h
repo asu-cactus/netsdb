@@ -2,7 +2,7 @@
 #ifndef NETSDB_TREE_RESULT_H
 #define NETSDB_TREE_RESULT_H
 
-#define BATCH_SIZE 27500
+#define BLOCK_SIZE 275000
 
 
 #include <cmath>
@@ -43,9 +43,27 @@ namespace pdb
     class TreeResult : public Object
     {
     public:
-        ENABLE_DEEP_COPY
+        void setUpAndCopyFrom(void* target, void* source) const override {
+             new (target) TreeResult ();
+             TreeResult& fromMe = *((TreeResult *) source);
+             TreeResult& toMe = *((TreeResult *) target);
+             for (int i = 0; i < BLOCK_SIZE; i++) {
+                 toMe.data[i] = fromMe.data[i];
+             }
+             toMe.treeId = fromMe.treeId;
+             toMe.modelType = fromMe.modelType;
+             toMe.batchId = fromMe.batchId;
+        }
 
-        float data[BATCH_SIZE];
+         void deleteObject(void* deleteMe) override {
+             deleter(deleteMe, this);
+         }
+
+         size_t getSize(void* forMe) override {
+             return sizeof(TreeResult);
+         }
+
+        float data[BLOCK_SIZE];
 	
 	int treeId;
 
@@ -64,20 +82,19 @@ namespace pdb
 	
 	}
 
-	float * getData() {
-	
-            return data;
-	
-	}
-
 	int & getKey() {
-	
 	    return batchId;
 	
 	} 
 
-	TreeResult & getValue() {
+        void print() {
 	
+	    std::cout << "TreeResult: " << treeId << ":" << batchId << std::endl;
+
+	}
+
+
+	TreeResult & getValue() {
 	    return *this; 
 	
 	}
@@ -89,18 +106,11 @@ namespace pdb
             myData = this->data;
             otherData = other.data;
 
-	    if ((modelType == ModelType::XGBoost) || (modelType == ModelType::LightGBM))  { 
-                for (int i = 0; i < BATCH_SIZE; i++) {
-                      (myData)[i] += (otherData)[i];
-	        }
+            for (int i = 0; i < BLOCK_SIZE; i++) {
+                  (myData)[i] += (otherData)[i];
 	    }
-	    else {
-	    
-		std::cout << "We do not support aggregation for RandomForest at this point" << std::endl;
-	    
-	    }
-
-           return *this;
+		
+            return *this;
         }
 
     };

@@ -2,7 +2,7 @@
 #ifndef NETSDB_TREE_H
 #define NETSDB_TREE_H
 
-#define MAX_NUM_NODES_PER_TREE 512
+#define MAX_TREE_NODES 512
 
 #include <cmath>
 #include <cstdlib>
@@ -44,9 +44,9 @@ namespace pdb
     class Tree : public Object
     {
     public:
-        ENABLE_DEEP_COPY
+        //ENABLE_DEEP_COPY
 
-        Node tree[MAX_NUM_NODES_PER_TREE];
+        Node tree[MAX_TREE_NODES];
 
         Tree() {}
 
@@ -63,10 +63,35 @@ namespace pdb
 	
 	}
 
+
+        void setUpAndCopyFrom(void* target, void* source) const override {
+             new (target) Tree ();
+             Tree& fromMe = *((Tree *) source);
+             Tree& toMe = *((Tree *) target);
+             for (int i = 0; i < MAX_TREE_NODES; i++) {
+	         toMe.tree[i].indexID = fromMe.tree[i].indexID;
+                 toMe.tree[i].isLeaf = fromMe.tree[i].isLeaf;
+		 toMe.tree[i].leftChild = fromMe.tree[i].leftChild;
+		 toMe.tree[i].rightChild = fromMe.tree[i].rightChild;
+		 toMe.tree[i].returnClass = fromMe.tree[i].returnClass;
+	     }
+	     toMe.treeId = fromMe.treeId;
+	     toMe.modelType = fromMe.modelType;
+
+	}
+
+         void deleteObject(void* deleteMe) override {
+             deleter(deleteMe, this);
+         }
+
+         size_t getSize(void* forMe) override {
+             return sizeof(Tree);
+         }
+
+
+
         void processInnerNodes(std::vector<std::string> & innerNodes, ModelType modelType)
 	{
-
-
             int findStartPosition;
             int findMidPosition;
             int findEndPosition;
@@ -273,44 +298,41 @@ namespace pdb
 	}
 
 
-        template <class T>
-        pdb::Handle<TreeResult> predict(Handle<TensorBlock2D<T>> &in)
+        pdb::Handle<TreeResult> predict(Handle<TensorBlock2D<float>> &in)
         {                                 // TODO: Change all Double References to Float
 
             // get the input features matrix information
             uint32_t rowIndex = in->getBlockRowIndex();
 	    int numRows = in->getRowNums();
 	    int numCols = in->getColNums(); 
-
-            T *inData = in->getValue().rawData->c_ptr();
+            float *inData = in->getValue().rawData->c_ptr();
 
             // set the output matrix
-            pdb::Handle<TreeResult> resultMatrix = pdb::makeObject<TreeResult>(rowIndex, treeId, modelType);
-	    T * outData = resultMatrix->data;
+            pdb::Handle<TreeResult> resultMatrix = pdb::makeObject<TreeResult>(treeId, rowIndex, modelType);
 
-            T inputValue;
-	    Node treeNode;
+	    float * outData = resultMatrix->data;
+
 	    int featureStartIndex;
-	    int curIndex;
 
             for (int i = 0; i < numRows; i++)
             {
-		featureStartIndex = i*numCols;
-                    treeNode = tree[0];
-                    while (treeNode.isLeaf == false)
+		    featureStartIndex = i*numCols;
+                    int curIndex = 0;
+                    while (tree[curIndex].isLeaf == false)
                     {
-
-                        if (inData[featureStartIndex + treeNode.indexID] <= treeNode.returnClass)
+                        if (inData[featureStartIndex + tree[curIndex].indexID] <= tree[curIndex].returnClass)
                         {
-			    treeNode = tree[treeNode.leftChild];
+			    curIndex = tree[curIndex].leftChild;
                         }
                         else
                         {
-			    treeNode = tree[treeNode.rightChild];
+			    curIndex = tree[curIndex].rightChild;
                         }
                     }
-                    outData[i] = treeNode.returnClass;
+
+                    outData[i] = (float)(tree[curIndex].returnClass);
 	    }
+
             return resultMatrix;
         }
     };

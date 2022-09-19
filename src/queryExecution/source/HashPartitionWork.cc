@@ -128,9 +128,9 @@ void HashPartitionWork :: execute(PDBBuzzerPtr callerBuzzer) {
                                 logger->writeLn(": output page is full, send it out");
                                 Handle<Vector<Handle<JoinMap<JoinTuple<Object, char[0]>>>>> mapsToPrint 
                                     = unsafeCast<Vector<Handle<JoinMap<JoinTuple<Object, char[0]>>>>>(myMaps);
-                                /*for (int j = 0; j < mapsToPrint->size(); j++) {
+                                for (int j = 0; j < mapsToPrint->size(); j++) {
                                     ((*mapsToPrint)[j])->print();
-                                }*/
+                                }
                                 getRecord(myMaps);
                                 Record<Object>* myRecord = (Record<Object>*)output;
                                 size_t numBytes = myRecord->numBytes();
@@ -145,30 +145,30 @@ void HashPartitionWork :: execute(PDBBuzzerPtr callerBuzzer) {
                                 memcpy(sendBuffer, output, numBytes);
                                 
                                 if (id != myNodeId) {
-                                //commented for debugging, needs to recover)
-                                std::cout << getAllocator().printCurrentBlock()
+                                    //commented for debugging, needs to recover)
+                                    std::cout << getAllocator().printCurrentBlock()
                                                   << std::endl;
-                                makeObjectAllocatorBlock(128 * 1024, true);
-                                std::cout << id << ": sendData to "<< jobStage->getSinkContext()->getDatabase()
+                                    makeObjectAllocatorBlock(128 * 1024, true);
+                                    std::cout << id << ": sendData to "<< jobStage->getSinkContext()->getDatabase()
                                           << ":" << jobStage->getSinkContext()->getSetName() << std::endl;
-                                /*MD5_CTX md5;
-                                MD5_Init(&md5);
-                                MD5_Update(&md5, sendBuffer, numBytes);
-                                unsigned char* output = nullptr;
-                                MD5_Final(output, &md5);
-                                std::cout << "Hash sent: " << output << std::endl;
-                                logger->writeLn("Hash sent: "+string((char *)output));*/
-                                stage->sendData(communicator,
+                                    /*MD5_CTX md5;
+                                    MD5_Init(&md5);
+                                    MD5_Update(&md5, sendBuffer, numBytes);
+                                    unsigned char* output = nullptr;
+                                    MD5_Final(output, &md5);
+                                    std::cout << "Hash sent: " << output << std::endl;
+                                    logger->writeLn("Hash sent: "+string((char *)output));*/
+                                    stage->sendData(communicator,
                                          sendBuffer,
                                          numBytes,
                                          jobStage->getSinkContext()->getDatabase(),
                                          jobStage->getSinkContext()->getSetName(),
                                          errMsg,
                                          numPages);
-                                std::cout << id << ": sent data to "<< jobStage->getSinkContext()->getDatabase()
+                                    std::cout << id << ": sent data to "<< jobStage->getSinkContext()->getDatabase()
                                           << ":" << jobStage->getSinkContext()->getSetName() << std::endl;
-                                logger->writeLn("sent data");    
-                            } else {
+                                    logger->writeLn("sent data");    
+                                } else {
                                     makeObjectAllocatorBlock(128 * 1024, true);
                                     std::cout << id << ": pinBytes to " << jobStage->getSinkContext()->getDatabaseId() 
                                           << ":" << jobStage->getSinkContext()->getTypeId()

@@ -50,7 +50,7 @@ using namespace std;
 #endif
 
 #ifndef DEFAULT_NUM_THREADS
-#define DEFAULT_NUM_THREADS 4
+#define DEFAULT_NUM_THREADS 8 
 #endif
 
 #ifndef DEFAULT_BATCH_SIZE
@@ -68,7 +68,7 @@ using namespace std;
 #endif
 
 #ifndef DEFAULT_NUM_CORES
-#define DEFAULT_NUM_CORES 4
+#define DEFAULT_NUM_CORES 8 
 #endif
 
 // create a smart pointer for Configuration objects

@@ -1315,6 +1315,18 @@ public:
 
         // now, figure out the attributes that we need to store in the hash table
         useTheseAtts = myMachine.match(additionalAtts);
+
+        std::cout << "NumPartitionsPerNode: " << numPartitionsPerNode << ", NumNodes:" << numNodes << std::endl;    
+
+	if (this->partitionedJoinType == CrossProduct) {
+	
+		std::cout << "JoinSink from CrossProduct" << std::endl;
+	
+	} else {
+	
+		std::cout << "For this JoinSink, it is not a CrossProduct" << std::endl;
+	
+	}
     }
 
     Handle<Object> createNewOutputContainer() override {
@@ -1335,7 +1347,7 @@ public:
     }
 
     void writeOut(TupleSetPtr input, Handle<Object>& writeToMe) override {
-        //std::cout << "PartitionedJoinSink: write out tuples in this tuple set" << std::endl;
+        std::cout << "PartitionedJoinSink: write out tuples in this tuple set" << std::endl;
         // get the map we are adding to
         Handle<Vector<Handle<Vector<Handle<JoinMap<RHSType>>>>>> writeMe =
             unsafeCast<Vector<Handle<Vector<Handle<JoinMap<RHSType>>>>>>(writeToMe);
@@ -1360,6 +1372,7 @@ public:
         std::vector<size_t>& keyColumn = input->getColumn<size_t>(keyAtt);
 
         size_t length = keyColumn.size();
+	std::cout << "There are " << length << " elements in the tupleset" << std::endl;
         size_t index;
 
 	if (partitionedJoinType == CrossProduct) {
@@ -1374,12 +1387,13 @@ public:
                 index = (keyColumn[i] / (this->numPartitionsPerNode * this->numNodes)) %
                 (this->numPartitionsPerNode * this->numNodes);
 #endif
+		std::cout << "this is not CrossProduct with index = " << index << std::endl;
 	    }
             else {
 
 		 //for cross product
 		 index = curPartitionId % (this->numPartitionsPerNode * this->numNodes);
-	    
+                 std::cout << "this is CrossProduct with inex=" << index << std::endl;	    
 	    }	    
             size_t nodeIndex = index / this->numPartitionsPerNode;
             size_t partitionIndex = index % this->numPartitionsPerNode;

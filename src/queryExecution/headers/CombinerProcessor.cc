@@ -15,7 +15,6 @@ CombinerProcessor<KeyType, ValueType>::CombinerProcessor(std::vector<HashPartiti
 
     int i;
     for (i = 0; i < partitions.size(); i++) {
-        std::cout << i << ":" << partitions[i] << std::endl;
         nodePartitionIds.push_back(partitions[i]);
     }
     count = 0;
@@ -109,12 +108,8 @@ bool CombinerProcessor<KeyType, ValueType>::fillNextOutputPage() {
             if (!((*begin) != (*end))) {
                 if (curPartPos < numNodePartitions - 1) {
                     curPartPos++;
-                    std::cout << "curPartPos=" << curPartPos << std::endl;
                     curPartId = nodePartitionIds[curPartPos];
-                    std::cout << "curPartId=" << curPartId << std::endl;
                     curMap = (*inputData)[curPartId];
-                    std::cout << "(*inputData)[" << curPartId << "].size()=" << curMap->size()
-                             << std::endl;
                     if (curMap->size() > 0) {
                         if (begin != nullptr) delete begin;
                         if (end != nullptr) delete end;

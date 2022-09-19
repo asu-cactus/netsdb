@@ -380,6 +380,7 @@ protected:
     String computationName = "";
 
 };
+
 }
 
 #endif

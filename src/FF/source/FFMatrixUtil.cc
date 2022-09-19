@@ -244,6 +244,9 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
 
   pdb::Handle<T> myData = pdb::makeObject<T>(i, j, blockX, blockY,
                                              totalX, totalY, partitionByCol);;
+
+  myData->print();
+
   while (!end) {
       if (!rollback) {
           if (!std::getline(inFile, line)) {
@@ -261,6 +264,8 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
               myData =
                   pdb::makeObject<T>(i, j, blockX, blockY,
                                              totalX, totalY, partitionByCol);
+
+	      myData->print();
           }
 
 	  std::string::size_type pos = 0;
@@ -271,18 +276,18 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
 		float val = stod(token);
                 (*(myData->getRawDataHandle()))[ii * blockY + jj] = val;
                 jj ++;
-		if (jj == blockX) {
+		if (jj == blockY) {
 			jj = 0;
 			ii = ii+1;
-			if (ii == blockY) {
+			if (ii == blockX) {
 			   ii = 0;
 	                   storeMatrix->push_back(myData);
 			   j++;
-                           if (j == numXBlocks) {
+                           if (j == numYBlocks) {
                                j = 0;
                                i ++;
 
-                               if (i == numYBlocks) {
+                               if (i == numXBlocks) {
                                    break;
                                 }
 
@@ -290,6 +295,7 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
 			    myData =
                   pdb::makeObject<T>(i, j, blockX, blockY,
                                              totalX, totalY, partitionByCol);
+			    myData->print();
 			}
 		}
                 pos = new_pos + 1;
@@ -377,6 +383,8 @@ void loadMatrixGeneric(pdb::PDBClient &pdbClient, pdb::String dbName,
           pdb::Handle<T> myData =
               pdb::makeObject<T>(i, j, actual_blockX, actual_blockY,
                                              totalX, totalY, partitionByCol);
+
+	  myData->print();
 
           while (ii < actual_blockX) {
             while (jj < actual_blockY) {

@@ -19,7 +19,7 @@ class TreeCrossProduct : public CrossProductComp {
 public:
     ENABLE_DEEP_COPY
 
-    TreeCrossProduct() {}
+    TreeCrossProduct() {this->joinType = CrossProduct;}
 
 
     Lambda<Handle<TreeResult>> getProjection(Handle<Tree> in1, Handle<TensorBlock2D<float>> in2) override {

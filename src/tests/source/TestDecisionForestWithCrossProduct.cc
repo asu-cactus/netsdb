@@ -52,7 +52,7 @@ void loadTreeData(PDBClient& pdbClient, std::string forestFolderPath, ModelType 
 
 	std::string errMsg;
 
-        makeObjectAllocatorBlock(64 * 1024 * 1024, true);
+        makeObjectAllocatorBlock(8 * 1024 * 1024, true);
 	Handle<Vector<Handle<Tree>>> storeMe =
                     makeObject<Vector<Handle<Tree>>>();
 
@@ -67,12 +67,12 @@ void loadTreeData(PDBClient& pdbClient, std::string forestFolderPath, ModelType 
 		 std::cout << "page is full when loading tree-" << treeId << std::endl;
 	         //send the full page to server
                  if (!pdbClient.sendData<Tree>(
-                            std::pair<std::string, std::string>("decisionForest", "trees"),
+                            std::pair<std::string, std::string>("trees", "decisionForest"),
                             storeMe,
                             errMsg)) {
                         std::cout << "Failed to send data to dispatcher server" << std::endl;
                  }
-		 makeObjectAllocatorBlock(64 * 1024 * 1024, true);
+		 makeObjectAllocatorBlock(8 * 1024 * 1024, true);
                  storeMe = makeObject<Vector<Handle<Tree>>>();
                  Handle<Tree> tree = makeObject<Tree>(treeId, treePath, modelType);
                  storeMe->push_back(tree);
@@ -81,7 +81,7 @@ void loadTreeData(PDBClient& pdbClient, std::string forestFolderPath, ModelType 
         }
 
 	if (!pdbClient.sendData<Tree>(
-                            std::pair<std::string, std::string>("decisionForest", "trees"),
+                            std::pair<std::string, std::string>("trees", "decisionForest"),
                             storeMe,
                             errMsg)) {
                         std::cout << "Failed to send data to dispatcher server" << std::endl;
@@ -172,7 +172,7 @@ int main(int argc, char *argv[]) {
 	//create set for tree
         pdbClient.removeSet("decisionForest", "trees", errMsg);
         pdbClient.createSet<pdb::Tree>("decisionForest", "trees",
-                                           errMsg, 1, "trees",
+                                           errMsg, 8*1024*1024, "trees",
                                            nullptr, nullptr, false);
 	
         auto model_begin = chrono::high_resolution_clock::now();
@@ -187,21 +187,40 @@ int main(int argc, char *argv[]) {
    
     if (createSet == false) {
 
+	//create set for labels
+        pdbClient.removeSet("decisionForest", "labels", errMsg);
+        pdbClient.createSet<pdb::Tree>("decisionForest", "labels",
+                                           errMsg, 64, "labels",
+                                           nullptr, nullptr, false);
+
         pdb::makeObjectAllocatorBlock(1024 * 1024 * 1024, true);
 
         pdb::Handle<pdb::Computation> inputMatrix = pdb::makeObject<pdb::ScanUserSet<pdb::TensorBlock2D<float>>>("decisionForest", "inputs");
 
 	pdb::Handle<pdb::Computation> inputTree = pdb::makeObject<pdb::ScanUserSet<Tree>>("decisionForest", "trees");
 
-        pdb::Handle<pdb::Computation> treeCrossProduct = makeObject<TreeCrossProduct>();
+        pdb::Handle<pdb::CrossProductComp> treeCrossProduct = makeObject<TreeCrossProduct>();
+
+        treeCrossProduct->setJoinType(CrossProduct);
+
+        if (treeCrossProduct->getJoinType() == CrossProduct) {
+	
+	       std::cout << "The join is CrossProduct" << std::endl;
+
+	} else {
+	
+	       std::cout << "The join is not CrossProduct" << std::endl;
+	
+	}
 
 	pdb::Handle<pdb::Computation> treeResultAgg = makeObject<pdb::TreeResultAggregate>();
 
         pdb::Handle<pdb::Computation> labelWriter = makeObject<pdb::WriteUserSet<pdb::TreeResult>>();
+	
+	treeCrossProduct->setInput(0, inputTree);
 
-	treeCrossProduct->setInput(inputMatrix);
+	treeCrossProduct->setInput(1, inputMatrix);
 
-	treeCrossProduct->setInput(inputTree);
 
         treeResultAgg->setInput(treeCrossProduct);
 

@@ -15,6 +15,8 @@ class CrossProductComp : public JoinComp<TreeResult, Tree, TensorBlock2D<float>>
 
 public:
 
+
+
     // the computation returned by this method is called to see if a data item should be returned in
     // the output set
     virtual Lambda<bool> getSelection(Handle<Tree> in1,

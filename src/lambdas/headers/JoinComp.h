@@ -49,7 +49,7 @@ protected:
     MultiInputsBase* multiInputsBase = nullptr;
 
     // JiaNote: this is to specify the JoinType, by default we use broadcast join
-    JoinType joinType = BroadcastJoin;
+    JoinType joinType;
 
     // JiaNote: partition number in the cluster, used by hash partition join
     int numPartitions = 0;
@@ -447,7 +447,7 @@ public:
 
         if ((this->joinType == BroadcastJoin) || (this->joinType == LocalJoin)) {
             return correctJoinTuple->getSink(consumeMe, attsToOpOn, projection, whereEveryoneGoes);
-        } else if (this->joinType == HashPartitionedJoin) {
+        } else if ((this->joinType == HashPartitionedJoin) || (this->joinType == CrossProduct)) {
             return correctJoinTuple->getPartitionedSink(numPartitions / numNodes,
                                                         numNodes,
                                                         consumeMe,
