@@ -40,7 +40,6 @@
 #include "SimpleFF.h"
 #include "TreeResultAggregate.h"
 #include "TreeCrossProduct.h"
-
 using namespace std;
 
 
@@ -190,7 +189,7 @@ int main(int argc, char *argv[]) {
 	//create set for labels
         pdbClient.removeSet("decisionForest", "labels", errMsg);
         pdbClient.createSet<pdb::Tree>("decisionForest", "labels",
-                                           errMsg, 64, "labels",
+                                           errMsg, 64*1024*1024, "labels",
                                            nullptr, nullptr, false);
 
         pdb::makeObjectAllocatorBlock(1024 * 1024 * 1024, true);
@@ -214,8 +213,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	pdb::Handle<pdb::Computation> treeResultAgg = makeObject<pdb::TreeResultAggregate>();
-
-        pdb::Handle<pdb::Computation> labelWriter = makeObject<pdb::WriteUserSet<pdb::TreeResult>>();
+        
 	
 	treeCrossProduct->setInput(0, inputTree);
 
@@ -224,12 +222,13 @@ int main(int argc, char *argv[]) {
 
         treeResultAgg->setInput(treeCrossProduct);
 
-	labelWriter ->setInput(treeResultAgg);
+	treeResultAgg->setOutput("decisionForest", "labels");
+
 
         bool materializeHash = true;
 
         auto exe_begin = std::chrono::high_resolution_clock::now();
-        if (!pdbClient.executeComputations(errMsg, "decisionForest", materializeHash, labelWriter)) {
+        if (!pdbClient.executeComputations(errMsg, "decisionForest", materializeHash, treeResultAgg)) {
             cout << "Computation failed. Message was: " << errMsg << "\n";
             exit(1);
         }
@@ -240,18 +239,21 @@ int main(int argc, char *argv[]) {
               << std::chrono::duration_cast<std::chrono::duration<double>>(exe_end - exe_begin).count()
                                                                         << " secs." << std::endl;
 
-        bool printResult = false;
+        bool printResult = true;
         if (printResult == true) {
             std::cout << "to print result..." << std::endl;
             int count = 0;
+	    int positive_count = 0;
 
             pdb::SetIterator<pdb::TreeResult> result =
                    pdbClient.getSetIterator<pdb::TreeResult>("decisionForest", "labels");
            
             for (auto a : result) {
-                 count++;
+		 positive_count += a->postprocessing();
+                 count += BLOCK_SIZE;
             }
-            std::cout << "output count:" << count << "\n";
+            std::cout << "total count:" << count << "\n";
+	    std::cout << "positive count:" << positive_count << "\n";
         }
 
     }

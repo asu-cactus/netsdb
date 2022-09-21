@@ -18,6 +18,13 @@ class TreeResultAggregate
 public:
     ENABLE_DEEP_COPY
 
+    TreeResultAggregate(std::string dbName, std::string setName){
+    
+	this->setDatabaseName(dbName);
+	this->setSetName(setName);
+    
+    }
+
     TreeResultAggregate() {}
 
     // the key type must have == and size_t hash () defined

@@ -208,32 +208,31 @@ int main(int argc, char *argv[]) {
               << std::chrono::duration_cast<std::chrono::duration<double>>(model_end-model_begin).count()
                                                                         << " secs." << std::endl;
 
-        bool printResult = false;
+        bool printResult = true;
         if (printResult == true) {
             std::cout << "to print result..." << std::endl;
             int count = 0;
-            if (isFloat) {
+            int positive_count = 0;
+	    if (isFloat) {
 
 		  pdb::SetIterator<pdb::Vector<float>> result =
                    pdbClient.getSetIterator<pdb::Vector<float>>("decisionForest", "labels");
            
                   for (auto a : result) {
-                      count++;
-                      a->print();
+		      for (int i = 0; i < a->size(); i++) {
+                         count++;
+		         positive_count += (*a)[i]-1.0;
+		      } 
                   }
+                  std::cout << "output count:" << count << "\n";
+	          std::cout << "positive count:" << positive_count << "\n";
 	     } else {
 	  
 		  pdb::SetIterator<pdb::Vector<double>> result =
                    pdbClient.getSetIterator<pdb::Vector<double>>("decisionForest", "labels");
 
-	          for (auto a : result) {
-                      count++;
-                      a->print();
-                  }
-	  
 	    }
 
-            std::cout << "output count:" << count << "\n";
         }
 
     }

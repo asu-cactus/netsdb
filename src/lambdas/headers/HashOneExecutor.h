@@ -81,7 +81,7 @@ public:
         outColumn.resize(numRows);
         for (int i = 0; i < numRows; i++) {
             outColumn[i] = 1;
-	    std::cout << "outputColumn[" << i << "]=" << 1 << std::endl;
+	    //std::cout << "outputColumn[" << i << "]=" << 1 << std::endl;
         }
 
 

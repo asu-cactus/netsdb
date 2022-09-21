@@ -888,7 +888,7 @@ public:
                   if (curJoinMap->getNumPartitions() >0) {
                     if (((curJoinMap->getPartitionId() % curJoinMap->getNumPartitions()) ==
                         myPartitionId)&&(curJoinMap->size()>0) || partitionedJoinType == CrossProduct) {
-                        std::cout << "We've got a non-null map with partitionId=" << myPartitionId << ", pos=" << pos <<", size=" << curJoinMap->size() << ", in page Id="<<myPage->getPageID() << ", referenceCount="<< myPage->getRefCount()<< std::endl;
+                        //std::cout << "We've got a non-null map with partitionId=" << myPartitionId << ", pos=" << pos <<", size=" << curJoinMap->size() << ", in page Id="<<myPage->getPageID() << ", referenceCount="<< myPage->getRefCount()<< std::endl;
                         //curJoinMap->print();
                         curJoinMapIter = curJoinMap->begin();
                         joinMapEndIter = curJoinMap->end();
@@ -1160,7 +1160,7 @@ public:
                         try {
                             RHSType* temp = &(myMap.push(myHash));
                             packData(*temp, ((*myList)[i]));
-                            //std::cout << temp->myData.toString();
+                            //temp->myData.toString();
                             numPacked++;
                         } catch (NotEnoughSpace& n) {
                             myMap.setUnused(myHash);
@@ -1372,7 +1372,7 @@ public:
         std::vector<size_t>& keyColumn = input->getColumn<size_t>(keyAtt);
 
         size_t length = keyColumn.size();
-	std::cout << "There are " << length << " elements in the tupleset" << std::endl;
+	//std::cout << "There are " << length << " elements in the tupleset" << std::endl;
         size_t index;
 
 	if (partitionedJoinType == CrossProduct) {
@@ -1393,13 +1393,13 @@ public:
 
 		 //for cross product
 		 index = curPartitionId % (this->numPartitionsPerNode * this->numNodes);
-                 std::cout << "this is CrossProduct with inex=" << index << std::endl;	    
+                //std::cout << "this is CrossProduct with inex=" << index << std::endl;	    
 	    }	    
             size_t nodeIndex = index / this->numPartitionsPerNode;
             size_t partitionIndex = index % this->numPartitionsPerNode;
             JoinMap<RHSType>& myMap = *((*((*writeMe)[nodeIndex]))[partitionIndex]);
             //std::cout << "nodeIndex=" << nodeIndex << ", partitionIndex=" <<partitionIndex 
-              //        << ", myMap.size="<<myMap.size()<<std::endl;
+                      //<< ", myMap.size="<<myMap.size()<<std::endl;
             // try to add the key... this will cause an allocation for a new key/val pair
             if (myMap.count(keyColumn[i]) == 0) {
                 try {
