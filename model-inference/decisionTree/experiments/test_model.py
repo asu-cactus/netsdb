@@ -50,7 +50,8 @@ def parse_arguments(config):
             'HummingbirdTorchScriptGPU',
             'ONNXGPU',
             'HummingbirdTVMGPU',
-            'NvidiaFILGPU'
+            'NvidiaFILGPU',
+            'XGBoostGPU'
         ],
         help="Framework to run the decision forest model.")
     parser.add_argument("--batch_size", type=int, 
@@ -303,7 +304,7 @@ def test_gpu(args, features, label, sklearnmodel, config, time_consume):
         write_data(FRAMEWORK, results, time_consume)
         total_framework_time = calculate_time(start_time, time.time())
     
-    elif FRAMEWORK == "SklearnGPU":
+    elif FRAMEWORK == "XGBoostGPU":
         start_time = time.time()
         #scikit-learn will use all data in a query as one batch  
         conversion_time = 0.0
