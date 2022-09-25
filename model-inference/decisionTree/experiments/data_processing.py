@@ -19,7 +19,7 @@ def parse_arguments():
         choices=['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype', 'tpcxai_fraud'],
         help="Dataset to be processed. Choose from ['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype', 'tpcxai_fraud']")
     parser.add_argument("-n", "--nrows", type=int, help="Load nrows of the dataset. Warning: only use in development.")
-    parser.add_argument("-sf","--scalefactor", type=int, help="Relevant only for TPCxAI_Fraud. Takes one of the values in 1,3,10 and 30")
+    parser.add_argument("-sf","--scalefactor", type=int, help="Relevant only for TPCxAI_Fraud. Takes one of the values in 1, 3, 10 and 30")
     args = parser.parse_args()
     return args
 
@@ -164,12 +164,10 @@ def prepare_tpcxai_fraud_transactions(dataset_folder,nrows=None,skip_rows=0):
     print(f'Time Taken until here: {(time.time()-start_time)} seconds')
     print('[2] Converting receiverID to Numerical Feature [FOR55821814 -> 55821814]')
     df['receiverID'] = df['receiverID'].progress_apply(numericalize_text_feature_fn) if show_progress_bar else df['receiverID'].apply(numericalize_text_feature_fn)
-    # df['receiverID'] = 
     print(f'Time Taken until here: {(time.time()-start_time)} seconds')
     print('[3] Converting time to Numerical Feature [2011-01-29T15:28 -> [29012011, 1528]]')
     print('\t[3.1] STAGE 1: Conversion of Date to the Required Format [2011-01-29T15:28 -> 29012011:1528]')
     df['time'] = df['time'].progress_apply(convert_datetime_feature_intermediate_fn) if show_progress_bar else df['time'].apply(convert_datetime_feature_intermediate_fn)
-    # df['time'] = 
     print(f'Time Taken until here: {(time.time()-start_time)} seconds')
     print('\t[3.2] STAGE 2: Conversion of Formatted Date to New Features [29012011:1528 -> [29012011, 1528]]')
     print('This Stage takes long time to complete after Bar reaches 100% as it also writes to the TWO new Columns [date, time]')
@@ -308,9 +306,8 @@ if __name__ ==  "__main__":
             df = prepare_tpcxai_fraud_transactions(dataset_folder, nrows=nrows)
         else:
             partition_size = 1000000
-            num_partitions = datasetconfig["rows"]//partition_size
-            # partition_size = 100000
-            # num_partitions = 2
+            num_rows = datasetconfig[f"rows_sf{args.scalefactor}"] if ("scalefactor" in args) else datasetconfig[f"rows"]
+            num_partitions = num_rows//partition_size
             print('-'*50)
             print(f'Processing Partition Number 1 of {num_partitions+1}')
             print('-'*50)
@@ -320,7 +317,6 @@ if __name__ ==  "__main__":
                 print(f'Processing Partition Number {i+1} of {num_partitions+1}')
                 print('-'*50)
                 df = pd.concat([df,prepare_tpcxai_fraud_transactions(dataset_folder, nrows=partition_size, skip_rows=range(1,partition_size*i))])
-            # pd.concat([df,prepare_tpcxai_fraud_transactions(dataset_folder, nrows=partition_size, skip_rows=range(1,partition_size*num_partitions))])
             print(f'Final Shape of DataFrame: {df.shape}')
     else:
         raise ValueError(f"{dataset} not supported")
