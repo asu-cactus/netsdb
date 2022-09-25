@@ -134,17 +134,22 @@ def prepare_covtype(dataset_folder, nrows=None):
     df["Cover_Type"] = df["Cover_Type"] - 1 
     return df
 
-def prepare_tpcxai_fraud_transactions(dataset_folder,nrows=None):
+def prepare_tpcxai_fraud_transactions(dataset_folder,nrows=None,skip_rows=0):
+    global tpcxai_fraud_dataset_headers
     import re
     from datetime import datetime
-    from tqdm import tqdm
     import time
-    tqdm.pandas()
+
+    show_progress_bar = False  # To Show/Hide Progress Bar based on whether working in Interactive Mode 
+
+    if show_progress_bar:
+        from tqdm import tqdm
+        tqdm.pandas()
 
     SCALE_FACTOR = args.scalefactor if ("scalefactor" in args) else 1
 
     file_name = f'financial_transactions_train_SF{SCALE_FACTOR}.csv'  # Put the file in same directory
-    df = pd.read_csv(file_name, nrows=nrows)
+    df = pd.read_csv(file_name, nrows=nrows, skiprows=skip_rows)
 
     start_time = time.time()
     print('FEATURE ENGINEERING: Conversion of Text to Numerical Features')
@@ -155,18 +160,20 @@ def prepare_tpcxai_fraud_transactions(dataset_folder,nrows=None):
     convert_datetime_feature_final_fn = lambda input: pd.Series([float(x) for x in input.split(':')])
 
     print('[1] Converting IBAN to Numerical Feature [DE4875000009209924 -> 4875000009209924]')
-    df['IBAN'] = df['IBAN'].progress_apply(numericalize_text_feature_fn)
+    df['IBAN'] = df['IBAN'].progress_apply(numericalize_text_feature_fn) if show_progress_bar else df['IBAN'].apply(numericalize_text_feature_fn)
     print(f'Time Taken until here: {(time.time()-start_time)} seconds')
     print('[2] Converting receiverID to Numerical Feature [FOR55821814 -> 55821814]')
-    df['receiverID'] = df['receiverID'].progress_apply(numericalize_text_feature_fn)
+    df['receiverID'] = df['receiverID'].progress_apply(numericalize_text_feature_fn) if show_progress_bar else df['receiverID'].apply(numericalize_text_feature_fn)
+    # df['receiverID'] = 
     print(f'Time Taken until here: {(time.time()-start_time)} seconds')
     print('[3] Converting time to Numerical Feature [2011-01-29T15:28 -> [29012011, 1528]]')
     print('\t[3.1] STAGE 1: Conversion of Date to the Required Format [2011-01-29T15:28 -> 29012011:1528]')
-    df['time'] = df['time'].progress_apply(convert_datetime_feature_intermediate_fn)
+    df['time'] = df['time'].progress_apply(convert_datetime_feature_intermediate_fn) if show_progress_bar else df['time'].apply(convert_datetime_feature_intermediate_fn)
+    # df['time'] = 
     print(f'Time Taken until here: {(time.time()-start_time)} seconds')
     print('\t[3.2] STAGE 2: Conversion of Formatted Date to New Features [29012011:1528 -> [29012011, 1528]]')
     print('This Stage takes long time to complete after Bar reaches 100% as it also writes to the TWO new Columns [date, time]')
-    df[['date','time']] = df['time'].progress_apply(convert_datetime_feature_final_fn)
+    df[['date','time']] = df['time'].progress_apply(convert_datetime_feature_final_fn) if show_progress_bar else df['time'].apply(convert_datetime_feature_final_fn)
     print(f'Time Taken until here: {(time.time()-start_time)} seconds')
     print('[4] Change Column Name isFraud to is_fraud due to SQL Case-insensitive Nature')
     df = df.rename(columns={"isFraud": "is_fraud"}, errors="raise")
@@ -232,7 +239,7 @@ def save_as_pickle(train, test, dataset_folder, filename):
 
 def save_to_csv(train, test, dataset_folder, filename):
     filename = filename.split('.')[0]  # Remove Filetype
-    train_csv_path = relative2abspath(dataset_folder, f"{filename.split('.')[0]}_train.csv")
+    train_csv_path = relative2abspath(dataset_folder, f"{filename}_train.csv")
     train.to_csv(train_csv_path,index=False,header=False)
     test_csv_path = relative2abspath(dataset_folder, f"{filename}_test.csv")
     test.to_csv(test_csv_path,index=False,header=False)
@@ -297,7 +304,24 @@ if __name__ ==  "__main__":
     elif dataset == 'covtype':
         df = prepare_covtype(dataset_folder, nrows=nrows)
     elif dataset=="tpcxai_fraud":
-        df = prepare_tpcxai_fraud_transactions(dataset_folder, nrows=nrows)
+        if nrows:
+            df = prepare_tpcxai_fraud_transactions(dataset_folder, nrows=nrows)
+        else:
+            partition_size = 1000000
+            num_partitions = datasetconfig["rows"]//partition_size
+            # partition_size = 100000
+            # num_partitions = 2
+            print('-'*50)
+            print(f'Processing Partition Number 1 of {num_partitions+1}')
+            print('-'*50)
+            df = prepare_tpcxai_fraud_transactions(dataset_folder, nrows=partition_size)
+            for i in range(1,num_partitions+1):
+                print('-'*50)
+                print(f'Processing Partition Number {i+1} of {num_partitions+1}')
+                print('-'*50)
+                df = pd.concat([df,prepare_tpcxai_fraud_transactions(dataset_folder, nrows=partition_size, skip_rows=range(1,partition_size*i))])
+            # pd.concat([df,prepare_tpcxai_fraud_transactions(dataset_folder, nrows=partition_size, skip_rows=range(1,partition_size*num_partitions))])
+            print(f'Final Shape of DataFrame: {df.shape}')
     else:
         raise ValueError(f"{dataset} not supported")
 
