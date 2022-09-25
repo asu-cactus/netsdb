@@ -14,18 +14,22 @@ from model_helper import *
 DATASET = "airline_classification"
 MODEL = "xgboost"
 
-def parse_arguments():
+def parse_arguments(config):
     global DATASET, MODEL
     parser = argparse.ArgumentParser(description='Arguments for train_model.')
     parser.add_argument("-d", "--dataset", type=str, choices=['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype'],
         help="Dataset to be trained. Choose from ['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype']")
     parser.add_argument("-m", "--model", type=str, choices=['randomforest', 'xgboost', 'lightgbm'],
         help="Model name. Choose from ['randomforest', 'xgboost', 'lightgbm']")
+    parser.add_argument("-t", "--num_trees", type=int,
+        help="Number of trees for the model")
     args = parser.parse_args()
     if args.dataset:
         DATASET = args.dataset
     if args.model:
         MODEL = args.model
+    if args.num_trees:
+        config["num_trees"] = args.num_trees
     check_argument_conflicts(args)
     print(f"DATASET: {DATASET}")
     print(f"MODEL: {MODEL}")
@@ -121,8 +125,8 @@ def train(config, df_train):
 
 
 if __name__ ==  "__main__":
-    parse_arguments()
     config = json.load(open(relative2abspath("config.json")))
+    parse_arguments(config)
     df_train = fetch_data(DATASET,config,"train")
     print(f"Number of training examples: {len(df_train)}")
     train(config, df_train)

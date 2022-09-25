@@ -35,6 +35,9 @@ def parse_arguments(config):
         choices=['randomforest', 'xgboost', 'lightgbm'],
         help="Model name. Choose from ['randomforest', 'xgboost', 'lightgbm']")
     parser.add_argument(
+        "-t", "--num_trees", type=int,
+        help="Number of trees for the model")
+    parser.add_argument(
         "-f", "--frameworks", type=str,
         choices=[
             'Sklearn', 
@@ -62,6 +65,8 @@ def parse_arguments(config):
         MODEL = args.model
     if args.frameworks:
         FRAMEWORK = args.frameworks
+    if args.num_trees:
+        config["num_trees"] = args.num_trees
     if not args.batch_size:
         args.batch_size = config[DATASET]["batch_size"]
     if not args.query_size:

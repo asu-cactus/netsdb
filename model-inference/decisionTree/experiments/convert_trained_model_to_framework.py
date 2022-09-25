@@ -24,7 +24,7 @@ DATASET = "higgs"
 MODEL = "xgboost"
 FRAMEWORKS = None
 
-def parse_arguments():
+def parse_arguments(config):
     # check_argument_conflicts(args)  # TODO: Move this function from the bottom to here, after checking with Prof.
     global DATASET, MODEL, FRAMEWORKS
     parser = argparse.ArgumentParser(description='Arguments for train_model.')
@@ -34,6 +34,8 @@ def parse_arguments():
         help="Model name. Choose from ['randomforest', 'xgboost', 'lightgbm']")
     parser.add_argument("-f", "--frameworks", type=str,
         help="Zero to multiple values from ['pytorch', 'torch', 'tf-df', 'onnx', 'treelite', 'lleaves', 'netsdb'], seperated by ','")
+    parser.add_argument("-t", "--num_trees", type=int,
+        help="Number of trees for the model")
     args = parser.parse_args()
     if args.dataset:
         DATASET = args.dataset.lower()
@@ -45,7 +47,8 @@ def parse_arguments():
             if framework not in framework_options:
                 raise ValueError(f"Framework {framework} is not supported. Choose from ['pytorch', 'torch', 'tf-df', 'onnx', 'treelite', 'lleaves', 'netsdb']")
         FRAMEWORKS = args.frameworks  # TODO: Better to store these as a List? Instead of as a string.
-
+    if args.num_trees:
+        config["num_trees"] = args.num_trees
     check_argument_conflicts(args)  # TODO: Maybe, this is good to do it at the beginning of function itself?
     print(f"DATASET: {DATASET}")
     print(f"MODEL: {MODEL}")
@@ -249,7 +252,7 @@ def load_model(config):
     return model
 
 if __name__ ==  "__main__":
-    parse_arguments()
     config = json.load(open(relative2abspath("config.json")))
+    parse_arguments(config)
     model = load_model(config)
     convert(model, config)
