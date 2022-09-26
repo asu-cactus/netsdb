@@ -17,16 +17,6 @@ TREES = None
 DEPTH = None
 
 
-<< << << < HEAD
-
-
-def parse_arguments():
-    global DATASET, MODEL, TREES, DEPTH
-
-
-== == == =
-
-
 def parse_arguments(config):
     global DATASET, MODEL
     parser = argparse.ArgumentParser(description='Arguments for train_model.')
