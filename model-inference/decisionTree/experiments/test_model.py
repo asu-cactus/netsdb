@@ -35,6 +35,14 @@ def parse_arguments(config):
         choices=['randomforest', 'xgboost', 'lightgbm'],
         help="Model name. Choose from ['randomforest', 'xgboost', 'lightgbm']")
     parser.add_argument(
+        "-n", "--num_trees", type=int,  
+        choices=[10, 500, 1600],
+        help="Number of trees in the model. Choose from ['10', '500', '1600']")
+    parser.add_argument(
+        "-D", "--depth", type=int,  
+        choices=[8],
+        help="Depth of trees[Optional default is 8]. Choose from [8].")
+    parser.add_argument(
         "-f", "--frameworks", type=str,
         choices=[
             'Sklearn', 
@@ -305,6 +313,8 @@ def test_gpu(args, features, label, sklearnmodel, config, time_consume):
         total_framework_time = calculate_time(start_time, time.time())
     
     elif FRAMEWORK == "XGBoostGPU":
+        if MODEL != 'xgboost':
+            exit()
         start_time = time.time()
         #scikit-learn will use all data in a query as one batch  
         conversion_time = 0.0
@@ -370,6 +380,12 @@ if __name__ ==  "__main__":
     print("\n\n\n==============EXPERIMENT STARTING=========================")
     config = json.load(open(relative2abspath("config.json")))
     args = parse_arguments(config)
+    if args.num_trees:
+        config['num_trees'] = args.num_trees
+    
+    if args.depth:
+        config['depth'] = args.depth
+    
     print("Trees",config['num_trees'])
     print("Depth",config['depth'])    
     time_consume = {
