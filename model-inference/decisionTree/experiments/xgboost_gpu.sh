@@ -5,3 +5,5 @@ python test_model.py -d higgs -m xgboost -f XGBoostGPU --batch_size 1000 --query
 python test_model.py -d higgs -m xgboost -f XGBoostGPU --batch_size 10000 --query_size 10000
 python test_model.py -d higgs -m xgboost -f XGBoostGPU --batch_size 100000 --query_size 100000
 python test_model.py -d higgs -m xgboost -f XGBoostGPU --batch_size 2200000 --query_size 2200000
+
+sudo shutdown now -h
