@@ -34,6 +34,7 @@ def load_data_from_pickle(dataset, config, suffix, time_consume):
 def fetch_data(dataset, config, suffix, time_consume=None):
     # if dataset == "epsilon": # Does not fit PostgreSQL
     #     return load_data_from_pickle(dataset, config, suffix, time_consume)
+    print("LOADING " + dataset + " " + suffix)
     try:
         pgsqlconfig = config["pgsqlconfig"]
         datasetconfig = config[dataset]
