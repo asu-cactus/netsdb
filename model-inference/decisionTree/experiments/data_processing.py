@@ -11,6 +11,8 @@ from sklearn import datasets
 from sklearn.utils import shuffle
 import argparse
 import math
+import sys
+import time
 
 
 def parse_arguments():
@@ -27,9 +29,24 @@ def parse_arguments():
 
 
 def download_data(url, dataset_folder):
+    start_time = 0
+
+    def reporthook(count, block_size, total_size):
+        nonlocal start_time
+        if count == 0:
+            start_time = time.time()
+            return
+        duration = time.time() - start_time
+        progress_size = int(count * block_size)
+        speed = int(progress_size / (1024 * duration))
+        percent = int(count * block_size * 100 / total_size)
+        sys.stdout.write("\r...%d%%, %d MB, %d KB/s, %d seconds passed" %
+                         (percent, progress_size / (1024 * 1024), speed, duration))
+        sys.stdout.flush()
+
     local_url = relative2abspath(dataset_folder, os.path.basename(url))
     if not os.path.isfile(local_url):
-        urlretrieve(url, local_url)
+        urlretrieve(url, local_url, reporthook)
     print("Dataset downloaded.")
     return local_url
 
