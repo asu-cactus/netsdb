@@ -1,4 +1,5 @@
 #! /bin/bash
+TREES="10"
 DATASET="airline_classification"
 MODELS="randomforest xgboost lightgbm"
 FRAMEWORKS="HummingbirdPytorchGPU HummingbirdTorchScriptGPU ONNXGPU HummingbirdTVMGPU NvidiaFILGPU"
@@ -56,8 +57,8 @@ for MODEL in $MODELS
                 else
                     QUERYSIZE=$BATCHSIZE
                 fi
-                echo "python test_model.py -d $DATASET -m $MODEL -f $FRAMEWORK --batch_size $BATCHSIZE --query_size $QUERYSIZE"
-                python test_model.py -d $DATASET -m $MODEL -f $FRAMEWORK --batch_size $BATCHSIZE --query_size $QUERYSIZE
+                echo "python test_model.py -d $DATASET -m $MODEL -f $FRAMEWORK --batch_size $BATCHSIZE --query_size $QUERYSIZE --num_trees $TREES"
+                python test_model.py -d $DATASET -m $MODEL -f $FRAMEWORK --batch_size $BATCHSIZE --query_size $QUERYSIZE --num_trees $TREES
                 echo -e "\n\n"
             fi
         done
