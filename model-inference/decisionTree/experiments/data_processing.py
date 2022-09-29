@@ -14,13 +14,17 @@ import math
 
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(description='Arguments for data_processing.py')
+    parser = argparse.ArgumentParser(
+        description='Arguments for data_processing.py')
     parser.add_argument("-d", "--dataset", type=str, required=True,
-        choices=['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype'],
-        help="Dataset to be processed. Choose from ['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype']")
-    parser.add_argument("-n", "--nrows", type=int, help="Load nrows of the dataset. Warning: only use in development.")
+                        choices=['higgs', 'airline_regression', 'airline_classification',
+                                 'fraud', 'year', 'epsilon', 'bosch', 'covtype'],
+                        help="Dataset to be processed. Choose from ['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype']")
+    parser.add_argument("-n", "--nrows", type=int,
+                        help="Load nrows of the dataset. Warning: only use in development.")
     args = parser.parse_args()
     return args
+
 
 def download_data(url, dataset_folder):
     local_url = relative2abspath(dataset_folder, os.path.basename(url))
@@ -28,6 +32,7 @@ def download_data(url, dataset_folder):
         urlretrieve(url, local_url)
     print("Dataset downloaded.")
     return local_url
+
 
 def prepare_higgs(dataset_folder, nrows):
     url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/00280/HIGGS.csv.gz'
@@ -37,10 +42,12 @@ def prepare_higgs(dataset_folder, nrows):
     df = df.astype({0: np.int8})
     return df
 
+
 def prepare_airline(is_classification, dataset_folder, nrows=None):
+    print("LOADING AIRLINE DATASET")
     url = "http://kt.ijs.si/elena_ikonomovska/datasets/airline/airline_14col.data.bz2"
     local_url = download_data(url, dataset_folder)
-    
+
     cols = [
         "Year",
         "Month",
@@ -77,8 +84,9 @@ def prepare_airline(is_classification, dataset_folder, nrows=None):
     if is_classification:
         # Turn into binary classification problem
         df["ArrDelay"] = 1 * (df["ArrDelay"] > 0)
-    
+
     return df
+
 
 def prepare_fraud(dataset_folder, nrows=None):
     filename = "creditcard.csv"
@@ -89,15 +97,17 @@ def prepare_fraud(dataset_folder, nrows=None):
     df = df.astype({"Class": np.int8})
     return df
 
+
 def prepare_bosch(dataset_folder, nrows=None):
     filename = "train_numeric.csv.zip"
     local_url = relative2abspath(dataset_folder, filename)
     # local_url = os.path.join(dataset_folder, filename)
     if not os.path.isfile(local_url):
         os.system("kaggle competitions download -c bosch-production-line-performance -f " +
-                filename + " -p " + dataset_folder)
+                  filename + " -p " + dataset_folder)
     print("Downloaded bosch dataset.")
-    df = pd.read_csv(local_url, index_col=0, compression='zip', dtype=np.float32, nrows=nrows)
+    df = pd.read_csv(local_url, index_col=0, compression='zip',
+                     dtype=np.float32, nrows=nrows)
     df = df.astype({"Response": np.int8})
     return df
 
@@ -108,6 +118,7 @@ def prepare_year(dataset_folder, nrows=None):
     df = pd.read_csv(local_url, dtype=np.float32, nrows=nrows, header=None)
     df = df.astype({0: np.int8})
     return df
+
 
 def prepare_epsilon(nrows=None):
     from catboost.datasets import epsilon
@@ -122,34 +133,36 @@ def prepare_epsilon(nrows=None):
     if nrows is not None:
         train_data = train_data[:nrows//2]
         test_data = test_data[:nrows//2]
-    
+
     print(len(test_data))
     print(len(train_data))
     print("CONCATENATING TRAIN AND TEST")
     # df = pd.concat([train_data, test_data], ignore_index=True)
-    
-    return test_data,train_data
+
+    return test_data, train_data
 
 
-def prepare_covtype(dataset_folder, nrows=None): 
-    df = datasets.fetch_covtype(data_home=dataset_folder, as_frame=True)["frame"]
+def prepare_covtype(dataset_folder, nrows=None):
+    df = datasets.fetch_covtype(
+        data_home=dataset_folder, as_frame=True)["frame"]
     if nrows is not None:
         df = df[:nrows]
     df = df.astype(np.float32)
     df = df.astype({"Cover_Type": np.int8})
     # Training classifier requires labels [0 1 2 3 4 5 6], but the original data's labels are [1 2 3 4 5 6 7]
-    df["Cover_Type"] = df["Cover_Type"] - 1 
+    df["Cover_Type"] = df["Cover_Type"] - 1
     return df
 
 
 def get_connection(pgsqlconfig):
     return psycopg2.connect(
-        database = pgsqlconfig["dbname"],
-        user = pgsqlconfig["username"],
-        password = pgsqlconfig["password"],
-        host = pgsqlconfig["host"],
-        port = pgsqlconfig["port"]
+        database=pgsqlconfig["dbname"],
+        user=pgsqlconfig["username"],
+        password=pgsqlconfig["password"],
+        host=pgsqlconfig["host"],
+        port=pgsqlconfig["port"]
     )
+
 
 def make_query(dataset, datasetconfig, column_names):
     # Make query to create table
@@ -158,18 +171,23 @@ def make_query(dataset, datasetconfig, column_names):
         label_name = "label INTEGER NOT NULL"
         create_query = f"CREATE TABLE ** ({label_name}, {feature_names})"
     elif dataset == "bosch":
-        feature_names = ", ".join([f"feature{i} DECIMAL" for i in range(datasetconfig["num_features"])])
+        feature_names = ", ".join(
+            [f"feature{i} DECIMAL" for i in range(datasetconfig["num_features"])])
         label_name = f"{datasetconfig['y_col']} INTEGER NOT NULL"
         create_query = f"CREATE TABLE ** ({feature_names}, {label_name})"
     elif dataset == "covtype":
-        feature_names = ", ".join([f"{col_name} DECIMAL NOT NULL" for col_name in column_names[:-1]])
+        feature_names = ", ".join(
+            [f"{col_name} DECIMAL NOT NULL" for col_name in column_names[:-1]])
         label_name = f"{column_names[-1]} INTEGER NOT NULL"
         create_query = f"CREATE TABLE ** ({feature_names}, {label_name})"
     else:
         create_query = datasetconfig["create"]
-    train_create_query = create_query.replace("**", f"{datasetconfig['table']}_train", 1)
-    test_create_query = create_query.replace("**", f"{datasetconfig['table']}_test", 1)
+    train_create_query = create_query.replace(
+        "**", f"{datasetconfig['table']}_train", 1)
+    test_create_query = create_query.replace(
+        "**", f"{datasetconfig['table']}_test", 1)
     return (train_create_query, test_create_query)
+
 
 def save_as_pickle(train, test, dataset_folder, filename):
     train_pkl_path = relative2abspath(dataset_folder, f"{filename}_train.pkl")
@@ -180,36 +198,40 @@ def save_as_pickle(train, test, dataset_folder, filename):
 
 
 def save_to_csv(train, test, dataset_folder, filename):
-    
+
     train_csv_path = relative2abspath(dataset_folder, f"{filename}_train.csv")
-    train.to_csv(train_csv_path,index=False,header=False)
+    train.to_csv(train_csv_path, index=False, header=False)
     test_csv_path = relative2abspath(dataset_folder, f"{filename}_test.csv")
-    test.to_csv(test_csv_path,index=False,header=False)
+    test.to_csv(test_csv_path, index=False, header=False)
     print(f"{dataset} is saved as train and test CSVs.")
     return (train_csv_path, test_csv_path)
 
+
 def create_tables(
-        connection, 
-        train_query, 
+        connection,
+        train_query,
         test_query,
         train_csv_path,
         test_csv_path,
         dataset):
-    
+
     print("DROPPING TRAIN AND TABLE IF THEY EXIST")
     with connection.cursor() as cursor:
-        cursor.execute("DROP TABLE IF EXISTS " + datasetconfig["table"]+"_train")
+        cursor.execute("DROP TABLE IF EXISTS " +
+                       datasetconfig["table"]+"_train")
         connection.commit()
-    
+
     with connection.cursor() as cursor:
-        cursor.execute("DROP TABLE IF EXISTS " + datasetconfig["table"]+"_test" )
+        cursor.execute("DROP TABLE IF EXISTS " +
+                       datasetconfig["table"]+"_test")
         connection.commit()
 
     print("CREATING AND POPULATING TABLES")
     with connection.cursor() as cursor:
         cursor.execute(train_query)
         with open(train_csv_path) as f:
-            cursor.copy_expert("COPY "+datasetconfig["table"]+"_train"+" FROM STDIN WITH CSV", f)
+            cursor.copy_expert(
+                "COPY "+datasetconfig["table"]+"_train"+" FROM STDIN WITH CSV", f)
         print("LOADED "+datasetconfig["table"]+"_train"+" to DB")
         connection.commit()
 
@@ -217,14 +239,15 @@ def create_tables(
     with connection.cursor() as cursor:
         cursor.execute(test_query)
         with open(test_csv_path) as f:
-            cursor.copy_expert("COPY "+datasetconfig["table"]+"_test"+" FROM STDIN WITH CSV", f)
+            cursor.copy_expert(
+                "COPY "+datasetconfig["table"]+"_test"+" FROM STDIN WITH CSV", f)
         print("LOADED "+datasetconfig["table"]+"_test"+" to DB")
         connection.commit()
-    
+
     print("TABLES CREATED AND DATA LOADED")
 
 
-if __name__ ==  "__main__":
+if __name__ == "__main__":
     # Get settings
     dataset_folder = relative2abspath(dataset_folder)
     if not os.path.exists(dataset_folder):
@@ -243,7 +266,7 @@ if __name__ ==  "__main__":
         is_classification = datasetconfig["type"] == "classification"
         df = prepare_airline(is_classification, dataset_folder, nrows=nrows)
     elif dataset == 'epsilon':
-        df_test,df_train = prepare_epsilon(nrows=nrows)
+        df_test, df_train = prepare_epsilon(nrows=nrows)
     elif dataset == "fraud":
         df = prepare_fraud(dataset_folder, nrows=nrows)
     elif dataset == 'bosch':
@@ -261,15 +284,18 @@ if __name__ ==  "__main__":
         column_names = list(df_train.columns)
         connection = get_connection(pgsqlconfig)
         print("FETCHING TRAIN AND TEST QUERY EPSILON")
-        train_query, test_query = make_query(dataset, datasetconfig, column_names)
-        
+        train_query, test_query = make_query(
+            dataset, datasetconfig, column_names)
+
         print("DROPPING TRAIN AND TABLE IF THEY EXIST")
         with connection.cursor() as cursor:
-            cursor.execute("DROP TABLE IF EXISTS " + datasetconfig["table"]+"_train")
+            cursor.execute("DROP TABLE IF EXISTS " +
+                           datasetconfig["table"]+"_train")
             connection.commit()
-        
+
         with connection.cursor() as cursor:
-            cursor.execute("DROP TABLE IF EXISTS " + datasetconfig["table"]+"_test" )
+            cursor.execute("DROP TABLE IF EXISTS " +
+                           datasetconfig["table"]+"_test")
             connection.commit()
 
         print("CREATING TABLES FOR EPSILON")
@@ -279,13 +305,14 @@ if __name__ ==  "__main__":
             connection.commit()
 
         print("LOADING DATA FOR EPSILON")
-        columns = [i for i in range(1,2001)]
+        columns = [i for i in range(1, 2001)]
         with connection.cursor() as cur:
             train.head()
             rows = len(train)
             for i in range(rows):
-                cur.execute("INSERT INTO epsilon_train(label,row) VALUES(%s, %s)", (int(train.loc[i,0]),list(train.loc[i,columns])))
-                if i%10000 == 0:
+                cur.execute("INSERT INTO epsilon_train(label,row) VALUES(%s, %s)", (int(
+                    train.loc[i, 0]), list(train.loc[i, columns])))
+                if i % 10000 == 0:
                     print(i)
 
             connection.commit()
@@ -294,38 +321,39 @@ if __name__ ==  "__main__":
             test.head()
             rows = len(test)
             for i in range(rows):
-                cur.execute("INSERT INTO epsilon_test(label,row) VALUES(%s, %s)", (int(test.loc[i,0]),list(test.loc[i,columns])))
-                if i%10000 == 0:
+                cur.execute("INSERT INTO epsilon_test(label,row) VALUES(%s, %s)", (int(
+                    test.loc[i, 0]), list(test.loc[i, columns])))
+                if i % 10000 == 0:
                     print(i)
-            
+
             connection.commit()
             print("LOADED "+datasetconfig["table"]+"_test"+" to DB")
 
         exit()
 
-    # Split dataset        
+    # Split dataset
     train_size = math.floor(len(df) * datasetconfig["train"])
     train = df.head(train_size)
     test = df.tail(len(df) - train_size)
 
-    ### Store datset
+    # Store datset
     # ## For wide datasets such as "epsilon", save as pickle file
     # if dataset == "epsilon":
     #     save_as_pickle(train, test, dataset_folder, datasetconfig['filename'])
     #     exit()
-    
-    ## Store dataset into PostgreSQL database, using copying from CSV strategy
+
+    # Store dataset into PostgreSQL database, using copying from CSV strategy
     # First step: save dataframes to csv
-    train_csv_path, test_csv_path = save_to_csv(train, test, dataset_folder, datasetconfig['filename'])
-    
+    train_csv_path, test_csv_path = save_to_csv(
+        train, test, dataset_folder, datasetconfig['filename'])
 
     # Second step: copy csv to database
     column_names = list(df.columns)
-    del df 
+    del df
     gc.collect()
     connection = get_connection(pgsqlconfig)
     print("FETCHING TRAIN AND TEST QUERY")
     train_query, test_query = make_query(dataset, datasetconfig, column_names)
     print("CREATING TRAIN AND TEST TABLES")
-    create_tables(connection, train_query, test_query, train_csv_path, test_csv_path, dataset)
-
+    create_tables(connection, train_query, test_query,
+                  train_csv_path, test_csv_path, dataset)
