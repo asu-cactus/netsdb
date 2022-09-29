@@ -1,5 +1,5 @@
 #! /bin/bash
-DATASET="airline"
+DATASET="airline_classification"
 MODELS="randomforest xgboost lightgbm"
 FRAMEWORKS="HummingbirdPytorchGPU HummingbirdTorchScriptGPU ONNXGPU HummingbirdTVMGPU NvidiaFILGPU"
 
