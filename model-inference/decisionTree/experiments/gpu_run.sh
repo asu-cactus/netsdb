@@ -2,7 +2,7 @@
 TREES="10"
 DATASET="airline_classification"
 MODELS="randomforest xgboost lightgbm"
-FRAMEWORKS="HummingbirdPytorchGPU HummingbirdTorchScriptGPU ONNXGPU HummingbirdTVMGPU NvidiaFILGPU"
+FRAMEWORKS="HummingbirdPytorchGPU HummingbirdTorchScriptGPU ONNXGPU HummingbirdTVMGPU NvidiaFILGPU XGBoostGPU"
 
 # Warmup
 python test_model.py -d $DATASET -m xgboost -f Sklearn --batch_size 1000 --query_size 1000
