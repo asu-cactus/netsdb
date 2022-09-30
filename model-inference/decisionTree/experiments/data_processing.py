@@ -119,6 +119,7 @@ def prepare_bosch(dataset_folder, nrows=None):
     filename = "train_numeric.csv.zip"
     local_url = relative2abspath(dataset_folder, filename)
     # local_url = os.path.join(dataset_folder, filename)
+    print(local_url)
     if not os.path.isfile(local_url):
         os.system("kaggle competitions download -c bosch-production-line-performance -f " +
                   filename + " -p " + dataset_folder)
