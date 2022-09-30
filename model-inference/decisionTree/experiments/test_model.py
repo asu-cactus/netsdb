@@ -106,6 +106,8 @@ def load_data(config, time_consume):
 
 
 def load_sklearn_model(config, time_consume):
+    print("LOADING: ", relative2abspath(
+        "models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.pkl"))
     start_time = time.time()
     relative_path = relative2abspath(
         "models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.pkl")
