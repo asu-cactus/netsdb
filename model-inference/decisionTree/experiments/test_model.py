@@ -287,8 +287,7 @@ def test_cpu(args, features, label, sklearnmodel, config, time_consume):
 
 
 def test_gpu(args, features, label, sklearnmodel, config, time_consume):
-    print("Running GPU Test", args, features,
-          label, sklearnmodel, config, time_consume)
+    print("Running GPU Test", FRAMEWORK)
     import torch
     import gc
     gc.collect()
