@@ -1,0 +1,3899 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: Sklearn
+Query Size: 1000
+Batch Size: 1000
+Trees 1600
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 49369.12178993225
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_1600_8.pkl
+Time Taken to load sklearn model: 683.2010746002197
+Time Taken to predict on Sklearn is 245684.4289302826
+Time Taken to write results to a text file for Sklearn is 11382.419109344482
+Classification Report Sklearn
+              precision    recall  f1-score   support
+
+           0       0.83      0.62      0.71  12571935
+           1       0.65      0.84      0.73  10441869
+
+    accuracy                           0.72  23013804
+   macro avg       0.74      0.73      0.72  23013804
+weighted avg       0.74      0.72      0.72  23013804
+
+################
+Time Taken to convert Sklearn model: 0.0
+TOTAL Time Taken for Sklearn: 257066.9140815735
+==============EXPERIMENT ENDING=========================
+
+TESTS START HERE
+*******************************8
+gpu_run.sh: 54: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f HummingbirdPytorchGPU --batch_size 100 --query_size 100 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32362.992763519287
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 222.84650802612305
+Running GPU Test HummingbirdPytorchGPU
+Time Taken to predict on HummingbirdPytorchGPU is 206333.84728431702
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 11329.448223114014
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.62      0.77      0.69  12571935
+           1       0.62      0.44      0.51  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.62      0.61      0.60  23013804
+weighted avg       0.62      0.62      0.61  23013804
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 9269.594192504883
+TOTAL Time Taken for HummingbirdPytorchGPU: 226932.95860290527
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f HummingbirdPytorchGPU --batch_size 1000 --query_size 1000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 33088.93704414368
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 40.73500633239746
+Running GPU Test HummingbirdPytorchGPU
+Time Taken to predict on HummingbirdPytorchGPU is 29807.366847991943
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 12397.40252494812
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.62      0.77      0.69  12571935
+           1       0.62      0.44      0.51  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.62      0.61      0.60  23013804
+weighted avg       0.62      0.62      0.61  23013804
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 4077.3932933807373
+TOTAL Time Taken for HummingbirdPytorchGPU: 46282.23896026611
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f HummingbirdPytorchGPU --batch_size 10000 --query_size 10000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32612.9412651062
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 39.86382484436035
+Running GPU Test HummingbirdPytorchGPU
+Time Taken to predict on HummingbirdPytorchGPU is 5561.8932247161865
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 11320.140600204468
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.62      0.77      0.69  12571935
+           1       0.62      0.44      0.51  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.62      0.61      0.60  23013804
+weighted avg       0.62      0.62      0.61  23013804
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 4059.3271255493164
+TOTAL Time Taken for HummingbirdPytorchGPU: 20941.436290740967
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f HummingbirdPytorchGPU --batch_size 100000 --query_size 100000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31603.14965248108
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 39.61634635925293
+Running GPU Test HummingbirdPytorchGPU
+Time Taken to predict on HummingbirdPytorchGPU is 2676.3274669647217
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 11278.253555297852
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.62      0.77      0.69  12571935
+           1       0.62      0.44      0.51  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.62      0.61      0.60  23013804
+weighted avg       0.62      0.62      0.61  23013804
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 4080.608606338501
+TOTAL Time Taken for HummingbirdPytorchGPU: 18035.26282310486
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f HummingbirdPytorchGPU --batch_size 1000000 --query_size 1000000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 1000000
+Batch Size: 1000000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31777.318716049194
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 40.221214294433594
+Running GPU Test HummingbirdPytorchGPU
+Time Taken to predict on HummingbirdPytorchGPU is 2761.036157608032
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 11258.000135421753
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.62      0.77      0.69  12571935
+           1       0.62      0.44      0.51  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.62      0.61      0.60  23013804
+weighted avg       0.62      0.62      0.61  23013804
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 4090.8799171447754
+TOTAL Time Taken for HummingbirdPytorchGPU: 18109.99608039856
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f HummingbirdPytorchGPU --batch_size 23013804 --query_size 23013804 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 23013804
+Batch Size: 23013804
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31529.25181388855
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 39.437055587768555
+Running GPU Test HummingbirdPytorchGPU
+Time Taken to predict on HummingbirdPytorchGPU is 2601.911783218384
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 11337.496995925903
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.62      0.77      0.69  12571935
+           1       0.62      0.44      0.51  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.62      0.61      0.60  23013804
+weighted avg       0.62      0.62      0.61  23013804
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 4011.629343032837
+TOTAL Time Taken for HummingbirdPytorchGPU: 17951.555967330933
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f HummingbirdTorchScriptGPU --batch_size 100 --query_size 100 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32569.718599319458
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 40.38047790527344
+Running GPU Test HummingbirdTorchScriptGPU
+Time Taken to predict on HummingbirdTorchScriptGPU is 136056.7455291748
+Time Taken to write results to a text file for HummingbirdTorchScriptGPU is 12455.878496170044
+Classification Report HummingbirdTorchScriptGPU
+              precision    recall  f1-score   support
+
+           0       0.62      0.77      0.69  12571935
+           1       0.62      0.44      0.51  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.62      0.61      0.60  23013804
+weighted avg       0.62      0.62      0.61  23013804
+
+################
+Time Taken to convert HummingbirdTorchScriptGPU model: 3964.4384384155273
+TOTAL Time Taken for HummingbirdTorchScriptGPU: 152477.1490097046
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f HummingbirdTorchScriptGPU --batch_size 1000 --query_size 1000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32570.241928100586
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 39.328575134277344
+Running GPU Test HummingbirdTorchScriptGPU
+Time Taken to predict on HummingbirdTorchScriptGPU is 16146.905899047852
+Time Taken to write results to a text file for HummingbirdTorchScriptGPU is 11852.902889251709
+Classification Report HummingbirdTorchScriptGPU
+              precision    recall  f1-score   support
+
+           0       0.62      0.77      0.69  12571935
+           1       0.62      0.44      0.51  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.62      0.61      0.60  23013804
+weighted avg       0.62      0.62      0.61  23013804
+
+################
+Time Taken to convert HummingbirdTorchScriptGPU model: 3313.5812282562256
+TOTAL Time Taken for HummingbirdTorchScriptGPU: 31313.46106529236
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f HummingbirdTorchScriptGPU --batch_size 10000 --query_size 10000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31770.139455795288
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 39.917707443237305
+Running GPU Test HummingbirdTorchScriptGPU
+Time Taken to predict on HummingbirdTorchScriptGPU is 3833.4522247314453
+Time Taken to write results to a text file for HummingbirdTorchScriptGPU is 11669.193029403687
+Classification Report HummingbirdTorchScriptGPU
+              precision    recall  f1-score   support
+
+           0       0.62      0.77      0.69  12571935
+           1       0.62      0.44      0.51  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.62      0.61      0.60  23013804
+weighted avg       0.62      0.62      0.61  23013804
+
+################
+Time Taken to convert HummingbirdTorchScriptGPU model: 3344.2275524139404
+TOTAL Time Taken for HummingbirdTorchScriptGPU: 18846.945762634277
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f HummingbirdTorchScriptGPU --batch_size 100000 --query_size 100000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31456.745147705078
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 40.02809524536133
+Running GPU Test HummingbirdTorchScriptGPU
+Time Taken to predict on HummingbirdTorchScriptGPU is 2890.453338623047
+Time Taken to write results to a text file for HummingbirdTorchScriptGPU is 11745.006322860718
+Classification Report HummingbirdTorchScriptGPU
+              precision    recall  f1-score   support
+
+           0       0.62      0.77      0.69  12571935
+           1       0.62      0.44      0.51  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.62      0.61      0.60  23013804
+weighted avg       0.62      0.62      0.61  23013804
+
+################
+Time Taken to convert HummingbirdTorchScriptGPU model: 3368.759870529175
+TOTAL Time Taken for HummingbirdTorchScriptGPU: 18004.295349121094
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f HummingbirdTorchScriptGPU --batch_size 1000000 --query_size 1000000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 1000000
+Batch Size: 1000000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32007.015228271484
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 40.38119316101074
+Running GPU Test HummingbirdTorchScriptGPU
+Time Taken to predict on HummingbirdTorchScriptGPU is 2966.4011001586914
+Time Taken to write results to a text file for HummingbirdTorchScriptGPU is 12399.908304214478
+Classification Report HummingbirdTorchScriptGPU
+              precision    recall  f1-score   support
+
+           0       0.62      0.77      0.69  12571935
+           1       0.62      0.44      0.51  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.62      0.61      0.60  23013804
+weighted avg       0.62      0.62      0.61  23013804
+
+################
+Time Taken to convert HummingbirdTorchScriptGPU model: 3573.6823081970215
+TOTAL Time Taken for HummingbirdTorchScriptGPU: 18940.073251724243
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f HummingbirdTorchScriptGPU --batch_size 23013804 --query_size 23013804 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 23013804
+Batch Size: 23013804
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31647.6891040802
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 40.14730453491211
+Running GPU Test HummingbirdTorchScriptGPU
+Time Taken to predict on HummingbirdTorchScriptGPU is 2598.6905097961426
+Time Taken to write results to a text file for HummingbirdTorchScriptGPU is 13481.765270233154
+Classification Report HummingbirdTorchScriptGPU
+              precision    recall  f1-score   support
+
+           0       0.62      0.77      0.69  12571935
+           1       0.62      0.44      0.51  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.62      0.61      0.60  23013804
+weighted avg       0.62      0.62      0.61  23013804
+
+################
+Time Taken to convert HummingbirdTorchScriptGPU model: 9835.211038589478
+TOTAL Time Taken for HummingbirdTorchScriptGPU: 25924.00574684143
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: ONNXGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f ONNXGPU --batch_size 100 --query_size 100 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: ONNXGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32798.25687408447
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 41.10860824584961
+Running GPU Test ONNXGPU
+Time Taken to predict on ONNXGPU is 25454.089403152466
+Time Taken to write results to a text file for ONNXGPU is 11371.279239654541
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.62      0.77      0.69  12571935
+           1       0.62      0.44      0.51  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.62      0.61      0.60  23013804
+weighted avg       0.62      0.62      0.61  23013804
+
+################
+Time Taken to convert ONNXGPU model: 81216.10021591187
+TOTAL Time Taken for ONNXGPU: 118041.52798652649
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: ONNXGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f ONNXGPU --batch_size 1000 --query_size 1000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: ONNXGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32423.98166656494
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 39.52813148498535
+Running GPU Test ONNXGPU
+Time Taken to predict on ONNXGPU is 13310.32133102417
+Time Taken to write results to a text file for ONNXGPU is 12378.77869606018
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.62      0.77      0.69  12571935
+           1       0.62      0.44      0.51  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.62      0.61      0.60  23013804
+weighted avg       0.62      0.62      0.61  23013804
+
+################
+Time Taken to convert ONNXGPU model: 1355.4420471191406
+TOTAL Time Taken for ONNXGPU: 27044.610738754272
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: ONNXGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f ONNXGPU --batch_size 10000 --query_size 10000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: ONNXGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32841.63236618042
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 40.326595306396484
+Running GPU Test ONNXGPU
+Time Taken to predict on ONNXGPU is 9141.624450683594
+Time Taken to write results to a text file for ONNXGPU is 11627.987146377563
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.62      0.77      0.69  12571935
+           1       0.62      0.44      0.51  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.62      0.61      0.60  23013804
+weighted avg       0.62      0.62      0.61  23013804
+
+################
+Time Taken to convert ONNXGPU model: 1344.0759181976318
+TOTAL Time Taken for ONNXGPU: 22113.755464553833
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: ONNXGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f ONNXGPU --batch_size 100000 --query_size 100000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: ONNXGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32559.16166305542
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 39.64996337890625
+Running GPU Test ONNXGPU
+Time Taken to predict on ONNXGPU is 11594.926595687866
+Time Taken to write results to a text file for ONNXGPU is 12711.487531661987
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.62      0.77      0.69  12571935
+           1       0.62      0.44      0.51  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.62      0.61      0.60  23013804
+weighted avg       0.62      0.62      0.61  23013804
+
+################
+Time Taken to convert ONNXGPU model: 1357.3355674743652
+TOTAL Time Taken for ONNXGPU: 25663.81597518921
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: ONNXGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f ONNXGPU --batch_size 1000000 --query_size 1000000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: ONNXGPU
+Query Size: 1000000
+Batch Size: 1000000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32572.75390625
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 39.89148139953613
+Running GPU Test ONNXGPU
+Time Taken to predict on ONNXGPU is 13078.757762908936
+Time Taken to write results to a text file for ONNXGPU is 12699.133396148682
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.62      0.77      0.69  12571935
+           1       0.62      0.44      0.51  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.62      0.61      0.60  23013804
+weighted avg       0.62      0.62      0.61  23013804
+
+################
+Time Taken to convert ONNXGPU model: 1352.1687984466553
+TOTAL Time Taken for ONNXGPU: 27130.133152008057
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: ONNXGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f ONNXGPU --batch_size 23013804 --query_size 23013804 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: ONNXGPU
+Query Size: 23013804
+Batch Size: 23013804
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31909.59882736206
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 39.79158401489258
+Running GPU Test ONNXGPU
+Time Taken to predict on ONNXGPU is 13390.541076660156
+Time Taken to write results to a text file for ONNXGPU is 11557.583570480347
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.62      0.77      0.69  12571935
+           1       0.62      0.44      0.51  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.62      0.61      0.60  23013804
+weighted avg       0.62      0.62      0.61  23013804
+
+################
+Time Taken to convert ONNXGPU model: 1357.604742050171
+TOTAL Time Taken for ONNXGPU: 26305.802822113037
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f HummingbirdTVMGPU --batch_size 100 --query_size 100 --num_trees 10
+[03:23:16] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=100))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+[03:23:43] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=4))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31464.22839164734
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 39.71099853515625
+Running GPU Test HummingbirdTVMGPU
+Time Taken to predict on HummingbirdTVMGPU is 68335.23273468018
+Time Taken to write results to a text file for HummingbirdTVMGPU is 13565.973997116089
+Classification Report HummingbirdTVMGPU
+              precision    recall  f1-score   support
+
+           0       0.62      0.77      0.69  12571935
+           1       0.62      0.44      0.51  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.62      0.61      0.60  23013804
+weighted avg       0.62      0.62      0.61  23013804
+
+################
+Time Taken to convert HummingbirdTVMGPU model: 37442.41189956665
+TOTAL Time Taken for HummingbirdTVMGPU: 119343.71304512024
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f HummingbirdTVMGPU --batch_size 1000 --query_size 1000 --num_trees 10
+[03:26:46] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=1000))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+[03:27:00] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=804))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32719.354391098022
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 39.818525314331055
+Running GPU Test HummingbirdTVMGPU
+Time Taken to predict on HummingbirdTVMGPU is 9410.510301589966
+Time Taken to write results to a text file for HummingbirdTVMGPU is 13083.52518081665
+Classification Report HummingbirdTVMGPU
+              precision    recall  f1-score   support
+
+           0       0.62      0.77      0.69  12571935
+           1       0.62      0.44      0.51  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.62      0.61      0.60  23013804
+weighted avg       0.62      0.62      0.61  23013804
+
+################
+Time Taken to convert HummingbirdTVMGPU model: 28963.62590789795
+TOTAL Time Taken for HummingbirdTVMGPU: 51457.75270462036
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f HummingbirdTVMGPU --batch_size 10000 --query_size 10000 --num_trees 10
+[03:29:05] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=10000))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+[03:29:18] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=3804))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31916.566371917725
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 40.369510650634766
+Running GPU Test HummingbirdTVMGPU
+Time Taken to predict on HummingbirdTVMGPU is 3227.299451828003
+Time Taken to write results to a text file for HummingbirdTVMGPU is 13838.829517364502
+Classification Report HummingbirdTVMGPU
+              precision    recall  f1-score   support
+
+           0       0.62      0.77      0.69  12571935
+           1       0.62      0.44      0.51  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.62      0.61      0.60  23013804
+weighted avg       0.62      0.62      0.61  23013804
+
+################
+Time Taken to convert HummingbirdTVMGPU model: 28289.87145423889
+TOTAL Time Taken for HummingbirdTVMGPU: 45356.08720779419
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f HummingbirdTVMGPU --batch_size 100000 --query_size 100000 --num_trees 10
+[03:31:16] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=100000))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+[03:31:29] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=13804))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32309.92031097412
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 40.01283645629883
+Running GPU Test HummingbirdTVMGPU
+Time Taken to predict on HummingbirdTVMGPU is 2364.1207218170166
+Time Taken to write results to a text file for HummingbirdTVMGPU is 12858.68787765503
+Classification Report HummingbirdTVMGPU
+              precision    recall  f1-score   support
+
+           0       0.62      0.77      0.69  12571935
+           1       0.62      0.44      0.51  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.62      0.61      0.60  23013804
+weighted avg       0.62      0.62      0.61  23013804
+
+################
+Time Taken to convert HummingbirdTVMGPU model: 27076.810598373413
+TOTAL Time Taken for HummingbirdTVMGPU: 42299.70169067383
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f HummingbirdTVMGPU --batch_size 1000000 --query_size 1000000 --num_trees 10
+[03:33:32] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=1000000))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+[03:33:45] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=13804))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 1000000
+Batch Size: 1000000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32251.214265823364
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 39.499521255493164
+Running GPU Test HummingbirdTVMGPU
+Time Taken to predict on HummingbirdTVMGPU is 2402.604341506958
+Time Taken to write results to a text file for HummingbirdTVMGPU is 11420.332908630371
+Classification Report HummingbirdTVMGPU
+              precision    recall  f1-score   support
+
+           0       0.62      0.77      0.69  12571935
+           1       0.62      0.44      0.51  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.62      0.61      0.60  23013804
+weighted avg       0.62      0.62      0.61  23013804
+
+################
+Time Taken to convert HummingbirdTVMGPU model: 33101.319789886475
+TOTAL Time Taken for HummingbirdTVMGPU: 46924.33547973633
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f HummingbirdTVMGPU --batch_size 23013804 --query_size 23013804 --num_trees 10
+[03:37:56] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=23013804))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 23013804
+Batch Size: 23013804
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32688.0841255188
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 40.34423828125
+Running GPU Test HummingbirdTVMGPU
+Time Taken to predict on HummingbirdTVMGPU is 2251.3437271118164
+Time Taken to write results to a text file for HummingbirdTVMGPU is 11645.271062850952
+Classification Report HummingbirdTVMGPU
+              precision    recall  f1-score   support
+
+           0       0.62      0.77      0.69  12571935
+           1       0.62      0.44      0.51  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.62      0.61      0.60  23013804
+weighted avg       0.62      0.62      0.61  23013804
+
+################
+Time Taken to convert HummingbirdTVMGPU model: 150408.77437591553
+TOTAL Time Taken for HummingbirdTVMGPU: 164305.8123588562
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f NvidiaFILGPU --batch_size 100 --query_size 100 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: NvidiaFILGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32437.000274658203
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 39.65878486633301
+Running GPU Test NvidiaFILGPU
+[W] [03:39:51.555345] Treelite currently does not support float64 model parameters. Accuracy may degrade slightly relative to native sklearn invocation.
+Time Taken to predict on NvidiaFILGPU is 114477.42438316345
+Time Taken to write results to a text file for NvidiaFILGPU is 8346.13561630249
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       0.62      0.77      0.69  12571935
+           1       0.62      0.44      0.51  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.62      0.61      0.60  23013804
+weighted avg       0.62      0.62      0.61  23013804
+
+################
+Time Taken to convert NvidiaFILGPU model: 7106.450796127319
+TOTAL Time Taken for NvidiaFILGPU: 129930.07755279541
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+-e 
+
+
+gpu_run.sh: 54: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f NvidiaFILGPU --batch_size 1000 --query_size 1000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: NvidiaFILGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32258.586883544922
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 39.734840393066406
+Running GPU Test NvidiaFILGPU
+[W] [03:43:38.256432] Treelite currently does not support float64 model parameters. Accuracy may degrade slightly relative to native sklearn invocation.
+Time Taken to predict on NvidiaFILGPU is 15585.473775863647
+Time Taken to write results to a text file for NvidiaFILGPU is 8658.404111862183
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       0.62      0.77      0.69  12571935
+           1       0.62      0.44      0.51  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.62      0.61      0.60  23013804
+weighted avg       0.62      0.62      0.61  23013804
+
+################
+Time Taken to convert NvidiaFILGPU model: 2463.4459018707275
+TOTAL Time Taken for NvidiaFILGPU: 26707.396507263184
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+-e 
+
+
+gpu_run.sh: 54: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f NvidiaFILGPU --batch_size 10000 --query_size 10000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: NvidiaFILGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32381.329774856567
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 39.697885513305664
+Running GPU Test NvidiaFILGPU
+[W] [03:45:46.203357] Treelite currently does not support float64 model parameters. Accuracy may degrade slightly relative to native sklearn invocation.
+Time Taken to predict on NvidiaFILGPU is 4863.682985305786
+Time Taken to write results to a text file for NvidiaFILGPU is 8607.738494873047
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       0.62      0.77      0.69  12571935
+           1       0.62      0.44      0.51  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.62      0.61      0.60  23013804
+weighted avg       0.62      0.62      0.61  23013804
+
+################
+Time Taken to convert NvidiaFILGPU model: 2438.1680488586426
+TOTAL Time Taken for NvidiaFILGPU: 15909.664869308472
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+-e 
+
+
+gpu_run.sh: 54: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f NvidiaFILGPU --batch_size 100000 --query_size 100000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: NvidiaFILGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 33117.73133277893
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 40.149688720703125
+Running GPU Test NvidiaFILGPU
+[W] [03:47:44.261636] Treelite currently does not support float64 model parameters. Accuracy may degrade slightly relative to native sklearn invocation.
+Time Taken to predict on NvidiaFILGPU is 3841.3314819335938
+Time Taken to write results to a text file for NvidiaFILGPU is 8678.39789390564
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       0.62      0.77      0.69  12571935
+           1       0.62      0.44      0.51  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.62      0.61      0.60  23013804
+weighted avg       0.62      0.62      0.61  23013804
+
+################
+Time Taken to convert NvidiaFILGPU model: 2442.5148963928223
+TOTAL Time Taken for NvidiaFILGPU: 14962.312698364258
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Segmentation fault (core dumped)
+-e 
+
+
+gpu_run.sh: 54: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f NvidiaFILGPU --batch_size 1000000 --query_size 1000000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: NvidiaFILGPU
+Query Size: 1000000
+Batch Size: 1000000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32457.37361907959
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 40.10963439941406
+Running GPU Test NvidiaFILGPU
+[W] [03:49:40.867994] Treelite currently does not support float64 model parameters. Accuracy may degrade slightly relative to native sklearn invocation.
+Time Taken to predict on NvidiaFILGPU is 4251.499891281128
+Time Taken to write results to a text file for NvidiaFILGPU is 8922.637224197388
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       0.62      0.77      0.69  12571935
+           1       0.62      0.44      0.51  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.62      0.61      0.60  23013804
+weighted avg       0.62      0.62      0.61  23013804
+
+################
+Time Taken to convert NvidiaFILGPU model: 2432.863235473633
+TOTAL Time Taken for NvidiaFILGPU: 15607.072353363037
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+-e 
+
+
+gpu_run.sh: 54: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f NvidiaFILGPU --batch_size 23013804 --query_size 23013804 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: NvidiaFILGPU
+Query Size: 23013804
+Batch Size: 23013804
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32888.0455493927
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 39.5050048828125
+Running GPU Test NvidiaFILGPU
+[W] [03:51:38.161325] Treelite currently does not support float64 model parameters. Accuracy may degrade slightly relative to native sklearn invocation.
+Time Taken to predict on NvidiaFILGPU is 7376.353979110718
+Time Taken to write results to a text file for NvidiaFILGPU is 9199.318170547485
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       0.62      0.77      0.69  12571935
+           1       0.62      0.44      0.51  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.62      0.61      0.60  23013804
+weighted avg       0.62      0.62      0.61  23013804
+
+################
+Time Taken to convert NvidiaFILGPU model: 2448.5960006713867
+TOTAL Time Taken for NvidiaFILGPU: 19024.77264404297
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Segmentation fault (core dumped)
+-e 
+
+
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f XGBoostGPU --batch_size 100 --query_size 100 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: XGBoostGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32291.869401931763
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 39.560794830322266
+Running GPU Test XGBoostGPU
+-e 
+
+
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f XGBoostGPU --batch_size 1000 --query_size 1000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: XGBoostGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32542.887687683105
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 39.455413818359375
+Running GPU Test XGBoostGPU
+-e 
+
+
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f XGBoostGPU --batch_size 10000 --query_size 10000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: XGBoostGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32055.78875541687
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 40.05622863769531
+Running GPU Test XGBoostGPU
+-e 
+
+
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f XGBoostGPU --batch_size 100000 --query_size 100000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: XGBoostGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32438.37547302246
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 40.1158332824707
+Running GPU Test XGBoostGPU
+-e 
+
+
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f XGBoostGPU --batch_size 1000000 --query_size 1000000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: XGBoostGPU
+Query Size: 1000000
+Batch Size: 1000000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32958.239793777466
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 39.5050048828125
+Running GPU Test XGBoostGPU
+-e 
+
+
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d airline_classification -m randomforest -f XGBoostGPU --batch_size 23013804 --query_size 23013804 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: XGBoostGPU
+Query Size: 23013804
+Batch Size: 23013804
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32554.11195755005
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 39.602041244506836
+Running GPU Test XGBoostGPU
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f HummingbirdPytorchGPU --batch_size 100 --query_size 100 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32675.315618515015
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 211.49873733520508
+Running GPU Test HummingbirdPytorchGPU
+Time Taken to predict on HummingbirdPytorchGPU is 212820.23406028748
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 12746.785640716553
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 4267.958641052246
+TOTAL Time Taken for HummingbirdPytorchGPU: 229835.04843711853
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f HummingbirdPytorchGPU --batch_size 1000 --query_size 1000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32300.097703933716
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 205.51586151123047
+Running GPU Test HummingbirdPytorchGPU
+Time Taken to predict on HummingbirdPytorchGPU is 24044.345378875732
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 12314.653158187866
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 4283.9765548706055
+TOTAL Time Taken for HummingbirdPytorchGPU: 40643.0401802063
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f HummingbirdPytorchGPU --batch_size 10000 --query_size 10000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31476.242780685425
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 207.78942108154297
+Running GPU Test HummingbirdPytorchGPU
+Time Taken to predict on HummingbirdPytorchGPU is 4785.880088806152
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 12290.191411972046
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 4276.15761756897
+TOTAL Time Taken for HummingbirdPytorchGPU: 21352.306127548218
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f HummingbirdPytorchGPU --batch_size 100000 --query_size 100000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31806.553840637207
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 209.44643020629883
+Running GPU Test HummingbirdPytorchGPU
+Time Taken to predict on HummingbirdPytorchGPU is 2629.7895908355713
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 12663.30099105835
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 4263.9265060424805
+TOTAL Time Taken for HummingbirdPytorchGPU: 19557.09195137024
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f HummingbirdPytorchGPU --batch_size 1000000 --query_size 1000000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 1000000
+Batch Size: 1000000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31324.05924797058
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 207.12018013000488
+Running GPU Test HummingbirdPytorchGPU
+Time Taken to predict on HummingbirdPytorchGPU is 2709.1400623321533
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 13390.198945999146
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 4250.069856643677
+TOTAL Time Taken for HummingbirdPytorchGPU: 20349.486112594604
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f HummingbirdPytorchGPU --batch_size 23013804 --query_size 23013804 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 23013804
+Batch Size: 23013804
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32127.726554870605
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 208.8160514831543
+Running GPU Test HummingbirdPytorchGPU
+Time Taken to predict on HummingbirdPytorchGPU is 2589.2629623413086
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 13097.524881362915
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 4273.738861083984
+TOTAL Time Taken for HummingbirdPytorchGPU: 19961.057424545288
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f HummingbirdTorchScriptGPU --batch_size 100 --query_size 100 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31373.176336288452
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 217.83018112182617
+Running GPU Test HummingbirdTorchScriptGPU
+Time Taken to predict on HummingbirdTorchScriptGPU is 141522.16839790344
+Time Taken to write results to a text file for HummingbirdTorchScriptGPU is 11953.06372642517
+Classification Report HummingbirdTorchScriptGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert HummingbirdTorchScriptGPU model: 3706.2811851501465
+TOTAL Time Taken for HummingbirdTorchScriptGPU: 157181.5972328186
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f HummingbirdTorchScriptGPU --batch_size 1000 --query_size 1000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31777.2216796875
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 209.52177047729492
+Running GPU Test HummingbirdTorchScriptGPU
+Time Taken to predict on HummingbirdTorchScriptGPU is 17186.957836151123
+Time Taken to write results to a text file for HummingbirdTorchScriptGPU is 11623.80599975586
+Classification Report HummingbirdTorchScriptGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert HummingbirdTorchScriptGPU model: 3554.0030002593994
+TOTAL Time Taken for HummingbirdTorchScriptGPU: 32364.834308624268
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f HummingbirdTorchScriptGPU --batch_size 10000 --query_size 10000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31497.472047805786
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 206.22706413269043
+Running GPU Test HummingbirdTorchScriptGPU
+Time Taken to predict on HummingbirdTorchScriptGPU is 4629.819393157959
+Time Taken to write results to a text file for HummingbirdTorchScriptGPU is 13513.949394226074
+Classification Report HummingbirdTorchScriptGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert HummingbirdTorchScriptGPU model: 3555.812358856201
+TOTAL Time Taken for HummingbirdTorchScriptGPU: 21699.653148651123
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f HummingbirdTorchScriptGPU --batch_size 100000 --query_size 100000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31437.652826309204
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 208.55140686035156
+Running GPU Test HummingbirdTorchScriptGPU
+Time Taken to predict on HummingbirdTorchScriptGPU is 3187.0508193969727
+Time Taken to write results to a text file for HummingbirdTorchScriptGPU is 12135.575532913208
+Classification Report HummingbirdTorchScriptGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert HummingbirdTorchScriptGPU model: 3543.164014816284
+TOTAL Time Taken for HummingbirdTorchScriptGPU: 18865.857124328613
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f HummingbirdTorchScriptGPU --batch_size 1000000 --query_size 1000000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 1000000
+Batch Size: 1000000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31764.970779418945
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 206.53057098388672
+Running GPU Test HummingbirdTorchScriptGPU
+Time Taken to predict on HummingbirdTorchScriptGPU is 3264.6684646606445
+Time Taken to write results to a text file for HummingbirdTorchScriptGPU is 11625.05292892456
+Classification Report HummingbirdTorchScriptGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert HummingbirdTorchScriptGPU model: 3782.5140953063965
+TOTAL Time Taken for HummingbirdTorchScriptGPU: 18672.301292419434
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f HummingbirdTorchScriptGPU --batch_size 23013804 --query_size 23013804 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 23013804
+Batch Size: 23013804
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31366.66464805603
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 212.6147747039795
+Running GPU Test HummingbirdTorchScriptGPU
+Time Taken to predict on HummingbirdTorchScriptGPU is 2728.3899784088135
+Time Taken to write results to a text file for HummingbirdTorchScriptGPU is 13284.832239151001
+Classification Report HummingbirdTorchScriptGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert HummingbirdTorchScriptGPU model: 9931.628227233887
+TOTAL Time Taken for HummingbirdTorchScriptGPU: 25953.239917755127
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: ONNXGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f ONNXGPU --batch_size 100 --query_size 100 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: ONNXGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32096.641778945923
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 220.3531265258789
+Running GPU Test ONNXGPU
+Time Taken to predict on ONNXGPU is 28211.307287216187
+Time Taken to write results to a text file for ONNXGPU is 13297.157764434814
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert ONNXGPU model: 1332.3864936828613
+TOTAL Time Taken for ONNXGPU: 42840.919971466064
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: ONNXGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f ONNXGPU --batch_size 1000 --query_size 1000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: ONNXGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31497.287273406982
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 209.67888832092285
+Running GPU Test ONNXGPU
+Time Taken to predict on ONNXGPU is 14662.75143623352
+Time Taken to write results to a text file for ONNXGPU is 12674.8206615448
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert ONNXGPU model: 1331.8157196044922
+TOTAL Time Taken for ONNXGPU: 28669.452667236328
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: ONNXGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f ONNXGPU --batch_size 10000 --query_size 10000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: ONNXGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32070.012092590332
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 212.2504711151123
+Running GPU Test ONNXGPU
+Time Taken to predict on ONNXGPU is 9669.86894607544
+Time Taken to write results to a text file for ONNXGPU is 12780.441284179688
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert ONNXGPU model: 1332.355260848999
+TOTAL Time Taken for ONNXGPU: 23782.73296356201
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: ONNXGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f ONNXGPU --batch_size 100000 --query_size 100000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: ONNXGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32256.933450698853
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 211.89570426940918
+Running GPU Test ONNXGPU
+Time Taken to predict on ONNXGPU is 11220.448732376099
+Time Taken to write results to a text file for ONNXGPU is 13404.053211212158
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert ONNXGPU model: 1343.9066410064697
+TOTAL Time Taken for ONNXGPU: 25968.47915649414
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: ONNXGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f ONNXGPU --batch_size 1000000 --query_size 1000000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: ONNXGPU
+Query Size: 1000000
+Batch Size: 1000000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32722.124576568604
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 209.08188819885254
+Running GPU Test ONNXGPU
+Time Taken to predict on ONNXGPU is 14864.807844161987
+Time Taken to write results to a text file for ONNXGPU is 11832.428693771362
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert ONNXGPU model: 1328.9430141448975
+TOTAL Time Taken for ONNXGPU: 28026.24249458313
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: ONNXGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f ONNXGPU --batch_size 23013804 --query_size 23013804 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: ONNXGPU
+Query Size: 23013804
+Batch Size: 23013804
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31319.16332244873
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 209.21921730041504
+Running GPU Test ONNXGPU
+Time Taken to predict on ONNXGPU is 15112.059354782104
+Time Taken to write results to a text file for ONNXGPU is 11364.169359207153
+Classification Report ONNXGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert ONNXGPU model: 1332.0114612579346
+TOTAL Time Taken for ONNXGPU: 27808.303356170654
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f HummingbirdTVMGPU --batch_size 100 --query_size 100 --num_trees 10
+[04:36:12] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=100))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+[04:36:17] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=4))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31447.230339050293
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 211.61484718322754
+Running GPU Test HummingbirdTVMGPU
+Time Taken to predict on HummingbirdTVMGPU is 64130.06687164307
+Time Taken to write results to a text file for HummingbirdTVMGPU is 11672.964572906494
+Classification Report HummingbirdTVMGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert HummingbirdTVMGPU model: 12431.880712509155
+TOTAL Time Taken for HummingbirdTVMGPU: 88234.9922657013
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f HummingbirdTVMGPU --batch_size 1000 --query_size 1000 --num_trees 10
+[04:39:16] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=1000))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+[04:39:30] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=804))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32911.046743392944
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 211.90834045410156
+Running GPU Test HummingbirdTVMGPU
+Time Taken to predict on HummingbirdTVMGPU is 8632.462978363037
+Time Taken to write results to a text file for HummingbirdTVMGPU is 11630.374431610107
+Classification Report HummingbirdTVMGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert HummingbirdTVMGPU model: 28855.296850204468
+TOTAL Time Taken for HummingbirdTVMGPU: 49118.22009086609
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f HummingbirdTVMGPU --batch_size 10000 --query_size 10000 --num_trees 10
+[04:41:34] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=10000))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+[04:41:48] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=3804))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31858.2284450531
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 211.69233322143555
+Running GPU Test HummingbirdTVMGPU
+Time Taken to predict on HummingbirdTVMGPU is 3171.447515487671
+Time Taken to write results to a text file for HummingbirdTVMGPU is 13254.422426223755
+Classification Report HummingbirdTVMGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert HummingbirdTVMGPU model: 29234.911680221558
+TOTAL Time Taken for HummingbirdTVMGPU: 45660.86840629578
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f HummingbirdTVMGPU --batch_size 100000 --query_size 100000 --num_trees 10
+[04:43:47] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=100000))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+[04:44:01] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=13804))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32322.072982788086
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 208.9824676513672
+Running GPU Test HummingbirdTVMGPU
+Time Taken to predict on HummingbirdTVMGPU is 2370.3458309173584
+Time Taken to write results to a text file for HummingbirdTVMGPU is 13055.224657058716
+Classification Report HummingbirdTVMGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert HummingbirdTVMGPU model: 28688.287019729614
+TOTAL Time Taken for HummingbirdTVMGPU: 44113.954305648804
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f HummingbirdTVMGPU --batch_size 1000000 --query_size 1000000 --num_trees 10
+[04:46:05] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=1000000))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+[04:46:19] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=13804))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 1000000
+Batch Size: 1000000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31942.974090576172
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 209.27667617797852
+Running GPU Test HummingbirdTVMGPU
+Time Taken to predict on HummingbirdTVMGPU is 2356.6720485687256
+Time Taken to write results to a text file for HummingbirdTVMGPU is 13217.78392791748
+Classification Report HummingbirdTVMGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert HummingbirdTVMGPU model: 33708.53805541992
+TOTAL Time Taken for HummingbirdTVMGPU: 49283.08033943176
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f HummingbirdTVMGPU --batch_size 23013804 --query_size 23013804 --num_trees 10
+[04:50:31] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=23013804))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 23013804
+Batch Size: 23013804
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32499.217987060547
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 211.7013931274414
+Running GPU Test HummingbirdTVMGPU
+Time Taken to predict on HummingbirdTVMGPU is 2199.7087001800537
+Time Taken to write results to a text file for HummingbirdTVMGPU is 12473.57439994812
+Classification Report HummingbirdTVMGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert HummingbirdTVMGPU model: 148374.04346466064
+TOTAL Time Taken for HummingbirdTVMGPU: 163047.73807525635
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f NvidiaFILGPU --batch_size 100 --query_size 100 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: NvidiaFILGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32723.30951690674
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 216.06945991516113
+Running GPU Test NvidiaFILGPU
+Time Taken to predict on NvidiaFILGPU is 113967.23771095276
+Time Taken to write results to a text file for NvidiaFILGPU is 7019.124507904053
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert NvidiaFILGPU model: 2625.303268432617
+TOTAL Time Taken for NvidiaFILGPU: 123611.73629760742
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+-e 
+
+
+gpu_run.sh: 54: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f NvidiaFILGPU --batch_size 1000 --query_size 1000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: NvidiaFILGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32697.57843017578
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 209.63597297668457
+Running GPU Test NvidiaFILGPU
+Time Taken to predict on NvidiaFILGPU is 14201.809883117676
+Time Taken to write results to a text file for NvidiaFILGPU is 8799.2582321167
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert NvidiaFILGPU model: 2621.7331886291504
+TOTAL Time Taken for NvidiaFILGPU: 25622.87139892578
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+-e 
+
+
+gpu_run.sh: 54: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f NvidiaFILGPU --batch_size 10000 --query_size 10000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: NvidiaFILGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32768.38779449463
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 211.30728721618652
+Running GPU Test NvidiaFILGPU
+Time Taken to predict on NvidiaFILGPU is 4062.6039505004883
+Time Taken to write results to a text file for NvidiaFILGPU is 8800.750255584717
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert NvidiaFILGPU model: 2603.1033992767334
+TOTAL Time Taken for NvidiaFILGPU: 15466.527462005615
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+-e 
+
+
+gpu_run.sh: 54: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f NvidiaFILGPU --batch_size 100000 --query_size 100000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: NvidiaFILGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32232.500791549683
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 211.0459804534912
+Running GPU Test NvidiaFILGPU
+Time Taken to predict on NvidiaFILGPU is 3234.8852157592773
+Time Taken to write results to a text file for NvidiaFILGPU is 8908.998012542725
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert NvidiaFILGPU model: 2643.5086727142334
+TOTAL Time Taken for NvidiaFILGPU: 14787.472009658813
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+-e 
+
+
+gpu_run.sh: 54: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f NvidiaFILGPU --batch_size 1000000 --query_size 1000000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: NvidiaFILGPU
+Query Size: 1000000
+Batch Size: 1000000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32532.56869316101
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 212.8140926361084
+Running GPU Test NvidiaFILGPU
+Time Taken to predict on NvidiaFILGPU is 3189.71848487854
+Time Taken to write results to a text file for NvidiaFILGPU is 9436.490058898926
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert NvidiaFILGPU model: 2620.783805847168
+TOTAL Time Taken for NvidiaFILGPU: 15247.071504592896
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Segmentation fault (core dumped)
+-e 
+
+
+gpu_run.sh: 54: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f NvidiaFILGPU --batch_size 23013804 --query_size 23013804 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: NvidiaFILGPU
+Query Size: 23013804
+Batch Size: 23013804
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32572.395086288452
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 210.36505699157715
+Running GPU Test NvidiaFILGPU
+Time Taken to predict on NvidiaFILGPU is 2984.419345855713
+Time Taken to write results to a text file for NvidiaFILGPU is 6185.127019882202
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert NvidiaFILGPU model: 2628.9639472961426
+TOTAL Time Taken for NvidiaFILGPU: 11798.847436904907
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+-e 
+
+
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f XGBoostGPU --batch_size 100 --query_size 100 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: XGBoostGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32212.54873275757
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 211.1985683441162
+Running GPU Test XGBoostGPU
+Time Taken to predict on XGBoostGPU is 353638.733625412
+Time Taken to write results to a text file for XGBoostGPU is 11468.06788444519
+Classification Report XGBoostGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert XGBoostGPU model: 0.0
+TOTAL Time Taken for XGBoostGPU: 365108.7167263031
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f XGBoostGPU --batch_size 1000 --query_size 1000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: XGBoostGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32583.74071121216
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 212.74280548095703
+Running GPU Test XGBoostGPU
+Time Taken to predict on XGBoostGPU is 40124.239444732666
+Time Taken to write results to a text file for XGBoostGPU is 11203.3109664917
+Classification Report XGBoostGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert XGBoostGPU model: 0.0
+TOTAL Time Taken for XGBoostGPU: 51329.43940162659
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f XGBoostGPU --batch_size 10000 --query_size 10000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: XGBoostGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32920.87745666504
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 211.7023468017578
+Running GPU Test XGBoostGPU
+Time Taken to predict on XGBoostGPU is 10964.79320526123
+Time Taken to write results to a text file for XGBoostGPU is 11922.172546386719
+Classification Report XGBoostGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert XGBoostGPU model: 0.0
+TOTAL Time Taken for XGBoostGPU: 22888.882875442505
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f XGBoostGPU --batch_size 100000 --query_size 100000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: XGBoostGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32686.521768569946
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 214.19787406921387
+Running GPU Test XGBoostGPU
+Time Taken to predict on XGBoostGPU is 7636.449813842773
+Time Taken to write results to a text file for XGBoostGPU is 12321.007013320923
+Classification Report XGBoostGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert XGBoostGPU model: 0.0
+TOTAL Time Taken for XGBoostGPU: 19959.36942100525
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f XGBoostGPU --batch_size 1000000 --query_size 1000000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: XGBoostGPU
+Query Size: 1000000
+Batch Size: 1000000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32334.975481033325
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 209.1817855834961
+Running GPU Test XGBoostGPU
+Time Taken to predict on XGBoostGPU is 8645.82371711731
+Time Taken to write results to a text file for XGBoostGPU is 11825.724363327026
+Classification Report XGBoostGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert XGBoostGPU model: 0.0
+TOTAL Time Taken for XGBoostGPU: 20473.453998565674
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f XGBoostGPU --batch_size 23013804 --query_size 23013804 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: XGBoostGPU
+Query Size: 23013804
+Batch Size: 23013804
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32556.674480438232
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 208.77623558044434
+Running GPU Test XGBoostGPU
+Time Taken to predict on XGBoostGPU is 8608.539819717407
+Time Taken to write results to a text file for XGBoostGPU is 12163.110256195068
+Classification Report XGBoostGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert XGBoostGPU model: 0.0
+TOTAL Time Taken for XGBoostGPU: 20773.536920547485
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f HummingbirdPytorchGPU --batch_size 100 --query_size 100 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32555.636405944824
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f HummingbirdPytorchGPU --batch_size 1000 --query_size 1000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31387.20440864563
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f HummingbirdPytorchGPU --batch_size 10000 --query_size 10000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31481.33659362793
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f HummingbirdPytorchGPU --batch_size 100000 --query_size 100000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31563.571453094482
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f HummingbirdPytorchGPU --batch_size 1000000 --query_size 1000000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 1000000
+Batch Size: 1000000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32006.00504875183
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdPytorchGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f HummingbirdPytorchGPU --batch_size 23013804 --query_size 23013804 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 23013804
+Batch Size: 23013804
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31479.384660720825
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f HummingbirdTorchScriptGPU --batch_size 100 --query_size 100 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31387.41707801819
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f HummingbirdTorchScriptGPU --batch_size 1000 --query_size 1000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31465.442657470703
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f HummingbirdTorchScriptGPU --batch_size 10000 --query_size 10000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31557.74426460266
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f HummingbirdTorchScriptGPU --batch_size 100000 --query_size 100000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31760.76602935791
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f HummingbirdTorchScriptGPU --batch_size 1000000 --query_size 1000000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 1000000
+Batch Size: 1000000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31378.308534622192
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTorchScriptGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f HummingbirdTorchScriptGPU --batch_size 23013804 --query_size 23013804 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: HummingbirdTorchScriptGPU
+Query Size: 23013804
+Batch Size: 23013804
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31780.24935722351
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: ONNXGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f ONNXGPU --batch_size 100 --query_size 100 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: ONNXGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31854.38346862793
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: ONNXGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f ONNXGPU --batch_size 1000 --query_size 1000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: ONNXGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31644.113302230835
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: ONNXGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f ONNXGPU --batch_size 10000 --query_size 10000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: ONNXGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31840.371131896973
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: ONNXGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f ONNXGPU --batch_size 100000 --query_size 100000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: ONNXGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31642.88330078125
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: ONNXGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f ONNXGPU --batch_size 1000000 --query_size 1000000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: ONNXGPU
+Query Size: 1000000
+Batch Size: 1000000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31837.644577026367
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: ONNXGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f ONNXGPU --batch_size 23013804 --query_size 23013804 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: ONNXGPU
+Query Size: 23013804
+Batch Size: 23013804
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32723.692178726196
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f HummingbirdTVMGPU --batch_size 100 --query_size 100 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32454.127311706543
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f HummingbirdTVMGPU --batch_size 1000 --query_size 1000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32332.788705825806
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f HummingbirdTVMGPU --batch_size 10000 --query_size 10000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31527.234315872192
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f HummingbirdTVMGPU --batch_size 100000 --query_size 100000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 33109.864473342896
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f HummingbirdTVMGPU --batch_size 1000000 --query_size 1000000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 1000000
+Batch Size: 1000000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32408.96987915039
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: HummingbirdTVMGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f HummingbirdTVMGPU --batch_size 23013804 --query_size 23013804 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 23013804
+Batch Size: 23013804
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 33046.215534210205
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f NvidiaFILGPU --batch_size 100 --query_size 100 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: NvidiaFILGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32582.549810409546
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f NvidiaFILGPU --batch_size 1000 --query_size 1000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: NvidiaFILGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32767.171621322632
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f NvidiaFILGPU --batch_size 10000 --query_size 10000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: NvidiaFILGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32948.80032539368
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f NvidiaFILGPU --batch_size 100000 --query_size 100000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: NvidiaFILGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32186.808109283447
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f NvidiaFILGPU --batch_size 1000000 --query_size 1000000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: NvidiaFILGPU
+Query Size: 1000000
+Batch Size: 1000000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32429.070949554443
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f NvidiaFILGPU --batch_size 23013804 --query_size 23013804 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: NvidiaFILGPU
+Query Size: 23013804
+Batch Size: 23013804
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32307.573318481445
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f XGBoostGPU --batch_size 100 --query_size 100 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: XGBoostGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32228.607892990112
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f XGBoostGPU --batch_size 1000 --query_size 1000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: XGBoostGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32653.15818786621
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f XGBoostGPU --batch_size 10000 --query_size 10000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: XGBoostGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32428.138971328735
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f XGBoostGPU --batch_size 100000 --query_size 100000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: XGBoostGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32404.08730506897
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f XGBoostGPU --batch_size 1000000 --query_size 1000000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: XGBoostGPU
+Query Size: 1000000
+Batch Size: 1000000
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32273.89430999756
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d airline_classification -m lightgbm -f XGBoostGPU --batch_size 23013804 --query_size 23013804 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: XGBoostGPU
+Query Size: 23013804
+Batch Size: 23013804
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32592.37837791443
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 459, in <module>
+    sklearnmodel = load_sklearn_model(config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 114, in load_sklearn_model
+    sklearnmodel = joblib.load(relative_path)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 587, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/joblib/numpy_pickle.py", line 506, in _unpickle
+    obj = unpickler.load()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/pickle.py", line 1212, in load
+    dispatch[key[0]](self)
+KeyError: 0
+-e 
+
+
