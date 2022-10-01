@@ -1,5 +1,6 @@
 #! /bin/bash
 DATASET="higgs"
+TREES="10"
 MODELS="randomforest xgboost lightgbm"
 FRAMEWORKS="Sklearn TreeLite HummingbirdTVMCPU ONNXCPU Lleaves"
 
@@ -47,8 +48,8 @@ for MODEL in $MODELS
                 else
                     QUERYSIZE=$BATCHSIZE
             fi
-            echo "python test_model.py -d $DATASET -m $MODEL -f $FRAMEWORK --batch_size $BATCHSIZE --query_size $QUERYSIZE"
-            python test_model.py -d $DATASET -m $MODEL -f $FRAMEWORK --batch_size $BATCHSIZE --query_size $QUERYSIZE
+            echo "python test_model.py -d $DATASET -m $MODEL -f $FRAMEWORK --batch_size $BATCHSIZE --query_size $QUERYSIZE --num_trees $TREES"
+            python test_model.py -d $DATASET -m $MODEL -f $FRAMEWORK --batch_size $BATCHSIZE --query_size $QUERYSIZE --num_trees $TREES
             echo -e "\n\n"   
         done
     done
