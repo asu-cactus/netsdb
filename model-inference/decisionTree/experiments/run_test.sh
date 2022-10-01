@@ -1,5 +1,5 @@
 #! /bin/bash
-DATASET="higgs"
+DATASET="epsilon"
 TREES="10"
 MODELS="randomforest xgboost lightgbm"
 FRAMEWORKS="Sklearn TreeLite HummingbirdTVMCPU ONNXCPU Lleaves"
