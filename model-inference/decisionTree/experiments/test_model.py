@@ -371,7 +371,7 @@ def test_gpu(args, features, label, sklearnmodel, config, time_consume):
         # scikit-learn will use all data in a query as one batch
         conversion_time = 0.0
         sklearnmodel.set_params(predictor="gpu_predictor")  # NOT safe!
-        sklearnmodel.set_params(n_jobs=1)
+        sklearnmodel.set_params(n_jobs=-1)
         results = run_inference(FRAMEWORK, features, input_size,
                                 args.query_size, sklearnmodel.predict, time_consume)
         write_data(FRAMEWORK, results, time_consume)
