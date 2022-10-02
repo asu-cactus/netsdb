@@ -27,10 +27,14 @@ def load_data_from_pickle(dataset, config, suffix, time_consume):
 mem = Memory("./mycache")
 
 @mem.cache
-def fetch_criteo(suffix):
+def fetch_criteo(suffix, time_consume):
     from sklearn import datasets
+    start_time = time.time()
     path = relative2abspath(dataset_folder, "criteo.kaggle2014.svm", f"{suffix}.txt.svm")
     x, y = datasets.load_svmlight_file(path, dtype=np.float32)
+    data_loading_time = calculate_time(start_time,time.time())
+    if time_consume is not None:
+        time_consume["data loading time"] = data_loading_time
     y = y.astype(np.int8, copy=False)
     return (x, y)
 
@@ -38,7 +42,7 @@ def fetch_data(dataset, config, suffix, time_consume=None):
     if dataset == "epsilon": # Does not fit PostgreSQL
         return load_data_from_pickle(dataset, config, suffix, time_consume)
     if dataset == "criteo":        
-        return fetch_criteo(suffix)
+        return fetch_criteo(suffix, time_consume)
 
     try:
         import connectorx as cx
