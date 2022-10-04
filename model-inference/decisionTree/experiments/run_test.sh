@@ -2,7 +2,7 @@
 DATASET="epsilon"
 TREES="10"
 MODELS="randomforest xgboost lightgbm"
-FRAMEWORKS="Sklearn TreeLite HummingbirdTVMCPU ONNXCPU Lleaves"
+FRAMEWORKS="Sklearn ONNXCPU HummingbirdPytorchCPU HummingbirdTorchScriptCPU HummingbirdTVMCPU TreeLite Lleaves"
 
 case $DATASET in
 "higgs")
