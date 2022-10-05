@@ -1,6 +1,6 @@
 #! /bin/bash
 DATASET="epsilon"
-TREES="10"
+TREES="1600"
 MODELS="randomforest xgboost lightgbm"
 FRAMEWORKS="Sklearn ONNXCPU HummingbirdPytorchCPU HummingbirdTorchScriptCPU HummingbirdTVMCPU TreeLite Lleaves"
 
