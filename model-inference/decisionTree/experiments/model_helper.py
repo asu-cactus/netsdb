@@ -3,7 +3,6 @@ import time
 import os
 import numpy as np
 import math
-from joblib import Memory
 from sklearn.metrics import classification_report, mean_squared_error
 
 dataset_folder = "dataset/"
@@ -24,9 +23,6 @@ def load_data_from_pickle(dataset, config, suffix, time_consume):
     # import pdb; pdb.set_trace()
     return dataframe
 
-mem = Memory("./mycache")
-
-@mem.cache
 def fetch_criteo(suffix, time_consume):
     from sklearn import datasets
     start_time = time.time()
