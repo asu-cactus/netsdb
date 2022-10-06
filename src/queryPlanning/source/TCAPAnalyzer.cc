@@ -742,6 +742,27 @@ bool TCAPAnalyzer::analyze(
               unsafeCast<JoinComp<Object, Object, Object>, Computation>(
                   myComputation);
 
+	  if (join->getJoinType()==CrossProduct) {
+
+                  std::cout << "JoinType = CrossProduct" << std::endl;
+
+              } else if (join->getJoinType()==HashPartitionedJoin) {
+
+                  std::cout << "JoinType = HashPartitionedJoin" << std::endl;
+
+              } else if (join->getJoinType()==LocalJoin) {
+
+                  std::cout << "JoinType = LocalJoin" << std::endl;
+
+              } else if (join->getJoinType()==BroadcastJoin) {
+
+                  std::cout << "JoinType = BroadcastJoin" << std::endl;
+
+              } else {
+
+                  std::cout << "JoinType = UnknownJoin" << std::endl;
+              }
+
           // I am a pipeline breaker.
           // We first need to create a TupleSetJobStage with a repartition sink
 
@@ -833,7 +854,8 @@ bool TCAPAnalyzer::analyze(
 
           }
           if ((matchOrNot == false)||(otherMatchOrNot == false)) {
-              join->setJoinType(HashPartitionedJoin);
+              if (join->getJoinType() != CrossProduct)
+		  join->setJoinType(HashPartitionedJoin);
               std::cout << "to create TupleSetJobStage to repartition data for join" << std::endl; 
               hashSetName = sink->getDatabase() + ":" + sink->getSetName();
               Handle<TupleSetJobStage> joinPrepStage = createTupleSetJobStage(
@@ -841,6 +863,31 @@ bool TCAPAnalyzer::analyze(
                  buildTheseTupleSets, "IntermediateData", curInputSetIdentifier,
                  nullptr, sink, false, true, false, isProbing, myPolicy, true, false, 0, 
                  false, hasLocalJoinProbe, partitionComputationSpecifier, partitionLambdaName);
+	      if (join->getJoinType()==CrossProduct) {
+	      
+		  joinPrepStage->setJoinType("CrossProduct");
+	          std::cout << "JoinType = CrossProduct" << std::endl;
+	      
+	      } else if (join->getJoinType()==HashPartitionedJoin) {
+
+		  joinPrepStage->setJoinType("HashPartitionedJoin");
+		  std::cout << "JoinType = HashPartitionedJoin" << std::endl;
+
+              } else if (join->getJoinType()==LocalJoin) {
+
+		  joinPrepStage->setJoinType("LocalJoin");
+	          std::cout << "JoinType = LocalJoin" << std::endl;	  
+	      
+	      } else if (join->getJoinType()==BroadcastJoin) {
+	      
+                  joinPrepStage->setJoinType("BroadcastJoin");
+		  std::cout << "JoinType = BroadcastJoin" << std::endl;
+
+	      } else {
+	          
+                  joinPrepStage->setJoinType("UnknownJoinType");
+		  std::cout << "JoinType = UnknownJoin" << std::endl;
+	      }
               physicalPlanToOutput.push_back(joinPrepStage);
               interGlobalSets.push_back(sink);
 
@@ -986,6 +1033,28 @@ bool TCAPAnalyzer::analyze(
               unsafeCast<JoinComp<Object, Object, Object>, Computation>(
                   myComputation);
 
+              if (join->getJoinType()==CrossProduct) {
+
+                  std::cout << "JoinType = CrossProduct" << std::endl;
+
+              } else if (join->getJoinType()==HashPartitionedJoin) {
+
+                  std::cout << "JoinType = HashPartitionedJoin" << std::endl;
+
+              } else if (join->getJoinType()==LocalJoin) {
+
+                  std::cout << "JoinType = LocalJoin" << std::endl;
+
+              } else if (join->getJoinType()==BroadcastJoin) {
+
+                  std::cout << "JoinType = BroadcastJoin" << std::endl;
+
+              } else {
+
+                  std::cout << "JoinType = UnknownJoin" << std::endl;
+              }
+
+	  
           int indexInInputs = -1;
           std::cout << "to set index in inputs by matching prev computation: " << prevComputationName
                       << std::endl;
@@ -1004,13 +1073,41 @@ bool TCAPAnalyzer::analyze(
           curInputSetIdentifier->setIndexInInputs(indexInInputs);
 
           if ((matchOrNot == false)||(join->getJoinType() != LocalJoin)) {
-              join->setJoinType(HashPartitionedJoin);
+              if (join->getJoinType() != CrossProduct)
+                  join->setJoinType(HashPartitionedJoin);
               std::cout << "to create a TupleSetJobStage to repartition data for probing" << std::endl;
               Handle<TupleSetJobStage> joinPrepStage = createTupleSetJobStage(
                   jobStageId, sourceTupleSetName, targetTupleSetName, mySpecifier,
                   buildTheseTupleSets, "IntermediateData", curInputSetIdentifier,
                   nullptr, sink, false, true, false, isProbing, myPolicy, true, false, 0,
                   false, hasLocalJoinProbe, partitionComputationSpecifier, partitionLambdaName);
+
+	      if (join->getJoinType()==CrossProduct) {
+
+                  joinPrepStage->setJoinType("CrossProduct");
+                  std::cout << "JoinType = CrossProduct" << std::endl;
+
+              } else if (join->getJoinType()==HashPartitionedJoin) {
+
+                  joinPrepStage->setJoinType("HashPartitionedJoin");
+                  std::cout << "JoinType = HashPartitionedJoin" << std::endl;
+
+              } else if (join->getJoinType()==LocalJoin) {
+
+                  joinPrepStage->setJoinType("LocalJoin");
+                  std::cout << "JoinType = LocalJoin" << std::endl;
+
+              } else if (join->getJoinType()==BroadcastJoin) {
+
+                  joinPrepStage->setJoinType("BroadcastJoin");
+                  std::cout << "JoinType = BroadcastJoin" << std::endl;
+
+              } else {
+
+                  joinPrepStage->setJoinType("UnknownJoinType");
+                  std::cout << "JoinType = UnknownJoin" << std::endl;
+              }
+
               joinPrepStage->setJoinTupleSourceOrNot(true);
               physicalPlanToOutput.push_back(joinPrepStage);
               interGlobalSets.push_back(sink);

@@ -82,12 +82,12 @@ public:
     TupleSetPtr getNextTupleSet() override {
 
 
-        //std::cout << "Trying to get next tupleset" << std::endl;
+        std::cout << "Trying to get next tupleset" << std::endl;
 
         // JiaNote: below two lines are necessary to fix a bug that iterateOverMe may be nullptr
         // when first time get to here
         if (iterateOverMe == nullptr) {
-            //std::cout << "no root object is found, return nullptr" << std::endl;
+            std::cout << "no root object is found, return nullptr" << std::endl;
             return nullptr;
         }
 
@@ -98,7 +98,7 @@ public:
 
         if (lastRec != nullptr) {
             doneWithVector(lastRec);
-            //std::cout << "processed another vector" << std::endl;
+            std::cout << "processed another vector" << std::endl;
             lastRec = nullptr;
         }
 
@@ -109,11 +109,11 @@ public:
             std::cout << "VectorTupleSetIterator: We met an empty page, and we go to the next" << std::endl;
             if (lastRec != nullptr){
                 doneWithVector(lastRec);
-                //std::cout << "processed another vector" << std::endl;
+                std::cout << "processed another vector" << std::endl;
             }
             lastRec = myRec;
             myRec = (Record<Vector<Handle<Object>>>*)getAnotherVector();
-            //std::cout << "fetched another vector" << std::endl;
+            std::cout << "fetched another vector" << std::endl;
             if (myRec == nullptr){
                 return nullptr;
             }
@@ -130,7 +130,7 @@ public:
 
             // try to get another vector
             myRec = (Record<Vector<Handle<Object>>>*)getAnotherVector();
-            //std::cout << "fetched another vector" << std::endl;
+            std::cout << "fetched another vector" << std::endl;
 
             // if we could not, then we are outta here
             if (myRec == nullptr)
@@ -145,11 +145,11 @@ public:
                 std::cout << "VectorTupleSetIterator: We met an empty page, and we go to the next" << std::endl;
                 if (lastRec != nullptr){
                     doneWithVector(lastRec);
-                    //std::cout << "processed another vector" << std::endl;
+                    std::cout << "processed another vector" << std::endl;
                 }
                 lastRec = myRec;
                 myRec = (Record<Vector<Handle<Object>>>*)getAnotherVector();
-                //std::cout << "fetched another vector" << std::endl;
+                std::cout << "fetched another vector" << std::endl;
                 if (myRec == nullptr){
                     return nullptr;
                 }

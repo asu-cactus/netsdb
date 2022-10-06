@@ -225,6 +225,7 @@ void PangeaStorageServer::writeBackRecords(pair<std::string, std::string> databa
         //return;
     }
     size_t pageSize = myPage->getSize();
+    std::cout << "pageSize = " << pageSize << std::endl;
     // the position in the output vector
     int pos = 0;
 
