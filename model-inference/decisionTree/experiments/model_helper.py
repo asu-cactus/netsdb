@@ -1,12 +1,9 @@
 import pickle
-import connectorx as cx
-import psycopg2
 import time
 import os
 import numpy as np
 import math
 from sklearn.metrics import classification_report, mean_squared_error
-import treelite_runtime
 
 dataset_folder = "dataset/"
 
@@ -30,12 +27,25 @@ def load_data_from_pickle(dataset, config, suffix, time_consume):
     # import pdb; pdb.set_trace()
     return dataframe
 
+def fetch_criteo(suffix, time_consume):
+    from sklearn import datasets
+    start_time = time.time()
+    path = relative2abspath(dataset_folder, "criteo.kaggle2014.svm", f"{suffix}.txt.svm")
+    x, y = datasets.load_svmlight_file(path, dtype=np.float32)
+    data_loading_time = calculate_time(start_time,time.time())
+    if time_consume is not None:
+        time_consume["data loading time"] = data_loading_time
+    y = y.astype(np.int8, copy=False)
+    return (x, y)
 
 def fetch_data(dataset, config, suffix, time_consume=None):
-    # if dataset == "epsilon": # Does not fit PostgreSQL
-    #     return load_data_from_pickle(dataset, config, suffix, time_consume)
+    if dataset == "criteo":        
+        return fetch_criteo(suffix, time_consume)
     print("LOADING " + dataset + " " + suffix)
+
     try:
+        import connectorx as cx
+        import psycopg2
         pgsqlconfig = config["pgsqlconfig"]
         datasetconfig = config[dataset]
         query = datasetconfig["query"]+"_"+suffix
@@ -96,6 +106,7 @@ def run_inference(framework, features, input_size, query_size, predict, time_con
     results = []
     iterations = math.ceil(input_size/query_size)
     if framework == "TreeLite":
+        import treelite_runtime
         def aggregate_function():
             def append(output):
                 results.append(output)
@@ -177,7 +188,6 @@ def relative2abspath(path, *paths):
         path,
         *paths
     )
-
 
 def check_argument_conflicts(args):
     model = args.model.lower()

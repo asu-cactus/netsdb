@@ -28,8 +28,13 @@ def parse_arguments(config):
     # check_argument_conflicts(args)  # TODO: Move this function from the bottom to here, after checking with Prof.
     global DATASET, MODEL, FRAMEWORKS
     parser = argparse.ArgumentParser(description='Arguments for train_model.')
+<<<<<<< HEAD
     parser.add_argument("-d", "--dataset", type=str, choices=['higgs', 'airline_classification', 'airline_regression', 'fraud', 'year', 'epsilon', 'bosch', 'covtype', 'tpcxai_fraud'],
         help="Dataset to be trained. Choose from ['higgs', 'airline_classification', 'airline_regression', 'fraud', 'year', 'epsilon', 'bosch', 'covtype', 'tpcxai_fraud']")
+=======
+    parser.add_argument("-d", "--dataset", type=str, choices=['higgs', 'airline_classification', 'airline_regression', 'fraud', 'year', 'epsilon', 'bosch', 'covtype', 'criteo'],
+        help="Dataset to be trained. Choose from ['higgs', 'airline_classification', 'airline_regression', 'fraud', 'year', 'epsilon', 'bosch', 'covtype', 'criteo]")
+>>>>>>> criteo
     parser.add_argument("-m", "--model", type=str, choices=['randomforest', 'xgboost', 'lightgbm'],
         help="Model name. Choose from ['randomforest', 'xgboost', 'lightgbm']")
     parser.add_argument("-f", "--frameworks", type=str,

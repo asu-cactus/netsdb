@@ -19,8 +19,18 @@ def parse_arguments():
     parser = argparse.ArgumentParser(
         description='Arguments for data_processing.py')
     parser.add_argument("-d", "--dataset", type=str, required=True,
-        choices=['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype', 'tpcxai_fraud'],
-        help="Dataset to be processed. Choose from ['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype', 'tpcxai_fraud']")
+        choices=[
+            'higgs', 
+            'airline_regression', 
+            'airline_classification', 
+            'fraud', 
+            'year', 
+            'epsilon', 
+            'bosch', 
+            'covtype',
+            'criteo',
+            'tpcxai_fraud'],
+        help="Dataset to be processed. Choose from ['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype','tpcxai_fraud','criteo']")
     parser.add_argument("-n", "--nrows", type=int, help="Load nrows of the dataset. Warning: only use in development.")
     parser.add_argument("-sf","--scalefactor", type=int, help="Relevant only for TPCxAI_Fraud. Takes one of the values in 1, 3, 10 and 30")
 
@@ -53,8 +63,7 @@ def download_data(url, dataset_folder):
 
 def prepare_higgs(dataset_folder, nrows):
     url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/00280/HIGGS.csv.gz'
-    local_url = relative2abspath(dataset_folder, os.path.basename(url))
-    download_data(url, dataset_folder)
+    local_url = download_data(url, dataset_folder)
     df = pd.read_csv(local_url, dtype=np.float32, header=None, nrows=nrows)
     df = df.astype({0: np.int8})
     return df
@@ -129,7 +138,6 @@ def prepare_bosch(dataset_folder, nrows=None):
     df = df.astype({"Response": np.int8})
     return df
 
-
 def prepare_year(dataset_folder, nrows=None):
     url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/00203/YearPredictionMSD.txt.zip'
     local_url = download_data(url, dataset_folder)
@@ -160,9 +168,8 @@ def prepare_epsilon(nrows=None):
     return test_data, train_data
 
 
-def prepare_covtype(dataset_folder, nrows=None):
-    df = datasets.fetch_covtype(
-        data_home=dataset_folder, as_frame=True)["frame"]
+def prepare_covtype(dataset_folder, nrows=None): 
+    df = datasets.fetch_covtype(data_home=dataset_folder, as_frame=True)["frame"]
     if nrows is not None:
         df = df[:nrows]
     df = df.astype(np.float32)
@@ -228,6 +235,14 @@ def prepare_tpcxai_fraud_transactions(dataset_folder,nrows=None,skip_rows=0):
     print(f'Total Time Taken for Preparing the New Dataset: {(time.time()-start_time)} seconds')
     return df
 
+def prepare_criteo(dataset_folder):
+    url = "https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/binary/criteo.kaggle2014.svm.tar.xz"
+    local_url = download_data(url, dataset_folder)
+    train_path = relative2abspath(dataset_folder, "criteo.kaggle2014.svm", "train.txt.svm")
+    test_path = relative2abspath(dataset_folder, "criteo.kaggle2014.svm", "test.txt.svm")
+
+    if not (os.path.isfile(train_path) and os.path.isfile(test_path)):
+        os.system(f"tar -Jxf {local_url} -C {dataset_folder}")
 
 def get_connection(pgsqlconfig):
     return psycopg2.connect(
@@ -354,6 +369,7 @@ if __name__ == "__main__":
         df = prepare_bosch(dataset_folder, nrows=nrows)
     elif dataset == 'covtype':
         df = prepare_covtype(dataset_folder, nrows=nrows)
+
     elif dataset=="tpcxai_fraud":
         if nrows:
             df = prepare_tpcxai_fraud_transactions(dataset_folder, nrows=nrows)
@@ -371,6 +387,11 @@ if __name__ == "__main__":
                 print('-'*50)
                 df = pd.concat([df,prepare_tpcxai_fraud_transactions(dataset_folder, nrows=partition_size, skip_rows=range(1,partition_size*i))])
             print(f'Final Shape of DataFrame: {df.shape}')
+
+    elif dataset == 'criteo':
+        prepare_criteo(dataset_folder)
+        exit()
+
     else:
         raise ValueError(f"{dataset} not supported")
 
