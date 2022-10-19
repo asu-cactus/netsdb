@@ -151,7 +151,7 @@ def write_data(framework, results, time_consume):
     # print(results[0:10])
     with open(os.path.join('results', 'results.txt'), 'w') as f:
         for item in results:
-            f.write("%s\n" % item)
+            f.write("%s\n" % int(item))
 
     writing_time = calculate_time(start_time, time.time())
     time_consume["result writing time"] = writing_time
