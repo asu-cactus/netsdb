@@ -185,7 +185,7 @@ def prepare_tpcxai_fraud_transactions(dataset_folder,nrows=None,skip_rows=0):
 
     SCALE_FACTOR = args.scalefactor if ("scalefactor" in args) else 1
 
-    file_name = f'financial_transactions_train_SF{SCALE_FACTOR}.csv'  # Put the file in same directory
+    file_name = f'dataset/financial_transactions_train_SF{SCALE_FACTOR}.csv'  # Put the file in same directory
     df = pd.read_csv(file_name, nrows=nrows, skiprows=skip_rows)
 
     start_time = time.time()
