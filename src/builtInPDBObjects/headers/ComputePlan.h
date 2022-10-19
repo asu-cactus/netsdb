@@ -89,7 +89,8 @@ public:
     // called if the
     // page stores a pdb :: Object that contains the result of the computation.
 
-    PipelinePtr buildPipeline(std::string sourceTupleSetName,
+    PipelinePtr buildPipeline(int threadId,
+		              std::string sourceTupleSetName,
                               std::string targetTupleSetName,
                               std::string targetComputationName,
                               std::function<std::pair<void*, size_t>()> getPage,
@@ -98,7 +99,8 @@ public:
                               std::map<std::string, ComputeInfoPtr>& params);
 
 
-    PipelinePtr buildPipeline(std::string sourceTupleSetName,
+    PipelinePtr buildPipeline(int threadId,
+		              std::string sourceTupleSetName,
                               std::string targetTupleSetName,
                               std::string targetComputationName,
                               std::function<std::pair<void*, size_t>()> getPage,
@@ -107,7 +109,8 @@ public:
 
 
     // JiaNote: add new buildPipeline methods to avoid ambiguity
-    PipelinePtr buildPipeline(std::vector<std::string> buildTheseTupleSets,
+    PipelinePtr buildPipeline(int threadId,
+		              std::vector<std::string> buildTheseTupleSets,
                               std::string sourceTupleSetName,
                               std::string targetComputationName,
                               std::function<std::pair<void*, size_t>()> getPage,
@@ -115,7 +118,8 @@ public:
                               std::function<void(void*)> writeBackPage,
                               std::map<std::string, ComputeInfoPtr>& params);
 
-    PipelinePtr buildPipeline(std::vector<std::string> buildTheseTupleSets,
+    PipelinePtr buildPipeline(int threadId,
+		              std::vector<std::string> buildTheseTupleSets,
                               std::string sourceTupleSetName,
                               std::string targetComputationName,
                               std::function<std::pair<void*, size_t>()> getPage,

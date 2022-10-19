@@ -39,6 +39,8 @@
 #include "SimpleFF.h"
 #include "EnsembleTreeGenericUDFFloat.h"
 #include "EnsembleTreeGenericUDFDouble.h"
+#include "EnsembleTreeUDFFloat.h"
+#include "EnsembleTreeUDFDouble.h"
 #include "VectorFloatWriter.h"
 #include "VectorDoubleWriter.h"
 
@@ -50,9 +52,9 @@ int main(int argc, char *argv[]) {
 
     bool createSet;
 
-    if ((argc <= 6)||(argc > 10)) {
+    if ((argc <= 7)||(argc > 11)) {
     
-        std::cout << "Usage: \n To load data: bin/testDecisionForest Y numInstances numFeatures batch_size isFloat[F/D] pageSizeInMB pathToLoadDataFile(N for generating data randomly)\n To run the inference: bin/testDecisionForest N numInstances numFeatures batchSize isFloat[F/D] pageSizeInMB pathToLoadDataFile pathToModelFolder modelType[XGBoost/RandomForest]\n Example: \n bin/testDecisionForest Y 2200000 28 275000 F 32 model-inference/decisionTree/experiments/HIGGS.csv_test.csv\n bin/testDecisionForest N 2200000 28 275000 F 32 model-inference/decisionTree/experiments/HIGGS.csv_test.csv model-inference/decisionTree/experiments/models/higgs_xgboost_500_8_netsdb XGBoost\n";
+        std::cout << "Usage: \n To load data: bin/testDecisionForest Y numInstances numFeatures batch_size isFloat[F/D] isGraphOrArray[G/A] pageSizeInMB pathToLoadDataFile(N for generating data randomly)\n To run the inference: bin/testDecisionForest N numInstances numFeatures batchSize isFloat[F/D] isGraphOrArray [G/A] pageSizeInMB pathToLoadDataFile pathToModelFolder modelType[XGBoost/RandomForest]\n Example: \n bin/testDecisionForest Y 2200000 28 275000 F A 32 model-inference/decisionTree/experiments/HIGGS.csv_test.csv\n bin/testDecisionForest N 2200000 28 275000 F A 32 model-inference/decisionTree/experiments/HIGGS.csv_test.csv model-inference/decisionTree/experiments/models/higgs_xgboost_500_8_netsdb XGBoost\n";
         exit(-1);
     }
 
@@ -61,13 +63,14 @@ int main(int argc, char *argv[]) {
     int block_x = -1;
     int block_y = -1;
     bool isFloat = true;
+    bool isGraph = true;
     string errMsg;
     string forestFolderPath;
     ModelType modelType = ModelType::XGBoost;
     int pageSize = 64;
     string dataFilePath = "";
 
-    if(argc >= 6) {
+    if(argc >= 7) {
 
         if(string(argv[1]).compare("Y")==0) {
             createSet = true;
@@ -85,27 +88,33 @@ int main(int argc, char *argv[]) {
         } else {
             isFloat = false; 
         }
-    }
 
-    if (argc >= 7) {
-        pageSize = std::stoi(argv[6]);
+	 if (string(argv[6]).compare("G")==0) {
+            isGraph = true;
+        } else {
+            isGraph = false;
+        }
     }
 
     if (argc >= 8) {
-        dataFilePath = std::string(argv[7]);
+        pageSize = std::stoi(argv[7]);
     }
 
     if (argc >= 9) {
-        forestFolderPath = std::string(argv[8]);
+        dataFilePath = std::string(argv[8]);
     }
 
     if (argc >= 10) {
-        if (string(argv[9]).compare("XGBoost") == 0) {
+        forestFolderPath = std::string(argv[9]);
+    }
+
+    if (argc >= 11) {
+        if (string(argv[10]).compare("XGBoost") == 0) {
             modelType = ModelType::XGBoost;
-        } else if (string(argv[9]).compare("RandomForest") == 0) {
+        } else if (string(argv[10]).compare("RandomForest") == 0) {
             modelType = ModelType::RandomForest;
         } else {
-            std::cerr << "Unsupported model type: " << argv[7] << std::endl;
+            std::cerr << "Unsupported model type: " << argv[10] << std::endl;
 	    exit(-1);
         }
     }
@@ -139,7 +148,7 @@ int main(int argc, char *argv[]) {
     }
    
     if (createSet == false) {
-        if (isFloat)
+        if (isFloat) 
             ff::createSetGeneric<pdb::Vector<float>>(pdbClient, "decisionForest", "labels", "labels", 64);
         else
 	    ff::createSetGeneric<pdb::Vector<double>>(pdbClient, "decisionForest", "labels", "labels", 64);
@@ -158,11 +167,18 @@ int main(int argc, char *argv[]) {
 
         pdb::Handle<pdb::Computation> decisionForestUDF = nullptr;
 
-        if (isFloat)
-            decisionForestUDF = pdb::makeObject<pdb::EnsembleTreeGenericUDFFloat>(forestFolderPath, modelType, isClassificationTask);
-        else
-	    decisionForestUDF = pdb::makeObject<pdb::EnsembleTreeGenericUDFDouble>(forestFolderPath, modelType, isClassificationTask);
-
+        if (isFloat) {
+            if (isGraph) 
+                decisionForestUDF = pdb::makeObject<pdb::EnsembleTreeUDFFloat>(forestFolderPath, modelType, isClassificationTask);
+	    else
+                decisionForestUDF = pdb::makeObject<pdb::EnsembleTreeGenericUDFFloat>(forestFolderPath, modelType, isClassificationTask);
+        }
+    	else {
+	    if (isGraph)
+		decisionForestUDF = pdb::makeObject<pdb::EnsembleTreeUDFDouble>(forestFolderPath, modelType, isClassificationTask);
+	    else
+	        decisionForestUDF = pdb::makeObject<pdb::EnsembleTreeGenericUDFDouble>(forestFolderPath, modelType, isClassificationTask);
+        }
         auto model_end = chrono::high_resolution_clock::now();
 
         decisionForestUDF->setInput(inputMatrix);
@@ -192,32 +208,31 @@ int main(int argc, char *argv[]) {
               << std::chrono::duration_cast<std::chrono::duration<double>>(model_end-model_begin).count()
                                                                         << " secs." << std::endl;
 
-        bool printResult = false;
+        bool printResult = true;
         if (printResult == true) {
             std::cout << "to print result..." << std::endl;
             int count = 0;
-            if (isFloat) {
+            int positive_count = 0;
+	    if (isFloat) {
 
 		  pdb::SetIterator<pdb::Vector<float>> result =
                    pdbClient.getSetIterator<pdb::Vector<float>>("decisionForest", "labels");
            
                   for (auto a : result) {
-                      count++;
-                      a->print();
+		      for (int i = 0; i < a->size(); i++) {
+                         count++;
+		         positive_count += (*a)[i]-1.0;
+		      } 
                   }
+                  std::cout << "output count:" << count << "\n";
+	          std::cout << "positive count:" << positive_count << "\n";
 	     } else {
 	  
 		  pdb::SetIterator<pdb::Vector<double>> result =
                    pdbClient.getSetIterator<pdb::Vector<double>>("decisionForest", "labels");
 
-	          for (auto a : result) {
-                      count++;
-                      a->print();
-                  }
-	  
 	    }
 
-            std::cout << "output count:" << count << "\n";
         }
 
     }

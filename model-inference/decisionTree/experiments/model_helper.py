@@ -91,8 +91,7 @@ def convert_to_hummingbird_model(model, backend, test_data, batch_size, device):
                               remainder_size, device=device, extra_config=extra_config)
     return model
 
-
-def run_inference(framework, features, input_size, query_size, predict, time_consume):
+def run_inference(framework, features, input_size, query_size, predict, time_consume, is_classification):
     start_time = time.time()
     results = []
     iterations = math.ceil(input_size/query_size)
@@ -110,13 +109,15 @@ def run_inference(framework, features, input_size, query_size, predict, time_con
             query_data = treelite_runtime.DMatrix(
                 features[i*query_size:(i+1)*query_size])
             output = predict(query_data)
-            output = np.where(output > 0.5, 1, 0)
+            if is_classification:
+                output = np.where(output > 0.5, 1, 0)
             aggregate_func(output)
     elif framework == "TFDF":
         for i in range(iterations):
             query_data = features[i*query_size:(i+1)*query_size]
             output = predict(query_data).flatten()
-            output = np.where(output > 0.5, 1, 0)
+            if is_classification:
+                output = np.where(output > 0.5, 1, 0)
             results.extend(output)
     elif framework == "HummingbirdTVMCPU" or framework == "HummingbirdTVMGPU":
         for i in range(iterations):
@@ -127,7 +128,8 @@ def run_inference(framework, features, input_size, query_size, predict, time_con
         for i in range(iterations):
             query_data = features[i*query_size:(i+1)*query_size]
             output = predict(query_data)
-            output = np.where(output > 0.5, 1, 0)
+            if is_classification:
+                output = np.where(output > 0.5, 1, 0)
             results.extend(output)
     else:
         for i in range(iterations):

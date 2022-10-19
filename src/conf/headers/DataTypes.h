@@ -97,4 +97,14 @@ enum struct ModelType
     LightGBM
 }; 
 
+typedef struct {
+
+         int indexID;
+         bool isLeaf;
+         int leftChild;
+         int rightChild;
+         // returnClass will be the vaule to compare while this is not a leaf node
+         float returnClass;
+    } Node;
+
 #endif

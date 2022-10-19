@@ -27,9 +27,8 @@ def parse_arguments(config):
         For other platforms, both QUERY_SIZE and BATCH_SIZE will be used.
     """)
     parser.add_argument(
-        "-d", "--dataset", type=str,
-        choices=['higgs', 'airline_regression', 'airline_classification',
-                 'fraud', 'year', 'epsilon', 'bosch', 'covtype'],
+        "-d", "--dataset", type=str, 
+        choices=['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype', 'tpcxai_fraud'],
         help="Dataset to be tested.")
     parser.add_argument(
         "-m", "--model", type=str,
@@ -130,14 +129,13 @@ def test(*argv):
 
 def test_cpu(args, features, label, sklearnmodel, config, time_consume):
     input_size = len(label)
-
+    is_classification = config[DATASET]["type"] == "classification"
     if FRAMEWORK == "Sklearn":
         start_time = time.time()
         # scikit-learn will use all data in a query as one batch
         conversion_time = 0.0
-        results = run_inference(FRAMEWORK, features, input_size,
-                                args.query_size, sklearnmodel.predict, time_consume)
-        write_data(FRAMEWORK, results, time_consume)
+        results = run_inference(FRAMEWORK, features, input_size, args.query_size, sklearnmodel.predict, time_consume, is_classification)
+        write_data(FRAMEWORK, results, time_consume) 
         total_framework_time = calculate_time(start_time, time.time())
 
     elif FRAMEWORK == "TreeLite":
@@ -146,8 +144,7 @@ def test_cpu(args, features, label, sklearnmodel, config, time_consume):
             "models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.so")
         predictor = treelite_runtime.Predictor(libpath, verbose=True)
         conversion_time = calculate_time(start_time, time.time())
-        results = run_inference(FRAMEWORK, features, input_size,
-                                args.query_size, predictor.predict, time_consume)
+        results = run_inference(FRAMEWORK, features, input_size, args.query_size, predictor.predict, time_consume, is_classification)
         write_data(FRAMEWORK, results, time_consume)
         total_framework_time = calculate_time(start_time, time.time())
 
@@ -157,8 +154,7 @@ def test_cpu(args, features, label, sklearnmodel, config, time_consume):
         model = convert_to_hummingbird_model(
             sklearnmodel, "torch", features, args.batch_size, "cpu")
         conversion_time = calculate_time(start_time, time.time())
-        results = run_inference(FRAMEWORK, features, input_size,
-                                args.query_size, model.predict, time_consume)
+        results = run_inference(FRAMEWORK, features, input_size, args.query_size, model.predict, time_consume, is_classification)
         write_data(FRAMEWORK, results, time_consume)
         total_framework_time = calculate_time(start_time, time.time())
 
@@ -171,8 +167,7 @@ def test_cpu(args, features, label, sklearnmodel, config, time_consume):
         def predict(batch):
             return model.predict(batch)
 
-        results = run_inference(FRAMEWORK, features, input_size,
-                                args.query_size, predict, time_consume)
+        results = run_inference(FRAMEWORK, features, input_size, args.query_size, predict, time_consume, is_classification)
         write_data(FRAMEWORK, results, time_consume)
         total_framework_time = calculate_time(start_time, time.time())
 
@@ -192,8 +187,7 @@ def test_cpu(args, features, label, sklearnmodel, config, time_consume):
                 return remainder_model.predict(batch)
             return model.predict(batch)
 
-        results = run_inference(FRAMEWORK, features, input_size,
-                                args.query_size, predict, time_consume)
+        results = run_inference(FRAMEWORK, features, input_size, args.query_size, predict, time_consume, is_classification)
         write_data(FRAMEWORK, results, time_consume)
         total_framework_time = calculate_time(start_time, time.time())
 
@@ -215,8 +209,7 @@ def test_cpu(args, features, label, sklearnmodel, config, time_consume):
             batch = tf.constant(batch)
             return model.predict(batch, batch_size=args.batch_size)
 
-        results = run_inference(FRAMEWORK, features, input_size,
-                                args.query_size, predict, time_consume)
+        results = run_inference(FRAMEWORK, features, input_size, args.query_size, predict, time_consume, is_classification)
         write_data(FRAMEWORK, results, time_consume)
         total_framework_time = calculate_time(start_time, time.time())
 
@@ -239,8 +232,7 @@ def test_cpu(args, features, label, sklearnmodel, config, time_consume):
             output = sess.run([label_name], {input_name: batch})[0]
             return output
 
-        results = run_inference(FRAMEWORK, features, input_size,
-                                args.query_size, predict, time_consume)
+        results = run_inference(FRAMEWORK, features, input_size, args.query_size, predict, time_consume, is_classification)
         write_data(FRAMEWORK, results, time_consume)
         total_framework_time = calculate_time(start_time, time.time())
     elif FRAMEWORK == "LightGBM":
@@ -254,8 +246,8 @@ def test_cpu(args, features, label, sklearnmodel, config, time_consume):
 
         def predict(batch):
             return model.predict(batch)
-        results = run_inference(FRAMEWORK, features, input_size,
-                                args.query_size, predict, time_consume)
+
+        results = run_inference(FRAMEWORK, features, input_size, args.query_size, predict, time_consume, is_classification)
         write_data(FRAMEWORK, results, time_consume)
         total_framework_time = calculate_time(start_time, time.time())
     elif FRAMEWORK == "Lleaves":
@@ -273,8 +265,8 @@ def test_cpu(args, features, label, sklearnmodel, config, time_consume):
 
         def predict(batch):
             return model.predict(batch)
-        results = run_inference(FRAMEWORK, features, input_size,
-                                args.query_size, predict, time_consume)
+
+        results = run_inference(FRAMEWORK, features, input_size, args.query_size, predict, time_consume, is_classification)
         write_data(FRAMEWORK, results, time_consume)
         total_framework_time = calculate_time(start_time, time.time())
     else:
@@ -294,6 +286,7 @@ def test_gpu(args, features, label, sklearnmodel, config, time_consume):
     with torch.no_grad():
         torch.cuda.empty_cache()
     input_size = len(label)
+    is_classification = config[DATASET]["type"] == "classification"
     if FRAMEWORK == "HummingbirdPytorchGPU":
         import torch
         device = torch.device('cuda')
@@ -303,8 +296,7 @@ def test_gpu(args, features, label, sklearnmodel, config, time_consume):
         model = convert_to_hummingbird_model(
             sklearnmodel, "torch", features, args.batch_size, "cuda")
         conversion_time = calculate_time(start_time, time.time())
-        results = run_inference(FRAMEWORK, features, input_size,
-                                args.query_size, model.predict, time_consume)
+        results = run_inference(FRAMEWORK, features, input_size, args.query_size, model.predict, time_consume, is_classification)
         write_data(FRAMEWORK, results, time_consume)
         total_framework_time = calculate_time(start_time, time.time())
 
@@ -318,8 +310,7 @@ def test_gpu(args, features, label, sklearnmodel, config, time_consume):
         def predict(batch):
             return model.predict(batch)
 
-        results = run_inference(FRAMEWORK, features, input_size,
-                                args.query_size, predict, time_consume)
+        results = run_inference(FRAMEWORK, features, input_size, args.query_size, predict, time_consume, is_classification)
         write_data(FRAMEWORK, results, time_consume)
         total_framework_time = calculate_time(start_time, time.time())
 
@@ -338,8 +329,7 @@ def test_gpu(args, features, label, sklearnmodel, config, time_consume):
             output = sess.run([label_name], {input_name: batch})[0]
             return output
 
-        results = run_inference(FRAMEWORK, features, input_size,
-                                args.query_size, predict, time_consume)
+        results = run_inference(FRAMEWORK, features, input_size,args.query_size, predict, time_consume, is_classification)
         write_data(FRAMEWORK, results, time_consume)
         total_framework_time = calculate_time(start_time, time.time())
 
@@ -359,8 +349,7 @@ def test_gpu(args, features, label, sklearnmodel, config, time_consume):
                 return remainder_model.predict(batch)
             return model.predict(batch)
 
-        results = run_inference(FRAMEWORK, features, input_size,
-                                args.query_size, predict, time_consume)
+        results = run_inference(FRAMEWORK, features, input_size, args.query_size, predict, time_consume, is_classification)
         write_data(FRAMEWORK, results, time_consume)
         total_framework_time = calculate_time(start_time, time.time())
 
@@ -372,8 +361,7 @@ def test_gpu(args, features, label, sklearnmodel, config, time_consume):
         conversion_time = 0.0
         sklearnmodel.set_params(predictor="gpu_predictor")  # NOT safe!
         sklearnmodel.set_params(n_jobs=-1)
-        results = run_inference(FRAMEWORK, features, input_size,
-                                args.query_size, sklearnmodel.predict, time_consume)
+        results = run_inference(FRAMEWORK, features, input_size, args.query_size, sklearnmodel.predict, time_consume, is_classification)
         write_data(FRAMEWORK, results, time_consume)
         total_framework_time = calculate_time(start_time, time.time())
 
@@ -400,8 +388,7 @@ def test_gpu(args, features, label, sklearnmodel, config, time_consume):
 
         # model = ForestInference.load_from_sklearn(sklearnmodel,output_class=True, storage_type='auto')
         conversion_time = calculate_time(start_time, time.time())
-        results = run_inference(FRAMEWORK, features, input_size,
-                                args.query_size, model.predict, time_consume)
+        results = run_inference(FRAMEWORK, features, input_size, args.query_size, predict, time_consume, is_classification)
         write_data(FRAMEWORK, results, time_consume)
         total_framework_time = calculate_time(start_time, time.time())
 

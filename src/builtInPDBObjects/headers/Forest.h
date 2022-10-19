@@ -356,8 +356,8 @@ namespace pdb
                 return most_common(begin, end);
             case ModelType::XGBoost:
                 return aggregate_decisions(begin, end);
-                //                case ModelType::LightGBM:
-                //                    return 0.0f;
+            case ModelType::LightGBM:
+                return aggregate_decisions(begin, end);
             default: // RF is default
                 return most_common(begin, end);
             }

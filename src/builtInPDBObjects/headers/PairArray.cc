@@ -252,6 +252,8 @@ int PairArray<KeyType, ValueType>::count(const KeyType& me) {
     // hash this dude
     size_t hashVal = Hasher<KeyType>::hash(me);
 
+
+
     // figure out which slot he goes in
     size_t slot = hashVal % (numSlots - 1);
 

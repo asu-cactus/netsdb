@@ -20,8 +20,8 @@ DEPTH = None
 def parse_arguments(config):
     global DATASET, MODEL
     parser = argparse.ArgumentParser(description='Arguments for train_model.')
-    parser.add_argument("-d", "--dataset", type=str, choices=['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype'],
-                        help="Dataset to be trained. Choose from ['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype']")
+    parser.add_argument("-d", "--dataset", type=str, choices=['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype', 'tpcxai_fraud'],
+        help="Dataset to be trained. Choose from ['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype', 'tpcxai_fraud']")
     parser.add_argument("-m", "--model", type=str, choices=['randomforest', 'xgboost', 'lightgbm'],
                         help="Model name. Choose from ['randomforest', 'xgboost', 'lightgbm']")
     parser.add_argument(
