@@ -146,6 +146,7 @@ def run_inference(framework, features, input_size, query_size, predict, time_con
         for i in range(iterations):
             query_data = features[i*query_size:(i+1)*query_size]
             print(query_data)
+            query_data = query_data.todense()
             output = predict(query_data)
             results.extend(output)
 
