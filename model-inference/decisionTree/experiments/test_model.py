@@ -402,7 +402,7 @@ def test_gpu(args, features, label, sklearnmodel, config, time_consume):
 
         # model = ForestInference.load_from_sklearn(sklearnmodel,output_class=True, storage_type='auto')
         conversion_time = calculate_time(start_time, time.time())
-        results = run_inference(FRAMEWORK, features, input_size, args.query_size, predict, time_consume, is_classification)
+        results = run_inference(FRAMEWORK, features, input_size, args.query_size, model.predict, time_consume, is_classification)
         write_data(FRAMEWORK, results, time_consume)
         total_framework_time = calculate_time(start_time, time.time())
 
