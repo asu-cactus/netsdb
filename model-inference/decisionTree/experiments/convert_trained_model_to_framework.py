@@ -28,8 +28,9 @@ def parse_arguments(config):
     # check_argument_conflicts(args)  # TODO: Move this function from the bottom to here, after checking with Prof.
     global DATASET, MODEL, FRAMEWORKS
     parser = argparse.ArgumentParser(description='Arguments for train_model.')
-    parser.add_argument("-d", "--dataset", type=str, choices=['higgs', 'airline_classification', 'airline_regression', 'fraud', 'year', 'epsilon', 'bosch', 'covtype', 'tpcxai_fraud'],
-        help="Dataset to be trained. Choose from ['higgs', 'airline_classification', 'airline_regression', 'fraud', 'year', 'epsilon', 'bosch', 'covtype', 'tpcxai_fraud']")
+    parser.add_argument("-d", "--dataset", type=str, choices=['higgs', 'airline_classification', 'airline_regression', 'fraud', 'year', 'epsilon', 'bosch', 'covtype', 'tpcxai_fraud', 'criteo'],
+        help="Dataset to be trained. Choose from ['higgs', 'airline_classification', 'airline_regression', 'fraud', 'year', 'epsilon', 'bosch', 'covtype', 'tpcxai_fraud', 'criteo]")
+
     parser.add_argument("-m", "--model", type=str, choices=['randomforest', 'xgboost', 'lightgbm'],
         help="Model name. Choose from ['randomforest', 'xgboost', 'lightgbm']")
     parser.add_argument("-f", "--frameworks", type=str,
@@ -215,6 +216,16 @@ def convert_to_netsdb_model(model, config):
             f.write(str(data)) 
             f.close()
 
+def convert_to_xgboost_model(model,config):
+    # clf = joblib.load(relative2abspath('models',model_file))
+    # clf.save_model(relative2abspath('models',model_file.split('.')[0]+'.model'))
+    new_model = f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.model"
+    if (MODEL == "xgboost") and (new_model not in os.listdir("models")):
+        model_path = relative2abspath("models", new_model)
+        model.save_model(model_path)
+    else:
+        raise("Model not xgboost or model already exists")
+
 
 
 def convert(model, config):
@@ -245,6 +256,8 @@ def convert(model, config):
         print_logs(convert_to_lleaves_model,model,config,"Lleaves")
     if "netsdb" in frameworks:
         print_logs(convert_to_netsdb_model, model, config, "netsdb")
+    if "xgboost" in frameworks:
+        print_logs(convert_to_xgboost_model, model, config, "xgboost")
 
 
 def load_model(config):

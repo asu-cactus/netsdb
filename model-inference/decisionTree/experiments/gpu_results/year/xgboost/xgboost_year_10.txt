@@ -1,0 +1,176 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: year
+MODEL: xgboost
+FRAMEWORK: Sklearn
+Query Size: 1000
+Batch Size: 1000
+Trees 1600
+Depth 8
+LOADING year test
+Time Taken to load year as a dataframe is: 4645.073890686035
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/year_xgboost_1600_8.pkl
+Time Taken to load sklearn model: 571.0482597351074
+Time Taken to predict on Sklearn is 1399.4343280792236
+Time Taken to write results to a text file for Sklearn is 52.09994316101074
+Regression Report Sklearn
+MSE: 78.62696430143279
+################
+Time Taken to convert Sklearn model: 0.0
+TOTAL Time Taken for Sklearn: 1451.6105651855469
+==============EXPERIMENT ENDING=========================
+
+TESTS START HERE
+*******************************8
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d year -m xgboost -f XGBoostGPU --batch_size 100 --query_size 100 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: year
+MODEL: xgboost
+FRAMEWORK: XGBoostGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+LOADING year test
+Time Taken to load year as a dataframe is: 3722.49436378479
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/year_xgboost_10_8.pkl
+Time Taken to load sklearn model: 201.50065422058105
+Running GPU Test XGBoostGPU
+Time Taken to predict on XGBoostGPU is 5606.235980987549
+Time Taken to write results to a text file for XGBoostGPU is 52.797794342041016
+Regression Report XGBoostGPU
+MSE: 394.4580601133758
+################
+Time Taken to convert XGBoostGPU model: 0.0
+TOTAL Time Taken for XGBoostGPU: 5661.012649536133
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d year -m xgboost -f XGBoostGPU --batch_size 1000 --query_size 1000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: year
+MODEL: xgboost
+FRAMEWORK: XGBoostGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+LOADING year test
+Time Taken to load year as a dataframe is: 3739.0201091766357
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/year_xgboost_10_8.pkl
+Time Taken to load sklearn model: 210.00099182128906
+Running GPU Test XGBoostGPU
+Time Taken to predict on XGBoostGPU is 1835.6304168701172
+Time Taken to write results to a text file for XGBoostGPU is 52.637577056884766
+Regression Report XGBoostGPU
+MSE: 394.4580601133758
+################
+Time Taken to convert XGBoostGPU model: 0.0
+TOTAL Time Taken for XGBoostGPU: 1890.275239944458
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d year -m xgboost -f XGBoostGPU --batch_size 10000 --query_size 10000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: year
+MODEL: xgboost
+FRAMEWORK: XGBoostGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+LOADING year test
+Time Taken to load year as a dataframe is: 3782.5748920440674
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/year_xgboost_10_8.pkl
+Time Taken to load sklearn model: 209.08260345458984
+Running GPU Test XGBoostGPU
+Time Taken to predict on XGBoostGPU is 1685.429573059082
+Time Taken to write results to a text file for XGBoostGPU is 52.320241928100586
+Regression Report XGBoostGPU
+MSE: 394.4580601133758
+################
+Time Taken to convert XGBoostGPU model: 0.0
+TOTAL Time Taken for XGBoostGPU: 1739.715814590454
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d year -m xgboost -f XGBoostGPU --batch_size 100000 --query_size 100000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: year
+MODEL: xgboost
+FRAMEWORK: XGBoostGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 10
+Depth 8
+LOADING year test
+Time Taken to load year as a dataframe is: 3723.4790325164795
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/year_xgboost_10_8.pkl
+Time Taken to load sklearn model: 208.65845680236816
+Running GPU Test XGBoostGPU
+Time Taken to predict on XGBoostGPU is 1686.2914562225342
+Time Taken to write results to a text file for XGBoostGPU is 52.191972732543945
+Regression Report XGBoostGPU
+MSE: 394.4580601133758
+################
+Time Taken to convert XGBoostGPU model: 0.0
+TOTAL Time Taken for XGBoostGPU: 1740.4422760009766
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d year -m xgboost -f XGBoostGPU --batch_size 103069 --query_size 103069 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: year
+MODEL: xgboost
+FRAMEWORK: XGBoostGPU
+Query Size: 103069
+Batch Size: 103069
+Trees 10
+Depth 8
+LOADING year test
+Time Taken to load year as a dataframe is: 3753.153085708618
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/year_xgboost_10_8.pkl
+Time Taken to load sklearn model: 207.7200412750244
+Running GPU Test XGBoostGPU
+Time Taken to predict on XGBoostGPU is 1678.5123348236084
+Time Taken to write results to a text file for XGBoostGPU is 51.65457725524902
+Regression Report XGBoostGPU
+MSE: 394.4580601133758
+################
+Time Taken to convert XGBoostGPU model: 0.0
+TOTAL Time Taken for XGBoostGPU: 1732.154130935669
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+

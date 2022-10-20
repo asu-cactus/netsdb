@@ -1,0 +1,262 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: Sklearn
+Query Size: 1000
+Batch Size: 1000
+Trees 1600
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 46959.83791351318
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_1600_8.pkl
+Time Taken to load sklearn model: 675.0898361206055
+Time Taken to predict on Sklearn is 246484.9865436554
+Time Taken to write results to a text file for Sklearn is 11578.506708145142
+Classification Report Sklearn
+              precision    recall  f1-score   support
+
+           0       0.83      0.62      0.71  12571935
+           1       0.65      0.84      0.73  10441869
+
+    accuracy                           0.72  23013804
+   macro avg       0.74      0.73      0.72  23013804
+weighted avg       0.74      0.72      0.72  23013804
+
+################
+Time Taken to convert Sklearn model: 0.0
+TOTAL Time Taken for Sklearn: 258063.54117393494
+==============EXPERIMENT ENDING=========================
+
+TESTS START HERE
+*******************************8
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f XGBoostGPU --batch_size 100 --query_size 100 --num_trees 500
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: XGBoostGPU
+Query Size: 100
+Batch Size: 100
+Trees 500
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32899.83296394348
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_500_8.pkl
+Time Taken to load sklearn model: 284.8825454711914
+Running GPU Test XGBoostGPU
+Time Taken to predict on XGBoostGPU is 2697656.4548015594
+Time Taken to write results to a text file for XGBoostGPU is 11632.03477859497
+Classification Report XGBoostGPU
+              precision    recall  f1-score   support
+
+           0       0.82      0.58      0.68  12571935
+           1       0.63      0.84      0.72  10441869
+
+    accuracy                           0.70  23013804
+   macro avg       0.72      0.71      0.70  23013804
+weighted avg       0.73      0.70      0.70  23013804
+
+################
+Time Taken to convert XGBoostGPU model: 0.0
+TOTAL Time Taken for XGBoostGPU: 2709290.5011177063
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f XGBoostGPU --batch_size 1000 --query_size 1000 --num_trees 500
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: XGBoostGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 500
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32345.950603485107
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_500_8.pkl
+Time Taken to load sklearn model: 251.6763210296631
+Running GPU Test XGBoostGPU
+Time Taken to predict on XGBoostGPU is 270719.7380065918
+Time Taken to write results to a text file for XGBoostGPU is 11961.122989654541
+Classification Report XGBoostGPU
+              precision    recall  f1-score   support
+
+           0       0.82      0.58      0.68  12571935
+           1       0.63      0.84      0.72  10441869
+
+    accuracy                           0.70  23013804
+   macro avg       0.72      0.71      0.70  23013804
+weighted avg       0.73      0.70      0.70  23013804
+
+################
+Time Taken to convert XGBoostGPU model: 0.0
+TOTAL Time Taken for XGBoostGPU: 282682.7771663666
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f XGBoostGPU --batch_size 10000 --query_size 10000 --num_trees 500
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: XGBoostGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 500
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31437.165021896362
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_500_8.pkl
+Time Taken to load sklearn model: 251.07383728027344
+Running GPU Test XGBoostGPU
+Time Taken to predict on XGBoostGPU is 31705.70421218872
+Time Taken to write results to a text file for XGBoostGPU is 11383.429765701294
+Classification Report XGBoostGPU
+              precision    recall  f1-score   support
+
+           0       0.82      0.58      0.68  12571935
+           1       0.63      0.84      0.72  10441869
+
+    accuracy                           0.70  23013804
+   macro avg       0.72      0.71      0.70  23013804
+weighted avg       0.73      0.70      0.70  23013804
+
+################
+Time Taken to convert XGBoostGPU model: 0.0
+TOTAL Time Taken for XGBoostGPU: 43091.08519554138
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f XGBoostGPU --batch_size 100000 --query_size 100000 --num_trees 500
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: XGBoostGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 500
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31894.981861114502
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_500_8.pkl
+Time Taken to load sklearn model: 249.50361251831055
+Running GPU Test XGBoostGPU
+Time Taken to predict on XGBoostGPU is 10071.088075637817
+Time Taken to write results to a text file for XGBoostGPU is 11312.652349472046
+Classification Report XGBoostGPU
+              precision    recall  f1-score   support
+
+           0       0.82      0.58      0.68  12571935
+           1       0.63      0.84      0.72  10441869
+
+    accuracy                           0.70  23013804
+   macro avg       0.72      0.71      0.70  23013804
+weighted avg       0.73      0.70      0.70  23013804
+
+################
+Time Taken to convert XGBoostGPU model: 0.0
+TOTAL Time Taken for XGBoostGPU: 21385.688066482544
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f XGBoostGPU --batch_size 1000000 --query_size 1000000 --num_trees 500
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: XGBoostGPU
+Query Size: 1000000
+Batch Size: 1000000
+Trees 500
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32358.578205108643
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_500_8.pkl
+Time Taken to load sklearn model: 251.6942024230957
+Running GPU Test XGBoostGPU
+Time Taken to predict on XGBoostGPU is 9097.215175628662
+Time Taken to write results to a text file for XGBoostGPU is 12189.886331558228
+Classification Report XGBoostGPU
+              precision    recall  f1-score   support
+
+           0       0.82      0.58      0.68  12571935
+           1       0.63      0.84      0.72  10441869
+
+    accuracy                           0.70  23013804
+   macro avg       0.72      0.71      0.70  23013804
+weighted avg       0.73      0.70      0.70  23013804
+
+################
+Time Taken to convert XGBoostGPU model: 0.0
+TOTAL Time Taken for XGBoostGPU: 21289.058685302734
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d airline_classification -m xgboost -f XGBoostGPU --batch_size 23013804 --query_size 23013804 --num_trees 500
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: XGBoostGPU
+Query Size: 23013804
+Batch Size: 23013804
+Trees 500
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32476.113319396973
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_500_8.pkl
+Time Taken to load sklearn model: 249.4974136352539
+Running GPU Test XGBoostGPU
+Time Taken to predict on XGBoostGPU is 8711.638927459717
+Time Taken to write results to a text file for XGBoostGPU is 12229.862451553345
+Classification Report XGBoostGPU
+              precision    recall  f1-score   support
+
+           0       0.82      0.58      0.68  12571935
+           1       0.63      0.84      0.72  10441869
+
+    accuracy                           0.70  23013804
+   macro avg       0.72      0.71      0.70  23013804
+weighted avg       0.73      0.70      0.70  23013804
+
+################
+Time Taken to convert XGBoostGPU model: 0.0
+TOTAL Time Taken for XGBoostGPU: 20943.47858428955
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
