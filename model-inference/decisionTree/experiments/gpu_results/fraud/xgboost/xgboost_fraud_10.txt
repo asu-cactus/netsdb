@@ -1,0 +1,186 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: fraud
+MODEL: xgboost
+FRAMEWORK: Sklearn
+Query Size: 1000
+Batch Size: 1000
+Trees 1600
+Depth 8
+LOADING fraud test
+Time Taken to load fraud as a dataframe is: 1569.648027420044
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/fraud_xgboost_1600_8.pkl
+Time Taken to load sklearn model: 324.0201473236084
+Time Taken to predict on Sklearn is 299.29184913635254
+Time Taken to write results to a text file for Sklearn is 30.02619743347168
+Classification Report Sklearn
+              precision    recall  f1-score   support
+
+           0       1.00      1.00      1.00     56887
+           1       0.99      0.95      0.97        75
+
+    accuracy                           1.00     56962
+   macro avg       0.99      0.97      0.98     56962
+weighted avg       1.00      1.00      1.00     56962
+
+################
+Time Taken to convert Sklearn model: 0.0
+TOTAL Time Taken for Sklearn: 329.3576240539551
+==============EXPERIMENT ENDING=========================
+
+TESTS START HERE
+*******************************8
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d fraud -m xgboost -f XGBoostGPU --batch_size 100 --query_size 100 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: fraud
+MODEL: xgboost
+FRAMEWORK: XGBoostGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+LOADING fraud test
+Time Taken to load fraud as a dataframe is: 842.5233364105225
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/fraud_xgboost_10_8.pkl
+Time Taken to load sklearn model: 201.56288146972656
+Running GPU Test XGBoostGPU
+Time Taken to predict on XGBoostGPU is 4647.867202758789
+Time Taken to write results to a text file for XGBoostGPU is 31.197547912597656
+Classification Report XGBoostGPU
+              precision    recall  f1-score   support
+
+           0       1.00      1.00      1.00     56887
+           1       0.35      0.95      0.51        75
+
+    accuracy                           1.00     56962
+   macro avg       0.68      0.97      0.76     56962
+weighted avg       1.00      1.00      1.00     56962
+
+################
+Time Taken to convert XGBoostGPU model: 0.0
+TOTAL Time Taken for XGBoostGPU: 4681.025266647339
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d fraud -m xgboost -f XGBoostGPU --batch_size 1000 --query_size 1000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: fraud
+MODEL: xgboost
+FRAMEWORK: XGBoostGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+LOADING fraud test
+Time Taken to load fraud as a dataframe is: 846.3938236236572
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/fraud_xgboost_10_8.pkl
+Time Taken to load sklearn model: 128.27229499816895
+Running GPU Test XGBoostGPU
+Time Taken to predict on XGBoostGPU is 1654.404640197754
+Time Taken to write results to a text file for XGBoostGPU is 30.910015106201172
+Classification Report XGBoostGPU
+              precision    recall  f1-score   support
+
+           0       1.00      1.00      1.00     56887
+           1       0.35      0.95      0.51        75
+
+    accuracy                           1.00     56962
+   macro avg       0.68      0.97      0.76     56962
+weighted avg       1.00      1.00      1.00     56962
+
+################
+Time Taken to convert XGBoostGPU model: 0.0
+TOTAL Time Taken for XGBoostGPU: 1687.242031097412
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d fraud -m xgboost -f XGBoostGPU --batch_size 10000 --query_size 10000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: fraud
+MODEL: xgboost
+FRAMEWORK: XGBoostGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+LOADING fraud test
+Time Taken to load fraud as a dataframe is: 840.3983116149902
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/fraud_xgboost_10_8.pkl
+Time Taken to load sklearn model: 133.29625129699707
+Running GPU Test XGBoostGPU
+Time Taken to predict on XGBoostGPU is 1581.2110900878906
+Time Taken to write results to a text file for XGBoostGPU is 29.368877410888672
+Classification Report XGBoostGPU
+              precision    recall  f1-score   support
+
+           0       1.00      1.00      1.00     56887
+           1       0.35      0.95      0.51        75
+
+    accuracy                           1.00     56962
+   macro avg       0.68      0.97      0.76     56962
+weighted avg       1.00      1.00      1.00     56962
+
+################
+Time Taken to convert XGBoostGPU model: 0.0
+TOTAL Time Taken for XGBoostGPU: 1612.5881671905518
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 54: [: XGBoostGPU: unexpected operator
+python test_model.py -d fraud -m xgboost -f XGBoostGPU --batch_size 56962 --query_size 56962 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: fraud
+MODEL: xgboost
+FRAMEWORK: XGBoostGPU
+Query Size: 56962
+Batch Size: 56962
+Trees 10
+Depth 8
+LOADING fraud test
+Time Taken to load fraud as a dataframe is: 835.9968662261963
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/fraud_xgboost_10_8.pkl
+Time Taken to load sklearn model: 191.15066528320312
+Running GPU Test XGBoostGPU
+Time Taken to predict on XGBoostGPU is 1585.5064392089844
+Time Taken to write results to a text file for XGBoostGPU is 28.29766273498535
+Classification Report XGBoostGPU
+              precision    recall  f1-score   support
+
+           0       1.00      1.00      1.00     56887
+           1       0.35      0.95      0.51        75
+
+    accuracy                           1.00     56962
+   macro avg       0.68      0.97      0.76     56962
+weighted avg       1.00      1.00      1.00     56962
+
+################
+Time Taken to convert XGBoostGPU model: 0.0
+TOTAL Time Taken for XGBoostGPU: 1615.7753467559814
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
