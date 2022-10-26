@@ -69,6 +69,7 @@ namespace pdb
 
 	int batchId;
 
+
 	ModelType modelType;
 
         TreeResult() {}
@@ -112,21 +113,25 @@ namespace pdb
 		
             return *this;
         }
-
-	int postprocessing() {
+        int getNumPositives () {
 	
-	   
-	   // Default LR Value Source: https://xgboost.readthedocs.io/en/stable/parameter.html?highlight=0.3#parameters-for-tree-booster
-            double threshold = 0.5;
 	    int positive_count = 0;
             for (int i = 0; i < BLOCK_SIZE; i++) {
-                double sigmoid_of_decision = 1 / (1 + exp(-1.0 * data[i]));
-                data[i] = sigmoid_of_decision > threshold ? 2.0 : 1.0;
-                positive_count += data[i] - 1.0;
+   		    positive_count += data[i]-1.0; 
 	    }
-	    std::cout << "positive labels:" << positive_count << std::endl;
+            return positive_count;	
+	}
+	void postprocessing(Handle<TreeResult> res) {
+	
+	   float * resData = res->data;   
+	   float threshold = 0.5;
+	   float sigmoid_of_decision;
+	   // Default LR Value Source: https://xgboost.readthedocs.io/en/stable/parameter.html?highlight=0.3#parameters-for-tree-booster
+            for (int i = 0; i < BLOCK_SIZE; i++) {
+                sigmoid_of_decision = 1 / (1 + exp(-1.0 * data[i]));
+		resData[i] = sigmoid_of_decision > threshold ? 2.0 : 1.0;
+	    }
             // Reference: https://stats.stackexchange.com/questions/395697/what-is-an-intuitive-interpretation-of-the-leaf-values-in-xgboost-base-learners
-            return positive_count; 	
 	}
 
     };

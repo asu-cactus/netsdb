@@ -34,6 +34,7 @@
 #include "TensorBlock2D.h"
 #include "Tree.h"
 #include "TreeResult.h"
+#include "TreeResultPostProcessing.h"
 #include "ScanUserSet.h"
 #include "WriteUserSet.h"
 #include "FFMatrixUtil.h"
@@ -222,18 +223,25 @@ int main(int argc, char *argv[]) {
 
         treeResultAgg->setInput(treeCrossProduct);
 
-	treeResultAgg->setOutput("decisionForest", "labels");
+	//treeResultAgg->setOutput("decisionForest", "labels");
+        
+        pdb::Handle<pdb::Computation> treeResultPostProcessing = makeObject<pdb::TreeResultPostProcessing>();
+	
+        treeResultPostProcessing->setInput(treeResultAgg);
 
+	pdb::Handle<pdb::Computation> resultWriter = makeObject<WriteUserSet<TreeResult>>("decisionForest", "labels");
+
+
+	resultWriter->setInput(treeResultPostProcessing);
 
         bool materializeHash = true;
 
         auto exe_begin = std::chrono::high_resolution_clock::now();
-        if (!pdbClient.executeComputations(errMsg, "decisionForest", materializeHash, treeResultAgg)) {
+        if (!pdbClient.executeComputations(errMsg, "decisionForest", materializeHash, resultWriter)) {
             cout << "Computation failed. Message was: " << errMsg << "\n";
             exit(1);
         }
         auto exe_end = std::chrono::high_resolution_clock::now();
-
 
         std::cout << "****Model Inference Time Duration: ****"
               << std::chrono::duration_cast<std::chrono::duration<double>>(exe_end - exe_begin).count()
@@ -249,7 +257,7 @@ int main(int argc, char *argv[]) {
                    pdbClient.getSetIterator<pdb::TreeResult>("decisionForest", "labels");
            
             for (auto a : result) {
-		 positive_count += a->postprocessing();
+                 positive_count += a->getNumPositives();
                  count += BLOCK_SIZE;
             }
             std::cout << "total count:" << count << "\n";
