@@ -1,0 +1,49 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 500
+Depth 8
+LOADING higgs test
+Time Taken to load higgs as a dataframe is: 5042.517900466919
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/higgs_xgboost_500_8.pkl
+[20:52:14] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 275.5270004272461
+Running GPU Test HummingbirdTVMGPU
+[20:52:15] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to predict on HummingbirdTVMGPU is 941.6210651397705
+Time Taken to write results to a text file for HummingbirdTVMGPU is 529.656171798706
+Classification Report HummingbirdTVMGPU
+              precision    recall  f1-score   support
+
+           0       0.84      0.55      0.67   1034103
+           1       0.70      0.91      0.79   1165897
+
+    accuracy                           0.74   2200000
+   macro avg       0.77      0.73      0.73   2200000
+weighted avg       0.76      0.74      0.73   2200000
+
+################
+Time Taken to convert HummingbirdTVMGPU model: 64050.891160964966
+TOTAL Time Taken for HummingbirdTVMGPU: 65522.247552871704
+==============EXPERIMENT ENDING=========================
+

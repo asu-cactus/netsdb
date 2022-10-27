@@ -1,0 +1,33 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 2200000
+Batch Size: 2200000
+Trees 10
+Depth 8
+LOADING higgs test
+Time Taken to load higgs as a dataframe is: 7782.588243484497
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/higgs_randomforest_10_8.pkl
+Time Taken to load sklearn model: 186.2032413482666
+Running GPU Test HummingbirdPytorchGPU
+Time Taken to predict on HummingbirdPytorchGPU is 296.8282699584961
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 514.3015384674072
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.69      0.63      0.66   1034103
+           1       0.70      0.75      0.72   1165897
+
+    accuracy                           0.69   2200000
+   macro avg       0.69      0.69      0.69   2200000
+weighted avg       0.69      0.69      0.69   2200000
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 8617.688179016113
+TOTAL Time Taken for HummingbirdPytorchGPU: 9428.908586502075
+==============EXPERIMENT ENDING=========================
+
