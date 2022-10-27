@@ -1,0 +1,33 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: fraud
+MODEL: randomforest
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 56962
+Batch Size: 56962
+Trees 1600
+Depth 8
+LOADING fraud test
+Time Taken to load fraud as a dataframe is: 837.0263576507568
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/fraud_randomforest_1600_8.pkl
+Time Taken to load sklearn model: 415.3447151184082
+Running GPU Test HummingbirdTVMGPU
+Time Taken to predict on HummingbirdTVMGPU is 88.73319625854492
+Time Taken to write results to a text file for HummingbirdTVMGPU is 13.981103897094727
+Classification Report HummingbirdTVMGPU
+              precision    recall  f1-score   support
+
+           0       1.00      1.00      1.00     56887
+           1       1.00      0.73      0.85        75
+
+    accuracy                           1.00     56962
+   macro avg       1.00      0.87      0.92     56962
+weighted avg       1.00      1.00      1.00     56962
+
+################
+Time Taken to convert HummingbirdTVMGPU model: 66635.06555557251
+TOTAL Time Taken for HummingbirdTVMGPU: 66737.86306381226
+==============EXPERIMENT ENDING=========================
+
