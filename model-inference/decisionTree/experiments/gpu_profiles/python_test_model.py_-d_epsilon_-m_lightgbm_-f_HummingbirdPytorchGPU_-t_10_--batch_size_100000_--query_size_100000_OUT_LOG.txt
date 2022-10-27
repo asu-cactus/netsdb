@@ -1,0 +1,33 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: epsilon
+MODEL: lightgbm
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 10
+Depth 8
+LOADING epsilon test
+Time Taken to load epsilon as a dataframe is: 163652.22096443176
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/epsilon_lightgbm_10_8.pkl
+Time Taken to load sklearn model: 599.4870662689209
+Running GPU Test HummingbirdPytorchGPU
+Time Taken to predict on HummingbirdPytorchGPU is 174.6225357055664
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 23.608684539794922
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.86      0.45      0.59     50045
+           1       0.63      0.93      0.75     49955
+
+    accuracy                           0.69    100000
+   macro avg       0.74      0.69      0.67    100000
+weighted avg       0.74      0.69      0.67    100000
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 3242.588996887207
+TOTAL Time Taken for HummingbirdPytorchGPU: 3440.8838748931885
+==============EXPERIMENT ENDING=========================
+
