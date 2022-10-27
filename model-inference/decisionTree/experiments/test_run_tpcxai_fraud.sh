@@ -30,7 +30,8 @@ for command in "${StringArray[@]}";
 		echo ${GPU_OUTPUT_LOG}
 		echo ${TEST_OUTPUT_FILE}
 		echo ${FINAL_COMMAND}
-        nvidia-smi dmon -i 0 -s mu -d 1 -o TD > ${GPU_OUTPUT_LOG} &
+        # nvidia-smi dmon -i 0 -s mu -d 1 -o TD > ${GPU_OUTPUT_LOG} &
+		gpustat -i > ${GPU_OUTPUT_LOG} &
         P1=$!
 		eval ${FINAL_COMMAND}
 		P2=$!
