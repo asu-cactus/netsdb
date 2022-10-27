@@ -1,0 +1,33 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 23013804
+Batch Size: 23013804
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32358.561038970947
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_10_8.pkl
+Time Taken to load sklearn model: 218.44220161437988
+Running GPU Test HummingbirdPytorchGPU
+Time Taken to predict on HummingbirdPytorchGPU is 2604.2227745056152
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 5464.067697525024
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.29      0.42  12571935
+           1       0.51      0.91      0.66  10441869
+
+    accuracy                           0.57  23013804
+   macro avg       0.65      0.60      0.54  23013804
+weighted avg       0.67      0.57      0.53  23013804
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 4291.159868240356
+TOTAL Time Taken for HummingbirdPytorchGPU: 12359.976530075073
+==============EXPERIMENT ENDING=========================
+

@@ -1,0 +1,34 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: NvidiaFILGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 1600
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31671.990394592285
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_1600_8.pkl
+Time Taken to load sklearn model: 514.960765838623
+Running GPU Test NvidiaFILGPU
+[W] [21:31:37.839176] Treelite currently does not support float64 model parameters. Accuracy may degrade slightly relative to native sklearn invocation.
+Time Taken to predict on NvidiaFILGPU is 18815.994024276733
+Time Taken to write results to a text file for NvidiaFILGPU is 5657.876014709473
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       0.61      0.87      0.71  12571935
+           1       0.67      0.32      0.43  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.64      0.59      0.57  23013804
+weighted avg       0.64      0.62      0.59  23013804
+
+################
+Time Taken to convert NvidiaFILGPU model: 2821.124792098999
+TOTAL Time Taken for NvidiaFILGPU: 27295.07040977478
+==============EXPERIMENT ENDING=========================
+
