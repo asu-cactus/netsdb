@@ -1,0 +1,164 @@
+gpu_profiles/python_test_model.py_-d_year_-m_randomforest_-f_HummingbirdPytorchGPU_-t_10_--batch_size_103069_--query_size_103069_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_year_-m_randomforest_-f_HummingbirdPytorchGPU_-t_10_--batch_size_103069_--query_size_103069_OUT_LOG.txt
+python test_model.py -d year -m randomforest -f HummingbirdPytorchGPU -t 10 --batch_size 103069 --query_size 103069 > gpu_profiles/python_test_model.py_-d_year_-m_randomforest_-f_HummingbirdPytorchGPU_-t_10_--batch_size_103069_--query_size_103069_OUT_LOG.txt &
+2207
+2208
+gpu_profiles/python_test_model.py_-d_year_-m_randomforest_-f_HummingbirdTVMGPU_-t_10_--batch_size_10000_--query_size_10000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_year_-m_randomforest_-f_HummingbirdTVMGPU_-t_10_--batch_size_10000_--query_size_10000_OUT_LOG.txt
+python test_model.py -d year -m randomforest -f HummingbirdTVMGPU -t 10 --batch_size 10000 --query_size 10000 > gpu_profiles/python_test_model.py_-d_year_-m_randomforest_-f_HummingbirdTVMGPU_-t_10_--batch_size_10000_--query_size_10000_OUT_LOG.txt &
+2265
+2266
+gpu_profiles/python_test_model.py_-d_year_-m_randomforest_-f_NvidiaFILGPU_-t_10_--batch_size_10000_--query_size_10000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_year_-m_randomforest_-f_NvidiaFILGPU_-t_10_--batch_size_10000_--query_size_10000_OUT_LOG.txt
+python test_model.py -d year -m randomforest -f NvidiaFILGPU -t 10 --batch_size 10000 --query_size 10000 > gpu_profiles/python_test_model.py_-d_year_-m_randomforest_-f_NvidiaFILGPU_-t_10_--batch_size_10000_--query_size_10000_OUT_LOG.txt &
+2349
+2350
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+test_run_year.sh: line 45:  2350 Segmentation fault      (core dumped) python test_model.py -d year -m randomforest -f NvidiaFILGPU -t 10 --batch_size 10000 --query_size 10000 > gpu_profiles/python_test_model.py_-d_year_-m_randomforest_-f_NvidiaFILGPU_-t_10_--batch_size_10000_--query_size_10000_OUT_LOG.txt
+gpu_profiles/python_test_model.py_-d_year_-m_xgboost_-f_HummingbirdPytorchGPU_-t_10_--batch_size_103069_--query_size_103069_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_year_-m_xgboost_-f_HummingbirdPytorchGPU_-t_10_--batch_size_103069_--query_size_103069_OUT_LOG.txt
+python test_model.py -d year -m xgboost -f HummingbirdPytorchGPU -t 10 --batch_size 103069 --query_size 103069 > gpu_profiles/python_test_model.py_-d_year_-m_xgboost_-f_HummingbirdPytorchGPU_-t_10_--batch_size_103069_--query_size_103069_OUT_LOG.txt &
+2392
+2393
+gpu_profiles/python_test_model.py_-d_year_-m_xgboost_-f_HummingbirdTVMGPU_-t_10_--batch_size_10000_--query_size_10000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_year_-m_xgboost_-f_HummingbirdTVMGPU_-t_10_--batch_size_10000_--query_size_10000_OUT_LOG.txt
+python test_model.py -d year -m xgboost -f HummingbirdTVMGPU -t 10 --batch_size 10000 --query_size 10000 > gpu_profiles/python_test_model.py_-d_year_-m_xgboost_-f_HummingbirdTVMGPU_-t_10_--batch_size_10000_--query_size_10000_OUT_LOG.txt &
+2444
+2445
+gpu_profiles/python_test_model.py_-d_year_-m_xgboost_-f_NvidiaFILGPU_-t_10_--batch_size_100000_--query_size_100000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_year_-m_xgboost_-f_NvidiaFILGPU_-t_10_--batch_size_100000_--query_size_100000_OUT_LOG.txt
+python test_model.py -d year -m xgboost -f NvidiaFILGPU -t 10 --batch_size 100000 --query_size 100000 > gpu_profiles/python_test_model.py_-d_year_-m_xgboost_-f_NvidiaFILGPU_-t_10_--batch_size_100000_--query_size_100000_OUT_LOG.txt &
+2534
+2535
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+gpu_profiles/python_test_model.py_-d_year_-m_lightgbm_-f_HummingbirdPytorchGPU_-t_10_--batch_size_103069_--query_size_103069_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_year_-m_lightgbm_-f_HummingbirdPytorchGPU_-t_10_--batch_size_103069_--query_size_103069_OUT_LOG.txt
+python test_model.py -d year -m lightgbm -f HummingbirdPytorchGPU -t 10 --batch_size 103069 --query_size 103069 > gpu_profiles/python_test_model.py_-d_year_-m_lightgbm_-f_HummingbirdPytorchGPU_-t_10_--batch_size_103069_--query_size_103069_OUT_LOG.txt &
+2582
+2583
+gpu_profiles/python_test_model.py_-d_year_-m_lightgbm_-f_HummingbirdTVMGPU_-t_10_--batch_size_10000_--query_size_10000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_year_-m_lightgbm_-f_HummingbirdTVMGPU_-t_10_--batch_size_10000_--query_size_10000_OUT_LOG.txt
+python test_model.py -d year -m lightgbm -f HummingbirdTVMGPU -t 10 --batch_size 10000 --query_size 10000 > gpu_profiles/python_test_model.py_-d_year_-m_lightgbm_-f_HummingbirdTVMGPU_-t_10_--batch_size_10000_--query_size_10000_OUT_LOG.txt &
+2633
+2634
+gpu_profiles/python_test_model.py_-d_year_-m_lightgbm_-f_NvidiaFILGPU_-t_10_--batch_size_10000_--query_size_10000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_year_-m_lightgbm_-f_NvidiaFILGPU_-t_10_--batch_size_10000_--query_size_10000_OUT_LOG.txt
+python test_model.py -d year -m lightgbm -f NvidiaFILGPU -t 10 --batch_size 10000 --query_size 10000 > gpu_profiles/python_test_model.py_-d_year_-m_lightgbm_-f_NvidiaFILGPU_-t_10_--batch_size_10000_--query_size_10000_OUT_LOG.txt &
+2725
+2726
+gpu_profiles/python_test_model.py_-d_year_-m_randomforest_-f_HummingbirdPytorchGPU_-t_500_--batch_size_103069_--query_size_103069_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_year_-m_randomforest_-f_HummingbirdPytorchGPU_-t_500_--batch_size_103069_--query_size_103069_OUT_LOG.txt
+python test_model.py -d year -m randomforest -f HummingbirdPytorchGPU -t 500 --batch_size 103069 --query_size 103069 > gpu_profiles/python_test_model.py_-d_year_-m_randomforest_-f_HummingbirdPytorchGPU_-t_500_--batch_size_103069_--query_size_103069_OUT_LOG.txt &
+2773
+2774
+gpu_profiles/python_test_model.py_-d_year_-m_randomforest_-f_HummingbirdTVMGPU_-t_500_--batch_size_103069_--query_size_103069_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_year_-m_randomforest_-f_HummingbirdTVMGPU_-t_500_--batch_size_103069_--query_size_103069_OUT_LOG.txt
+python test_model.py -d year -m randomforest -f HummingbirdTVMGPU -t 500 --batch_size 103069 --query_size 103069 > gpu_profiles/python_test_model.py_-d_year_-m_randomforest_-f_HummingbirdTVMGPU_-t_500_--batch_size_103069_--query_size_103069_OUT_LOG.txt &
+2821
+2822
+gpu_profiles/python_test_model.py_-d_year_-m_randomforest_-f_NvidiaFILGPU_-t_500_--batch_size_10000_--query_size_10000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_year_-m_randomforest_-f_NvidiaFILGPU_-t_500_--batch_size_10000_--query_size_10000_OUT_LOG.txt
+python test_model.py -d year -m randomforest -f NvidiaFILGPU -t 500 --batch_size 10000 --query_size 10000 > gpu_profiles/python_test_model.py_-d_year_-m_randomforest_-f_NvidiaFILGPU_-t_500_--batch_size_10000_--query_size_10000_OUT_LOG.txt &
+2935
+2936
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+gpu_profiles/python_test_model.py_-d_year_-m_xgboost_-f_HummingbirdPytorchGPU_-t_500_--batch_size_103069_--query_size_103069_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_year_-m_xgboost_-f_HummingbirdPytorchGPU_-t_500_--batch_size_103069_--query_size_103069_OUT_LOG.txt
+python test_model.py -d year -m xgboost -f HummingbirdPytorchGPU -t 500 --batch_size 103069 --query_size 103069 > gpu_profiles/python_test_model.py_-d_year_-m_xgboost_-f_HummingbirdPytorchGPU_-t_500_--batch_size_103069_--query_size_103069_OUT_LOG.txt &
+2977
+2978
+gpu_profiles/python_test_model.py_-d_year_-m_xgboost_-f_HummingbirdTVMGPU_-t_500_--batch_size_103069_--query_size_103069_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_year_-m_xgboost_-f_HummingbirdTVMGPU_-t_500_--batch_size_103069_--query_size_103069_OUT_LOG.txt
+python test_model.py -d year -m xgboost -f HummingbirdTVMGPU -t 500 --batch_size 103069 --query_size 103069 > gpu_profiles/python_test_model.py_-d_year_-m_xgboost_-f_HummingbirdTVMGPU_-t_500_--batch_size_103069_--query_size_103069_OUT_LOG.txt &
+3041
+3042
+gpu_profiles/python_test_model.py_-d_year_-m_xgboost_-f_NvidiaFILGPU_-t_500_--batch_size_103069_--query_size_103069_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_year_-m_xgboost_-f_NvidiaFILGPU_-t_500_--batch_size_103069_--query_size_103069_OUT_LOG.txt
+python test_model.py -d year -m xgboost -f NvidiaFILGPU -t 500 --batch_size 103069 --query_size 103069 > gpu_profiles/python_test_model.py_-d_year_-m_xgboost_-f_NvidiaFILGPU_-t_500_--batch_size_103069_--query_size_103069_OUT_LOG.txt &
+3164
+3165
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+test_run_year.sh: line 45:  3165 Segmentation fault      (core dumped) python test_model.py -d year -m xgboost -f NvidiaFILGPU -t 500 --batch_size 103069 --query_size 103069 > gpu_profiles/python_test_model.py_-d_year_-m_xgboost_-f_NvidiaFILGPU_-t_500_--batch_size_103069_--query_size_103069_OUT_LOG.txt
+gpu_profiles/python_test_model.py_-d_year_-m_lightgbm_-f_HummingbirdPytorchGPU_-t_500_--batch_size_103069_--query_size_103069_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_year_-m_lightgbm_-f_HummingbirdPytorchGPU_-t_500_--batch_size_103069_--query_size_103069_OUT_LOG.txt
+python test_model.py -d year -m lightgbm -f HummingbirdPytorchGPU -t 500 --batch_size 103069 --query_size 103069 > gpu_profiles/python_test_model.py_-d_year_-m_lightgbm_-f_HummingbirdPytorchGPU_-t_500_--batch_size_103069_--query_size_103069_OUT_LOG.txt &
+3215
+3216
+gpu_profiles/python_test_model.py_-d_year_-m_lightgbm_-f_HummingbirdTVMGPU_-t_500_--batch_size_103069_--query_size_103069_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_year_-m_lightgbm_-f_HummingbirdTVMGPU_-t_500_--batch_size_103069_--query_size_103069_OUT_LOG.txt
+python test_model.py -d year -m lightgbm -f HummingbirdTVMGPU -t 500 --batch_size 103069 --query_size 103069 > gpu_profiles/python_test_model.py_-d_year_-m_lightgbm_-f_HummingbirdTVMGPU_-t_500_--batch_size_103069_--query_size_103069_OUT_LOG.txt &
+3273
+3274
+gpu_profiles/python_test_model.py_-d_year_-m_lightgbm_-f_NvidiaFILGPU_-t_500_--batch_size_10000_--query_size_10000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_year_-m_lightgbm_-f_NvidiaFILGPU_-t_500_--batch_size_10000_--query_size_10000_OUT_LOG.txt
+python test_model.py -d year -m lightgbm -f NvidiaFILGPU -t 500 --batch_size 10000 --query_size 10000 > gpu_profiles/python_test_model.py_-d_year_-m_lightgbm_-f_NvidiaFILGPU_-t_500_--batch_size_10000_--query_size_10000_OUT_LOG.txt &
+3394
+3395
+gpu_profiles/python_test_model.py_-d_year_-m_randomforest_-f_HummingbirdTVMGPU_-t_1600_--batch_size_103069_--query_size_103069_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_year_-m_randomforest_-f_HummingbirdTVMGPU_-t_1600_--batch_size_103069_--query_size_103069_OUT_LOG.txt
+python test_model.py -d year -m randomforest -f HummingbirdTVMGPU -t 1600 --batch_size 103069 --query_size 103069 > gpu_profiles/python_test_model.py_-d_year_-m_randomforest_-f_HummingbirdTVMGPU_-t_1600_--batch_size_103069_--query_size_103069_OUT_LOG.txt &
+3443
+3444
+gpu_profiles/python_test_model.py_-d_year_-m_randomforest_-f_NvidiaFILGPU_-t_1600_--batch_size_10000_--query_size_10000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_year_-m_randomforest_-f_NvidiaFILGPU_-t_1600_--batch_size_10000_--query_size_10000_OUT_LOG.txt
+python test_model.py -d year -m randomforest -f NvidiaFILGPU -t 1600 --batch_size 10000 --query_size 10000 > gpu_profiles/python_test_model.py_-d_year_-m_randomforest_-f_NvidiaFILGPU_-t_1600_--batch_size_10000_--query_size_10000_OUT_LOG.txt &
+3561
+3562
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+gpu_profiles/python_test_model.py_-d_year_-m_xgboost_-f_HummingbirdTVMGPU_-t_1600_--batch_size_10000_--query_size_10000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_year_-m_xgboost_-f_HummingbirdTVMGPU_-t_1600_--batch_size_10000_--query_size_10000_OUT_LOG.txt
+python test_model.py -d year -m xgboost -f HummingbirdTVMGPU -t 1600 --batch_size 10000 --query_size 10000 > gpu_profiles/python_test_model.py_-d_year_-m_xgboost_-f_HummingbirdTVMGPU_-t_1600_--batch_size_10000_--query_size_10000_OUT_LOG.txt &
+3603
+3604
+gpu_profiles/python_test_model.py_-d_year_-m_xgboost_-f_NvidiaFILGPU_-t_1600_--batch_size_103069_--query_size_103069_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_year_-m_xgboost_-f_NvidiaFILGPU_-t_1600_--batch_size_103069_--query_size_103069_OUT_LOG.txt
+python test_model.py -d year -m xgboost -f NvidiaFILGPU -t 1600 --batch_size 103069 --query_size 103069 > gpu_profiles/python_test_model.py_-d_year_-m_xgboost_-f_NvidiaFILGPU_-t_1600_--batch_size_103069_--query_size_103069_OUT_LOG.txt &
+3754
+3755
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+gpu_profiles/python_test_model.py_-d_year_-m_lightgbm_-f_HummingbirdTVMGPU_-t_1600_--batch_size_10000_--query_size_10000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_year_-m_lightgbm_-f_HummingbirdTVMGPU_-t_1600_--batch_size_10000_--query_size_10000_OUT_LOG.txt
+python test_model.py -d year -m lightgbm -f HummingbirdTVMGPU -t 1600 --batch_size 10000 --query_size 10000 > gpu_profiles/python_test_model.py_-d_year_-m_lightgbm_-f_HummingbirdTVMGPU_-t_1600_--batch_size_10000_--query_size_10000_OUT_LOG.txt &
+3802
+3803
+gpu_profiles/python_test_model.py_-d_year_-m_lightgbm_-f_NvidiaFILGPU_-t_1600_--batch_size_10000_--query_size_10000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_year_-m_lightgbm_-f_NvidiaFILGPU_-t_1600_--batch_size_10000_--query_size_10000_OUT_LOG.txt
+python test_model.py -d year -m lightgbm -f NvidiaFILGPU -t 1600 --batch_size 10000 --query_size 10000 > gpu_profiles/python_test_model.py_-d_year_-m_lightgbm_-f_NvidiaFILGPU_-t_1600_--batch_size_10000_--query_size_10000_OUT_LOG.txt &
+3944
+3945

@@ -1,0 +1,25 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: year
+MODEL: randomforest
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 103069
+Batch Size: 103069
+Trees 500
+Depth 8
+LOADING year test
+Time Taken to load year as a dataframe is: 3677.9394149780273
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/year_randomforest_500_8.pkl
+Time Taken to load sklearn model: 191.99109077453613
+Running GPU Test HummingbirdPytorchGPU
+Time Taken to predict on HummingbirdPytorchGPU is 201.87020301818848
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 25.646448135375977
+Regression Report HummingbirdPytorchGPU
+MSE: 89.27919776080148
+################
+Time Taken to convert HummingbirdPytorchGPU model: 6800.210952758789
+TOTAL Time Taken for HummingbirdPytorchGPU: 7027.806520462036
+==============EXPERIMENT ENDING=========================
+

@@ -1,0 +1,26 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: year
+MODEL: lightgbm
+FRAMEWORK: NvidiaFILGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 500
+Depth 8
+LOADING year test
+Time Taken to load year as a dataframe is: 3761.5716457366943
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/year_lightgbm_500_8.pkl
+Time Taken to load sklearn model: 647.3004817962646
+Running GPU Test NvidiaFILGPU
+[W] [20:56:18.820615] Treelite currently does not support float64 model parameters. Accuracy may degrade slightly relative to native LightGBM invocation.
+Time Taken to predict on NvidiaFILGPU is 208.17279815673828
+Time Taken to write results to a text file for NvidiaFILGPU is 25.194644927978516
+Regression Report NvidiaFILGPU
+MSE: 2563.7055079606866
+################
+Time Taken to convert NvidiaFILGPU model: 2714.94197845459
+TOTAL Time Taken for NvidiaFILGPU: 2948.3802318573
+==============EXPERIMENT ENDING=========================
+

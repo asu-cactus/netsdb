@@ -1,0 +1,25 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: year
+MODEL: xgboost
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+LOADING year test
+Time Taken to load year as a dataframe is: 3727.5733947753906
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/year_xgboost_10_8.pkl
+Time Taken to load sklearn model: 206.50053024291992
+Running GPU Test HummingbirdTVMGPU
+Time Taken to predict on HummingbirdTVMGPU is 42.79780387878418
+Time Taken to write results to a text file for HummingbirdTVMGPU is 25.92158317565918
+Regression Report HummingbirdTVMGPU
+MSE: 394.4580486969339
+################
+Time Taken to convert HummingbirdTVMGPU model: 28862.1985912323
+TOTAL Time Taken for HummingbirdTVMGPU: 28930.986881256104
+==============EXPERIMENT ENDING=========================
+
