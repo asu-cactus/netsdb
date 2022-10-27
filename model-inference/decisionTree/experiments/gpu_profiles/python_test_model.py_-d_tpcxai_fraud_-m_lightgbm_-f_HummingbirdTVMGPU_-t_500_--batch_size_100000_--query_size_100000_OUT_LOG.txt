@@ -1,0 +1,33 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: tpcxai_fraud
+MODEL: lightgbm
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 500
+Depth 8
+LOADING tpcxai_fraud test
+Time Taken to load tpcxai_fraud as a dataframe is: 61805.19342422485
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/tpcxai_fraud_lightgbm_500_8.pkl
+Time Taken to load sklearn model: 637.9668712615967
+Running GPU Test HummingbirdTVMGPU
+Time Taken to predict on HummingbirdTVMGPU is 9273.968935012817
+Time Taken to write results to a text file for HummingbirdTVMGPU is 6331.619024276733
+Classification Report HummingbirdTVMGPU
+              precision    recall  f1-score   support
+
+           0       0.98      0.98      0.98  25029629
+           1       0.66      0.68      0.67   1283204
+
+    accuracy                           0.97  26312833
+   macro avg       0.82      0.83      0.82  26312833
+weighted avg       0.97      0.97      0.97  26312833
+
+################
+Time Taken to convert HummingbirdTVMGPU model: 66716.81642532349
+TOTAL Time Taken for HummingbirdTVMGPU: 82322.49212265015
+==============EXPERIMENT ENDING=========================
+
