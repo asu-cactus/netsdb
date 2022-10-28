@@ -225,7 +225,7 @@ int main(int argc, char *argv[]) {
 		      } 
                   }
                   std::cout << "output count:" << count << "\n";
-	          std::cout << "positive count:" << positive_count << "\n";
+	          std::cout << "positive count:" << abs(positive_count) << "\n";
 	     } else {
 	  
 		  pdb::SetIterator<pdb::Vector<double>> result =

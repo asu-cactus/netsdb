@@ -34,6 +34,7 @@
 #include "/home/ubuntu/netsdb/src/builtInPDBObjects/headers/Forest.h"
 #include "/home/ubuntu/netsdb/src/builtInPDBObjects/headers/CatGetTypeResult.h"
 #include "/home/ubuntu/netsdb/src/builtInPDBObjects/headers/StorageAddData.h"
+#include "/home/ubuntu/netsdb/src/builtInPDBObjects/headers/TreeResultForRandomForest.h"
 #include "/home/ubuntu/netsdb/src/builtInPDBObjects/headers/OptimizedDepartmentEmployees.h"
 #include "/home/ubuntu/netsdb/src/builtInPDBObjects/headers/ExecuteComputation.h"
 #include "/home/ubuntu/netsdb/src/builtInPDBObjects/headers/BuiltinPartialResult.h"

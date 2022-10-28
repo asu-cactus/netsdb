@@ -154,14 +154,15 @@ objectTypeNamesList [getTypeName <TreeCrossProduct> ()] = 152;
 objectTypeNamesList [getTypeName <TreeNodeObjectBased> ()] = 153;
 objectTypeNamesList [getTypeName <TreeResult> ()] = 154;
 objectTypeNamesList [getTypeName <TreeResultAggregate> ()] = 155;
-objectTypeNamesList [getTypeName <TreeResultPostProcessing> ()] = 156;
-objectTypeNamesList [getTypeName <TupleSetExecuteQuery> ()] = 157;
-objectTypeNamesList [getTypeName <TupleSetJobStage> ()] = 158;
-objectTypeNamesList [getTypeName <Vector <Nothing>> ()] = 159;
-objectTypeNamesList [getTypeName <VectorDoubleWriter> ()] = 160;
-objectTypeNamesList [getTypeName <VectorFloatWriter> ()] = 161;
-objectTypeNamesList [getTypeName <WriteUserSet <Nothing>> ()] = 162;
-objectTypeNamesList [getTypeName <ZB_Company> ()] = 163;
+objectTypeNamesList [getTypeName <TreeResultForRandomForest> ()] = 156;
+objectTypeNamesList [getTypeName <TreeResultPostProcessing> ()] = 157;
+objectTypeNamesList [getTypeName <TupleSetExecuteQuery> ()] = 158;
+objectTypeNamesList [getTypeName <TupleSetJobStage> ()] = 159;
+objectTypeNamesList [getTypeName <Vector <Nothing>> ()] = 160;
+objectTypeNamesList [getTypeName <VectorDoubleWriter> ()] = 161;
+objectTypeNamesList [getTypeName <VectorFloatWriter> ()] = 162;
+objectTypeNamesList [getTypeName <WriteUserSet <Nothing>> ()] = 163;
+objectTypeNamesList [getTypeName <ZB_Company> ()] = 164;
 
 // now, record all of the vTables
 {
@@ -1697,8 +1698,18 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 163;
 {
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
-		TreeResultPostProcessing tempObject;
+		TreeResultForRandomForest tempObject;
 		allVTables [156] = tempObject.getVTablePtr ();
+	} catch (NotEnoughSpace &e) {
+		std :: cout << "Not enough memory to allocate TreeResultForRandomForest to extract the vTable.\n";
+	}
+}
+
+{
+	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
+	try {
+		TreeResultPostProcessing tempObject;
+		allVTables [157] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate TreeResultPostProcessing to extract the vTable.\n";
 	}
@@ -1708,7 +1719,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 163;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		TupleSetExecuteQuery tempObject;
-		allVTables [157] = tempObject.getVTablePtr ();
+		allVTables [158] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate TupleSetExecuteQuery to extract the vTable.\n";
 	}
@@ -1718,7 +1729,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 163;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		TupleSetJobStage tempObject;
-		allVTables [158] = tempObject.getVTablePtr ();
+		allVTables [159] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate TupleSetJobStage to extract the vTable.\n";
 	}
@@ -1728,7 +1739,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 163;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		Vector <Nothing> tempObject;
-		allVTables [159] = tempObject.getVTablePtr ();
+		allVTables [160] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate Vector <Nothing> to extract the vTable.\n";
 	}
@@ -1738,7 +1749,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 163;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		VectorDoubleWriter tempObject;
-		allVTables [160] = tempObject.getVTablePtr ();
+		allVTables [161] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate VectorDoubleWriter to extract the vTable.\n";
 	}
@@ -1748,7 +1759,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 163;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		VectorFloatWriter tempObject;
-		allVTables [161] = tempObject.getVTablePtr ();
+		allVTables [162] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate VectorFloatWriter to extract the vTable.\n";
 	}
@@ -1758,7 +1769,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 163;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		WriteUserSet <Nothing> tempObject;
-		allVTables [162] = tempObject.getVTablePtr ();
+		allVTables [163] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate WriteUserSet <Nothing> to extract the vTable.\n";
 	}
@@ -1768,7 +1779,7 @@ objectTypeNamesList [getTypeName <ZB_Company> ()] = 163;
 	const UseTemporaryAllocationBlock tempBlock{1024 * 24};
 	try {
 		ZB_Company tempObject;
-		allVTables [163] = tempObject.getVTablePtr ();
+		allVTables [164] = tempObject.getVTablePtr ();
 	} catch (NotEnoughSpace &e) {
 		std :: cout << "Not enough memory to allocate ZB_Company to extract the vTable.\n";
 	}

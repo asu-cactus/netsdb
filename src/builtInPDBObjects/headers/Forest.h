@@ -117,9 +117,10 @@ namespace pdb
                         indexID = std::stoi(currentLine.substr(findStartPosition + 2, findEndPosition));
                     }
 
-		   if ((findStartPosition = currentLine.find("<= ")) != string::npos && (findEndPosition = currentLine.find_first_of("\\ngini")) != string::npos)
+		   if ((findStartPosition = currentLine.find("<=")) != string::npos && (findEndPosition = currentLine.find_first_of("\\ngini")) != string::npos)
                     { 
                         returnClass = std::stod(currentLine.substr(findStartPosition + 3, findEndPosition));
+
                     }
 	       } else {
 	           if ((findEndPosition = currentLine.find_first_of("[ label")) != string::npos)
@@ -159,14 +160,14 @@ namespace pdb
                 int nodeID;
                 float returnClass = -1.0f;
 		if (modelType == ModelType::RandomForest) {
-                    if ((findEndPosition = currentLine.find_first_of("[label")) != string::npos)
+                    if ((findEndPosition = currentLine.find_first_of("[label=\"gini")) != string::npos)
                     {
                         nodeID = std::stoi(currentLine.substr(0, findEndPosition - 1));
                     }
                     // Output Class of always a Double/Float. ProbabilityValue for Classification, ResultValue for Regression
-                    if ((findStartPosition = currentLine.find("gini = ")) != string::npos && (findEndPosition = currentLine.find("\\nsamples")) != string::npos)
+                    if ((findStartPosition = currentLine.find("y[")) != string::npos && (findEndPosition = currentLine.find("]\"]")) != string::npos)
                     {
-                        returnClass = std::stod(currentLine.substr(findStartPosition + 7, findEndPosition));
+                        returnClass = std::stod(currentLine.substr(findStartPosition + 2, findEndPosition));
                     }
                 } else {
 
@@ -259,6 +260,7 @@ namespace pdb
             for (int n = 0; n < numTrees; ++n)
             {
                 std::string inputFileName = std::string(treePathIn[n]);
+		std::cout << inputFileName << std::endl;
                 std::ifstream inputFile;
                 inputFile.open(inputFileName.data());
                 assert(inputFile.is_open());
@@ -284,7 +286,7 @@ namespace pdb
                         }
                         else
                         { // Find Leaf/Inner Node
-                            if ((line.find("leaf") != string::npos) && (line.find("[label=\"gini") == string::npos))
+                            if ((line.find("leaf") != string::npos) || (line.find("[label=\"gini") != string::npos))
                             {
                                 leafNodes.push_back(line);
                             }

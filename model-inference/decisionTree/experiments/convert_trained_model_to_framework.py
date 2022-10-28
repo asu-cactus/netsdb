@@ -197,7 +197,7 @@ def convert_to_netsdb_model(model, config):
 
         for index, model in enumerate(estimators):
             output_file_path = os.path.join(netsdb_model_path, str(index)+'.txt')
-            data = export_graphviz(model)
+            data = export_graphviz(model, class_names=True)
             f = open(output_file_path, 'w')
             f.write(data) 
             f.close()
