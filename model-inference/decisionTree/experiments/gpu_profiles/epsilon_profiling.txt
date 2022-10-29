@@ -1,0 +1,129 @@
+gpu_profiles/python_test_model.py_-d_epsilon_-m_randomforest_-f_HummingbirdPytorchGPU_-t_10_--batch_size_100000_--query_size_100000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_epsilon_-m_randomforest_-f_HummingbirdPytorchGPU_-t_10_--batch_size_100000_--query_size_100000_OUT_LOG.txt
+python test_model.py -d epsilon -m randomforest -f HummingbirdPytorchGPU -t 10 --batch_size 100000 --query_size 100000 > gpu_profiles/python_test_model.py_-d_epsilon_-m_randomforest_-f_HummingbirdPytorchGPU_-t_10_--batch_size_100000_--query_size_100000_OUT_LOG.txt &
+1962
+1963
+gpu_profiles/python_test_model.py_-d_epsilon_-m_randomforest_-f_HummingbirdTVMGPU_-t_10_--batch_size_1000_--query_size_1000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_epsilon_-m_randomforest_-f_HummingbirdTVMGPU_-t_10_--batch_size_1000_--query_size_1000_OUT_LOG.txt
+python test_model.py -d epsilon -m randomforest -f HummingbirdTVMGPU -t 10 --batch_size 1000 --query_size 1000 > gpu_profiles/python_test_model.py_-d_epsilon_-m_randomforest_-f_HummingbirdTVMGPU_-t_10_--batch_size_1000_--query_size_1000_OUT_LOG.txt &
+2028
+2029
+[23:19:34] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=1000))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+gpu_profiles/python_test_model.py_-d_epsilon_-m_xgboost_-f_HummingbirdPytorchGPU_-t_10_--batch_size_100000_--query_size_100000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_epsilon_-m_xgboost_-f_HummingbirdPytorchGPU_-t_10_--batch_size_100000_--query_size_100000_OUT_LOG.txt
+python test_model.py -d epsilon -m xgboost -f HummingbirdPytorchGPU -t 10 --batch_size 100000 --query_size 100000 > gpu_profiles/python_test_model.py_-d_epsilon_-m_xgboost_-f_HummingbirdPytorchGPU_-t_10_--batch_size_100000_--query_size_100000_OUT_LOG.txt &
+2107
+2108
+gpu_profiles/python_test_model.py_-d_epsilon_-m_xgboost_-f_HummingbirdTVMGPU_-t_10_--batch_size_100000_--query_size_100000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_epsilon_-m_xgboost_-f_HummingbirdTVMGPU_-t_10_--batch_size_100000_--query_size_100000_OUT_LOG.txt
+python test_model.py -d epsilon -m xgboost -f HummingbirdTVMGPU -t 10 --batch_size 100000 --query_size 100000 > gpu_profiles/python_test_model.py_-d_epsilon_-m_xgboost_-f_HummingbirdTVMGPU_-t_10_--batch_size_100000_--query_size_100000_OUT_LOG.txt &
+2169
+2170
+[23:24:30] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=100000))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+gpu_profiles/python_test_model.py_-d_epsilon_-m_lightgbm_-f_HummingbirdPytorchGPU_-t_10_--batch_size_100000_--query_size_100000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_epsilon_-m_lightgbm_-f_HummingbirdPytorchGPU_-t_10_--batch_size_100000_--query_size_100000_OUT_LOG.txt
+python test_model.py -d epsilon -m lightgbm -f HummingbirdPytorchGPU -t 10 --batch_size 100000 --query_size 100000 > gpu_profiles/python_test_model.py_-d_epsilon_-m_lightgbm_-f_HummingbirdPytorchGPU_-t_10_--batch_size_100000_--query_size_100000_OUT_LOG.txt &
+2298
+2299
+gpu_profiles/python_test_model.py_-d_epsilon_-m_lightgbm_-f_HummingbirdTVMGPU_-t_10_--batch_size_1000_--query_size_1000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_epsilon_-m_lightgbm_-f_HummingbirdTVMGPU_-t_10_--batch_size_1000_--query_size_1000_OUT_LOG.txt
+python test_model.py -d epsilon -m lightgbm -f HummingbirdTVMGPU -t 10 --batch_size 1000 --query_size 1000 > gpu_profiles/python_test_model.py_-d_epsilon_-m_lightgbm_-f_HummingbirdTVMGPU_-t_10_--batch_size_1000_--query_size_1000_OUT_LOG.txt &
+2369
+2370
+[23:29:21] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=1000))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+gpu_profiles/python_test_model.py_-d_epsilon_-m_randomforest_-f_HummingbirdPytorchGPU_-t_500_--batch_size_100000_--query_size_100000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_epsilon_-m_randomforest_-f_HummingbirdPytorchGPU_-t_500_--batch_size_100000_--query_size_100000_OUT_LOG.txt
+python test_model.py -d epsilon -m randomforest -f HummingbirdPytorchGPU -t 500 --batch_size 100000 --query_size 100000 > gpu_profiles/python_test_model.py_-d_epsilon_-m_randomforest_-f_HummingbirdPytorchGPU_-t_500_--batch_size_100000_--query_size_100000_OUT_LOG.txt &
+2450
+2451
+gpu_profiles/python_test_model.py_-d_epsilon_-m_randomforest_-f_HummingbirdTVMGPU_-t_500_--batch_size_100000_--query_size_100000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_epsilon_-m_randomforest_-f_HummingbirdTVMGPU_-t_500_--batch_size_100000_--query_size_100000_OUT_LOG.txt
+python test_model.py -d epsilon -m randomforest -f HummingbirdTVMGPU -t 500 --batch_size 100000 --query_size 100000 > gpu_profiles/python_test_model.py_-d_epsilon_-m_randomforest_-f_HummingbirdTVMGPU_-t_500_--batch_size_100000_--query_size_100000_OUT_LOG.txt &
+2504
+2505
+[23:34:53] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=100000))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+gpu_profiles/python_test_model.py_-d_epsilon_-m_xgboost_-f_HummingbirdPytorchGPU_-t_500_--batch_size_100000_--query_size_100000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_epsilon_-m_xgboost_-f_HummingbirdPytorchGPU_-t_500_--batch_size_100000_--query_size_100000_OUT_LOG.txt
+python test_model.py -d epsilon -m xgboost -f HummingbirdPytorchGPU -t 500 --batch_size 100000 --query_size 100000 > gpu_profiles/python_test_model.py_-d_epsilon_-m_xgboost_-f_HummingbirdPytorchGPU_-t_500_--batch_size_100000_--query_size_100000_OUT_LOG.txt &
+2626
+2627
+gpu_profiles/python_test_model.py_-d_epsilon_-m_xgboost_-f_HummingbirdTVMGPU_-t_500_--batch_size_100_--query_size_100_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_epsilon_-m_xgboost_-f_HummingbirdTVMGPU_-t_500_--batch_size_100_--query_size_100_OUT_LOG.txt
+python test_model.py -d epsilon -m xgboost -f HummingbirdTVMGPU -t 500 --batch_size 100 --query_size 100 > gpu_profiles/python_test_model.py_-d_epsilon_-m_xgboost_-f_HummingbirdTVMGPU_-t_500_--batch_size_100_--query_size_100_OUT_LOG.txt &
+2692
+2693
+[23:40:25] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=100))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+gpu_profiles/python_test_model.py_-d_epsilon_-m_xgboost_-f_NvidiaFILGPU_-t_500_--batch_size_100000_--query_size_100000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_epsilon_-m_xgboost_-f_NvidiaFILGPU_-t_500_--batch_size_100000_--query_size_100000_OUT_LOG.txt
+python test_model.py -d epsilon -m xgboost -f NvidiaFILGPU -t 500 --batch_size 100000 --query_size 100000 > gpu_profiles/python_test_model.py_-d_epsilon_-m_xgboost_-f_NvidiaFILGPU_-t_500_--batch_size_100000_--query_size_100000_OUT_LOG.txt &
+2774
+2775
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+gpu_profiles/python_test_model.py_-d_epsilon_-m_lightgbm_-f_HummingbirdPytorchGPU_-t_500_--batch_size_100000_--query_size_100000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_epsilon_-m_lightgbm_-f_HummingbirdPytorchGPU_-t_500_--batch_size_100000_--query_size_100000_OUT_LOG.txt
+python test_model.py -d epsilon -m lightgbm -f HummingbirdPytorchGPU -t 500 --batch_size 100000 --query_size 100000 > gpu_profiles/python_test_model.py_-d_epsilon_-m_lightgbm_-f_HummingbirdPytorchGPU_-t_500_--batch_size_100000_--query_size_100000_OUT_LOG.txt &
+2829
+2830
+gpu_profiles/python_test_model.py_-d_epsilon_-m_lightgbm_-f_HummingbirdTVMGPU_-t_500_--batch_size_100000_--query_size_100000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_epsilon_-m_lightgbm_-f_HummingbirdTVMGPU_-t_500_--batch_size_100000_--query_size_100000_OUT_LOG.txt
+python test_model.py -d epsilon -m lightgbm -f HummingbirdTVMGPU -t 500 --batch_size 100000 --query_size 100000 > gpu_profiles/python_test_model.py_-d_epsilon_-m_lightgbm_-f_HummingbirdTVMGPU_-t_500_--batch_size_100000_--query_size_100000_OUT_LOG.txt &
+2897
+2898
+[23:48:55] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=100000))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+gpu_profiles/python_test_model.py_-d_epsilon_-m_lightgbm_-f_NvidiaFILGPU_-t_500_--batch_size_1000_--query_size_1000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_epsilon_-m_lightgbm_-f_NvidiaFILGPU_-t_500_--batch_size_1000_--query_size_1000_OUT_LOG.txt
+python test_model.py -d epsilon -m lightgbm -f NvidiaFILGPU -t 500 --batch_size 1000 --query_size 1000 > gpu_profiles/python_test_model.py_-d_epsilon_-m_lightgbm_-f_NvidiaFILGPU_-t_500_--batch_size_1000_--query_size_1000_OUT_LOG.txt &
+3028
+3029
+test_run_epsilon.sh: line 42:  3029 Segmentation fault      (core dumped) python test_model.py -d epsilon -m lightgbm -f NvidiaFILGPU -t 500 --batch_size 1000 --query_size 1000 > gpu_profiles/python_test_model.py_-d_epsilon_-m_lightgbm_-f_NvidiaFILGPU_-t_500_--batch_size_1000_--query_size_1000_OUT_LOG.txt
+gpu_profiles/python_test_model.py_-d_epsilon_-m_randomforest_-f_HummingbirdPytorchGPU_-t_1600_--batch_size_100000_--query_size_100000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_epsilon_-m_randomforest_-f_HummingbirdPytorchGPU_-t_1600_--batch_size_100000_--query_size_100000_OUT_LOG.txt
+python test_model.py -d epsilon -m randomforest -f HummingbirdPytorchGPU -t 1600 --batch_size 100000 --query_size 100000 > gpu_profiles/python_test_model.py_-d_epsilon_-m_randomforest_-f_HummingbirdPytorchGPU_-t_1600_--batch_size_100000_--query_size_100000_OUT_LOG.txt &
+3084
+3085
+gpu_profiles/python_test_model.py_-d_epsilon_-m_randomforest_-f_HummingbirdTVMGPU_-t_1600_--batch_size_10000_--query_size_10000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_epsilon_-m_randomforest_-f_HummingbirdTVMGPU_-t_1600_--batch_size_10000_--query_size_10000_OUT_LOG.txt
+python test_model.py -d epsilon -m randomforest -f HummingbirdTVMGPU -t 1600 --batch_size 10000 --query_size 10000 > gpu_profiles/python_test_model.py_-d_epsilon_-m_randomforest_-f_HummingbirdTVMGPU_-t_1600_--batch_size_10000_--query_size_10000_OUT_LOG.txt &
+3138
+3139
+[23:56:27] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=10000))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+gpu_profiles/python_test_model.py_-d_epsilon_-m_xgboost_-f_HummingbirdPytorchGPU_-t_1600_--batch_size_100000_--query_size_100000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_epsilon_-m_xgboost_-f_HummingbirdPytorchGPU_-t_1600_--batch_size_100000_--query_size_100000_OUT_LOG.txt
+python test_model.py -d epsilon -m xgboost -f HummingbirdPytorchGPU -t 1600 --batch_size 100000 --query_size 100000 > gpu_profiles/python_test_model.py_-d_epsilon_-m_xgboost_-f_HummingbirdPytorchGPU_-t_1600_--batch_size_100000_--query_size_100000_OUT_LOG.txt &
+3262
+3263
+gpu_profiles/python_test_model.py_-d_epsilon_-m_xgboost_-f_HummingbirdTVMGPU_-t_1600_--batch_size_10000_--query_size_10000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_epsilon_-m_xgboost_-f_HummingbirdTVMGPU_-t_1600_--batch_size_10000_--query_size_10000_OUT_LOG.txt
+python test_model.py -d epsilon -m xgboost -f HummingbirdTVMGPU -t 1600 --batch_size 10000 --query_size 10000 > gpu_profiles/python_test_model.py_-d_epsilon_-m_xgboost_-f_HummingbirdTVMGPU_-t_1600_--batch_size_10000_--query_size_10000_OUT_LOG.txt &
+3332
+3333
+[00:03:24] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=10000))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+gpu_profiles/python_test_model.py_-d_epsilon_-m_xgboost_-f_NvidiaFILGPU_-t_1600_--batch_size_1000_--query_size_1000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_epsilon_-m_xgboost_-f_NvidiaFILGPU_-t_1600_--batch_size_1000_--query_size_1000_OUT_LOG.txt
+python test_model.py -d epsilon -m xgboost -f NvidiaFILGPU -t 1600 --batch_size 1000 --query_size 1000 > gpu_profiles/python_test_model.py_-d_epsilon_-m_xgboost_-f_NvidiaFILGPU_-t_1600_--batch_size_1000_--query_size_1000_OUT_LOG.txt &
+3473
+3474
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+test_run_epsilon.sh: line 42:  3474 Segmentation fault      (core dumped) python test_model.py -d epsilon -m xgboost -f NvidiaFILGPU -t 1600 --batch_size 1000 --query_size 1000 > gpu_profiles/python_test_model.py_-d_epsilon_-m_xgboost_-f_NvidiaFILGPU_-t_1600_--batch_size_1000_--query_size_1000_OUT_LOG.txt
+gpu_profiles/python_test_model.py_-d_epsilon_-m_lightgbm_-f_HummingbirdPytorchGPU_-t_1600_--batch_size_100000_--query_size_100000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_epsilon_-m_lightgbm_-f_HummingbirdPytorchGPU_-t_1600_--batch_size_100000_--query_size_100000_OUT_LOG.txt
+python test_model.py -d epsilon -m lightgbm -f HummingbirdPytorchGPU -t 1600 --batch_size 100000 --query_size 100000 > gpu_profiles/python_test_model.py_-d_epsilon_-m_lightgbm_-f_HummingbirdPytorchGPU_-t_1600_--batch_size_100000_--query_size_100000_OUT_LOG.txt &
+3535
+3536
+gpu_profiles/python_test_model.py_-d_epsilon_-m_lightgbm_-f_NvidiaFILGPU_-t_1600_--batch_size_1000_--query_size_1000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_epsilon_-m_lightgbm_-f_NvidiaFILGPU_-t_1600_--batch_size_1000_--query_size_1000_OUT_LOG.txt
+python test_model.py -d epsilon -m lightgbm -f NvidiaFILGPU -t 1600 --batch_size 1000 --query_size 1000 > gpu_profiles/python_test_model.py_-d_epsilon_-m_lightgbm_-f_NvidiaFILGPU_-t_1600_--batch_size_1000_--query_size_1000_OUT_LOG.txt &
+3687
+3688

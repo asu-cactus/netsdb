@@ -1,0 +1,171 @@
+gpu_profiles/python_test_model.py_-d_fraud_-m_randomforest_-f_HummingbirdPytorchGPU_-t_10_--batch_size_56962_--query_size_56962_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_fraud_-m_randomforest_-f_HummingbirdPytorchGPU_-t_10_--batch_size_56962_--query_size_56962_OUT_LOG.txt
+python test_model.py -d fraud -m randomforest -f HummingbirdPytorchGPU -t 10 --batch_size 56962 --query_size 56962 > gpu_profiles/python_test_model.py_-d_fraud_-m_randomforest_-f_HummingbirdPytorchGPU_-t_10_--batch_size_56962_--query_size_56962_OUT_LOG.txt &
+1973
+1974
+gpu_profiles/python_test_model.py_-d_fraud_-m_randomforest_-f_HummingbirdTVMGPU_-t_10_--batch_size_56962_--query_size_56962_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_fraud_-m_randomforest_-f_HummingbirdTVMGPU_-t_10_--batch_size_56962_--query_size_56962_OUT_LOG.txt
+python test_model.py -d fraud -m randomforest -f HummingbirdTVMGPU -t 10 --batch_size 56962 --query_size 56962 > gpu_profiles/python_test_model.py_-d_fraud_-m_randomforest_-f_HummingbirdTVMGPU_-t_10_--batch_size_56962_--query_size_56962_OUT_LOG.txt &
+2028
+2029
+[23:14:40] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=56962))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+gpu_profiles/python_test_model.py_-d_fraud_-m_randomforest_-f_NvidiaFILGPU_-t_10_--batch_size_56962_--query_size_56962_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_fraud_-m_randomforest_-f_NvidiaFILGPU_-t_10_--batch_size_56962_--query_size_56962_OUT_LOG.txt
+python test_model.py -d fraud -m randomforest -f NvidiaFILGPU -t 10 --batch_size 56962 --query_size 56962 > gpu_profiles/python_test_model.py_-d_fraud_-m_randomforest_-f_NvidiaFILGPU_-t_10_--batch_size_56962_--query_size_56962_OUT_LOG.txt &
+2141
+2142
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+gpu_profiles/python_test_model.py_-d_fraud_-m_xgboost_-f_HummingbirdPytorchGPU_-t_10_--batch_size_56962_--query_size_56962_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_fraud_-m_xgboost_-f_HummingbirdPytorchGPU_-t_10_--batch_size_56962_--query_size_56962_OUT_LOG.txt
+python test_model.py -d fraud -m xgboost -f HummingbirdPytorchGPU -t 10 --batch_size 56962 --query_size 56962 > gpu_profiles/python_test_model.py_-d_fraud_-m_xgboost_-f_HummingbirdPytorchGPU_-t_10_--batch_size_56962_--query_size_56962_OUT_LOG.txt &
+2182
+2183
+gpu_profiles/python_test_model.py_-d_fraud_-m_xgboost_-f_HummingbirdTVMGPU_-t_10_--batch_size_56962_--query_size_56962_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_fraud_-m_xgboost_-f_HummingbirdTVMGPU_-t_10_--batch_size_56962_--query_size_56962_OUT_LOG.txt
+python test_model.py -d fraud -m xgboost -f HummingbirdTVMGPU -t 10 --batch_size 56962 --query_size 56962 > gpu_profiles/python_test_model.py_-d_fraud_-m_xgboost_-f_HummingbirdTVMGPU_-t_10_--batch_size_56962_--query_size_56962_OUT_LOG.txt &
+2238
+2239
+[23:15:19] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=56962))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+gpu_profiles/python_test_model.py_-d_fraud_-m_xgboost_-f_NvidiaFILGPU_-t_10_--batch_size_56962_--query_size_56962_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_fraud_-m_xgboost_-f_NvidiaFILGPU_-t_10_--batch_size_56962_--query_size_56962_OUT_LOG.txt
+python test_model.py -d fraud -m xgboost -f NvidiaFILGPU -t 10 --batch_size 56962 --query_size 56962 > gpu_profiles/python_test_model.py_-d_fraud_-m_xgboost_-f_NvidiaFILGPU_-t_10_--batch_size_56962_--query_size_56962_OUT_LOG.txt &
+2357
+2358
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+gpu_profiles/python_test_model.py_-d_fraud_-m_lightgbm_-f_HummingbirdPytorchGPU_-t_10_--batch_size_56962_--query_size_56962_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_fraud_-m_lightgbm_-f_HummingbirdPytorchGPU_-t_10_--batch_size_56962_--query_size_56962_OUT_LOG.txt
+python test_model.py -d fraud -m lightgbm -f HummingbirdPytorchGPU -t 10 --batch_size 56962 --query_size 56962 > gpu_profiles/python_test_model.py_-d_fraud_-m_lightgbm_-f_HummingbirdPytorchGPU_-t_10_--batch_size_56962_--query_size_56962_OUT_LOG.txt &
+2405
+2406
+gpu_profiles/python_test_model.py_-d_fraud_-m_lightgbm_-f_HummingbirdTVMGPU_-t_10_--batch_size_56962_--query_size_56962_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_fraud_-m_lightgbm_-f_HummingbirdTVMGPU_-t_10_--batch_size_56962_--query_size_56962_OUT_LOG.txt
+python test_model.py -d fraud -m lightgbm -f HummingbirdTVMGPU -t 10 --batch_size 56962 --query_size 56962 > gpu_profiles/python_test_model.py_-d_fraud_-m_lightgbm_-f_HummingbirdTVMGPU_-t_10_--batch_size_56962_--query_size_56962_OUT_LOG.txt &
+2457
+2458
+[23:15:53] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=56962))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+gpu_profiles/python_test_model.py_-d_fraud_-m_lightgbm_-f_NvidiaFILGPU_-t_10_--batch_size_10000_--query_size_10000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_fraud_-m_lightgbm_-f_NvidiaFILGPU_-t_10_--batch_size_10000_--query_size_10000_OUT_LOG.txt
+python test_model.py -d fraud -m lightgbm -f NvidiaFILGPU -t 10 --batch_size 10000 --query_size 10000 > gpu_profiles/python_test_model.py_-d_fraud_-m_lightgbm_-f_NvidiaFILGPU_-t_10_--batch_size_10000_--query_size_10000_OUT_LOG.txt &
+2576
+2577
+gpu_profiles/python_test_model.py_-d_fraud_-m_randomforest_-f_HummingbirdPytorchGPU_-t_500_--batch_size_56962_--query_size_56962_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_fraud_-m_randomforest_-f_HummingbirdPytorchGPU_-t_500_--batch_size_56962_--query_size_56962_OUT_LOG.txt
+python test_model.py -d fraud -m randomforest -f HummingbirdPytorchGPU -t 500 --batch_size 56962 --query_size 56962 > gpu_profiles/python_test_model.py_-d_fraud_-m_randomforest_-f_HummingbirdPytorchGPU_-t_500_--batch_size_56962_--query_size_56962_OUT_LOG.txt &
+2624
+2625
+gpu_profiles/python_test_model.py_-d_fraud_-m_randomforest_-f_HummingbirdTVMGPU_-t_500_--batch_size_56962_--query_size_56962_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_fraud_-m_randomforest_-f_HummingbirdTVMGPU_-t_500_--batch_size_56962_--query_size_56962_OUT_LOG.txt
+python test_model.py -d fraud -m randomforest -f HummingbirdTVMGPU -t 500 --batch_size 56962 --query_size 56962 > gpu_profiles/python_test_model.py_-d_fraud_-m_randomforest_-f_HummingbirdTVMGPU_-t_500_--batch_size_56962_--query_size_56962_OUT_LOG.txt &
+2673
+2674
+[23:16:44] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=56962))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+gpu_profiles/python_test_model.py_-d_fraud_-m_randomforest_-f_NvidiaFILGPU_-t_500_--batch_size_10000_--query_size_10000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_fraud_-m_randomforest_-f_NvidiaFILGPU_-t_500_--batch_size_10000_--query_size_10000_OUT_LOG.txt
+python test_model.py -d fraud -m randomforest -f NvidiaFILGPU -t 500 --batch_size 10000 --query_size 10000 > gpu_profiles/python_test_model.py_-d_fraud_-m_randomforest_-f_NvidiaFILGPU_-t_500_--batch_size_10000_--query_size_10000_OUT_LOG.txt &
+2786
+2787
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+gpu_profiles/python_test_model.py_-d_fraud_-m_xgboost_-f_HummingbirdPytorchGPU_-t_500_--batch_size_56962_--query_size_56962_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_fraud_-m_xgboost_-f_HummingbirdPytorchGPU_-t_500_--batch_size_56962_--query_size_56962_OUT_LOG.txt
+python test_model.py -d fraud -m xgboost -f HummingbirdPytorchGPU -t 500 --batch_size 56962 --query_size 56962 > gpu_profiles/python_test_model.py_-d_fraud_-m_xgboost_-f_HummingbirdPytorchGPU_-t_500_--batch_size_56962_--query_size_56962_OUT_LOG.txt &
+2827
+2828
+gpu_profiles/python_test_model.py_-d_fraud_-m_xgboost_-f_HummingbirdTVMGPU_-t_500_--batch_size_56962_--query_size_56962_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_fraud_-m_xgboost_-f_HummingbirdTVMGPU_-t_500_--batch_size_56962_--query_size_56962_OUT_LOG.txt
+python test_model.py -d fraud -m xgboost -f HummingbirdTVMGPU -t 500 --batch_size 56962 --query_size 56962 > gpu_profiles/python_test_model.py_-d_fraud_-m_xgboost_-f_HummingbirdTVMGPU_-t_500_--batch_size_56962_--query_size_56962_OUT_LOG.txt &
+2884
+2885
+[23:17:35] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=56962))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+gpu_profiles/python_test_model.py_-d_fraud_-m_xgboost_-f_NvidiaFILGPU_-t_500_--batch_size_56962_--query_size_56962_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_fraud_-m_xgboost_-f_NvidiaFILGPU_-t_500_--batch_size_56962_--query_size_56962_OUT_LOG.txt
+python test_model.py -d fraud -m xgboost -f NvidiaFILGPU -t 500 --batch_size 56962 --query_size 56962 > gpu_profiles/python_test_model.py_-d_fraud_-m_xgboost_-f_NvidiaFILGPU_-t_500_--batch_size_56962_--query_size_56962_OUT_LOG.txt &
+3006
+3007
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+gpu_profiles/python_test_model.py_-d_fraud_-m_lightgbm_-f_HummingbirdPytorchGPU_-t_500_--batch_size_56962_--query_size_56962_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_fraud_-m_lightgbm_-f_HummingbirdPytorchGPU_-t_500_--batch_size_56962_--query_size_56962_OUT_LOG.txt
+python test_model.py -d fraud -m lightgbm -f HummingbirdPytorchGPU -t 500 --batch_size 56962 --query_size 56962 > gpu_profiles/python_test_model.py_-d_fraud_-m_lightgbm_-f_HummingbirdPytorchGPU_-t_500_--batch_size_56962_--query_size_56962_OUT_LOG.txt &
+3054
+3055
+gpu_profiles/python_test_model.py_-d_fraud_-m_lightgbm_-f_HummingbirdTVMGPU_-t_500_--batch_size_56962_--query_size_56962_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_fraud_-m_lightgbm_-f_HummingbirdTVMGPU_-t_500_--batch_size_56962_--query_size_56962_OUT_LOG.txt
+python test_model.py -d fraud -m lightgbm -f HummingbirdTVMGPU -t 500 --batch_size 56962 --query_size 56962 > gpu_profiles/python_test_model.py_-d_fraud_-m_lightgbm_-f_HummingbirdTVMGPU_-t_500_--batch_size_56962_--query_size_56962_OUT_LOG.txt &
+3107
+3108
+[23:18:26] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=56962))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+gpu_profiles/python_test_model.py_-d_fraud_-m_lightgbm_-f_NvidiaFILGPU_-t_500_--batch_size_10000_--query_size_10000_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_fraud_-m_lightgbm_-f_NvidiaFILGPU_-t_500_--batch_size_10000_--query_size_10000_OUT_LOG.txt
+python test_model.py -d fraud -m lightgbm -f NvidiaFILGPU -t 500 --batch_size 10000 --query_size 10000 > gpu_profiles/python_test_model.py_-d_fraud_-m_lightgbm_-f_NvidiaFILGPU_-t_500_--batch_size_10000_--query_size_10000_OUT_LOG.txt &
+3229
+3230
+gpu_profiles/python_test_model.py_-d_fraud_-m_randomforest_-f_HummingbirdTVMGPU_-t_1600_--batch_size_56962_--query_size_56962_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_fraud_-m_randomforest_-f_HummingbirdTVMGPU_-t_1600_--batch_size_56962_--query_size_56962_OUT_LOG.txt
+python test_model.py -d fraud -m randomforest -f HummingbirdTVMGPU -t 1600 --batch_size 56962 --query_size 56962 > gpu_profiles/python_test_model.py_-d_fraud_-m_randomforest_-f_HummingbirdTVMGPU_-t_1600_--batch_size_56962_--query_size_56962_OUT_LOG.txt &
+3279
+3280
+[23:19:46] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=56962))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+gpu_profiles/python_test_model.py_-d_fraud_-m_randomforest_-f_NvidiaFILGPU_-t_1600_--batch_size_56962_--query_size_56962_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_fraud_-m_randomforest_-f_NvidiaFILGPU_-t_1600_--batch_size_56962_--query_size_56962_OUT_LOG.txt
+python test_model.py -d fraud -m randomforest -f NvidiaFILGPU -t 1600 --batch_size 56962 --query_size 56962 > gpu_profiles/python_test_model.py_-d_fraud_-m_randomforest_-f_NvidiaFILGPU_-t_1600_--batch_size_56962_--query_size_56962_OUT_LOG.txt &
+3394
+3395
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+gpu_profiles/python_test_model.py_-d_fraud_-m_xgboost_-f_HummingbirdTVMGPU_-t_1600_--batch_size_56962_--query_size_56962_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_fraud_-m_xgboost_-f_HummingbirdTVMGPU_-t_1600_--batch_size_56962_--query_size_56962_OUT_LOG.txt
+python test_model.py -d fraud -m xgboost -f HummingbirdTVMGPU -t 1600 --batch_size 56962 --query_size 56962 > gpu_profiles/python_test_model.py_-d_fraud_-m_xgboost_-f_HummingbirdTVMGPU_-t_1600_--batch_size_56962_--query_size_56962_OUT_LOG.txt &
+3436
+3437
+[23:21:06] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=56962))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+gpu_profiles/python_test_model.py_-d_fraud_-m_xgboost_-f_NvidiaFILGPU_-t_1600_--batch_size_56962_--query_size_56962_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_fraud_-m_xgboost_-f_NvidiaFILGPU_-t_1600_--batch_size_56962_--query_size_56962_OUT_LOG.txt
+python test_model.py -d fraud -m xgboost -f NvidiaFILGPU -t 1600 --batch_size 56962 --query_size 56962 > gpu_profiles/python_test_model.py_-d_fraud_-m_xgboost_-f_NvidiaFILGPU_-t_1600_--batch_size_56962_--query_size_56962_OUT_LOG.txt &
+3568
+3569
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+gpu_profiles/python_test_model.py_-d_fraud_-m_lightgbm_-f_HummingbirdTVMGPU_-t_1600_--batch_size_56962_--query_size_56962_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_fraud_-m_lightgbm_-f_HummingbirdTVMGPU_-t_1600_--batch_size_56962_--query_size_56962_OUT_LOG.txt
+python test_model.py -d fraud -m lightgbm -f HummingbirdTVMGPU -t 1600 --batch_size 56962 --query_size 56962 > gpu_profiles/python_test_model.py_-d_fraud_-m_lightgbm_-f_HummingbirdTVMGPU_-t_1600_--batch_size_56962_--query_size_56962_OUT_LOG.txt &
+3617
+3618
+[23:22:26] /home/ubuntu/tvm/src/te/schedule/bound.cc:119: not in feed graph consumer = compute(placeholder_red_temp.repl, body=[reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=0), reduce(combiner=comm_reducer(result=[select(((argmax_lhs_1 > argmax_rhs_1) || ((argmax_lhs_1 == argmax_rhs_1) && (argmax_lhs_0 < argmax_rhs_0))), argmax_lhs_0, argmax_rhs_0), select((argmax_lhs_1 > argmax_rhs_1), argmax_lhs_1, argmax_rhs_1)], lhs=[argmax_lhs_0, argmax_lhs_1], rhs=[argmax_rhs_0, argmax_rhs_1], identity_element=[-1, -3.40282e+38f]), source=[placeholder_red_temp.rf.v0[k1.inner.v, ax0], placeholder_red_temp.rf.v1[k1.inner.v, ax0]], init=[], axis=[iter_var(k1.inner.v, range(min=0, ext=32))], where=(bool)1, value_index=1)], axis=[iter_var(ax0, range(min=0, ext=56962))], reduce_axis=[iter_var(k1.inner.v, range(min=0, ext=32))], tag=, attrs={})
+gpu_profiles/python_test_model.py_-d_fraud_-m_lightgbm_-f_NvidiaFILGPU_-t_1600_--batch_size_56962_--query_size_56962_GPU_LOG.txt
+gpu_profiles/python_test_model.py_-d_fraud_-m_lightgbm_-f_NvidiaFILGPU_-t_1600_--batch_size_56962_--query_size_56962_OUT_LOG.txt
+python test_model.py -d fraud -m lightgbm -f NvidiaFILGPU -t 1600 --batch_size 56962 --query_size 56962 > gpu_profiles/python_test_model.py_-d_fraud_-m_lightgbm_-f_NvidiaFILGPU_-t_1600_--batch_size_56962_--query_size_56962_OUT_LOG.txt &
+3740
+3741

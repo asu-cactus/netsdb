@@ -1,0 +1,34 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: fraud
+MODEL: randomforest
+FRAMEWORK: NvidiaFILGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 500
+Depth 8
+LOADING fraud test
+Time Taken to load fraud as a dataframe is: 834.1701030731201
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/fraud_randomforest_500_8.pkl
+Time Taken to load sklearn model: 152.968168258667
+Running GPU Test NvidiaFILGPU
+[W] [23:16:54.625598] Treelite currently does not support float64 model parameters. Accuracy may degrade slightly relative to native sklearn invocation.
+Time Taken to predict on NvidiaFILGPU is 140.42997360229492
+Time Taken to write results to a text file for NvidiaFILGPU is 14.484643936157227
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       1.00      1.00      1.00     56887
+           1       1.00      0.72      0.84        75
+
+    accuracy                           1.00     56962
+   macro avg       1.00      0.86      0.92     56962
+weighted avg       1.00      1.00      1.00     56962
+
+################
+Time Taken to convert NvidiaFILGPU model: 2515.424966812134
+TOTAL Time Taken for NvidiaFILGPU: 2670.405387878418
+==============EXPERIMENT ENDING=========================
+

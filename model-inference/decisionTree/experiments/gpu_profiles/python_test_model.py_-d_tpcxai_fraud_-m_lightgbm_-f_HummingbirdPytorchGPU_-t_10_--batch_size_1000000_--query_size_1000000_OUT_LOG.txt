@@ -1,0 +1,33 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: tpcxai_fraud
+MODEL: lightgbm
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 1000000
+Batch Size: 1000000
+Trees 10
+Depth 8
+LOADING tpcxai_fraud test
+Time Taken to load tpcxai_fraud as a dataframe is: 62155.959606170654
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/tpcxai_fraud_lightgbm_10_8.pkl
+Time Taken to load sklearn model: 592.6904678344727
+Running GPU Test HummingbirdPytorchGPU
+Time Taken to predict on HummingbirdPytorchGPU is 2204.2617797851562
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 6321.940183639526
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.99      0.97      0.98  25029629
+           1       0.61      0.88      0.72   1283204
+
+    accuracy                           0.97  26312833
+   macro avg       0.80      0.92      0.85  26312833
+weighted avg       0.97      0.97      0.97  26312833
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 3403.306245803833
+TOTAL Time Taken for HummingbirdPytorchGPU: 11929.59189414978
+==============EXPERIMENT ENDING=========================
+

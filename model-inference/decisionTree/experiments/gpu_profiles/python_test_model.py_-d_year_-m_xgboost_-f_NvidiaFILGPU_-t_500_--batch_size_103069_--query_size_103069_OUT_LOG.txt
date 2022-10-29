@@ -1,0 +1,25 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: year
+MODEL: xgboost
+FRAMEWORK: NvidiaFILGPU
+Query Size: 103069
+Batch Size: 103069
+Trees 500
+Depth 8
+LOADING year test
+Time Taken to load year as a dataframe is: 3699.833869934082
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/year_xgboost_500_8.pkl
+Time Taken to load sklearn model: 265.51032066345215
+Running GPU Test NvidiaFILGPU
+Time Taken to predict on NvidiaFILGPU is 169.06261444091797
+Time Taken to write results to a text file for NvidiaFILGPU is 24.1544246673584
+Regression Report NvidiaFILGPU
+MSE: 2563.7055079606866
+################
+Time Taken to convert NvidiaFILGPU model: 2816.211223602295
+TOTAL Time Taken for NvidiaFILGPU: 3009.4962120056152
+==============EXPERIMENT ENDING=========================
+

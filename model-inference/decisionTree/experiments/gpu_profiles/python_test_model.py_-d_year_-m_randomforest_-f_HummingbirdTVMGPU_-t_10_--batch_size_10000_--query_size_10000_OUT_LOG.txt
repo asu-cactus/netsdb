@@ -1,0 +1,25 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: year
+MODEL: randomforest
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+LOADING year test
+Time Taken to load year as a dataframe is: 3659.8918437957764
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/year_randomforest_10_8.pkl
+Time Taken to load sklearn model: 39.489030838012695
+Running GPU Test HummingbirdTVMGPU
+Time Taken to predict on HummingbirdTVMGPU is 41.156768798828125
+Time Taken to write results to a text file for HummingbirdTVMGPU is 25.83169937133789
+Regression Report HummingbirdTVMGPU
+MSE: 89.80646708722698
+################
+Time Taken to convert HummingbirdTVMGPU model: 29445.462465286255
+TOTAL Time Taken for HummingbirdTVMGPU: 29512.519359588623
+==============EXPERIMENT ENDING=========================
+

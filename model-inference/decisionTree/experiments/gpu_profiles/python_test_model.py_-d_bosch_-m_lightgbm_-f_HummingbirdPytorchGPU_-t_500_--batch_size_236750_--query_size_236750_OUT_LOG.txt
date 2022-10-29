@@ -1,0 +1,33 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: bosch
+MODEL: lightgbm
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 236750
+Batch Size: 236750
+Trees 500
+Depth 8
+LOADING bosch test
+Time Taken to load bosch as a dataframe is: 19566.076278686523
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/bosch_lightgbm_500_8.pkl
+Time Taken to load sklearn model: 722.1980094909668
+Running GPU Test HummingbirdPytorchGPU
+Time Taken to predict on HummingbirdPytorchGPU is 684.6413612365723
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 54.94570732116699
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.99      1.00      1.00    235352
+           1       0.17      0.11      0.13      1398
+
+    accuracy                           0.99    236750
+   macro avg       0.58      0.55      0.56    236750
+weighted avg       0.99      0.99      0.99    236750
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 5936.574220657349
+TOTAL Time Taken for HummingbirdPytorchGPU: 6676.266431808472
+==============EXPERIMENT ENDING=========================
+
