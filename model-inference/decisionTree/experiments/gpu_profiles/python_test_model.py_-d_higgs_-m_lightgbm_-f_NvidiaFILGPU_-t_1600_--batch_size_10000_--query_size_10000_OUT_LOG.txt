@@ -1,0 +1,34 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: lightgbm
+FRAMEWORK: NvidiaFILGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 1600
+Depth 8
+LOADING higgs test
+Time Taken to load higgs as a dataframe is: 5049.150466918945
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/higgs_lightgbm_1600_8.pkl
+Time Taken to load sklearn model: 861.4134788513184
+Running GPU Test NvidiaFILGPU
+[W] [23:26:35.330100] Treelite currently does not support float64 model parameters. Accuracy may degrade slightly relative to native LightGBM invocation.
+Time Taken to predict on NvidiaFILGPU is 2555.586338043213
+Time Taken to write results to a text file for NvidiaFILGPU is 522.7396488189697
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       0.86      0.59      0.70   1034103
+           1       0.71      0.91      0.80   1165897
+
+    accuracy                           0.76   2200000
+   macro avg       0.79      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert NvidiaFILGPU model: 3187.191963195801
+TOTAL Time Taken for NvidiaFILGPU: 6265.594959259033
+==============EXPERIMENT ENDING=========================
+
