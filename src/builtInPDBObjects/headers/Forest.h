@@ -248,8 +248,6 @@ namespace pdb
                     }
 
                 }
-
-
         }
 
         void constructForestFromPaths(std::vector<std::string> & treePathIn, ModelType modelType, bool isClassification) {
@@ -345,7 +343,7 @@ namespace pdb
             }
             // Reference: https://stats.stackexchange.com/questions/395697/what-is-an-intuitive-interpretation-of-the-leaf-values-in-xgboost-base-learners
             double sigmoid_of_decision = 1 / (1 + exp(-1.0 * aggregated_decision)); // Sigmoid of the aggregated decision is the final output
-            return sigmoid_of_decision > threshold ? 2.0 : 1.0;                     // Delaying Class Assignment. Class Labels as per RF Code is 1.0 and 2.0
+            return sigmoid_of_decision > threshold ? 1.0 : 0.0;                     // Delaying Class Assignment. Class Labels as per RF Code is 1.0 and 2.0
         }
 
         // TODO: Call this function instead of Individual Compute Functions. Instantiate the Class with the Model Type

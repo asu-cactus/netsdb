@@ -88,62 +88,62 @@ namespace pdb
              return sizeof(Tree);
          }
 
-
-
         void processInnerNodes(std::vector<std::string> & innerNodes, ModelType modelType)
-	{
+        {
+
+
             int findStartPosition;
             int findMidPosition;
             int findEndPosition;
 
             for (int i = 0; i < innerNodes.size(); ++i)
-            { 
-	       // Construct Inner Nodes
+            {
+               // Construct Inner Nodes
                string currentLine = innerNodes[i];
                int nodeID;
                int indexID;
                float returnClass;
 
-	       //to get nodeID
-	       if (modelType == ModelType::RandomForest) {
+               //to get nodeID
+               if (modelType == ModelType::RandomForest) {
                    if ((findEndPosition = currentLine.find_first_of("[label")) != string::npos)
                    {
                        nodeID = std::stoi(currentLine.substr(0, findEndPosition - 1));
                    }
-		   if ((findStartPosition = currentLine.find("X[")) != string::npos && (findEndPosition = currentLine.find("] <=")) != string::npos)
-                    { 
+                   if ((findStartPosition = currentLine.find("X[")) != string::npos && (findEndPosition = currentLine.find("] <=")) != string::npos)
+                    {
                         indexID = std::stoi(currentLine.substr(findStartPosition + 2, findEndPosition));
                     }
 
-		   if ((findStartPosition = currentLine.find("<= ")) != string::npos && (findEndPosition = currentLine.find_first_of("\\ngini")) != string::npos)
-                    { 
+                   if ((findStartPosition = currentLine.find("<=")) != string::npos && (findEndPosition = currentLine.find_first_of("\\ngini")) != string::npos)
+                    {
                         returnClass = std::stod(currentLine.substr(findStartPosition + 3, findEndPosition));
+
                     }
-	       } else {
-	           if ((findEndPosition = currentLine.find_first_of("[ label")) != string::npos)
+               } else {
+                   if ((findEndPosition = currentLine.find_first_of("[ label")) != string::npos)
                    {
                        nodeID = std::stoi(currentLine.substr(4, findEndPosition - 1));
                    }
-		   if ((findStartPosition = currentLine.find("f")) != string::npos && (findEndPosition = currentLine.find("<")) != string::npos)
-                    { 
+                   if ((findStartPosition = currentLine.find("f")) != string::npos && (findEndPosition = currentLine.find("<")) != string::npos)
+                    {
                         indexID = std::stoi(currentLine.substr(findStartPosition + 1, findEndPosition));
                     }
-		   if ((findStartPosition = currentLine.find("<")) != string::npos && (findEndPosition = currentLine.find_first_of("]")) != string::npos)
-                    { 
+                   if ((findStartPosition = currentLine.find("<")) != string::npos && (findEndPosition = currentLine.find_first_of("]")) != string::npos)
+                    {
                         returnClass = std::stod(currentLine.substr(findStartPosition + 1, findEndPosition));
                     }
-	       }
-	       tree[nodeID].indexID = indexID;
-               tree[nodeID].isLeaf = false;         
+               }
+               tree[nodeID].indexID = indexID;
+               tree[nodeID].isLeaf = false;
                tree[nodeID].leftChild = -1;
                tree[nodeID].rightChild = -1;
                tree[nodeID].returnClass = returnClass;
            }
 
-	}
+        }
 
-
-	void processLeafNodes(std::vector<std::string> & leafNodes, ModelType modelType)
+        void processLeafNodes(std::vector<std::string> & leafNodes, ModelType modelType)
         {
 
             int findStartPosition;
@@ -151,24 +151,24 @@ namespace pdb
             int findEndPosition;
 
             for (int i = 0; i < leafNodes.size(); ++i)
-            { 
-		// Construct Leaf Nodes
+            {
+                // Construct Leaf Nodes
                 string currentLine = leafNodes[i];
                 int nodeID;
                 float returnClass = -1.0f;
-		if (modelType == ModelType::RandomForest) {
-                    if ((findEndPosition = currentLine.find_first_of("[label")) != string::npos)
+                if (modelType == ModelType::RandomForest) {
+                    if ((findEndPosition = currentLine.find_first_of("[label=\"gini")) != string::npos)
                     {
                         nodeID = std::stoi(currentLine.substr(0, findEndPosition - 1));
                     }
                     // Output Class of always a Double/Float. ProbabilityValue for Classification, ResultValue for Regression
-                    if ((findStartPosition = currentLine.find("gini = ")) != string::npos && (findEndPosition = currentLine.find("\\nsamples")) != string::npos)
+                    if ((findStartPosition = currentLine.find("y[")) != string::npos && (findEndPosition = currentLine.find("]\"]")) != string::npos)
                     {
-                        returnClass = std::stod(currentLine.substr(findStartPosition + 7, findEndPosition));
+                        returnClass = std::stod(currentLine.substr(findStartPosition + 2, findEndPosition));
                     }
                 } else {
 
-	            if ((findEndPosition = currentLine.find_first_of("[")) != string::npos)
+                    if ((findEndPosition = currentLine.find_first_of("[")) != string::npos)
                     {
                         nodeID = std::stoi(currentLine.substr(4, findEndPosition-1));
                     }
@@ -176,15 +176,15 @@ namespace pdb
                     if ((findStartPosition = currentLine.find("leaf=")) != string::npos && (findEndPosition = currentLine.find("]")) != string::npos)
                     {
                         returnClass = std::stod(currentLine.substr(findStartPosition+5, findEndPosition-3));
-                    }	
-		
-        	}
+                    }
+
+                }
                 tree[nodeID].indexID = -1;
                 tree[nodeID].isLeaf = true;
                 tree[nodeID].leftChild = -1;
                 tree[nodeID].rightChild = -1;
                 tree[nodeID].returnClass = returnClass;
-	    }
+            }
         }
 
 	void processRelationships(std::vector<std::string> & relationships, ModelType modelType)
@@ -205,35 +205,35 @@ namespace pdb
                         {
                             parentNodeID = std::stoi(currentLine.substr(0, findMidPosition-1));
                         }
-			if (parentNodeID == 0) {
-			
-			    if ((findEndPosition = currentLine.find_first_of("[label")) != std::string::npos) {
+                        if (parentNodeID == 0) {
+
+                            if ((findEndPosition = currentLine.find_first_of("[label")) != std::string::npos) {
 
                                 childNodeID = std::stoi(currentLine.substr(findMidPosition + 3, findEndPosition - 1));
 
                             }
-			} else {
-			
-			    if ((findEndPosition = currentLine.find_first_of(";")) != std::string::npos) {
+                        } else {
+
+                            if ((findEndPosition = currentLine.find_first_of(";")) != std::string::npos) {
 
                                 childNodeID = std::stoi(currentLine.substr(findMidPosition + 3, findEndPosition-1));
 
                             }
-			
-			}
 
-		    } else {
+                        }
 
-		        if ((findMidPosition = currentLine.find_first_of("->")) != std::string::npos) {
+                    } else {
+
+                        if ((findMidPosition = currentLine.find_first_of("->")) != std::string::npos) {
 
                             parentNodeID = std::stoi(currentLine.substr(4, findMidPosition - 1));
                         }
-			if ((findEndPosition = currentLine.find_first_of("[")) != std::string::npos) {
+                        if ((findEndPosition = currentLine.find_first_of("[")) != std::string::npos) {
 
                                 childNodeID = std::stoi(currentLine.substr(findMidPosition + 3, findEndPosition-1));
                         }
-		    
-		    }
+
+                    }
 
                     if (tree[parentNodeID].leftChild == -1)
                     {
@@ -246,8 +246,7 @@ namespace pdb
 
                 }
 
-
-        }
+	}          
 
         void constructTreeFromPath (std::string & treePathIn, ModelType modelType) {
 
@@ -277,7 +276,7 @@ namespace pdb
                         }
                         else
                         { // Find Leaf/Inner Node
-                            if ((line.find("leaf") != string::npos) && (line.find("[label=\"gini") == string::npos))
+                            if ((line.find("leaf") != string::npos) || (line.find("[label=\"gini") != string::npos))
                             {
                                 leafNodes.push_back(line);
                             }
@@ -308,7 +307,7 @@ namespace pdb
             float *inData = in->getValue().rawData->c_ptr();
 
             // set the output matrix
-            pdb::Handle<TreeResult> resultMatrix = pdb::makeObject<TreeResult>(treeId, rowIndex, modelType);
+            pdb::Handle<TreeResult> resultMatrix = pdb::makeObject<TreeResult>(treeId, rowIndex, numRows, modelType);
 
 	    float * outData = resultMatrix->data;
 
@@ -335,6 +334,8 @@ namespace pdb
 
             return resultMatrix;
         }
+
+
     };
 }
 

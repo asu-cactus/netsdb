@@ -2,8 +2,7 @@
 #ifndef NETSDB_TREE_RESULT_H
 #define NETSDB_TREE_RESULT_H
 
-#define BLOCK_SIZE 275000
-
+#define MAX_BLOCK_SIZE 275000
 
 #include <cmath>
 #include <cstdlib>
@@ -47,7 +46,8 @@ namespace pdb
              new (target) TreeResult ();
              TreeResult& fromMe = *((TreeResult *) source);
              TreeResult& toMe = *((TreeResult *) target);
-             for (int i = 0; i < BLOCK_SIZE; i++) {
+	     toMe.blockSize = fromMe.blockSize;
+             for (int i = 0; i < fromMe.blockSize; i++) {
                  toMe.data[i] = fromMe.data[i];
              }
              toMe.treeId = fromMe.treeId;
@@ -63,11 +63,13 @@ namespace pdb
              return sizeof(TreeResult);
          }
 
-        float data[BLOCK_SIZE];
+        float data[MAX_BLOCK_SIZE];
 	
 	int treeId;
 
 	int batchId;
+
+	int blockSize;
 
 
 	ModelType modelType;
@@ -75,12 +77,19 @@ namespace pdb
         TreeResult() {}
 
 
-	TreeResult(int treeId, int batchId, ModelType modelType) 
+	TreeResult(int treeId, int batchId, int blockSize, ModelType modelType) 
 	{
+            if (blockSize > MAX_BLOCK_SIZE) {
+	    
+	        std::cout << "FATAL ERROR: TreeResult: blockSize exceeds MAX_BLOCK_SIZE. Try increase MAX_BLOCK_SIZE" << std::endl;
+		exit(1);
+
+	    }
+	    
 	    this->treeId = treeId;
 	    this->batchId = batchId;
+	    this->blockSize = blockSize;
 	    this->modelType = modelType;
-	
 	}
 
 	int & getKey() {
@@ -107,31 +116,35 @@ namespace pdb
             myData = this->data;
             otherData = other.data;
 
-            for (int i = 0; i < BLOCK_SIZE; i++) {
-                  (myData)[i] += (otherData)[i];
+            for (int i = 0; i < blockSize; i++) {
+                  myData[i] += otherData[i];
 	    }
-		
             return *this;
         }
         int getNumPositives () {
-	
 	    int positive_count = 0;
-            for (int i = 0; i < BLOCK_SIZE; i++) {
-   		    positive_count += data[i]-1.0; 
+            for (int i = 0; i < blockSize; i++) {
+   		    positive_count += data[i]; 
 	    }
             return positive_count;	
 	}
-	void postprocessing(Handle<TreeResult> res) {
-	
+	void postprocessing(Handle<TreeResult> res, int numTrees = 0) {
 	   float * resData = res->data;   
-	   float threshold = 0.5;
-	   float sigmoid_of_decision;
-	   // Default LR Value Source: https://xgboost.readthedocs.io/en/stable/parameter.html?highlight=0.3#parameters-for-tree-booster
-            for (int i = 0; i < BLOCK_SIZE; i++) {
-                sigmoid_of_decision = 1 / (1 + exp(-1.0 * data[i]));
-		resData[i] = sigmoid_of_decision > threshold ? 2.0 : 1.0;
-	    }
-            // Reference: https://stats.stackexchange.com/questions/395697/what-is-an-intuitive-interpretation-of-the-leaf-values-in-xgboost-base-learners
+
+           if ((modelType == ModelType::XGBoost) || (modelType == ModelType::LightGBM)) {
+	       float threshold = 0.5;
+	       float sigmoid_of_decision;
+	       // Default LR Value Source: https://xgboost.readthedocs.io/en/stable/parameter.html?highlight=0.3#parameters-for-tree-booster
+               for (int i = 0; i < blockSize; i++) {
+                   sigmoid_of_decision = 1 / (1 + exp(-1.0 * data[i]));
+		   resData[i] = sigmoid_of_decision > threshold ? 1.0 : 0.0;
+	       }
+               // Reference: https://stats.stackexchange.com/questions/395697/what-is-an-intuitive-interpretation-of-the-leaf-values-in-xgboost-base-learners
+	   } else {
+	       for (int i = 0; i < blockSize; i++) {
+	           resData[i] = data[i] > numTrees/2 ? 1.0 : 0.0;
+	       }
+	   }
 	}
 
     };

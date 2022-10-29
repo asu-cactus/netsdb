@@ -135,7 +135,6 @@ bool AggregationProcessor<KeyType, ValueType>::fillNextOutputPage() {
                 ValueType* temp = nullptr;
                 temp = &((*outputData)[curKey]);
                 try {
-
                     *temp = curValue;
                     ++(*begin);
                     numHashKeys++;
@@ -152,10 +151,8 @@ bool AggregationProcessor<KeyType, ValueType>::fillNextOutputPage() {
 
                 // and add to old value, producing a new one
                 try {
-
                     temp = copy + curValue;
                     ++(*begin);
-
                     // if we got here, it means we run out of RAM and we need to restore the old
                     // value in the destination hash map
                 } catch (NotEnoughSpace& n) {

@@ -221,11 +221,11 @@ int main(int argc, char *argv[]) {
                   for (auto a : result) {
 		      for (int i = 0; i < a->size(); i++) {
                          count++;
-		         positive_count += (*a)[i]-1.0;
+		         positive_count += (*a)[i];
 		      } 
                   }
                   std::cout << "output count:" << count << "\n";
-	          std::cout << "positive count:" << abs(positive_count) << "\n";
+	          std::cout << "positive count:" << positive_count << "\n";
 	     } else {
 	  
 		  pdb::SetIterator<pdb::Vector<double>> result =

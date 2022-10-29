@@ -47,6 +47,15 @@ namespace pdb
     public:
         ENABLE_DEEP_COPY
 
+	int numTrees = 0;
+
+	TreeResultPostProcessing() {}
+
+	TreeResultPostProcessing (int numTrees){
+             this->numTrees = numTrees;
+             std::cout << "TreeResultPostProcessing is initialized to have " << numTrees << " trees" << std::endl;
+	}
+
         Lambda<bool> getSelection(Handle<TreeResult> checkMe) override
         {
             return makeLambda(checkMe,
@@ -58,9 +67,8 @@ namespace pdb
         {
             return makeLambda(in, [this](Handle<TreeResult> &in) {
 
-
-		Handle<TreeResult> out = makeObject<TreeResult>();
-                in->postprocessing(out); 
+		Handle<TreeResult> out = makeObject<TreeResult>(0, in->batchId, in->blockSize, in->modelType);
+                in->postprocessing(out, numTrees); 
 
                 return out; });
         }
