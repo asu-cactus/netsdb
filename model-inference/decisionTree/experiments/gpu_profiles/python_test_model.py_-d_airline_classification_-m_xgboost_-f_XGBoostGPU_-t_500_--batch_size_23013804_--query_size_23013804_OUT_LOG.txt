@@ -1,0 +1,33 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: XGBoostGPU
+Query Size: 23013804
+Batch Size: 23013804
+Trees 500
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32570.55377960205
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_500_8.pkl
+Time Taken to load sklearn model: 275.9518623352051
+Running GPU Test XGBoostGPU
+Time Taken to predict on XGBoostGPU is 9211.535930633545
+Time Taken to write results to a text file for XGBoostGPU is 5475.951910018921
+Classification Report XGBoostGPU
+              precision    recall  f1-score   support
+
+           0       0.82      0.58      0.68  12571935
+           1       0.63      0.84      0.72  10441869
+
+    accuracy                           0.70  23013804
+   macro avg       0.72      0.71      0.70  23013804
+weighted avg       0.73      0.70      0.70  23013804
+
+################
+Time Taken to convert XGBoostGPU model: 0.0
+TOTAL Time Taken for XGBoostGPU: 14689.479351043701
+==============EXPERIMENT ENDING=========================
+

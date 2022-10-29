@@ -1,0 +1,33 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 23013804
+Batch Size: 23013804
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 48970.20721435547
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_10_8.pkl
+Time Taken to load sklearn model: 249.95708465576172
+Running GPU Test HummingbirdPytorchGPU
+Time Taken to predict on HummingbirdPytorchGPU is 2640.110492706299
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 5503.473281860352
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.62      0.77      0.69  12571935
+           1       0.62      0.44      0.51  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.62      0.61      0.60  23013804
+weighted avg       0.62      0.62      0.61  23013804
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 11332.79275894165
+TOTAL Time Taken for HummingbirdPytorchGPU: 19476.906299591064
+==============EXPERIMENT ENDING=========================
+

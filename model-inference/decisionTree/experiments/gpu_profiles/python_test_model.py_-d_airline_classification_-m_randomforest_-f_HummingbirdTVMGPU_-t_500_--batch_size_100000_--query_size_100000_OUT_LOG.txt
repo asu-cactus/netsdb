@@ -1,0 +1,33 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: randomforest
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 500
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32883.827447891235
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_randomforest_500_8.pkl
+Time Taken to load sklearn model: 234.2832088470459
+Running GPU Test HummingbirdTVMGPU
+Time Taken to predict on HummingbirdTVMGPU is 8975.359916687012
+Time Taken to write results to a text file for HummingbirdTVMGPU is 5414.0074253082275
+Classification Report HummingbirdTVMGPU
+              precision    recall  f1-score   support
+
+           0       0.61      0.87      0.71  12571935
+           1       0.67      0.32      0.43  10441869
+
+    accuracy                           0.62  23013804
+   macro avg       0.64      0.59      0.57  23013804
+weighted avg       0.63      0.62      0.59  23013804
+
+################
+Time Taken to convert HummingbirdTVMGPU model: 64888.05890083313
+TOTAL Time Taken for HummingbirdTVMGPU: 79277.52161026001
+==============EXPERIMENT ENDING=========================
+

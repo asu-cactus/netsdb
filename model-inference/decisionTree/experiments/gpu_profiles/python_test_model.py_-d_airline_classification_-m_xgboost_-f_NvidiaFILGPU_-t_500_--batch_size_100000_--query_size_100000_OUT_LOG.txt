@@ -1,0 +1,33 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: xgboost
+FRAMEWORK: NvidiaFILGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 500
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 32474.870204925537
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_xgboost_500_8.pkl
+Time Taken to load sklearn model: 267.72069931030273
+Running GPU Test NvidiaFILGPU
+Time Taken to predict on NvidiaFILGPU is 4584.983348846436
+Time Taken to write results to a text file for NvidiaFILGPU is 5519.785642623901
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       0.82      0.58      0.68  12571935
+           1       0.63      0.84      0.72  10441869
+
+    accuracy                           0.70  23013804
+   macro avg       0.72      0.71      0.70  23013804
+weighted avg       0.73      0.70      0.70  23013804
+
+################
+Time Taken to convert NvidiaFILGPU model: 2773.4222412109375
+TOTAL Time Taken for NvidiaFILGPU: 12878.277063369751
+==============EXPERIMENT ENDING=========================
+
