@@ -1,0 +1,33 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: epsilon
+MODEL: lightgbm
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 500
+Depth 8
+LOADING epsilon test
+Time Taken to load epsilon as a dataframe is: 133759.62138175964
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/epsilon_lightgbm_500_8.pkl
+Time Taken to load sklearn model: 624.9454021453857
+Running GPU Test HummingbirdTVMGPU
+Time Taken to predict on HummingbirdTVMGPU is 685.3840351104736
+Time Taken to write results to a text file for HummingbirdTVMGPU is 24.63388442993164
+Classification Report HummingbirdTVMGPU
+              precision    recall  f1-score   support
+
+           0       0.90      0.83      0.87     50045
+           1       0.84      0.91      0.88     49955
+
+    accuracy                           0.87    100000
+   macro avg       0.87      0.87      0.87    100000
+weighted avg       0.87      0.87      0.87    100000
+
+################
+Time Taken to convert HummingbirdTVMGPU model: 57023.00834655762
+TOTAL Time Taken for HummingbirdTVMGPU: 57733.09659957886
+==============EXPERIMENT ENDING=========================
+
