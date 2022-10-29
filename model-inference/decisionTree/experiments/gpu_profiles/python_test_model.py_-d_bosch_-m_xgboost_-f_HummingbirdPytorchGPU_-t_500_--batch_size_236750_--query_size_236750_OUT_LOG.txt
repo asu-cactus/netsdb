@@ -1,0 +1,33 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: bosch
+MODEL: xgboost
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 236750
+Batch Size: 236750
+Trees 500
+Depth 8
+LOADING bosch test
+Time Taken to load bosch as a dataframe is: 19497.31397628784
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/bosch_xgboost_500_8.pkl
+Time Taken to load sklearn model: 254.1368007659912
+Running GPU Test HummingbirdPytorchGPU
+Time Taken to predict on HummingbirdPytorchGPU is 679.3839931488037
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 54.28123474121094
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.99      1.00      1.00    235352
+           1       0.00      0.00      0.00      1398
+
+    accuracy                           0.99    236750
+   macro avg       0.50      0.50      0.50    236750
+weighted avg       0.99      0.99      0.99    236750
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 6800.356149673462
+TOTAL Time Taken for HummingbirdPytorchGPU: 7534.107208251953
+==============EXPERIMENT ENDING=========================
+
