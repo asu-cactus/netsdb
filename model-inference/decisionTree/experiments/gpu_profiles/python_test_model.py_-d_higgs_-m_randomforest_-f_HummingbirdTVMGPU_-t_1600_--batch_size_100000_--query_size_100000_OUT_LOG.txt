@@ -1,0 +1,33 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: randomforest
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 1600
+Depth 8
+LOADING higgs test
+Time Taken to load higgs as a dataframe is: 5068.565368652344
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/higgs_randomforest_1600_8.pkl
+Time Taken to load sklearn model: 604.9292087554932
+Running GPU Test HummingbirdTVMGPU
+Time Taken to predict on HummingbirdTVMGPU is 3468.2488441467285
+Time Taken to write results to a text file for HummingbirdTVMGPU is 535.9175205230713
+Classification Report HummingbirdTVMGPU
+              precision    recall  f1-score   support
+
+           0       0.70      0.64      0.67   1034103
+           1       0.70      0.76      0.73   1165897
+
+    accuracy                           0.70   2200000
+   macro avg       0.70      0.70      0.70   2200000
+weighted avg       0.70      0.70      0.70   2200000
+
+################
+Time Taken to convert HummingbirdTVMGPU model: 115396.7661857605
+TOTAL Time Taken for HummingbirdTVMGPU: 119401.01289749146
+==============EXPERIMENT ENDING=========================
+

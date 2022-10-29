@@ -1,0 +1,41 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: higgs
+MODEL: xgboost
+FRAMEWORK: NvidiaFILGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 1600
+Depth 8
+LOADING higgs test
+Time Taken to load higgs as a dataframe is: 5024.80411529541
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/higgs_xgboost_1600_8.pkl
+[23:25:08] WARNING: /home/conda/feedstock_root/build_artifacts/xgboost-split_1660208897656/work/src/learner.cc:627: 
+Parameters: { "verbose" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Time Taken to load sklearn model: 358.9944839477539
+Running GPU Test NvidiaFILGPU
+Time Taken to predict on NvidiaFILGPU is 1337.0871543884277
+Time Taken to write results to a text file for NvidiaFILGPU is 521.6946601867676
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       0.86      0.59      0.70   1034103
+           1       0.72      0.91      0.80   1165897
+
+    accuracy                           0.76   2200000
+   macro avg       0.79      0.75      0.75   2200000
+weighted avg       0.78      0.76      0.75   2200000
+
+################
+Time Taken to convert NvidiaFILGPU model: 2863.8455867767334
+TOTAL Time Taken for NvidiaFILGPU: 4722.702264785767
+==============EXPERIMENT ENDING=========================
+
