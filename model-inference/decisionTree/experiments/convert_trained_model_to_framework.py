@@ -25,16 +25,19 @@ DATASET = "higgs"
 MODEL = "xgboost"
 FRAMEWORKS = None
 
-def parse_arguments():
+def parse_arguments(config):
     # check_argument_conflicts(args)  # TODO: Move this function from the bottom to here, after checking with Prof.
     global DATASET, MODEL, FRAMEWORKS
     parser = argparse.ArgumentParser(description='Arguments for train_model.')
-    parser.add_argument("-d", "--dataset", type=str, choices=['higgs', 'airline_classification', 'airline_regression', 'fraud', 'year', 'epsilon', 'bosch', 'covtype'],
-        help="Dataset to be trained. Choose from ['higgs', 'airline_classification', 'airline_regression', 'fraud', 'year', 'epsilon', 'bosch', 'covtype']")
+    parser.add_argument("-d", "--dataset", type=str, choices=['higgs', 'airline_classification', 'airline_regression', 'fraud', 'year', 'epsilon', 'bosch', 'covtype', 'tpcxai_fraud', 'criteo'],
+        help="Dataset to be trained. Choose from ['higgs', 'airline_classification', 'airline_regression', 'fraud', 'year', 'epsilon', 'bosch', 'covtype', 'tpcxai_fraud', 'criteo]")
+
     parser.add_argument("-m", "--model", type=str, choices=['randomforest', 'xgboost', 'lightgbm'],
         help="Model name. Choose from ['randomforest', 'xgboost', 'lightgbm']")
     parser.add_argument("-f", "--frameworks", type=str,
         help="Zero to multiple values from ['pytorch', 'torch', 'tf-df', 'onnx', 'treelite', 'lleaves', 'netsdb'], seperated by ','")
+    parser.add_argument("-t", "--num_trees", type=int,
+        help="Number of trees for the model")
     args = parser.parse_args()
     if args.dataset:
         DATASET = args.dataset.lower()
@@ -46,7 +49,8 @@ def parse_arguments():
             if framework not in framework_options:
                 raise ValueError(f"Framework {framework} is not supported. Choose from ['pytorch', 'torch', 'tf-df', 'onnx', 'treelite', 'lleaves', 'netsdb']")
         FRAMEWORKS = args.frameworks  # TODO: Better to store these as a List? Instead of as a string.
-
+    if args.num_trees:
+        config["num_trees"] = args.num_trees
     check_argument_conflicts(args)  # TODO: Maybe, this is good to do it at the beginning of function itself?
     print(f"DATASET: {DATASET}")
     print(f"MODEL: {MODEL}")
@@ -215,13 +219,26 @@ def convert_to_netsdb_model(model, config):
 
     elif MODEL == "lightgbm":
         num_trees = config['num_trees']
-
         for index in range(num_trees):
             output_file_path = os.path.join(netsdb_model_path, str(index)+'.txt')
             data = lightgbm.create_tree_digraph(model, tree_index=index)
             f = open(output_file_path, 'w')
             f.write(str(data))
             f.close()
+
+def convert_to_xgboost_model(model,config):
+    # clf = joblib.load(relative2abspath('models',model_file))
+    # clf.save_model(relative2abspath('models',model_file.split('.')[0]+'.model'))
+    new_model = f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.model"
+    if (MODEL == "xgboost") and (new_model not in os.listdir("models")):
+        model_path = relative2abspath("models", new_model)
+        model.save_model(model_path)
+    else:
+        raise("Model not xgboost or model already exists")
+
+
+
+
 
 def convert(model, config):
     def print_logs(function,model,config,framework_name):
@@ -251,6 +268,8 @@ def convert(model, config):
         print_logs(convert_to_lleaves_model,model,config,"Lleaves")
     if "netsdb" in frameworks:
         print_logs(convert_to_netsdb_model, model, config, "netsdb")
+    if "xgboost" in frameworks:
+        print_logs(convert_to_xgboost_model, model, config, "xgboost")
 
 
 def load_model(config):
@@ -258,7 +277,7 @@ def load_model(config):
     return model
 
 if __name__ ==  "__main__":
-    parse_arguments()
     config = json.load(open(relative2abspath("config.json")))
+    parse_arguments(config)
     model = load_model(config)
     convert(model, config)
