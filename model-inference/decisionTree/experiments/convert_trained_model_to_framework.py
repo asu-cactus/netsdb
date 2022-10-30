@@ -5,6 +5,7 @@ warnings.filterwarnings('ignore')
 # from sklearn.metrics import classification_report
 import xgboost
 from xgboost import XGBClassifier, XGBRegressor
+import lightgbm
 import treelite
 import treelite.sklearn
 import joblib
@@ -212,7 +213,15 @@ def convert_to_netsdb_model(model, config):
             f.write(str(data)) 
             f.close()
 
+    elif MODEL == "lightgbm":
+        num_trees = config['num_trees']
 
+        for index in range(num_trees):
+            output_file_path = os.path.join(netsdb_model_path, str(index)+'.txt')
+            data = lightgbm.create_tree_digraph(model, tree_index=index)
+            f = open(output_file_path, 'w')
+            f.write(str(data))
+            f.close()
 
 def convert(model, config):
     def print_logs(function,model,config,framework_name):

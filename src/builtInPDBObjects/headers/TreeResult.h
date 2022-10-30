@@ -138,6 +138,7 @@ namespace pdb
                for (int i = 0; i < blockSize; i++) {
                    sigmoid_of_decision = 1 / (1 + exp(-1.0 * data[i]));
 		   resData[i] = sigmoid_of_decision > threshold ? 1.0 : 0.0;
+                   //std::cout << resData[i] << "," << data[i] << std::endl;
 	       }
                // Reference: https://stats.stackexchange.com/questions/395697/what-is-an-intuitive-interpretation-of-the-leaf-values-in-xgboost-base-learners
 	   } else {

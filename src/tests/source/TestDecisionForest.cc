@@ -111,6 +111,8 @@ int main(int argc, char *argv[]) {
     if (argc >= 11) {
         if (string(argv[10]).compare("XGBoost") == 0) {
             modelType = ModelType::XGBoost;
+	} else if (string(argv[10]).compare("LightGBM") == 0) {
+            modelType = ModelType::LightGBM;
         } else if (string(argv[10]).compare("RandomForest") == 0) {
             modelType = ModelType::RandomForest;
         } else {

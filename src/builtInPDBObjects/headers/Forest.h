@@ -6,7 +6,8 @@
 #ifndef NETSDB_FOREST_H
 #define NETSDB_FOREST_H
 
-#define MAX_NUM_NODES_PER_TREE 512
+#include "Tree.h"
+
 #define MAX_NUM_TREES 1600
 
 #include <cmath>
@@ -44,16 +45,6 @@ using std::filesystem::directory_iterator;
 namespace pdb
 {
 
-    typedef struct {
-    
-         int indexID;
-         bool isLeaf;
-         int leftChild;
-         int rightChild;
-         // returnClass will be the vaule to compare while this is not a leaf node
-         float returnClass; 
-    } Node;
-
     class Forest : public Object
     {
     public:
@@ -89,7 +80,7 @@ namespace pdb
 	    constructForestFromPaths(treePaths, modelType, isClassification);
 	
 	}
-
+/*
         void processInnerNodes(std::vector<std::string> & innerNodes, ModelType modelType, int treeID)
 	{
 
@@ -249,6 +240,7 @@ namespace pdb
 
                 }
         }
+*/
 
         void constructForestFromPaths(std::vector<std::string> & treePathIn, ModelType modelType, bool isClassification) {
 
@@ -297,10 +289,9 @@ namespace pdb
                 }
 
     		inputFile.close();
-
-                processInnerNodes(innerNodes, modelType, n);
-                processLeafNodes(leafNodes, modelType, n);
-		processRelationships(relationships, modelType, n);
+		Tree::processInnerNodes(innerNodes, modelType, &(forest[n][0]));
+		Tree::processLeafNodes(leafNodes, modelType, &(forest[n][0]));
+		Tree::processRelationships(relationships, modelType, &(forest[n][0]));
 
             }
 
