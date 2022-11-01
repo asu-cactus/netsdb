@@ -6,7 +6,8 @@
 #ifndef NETSDB_FOREST_H
 #define NETSDB_FOREST_H
 
-#define MAX_NUM_NODES_PER_TREE 512
+#include "Tree.h"
+
 #define MAX_NUM_TREES 1600
 
 #include <cmath>
@@ -44,16 +45,6 @@ using std::filesystem::directory_iterator;
 namespace pdb
 {
 
-    typedef struct {
-    
-         int indexID;
-         bool isLeaf;
-         int leftChild;
-         int rightChild;
-         // returnClass will be the vaule to compare while this is not a leaf node
-         float returnClass; 
-    } Node;
-
     class Forest : public Object
     {
     public:
@@ -90,167 +81,6 @@ namespace pdb
 	
 	}
 
-        void processInnerNodes(std::vector<std::string> & innerNodes, ModelType modelType, int treeID)
-	{
-
-
-            int findStartPosition;
-            int findMidPosition;
-            int findEndPosition;
-
-            for (int i = 0; i < innerNodes.size(); ++i)
-            { 
-	       // Construct Inner Nodes
-               string currentLine = innerNodes[i];
-               int nodeID;
-               int indexID;
-               float returnClass;
-
-	       //to get nodeID
-	       if (modelType == ModelType::RandomForest) {
-                   if ((findEndPosition = currentLine.find_first_of("[label")) != string::npos)
-                   {
-                       nodeID = std::stoi(currentLine.substr(0, findEndPosition - 1));
-                   }
-		   if ((findStartPosition = currentLine.find("X[")) != string::npos && (findEndPosition = currentLine.find("] <=")) != string::npos)
-                    { 
-                        indexID = std::stoi(currentLine.substr(findStartPosition + 2, findEndPosition));
-                    }
-
-		   if ((findStartPosition = currentLine.find("<= ")) != string::npos && (findEndPosition = currentLine.find_first_of("\\ngini")) != string::npos)
-                    { 
-                        returnClass = std::stod(currentLine.substr(findStartPosition + 3, findEndPosition));
-                    }
-	       } else {
-	           if ((findEndPosition = currentLine.find_first_of("[ label")) != string::npos)
-                   {
-                       nodeID = std::stoi(currentLine.substr(4, findEndPosition - 1));
-                   }
-		   if ((findStartPosition = currentLine.find("f")) != string::npos && (findEndPosition = currentLine.find("<")) != string::npos)
-                    { 
-                        indexID = std::stoi(currentLine.substr(findStartPosition + 1, findEndPosition));
-                    }
-		   if ((findStartPosition = currentLine.find("<")) != string::npos && (findEndPosition = currentLine.find_first_of("]")) != string::npos)
-                    { 
-                        returnClass = std::stod(currentLine.substr(findStartPosition + 1, findEndPosition));
-                    }
-	       }
-	       forest[treeID][nodeID].indexID = indexID;
-               forest[treeID][nodeID].isLeaf = false;         
-               forest[treeID][nodeID].leftChild = -1;
-               forest[treeID][nodeID].rightChild = -1;
-               forest[treeID][nodeID].returnClass = returnClass;
-           }
-
-	}
-
-
-	void processLeafNodes(std::vector<std::string> & leafNodes, ModelType modelType, int treeID)
-        {
-
-            int findStartPosition;
-            int findMidPosition;
-            int findEndPosition;
-
-            for (int i = 0; i < leafNodes.size(); ++i)
-            { 
-		// Construct Leaf Nodes
-                string currentLine = leafNodes[i];
-                int nodeID;
-                float returnClass = -1.0f;
-		if (modelType == ModelType::RandomForest) {
-                    if ((findEndPosition = currentLine.find_first_of("[label")) != string::npos)
-                    {
-                        nodeID = std::stoi(currentLine.substr(0, findEndPosition - 1));
-                    }
-                    // Output Class of always a Double/Float. ProbabilityValue for Classification, ResultValue for Regression
-                    if ((findStartPosition = currentLine.find("gini = ")) != string::npos && (findEndPosition = currentLine.find("\\nsamples")) != string::npos)
-                    {
-                        returnClass = std::stod(currentLine.substr(findStartPosition + 7, findEndPosition));
-                    }
-                } else {
-
-	            if ((findEndPosition = currentLine.find_first_of("[")) != string::npos)
-                    {
-                        nodeID = std::stoi(currentLine.substr(4, findEndPosition-1));
-                    }
-                    // Output Class of XGBoost always a Double/Float. ProbabilityValue for Classification, ResultValue for Regression
-                    if ((findStartPosition = currentLine.find("leaf=")) != string::npos && (findEndPosition = currentLine.find("]")) != string::npos)
-                    {
-                        returnClass = std::stod(currentLine.substr(findStartPosition+5, findEndPosition-3));
-                    }	
-		
-        	}
-                forest[treeID][nodeID].indexID = -1;
-                forest[treeID][nodeID].isLeaf = true;
-                forest[treeID][nodeID].leftChild = -1;
-                forest[treeID][nodeID].rightChild = -1;
-                forest[treeID][nodeID].returnClass = returnClass;
-	    }
-        }
-
-	void processRelationships(std::vector<std::string> & relationships, ModelType modelType, int treeID)
-        {
-
-                int findStartPosition;
-                int findMidPosition;
-                int findEndPosition;
-
-                for (int i = 0; i < relationships.size(); ++i)
-                { // Construct Directed Edges between Nodes
-                    int parentNodeID;
-                    int childNodeID;
-                    std::string currentLine = relationships[i];
-
-                    if (modelType == ModelType::RandomForest) {
-                        if ((findMidPosition = currentLine.find_first_of("->")) != std::string::npos)
-                        {
-                            parentNodeID = std::stoi(currentLine.substr(0, findMidPosition-1));
-                        }
-			if (parentNodeID == 0) {
-			
-			    if ((findEndPosition = currentLine.find_first_of("[label")) != std::string::npos) {
-
-                                childNodeID = std::stoi(currentLine.substr(findMidPosition + 3, findEndPosition - 1));
-
-                            }
-			} else {
-			
-			    if ((findEndPosition = currentLine.find_first_of(";")) != std::string::npos) {
-
-                                childNodeID = std::stoi(currentLine.substr(findMidPosition + 3, findEndPosition-1));
-
-                            }
-			
-			}
-
-		    } else {
-
-		        if ((findMidPosition = currentLine.find_first_of("->")) != std::string::npos) {
-
-                            parentNodeID = std::stoi(currentLine.substr(4, findMidPosition - 1));
-                        }
-			if ((findEndPosition = currentLine.find_first_of("[")) != std::string::npos) {
-
-                                childNodeID = std::stoi(currentLine.substr(findMidPosition + 3, findEndPosition-1));
-                        }
-		    
-		    }
-
-                    if (forest[treeID][parentNodeID].leftChild == -1)
-                    {
-                        forest[treeID][parentNodeID].leftChild = childNodeID;
-                    }
-                    else
-                    {
-                        forest[treeID][parentNodeID].rightChild = childNodeID;
-                    }
-
-                }
-
-
-        }
-
         void constructForestFromPaths(std::vector<std::string> & treePathIn, ModelType modelType, bool isClassification) {
 
 	    this->modelType = modelType;
@@ -259,6 +89,7 @@ namespace pdb
             for (int n = 0; n < numTrees; ++n)
             {
                 std::string inputFileName = std::string(treePathIn[n]);
+		std::cout << inputFileName << std::endl;
                 std::ifstream inputFile;
                 inputFile.open(inputFileName.data());
                 assert(inputFile.is_open());
@@ -271,7 +102,7 @@ namespace pdb
 
                 while (getline(inputFile, line))
                 {
-                    if ((line.size()==0) || (line.find("graph")!=std::string::npos) || (line.find("digraph Tree {")!=std::string::npos) || (line.find("node [shape=box] ;")!=std::string::npos) || (line.find("}")!=std::string::npos))
+	            if ((line.size()==0) || (line.find("graph")!=std::string::npos) || (line.find("digraph Tree {")!=std::string::npos) || (line.find("node [shape=box")!=std::string::npos) || (line.find("edge [fontname=")!=std::string::npos) || (line.find("}")!=std::string::npos))
                     {
                         continue;
                     }
@@ -284,7 +115,7 @@ namespace pdb
                         }
                         else
                         { // Find Leaf/Inner Node
-                            if ((line.find("leaf") != string::npos) && (line.find("[label=\"gini") == string::npos))
+                            if ((line.find("leaf") != string::npos) || (line.find("[label=\"gini") != string::npos))
                             {
                                 leafNodes.push_back(line);
                             }
@@ -297,10 +128,9 @@ namespace pdb
                 }
 
     		inputFile.close();
-
-                processInnerNodes(innerNodes, modelType, n);
-                processLeafNodes(leafNodes, modelType, n);
-		processRelationships(relationships, modelType, n);
+		Tree::processInnerNodes(innerNodes, modelType, &(forest[n][0]));
+		Tree::processLeafNodes(leafNodes, modelType, &(forest[n][0]));
+		Tree::processRelationships(relationships, modelType, &(forest[n][0]));
 
             }
 
@@ -343,7 +173,7 @@ namespace pdb
             }
             // Reference: https://stats.stackexchange.com/questions/395697/what-is-an-intuitive-interpretation-of-the-leaf-values-in-xgboost-base-learners
             double sigmoid_of_decision = 1 / (1 + exp(-1.0 * aggregated_decision)); // Sigmoid of the aggregated decision is the final output
-            return sigmoid_of_decision > threshold ? 2.0 : 1.0;                     // Delaying Class Assignment. Class Labels as per RF Code is 1.0 and 2.0
+            return sigmoid_of_decision > threshold ? 1.0 : 0.0;                     // Delaying Class Assignment. Class Labels as per RF Code is 1.0 and 2.0
         }
 
         // TODO: Call this function instead of Individual Compute Functions. Instantiate the Class with the Model Type

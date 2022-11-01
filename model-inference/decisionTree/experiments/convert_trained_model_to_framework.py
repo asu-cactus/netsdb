@@ -5,6 +5,7 @@ warnings.filterwarnings('ignore')
 # from sklearn.metrics import classification_report
 import xgboost
 from xgboost import XGBClassifier, XGBRegressor
+import lightgbm
 import treelite
 import treelite.sklearn
 import joblib
@@ -201,7 +202,7 @@ def convert_to_netsdb_model(model, config):
 
         for index, model in enumerate(estimators):
             output_file_path = os.path.join(netsdb_model_path, str(index)+'.txt')
-            data = export_graphviz(model)
+            data = export_graphviz(model, class_names=True)
             f = open(output_file_path, 'w')
             f.write(data) 
             f.close()
@@ -216,6 +217,15 @@ def convert_to_netsdb_model(model, config):
             f.write(str(data)) 
             f.close()
 
+    elif MODEL == "lightgbm":
+        num_trees = config['num_trees']
+        for index in range(num_trees):
+            output_file_path = os.path.join(netsdb_model_path, str(index)+'.txt')
+            data = lightgbm.create_tree_digraph(model, tree_index=index)
+            f = open(output_file_path, 'w')
+            f.write(str(data))
+            f.close()
+
 def convert_to_xgboost_model(model,config):
     # clf = joblib.load(relative2abspath('models',model_file))
     # clf.save_model(relative2abspath('models',model_file.split('.')[0]+'.model'))
@@ -225,6 +235,8 @@ def convert_to_xgboost_model(model,config):
         model.save_model(model_path)
     else:
         raise("Model not xgboost or model already exists")
+
+
 
 
 

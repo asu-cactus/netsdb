@@ -46,13 +46,13 @@ using namespace std;
 
 using std::filesystem::directory_iterator;
 
-void loadTreeData(PDBClient& pdbClient, std::string forestFolderPath, ModelType modelType) {
+int loadTreeData(PDBClient& pdbClient, std::string forestFolderPath, ModelType modelType) {
 
 	std::vector<std::string> treePaths;
 
 	std::string errMsg;
 
-        makeObjectAllocatorBlock(8 * 1024 * 1024, true);
+        makeObjectAllocatorBlock(16 * 1024 * 1024, true);
 	Handle<Vector<Handle<Tree>>> storeMe =
                     makeObject<Vector<Handle<Tree>>>();
 
@@ -72,7 +72,7 @@ void loadTreeData(PDBClient& pdbClient, std::string forestFolderPath, ModelType 
                             errMsg)) {
                         std::cout << "Failed to send data to dispatcher server" << std::endl;
                  }
-		 makeObjectAllocatorBlock(8 * 1024 * 1024, true);
+		 makeObjectAllocatorBlock(16 * 1024 * 1024, true);
                  storeMe = makeObject<Vector<Handle<Tree>>>();
                  Handle<Tree> tree = makeObject<Tree>(treeId, treePath, modelType);
                  storeMe->push_back(tree);
@@ -89,6 +89,8 @@ void loadTreeData(PDBClient& pdbClient, std::string forestFolderPath, ModelType 
 
 	pdbClient.flushData(errMsg);
 
+	return treeId;
+
     }
 
 
@@ -97,7 +99,7 @@ int main(int argc, char *argv[]) {
 
     bool createSet;
 
-    if ((argc <= 5)||(argc > 9)) {
+    if ((argc <= 5)||(argc > 10)) {
     
         std::cout << "Usage: \n To load data: bin/testDecisionForestWithCrossProduct Y numInstances numFeatures batch_size pageSizeInMB pathToLoadDataFile(N for generating data randomly) pathToModelFolder modelType[XGBoost/RandomForest]\n To run the inference: bin/testDecisionForestWithCrossProduct N numInstances numFeatures batchSize pageSizeInMB pathToLoadDataFile pathToModelFolder modelType[XGBoost/RandomForest]\n Example: \n bin/testDecisionForestWithCrossProduct Y 2200000 28 275000 32 model-inference/decisionTree/experiments/HIGGS.csv_test.csv model-inference/decisionTree/experiments/models/higgs_xgboost_500_8_netsdb XGBoost\n bin/testDecisionForestWithCrossProduct N 2200000 28 275000 32 model-inference/decisionTree/experiments/HIGGS.csv_test.csv model-inference/decisionTree/experiments/models/higgs_xgboost_500_8_netsdb XGBoost\n";
         exit(-1);
@@ -112,6 +114,7 @@ int main(int argc, char *argv[]) {
     ModelType modelType = ModelType::XGBoost;
     int pageSize = 64;
     string dataFilePath = "";
+    int numTrees = 0;
 
     if(argc >= 5) {
 
@@ -153,11 +156,16 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    if (argc >= 10) {
+        numTrees = std::stoi(argv[9]);
+    }
+
 
     string masterIp = "localhost";
     pdb::PDBLoggerPtr clientLogger = make_shared<pdb::PDBLogger>("DecisionForestClientLog");
     pdb::PDBClient pdbClient(8108, masterIp, clientLogger, false, true);
     pdb::CatalogClient catalogClient(8108, masterIp, clientLogger);
+
 
     if(createSet == true){
         //create set for data
@@ -176,8 +184,9 @@ int main(int argc, char *argv[]) {
                                            nullptr, nullptr, false);
 	
         auto model_begin = chrono::high_resolution_clock::now();
-	loadTreeData(pdbClient, forestFolderPath, modelType);
+	int numTrees = loadTreeData(pdbClient, forestFolderPath, modelType);
         auto model_end = chrono::high_resolution_clock::now();
+	std::cout << numTrees << " trees loaded" << std::endl;
         std::cout << "****Model Load Time Duration: ****"
               << std::chrono::duration_cast<std::chrono::duration<double>>(model_end-model_begin).count()
                                                                         << " secs." << std::endl;
@@ -199,73 +208,72 @@ int main(int argc, char *argv[]) {
 
 	pdb::Handle<pdb::Computation> inputTree = pdb::makeObject<pdb::ScanUserSet<Tree>>("decisionForest", "trees");
 
-        pdb::Handle<pdb::CrossProductComp> treeCrossProduct = makeObject<TreeCrossProduct>();
 
-        treeCrossProduct->setJoinType(CrossProduct);
+	//if ((modelType == ModelType::XGBoost) || (modelType == ModelType::LightGBM)) {
 
-        if (treeCrossProduct->getJoinType() == CrossProduct) {
+            pdb::Handle<pdb::CrossProductComp> treeCrossProduct = makeObject<TreeCrossProduct>();
+
+            treeCrossProduct->setJoinType(CrossProduct);
+
+            if (treeCrossProduct->getJoinType() == CrossProduct) {
 	
 	       std::cout << "The join is CrossProduct" << std::endl;
 
-	} else {
+	    } else {
 	
 	       std::cout << "The join is not CrossProduct" << std::endl;
 	
-	}
+	    }
 
-	pdb::Handle<pdb::Computation> treeResultAgg = makeObject<pdb::TreeResultAggregate>();
+	    pdb::Handle<pdb::Computation> treeResultAgg = makeObject<pdb::TreeResultAggregate>();
         
 	
-	treeCrossProduct->setInput(0, inputTree);
+	    treeCrossProduct->setInput(0, inputTree);
 
-	treeCrossProduct->setInput(1, inputMatrix);
+	    treeCrossProduct->setInput(1, inputMatrix);
 
 
-        treeResultAgg->setInput(treeCrossProduct);
+            treeResultAgg->setInput(treeCrossProduct);
 
-	//treeResultAgg->setOutput("decisionForest", "labels");
-        
-        pdb::Handle<pdb::Computation> treeResultPostProcessing = makeObject<pdb::TreeResultPostProcessing>();
+            pdb::Handle<pdb::Computation> treeResultPostProcessing = makeObject<pdb::TreeResultPostProcessing>( numTrees );
 	
-        treeResultPostProcessing->setInput(treeResultAgg);
+            treeResultPostProcessing->setInput(treeResultAgg);
 
-	pdb::Handle<pdb::Computation> resultWriter = makeObject<WriteUserSet<TreeResult>>("decisionForest", "labels");
+	    pdb::Handle<pdb::Computation> resultWriter = makeObject<WriteUserSet<TreeResult>>("decisionForest", "labels");
 
+	    resultWriter->setInput(treeResultPostProcessing);
 
-	resultWriter->setInput(treeResultPostProcessing);
+            bool materializeHash = true;
 
-        bool materializeHash = true;
-
-        auto exe_begin = std::chrono::high_resolution_clock::now();
-        if (!pdbClient.executeComputations(errMsg, "decisionForest", materializeHash, resultWriter)) {
-            cout << "Computation failed. Message was: " << errMsg << "\n";
-            exit(1);
-        }
-        auto exe_end = std::chrono::high_resolution_clock::now();
-
-        std::cout << "****Model Inference Time Duration: ****"
-              << std::chrono::duration_cast<std::chrono::duration<double>>(exe_end - exe_begin).count()
-                                                                        << " secs." << std::endl;
-
-        bool printResult = true;
-        if (printResult == true) {
-            std::cout << "to print result..." << std::endl;
-            int count = 0;
-	    int positive_count = 0;
-
-            pdb::SetIterator<pdb::TreeResult> result =
-                   pdbClient.getSetIterator<pdb::TreeResult>("decisionForest", "labels");
-           
-            for (auto a : result) {
-                 positive_count += a->getNumPositives();
-                 count += BLOCK_SIZE;
+            auto exe_begin = std::chrono::high_resolution_clock::now();
+            if (!pdbClient.executeComputations(errMsg, "decisionForest", materializeHash, resultWriter)) {
+                cout << "Computation failed. Message was: " << errMsg << "\n";
+                exit(1);
             }
-            std::cout << "total count:" << count << "\n";
-	    std::cout << "positive count:" << positive_count << "\n";
-        }
+            auto exe_end = std::chrono::high_resolution_clock::now();
 
+            std::cout << "****Model Inference Time Duration: ****"
+                << std::chrono::duration_cast<std::chrono::duration<double>>(exe_end - exe_begin).count()
+                                                                        << " secs." << std::endl;
+       
+       bool printResult = true;
+       if (printResult == true) {
+           std::cout << "to print result..." << std::endl;
+           int count = 0;
+           int positive_count = 0;
+
+           pdb::SetIterator<pdb::TreeResult> result =
+           pdbClient.getSetIterator<pdb::TreeResult>("decisionForest", "labels");
+
+           for (auto a : result) {
+               positive_count += a->getNumPositives();
+               count += a->blockSize;
+           }
+           std::cout << "total count:" << count << "\n";
+           std::cout << "positive count:" << positive_count << "\n";
+       }
+       return 0;
     }
-    return 0;
 }
 
 #endif
