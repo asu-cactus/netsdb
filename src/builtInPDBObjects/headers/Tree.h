@@ -101,7 +101,7 @@ namespace pdb
             {
                // Construct Inner Nodes
                string currentLine = innerNodes[i];
-
+	       //std::cout << currentLine << std::endl;
                int nodeID;
                int indexID;
                float returnClass;
@@ -132,7 +132,7 @@ namespace pdb
                     }
                    if ((findStartPosition = currentLine.find("<")) != string::npos && (findEndPosition = currentLine.find_first_of("]")) != string::npos)
                     {
-                        returnClass = std::stod(currentLine.substr(findStartPosition + 1, findEndPosition-findStartPosition-1));
+                            returnClass = std::stod(currentLine.substr(findStartPosition + 1, findEndPosition-findStartPosition-1));
                     }
                } else {
 	       
@@ -168,7 +168,7 @@ namespace pdb
             {
                 // Construct Leaf Nodes
                 string currentLine = leafNodes[i];
-
+		//std::cout << currentLine << std::endl;
 
                 int nodeID;
                 float returnClass = -1.0f;
@@ -180,7 +180,7 @@ namespace pdb
                     // Output Class of always a Double/Float. ProbabilityValue for Classification, ResultValue for Regression
                     if ((findStartPosition = currentLine.find("y[")) != string::npos && (findEndPosition = currentLine.find("]\"]")) != string::npos)
                     {
-                        returnClass = std::stod(currentLine.substr(findStartPosition + 2, findEndPosition-findStartPosition-3));
+                        returnClass = std::stod(currentLine.substr(findStartPosition + 2, findEndPosition-findStartPosition-2));
                     }
                 } else if (modelType == ModelType::XGBoost) {
 
@@ -208,7 +208,9 @@ namespace pdb
                     }
 		
 		}
-		nodeID = nodeID + MAX_NUM_NODES_PER_TREE/2;
+		if (modelType == ModelType::LightGBM) {
+		    nodeID = nodeID + MAX_NUM_NODES_PER_TREE/2;
+		}
                 tree[nodeID].indexID = -1;
                 tree[nodeID].isLeaf = true;
                 tree[nodeID].leftChild = -1;
@@ -232,7 +234,7 @@ namespace pdb
                     int parentNodeID;
                     int childNodeID;
                     std::string currentLine = relationships[i];
-
+		    //std::cout << currentLine << std::endl;
 		    bool isChildLeaf;
 
                     if (modelType == ModelType::RandomForest) {
@@ -314,7 +316,7 @@ namespace pdb
 
                 while (getline(inputFile, line))
                 {
-                    if ((line.size()==0) || (line.find("graph")!=std::string::npos) || (line.find("digraph Tree {")!=std::string::npos) || (line.find("node [shape=box] ;")!=std::string::npos) || (line.find("}")!=std::string::npos))
+                    if ((line.size()==0) || (line.find("graph")!=std::string::npos) || (line.find("digraph Tree {")!=std::string::npos) || (line.find("node [shape=box")!=std::string::npos) || (line.find("edge [fontname=")!=std::string::npos) || (line.find("}")!=std::string::npos))
                     {
                         continue;
                     }
