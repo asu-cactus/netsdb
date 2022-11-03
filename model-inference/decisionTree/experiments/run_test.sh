@@ -1,10 +1,10 @@
 #! /bin/bash
 DATASET="tpcxai_fraud"
 TREES="1600"
-MODELS="randomforest xgboost lightgbm"
+MODELS="randomforest"
 FRAMEWORKS="Sklearn ONNXCPU HummingbirdPytorchCPU HummingbirdTorchScriptCPU HummingbirdTVMCPU TreeLite Lleaves"
 
-aws s3 cp s3://decision-forest-benchmark-paper/models/ . --recursive
+aws s3 cp s3://decision-forest-benchmark-paper/models/ models/ --recursive
 
 case $DATASET in
 "higgs")
