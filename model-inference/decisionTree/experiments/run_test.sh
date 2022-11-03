@@ -4,6 +4,8 @@ TREES="1600"
 MODELS="randomforest xgboost lightgbm"
 FRAMEWORKS="Sklearn ONNXCPU HummingbirdPytorchCPU HummingbirdTorchScriptCPU HummingbirdTVMCPU TreeLite Lleaves"
 
+aws s3 cp s3://decision-forest-benchmark-paper/models/ . --recursive
+
 case $DATASET in
 "higgs")
     TESTSIZE="2200000"
