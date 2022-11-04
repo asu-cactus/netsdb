@@ -174,5 +174,21 @@
         "filename": "",
         "table": "",
         "header": false
+    },
+    "criteo_dense": {
+        "num_features": 1000000,
+        "rows": 8572,
+        "batch_size": 100000,
+        "query_size": 100000,
+        "type": "classification",
+        "info": "https://www.kaggle.com/c/criteo-display-ad-challenge/",
+        "query": "SELECT * from criteo_dense",
+        "create": "",
+        "train": 0,
+        "test": 1,
+        "y_col": "label",
+        "filename": "criteo_dense",
+        "table": "criteo_dense",
+        "header": true
     }
 }
