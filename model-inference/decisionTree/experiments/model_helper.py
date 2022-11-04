@@ -63,6 +63,12 @@ def fetch_data(dataset, config, suffix, time_consume=None):
 
             dataframe.drop('row', axis=1, inplace=True)
             # dataframe['row'] = dataframe['row'].apply(lambda row:np.array(row))
+        elif dataset == 'criteo_dense':
+            unpacked = zip(*list(dataframe['row'].values))
+            for i in range(datasetconfig['num_features']):
+                dataframe[f'feature_{i}'] = next(unpacked)
+            dataframe.drop('row', axis=1, inplace=True)
+            # dataframe['row'] = dataframe['row'].apply(lambda row:np.array(row))
         end_time = time.time()
         data_loading_time = calculate_time(start_time, end_time)
         if time_consume is not None:

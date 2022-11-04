@@ -512,7 +512,7 @@ if __name__ == "__main__":
             for i in range(rows):
                 cur.execute("INSERT INTO criteo_dense_test(label,row) VALUES(%s, %s)", (int(
                     df.loc[i, 'label']), list(df.loc[i, column_names])))
-                if i % 10000 == 0:
+                if i % 50 == 0:
                     print(i)
             connection.commit()
             print("LOADED "+datasetconfig["table"]+"_test"+" to DB")
