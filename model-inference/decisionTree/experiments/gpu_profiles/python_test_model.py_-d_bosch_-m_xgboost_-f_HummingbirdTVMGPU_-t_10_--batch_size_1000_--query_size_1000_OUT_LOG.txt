@@ -1,0 +1,33 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: bosch
+MODEL: xgboost
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+LOADING bosch test
+Time Taken to load bosch as a dataframe is: 19371.363401412964
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/bosch_xgboost_10_8.pkl
+Time Taken to load sklearn model: 230.05390167236328
+Running GPU Test HummingbirdTVMGPU
+Time Taken to predict on HummingbirdTVMGPU is 846.7237949371338
+Time Taken to write results to a text file for HummingbirdTVMGPU is 54.9161434173584
+Classification Report HummingbirdTVMGPU
+              precision    recall  f1-score   support
+
+           0       0.99      1.00      1.00    235352
+           1       0.02      0.00      0.01      1398
+
+    accuracy                           0.99    236750
+   macro avg       0.51      0.50      0.50    236750
+weighted avg       0.99      0.99      0.99    236750
+
+################
+Time Taken to convert HummingbirdTVMGPU model: 30279.13475036621
+TOTAL Time Taken for HummingbirdTVMGPU: 31180.862188339233
+==============EXPERIMENT ENDING=========================
+

@@ -1,0 +1,33 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: tpcxai_fraud
+MODEL: xgboost
+FRAMEWORK: NvidiaFILGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 1600
+Depth 8
+LOADING tpcxai_fraud test
+Time Taken to load tpcxai_fraud as a dataframe is: 61965.004205703735
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/tpcxai_fraud_xgboost_1600_8.pkl
+Time Taken to load sklearn model: 319.232702255249
+Running GPU Test NvidiaFILGPU
+Time Taken to predict on NvidiaFILGPU is 9349.795579910278
+Time Taken to write results to a text file for NvidiaFILGPU is 6080.89804649353
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       0.98      0.99      0.99  25029629
+           1       0.79      0.61      0.69   1283204
+
+    accuracy                           0.97  26312833
+   macro avg       0.89      0.80      0.84  26312833
+weighted avg       0.97      0.97      0.97  26312833
+
+################
+Time Taken to convert NvidiaFILGPU model: 2815.2971267700195
+TOTAL Time Taken for NvidiaFILGPU: 18246.074676513672
+==============EXPERIMENT ENDING=========================
+

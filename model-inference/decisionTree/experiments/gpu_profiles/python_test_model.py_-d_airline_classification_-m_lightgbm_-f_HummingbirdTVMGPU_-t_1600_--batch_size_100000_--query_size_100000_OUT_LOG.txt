@@ -1,0 +1,33 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: HummingbirdTVMGPU
+Query Size: 100000
+Batch Size: 100000
+Trees 1600
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31670.554399490356
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_1600_8.pkl
+Time Taken to load sklearn model: 1036.5796089172363
+Running GPU Test HummingbirdTVMGPU
+Time Taken to predict on HummingbirdTVMGPU is 25699.785232543945
+Time Taken to write results to a text file for HummingbirdTVMGPU is 5505.541801452637
+Classification Report HummingbirdTVMGPU
+              precision    recall  f1-score   support
+
+           0       0.79      0.58      0.67  12571935
+           1       0.62      0.82      0.70  10441869
+
+    accuracy                           0.69  23013804
+   macro avg       0.71      0.70      0.69  23013804
+weighted avg       0.71      0.69      0.69  23013804
+
+################
+Time Taken to convert HummingbirdTVMGPU model: 181848.43373298645
+TOTAL Time Taken for HummingbirdTVMGPU: 213053.8477897644
+==============EXPERIMENT ENDING=========================
+

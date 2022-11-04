@@ -1,0 +1,33 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: bosch
+MODEL: xgboost
+FRAMEWORK: NvidiaFILGPU
+Query Size: 236750
+Batch Size: 236750
+Trees 500
+Depth 8
+LOADING bosch test
+Time Taken to load bosch as a dataframe is: 19551.857709884644
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/bosch_xgboost_500_8.pkl
+Time Taken to load sklearn model: 231.3370704650879
+Running GPU Test NvidiaFILGPU
+Time Taken to predict on NvidiaFILGPU is 872.8783130645752
+Time Taken to write results to a text file for NvidiaFILGPU is 55.24301528930664
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       1.00      0.96      0.98    235352
+           1       0.03      0.22      0.06      1398
+
+    accuracy                           0.96    236750
+   macro avg       0.51      0.59      0.52    236750
+weighted avg       0.99      0.96      0.97    236750
+
+################
+Time Taken to convert NvidiaFILGPU model: 2788.390636444092
+TOTAL Time Taken for NvidiaFILGPU: 3716.6171073913574
+==============EXPERIMENT ENDING=========================
+

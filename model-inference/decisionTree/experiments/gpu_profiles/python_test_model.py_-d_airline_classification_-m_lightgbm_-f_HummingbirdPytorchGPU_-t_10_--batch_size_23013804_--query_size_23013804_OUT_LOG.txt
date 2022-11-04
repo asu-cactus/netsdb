@@ -1,0 +1,33 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: airline_classification
+MODEL: lightgbm
+FRAMEWORK: HummingbirdPytorchGPU
+Query Size: 23013804
+Batch Size: 23013804
+Trees 10
+Depth 8
+LOADING airline_classification test
+Time Taken to load airline_classification as a dataframe is: 31562.278032302856
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/airline_classification_lightgbm_10_8.pkl
+Time Taken to load sklearn model: 587.5561237335205
+Running GPU Test HummingbirdPytorchGPU
+Time Taken to predict on HummingbirdPytorchGPU is 2599.4181632995605
+Time Taken to write results to a text file for HummingbirdPytorchGPU is 5530.137300491333
+Classification Report HummingbirdPytorchGPU
+              precision    recall  f1-score   support
+
+           0       0.76      0.38      0.50  12571935
+           1       0.53      0.86      0.66  10441869
+
+    accuracy                           0.59  23013804
+   macro avg       0.65      0.62      0.58  23013804
+weighted avg       0.66      0.59      0.57  23013804
+
+################
+Time Taken to convert HummingbirdPytorchGPU model: 3556.105852127075
+TOTAL Time Taken for HummingbirdPytorchGPU: 11686.227321624756
+==============EXPERIMENT ENDING=========================
+
