@@ -1,17 +1,17 @@
 #! /bin/bash
-DATASET="epsilon"
-TREES="1600"
+DATASET="higgs"
+TREES="10"
 MODELS="randomforest xgboost lightgbm"
 FRAMEWORKS="Sklearn ONNXCPU HummingbirdPytorchCPU HummingbirdTorchScriptCPU HummingbirdTVMCPU TreeLite Lleaves"
 
 case $DATASET in
 "higgs")
     TESTSIZE="2200000"
-    BATCHSIZES="100 1000 10000 100000 2200000"
+    BATCHSIZES="10 100 1000 10000 100000 2200000"
     ;;
 "airline_classification" | "airline_regression")
     TESTSIZE="23013804"
-    BATCHSIZES="100 1000 10000 100000 1000000 23013804"
+    BATCHSIZES="10 100 1000 10000 100000 1000000 23013804"
     ;;
 "fraud")
     TESTSIZE="56962"
@@ -23,11 +23,11 @@ case $DATASET in
     ;;
 "epsilon")
     TESTSIZE="100000"
-    BATCHSIZES="100 1000 10000 100000"
+    BATCHSIZES="10 100 1000 10000 100000"
     ;;
 "bosch")
     TESTSIZE="236750"
-    BATCHSIZES="100 1000 10000 236750"
+    BATCHSIZES="10 100 1000 10000 236750"
     ;;
 "covtype")
     TESTSIZE="116203"
