@@ -482,38 +482,31 @@ if __name__ == "__main__":
         print("FETCHING TRAIN AND TEST QUERY CRITEO_DENSE")
         train_query, test_query = make_query(
             dataset, datasetconfig, column_names)
-
         print("DROPPING TRAIN AND TABLE IF THEY EXIST")
         with connection.cursor() as cursor:
             cursor.execute("DROP TABLE IF EXISTS " +
                            datasetconfig["table"]+"_train")
             connection.commit()
-
         with connection.cursor() as cursor:
             cursor.execute("DROP TABLE IF EXISTS " +
                            datasetconfig["table"]+"_test")
             connection.commit()
-
         print("CREATING TABLES FOR CRITEO_DENSE")
         with connection.cursor() as cursor:
             cursor.execute(train_query)
             cursor.execute(test_query)
             connection.commit()
-
         print("LOADING DATA FOR CRITEO_DENSE")
-        # columns = [i for i in range(datasetconfig['num_features'])]
         with connection.cursor() as cur:
             train.head()
             rows = len(train)
             for i in range(rows):
                 cur.execute("INSERT INTO criteo_dense_train(label,row) VALUES(%s, %s)", (int(
                     train.loc[i, 'label']), list(train.loc[i, column_names])))
-                if i % 10000 == 0:
-                    print(i)
-
+                if i % 100 == 0:
+                    print(f'Written Rows: {i}')
             connection.commit()
             print("LOADED "+datasetconfig["table"]+"_train"+" to DB")
-
             df.head()
             rows = len(df)
             for i in range(rows):
@@ -521,7 +514,6 @@ if __name__ == "__main__":
                     df.loc[i, 'label']), list(df.loc[i, column_names])))
                 if i % 10000 == 0:
                     print(i)
-
             connection.commit()
             print("LOADED "+datasetconfig["table"]+"_test"+" to DB")
         exit()
