@@ -38,14 +38,41 @@ def fetch_criteo(suffix, time_consume):
     y = y.astype(np.int8, copy=False)
     return (x, y)
 
-def fetch_data(dataset, config, suffix, time_consume=None):
-    if dataset == "criteo":        
-        return fetch_criteo(suffix, time_consume)
-    print("LOADING " + dataset + " " + suffix)
+def fetch_epsilon_sparse(time_consume, dataset="epsilon_normalized_test.svm"):
+    # Faster Dataset Loader
+    # svm_package_loader_path = relative2abspath('package_cache')
+    # if not os.path.exists(svm_package_loader_path):
+    #     os.makedirs(svm_package_loader_path)
+    # if not len(os.listdir(svm_package_loader_path)):
+    #     os.system(f'git clone https://github.com/mblondel/svmlight-loader.git {svm_package_loader_path}')
+    # os.system(f'python {svm_package_loader_path}/setup.py build')
+    # os.system(f'sudo python {svm_package_loader_path}/setup.py install')
+    # from package_cache.svmlight_loader import load_svmlight_file
+    from sklearn import datasets
 
+    start_time = time.time()
+    path = relative2abspath(dataset_folder, dataset)
+    x, y = datasets.load_svmlight_file(path, dtype=np.float32)
+    data_loading_time = calculate_time(start_time,time.time())
+    # sparse_to_dense_start_time = time.time()
+    # for _ in range(10):
+    #     x_dense = x.todense()
+    # sparse_to_dense_time = calculate_time(sparse_to_dense_start_time,time.time())
+    # print(f"Time to Convert Sparse to Dense Matrix: {sparse_to_dense_time}")
+    if time_consume is not None:
+        time_consume["data loading time"] = data_loading_time
+    y = y.astype(np.int8, copy=False)
+    return (x, y)
+
+def fetch_data(dataset, config, suffix, time_consume=None):
+    if dataset == "criteo":
+        return fetch_criteo(suffix, time_consume)
+    elif dataset == "epsilon_sparse":
+        return fetch_epsilon_sparse(time_consume, dataset="epsilon_normalized_test.svm")
+    print("LOADING " + dataset + " " + suffix)
+    import psycopg2
     try:
         import connectorx as cx
-        import psycopg2
         pgsqlconfig = config["pgsqlconfig"]
         datasetconfig = config[dataset]
         query = datasetconfig["query"]+"_"+suffix

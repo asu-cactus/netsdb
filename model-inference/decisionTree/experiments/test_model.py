@@ -34,11 +34,12 @@ def parse_arguments(config):
             'airline_classification', 
             'fraud', 
             'year', 
-            'epsilon', 
+            'epsilon',
             'bosch', 
             'covtype', 
             'criteo',
-            'tpcxai_fraud'],
+            'tpcxai_fraud',
+            'epsilon_sparse'],
         help="Dataset to be tested.")
     parser.add_argument(
         "-m", "--model", type=str,
@@ -457,6 +458,7 @@ if __name__ == "__main__":
         "model": MODEL,
         "framework": FRAMEWORK}
     features, label = load_data(config, time_consume)
+    # DATASET = "epsilon" if DATASET=="epsilon_sparse" else DATASET # To make sure we load the same model
     sklearnmodel = load_sklearn_model(config, time_consume)
     test(args, features, label, sklearnmodel, config, time_consume)
     print("==============EXPERIMENT ENDING=========================\n")

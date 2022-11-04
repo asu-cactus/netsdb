@@ -26,6 +26,7 @@ def parse_arguments():
             'fraud', 
             'year', 
             'epsilon', 
+            'epsilon_sparse',
             'bosch', 
             'covtype',
             'criteo',
@@ -167,6 +168,21 @@ def prepare_epsilon(nrows=None):
 
     return test_data, train_data
 
+def prepare_epsilon_sparse(dataset_folder, nrows=None):
+    data_url = 'https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/binary/epsilon_normalized.t.bz2'
+    final_dataset = 'epsilon_normalized_test.svm'
+    file_name = data_url.split('/')[-1]
+    downloaded_file = download_data(data_url, dataset_folder)
+    if (os.path.isfile(downloaded_file)):
+        os.system(f'bzip2 -cdk {downloaded_file} > {dataset_folder}{final_dataset}')
+    # Convert all -1 Output Class to 0 Class
+    import re
+    updated_content = ''
+    with open(f'{dataset_folder}{final_dataset}', 'r') as f:
+        content = f.read()
+        updated_content = re.sub('(^-1 )|(\n-1 )', '\n0 ', content)
+    with open(f'{dataset_folder}{final_dataset}', 'w') as f:
+        f.write(updated_content)
 
 def prepare_covtype(dataset_folder, nrows=None): 
     df = datasets.fetch_covtype(data_home=dataset_folder, as_frame=True)["frame"]
@@ -363,13 +379,17 @@ if __name__ == "__main__":
         df = prepare_airline(is_classification, dataset_folder, nrows=nrows)
     elif dataset == 'epsilon':
         df_test, df_train = prepare_epsilon(nrows=nrows)
+        ######
+        # mod = np.nan_to_num(df_test,0)
+        # print("SPARSITY: ",1.0-(np.count_nonzero(mod))/float(mod.size))
+        # exit()
+        ######
     elif dataset == "fraud":
         df = prepare_fraud(dataset_folder, nrows=nrows)
     elif dataset == 'bosch':
         df = prepare_bosch(dataset_folder, nrows=nrows)
     elif dataset == 'covtype':
         df = prepare_covtype(dataset_folder, nrows=nrows)
-
     elif dataset=="tpcxai_fraud":
         if nrows:
             df = prepare_tpcxai_fraud_transactions(dataset_folder, nrows=nrows)
@@ -387,7 +407,9 @@ if __name__ == "__main__":
                 print('-'*50)
                 df = pd.concat([df,prepare_tpcxai_fraud_transactions(dataset_folder, nrows=partition_size, skip_rows=range(1,partition_size*i))])
             print(f'Final Shape of DataFrame: {df.shape}')
-
+    elif dataset == "epsilon_sparse":
+        prepare_epsilon_sparse(dataset_folder)
+        exit()
     elif dataset == 'criteo':
         prepare_criteo(dataset_folder)
         exit()
