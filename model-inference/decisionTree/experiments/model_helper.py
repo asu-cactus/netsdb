@@ -49,13 +49,15 @@ def fetch_data(dataset, config, suffix, time_consume=None):
         pgsqlconfig = config["pgsqlconfig"]
         datasetconfig = config[dataset]
         query = datasetconfig["query"]+"_"+suffix
+        # print(query)
         dbURL = "postgresql://"+pgsqlconfig["username"]+":"+pgsqlconfig["password"] + \
             "@"+pgsqlconfig["host"]+":" + \
                 pgsqlconfig["port"]+"/"+pgsqlconfig["dbname"]
-        # print(dbURL)
-        # print(query)
+        print(dbURL)
+        print(query)
         start_time = time.time()
         dataframe = cx.read_sql(dbURL, query)
+        print(dataframe.head())
         if dataset == 'epsilon':
             unpacked = zip(*list(dataframe['row'].values))
             for i in range(1, 2001):

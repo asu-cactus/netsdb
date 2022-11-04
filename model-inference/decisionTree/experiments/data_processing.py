@@ -247,7 +247,7 @@ def prepare_criteo(dataset_folder):
 
 def prepare_criteo_dense(dataset_folder):
     prepare_criteo(dataset_folder)
-    read_lines = 5e6 # 6042135
+    read_lines = 5e4 # 5e6 # 6042135
     num_features = 1000000
     test_path = relative2abspath(dataset_folder, "criteo.kaggle2014.svm", "test.txt.svm")
     if os.path.isfile(test_path):
