@@ -101,7 +101,18 @@ def convert_to_hummingbird_model(model, backend, test_data, batch_size, device):
                               remainder_size, device=device, extra_config=extra_config)
     return model
 
-def run_inference(framework, features, input_size, query_size, predict, time_consume, is_classification):
+def make_predict(dataset_type,model_predict):
+    if dataset_type=="sparse":
+        def predict(query):
+            query.todense()
+            return model_predict(query)
+        
+        return predict
+
+    return model_predict
+
+def run_inference(framework, features, input_size, query_size, predict, time_consume, is_classification,dataset_type):
+    predict = make_predict(dataset_type,predict)
     start_time = time.time()
     results = []
     iterations = math.ceil(input_size/query_size)
