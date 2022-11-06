@@ -1,6 +1,6 @@
 #! /bin/bash
 DATASET="higgs"
-TREES="10"
+TREES="500"
 MODELS="randomforest xgboost lightgbm"
 FRAMEWORKS="Sklearn ONNXCPU HummingbirdPytorchCPU HummingbirdTorchScriptCPU HummingbirdTVMCPU TreeLite Lleaves"
 
