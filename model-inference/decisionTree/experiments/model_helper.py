@@ -104,7 +104,7 @@ def convert_to_hummingbird_model(model, backend, test_data, batch_size, device):
 def make_predict(dataset_type,model_predict):
     if dataset_type=="sparse":
         def predict(query):
-            query.todense()
+            query = query.todense()
             return model_predict(query)
         
         return predict
