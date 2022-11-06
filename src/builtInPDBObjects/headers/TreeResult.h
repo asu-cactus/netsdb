@@ -2,7 +2,7 @@
 #ifndef NETSDB_TREE_RESULT_H
 #define NETSDB_TREE_RESULT_H
 
-#define MAX_BLOCK_SIZE 275000
+#define MAX_BLOCK_SIZE 500000
 
 #include <cmath>
 #include <cstdlib>

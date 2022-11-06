@@ -217,7 +217,10 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
     throw runtime_error("Invalid filepath: " + path);
   }
 
-
+  std::cout << "totalX=" << totalX << std::endl;
+  std::cout << "totalY=" << totalY << std::endl;
+  std::cout << "blockX=" << blockX << std::endl;
+  std::cout << "blockY=" << blockY << std::endl;
 
   // open the input file
   ifstream inFile(path);
@@ -251,6 +254,9 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
       if (!rollback) {
           if (!std::getline(inFile, line)) {
 	      end = true;
+	      if (myData != nullptr)
+                  storeMatrix->push_back(myData);
+	          std::cout << "Stored " << total << " items in total" << std::endl;
 	      break;
 	  } else {
 	      total++;
@@ -261,9 +267,17 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
 
       try {
           if (myData == nullptr) {      
-              myData =
-                  pdb::makeObject<T>(i, j, blockX, blockY,
+              if (i == numXBlocks -1) {
+    		  myData =
+                      pdb::makeObject<T>(i, j, totalX % blockX, blockY,
                                              totalX, totalY, partitionByCol);
+	      } else {
+	      
+		  myData =
+                      pdb::makeObject<T>(i, j, blockX, blockY,
+                                             totalX, totalY, partitionByCol);
+	      
+	      }
 
 	      myData->print();
           }
@@ -274,6 +288,7 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
           {
 		std::string token = line.substr(pos, new_pos-pos);
 		float val = stod(token);
+		//std::cout << i << "," << j << "," << ii << "," << jj << ":" << token << std::endl;
                 (*(myData->getRawDataHandle()))[ii * blockY + jj] = val;
                 jj ++;
 		if (jj == blockY) {
@@ -282,6 +297,7 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
 			if (ii == blockX) {
 			   ii = 0;
 	                   storeMatrix->push_back(myData);
+			   std::cout << "Stored " << total << " items in total" << std::endl;
 			   j++;
                            if (j == numYBlocks) {
                                j = 0;
@@ -292,11 +308,18 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
                                 }
 
                             }
-			    myData =
-                  pdb::makeObject<T>(i, j, blockX, blockY,
+			    if (i == numXBlocks-1) {
+			        myData =
+                                     pdb::makeObject<T>(i, j, totalX%blockX, blockY,
                                              totalX, totalY, partitionByCol);
+			    } else {
+			        myData =
+                                     pdb::makeObject<T>(i, j, blockX, blockY,
+                                             totalX, totalY, partitionByCol);
+			    }
 			    myData->print();
 			}
+			break;
 		}
                 pos = new_pos + 1;
           }
@@ -325,6 +348,9 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
       cout << "Failed to send data to dispatcher server" << endl;
       exit(1);
   }
+
+ std::cout << "Dispatched " << storeMatrix->size() << " blocks."
+                << std::endl;
 
   // to write back all buffered records
   pdbClient.flushData(errMsg);

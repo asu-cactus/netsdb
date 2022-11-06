@@ -198,7 +198,7 @@ int main(int argc, char *argv[]) {
 
 	//create set for labels
         pdbClient.removeSet("decisionForest", "labels", errMsg);
-        pdbClient.createSet<pdb::Tree>("decisionForest", "labels",
+        pdbClient.createSet<pdb::TreeResult>("decisionForest", "labels",
                                            errMsg, 64*1024*1024, "labels",
                                            nullptr, nullptr, false);
 
@@ -209,7 +209,6 @@ int main(int argc, char *argv[]) {
 	pdb::Handle<pdb::Computation> inputTree = pdb::makeObject<pdb::ScanUserSet<Tree>>("decisionForest", "trees");
 
 
-	//if ((modelType == ModelType::XGBoost) || (modelType == ModelType::LightGBM)) {
 
             pdb::Handle<pdb::CrossProductComp> treeCrossProduct = makeObject<TreeCrossProduct>();
 
