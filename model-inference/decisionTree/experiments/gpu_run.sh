@@ -1,6 +1,6 @@
 #! /bin/bash
 TREES="10"
-DATASET="airline_classification"
+DATASET="criteo"
 MODELS="randomforest xgboost lightgbm"
 FRAMEWORKS="HummingbirdPytorchGPU HummingbirdTorchScriptGPU ONNXGPU HummingbirdTVMGPU NvidiaFILGPU XGBoostGPU"
 
@@ -41,7 +41,7 @@ case $DATASET in
     ;;
 "criteo")
     TESTSIZE="51882752"
-    BATCHSIZES="1000 10000 100000 1000000 10000000 51882752"
+    BATCHSIZES="1 10 100 1000 10000 100000 1000000 10000000 51882752"
     ;;
 "tpcxai_fraud")
     TESTSIZE="131564160"
