@@ -29,8 +29,9 @@ def parse_arguments():
             'bosch', 
             'covtype',
             'criteo',
-            'tpcxai_fraud'],
-        help="Dataset to be processed. Choose from ['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype','tpcxai_fraud','criteo']")
+            'tpcxai_fraud',
+            'criteo_dense'],
+        help="Dataset to be processed. Choose from ['higgs', 'airline_regression', 'airline_classification', 'fraud', 'year', 'epsilon', 'bosch', 'covtype','tpcxai_fraud','criteo', 'criteo_dense']")
     parser.add_argument("-n", "--nrows", type=int, help="Load nrows of the dataset. Warning: only use in development.")
     parser.add_argument("-sf","--scalefactor", type=int, help="Relevant only for TPCxAI_Fraud. Takes one of the values in 1, 3, 10 and 30")
 
@@ -244,6 +245,24 @@ def prepare_criteo(dataset_folder):
     if not (os.path.isfile(train_path) and os.path.isfile(test_path)):
         os.system(f"tar -Jxf {local_url} -C {dataset_folder}")
 
+def prepare_criteo_dense(dataset_folder):
+    prepare_criteo(dataset_folder)
+    read_lines = 5e4 # 5e6 # 6042135
+    num_features = 1000000
+    test_path = relative2abspath(dataset_folder, "criteo.kaggle2014.svm", "test.txt.svm")
+    if os.path.isfile(test_path):
+        test_df_features, test_df_labels = datasets.load_svmlight_file(test_path, n_features=num_features, length=read_lines)
+        # print(test_df_features.todense(), test_df_labels[..., np.newaxis])
+        # print(np.append(test_df_features.todense(), test_df_labels[..., np.newaxis], axis=1).shape)
+        test_df = pd.DataFrame(np.append(test_df_features.todense(), test_df_labels[..., np.newaxis], axis=1), columns=[f'feature_{idx}' for idx in range(num_features)]+['label'])
+        print('Test Dataset Shape:',test_df.shape)
+        # print(test_df.shape)
+        # test_df = test_df.join(pd.DataFrame(test_df_labels, columns=['label']))
+        # print(test_df[['feature_1']].describe())
+        return test_df
+    return None
+
+
 def get_connection(pgsqlconfig):
     return psycopg2.connect(
         database=pgsqlconfig["dbname"],
@@ -276,6 +295,10 @@ def make_query(dataset, datasetconfig, column_names):
         feature_names = ", ".join([f"{col_name} DECIMAL NOT NULL" for col_name in column_names])
         label_name = f"{datasetconfig['y_col']} INTEGER NOT NULL"
         create_query = f"CREATE TABLE ** ({feature_names}, {label_name})"
+    elif dataset == "criteo_dense":
+        feature_names = '''"row" double precision[]'''
+        label_name = f"{datasetconfig['y_col']} INTEGER NOT NULL"
+        create_query = f"CREATE TABLE ** ({label_name}, {feature_names})"
     else:
         create_query = datasetconfig["create"]
     train_create_query = create_query.replace(
@@ -387,11 +410,11 @@ if __name__ == "__main__":
                 print('-'*50)
                 df = pd.concat([df,prepare_tpcxai_fraud_transactions(dataset_folder, nrows=partition_size, skip_rows=range(1,partition_size*i))])
             print(f'Final Shape of DataFrame: {df.shape}')
-
     elif dataset == 'criteo':
         prepare_criteo(dataset_folder)
         exit()
-
+    elif dataset == 'criteo_dense':
+        df = prepare_criteo_dense(dataset_folder)
     else:
         raise ValueError(f"{dataset} not supported")
 
@@ -450,6 +473,51 @@ if __name__ == "__main__":
 
         exit()
 
+    # CRITEO_DENSE FOLLOWS DIFFERENT LOADING INSTRUCTIONS AS
+    # IT HAS MORE THAN 1600 COLUMNS
+    if dataset == "criteo_dense":
+        train = pd.DataFrame({'label': []})
+        column_names = list(df.columns)
+        connection = get_connection(pgsqlconfig)
+        print("FETCHING TRAIN AND TEST QUERY CRITEO_DENSE")
+        train_query, test_query = make_query(
+            dataset, datasetconfig, column_names)
+        print("DROPPING TRAIN AND TABLE IF THEY EXIST")
+        with connection.cursor() as cursor:
+            cursor.execute("DROP TABLE IF EXISTS " +
+                           datasetconfig["table"]+"_train")
+            connection.commit()
+        with connection.cursor() as cursor:
+            cursor.execute("DROP TABLE IF EXISTS " +
+                           datasetconfig["table"]+"_test")
+            connection.commit()
+        print("CREATING TABLES FOR CRITEO_DENSE")
+        with connection.cursor() as cursor:
+            cursor.execute(train_query)
+            cursor.execute(test_query)
+            connection.commit()
+        print("LOADING DATA FOR CRITEO_DENSE")
+        with connection.cursor() as cur:
+            train.head()
+            rows = len(train)
+            for i in range(rows):
+                cur.execute("INSERT INTO criteo_dense_train(label,row) VALUES(%s, %s)", (int(
+                    train.loc[i, 'label']), list(train.loc[i, column_names])))
+                if i % 100 == 0:
+                    print(f'Written Rows: {i}')
+            connection.commit()
+            print("LOADED "+datasetconfig["table"]+"_train"+" to DB")
+            df.head()
+            rows = len(df)
+            for i in range(rows):
+                cur.execute("INSERT INTO criteo_dense_test(label,row) VALUES(%s, %s)", (int(
+                    df.loc[i, 'label']), list(df.loc[i, column_names])))
+                if i % 50 == 0:
+                    print(i)
+            connection.commit()
+            print("LOADED "+datasetconfig["table"]+"_test"+" to DB")
+        exit()
+
     # Split dataset
     train_size = math.floor(len(df) * datasetconfig["train"])
     train = df.head(train_size)
@@ -473,6 +541,7 @@ if __name__ == "__main__":
     connection = get_connection(pgsqlconfig)
     print("FETCHING TRAIN AND TEST QUERY")
     train_query, test_query = make_query(dataset, datasetconfig, column_names)
+    print(train_query, test_query)
     print("CREATING TRAIN AND TEST TABLES")
     create_tables(connection, train_query, test_query,
                   train_csv_path, test_csv_path, dataset)

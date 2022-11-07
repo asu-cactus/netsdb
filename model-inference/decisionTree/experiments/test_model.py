@@ -38,7 +38,8 @@ def parse_arguments(config):
             'bosch', 
             'covtype', 
             'criteo',
-            'tpcxai_fraud'],
+            'tpcxai_fraud',
+            'criteo_dense'],
         help="Dataset to be tested.")
     parser.add_argument(
         "-m", "--model", type=str,
