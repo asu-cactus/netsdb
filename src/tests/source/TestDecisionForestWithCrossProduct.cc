@@ -99,9 +99,9 @@ int main(int argc, char *argv[]) {
 
     bool createSet;
 
-    if ((argc <= 5)||(argc > 10)) {
+    if ((argc <= 6)||(argc > 11)) {
     
-        std::cout << "Usage: \n To load data: bin/testDecisionForestWithCrossProduct Y numInstances numFeatures batch_size pageSizeInMB pathToLoadDataFile(N for generating data randomly) pathToModelFolder modelType[XGBoost/RandomForest]\n To run the inference: bin/testDecisionForestWithCrossProduct N numInstances numFeatures batchSize pageSizeInMB pathToLoadDataFile pathToModelFolder modelType[XGBoost/RandomForest]\n Example: \n bin/testDecisionForestWithCrossProduct Y 2200000 28 275000 32 model-inference/decisionTree/experiments/HIGGS.csv_test.csv model-inference/decisionTree/experiments/models/higgs_xgboost_500_8_netsdb XGBoost\n bin/testDecisionForestWithCrossProduct N 2200000 28 275000 32 model-inference/decisionTree/experiments/HIGGS.csv_test.csv model-inference/decisionTree/experiments/models/higgs_xgboost_500_8_netsdb XGBoost\n";
+        std::cout << "Usage: \n To load data: bin/testDecisionForestWithCrossProduct Y numInstances numFeatures batch_size label_col_index, pageSizeInMB pathToLoadDataFile(N for generating data randomly) pathToModelFolder modelType[XGBoost/RandomForest]\n To run the inference: bin/testDecisionForestWithCrossProduct N numInstances numFeatures batchSize labelColIndex pageSizeInMB pathToLoadDataFile pathToModelFolder modelType[XGBoost/RandomForest]\n Example: \n bin/testDecisionForestWithCrossProduct Y 2200000 28 275000 0 32 model-inference/decisionTree/experiments/HIGGS.csv_test.csv model-inference/decisionTree/experiments/models/higgs_xgboost_500_8_netsdb XGBoost\n bin/testDecisionForestWithCrossProduct N 2200000 28 275000 0 32 model-inference/decisionTree/experiments/HIGGS.csv_test.csv model-inference/decisionTree/experiments/models/higgs_xgboost_500_8_netsdb XGBoost\n";
         exit(-1);
     }
 
@@ -109,6 +109,7 @@ int main(int argc, char *argv[]) {
     int colNum = -1;
     int block_x = -1;
     int block_y = -1;
+    int label_col_index = 0;
     string errMsg;
     string forestFolderPath;
     ModelType modelType = ModelType::XGBoost;
@@ -116,7 +117,8 @@ int main(int argc, char *argv[]) {
     string dataFilePath = "";
     int numTrees = 0;
 
-    if(argc >= 5) {
+
+    if(argc >= 6) {
 
         if(string(argv[1]).compare("Y")==0) {
             createSet = true;
@@ -129,26 +131,28 @@ int main(int argc, char *argv[]) {
         block_x = std::atoi(argv[4]); //batch size
         block_y = colNum; //numFeatures
 
-    }
+        label_col_index = std::atoi(argv[5]);//the index of label column
 
-    if (argc >= 6) {
-        pageSize = std::stoi(argv[5]);
     }
 
     if (argc >= 7) {
-        dataFilePath = std::string(argv[6]);
+        pageSize = std::stoi(argv[6]);
     }
 
     if (argc >= 8) {
-        forestFolderPath = std::string(argv[7]);
+        dataFilePath = std::string(argv[7]);
     }
 
     if (argc >= 9) {
-        if (string(argv[8]).compare("XGBoost") == 0) {
+        forestFolderPath = std::string(argv[8]);
+    }
+
+    if (argc >= 10) {
+        if (string(argv[9]).compare("XGBoost") == 0) {
             modelType = ModelType::XGBoost;
-        } else if (string(argv[8]).compare("RandomForest") == 0) {
+        } else if (string(argv[9]).compare("RandomForest") == 0) {
             modelType = ModelType::RandomForest;
-        } else if (string(argv[8]).compare("LightGBM") == 0) {
+        } else if (string(argv[9]).compare("LightGBM") == 0) {
 	    modelType = ModelType::LightGBM;
 	} else {
             std::cerr << "Unsupported model type: " << argv[8] << std::endl;
@@ -156,8 +160,8 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    if (argc >= 10) {
-        numTrees = std::stoi(argv[9]);
+    if (argc >= 11) {
+        numTrees = std::stoi(argv[10]);
     }
 
 
@@ -174,7 +178,7 @@ int main(int argc, char *argv[]) {
         if (dataFilePath.compare("N") == 0) {
 	    ff::loadMatrixGeneric<pdb::TensorBlock2D<float>>(pdbClient, "decisionForest", "inputs", rowNum, colNum, block_x, block_y, false, false, errMsg);		   
 	} else {
-	    ff::loadMatrixGenericFromFile<pdb::TensorBlock2D<float>>(pdbClient, dataFilePath, "decisionForest", "inputs", rowNum, colNum, block_x, block_y, errMsg, 128);
+	    ff::loadMatrixGenericFromFile<pdb::TensorBlock2D<float>>(pdbClient, dataFilePath, "decisionForest", "inputs", rowNum, colNum, block_x, block_y, label_col_index, errMsg, 128);
 	}
 
 	//create set for tree
@@ -198,7 +202,7 @@ int main(int argc, char *argv[]) {
 
 	//create set for labels
         pdbClient.removeSet("decisionForest", "labels", errMsg);
-        pdbClient.createSet<pdb::Tree>("decisionForest", "labels",
+        pdbClient.createSet<pdb::TreeResult>("decisionForest", "labels",
                                            errMsg, 64*1024*1024, "labels",
                                            nullptr, nullptr, false);
 
@@ -209,7 +213,6 @@ int main(int argc, char *argv[]) {
 	pdb::Handle<pdb::Computation> inputTree = pdb::makeObject<pdb::ScanUserSet<Tree>>("decisionForest", "trees");
 
 
-	//if ((modelType == ModelType::XGBoost) || (modelType == ModelType::LightGBM)) {
 
             pdb::Handle<pdb::CrossProductComp> treeCrossProduct = makeObject<TreeCrossProduct>();
 

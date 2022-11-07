@@ -52,9 +52,9 @@ int main(int argc, char *argv[]) {
 
     bool createSet;
 
-    if ((argc <= 7)||(argc > 11)) {
+    if ((argc <= 8)||(argc > 12)) {
     
-        std::cout << "Usage: \n To load data: bin/testDecisionForest Y numInstances numFeatures batch_size isFloat[F/D] isGraphOrArray[G/A] pageSizeInMB pathToLoadDataFile(N for generating data randomly)\n To run the inference: bin/testDecisionForest N numInstances numFeatures batchSize isFloat[F/D] isGraphOrArray [G/A] pageSizeInMB pathToLoadDataFile pathToModelFolder modelType[XGBoost/RandomForest]\n Example: \n bin/testDecisionForest Y 2200000 28 275000 F A 32 model-inference/decisionTree/experiments/HIGGS.csv_test.csv\n bin/testDecisionForest N 2200000 28 275000 F A 32 model-inference/decisionTree/experiments/HIGGS.csv_test.csv model-inference/decisionTree/experiments/models/higgs_xgboost_500_8_netsdb XGBoost\n";
+        std::cout << "Usage: \n To load data: bin/testDecisionForest Y numInstances numFeatures batch_size label_col_index isFloat[F/D] isGraphOrArray[G/A] pageSizeInMB pathToLoadDataFile(N for generating data randomly) \n To run the inference: bin/testDecisionForest N numInstances numFeatures batchSize label_col_index isFloat[F/D] isGraphOrArray [G/A] pageSizeInMB pathToLoadDataFile pathToModelFolder modelType[XGBoost/RandomForest]\n Example: \n bin/testDecisionForest Y 2200000 28 275000 0 F A 32 model-inference/decisionTree/experiments/HIGGS.csv_test.csv\n bin/testDecisionForest N 2200000 28 275000 0 F A 32 model-inference/decisionTree/experiments/HIGGS.csv_test.csv model-inference/decisionTree/experiments/models/higgs_xgboost_500_8_netsdb XGBoost\n";
         exit(-1);
     }
 
@@ -62,6 +62,7 @@ int main(int argc, char *argv[]) {
     int colNum = -1;
     int block_x = -1;
     int block_y = -1;
+    int label_col_index = 0;
     bool isFloat = true;
     bool isGraph = true;
     string errMsg;
@@ -70,7 +71,7 @@ int main(int argc, char *argv[]) {
     int pageSize = 64;
     string dataFilePath = "";
 
-    if(argc >= 7) {
+    if(argc >= 8) {
 
         if(string(argv[1]).compare("Y")==0) {
             createSet = true;
@@ -83,40 +84,42 @@ int main(int argc, char *argv[]) {
         block_x = std::atoi(argv[4]); //batch size
         block_y = colNum; //numFeatures
 
-        if (string(argv[5]).compare("F")==0) {
+        label_col_index = std::atoi(argv[5]);
+
+        if (string(argv[6]).compare("F")==0) {
             isFloat = true;
         } else {
             isFloat = false; 
         }
 
-	 if (string(argv[6]).compare("G")==0) {
+	 if (string(argv[7]).compare("G")==0) {
             isGraph = true;
         } else {
             isGraph = false;
         }
     }
 
-    if (argc >= 8) {
-        pageSize = std::stoi(argv[7]);
-    }
-
     if (argc >= 9) {
-        dataFilePath = std::string(argv[8]);
+        pageSize = std::stoi(argv[8]);
     }
 
     if (argc >= 10) {
-        forestFolderPath = std::string(argv[9]);
+        dataFilePath = std::string(argv[9]);
     }
 
     if (argc >= 11) {
-        if (string(argv[10]).compare("XGBoost") == 0) {
+        forestFolderPath = std::string(argv[10]);
+    }
+
+    if (argc >= 12) {
+        if (string(argv[11]).compare("XGBoost") == 0) {
             modelType = ModelType::XGBoost;
-	} else if (string(argv[10]).compare("LightGBM") == 0) {
+	} else if (string(argv[11]).compare("LightGBM") == 0) {
             modelType = ModelType::LightGBM;
-        } else if (string(argv[10]).compare("RandomForest") == 0) {
+        } else if (string(argv[11]).compare("RandomForest") == 0) {
             modelType = ModelType::RandomForest;
         } else {
-            std::cerr << "Unsupported model type: " << argv[10] << std::endl;
+            std::cerr << "Unsupported model type: " << argv[11] << std::endl;
 	    exit(-1);
         }
     }
@@ -134,7 +137,7 @@ int main(int argc, char *argv[]) {
            if (dataFilePath.compare("N") == 0) {
 	       ff::loadMatrixGeneric<pdb::TensorBlock2D<float>>(pdbClient, "decisionForest", "inputs", rowNum, colNum, block_x, block_y, false, false, errMsg);		   
 	   } else {
-	       ff::loadMatrixGenericFromFile<pdb::TensorBlock2D<float>>(pdbClient, dataFilePath, "decisionForest", "inputs", rowNum, colNum, block_x, block_y, errMsg, 128);
+	       ff::loadMatrixGenericFromFile<pdb::TensorBlock2D<float>>(pdbClient, dataFilePath, "decisionForest", "inputs", rowNum, colNum, block_x, block_y, label_col_index, errMsg, 128);
 	   }
 	}
    	else {
@@ -142,7 +145,7 @@ int main(int argc, char *argv[]) {
 	   if (dataFilePath.compare("N") == 0) {
                ff::loadMatrixGeneric<pdb::TensorBlock2D<double>>(pdbClient, "decisionForest", "inputs", rowNum, colNum, block_x, block_y, false, false, errMsg);
            } else {
-	       ff::loadMatrixGenericFromFile<pdb::TensorBlock2D<double>>(pdbClient, dataFilePath, "decisionForest", "inputs", rowNum, colNum, block_x, block_y, errMsg, 128);
+	       ff::loadMatrixGenericFromFile<pdb::TensorBlock2D<double>>(pdbClient, dataFilePath, "decisionForest", "inputs", rowNum, colNum, block_x, block_y, label_col_index, errMsg, 128);
            }
 	}
     } else{
