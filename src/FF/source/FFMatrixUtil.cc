@@ -252,21 +252,19 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
   myData->print();
 
   while (!end) {
-      if (!rollback) {
+
           if (!std::getline(inFile, line)) {
-	      end = true;
-	      if (myData != nullptr)
+             end = true;
+             if (myData != nullptr) {
                   storeMatrix->push_back(myData);
 	          std::cout << "Stored " << total << " items in total" << std::endl;
-	      break;
-	  } else {
-	      total++;
-	  }
-      }
-      rollback = false;
+	     }
+	     break;
+          } else {
+             total++;
+          }
       
 
-      try {
           if (myData == nullptr) {      
               if (i == numXBlocks -1) {
     		  myData =
@@ -282,7 +280,7 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
 
 	      myData->print();
           }
-
+          
 	  std::string::size_type pos = 0;
 	  std::string::size_type new_pos;
 
@@ -314,35 +312,48 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
 
               ii = 0;
 	  
-	      storeMatrix->push_back(myData);
-	      std::cout << "Stored " << total << " items in total" << std::endl;
-              i++;
-	      if (i == numXBlocks-1) {
-                    myData = pdb::makeObject<T>(i, j, totalX%blockX, blockY,
-                                             totalX, totalY, partitionByCol);
-              } else {
-                    myData = pdb::makeObject<T>(i, j, blockX, blockY,
-                                             totalX, totalY, partitionByCol);
+              try {
+	          storeMatrix->push_back(myData);
+	          std::cout << "Stored " << total << " items in total" << std::endl;
+                  i++;
+	      } catch (pdb::NotEnoughSpace &n) {
+                  if (!pdbClient.sendData<T>(
+                      pair<string, string>(setName, dbName), storeMatrix, errMsg)) {
+                          cout << "Failed to send data to dispatcher server" << endl;
+                          exit(1);
+                  }
+	          std::cout << "Dispatched " << storeMatrix->size() << " blocks."
+                      << std::endl;
+	          storeMatrix = pdb::makeObject<pdb::Vector<pdb::Handle<T>>>();
+	          storeMatrix->push_back(myData);
               }
-              myData->print();
 
-	  }
+	      try{
 
-      } catch (pdb::NotEnoughSpace &n) {
-          if (!pdbClient.sendData<T>(
-              pair<string, string>(setName, dbName), storeMatrix, errMsg)) {
-                  cout << "Failed to send data to dispatcher server" << endl;
-                  exit(1);
-              }
-              std::cout << "Dispatched " << storeMatrix->size() << " blocks."
-                << std::endl;
-              pdb::makeObjectAllocatorBlock(size * 1024 * 1024, true);
-              storeMatrix = pdb::makeObject<pdb::Vector<pdb::Handle<T>>>();
-	      rollback = true;
+	          if (i == numXBlocks-1) {
+                       myData = pdb::makeObject<T>(i, j, totalX%blockX, blockY,
+                                             totalX, totalY, partitionByCol);
+                  } else {
+                       myData = pdb::makeObject<T>(i, j, blockX, blockY,
+                                             totalX, totalY, partitionByCol);
+                  }
+                  myData->print();
 
-	      myData = nullptr;
+	      } catch (pdb::NotEnoughSpace &n) {
+                  if (!pdbClient.sendData<T>(
+                      pair<string, string>(setName, dbName), storeMatrix, errMsg)) {
+                          cout << "Failed to send data to dispatcher server" << endl;
+                          exit(1);
+                  }
+                  std::cout << "Dispatched " << storeMatrix->size() << " blocks."
+                     << std::endl;
+                  pdb::makeObjectAllocatorBlock(size * 1024 * 1024, true);
+                  storeMatrix = pdb::makeObject<pdb::Vector<pdb::Handle<T>>>();
+
+	          myData = nullptr;
 	  
-      }
+              }
+	 }
 
   }
 
