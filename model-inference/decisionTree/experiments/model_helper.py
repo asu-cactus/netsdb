@@ -12,6 +12,18 @@ def calculate_time(start_time, end_time):
     diff = (end_time-start_time)*1000
     return diff
 
+def todense_fill(csr: sp.csr_matrix, fill_value: float) -> np.ndarray:
+    """Densify a sparse CSR matrix. Same as csr_matrix.todense()
+    except it fills missing entries with fill_value instead of 0.
+    """
+    dummy_value = np.nan if not np.isnan(fill_value) else np.inf
+    dummy_check = np.isnan if np.isnan(dummy_value) else np.isinf
+    csr = csr.copy().astype(float)
+    csr.data[csr.data == 0] = dummy_value
+    out = np.array(csr.todense()).squeeze()
+    out[out == 0] = fill_value
+    out[dummy_check(out)] = 0
+    return out
 
 def load_data_from_pickle(dataset, config, suffix, time_consume):
     start_time = time.time()
@@ -38,7 +50,7 @@ def fetch_criteo(suffix, time_consume):
     y = y.astype(np.int8, copy=False)
     return (x, y)
 
-def fetch_epsilon_sparse(time_consume, dataset="epsilon_normalized_test.svm"):
+def fetch_epsilon_sparse(time_consume=None, dataset="epsilon_normalized_test.svm"):
     # Faster Dataset Loader
     # svm_package_loader_path = relative2abspath('package_cache')
     # if not os.path.exists(svm_package_loader_path):

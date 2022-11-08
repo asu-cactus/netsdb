@@ -2,11 +2,12 @@ import os
 import gc
 import json
 import pickle
-from model_helper import relative2abspath, dataset_folder
+from model_helper import relative2abspath, dataset_folder, fetch_epsilon_sparse, todense_fill
 import numpy as np
 import pandas as pd
 from urllib.request import urlretrieve
 import psycopg2
+from scipy import sparse as sp
 from sklearn import datasets
 from sklearn.utils import shuffle
 import argparse
@@ -146,8 +147,19 @@ def prepare_year(dataset_folder, nrows=None):
     df = df.astype({0: np.int8})
     return df
 
-
-def prepare_epsilon(nrows=None):
+# Passing a valid dataset_folder makes this function construct a custom dense dataset from the original sparse dataset.
+def prepare_epsilon(nrows=None, dataset_folder=None):
+    if dataset_folder:
+        print('Preparing Epsilon Sparse Dataset')
+        prepare_epsilon_sparse(dataset_folder)
+        train_data = pd.DataFrame([])
+        print('Fetching Epsilon Sparse Test Dataset [Train is empty]')
+        test_features, test_labels = fetch_epsilon_sparse()
+        print('Fetched Epsilon Sparse Test Dataset')
+        test_labels = np.expand_dims(test_labels, axis=1)
+        test_features = todense_fill(test_features, fill_value=-1) # Fill value of -1 instead of default_value of 0
+        test_data = pd.DataFrame(np.concatenate((test_labels,test_features), axis=1))
+        return test_data, train_data
     from catboost.datasets import epsilon
     print("DOWNLOADING EPSILON")
     train_data, test_data = epsilon()
@@ -378,7 +390,8 @@ if __name__ == "__main__":
         is_classification = datasetconfig["type"] == "classification"
         df = prepare_airline(is_classification, dataset_folder, nrows=nrows)
     elif dataset == 'epsilon':
-        df_test, df_train = prepare_epsilon(nrows=nrows)
+        df_test, df_train = prepare_epsilon(nrows=nrows) # Default Missing Value
+        # df_test, df_train = prepare_epsilon(nrows=nrows, dataset_folder=dataset_folder) # Custom Missing Value of -1
         ######
         # mod = np.nan_to_num(df_test,0)
         # print("SPARSITY: ",1.0-(np.count_nonzero(mod))/float(mod.size))
