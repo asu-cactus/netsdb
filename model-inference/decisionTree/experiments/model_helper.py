@@ -3,6 +3,7 @@ import time
 import os
 import numpy as np
 import math
+from scipy import sparse as sp
 from sklearn.metrics import classification_report, mean_squared_error
 
 dataset_folder = "dataset/"

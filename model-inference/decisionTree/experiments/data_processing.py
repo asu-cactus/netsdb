@@ -7,7 +7,6 @@ import numpy as np
 import pandas as pd
 from urllib.request import urlretrieve
 import psycopg2
-from scipy import sparse as sp
 from sklearn import datasets
 from sklearn.utils import shuffle
 import argparse
