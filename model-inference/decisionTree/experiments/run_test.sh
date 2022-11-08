@@ -1,6 +1,6 @@
 #! /bin/bash
-DATASET="higgs"
-TREES="500"
+DATASET="criteo"
+TREES="10"
 MODELS="randomforest xgboost lightgbm"
 FRAMEWORKS="Sklearn ONNXCPU HummingbirdPytorchCPU HummingbirdTorchScriptCPU HummingbirdTVMCPU TreeLite Lleaves"
 
@@ -35,7 +35,7 @@ case $DATASET in
     ;;
 "criteo")
     TESTSIZE="51882752"
-    BATCHSIZES="1000 10000 100000 1000000 10000000 51882752"
+    BATCHSIZES="1 10 100 1000 10000 100000 1000000 10000000 51882752"
     ;;
 "tpcxai_fraud")
     TESTSIZE="131564160"
