@@ -51,7 +51,7 @@ elif common_env['PLATFORM'] == 'posix':
     # for debugging
     # Needs to be turned on for KMeans and TPCH
     common_env.Append(
-        CXXFLAGS='-std=c++17 -g -O3 -fPIC -fno-tree-vectorize  -march=native -Winline  -Wno-deprecated-declarations')
+        CXXFLAGS='-std=c++17 -g -O3  -ftree-vectorize -ffast-math -mavx -march=native -Winline  -Wno-deprecated-declarations')
     #common_env.Append(CXXFLAGS = '-std=c++14 -g  -Oz -ldl -lstdc++ -Wno-deprecated-declarations')
     #LIBPYTORCH_PATH = "/home/ubuntu/anaconda3/envs/py37_torch/lib/python3.7/site-packages/torch/lib"
     LIBPYTORCH_PATH = "/home/ubuntu/libtorch/lib"
@@ -68,7 +68,7 @@ common_env.Replace(CXX="clang++")
 # common_env.Append(CCFLAGS='-DDEBUG_SHUFFLING')
 common_env.Append(CCFLAGS='-DINITIALIZE_ALLOCATOR_BLOCK')
 # common_env.Append(CCFLAGS='-DENABLE_SHALLOW_COPY')
-common_env.Append(CCFLAGS='-DDEFAULT_BATCH_SIZE=20')
+common_env.Append(CCFLAGS='-DDEFAULT_BATCH_SIZE=1')
 common_env.Append(CCFLAGS='-DREMOVE_SET_WITH_EVICTION')
 common_env.Append(CCFLAGS='-DAUTO_TUNING')
 common_env.Append(CCFLAGS='-DPROFILING')

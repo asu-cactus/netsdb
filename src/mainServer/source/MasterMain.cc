@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
     std::string masterIp;
     std::string pemFile = "conf/pdb.key";
     bool pseudoClusterMode = false;
-    double partitionToCoreRatio = 0.75;
+    double partitionToCoreRatio = 1;
     bool trainingMode = false;
     if (argc == 3) {
         masterIp = argv[1];
@@ -53,7 +53,7 @@ int main(int argc, char* argv[]) {
         std::cout << "[Usage] #masterIp #port #runPseudoClusterOnOneNode (Y for running a "
                      "pseudo-cluster on one node, N for running a real-cluster distributedly, and "
                      "default is N) #pemFile (by default is conf/pdb.key) #partitionToCoreRatio "
-                     "(by default is 0.75)"
+                     "(by default is 1)"
                   << std::endl;
         exit(-1);
     }

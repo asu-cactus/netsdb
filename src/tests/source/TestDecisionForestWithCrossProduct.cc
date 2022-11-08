@@ -178,7 +178,7 @@ int main(int argc, char *argv[]) {
         if (dataFilePath.compare("N") == 0) {
 	    ff::loadMatrixGeneric<pdb::TensorBlock2D<float>>(pdbClient, "decisionForest", "inputs", rowNum, colNum, block_x, block_y, false, false, errMsg);		   
 	} else {
-	    ff::loadMatrixGenericFromFile<pdb::TensorBlock2D<float>>(pdbClient, dataFilePath, "decisionForest", "inputs", rowNum, colNum, block_x, block_y, label_col_index, errMsg, 128);
+	    ff::loadMatrixGenericFromFile<pdb::TensorBlock2D<float>>(pdbClient, dataFilePath, "decisionForest", "inputs", rowNum, colNum, block_x, block_y, label_col_index, errMsg, 4*pageSize);
 	}
 
 	//create set for tree
