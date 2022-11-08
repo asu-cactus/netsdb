@@ -3,6 +3,7 @@ import time
 import os
 import numpy as np
 import math
+from scipy import sparse as sp
 from sklearn.metrics import classification_report, mean_squared_error
 
 dataset_folder = "dataset/"
@@ -12,6 +13,18 @@ def calculate_time(start_time, end_time):
     diff = (end_time-start_time)*1000
     return diff
 
+def todense_fill(csr: sp.csr_matrix, fill_value: float) -> np.ndarray:
+    """Densify a sparse CSR matrix. Same as csr_matrix.todense()
+    except it fills missing entries with fill_value instead of 0.
+    """
+    dummy_value = np.nan if not np.isnan(fill_value) else np.inf
+    dummy_check = np.isnan if np.isnan(dummy_value) else np.isinf
+    csr = csr.copy().astype(float)
+    csr.data[csr.data == 0] = dummy_value
+    out = np.array(csr.todense()).squeeze()
+    out[out == 0] = fill_value
+    out[dummy_check(out)] = 0
+    return out
 
 def load_data_from_pickle(dataset, config, suffix, time_consume):
     start_time = time.time()

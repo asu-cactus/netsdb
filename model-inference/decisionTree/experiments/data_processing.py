@@ -2,7 +2,7 @@ import os
 import gc
 import json
 import pickle
-from model_helper import relative2abspath, dataset_folder
+from model_helper import relative2abspath, dataset_folder, todense_fill
 import numpy as np
 import pandas as pd
 from urllib.request import urlretrieve
@@ -247,14 +247,14 @@ def prepare_criteo(dataset_folder):
 
 def prepare_criteo_dense(dataset_folder):
     prepare_criteo(dataset_folder)
-    read_lines = 5e4 # 5e6 # 6042135
+    read_lines = 1e4 # 5e4 # 5e6 # 6042135
     num_features = 1000000
     test_path = relative2abspath(dataset_folder, "criteo.kaggle2014.svm", "test.txt.svm")
     if os.path.isfile(test_path):
         test_df_features, test_df_labels = datasets.load_svmlight_file(test_path, n_features=num_features, length=read_lines)
         # print(test_df_features.todense(), test_df_labels[..., np.newaxis])
         # print(np.append(test_df_features.todense(), test_df_labels[..., np.newaxis], axis=1).shape)
-        test_df = pd.DataFrame(np.append(test_df_features.todense(), test_df_labels[..., np.newaxis], axis=1), columns=[f'feature_{idx}' for idx in range(num_features)]+['label'])
+        test_df = pd.DataFrame(np.append(todense_fill(test_df_features, fill_value=-1), test_df_labels[..., np.newaxis], axis=1), columns=[f'feature_{idx}' for idx in range(num_features)]+['label'])
         print('Test Dataset Shape:',test_df.shape)
         # print(test_df.shape)
         # test_df = test_df.join(pd.DataFrame(test_df_labels, columns=['label']))
