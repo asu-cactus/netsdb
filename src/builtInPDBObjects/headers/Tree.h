@@ -91,7 +91,6 @@ namespace pdb
         static void processInnerNodes(std::vector<std::string> & innerNodes, ModelType modelType, Node * tree)
         {
 
-            std::cout << "process inner nodes" << std::endl;
 
             int findStartPosition;
             int findMidPosition;
@@ -101,7 +100,6 @@ namespace pdb
             {
                // Construct Inner Nodes
                string currentLine = innerNodes[i];
-	       //std::cout << currentLine << std::endl;
                int nodeID;
                int indexID;
                float returnClass;
@@ -159,7 +157,6 @@ namespace pdb
 
         static void processLeafNodes(std::vector<std::string> & leafNodes, ModelType modelType, Node * tree)
         {
-            std::cout << "process leaf nodes" << std::endl;
             int findStartPosition;
             int findMidPosition;
             int findEndPosition;
@@ -168,7 +165,6 @@ namespace pdb
             {
                 // Construct Leaf Nodes
                 string currentLine = leafNodes[i];
-		//std::cout << currentLine << std::endl;
 
                 int nodeID;
                 float returnClass = -1.0f;
@@ -222,7 +218,6 @@ namespace pdb
 	static void processRelationships(std::vector<std::string> & relationships, ModelType modelType, Node * tree)
         {
 
-		std::cout << "process relationships" << std::endl;
 
                 int findStartPosition;
                 int findMidPosition;
@@ -234,7 +229,6 @@ namespace pdb
                     int parentNodeID;
                     int childNodeID;
                     std::string currentLine = relationships[i];
-		    //std::cout << currentLine << std::endl;
 		    bool isChildLeaf;
 
                     if (modelType == ModelType::RandomForest) {

@@ -89,7 +89,6 @@ namespace pdb
             for (int n = 0; n < numTrees; ++n)
             {
                 std::string inputFileName = std::string(treePathIn[n]);
-		std::cout << inputFileName << std::endl;
                 std::ifstream inputFile;
                 inputFile.open(inputFileName.data());
                 assert(inputFile.is_open());
