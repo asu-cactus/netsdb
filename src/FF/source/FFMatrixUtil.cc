@@ -246,10 +246,8 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
   int numXBlocks = ceil(totalX / (double)blockX);
   int numYBlocks = ceil(totalY / (double)blockY);
 
-  pdb::Handle<T> myData = pdb::makeObject<T>(i, j, blockX, blockY,
-                                             totalX, totalY, partitionByCol);;
-
-  myData->print();
+  pdb::Handle<T> myData = nullptr;
+  int curBlockRows = blockX;
 
   while (!end) {
 
@@ -264,22 +262,58 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
              total++;
           }
       
+          try {
+              if (myData == nullptr) {      
+                  if (i == numXBlocks -1) {
+		      if (totalX % blockX == 0)
+			  myData = pdb::makeObject<T>(i, j, blockX, blockY,
+                                             totalX, totalY, partitionByCol);
+		      else {
+    		          myData = pdb::makeObject<T>(i, j, totalX % blockX, blockY,
+                                             totalX, totalY, partitionByCol);
+	              }  
+	          } else {
+	      
+		      myData =
+                          pdb::makeObject<T>(i, j, blockX, blockY,
+                                             totalX, totalY, partitionByCol);
+	      
+	          }
 
-          if (myData == nullptr) {      
+	          myData->print();
+	          curBlockRows = myData->meta->totalRows;
+              }
+	  } catch (pdb::NotEnoughSpace &n) {
+
+              if (!pdbClient.sendData<T>(
+                   pair<string, string>(setName, dbName), storeMatrix, errMsg)) {
+                          cout << "Failed to send data to dispatcher server" << endl;
+                          exit(1);
+              }
+              std::cout << "Dispatched " << storeMatrix->size() << " blocks."
+                      << std::endl;
+              pdb::makeObjectAllocatorBlock(size * 1024 * 1024, true);
+              storeMatrix = pdb::makeObject<pdb::Vector<pdb::Handle<T>>>();
               if (i == numXBlocks -1) {
-    		  myData =
-                      pdb::makeObject<T>(i, j, totalX % blockX, blockY,
+                      if (totalX % blockX == 0)
+                          myData = pdb::makeObject<T>(i, j, blockX, blockY,
                                              totalX, totalY, partitionByCol);
-	      } else {
-	      
-		  myData =
-                      pdb::makeObject<T>(i, j, blockX, blockY,
+                      else {
+                          myData = pdb::makeObject<T>(i, j, totalX % blockX, blockY,
                                              totalX, totalY, partitionByCol);
-	      
-	      }
+                      }
+              } else {
 
-	      myData->print();
-          }
+                      myData =
+                          pdb::makeObject<T>(i, j, blockX, blockY,
+                                             totalX, totalY, partitionByCol);
+
+              }
+
+              myData->print();
+              curBlockRows = myData->meta->totalRows;
+
+	  }
           
 	  std::string::size_type pos = 0;
 	  std::string::size_type new_pos;
@@ -303,19 +337,16 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
 	     (*(myData->getRawDataHandle()))[ii * blockY + jj] = stod(token);
 	     jj++;
 	  }	  
-
 	  assert (jj == blockY);
           
 	  ii++;
 
-	  if(ii == blockX) {
+	  if(ii == curBlockRows) {
 
               ii = 0;
 	  
               try {
 	          storeMatrix->push_back(myData);
-	          std::cout << "Stored " << total << " items in total" << std::endl;
-                  i++;
 	      } catch (pdb::NotEnoughSpace &n) {
                   if (!pdbClient.sendData<T>(
                       pair<string, string>(setName, dbName), storeMatrix, errMsg)) {
@@ -324,47 +355,28 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
                   }
 	          std::cout << "Dispatched " << storeMatrix->size() << " blocks."
                       << std::endl;
+		  pdb::makeObjectAllocatorBlock(size * 1024 * 1024, true);
 	          storeMatrix = pdb::makeObject<pdb::Vector<pdb::Handle<T>>>();
 	          storeMatrix->push_back(myData);
               }
-
-	      try{
-
-	          if (i == numXBlocks-1) {
-                       myData = pdb::makeObject<T>(i, j, totalX%blockX, blockY,
-                                             totalX, totalY, partitionByCol);
-                  } else {
-                       myData = pdb::makeObject<T>(i, j, blockX, blockY,
-                                             totalX, totalY, partitionByCol);
-                  }
-                  myData->print();
-
-	      } catch (pdb::NotEnoughSpace &n) {
-                  if (!pdbClient.sendData<T>(
-                      pair<string, string>(setName, dbName), storeMatrix, errMsg)) {
-                          cout << "Failed to send data to dispatcher server" << endl;
-                          exit(1);
-                  }
-                  std::cout << "Dispatched " << storeMatrix->size() << " blocks."
-                     << std::endl;
-                  pdb::makeObjectAllocatorBlock(size * 1024 * 1024, true);
-                  storeMatrix = pdb::makeObject<pdb::Vector<pdb::Handle<T>>>();
-
-	          myData = nullptr;
-	  
-              }
+	      std::cout << "Stored " << total << " items in total" << std::endl;
+              i++;
+              myData = nullptr;
 	 }
 
   }
 
-  if (!pdbClient.sendData<T>(
-      pair<string, string>(setName, dbName), storeMatrix, errMsg)) {
-      cout << "Failed to send data to dispatcher server" << endl;
-      exit(1);
-  }
+  if (storeMatrix-> size() > 0) {
 
- std::cout << "Dispatched " << storeMatrix->size() << " blocks."
+      if (!pdbClient.sendData<T>(
+          pair<string, string>(setName, dbName), storeMatrix, errMsg)) {
+          cout << "Failed to send data to dispatcher server" << endl;
+          exit(1);
+      }
+
+      std::cout << "Dispatched " << storeMatrix->size() << " blocks."
                 << std::endl;
+  }
 
   // to write back all buffered records
   pdbClient.flushData(errMsg);

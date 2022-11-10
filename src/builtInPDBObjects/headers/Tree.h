@@ -137,9 +137,21 @@ namespace pdb
 	            if (((findStartPosition = currentLine.find_first_of("split")) != string::npos)&&((findEndPosition = currentLine.find_first_of("[label=<<B>")) != string::npos)) {
                        nodeID = std::stoi(currentLine.substr(findStartPosition+5, findEndPosition - 1-findStartPosition-5));
                     }
-                    if ((findStartPosition = currentLine.find("Column_")) != string::npos && (findEndPosition = currentLine.find("</B> &#8804;")) != string::npos) {
-                        indexID = std::stoi(currentLine.substr(findStartPosition+7, findEndPosition-findStartPosition-7));
-                    }
+                    if ((findStartPosition = currentLine.find("Column_")) != string::npos) {
+			if ((findEndPosition = currentLine.find("</B> &#8804;")) != string::npos) {
+                            indexID = std::stoi(currentLine.substr(findStartPosition+7, findEndPosition-findStartPosition-7));
+			}    
+                    } else {
+		    
+			if (((findStartPosition = currentLine.find("[label=<<B>")) != string::npos) && ((findEndPosition = currentLine.find("</B> &#8804;")) != string::npos)) {
+                                std::cout << findStartPosition << std::endl;
+				std::cout << findEndPosition << std::endl;
+    				std::cout << currentLine.substr(findStartPosition+11, findEndPosition-findStartPosition-11) << std::endl;
+                            indexID = std::stoi(currentLine.substr(findStartPosition+11, findEndPosition-findStartPosition-11));
+
+			}
+		    
+		    }
                     if ((findStartPosition = currentLine.find("&#8804;<B>")) != string::npos && (findEndPosition = currentLine.find_first_of("</B>> fillcolor=")) != string::npos) {
                         returnClass = std::stod(currentLine.substr(findStartPosition + 10, findEndPosition-findStartPosition-10));
                     }
