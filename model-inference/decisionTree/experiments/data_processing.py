@@ -124,6 +124,7 @@ def prepare_fraud(dataset_folder, nrows=None):
     df = pd.read_csv(local_url + ".zip", dtype=np.float32, nrows=nrows)
     df = df.astype({"Class": np.int8})
     df = df.drop("Time", axis=1)
+    df = df.drop("Amount", axis=1)
     return df
 
 
