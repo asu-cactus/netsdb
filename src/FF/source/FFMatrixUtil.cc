@@ -265,23 +265,26 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
           try {
               if (myData == nullptr) {      
                   if (i == numXBlocks -1) {
-		      if (totalX % blockX == 0)
+		      if (totalX % blockX == 0) {
 			  myData = pdb::makeObject<T>(i, j, blockX, blockY,
                                              totalX, totalY, partitionByCol);
+	                  curBlockRows = blockX;
+		      }
 		      else {
     		          myData = pdb::makeObject<T>(i, j, totalX % blockX, blockY,
                                              totalX, totalY, partitionByCol);
+			  curBlockRows = totalX % blockX;
 	              }  
 	          } else {
 	      
 		      myData =
                           pdb::makeObject<T>(i, j, blockX, blockY,
                                              totalX, totalY, partitionByCol);
-	      
+	              curBlockRows = blockX;
 	          }
+		  myData->print();
+                  std::cout << "curBlockRows=" << curBlockRows << std::endl;
 
-	          myData->print();
-	          curBlockRows = myData->meta->totalRows;
               }
 	  } catch (pdb::NotEnoughSpace &n) {
 
@@ -295,23 +298,26 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
               pdb::makeObjectAllocatorBlock(size * 1024 * 1024, true);
               storeMatrix = pdb::makeObject<pdb::Vector<pdb::Handle<T>>>();
               if (i == numXBlocks -1) {
-                      if (totalX % blockX == 0)
+                      if (totalX % blockX == 0) {
                           myData = pdb::makeObject<T>(i, j, blockX, blockY,
                                              totalX, totalY, partitionByCol);
+		          curBlockRows = blockX;
+		      }
                       else {
                           myData = pdb::makeObject<T>(i, j, totalX % blockX, blockY,
                                              totalX, totalY, partitionByCol);
+			  curBlockRows = totalX % blockX;
                       }
               } else {
 
                       myData =
                           pdb::makeObject<T>(i, j, blockX, blockY,
                                              totalX, totalY, partitionByCol);
-
+                      curBlockRows = blockX;
               }
-
               myData->print();
-              curBlockRows = myData->meta->totalRows;
+	      std::cout << "curBlockRows=" << curBlockRows << std::endl;
+
 
 	  }
           
