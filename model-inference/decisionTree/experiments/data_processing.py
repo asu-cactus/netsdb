@@ -14,6 +14,8 @@ import math
 import sys
 import time
 
+from scipy import sparse as sp
+
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
@@ -156,7 +158,8 @@ def prepare_epsilon(nrows=None, dataset_folder=None):
         test_features, test_labels = fetch_epsilon_sparse()
         print('Fetched Epsilon Sparse Test Dataset')
         test_labels = np.expand_dims(test_labels, axis=1)
-        test_features = todense_fill(test_features, fill_value=-1) # Fill value of -1 instead of default_value of 0
+        test_features = todense_fill(test_features)
+        print(f'Test Features Occupy: {sys.getsizeof(test_features)} bytes')
         test_data = pd.DataFrame(np.concatenate((test_labels,test_features), axis=1))
         return test_data, train_data
     from catboost.datasets import epsilon
@@ -194,6 +197,15 @@ def prepare_epsilon_sparse(dataset_folder, nrows=None):
         updated_content = re.sub('(^-1 )|(\n-1 )', '\n0 ', content)
     with open(f'{dataset_folder}{final_dataset}', 'w') as f:
         f.write(updated_content)
+    # START: Control the Sparsity of Data
+    # x, y = datasets.load_svmlight_file(downloaded_file, dtype=np.float32)
+    # print('DATASET LOADED FOR CUSTOM SPARSITY')
+    # print(f'x Occupy [BEFORE]: {sys.getsizeof(x)} bytes')
+    # x = sp.csr_matrix(todense_fill(x))
+    # print(f'x Occupy [AFTER]: {sys.getsizeof(x)} bytes')
+    # datasets.dump_svmlight_file(x,y,downloaded_file)
+    # print('DATASET DUMPED WITH CUSTOM SPARSITY')
+    # END
 
 def prepare_covtype(dataset_folder, nrows=None): 
     df = datasets.fetch_covtype(data_home=dataset_folder, as_frame=True)["frame"]
@@ -390,7 +402,7 @@ if __name__ == "__main__":
         df = prepare_airline(is_classification, dataset_folder, nrows=nrows)
     elif dataset == 'epsilon':
         df_test, df_train = prepare_epsilon(nrows=nrows) # Default Missing Value
-        # df_test, df_train = prepare_epsilon(nrows=nrows, dataset_folder=dataset_folder) # Custom Missing Value of -1
+        # df_test, df_train = prepare_epsilon(nrows=nrows, dataset_folder=dataset_folder) # Custom Missing Value
         ######
         # mod = np.nan_to_num(df_test,0)
         # print("SPARSITY: ",1.0-(np.count_nonzero(mod))/float(mod.size))
@@ -460,16 +472,16 @@ if __name__ == "__main__":
         print("LOADING DATA FOR EPSILON")
         columns = [i for i in range(1, 2001)]
         with connection.cursor() as cur:
-            train.head()
-            rows = len(train)
-            for i in range(rows):
-                cur.execute("INSERT INTO epsilon_train(label,row) VALUES(%s, %s)", (int(
-                    train.loc[i, 0]), list(train.loc[i, columns])))
-                if i % 10000 == 0:
-                    print(i)
+            # train.head()
+            # rows = len(train)
+            # for i in range(rows):
+            #     cur.execute("INSERT INTO epsilon_train(label,row) VALUES(%s, %s)", (int(
+            #         train.loc[i, 0]), list(train.loc[i, columns])))
+            #     if i % 10000 == 0:
+            #         print(i)
 
-            connection.commit()
-            print("LOADED "+datasetconfig["table"]+"_train"+" to DB")
+            # connection.commit()
+            # print("LOADED "+datasetconfig["table"]+"_train"+" to DB")
 
             test.head()
             rows = len(test)

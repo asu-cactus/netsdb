@@ -1,29 +1,54 @@
 import pickle
 import time
 import os
+import sys
 import numpy as np
 import math
+import random
 from scipy import sparse as sp
 from sklearn.metrics import classification_report, mean_squared_error
 
 dataset_folder = "dataset/"
 
+fill_missing_value = 0 # np.nan # 0
+density_percentage = 0.5
 
 def calculate_time(start_time, end_time):
     diff = (end_time-start_time)*1000
     return diff
 
-def todense_fill(csr: sp.csr_matrix, fill_value: float) -> np.ndarray:
+def todense_fill(csr: sp.csr_matrix) -> np.ndarray:
     """Densify a sparse CSR matrix. Same as csr_matrix.todense()
-    except it fills missing entries with fill_value instead of 0.
+    except it fills missing entries with fill_missing_value instead of 0
     """
-    dummy_value = np.nan if not np.isnan(fill_value) else np.inf
-    dummy_check = np.isnan if np.isnan(dummy_value) else np.isinf
+    # dummy_value = np.nan if not np.isnan(fill_missing_value) else np.inf
+    # dummy_check = np.isnan if np.isnan(dummy_value) else np.isinf
+    dummy_value = np.nan
+    dummy_check = np.isnan
     csr = csr.copy().astype(float)
     csr.data[csr.data == 0] = dummy_value
     out = np.array(csr.todense()).squeeze()
-    out[out == 0] = fill_value
-    out[dummy_check(out)] = 0
+    # ===== Control the Sparsity of the Data
+    if density_percentage>0:
+        print(f'Custom Density Percentage: {density_percentage}')
+        # Varying Sparsity by Row and Column, using scipy random function
+        sparsity_matrix_multiplier = sp.random(out.shape[0],out.shape[1],density=density_percentage, data_rvs=np.ones).todense()
+        print(f'Multiplier Shape: {sparsity_matrix_multiplier.shape}')
+        print(f'Non-zero Values [BEFORE]: {np.count_nonzero(out)}')
+        nonzeros = np.count_nonzero(out)
+        for i in range(out.shape[0]):
+            # print(np.expand_dims(out[i],axis=0).shape, sparsity_matrix_multiplier[i].shape)
+            out[i] = np.multiply(np.expand_dims(out[i],axis=0),sparsity_matrix_multiplier[i])
+        print(f'Non-zero Values [AFTER]: {np.count_nonzero(out)}')
+        print(f'DENSITY: {np.count_nonzero(out)/nonzeros}')
+        # out = np.multiply(out,sparsity_matrix_multiplier)
+        # sparse_column_indices = random.sample(range(out.shape[1]),int(out.shape[1]*density_percentage))
+        # for column_index in sparse_column_indices:
+        #     out[::,column_index] = fill_missing_value
+    # =====
+    # out[out == 0] = fill_missing_value
+    # out[dummy_check(out)] = 0
+    print(f'Non-zero Values [AFTER CHECK]: {np.count_nonzero(out)}')
     return out
 
 def load_data_from_pickle(dataset, config, suffix, time_consume):
@@ -52,26 +77,12 @@ def fetch_criteo(suffix, time_consume):
     return (x, y)
 
 def fetch_epsilon_sparse(time_consume=None, dataset="epsilon_normalized_test.svm"):
-    # Faster Dataset Loader
-    # svm_package_loader_path = relative2abspath('package_cache')
-    # if not os.path.exists(svm_package_loader_path):
-    #     os.makedirs(svm_package_loader_path)
-    # if not len(os.listdir(svm_package_loader_path)):
-    #     os.system(f'git clone https://github.com/mblondel/svmlight-loader.git {svm_package_loader_path}')
-    # os.system(f'python {svm_package_loader_path}/setup.py build')
-    # os.system(f'sudo python {svm_package_loader_path}/setup.py install')
-    # from package_cache.svmlight_loader import load_svmlight_file
     from sklearn import datasets
 
     start_time = time.time()
     path = relative2abspath(dataset_folder, dataset)
     x, y = datasets.load_svmlight_file(path, dtype=np.float32)
     data_loading_time = calculate_time(start_time,time.time())
-    # sparse_to_dense_start_time = time.time()
-    # for _ in range(10):
-    #     x_dense = x.todense()
-    # sparse_to_dense_time = calculate_time(sparse_to_dense_start_time,time.time())
-    # print(f"Time to Convert Sparse to Dense Matrix: {sparse_to_dense_time}")
     if time_consume is not None:
         time_consume["data loading time"] = data_loading_time
     y = y.astype(np.int8, copy=False)
@@ -158,7 +169,7 @@ def run_inference(framework, features, input_size, query_size, predict, time_con
         aggregate_func = aggregate_function()
         for i in range(iterations):
             query_data = treelite_runtime.DMatrix(
-                features[i*query_size:(i+1)*query_size])
+                features[i*query_size:(i+1)*query_size], missing=fill_missing_value)
             output = predict(query_data)
             if is_classification:
                 output = np.where(output > 0.5, 1, 0)
