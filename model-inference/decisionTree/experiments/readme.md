@@ -96,15 +96,15 @@ python test_model.py -d [dataset] -m [model] -f [framework] --batch_size [batch_
 **Examples**
 python data_processing.py -d higgs
 
-python train_model.py -d higgs -m randomforest
-python train_model.py -d higgs -m xgboost
-python train_model.py -d higgs -m lightgbm
+python train_model.py -d higgs -m randomforest --num_trees 10
+python train_model.py -d higgs -m xgboost --num_trees 10
+python train_model.py -d higgs -m lightgbm --num_trees 10
 
-python convert_trained_model_to_framework.py -d higgs -m randomforest -f pytorch,torch,tf-df,onnx
-python convert_trained_model_to_framework.py -d higgs -m xgboost -f pytorch,torch,onnx,treelite,tf-df
-python convert_trained_model_to_framework.py -d higgs -m lightgbm -f pytorch,torch,onnx,treelite,lightgbm,lleaves
+python convert_trained_model_to_framework.py -d higgs -m randomforest -f pytorch,torch,tf-df,onnx,netsdb --num_trees 10
+python convert_trained_model_to_framework.py -d higgs -m xgboost -f pytorch,torch,onnx,treelite,tf-df,netsdb --num_trees 10
+python convert_trained_model_to_framework.py -d higgs -m lightgbm -f pytorch,torch,onnx,treelite,lightgbm,lleaves,netsdb --num_trees 10
 
-python test_model.py -d higgs -m xgboost -f TreeLite --batch_size 1000 --query_size 1000
+python test_model.py -d higgs -m xgboost -f TreeLite --batch_size 1000 --query_size 1000 --num_trees 10
 or modify and run run_test.sh
 nohup ./run_test.sh &> ./results/test_output.txt &
 ```

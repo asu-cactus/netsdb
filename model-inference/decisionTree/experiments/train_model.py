@@ -16,7 +16,7 @@ MODEL = "xgboost"
 TREES = None
 DEPTH = None
 GPU = False
-def parse_arguments():
+def parse_arguments(config):
     global DATASET, MODEL, GPU
     parser = argparse.ArgumentParser(description='Arguments for train_model.')
     parser.add_argument("-d", "--dataset", type=str, choices=[
