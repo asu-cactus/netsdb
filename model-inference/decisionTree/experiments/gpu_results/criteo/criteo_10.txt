@@ -1,0 +1,656 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: criteo
+MODEL: xgboost
+FRAMEWORK: Sklearn
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/criteo_xgboost_10_8.pkl
+Time Taken to load sklearn model: 1349.212646484375
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 463, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 141, in test
+    test_postprocess(*test_cpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 152, in test_cpu
+    results = run_inference(FRAMEWORK, features, input_size, args.query_size, sklearnmodel.predict, time_consume, is_classification,dataset_type)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 167, in run_inference
+    output = predict(query_data)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 114, in predict
+    return model_predict(query)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/xgboost/sklearn.py", line 1434, in predict
+    class_probs = super().predict(
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/xgboost/sklearn.py", line 1049, in predict
+    predts = self.get_booster().inplace_predict(
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/xgboost/core.py", line 2083, in inplace_predict
+    raise ValueError(
+ValueError: Feature shape mismatch, expected: 999999, got 999995
+TESTS START HERE
+*******************************8
+gpu_run.sh: 62: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d criteo -m randomforest -f NvidiaFILGPU --batch_size 1 --query_size 1 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: criteo
+MODEL: randomforest
+FRAMEWORK: NvidiaFILGPU
+Query Size: 1
+Batch Size: 1
+Trees 10
+Depth 8
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/criteo_randomforest_10_8.pkl
+Time Taken to load sklearn model: 184.0653419494629
+Running GPU Test NvidiaFILGPU
+[W] [05:15:57.313083] Treelite currently does not support float64 model parameters. Accuracy may degrade slightly relative to native sklearn invocation.
+Time Taken to predict on NvidiaFILGPU is 45308.48979949951
+Time Taken to write results to a text file for NvidiaFILGPU is 2.7036666870117188
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       1.00      1.00      1.00     10000
+
+    accuracy                           1.00     10000
+   macro avg       1.00      1.00      1.00     10000
+weighted avg       1.00      1.00      1.00     10000
+
+################
+Time Taken to convert NvidiaFILGPU model: 6713.760137557983
+TOTAL Time Taken for NvidiaFILGPU: 52025.007247924805
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+-e 
+
+
+gpu_run.sh: 62: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d criteo -m randomforest -f NvidiaFILGPU --batch_size 10 --query_size 10 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: criteo
+MODEL: randomforest
+FRAMEWORK: NvidiaFILGPU
+Query Size: 10
+Batch Size: 10
+Trees 10
+Depth 8
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/criteo_randomforest_10_8.pkl
+Time Taken to load sklearn model: 38.4061336517334
+Running GPU Test NvidiaFILGPU
+[W] [05:16:49.923392] Treelite currently does not support float64 model parameters. Accuracy may degrade slightly relative to native sklearn invocation.
+Time Taken to predict on NvidiaFILGPU is 63842.30637550354
+Time Taken to write results to a text file for NvidiaFILGPU is 2.7494430541992188
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       1.00      1.00      1.00     10000
+
+    accuracy                           1.00     10000
+   macro avg       1.00      1.00      1.00     10000
+weighted avg       1.00      1.00      1.00     10000
+
+################
+Time Taken to convert NvidiaFILGPU model: 2467.557430267334
+TOTAL Time Taken for NvidiaFILGPU: 66312.6699924469
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Segmentation fault (core dumped)
+-e 
+
+
+gpu_run.sh: 62: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d criteo -m randomforest -f NvidiaFILGPU --batch_size 100 --query_size 100 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: criteo
+MODEL: randomforest
+FRAMEWORK: NvidiaFILGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/criteo_randomforest_10_8.pkl
+Time Taken to load sklearn model: 38.58375549316406
+Running GPU Test NvidiaFILGPU
+[W] [05:18:00.482751] Treelite currently does not support float64 model parameters. Accuracy may degrade slightly relative to native sklearn invocation.
+Time Taken to predict on NvidiaFILGPU is 63977.766036987305
+Time Taken to write results to a text file for NvidiaFILGPU is 2.625703811645508
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       1.00      1.00      1.00     10000
+
+    accuracy                           1.00     10000
+   macro avg       1.00      1.00      1.00     10000
+weighted avg       1.00      1.00      1.00     10000
+
+################
+Time Taken to convert NvidiaFILGPU model: 2451.7736434936523
+TOTAL Time Taken for NvidiaFILGPU: 66432.22403526306
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Segmentation fault (core dumped)
+-e 
+
+
+gpu_run.sh: 62: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d criteo -m randomforest -f NvidiaFILGPU --batch_size 1000 --query_size 1000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: criteo
+MODEL: randomforest
+FRAMEWORK: NvidiaFILGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/criteo_randomforest_10_8.pkl
+Time Taken to load sklearn model: 37.37807273864746
+Running GPU Test NvidiaFILGPU
+[W] [05:19:11.288390] Treelite currently does not support float64 model parameters. Accuracy may degrade slightly relative to native sklearn invocation.
+Time Taken to predict on NvidiaFILGPU is 66516.26753807068
+Time Taken to write results to a text file for NvidiaFILGPU is 2.6230812072753906
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+           0       1.00      1.00      1.00     10000
+
+    accuracy                           1.00     10000
+   macro avg       1.00      1.00      1.00     10000
+weighted avg       1.00      1.00      1.00     10000
+
+################
+Time Taken to convert NvidiaFILGPU model: 2449.8329162597656
+TOTAL Time Taken for NvidiaFILGPU: 68968.78576278687
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+-e 
+
+
+gpu_run.sh: 62: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d criteo -m randomforest -f NvidiaFILGPU --batch_size 10000 --query_size 10000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: criteo
+MODEL: randomforest
+FRAMEWORK: NvidiaFILGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/criteo_randomforest_10_8.pkl
+Time Taken to load sklearn model: 38.10882568359375
+Running GPU Test NvidiaFILGPU
+[W] [05:20:26.100082] Treelite currently does not support float64 model parameters. Accuracy may degrade slightly relative to native sklearn invocation.
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 463, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 139, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 407, in test_gpu
+    results = run_inference(FRAMEWORK, features, input_size, args.query_size, model.predict, time_consume, is_classification,dataset_type)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 167, in run_inference
+    output = predict(query_data)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 111, in predict
+    query = query.todense()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/scipy/sparse/_base.py", line 946, in todense
+    return self._ascontainer(self.toarray(order=order, out=out))
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/scipy/sparse/_compressed.py", line 1051, in toarray
+    out = self._process_toarray_args(order, out)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/scipy/sparse/_base.py", line 1298, in _process_toarray_args
+    return np.zeros(self.shape, dtype=self.dtype, order=order)
+numpy.core._exceptions._ArrayMemoryError: Unable to allocate 37.3 GiB for an array with shape (10000, 999995) and data type float32
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Segmentation fault (core dumped)
+-e 
+
+
+gpu_run.sh: 62: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d criteo -m xgboost -f NvidiaFILGPU --batch_size 1 --query_size 1 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: criteo
+MODEL: xgboost
+FRAMEWORK: NvidiaFILGPU
+Query Size: 1
+Batch Size: 1
+Trees 10
+Depth 8
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/criteo_xgboost_10_8.pkl
+Time Taken to load sklearn model: 346.8790054321289
+Running GPU Test NvidiaFILGPU
+Time Taken to predict on NvidiaFILGPU is 26493.322134017944
+Time Taken to write results to a text file for NvidiaFILGPU is 2.7518272399902344
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+         0.0       0.00      0.00      0.00   10000.0
+         1.0       0.00      0.00      0.00       0.0
+
+    accuracy                           0.00   10000.0
+   macro avg       0.00      0.00      0.00   10000.0
+weighted avg       0.00      0.00      0.00   10000.0
+
+################
+Time Taken to convert NvidiaFILGPU model: 2705.1539421081543
+TOTAL Time Taken for NvidiaFILGPU: 29201.292037963867
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+-e 
+
+
+gpu_run.sh: 62: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d criteo -m xgboost -f NvidiaFILGPU --batch_size 10 --query_size 10 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: criteo
+MODEL: xgboost
+FRAMEWORK: NvidiaFILGPU
+Query Size: 10
+Batch Size: 10
+Trees 10
+Depth 8
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/criteo_xgboost_10_8.pkl
+Time Taken to load sklearn model: 362.4846935272217
+Running GPU Test NvidiaFILGPU
+Time Taken to predict on NvidiaFILGPU is 26524.162769317627
+Time Taken to write results to a text file for NvidiaFILGPU is 2.7251243591308594
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+         0.0       0.00      0.00      0.00   10000.0
+         1.0       0.00      0.00      0.00       0.0
+
+    accuracy                           0.00   10000.0
+   macro avg       0.00      0.00      0.00   10000.0
+weighted avg       0.00      0.00      0.00   10000.0
+
+################
+Time Taken to convert NvidiaFILGPU model: 2656.219959259033
+TOTAL Time Taken for NvidiaFILGPU: 29183.165073394775
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+-e 
+
+
+gpu_run.sh: 62: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d criteo -m xgboost -f NvidiaFILGPU --batch_size 100 --query_size 100 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: criteo
+MODEL: xgboost
+FRAMEWORK: NvidiaFILGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/criteo_xgboost_10_8.pkl
+Time Taken to load sklearn model: 348.299503326416
+Running GPU Test NvidiaFILGPU
+Time Taken to predict on NvidiaFILGPU is 25922.33657836914
+Time Taken to write results to a text file for NvidiaFILGPU is 2.6786327362060547
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+         0.0       0.00      0.00      0.00   10000.0
+         1.0       0.00      0.00      0.00       0.0
+
+    accuracy                           0.00   10000.0
+   macro avg       0.00      0.00      0.00   10000.0
+weighted avg       0.00      0.00      0.00   10000.0
+
+################
+Time Taken to convert NvidiaFILGPU model: 2624.026298522949
+TOTAL Time Taken for NvidiaFILGPU: 28549.111127853394
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+-e 
+
+
+gpu_run.sh: 62: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d criteo -m xgboost -f NvidiaFILGPU --batch_size 1000 --query_size 1000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: criteo
+MODEL: xgboost
+FRAMEWORK: NvidiaFILGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/criteo_xgboost_10_8.pkl
+Time Taken to load sklearn model: 353.0561923980713
+Running GPU Test NvidiaFILGPU
+Time Taken to predict on NvidiaFILGPU is 27372.36785888672
+Time Taken to write results to a text file for NvidiaFILGPU is 2.6702880859375
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+         0.0       0.00      0.00      0.00   10000.0
+         1.0       0.00      0.00      0.00       0.0
+
+    accuracy                           0.00   10000.0
+   macro avg       0.00      0.00      0.00   10000.0
+weighted avg       0.00      0.00      0.00   10000.0
+
+################
+Time Taken to convert NvidiaFILGPU model: 2618.1318759918213
+TOTAL Time Taken for NvidiaFILGPU: 29993.24321746826
+==============EXPERIMENT ENDING=========================
+
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+-e 
+
+
+gpu_run.sh: 62: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d criteo -m xgboost -f NvidiaFILGPU --batch_size 10000 --query_size 10000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: criteo
+MODEL: xgboost
+FRAMEWORK: NvidiaFILGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/criteo_xgboost_10_8.pkl
+Time Taken to load sklearn model: 347.5058078765869
+Running GPU Test NvidiaFILGPU
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 463, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 139, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 407, in test_gpu
+    results = run_inference(FRAMEWORK, features, input_size, args.query_size, model.predict, time_consume, is_classification,dataset_type)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 167, in run_inference
+    output = predict(query_data)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 111, in predict
+    query = query.todense()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/scipy/sparse/_base.py", line 946, in todense
+    return self._ascontainer(self.toarray(order=order, out=out))
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/scipy/sparse/_compressed.py", line 1051, in toarray
+    out = self._process_toarray_args(order, out)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/scipy/sparse/_base.py", line 1298, in _process_toarray_args
+    return np.zeros(self.shape, dtype=self.dtype, order=order)
+numpy.core._exceptions._ArrayMemoryError: Unable to allocate 37.3 GiB for an array with shape (10000, 999995) and data type float32
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+Exception ignored in: 'cuml.fil.fil.ForestInference_impl.__dealloc__'
+Traceback (most recent call last):
+  File "fil.pyx", line 273, in cuml.fil.fil.ForestInference_impl.get_dtype
+AttributeError: 'NoneType' object has no attribute 'float32'
+-e 
+
+
+gpu_run.sh: 62: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d criteo -m lightgbm -f NvidiaFILGPU --batch_size 1 --query_size 1 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: criteo
+MODEL: lightgbm
+FRAMEWORK: NvidiaFILGPU
+Query Size: 1
+Batch Size: 1
+Trees 10
+Depth 8
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/criteo_lightgbm_10_8.pkl
+Time Taken to load sklearn model: 1866.2877082824707
+Running GPU Test NvidiaFILGPU
+[W] [05:22:54.924172] Treelite currently does not support float64 model parameters. Accuracy may degrade slightly relative to native LightGBM invocation.
+Time Taken to predict on NvidiaFILGPU is 45212.42427825928
+Time Taken to write results to a text file for NvidiaFILGPU is 2.755880355834961
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+         0.0       1.00      0.73      0.85     10000
+         1.0       0.00      0.00      0.00         0
+
+    accuracy                           0.73     10000
+   macro avg       0.50      0.37      0.42     10000
+weighted avg       1.00      0.73      0.85     10000
+
+################
+Time Taken to convert NvidiaFILGPU model: 2659.764528274536
+TOTAL Time Taken for NvidiaFILGPU: 47875.00071525574
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 62: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d criteo -m lightgbm -f NvidiaFILGPU --batch_size 10 --query_size 10 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: criteo
+MODEL: lightgbm
+FRAMEWORK: NvidiaFILGPU
+Query Size: 10
+Batch Size: 10
+Trees 10
+Depth 8
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/criteo_lightgbm_10_8.pkl
+Time Taken to load sklearn model: 1123.2397556304932
+Running GPU Test NvidiaFILGPU
+[W] [05:23:47.601680] Treelite currently does not support float64 model parameters. Accuracy may degrade slightly relative to native LightGBM invocation.
+Time Taken to predict on NvidiaFILGPU is 63523.82302284241
+Time Taken to write results to a text file for NvidiaFILGPU is 2.7976036071777344
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+         0.0       1.00      0.08      0.15     10000
+         1.0       0.00      0.00      0.00         0
+
+    accuracy                           0.08     10000
+   macro avg       0.50      0.04      0.07     10000
+weighted avg       1.00      0.08      0.15     10000
+
+################
+Time Taken to convert NvidiaFILGPU model: 2533.5068702697754
+TOTAL Time Taken for NvidiaFILGPU: 66060.18948554993
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 62: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d criteo -m lightgbm -f NvidiaFILGPU --batch_size 100 --query_size 100 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: criteo
+MODEL: lightgbm
+FRAMEWORK: NvidiaFILGPU
+Query Size: 100
+Batch Size: 100
+Trees 10
+Depth 8
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/criteo_lightgbm_10_8.pkl
+Time Taken to load sklearn model: 1111.0615730285645
+Running GPU Test NvidiaFILGPU
+[W] [05:24:58.441420] Treelite currently does not support float64 model parameters. Accuracy may degrade slightly relative to native LightGBM invocation.
+Time Taken to predict on NvidiaFILGPU is 64167.56820678711
+Time Taken to write results to a text file for NvidiaFILGPU is 2.861499786376953
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+         0.0       1.00      0.01      0.01     10000
+         1.0       0.00      0.00      0.00         0
+
+    accuracy                           0.01     10000
+   macro avg       0.50      0.00      0.01     10000
+weighted avg       1.00      0.01      0.01     10000
+
+################
+Time Taken to convert NvidiaFILGPU model: 2496.258020401001
+TOTAL Time Taken for NvidiaFILGPU: 66666.74900054932
+==============EXPERIMENT ENDING=========================
+
+-e 
+
+
+gpu_run.sh: 62: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d criteo -m lightgbm -f NvidiaFILGPU --batch_size 1000 --query_size 1000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: criteo
+MODEL: lightgbm
+FRAMEWORK: NvidiaFILGPU
+Query Size: 1000
+Batch Size: 1000
+Trees 10
+Depth 8
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/criteo_lightgbm_10_8.pkl
+Time Taken to load sklearn model: 1115.4804229736328
+Running GPU Test NvidiaFILGPU
+[W] [05:26:10.030421] Treelite currently does not support float64 model parameters. Accuracy may degrade slightly relative to native LightGBM invocation.
+Time Taken to predict on NvidiaFILGPU is 66532.8209400177
+Time Taken to write results to a text file for NvidiaFILGPU is 2.7267932891845703
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+         0.0       1.00      0.00      0.00     10000
+         1.0       0.00      0.00      0.00         0
+
+    accuracy                           0.00     10000
+   macro avg       0.50      0.00      0.00     10000
+weighted avg       1.00      0.00      0.00     10000
+
+################
+Time Taken to convert NvidiaFILGPU model: 2518.8422203063965
+TOTAL Time Taken for NvidiaFILGPU: 69054.45265769958
+==============EXPERIMENT ENDING=========================
+
+Segmentation fault (core dumped)
+-e 
+
+
+gpu_run.sh: 62: [: NvidiaFILGPU: unexpected operator
+python test_model.py -d criteo -m lightgbm -f NvidiaFILGPU --batch_size 10000 --query_size 10000 --num_trees 10
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: criteo
+MODEL: lightgbm
+FRAMEWORK: NvidiaFILGPU
+Query Size: 10000
+Batch Size: 10000
+Trees 10
+Depth 8
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/criteo_lightgbm_10_8.pkl
+Time Taken to load sklearn model: 1112.5895977020264
+Running GPU Test NvidiaFILGPU
+[W] [05:27:25.571976] Treelite currently does not support float64 model parameters. Accuracy may degrade slightly relative to native LightGBM invocation.
+Traceback (most recent call last):
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 463, in <module>
+    test(args, features, label, sklearnmodel, config, time_consume)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 139, in test
+    test_postprocess(*test_gpu(*argv))
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/test_model.py", line 407, in test_gpu
+    results = run_inference(FRAMEWORK, features, input_size, args.query_size, model.predict, time_consume, is_classification,dataset_type)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 167, in run_inference
+    output = predict(query_data)
+  File "/home/ubuntu/netsdb/model-inference/decisionTree/experiments/model_helper.py", line 111, in predict
+    query = query.todense()
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/scipy/sparse/_base.py", line 946, in todense
+    return self._ascontainer(self.toarray(order=order, out=out))
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/scipy/sparse/_compressed.py", line 1051, in toarray
+    out = self._process_toarray_args(order, out)
+  File "/home/ubuntu/.conda/envs/rapids-22.08/lib/python3.9/site-packages/scipy/sparse/_base.py", line 1298, in _process_toarray_args
+    return np.zeros(self.shape, dtype=self.dtype, order=order)
+numpy.core._exceptions._ArrayMemoryError: Unable to allocate 37.3 GiB for an array with shape (10000, 999995) and data type float32
+-e 
+
+
