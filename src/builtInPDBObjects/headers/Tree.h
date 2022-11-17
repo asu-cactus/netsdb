@@ -298,10 +298,13 @@ namespace pdb
                     {
                         tree[parentNodeID].leftChild = childNodeID;
                     }
-                    else
+                    else if  (tree[parentNodeID].rightChild == -1)
                     {
                         tree[parentNodeID].rightChild = childNodeID;
-                    }
+                    }else {
+		    
+		        std::cout << "Error in parsing trees: children nodes were updated again: " << parentNodeID << "->" << childNodeID << std::endl;
+		    }
 
                 }
 
@@ -378,7 +381,7 @@ namespace pdb
                     int curIndex = 0;
                     while (tree[curIndex].isLeaf == false)
                     {
-                        if (inData[featureStartIndex + tree[curIndex].indexID] <= tree[curIndex].returnClass)
+                        if (inData[featureStartIndex + tree[curIndex].indexID] < tree[curIndex].returnClass)
                         {
 			    curIndex = tree[curIndex].leftChild;
                         }
