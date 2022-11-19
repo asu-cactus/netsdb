@@ -30,6 +30,8 @@ def load_data_from_pickle(dataset, config, suffix, time_consume):
 def fetch_criteo(suffix, time_consume):
     from sklearn import datasets
     start_time = time.time()
+    #10000 rows
+    #x,y = datasets.load_svmlight_file('dataset/criteo.kaggle2014.svm/test.txt.svm', dtype=np.float32,n_features=1000000,length=5833000)
     path = relative2abspath(dataset_folder, "criteo.kaggle2014.svm", f"{suffix}.txt.svm")
     x, y = datasets.load_svmlight_file(path, dtype=np.float32)
     data_loading_time = calculate_time(start_time,time.time())
