@@ -1,0 +1,31 @@
+
+
+
+==============EXPERIMENT STARTING=========================
+DATASET: criteo
+MODEL: xgboost
+FRAMEWORK: NvidiaFILGPU
+Query Size: 1
+Batch Size: 1
+Trees 500
+Depth 8
+LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/criteo_xgboost_500_8.pkl
+Time Taken to load sklearn model: 407.2117805480957
+Running GPU Test NvidiaFILGPU
+Time Taken to predict on NvidiaFILGPU is 26704.624891281128
+Time Taken to write results to a text file for NvidiaFILGPU is 2.7806758880615234
+Classification Report NvidiaFILGPU
+              precision    recall  f1-score   support
+
+         0.0       0.00      0.00      0.00   10000.0
+         1.0       0.00      0.00      0.00       0.0
+
+    accuracy                           0.00   10000.0
+   macro avg       0.00      0.00      0.00   10000.0
+weighted avg       0.00      0.00      0.00   10000.0
+
+################
+Time Taken to convert NvidiaFILGPU model: 2935.07981300354
+TOTAL Time Taken for NvidiaFILGPU: 29642.5518989563
+==============EXPERIMENT ENDING=========================
+
