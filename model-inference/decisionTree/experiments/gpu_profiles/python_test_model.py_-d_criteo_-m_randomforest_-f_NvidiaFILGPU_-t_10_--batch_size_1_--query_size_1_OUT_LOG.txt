@@ -10,11 +10,11 @@ Batch Size: 1
 Trees 10
 Depth 8
 LOADING:  /home/ubuntu/netsdb/model-inference/decisionTree/experiments/models/criteo_randomforest_10_8.pkl
-Time Taken to load sklearn model: 202.99077033996582
+Time Taken to load sklearn model: 195.69158554077148
 Running GPU Test NvidiaFILGPU
-[W] [21:04:57.188717] Treelite currently does not support float64 model parameters. Accuracy may degrade slightly relative to native sklearn invocation.
-Time Taken to predict on NvidiaFILGPU is 45473.57797622681
-Time Taken to write results to a text file for NvidiaFILGPU is 3.1456947326660156
+[W] [21:46:30.171932] Treelite currently does not support float64 model parameters. Accuracy may degrade slightly relative to native sklearn invocation.
+Time Taken to predict on NvidiaFILGPU is 50754.88042831421
+Time Taken to write results to a text file for NvidiaFILGPU is 2.8510093688964844
 Classification Report NvidiaFILGPU
               precision    recall  f1-score   support
 
@@ -25,7 +25,7 @@ Classification Report NvidiaFILGPU
 weighted avg       1.00      1.00      1.00     10000
 
 ################
-Time Taken to convert NvidiaFILGPU model: 6997.588157653809
-TOTAL Time Taken for NvidiaFILGPU: 52474.366903305054
+Time Taken to convert NvidiaFILGPU model: 6861.500263214111
+TOTAL Time Taken for NvidiaFILGPU: 57619.28749084473
 ==============EXPERIMENT ENDING=========================
 
