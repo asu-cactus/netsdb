@@ -386,7 +386,7 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
 
             } else {
                 getFunctionality<PangeaStorageServer>().cleanup(false);
-                PDB_COUT << "input set size=" << inputSet->getNumPages() << std::endl;
+		std::cout << "input set size=" << inputSet->getNumPages() << std::endl;
             }
             sourceContext->setDatabaseId(inputSet->getDbID());
             sourceContext->setTypeId(inputSet->getTypeID());
@@ -395,7 +395,7 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
             newRequest->setSourceContext(sourceContext);
             newRequest->setNeedsRemoveInputSet(request->getNeedsRemoveInputSet());
             newRequest->setNeedsRemoveInputSet(false);  // the scheduler will remove this set
-            PDB_COUT << "Input is set with setName=" << inSetName
+	    std::cout << "Input is set with setName=" << inSetName
                      << ", setId=" << inputSet->getSetID() << std::endl;
 
 
@@ -611,7 +611,8 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
             SetPtr outputSet = getFunctionality<PangeaStorageServer>().getSet(outDatabaseAndSet);
             if (outputSet == nullptr) {
                 success = getFunctionality<PangeaStorageServer>().addSet(
-                    outDatabaseName, request->getOutputTypeName(), outSetName);
+                    outDatabaseName, request->getOutputTypeName(), outSetName, DEFAULT_SHUFFLE_PAGE_SIZE);
+	
                 outputSet = getFunctionality<PangeaStorageServer>().getSet(outDatabaseAndSet);
                 std::cout << "Output set is created in storage with database=" << outDatabaseName
                          << ", set=" << outSetName << ", type=IntermediateData" << std::endl;

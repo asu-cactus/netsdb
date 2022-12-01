@@ -152,7 +152,7 @@ RefCountedObject<ObjType>* makeObject(Args&&... args) {
 
     // if we got a nullptr, get outta there
     if (returnVal == nullptr) {
-        // std :: cout << "makeObject: return nullptr" << std :: endl;
+        std :: cout << "makeObject: return nullptr" << std :: endl;
         return nullptr;
     }
     // std :: cout << "to call the placement new" << std :: endl;
@@ -160,10 +160,15 @@ RefCountedObject<ObjType>* makeObject(Args&&... args) {
     try {
         new ((void*)returnVal->getObject()) ObjType(args...);
     } catch (NotEnoughSpace& n) {
+	std::cout << "to get RAM from allocator with size ="
+              << sizeof(ObjType) + REF_COUNT_PREAMBLE_SIZE << std::endl;
+        std::cout << "failed to run new ((void*)returnVal->getObject()) ObjType(args...);" << std::endl;
+	std::cout << "ObjType type:" << typeid(ObjType).name() << std::endl;
 // for reference counting correctness
 // returnVal->setRefCount(0);
-// Handle<ObjType> temp = returnVal;
-// std :: cout << "to free RAM for exception" << std :: endl;
+        Handle<ObjType> temp = returnVal;
+        std :: cout << "to free RAM for exception" << std :: endl;
+	std :: cout << "temp.getTypeCode()=" << temp.getTypeCode() << std::endl;
 #ifdef DEBUG_OBJECT_MODEL
         getAllocator().freeRAM(returnVal, temp.getTypeCode());
 #else
@@ -181,6 +186,11 @@ RefCountedObject<ObjType>* makeObject(Args&&... args) {
 
 template <class ObjType, class... Args>
 RefCountedObject<ObjType>* makeObjectWithExtraStorage(size_t extra, Args&&... args) {
+      PDBTemplateBase temp;
+    temp.template setup<ObjType>();
+     std::cout << "In makeObjectWithExtraStorage:" << std::endl;
+     std::cout << "to get RAM from allocator with size ="
+              << extra + sizeof(ObjType) + REF_COUNT_PREAMBLE_SIZE << std::endl;
 #ifdef DEBUG_OBJECT_MODEL
     PDBTemplateBase temp;
     temp.template setup<ObjType>();
@@ -201,14 +211,17 @@ RefCountedObject<ObjType>* makeObjectWithExtraStorage(size_t extra, Args&&... ar
         (getAllocator().getRAM(extra + sizeof(ObjType) + REF_COUNT_PREAMBLE_SIZE));
 #endif
     // if we got a nullptr, get outta there
-    if (returnVal == nullptr)
+    if (returnVal == nullptr) {
+	std::cout << "Exception Throw: cannot obtain size =" << extra + sizeof(ObjType) + REF_COUNT_PREAMBLE_SIZE << std::endl;
         return nullptr;
-
+    }
     // std :: cout << "to call the placement new" << std :: endl;
     // call the placement new
     try {
         new ((void*)returnVal->getObject()) ObjType(args...);
     } catch (NotEnoughSpace& n) {
+
+	std::cout << "Exception Throw: cannot obtain size =" << extra + sizeof(ObjType) + REF_COUNT_PREAMBLE_SIZE << std::endl;
 // added by Jia based on Chris' proposal
 // for reference counting correctness
 // returnVal->setRefCount(0);

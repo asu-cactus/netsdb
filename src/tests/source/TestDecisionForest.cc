@@ -52,9 +52,9 @@ int main(int argc, char *argv[]) {
 
     bool createSet;
 
-    if ((argc <= 8)||(argc > 12)) {
+    if ((argc <= 8)||(argc > 13)) {
     
-        std::cout << "Usage: \n To load data: bin/testDecisionForest Y numInstances numFeatures batch_size label_col_index isFloat[F/D] isGraphOrArray[G/A] pageSizeInMB pathToLoadDataFile(N for generating data randomly) \n To run the inference: bin/testDecisionForest N numInstances numFeatures batchSize label_col_index isFloat[F/D] isGraphOrArray [G/A] pageSizeInMB pathToLoadDataFile pathToModelFolder modelType[XGBoost/RandomForest]\n Example: \n bin/testDecisionForest Y 2200000 28 275000 0 F A 32 model-inference/decisionTree/experiments/HIGGS.csv_test.csv\n bin/testDecisionForest N 2200000 28 275000 0 F A 32 model-inference/decisionTree/experiments/HIGGS.csv_test.csv model-inference/decisionTree/experiments/models/higgs_xgboost_500_8_netsdb XGBoost\n";
+        std::cout << "Usage: \n To load data: bin/testDecisionForest Y numInstances numFeatures batch_size label_col_index isFloat[F/D] isGraphOrArray[G/A] pageSizeInMB numPartitions pathToLoadDataFile(N for generating data randomly) \n To run the inference: bin/testDecisionForest N numInstances numFeatures batchSize label_col_index isFloat[F/D] isGraphOrArray [G/A] pageSizeInMB numPartitions pathToLoadDataFile pathToModelFolder modelType[XGBoost/RandomForest]\n Example: \n bin/testDecisionForest Y 2200000 28 275000 0 F A 32 1 model-inference/decisionTree/experiments/HIGGS.csv_test.csv\n bin/testDecisionForest N 2200000 28 275000 0 F A 32 1 model-inference/decisionTree/experiments/HIGGS.csv_test.csv model-inference/decisionTree/experiments/models/higgs_xgboost_500_8_netsdb XGBoost\n";
         exit(-1);
     }
 
@@ -69,6 +69,7 @@ int main(int argc, char *argv[]) {
     string forestFolderPath;
     ModelType modelType = ModelType::XGBoost;
     int pageSize = 64;
+    int numPartitions = 1;
     string dataFilePath = "";
 
     if(argc >= 8) {
@@ -103,23 +104,27 @@ int main(int argc, char *argv[]) {
         pageSize = std::stoi(argv[8]);
     }
 
-    if (argc >= 10) {
-        dataFilePath = std::string(argv[9]);
+    if (argc > 10) {
+       numPartitions = std::stoi(argv[9]);
     }
 
     if (argc >= 11) {
-        forestFolderPath = std::string(argv[10]);
+        dataFilePath = std::string(argv[10]);
     }
 
     if (argc >= 12) {
-        if (string(argv[11]).compare("XGBoost") == 0) {
+        forestFolderPath = std::string(argv[11]);
+    }
+
+    if (argc >= 13) {
+        if (string(argv[12]).compare("XGBoost") == 0) {
             modelType = ModelType::XGBoost;
-	} else if (string(argv[11]).compare("LightGBM") == 0) {
+	} else if (string(argv[12]).compare("LightGBM") == 0) {
             modelType = ModelType::LightGBM;
-        } else if (string(argv[11]).compare("RandomForest") == 0) {
+        } else if (string(argv[12]).compare("RandomForest") == 0) {
             modelType = ModelType::RandomForest;
         } else {
-            std::cerr << "Unsupported model type: " << argv[11] << std::endl;
+            std::cerr << "Unsupported model type: " << argv[12] << std::endl;
 	    exit(-1);
         }
     }
@@ -133,19 +138,33 @@ int main(int argc, char *argv[]) {
     if(createSet == true){
         ff::createDatabase(pdbClient, "decisionForest");
 	if (isFloat) { 
-           ff::createSetGeneric<pdb::TensorBlock2D<float>>(pdbClient, "decisionForest", "inputs", "inputs", pageSize);
+           ff::createSetGeneric<pdb::TensorBlock2D<float>>(pdbClient, "decisionForest", "inputs", "inputs", pageSize, numPartitions);
            if (dataFilePath.compare("N") == 0) {
-	       ff::loadMatrixGeneric<pdb::TensorBlock2D<float>>(pdbClient, "decisionForest", "inputs", rowNum, colNum, block_x, block_y, false, false, errMsg);		   
+	       if (numPartitions == 1)
+	           ff::loadMatrixGeneric<pdb::TensorBlock2D<float>>(pdbClient, "decisionForest", "inputs", rowNum, colNum, block_x, block_y, false, false, errMsg);		   
+               else {
+	       
+		   std::cout << "Currently we only support single partition for randomly generated input data" << std::endl;
+                   exit(1);
+	       
+	       }
+
 	   } else {
-	       ff::loadMatrixGenericFromFile<pdb::TensorBlock2D<float>>(pdbClient, dataFilePath, "decisionForest", "inputs", rowNum, colNum, block_x, block_y, label_col_index, errMsg, 4*pageSize);
+	       ff::loadMatrixGenericFromFile<pdb::TensorBlock2D<float>>(pdbClient, dataFilePath, "decisionForest", "inputs", rowNum, colNum, block_x, block_y, label_col_index, errMsg, 4*pageSize, numPartitions);
 	   }
 	}
    	else {
-	   ff::createSetGeneric<pdb::TensorBlock2D<double>>(pdbClient, "decisionForest", "inputs", "inputs", pageSize);
+	   ff::createSetGeneric<pdb::TensorBlock2D<double>>(pdbClient, "decisionForest", "inputs", "inputs", pageSize, numPartitions);
 	   if (dataFilePath.compare("N") == 0) {
-               ff::loadMatrixGeneric<pdb::TensorBlock2D<double>>(pdbClient, "decisionForest", "inputs", rowNum, colNum, block_x, block_y, false, false, errMsg);
+
+	       if (numPartitions == 1) {
+                   ff::loadMatrixGeneric<pdb::TensorBlock2D<double>>(pdbClient, "decisionForest", "inputs", rowNum, colNum, block_x, block_y, false, false, errMsg);
+               } else {
+	           std::cout << "Currently we only support single partition for randomly generated input data" << std::endl;
+                   exit(1);
+	       }
            } else {
-	       ff::loadMatrixGenericFromFile<pdb::TensorBlock2D<double>>(pdbClient, dataFilePath, "decisionForest", "inputs", rowNum, colNum, block_x, block_y, label_col_index, errMsg, 4*pageSize);
+	       ff::loadMatrixGenericFromFile<pdb::TensorBlock2D<double>>(pdbClient, dataFilePath, "decisionForest", "inputs", rowNum, colNum, block_x, block_y, label_col_index, errMsg, 4*pageSize, numPartitions);
            }
 	}
     } else{
@@ -160,57 +179,75 @@ int main(int argc, char *argv[]) {
 
         pdb::makeObjectAllocatorBlock(1024 * 1024 * 1024, true);
 
-        pdb::Handle<pdb::Computation> inputMatrix = nullptr;
+	auto begin = std::chrono::high_resolution_clock::now();
 
-        if (isFloat)
-	    inputMatrix = pdb::makeObject<pdb::ScanUserSet<pdb::TensorBlock2D<float>>>("decisionForest", "inputs");
-        else
-	    inputMatrix = pdb::makeObject<pdb::ScanUserSet<pdb::TensorBlock2D<double>>>("decisionForest", "inputs");
+	for (int i = 0; i < numPartitions; i++) {
 
-        bool isClassificationTask = true;
-        auto model_begin = chrono::high_resolution_clock::now();
+            pdb::Handle<pdb::Computation> inputMatrix = nullptr;
 
-        pdb::Handle<pdb::Computation> decisionForestUDF = nullptr;
+            if (isFloat) {
+		if (numPartitions == 1)
+                    inputMatrix = pdb::makeObject<pdb::ScanUserSet<pdb::TensorBlock2D<float>>>("decisionForest", "inputs");
+                else
+                    inputMatrix = pdb::makeObject<pdb::ScanUserSet<pdb::TensorBlock2D<float>>>("decisionForest", std::string("inputs")+std::to_string(i));
+	    }
+            else {
+                if (numPartitions == 1)
+                    inputMatrix = pdb::makeObject<pdb::ScanUserSet<pdb::TensorBlock2D<double>>>("decisionForest", "inputs");
+                else
+                    inputMatrix = pdb::makeObject<pdb::ScanUserSet<pdb::TensorBlock2D<double>>>("decisionForest", std::string("inputs")+std::to_string(i));
+	    }
+            bool isClassificationTask = true;
+            auto model_begin = chrono::high_resolution_clock::now();
 
-        if (isFloat) {
-            if (isGraph) 
-                decisionForestUDF = pdb::makeObject<pdb::EnsembleTreeUDFFloat>(forestFolderPath, modelType, isClassificationTask);
-	    else
-                decisionForestUDF = pdb::makeObject<pdb::EnsembleTreeGenericUDFFloat>(forestFolderPath, modelType, isClassificationTask);
-        }
-    	else {
-	    if (isGraph)
-		decisionForestUDF = pdb::makeObject<pdb::EnsembleTreeUDFDouble>(forestFolderPath, modelType, isClassificationTask);
-	    else
-	        decisionForestUDF = pdb::makeObject<pdb::EnsembleTreeGenericUDFDouble>(forestFolderPath, modelType, isClassificationTask);
-        }
-        auto model_end = chrono::high_resolution_clock::now();
+            pdb::Handle<pdb::Computation> decisionForestUDF = nullptr;
 
-        decisionForestUDF->setInput(inputMatrix);
+            if (isFloat) {
+                if (isGraph) 
+                    decisionForestUDF = pdb::makeObject<pdb::EnsembleTreeUDFFloat>(forestFolderPath, modelType, isClassificationTask);
+	        else
+                    decisionForestUDF = pdb::makeObject<pdb::EnsembleTreeGenericUDFFloat>(forestFolderPath, modelType, isClassificationTask);
+            }
+    	    else {
+	        if (isGraph)
+		    decisionForestUDF = pdb::makeObject<pdb::EnsembleTreeUDFDouble>(forestFolderPath, modelType, isClassificationTask);
+	        else
+	            decisionForestUDF = pdb::makeObject<pdb::EnsembleTreeGenericUDFDouble>(forestFolderPath, modelType, isClassificationTask);
+            }
+            auto model_end = chrono::high_resolution_clock::now();
 
-        pdb::Handle<pdb::Computation> labelWriter = nullptr;
+            decisionForestUDF->setInput(inputMatrix);
 
-        if (isFloat)
-            labelWriter = pdb::makeObject<pdb::VectorFloatWriter>("decisionForest", "labels");
-        else
-	    labelWriter = pdb::makeObject<pdb::VectorDoubleWriter>("decisionForest", "labels");
+            pdb::Handle<pdb::Computation> labelWriter = nullptr;
+
+            if (isFloat)
+                labelWriter = pdb::makeObject<pdb::VectorFloatWriter>("decisionForest", "labels");
+            else
+	        labelWriter = pdb::makeObject<pdb::VectorDoubleWriter>("decisionForest", "labels");
         
-	labelWriter->setInput(decisionForestUDF);
+	    labelWriter->setInput(decisionForestUDF);
 
-        bool materializeHash = true;
-        auto exe_begin = std::chrono::high_resolution_clock::now();
-        if (!pdbClient.executeComputations(errMsg, "decisionForest", materializeHash, labelWriter)) {
-            cout << "Computation failed. Message was: " << errMsg << "\n";
-            exit(1);
-        }
-        auto exe_end = std::chrono::high_resolution_clock::now();
+            bool materializeHash = true;
+            auto exe_begin = std::chrono::high_resolution_clock::now();
+            if (!pdbClient.executeComputations(errMsg, "decisionForest", materializeHash, labelWriter)) {
+                cout << "Computation failed. Message was: " << errMsg << "\n";
+                exit(1);
+            }
+            auto exe_end = std::chrono::high_resolution_clock::now();
 
 
-        std::cout << "****UDF Execution Time Duration: ****"
+            std::cout << i << ":****UDF Execution Time Duration: ****"
               << std::chrono::duration_cast<std::chrono::duration<double>>(exe_end - exe_begin).count()
                                                                         << " secs." << std::endl;
-        std::cout << "****UDF Load Model Time Duration: ****"
+            std::cout << i << ":****UDF Load Model Time Duration: ****"
               << std::chrono::duration_cast<std::chrono::duration<double>>(model_end-model_begin).count()
+                                                                        << " secs." << std::endl;
+        }
+
+	auto end = std::chrono::high_resolution_clock::now();
+
+	std::cout << "****Overall Inference Time Duration: ****"
+              << std::chrono::duration_cast<std::chrono::duration<double>>(end-begin).count()
                                                                         << " secs." << std::endl;
 
         bool printResult = true;

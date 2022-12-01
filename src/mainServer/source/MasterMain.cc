@@ -18,6 +18,7 @@
 #include "Configuration.h"
 
 int main(int argc, char* argv[]) {
+    std::cout << "running main function..." << std::endl;
     int port = 8108;
     std::string masterIp;
     std::string pemFile = "conf/pdb.key";
@@ -62,11 +63,15 @@ int main(int argc, char* argv[]) {
 
     std::cout << "Starting up a distributed storage manager server\n";
     pdb::PDBLoggerPtr myLogger = make_shared<pdb::PDBLogger>("frontendLogFile.log");
+    std::cout << "Starting server...\n" << std::endl; 
     pdb::PDBServer frontEnd(port, 100, myLogger);
 
     ConfigurationPtr conf = make_shared<Configuration>();
 
+    std::cout << "Creating catalog server" << std::endl;
     frontEnd.addFunctionality<pdb::CatalogServer>("CatalogDir", true, masterIp, port, masterIp, port);
+
+    std::cout << "Creating catalog client" << std::endl;
     frontEnd.addFunctionality<pdb::CatalogClient>(port, "localhost", myLogger);
 
     // to register node metadata
@@ -84,15 +89,21 @@ int main(int argc, char* argv[]) {
     int portValue = 8108;
 
     pdb::PDBLoggerPtr rlLogger = std::make_shared<pdb::PDBLogger>("rlClient.log");
+    std::cout << "starting resource manager server" << std::endl;
     frontEnd.addFunctionality<pdb::ResourceManagerServer>(
         serverListFile, port, pseudoClusterMode, pemFile);
+    std::cout << "starting distributed storage manager server" << std::endl;
     frontEnd.addFunctionality<pdb::DistributedStorageManagerServer>(rlLogger, isSelfLearning, trainingMode);
     auto allNodes = frontEnd.getFunctionality<pdb::ResourceManagerServer>().getAllNodes();
+    std::cout << "starting dispatcher server" << std::endl;
     frontEnd.addFunctionality<pdb::DispatcherServer>(myLogger, isSelfLearning);
     frontEnd.getFunctionality<pdb::DispatcherServer>().registerStorageNodes(allNodes);
+    std::cout << "starting query scheduling server" << std::endl;
     frontEnd.addFunctionality<pdb::QuerySchedulerServer>(
         port, myLogger, conf, pseudoClusterMode, partitionToCoreRatio, true, false, isSelfLearning);
+    std::cout << "starting self learning server" << std::endl;
     frontEnd.addFunctionality<pdb::SelfLearningServer>(conf, port);
+    std::cout << "starting server" << std::endl;
     frontEnd.startServer(nullptr);
 }
 

@@ -533,6 +533,7 @@ inline PipelinePtr ComputePlan::buildPipeline(int threadId,
                 // if we are pipelining the right input, then we don't need to switch left and right
                 // inputs
                 if (params.count(a->getOutput().getSetName()) == 0) {
+		    std::cout << threadId << ": pipelining the right input without params" << std::endl;
                     returnVal->addStage(myComp.getExecutor(true,
 					                   threadId,
                                                            myJoin->getProjection(),
@@ -540,6 +541,7 @@ inline PipelinePtr ComputePlan::buildPipeline(int threadId,
                                                            myJoin->getRightInput(),
                                                            myJoin->getRightProjection()));
                 } else {
+		    std::cout << threadId << ": pipelining the right input with params: " << params[a->getOutput().getSetName()] << std::endl;
                     returnVal->addStage(myComp.getExecutor(true,
 					                   threadId,
                                                            myJoin->getProjection(),
@@ -553,9 +555,8 @@ inline PipelinePtr ComputePlan::buildPipeline(int threadId,
 
                 // std :: cout << "We are pipelining the left input...\n";
 
-                // if we are pipelining the right input, then we don't need to switch left and right
-                // inputs
                 if (params.count(a->getOutput().getSetName()) == 0) {
+		    std::cout << threadId << ": pipelining the left input without params" << std::endl;
                     returnVal->addStage(myComp.getExecutor(false,
 					                   threadId,
                                                            myJoin->getRightProjection(),
@@ -563,6 +564,7 @@ inline PipelinePtr ComputePlan::buildPipeline(int threadId,
                                                            myJoin->getInput(),
                                                            myJoin->getProjection()));
                 } else {
+		    std::cout << threadId << ": pipelining the left input with params: " << params[a->getOutput().getSetName()] << std::endl;
                     returnVal->addStage(myComp.getExecutor(false,
 					                   threadId,
                                                            myJoin->getRightProjection(),

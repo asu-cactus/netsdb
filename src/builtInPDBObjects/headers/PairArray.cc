@@ -45,7 +45,8 @@ struct MapRecordClass {
     ValueType value;
 
     size_t getObjSize() {
-        return sizeof(MapRecordClass<KeyType, ValueType>);
+	    std::cout << "sizeof(MapRecordClass<"<< typeid(KeyType).name()<<"," << typeid(ValueType).name() << ">)=" << sizeof(MapRecordClass<KeyType, ValueType>) << std::endl;
+	    return  sizeof(MapRecordClass<KeyType, ValueType>);
     }
 
     size_t getValueOffset() {
@@ -412,7 +413,7 @@ ValueType& PairArray<KeyType, ValueType>::operator[](const KeyType& me) {
 
 template <class KeyType, class ValueType>
 PairArray<KeyType, ValueType>::PairArray(uint32_t numSlotsIn) : PairArray() {
-
+    std::cout << "initialize PairArray(" << numSlotsIn << ")" << std::endl;
     // verify that we are a power of two
     bool gotIt = false;
     uint32_t val = 1;
@@ -439,6 +440,7 @@ PairArray<KeyType, ValueType>::PairArray(uint32_t numSlotsIn) : PairArray() {
 
     // set everyone to unused
     for (int i = 0; i < numSlots; i++) {
+	std::cout << "set " << i << " to be UNUSED" << std::endl;
         GET_HASH(data, i) = UNUSED;
     }
 }
@@ -450,16 +452,18 @@ bool PairArray<KeyType, ValueType>::isOverFull() {
 
 template <class KeyType, class ValueType>
 PairArray<KeyType, ValueType>::PairArray() {
-
+    std::cout << "initialize PairArray()" << std::endl;
     // remember the types for this guy
     keyTypeInfo.setup<KeyType>();
+    std::cout << "KeyType has been setup" << std::endl; 
     valueTypeInfo.setup<ValueType>();
+    std::cout << "ValueType has been setup" << std::endl;
 
     // used to let the compiler to tell us how to pack items in our array of slots
     MapRecordClass<KeyType, ValueType> temp;
     objSize = temp.getObjSize();
     valueOffset = temp.getValueOffset();
-
+    
     // zero slots in the array
     numSlots = 0;
 
@@ -511,7 +515,7 @@ Handle<PairArray<KeyType, ValueType>> PairArray<KeyType, ValueType>::doubleArray
     // allocate the new Array
     Handle<PairArray<KeyType, ValueType>> tempArray =
         makeObjectWithExtraStorage<PairArray<KeyType, ValueType>>(objSize * howMany, howMany);
-
+    std::cout << "objSize=" << objSize << ", howMany=" <<howMany << std::endl;
     // first, set everything to unused
     // now, re-hash everything
     PairArray<KeyType, ValueType>& newOne = *tempArray;

@@ -50,6 +50,7 @@ public:
 
         int nodeId = myHashID / numPartitionsPerNode;
         int partitionId = myHashID % numPartitionsPerNode;
+	std::cout << "nodeId=" << nodeId << ", partitionId=" << partitionId << std::endl;
         return *((*((*outputData)[nodeId]))[partitionId]);
     }
 
@@ -59,6 +60,7 @@ public:
         Handle<Vector<Handle<Vector<Handle<AggregationMap<KeyType, ValueType>>>>>> returnVal =
             makeObject<Vector<Handle<Vector<Handle<AggregationMap<KeyType, ValueType>>>>>>(
                 numNodes);
+	std::cout << "numNodes=" << numNodes << ", numPartitionsPerNode=" << this->numPartitionsPerNode << std::endl;
         int i, j;
         for (i = 0; i < numNodes; i++) {
             Handle<Vector<Handle<AggregationMap<KeyType, ValueType>>>> nodeData =
@@ -93,7 +95,7 @@ public:
         for (size_t i = 0; i < length; i++) {
 
             hashVal = Hasher<KeyType>::hash(keyColumn[i]);
-
+            std::cout << "hashVal = " << hashVal << ", hashVal%(numNodes * numPartitionsPerNode)=" <<hashVal % (numNodes * numPartitionsPerNode) << std::endl;
             AggregationMap<KeyType, ValueType>& myMap =
                 getMap(hashVal % (numNodes * numPartitionsPerNode), writeMe);
             // if this key is not already there...
@@ -112,6 +114,7 @@ public:
                     // if we got here, then we ran out of space, and so we need to delete the
                     // already-processed
                     // data so that we can try again...
+	            std::cout << "run out of page space: temp = &(myMap[keyColumn[i]]);" << std::endl;
                     keyColumn.erase(keyColumn.begin(), keyColumn.begin() + i);
                     valueColumn.erase(valueColumn.begin(), valueColumn.begin() + i);
                     throw n;
@@ -120,8 +123,11 @@ public:
                 // we were able to fit a new key/value pair, so copy over the value
                 try {
                     *temp = valueColumn[i];
+		    std::cout << "CombinedShuffleSink: inserted one TreeResult object" << std::endl;
                     // if we could not fit the value...
                 } catch (NotEnoughSpace& n) {
+
+		    std::cout << "run out of page space: *temp = valueColumn[i];" << std::endl;
 
                     // then we need to erase the key from the map
                     myMap.setUnused(keyColumn[i]);
@@ -138,14 +144,14 @@ public:
                 // get the value and a copy of it
                 ValueType& temp = myMap[keyColumn[i]];
                 ValueType copy = temp;
-
+                std::cout << "CombinedShuffleSink: combined two TreeResult object" << std::endl;
                 // and add to the old value, producing a new one
                 try {
                     temp = copy + valueColumn[i];
                     // if we got here, then it means that we ram out of RAM when we were trying
                     // to put the new value into the hash table
                 } catch (NotEnoughSpace& n) {
-
+                    std::cout << "run out of page space: temp = copy + valueColumn[i];" << std::endl;
                     // restore the old value
                     temp = copy;
 

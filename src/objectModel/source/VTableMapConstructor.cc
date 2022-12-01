@@ -13,7 +13,6 @@
 // in BuiltInPDBObjects/headers
 #include "BuiltinPDBObjects.h"
 #include "PDBDebug.h"
-#include "UseTemporaryAllocationBlock.h"
 #include "VTableMap.cc"
 
 #include <dlfcn.h>
@@ -24,6 +23,7 @@
 namespace pdb {
 
 VTableMap::VTableMap() {
+    std::cout << "Running VTableMap constructor!" << std::endl;
     logger = std::make_shared<PDBLogger>("vtablemap.log");
     catalog = nullptr;
     stringstream ss;

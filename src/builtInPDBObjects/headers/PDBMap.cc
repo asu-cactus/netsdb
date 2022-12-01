@@ -59,7 +59,6 @@ inline size_t hashMe(char* me, size_t len) {
 
 template <class KeyType, class ValueType>
 Map<KeyType, ValueType>::Map(uint32_t initSize) {
-
     if (initSize < 2) {
         std::cout << "Fatal Error: Map initialization:" << initSize
                   << " too small; must be at least one.\n";
@@ -70,14 +69,17 @@ Map<KeyType, ValueType>::Map(uint32_t initSize) {
     // this way, we'll allocate extra bytes on the end of the array
     MapRecordClass<KeyType, ValueType> temp;
     size_t size = temp.getObjSize();
+
     myArray = makeObjectWithExtraStorage<PairArray<KeyType, ValueType>>(size * initSize, initSize);
 }
 
 template <class KeyType, class ValueType>
 Map<KeyType, ValueType>::Map() {
-
+    std::cout << "initialize Map()" << std::endl;
     MapRecordClass<KeyType, ValueType> temp;
     size_t size = temp.getObjSize();
+    std::cout << "size = " << size << std::endl;
+    std::cout << "make array:this->myArray = makeObjectWithExtraStorage<PairArray<KeyType, ValueType>>(size * 2, 2);" << std::endl;
     myArray = makeObjectWithExtraStorage<PairArray<KeyType, ValueType>>(size * 2, 2);
 }
 
@@ -101,7 +103,7 @@ ValueType& Map<KeyType, ValueType>::operator[](const KeyType& which) {
     if (myArray->count(which) == 0) {
         if (myArray->isOverFull()) {
             Handle<PairArray<KeyType, ValueType>> temp = myArray->doubleArray();
-            //std::cout << "doubled the size of JoinPairArray" << std::endl;
+            std::cout << "doubled the size of PairArray" << std::endl;
             myArray = temp;
         }
     }

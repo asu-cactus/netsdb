@@ -76,7 +76,7 @@ public:
             Map<KeyType, ValueType>& myMap =
                 *((*writeMe)[(hashVal / numPartitions) % numPartitions]);
 #endif
-            //std::cout << "hashVal=" << hashVal << ", index=" << (hashVal / numPartitions) % numPartitions << "myMap.size=" << myMap.size()<< std::endl;
+            std::cout << "hashVal=" << hashVal << ", index=" << (hashVal / numPartitions) % numPartitions << "myMap.size=" << myMap.size()<< std::endl;
             // if this key is not already there...
             if (myMap.count(keyColumn[i]) == 0) {
 
@@ -87,13 +87,12 @@ public:
                 try {
                     // get the location that we need to write to...
                     temp = &(myMap[keyColumn[i]]);
-
                     // if we get an exception, then we could not fit a new key/value pair
                 } catch (NotEnoughSpace& n) {
                     // if we got here, then we ran out of space, and so we need to delete the
                     // already-processed
-                     //std :: cout << "not enough space in shuffle sink to get new value" << std ::
-                     //endl;
+                     std :: cout << "not enough space in shuffle sink to get new value" << std ::
+                     endl;
                     // data so that we can try again...
                     keyColumn.erase(keyColumn.begin(), keyColumn.begin() + i);
                     valueColumn.erase(valueColumn.begin(), valueColumn.begin() + i);
@@ -103,11 +102,12 @@ public:
                 // we were able to fit a new key/value pair, so copy over the value
                 try {
                     *temp = valueColumn[i];
+		    std::cout << "ShuffleSink: inserted a tree result blocks: " << i << std::endl;
                     // if we could not fit the value...
                 } catch (NotEnoughSpace& n) {
 
-                     //std :: cout << "not enough space in shuffle sink to set value" << std ::
-                     //endl;
+                     std :: cout << "not enough space in shuffle sink to set value" << std ::
+                     endl;
                     // then we need to erase the key from the map
                     myMap.setUnused(keyColumn[i]);
 
@@ -127,12 +127,13 @@ public:
                 // and add to the old value, producing a new one
                 try {
                     temp = copy + valueColumn[i];
+		    std::cout << "ShuffleSink: combined two tree result blocks: " << i << std::endl;
                     // if we got here, then it means that we ram out of RAM when we were trying
                     // to put the new value into the hash table
                 } catch (NotEnoughSpace& n) {
 
-                     //std :: cout << "not enough space in shuffle sink to update value" << std ::
-                     //endl;
+                     std :: cout << "not enough space in shuffle sink to update value" << std ::
+                     endl;
                     // restore the old value
                     temp = copy;
 

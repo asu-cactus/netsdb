@@ -2,6 +2,7 @@
 #ifndef JOIN_TUPLE_H
 #define JOIN_TUPLE_H
 
+#include "DataTypes.h"
 #include "JoinMap.h"
 #include "SinkMerger.h"
 #include "SinkShuffler.h"
@@ -11,17 +12,6 @@
 #include "PartitionedHashSet.h"
 
 namespace pdb {
-
-// Join types
-typedef enum {
-
-    HashPartitionedJoin,
-    BroadcastJoin,
-    LocalJoin,
-    CrossProduct
-
-} JoinType;
-
 
 
 template <typename T>
@@ -500,7 +490,7 @@ public:
         } else {
             inputTable = input->getRootObject();
         }
-        //std::cout << "inputTable->size()=" << inputTable->size() << std::endl;
+        std::cout << "inputTable->size()=" << inputTable->size() << std::endl;
         // set up the output tuple
         output = std::make_shared<TupleSet>();
         columns = new void*[positions.size()];
@@ -547,6 +537,7 @@ public:
 
             // deal with all of the matches
             int numHits = inputTableRef.count(inputHash[i]);
+	    std::cout << "numHits for " << i << " is " << numHits << std::endl;
             if (numHits > 0) {
                 auto a = inputTableRef.lookup(inputHash[i]);
                 if (numHits != a.size()) {
@@ -564,7 +555,7 @@ public:
             // remember how many matches we had
             counts[i] = numHits;
         }
-        //std::cout << "count=" << overallCounter << std::endl;
+        std::cout << "count=" << overallCounter << std::endl;
 
         // truncate if we have extra
         eraseEnd<RHSType>(overallCounter, 0, columns);
@@ -1347,7 +1338,7 @@ public:
     }
 
     void writeOut(TupleSetPtr input, Handle<Object>& writeToMe) override {
-        std::cout << "PartitionedJoinSink: write out tuples in this tuple set" << std::endl;
+        //std::cout << "PartitionedJoinSink: write out tuples in this tuple set" << std::endl;
         // get the map we are adding to
         Handle<Vector<Handle<Vector<Handle<JoinMap<RHSType>>>>>> writeMe =
             unsafeCast<Vector<Handle<Vector<Handle<JoinMap<RHSType>>>>>>(writeToMe);
@@ -1393,13 +1384,13 @@ public:
 
 		 //for cross product
 		 index = curPartitionId % (this->numPartitionsPerNode * this->numNodes);
-                //std::cout << "this is CrossProduct with inex=" << index << std::endl;	    
+                 std::cout << "this is CrossProduct with inex=" << index << std::endl;	    
 	    }	    
             size_t nodeIndex = index / this->numPartitionsPerNode;
             size_t partitionIndex = index % this->numPartitionsPerNode;
             JoinMap<RHSType>& myMap = *((*((*writeMe)[nodeIndex]))[partitionIndex]);
-            //std::cout << "nodeIndex=" << nodeIndex << ", partitionIndex=" <<partitionIndex 
-                      //<< ", myMap.size="<<myMap.size()<<std::endl;
+            std::cout << "nodeIndex=" << nodeIndex << ", partitionIndex=" <<partitionIndex 
+                      << ", myMap.size="<<myMap.size()<<std::endl;
             // try to add the key... this will cause an allocation for a new key/val pair
             if (myMap.count(keyColumn[i]) == 0) {
                 try {

@@ -43,7 +43,6 @@ namespace pdb
     class Tree : public Object
     {
     public:
-        //ENABLE_DEEP_COPY
 
         Node tree[MAX_NUM_NODES_PER_TREE];
 
@@ -393,6 +392,8 @@ namespace pdb
 
                     outData[i] = (float)(tree[curIndex].returnClass);
 	    }
+
+	    resultMatrix->print();
 
             return resultMatrix;
         }

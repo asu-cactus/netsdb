@@ -1,6 +1,7 @@
 #ifndef TCAP_ANALYZER_H
 #define TCAP_ANALYZER_H
 
+#include "DataTypes.h"
 #include "AggregationJobStage.h"
 #include "AtomicComputationList.h"
 #include "BroadcastJoinBuildHTJobStage.h"
@@ -87,7 +88,7 @@ public:
       Handle<SetIdentifier> sourceContext,
       Handle<SetIdentifier> combinerContext, Handle<SetIdentifier> sinkContext,
       bool isBroadcasting, bool isRepartitioning, bool needsRemoveInputSet,
-      bool isProbing = false, AllocatorPolicy policy = defaultAllocator,
+      bool isProbing = false, JoinType joinType=UnknownJoin, AllocatorPolicy policy = defaultAllocator,
       bool isRepartitionJoin = false, bool isCollectAsMap = false,
       int numNodesToCollect = 0, bool hasLocalJoinSink = false, bool hasLocalJoinProbe = false, std::string partitionComputationName = "", std::string partitionLambdaName = "");
 
@@ -124,6 +125,7 @@ public:
                AtomicComputationPtr curNode, int &jobStageId,
                AtomicComputationPtr prevNode = nullptr,
                bool isProbing = false,
+	       JoinType joinType = UnknownJoin,
                AllocatorPolicy policy = defaultAllocator,
                std::string joinSource = "",
                std::string prevComputationName = "",

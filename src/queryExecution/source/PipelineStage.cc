@@ -43,6 +43,8 @@
 
 namespace pdb {
 
+//static size_t tunedHashPageSize;
+
 PipelineStage::~PipelineStage() {
     this->jobStage = nullptr;
     this->nodeIds.clear();
@@ -573,6 +575,7 @@ void PipelineStage::executePipelineWork(int i,
 
     Handle<JoinComp<Object, Object, Object>> join = nullptr;
     std::string targetSpecifier = jobStage->getTargetComputationSpecifier();
+    std::cout << "targetSpecifier: " << targetSpecifier << std::endl;
     if (targetSpecifier.find("ClusterAggregationComp") != std::string::npos) {
         Handle<Computation> aggComputation =
             newPlan->getPlan()->getNode(targetSpecifier).getComputationHandle();
@@ -805,7 +808,7 @@ void PipelineStage::executePipelineWork(int i,
                        (this->jobStage->isCombining() == true)) {
                 // to handle an aggregation
                 PDBPagePtr output = make_shared<PDBPage>(
-                    (char*)page - DEFAULT_PAGE_HEADER_SIZE,
+                    (char*)page - headerSize,
                     0,
                     0,
                     0,
@@ -1219,6 +1222,7 @@ void PipelineStage::runPipelineWithShuffleSink(HermesExecutionServer* server) {
 
     int numNodes = jobStage->getNumNodes();
 
+/* 
 #ifdef AUTO_TUNING
     size_t memSize = jobStage->getTotalMemoryOnThisNode();
     size_t sharedMemPoolSize = conf->getShmSize();
@@ -1226,12 +1230,13 @@ void PipelineStage::runPipelineWithShuffleSink(HermesExecutionServer* server) {
     std::cout << std::dec << "memSize is " << memSize << std::endl;
     std::cout << std::dec << "sharedMemPoolSize is " << sharedMemPoolSize << std::endl;
     std::cout << std::dec << "hashSetSize is " << hashSetSize << std::endl;
+
 #ifndef USE_VALGRIND
-    size_t tunedHashPageSize =
+    tunedHashPageSize =
         (double)((memSize * ((size_t)(1024)) - sharedMemPoolSize - server->getHashSetsSize())/(size_t)(numNodes)) *
         (0.8);
 #else
-    size_t tunedHashPageSize =
+    tunedHashPageSize =
         (double)((memSize * ((size_t)(1024)) - sharedMemPoolSize - server->getHashSetsSize())/(size_t)(numNodes)) *
         (0.5);
 #endif
@@ -1249,9 +1254,8 @@ void PipelineStage::runPipelineWithShuffleSink(HermesExecutionServer* server) {
 
     std::cout << "Tuned combiner page size is " << tunedHashPageSize << std::endl;
 #endif
+*/
 
-
-    size_t combinerPageSize = tunedHashPageSize;
     // each queue has multiple producers and one consumer
     int combinerBufferSize = numThreads;
     if (combinerBufferSize > 12) {
@@ -1274,6 +1278,7 @@ void PipelineStage::runPipelineWithShuffleSink(HermesExecutionServer* server) {
     atomic_int combinerCounter;
     combinerCounter = 0;
 
+    size_t combinerPageSize = conf->getShufflePageSize();
     int i;
     for (i = 0; i < numNodes; i++) {
         PageCircularBufferPtr buffer = make_shared<PageCircularBuffer>(combinerBufferSize, logger);
@@ -1293,8 +1298,8 @@ void PipelineStage::runPipelineWithShuffleSink(HermesExecutionServer* server) {
             std::cout << "inactive blocks before running combiner in this worker:" << std::endl;
             std::cout << out << std::endl;
 #endif
-            getAllocator().setPolicy(noReuseAllocator);
-
+            //getAllocator().setPolicy(noReuseAllocator);
+            //getAllocator().setPolicy(defaultAllocator);
             // to combine data for node-i
 
             std::string errMsg;
@@ -1326,9 +1331,9 @@ void PipelineStage::runPipelineWithShuffleSink(HermesExecutionServer* server) {
                 PDB_COUT << "port = " << port << std::endl;
             }
             // get aggregate computation
-            PDB_COUT << i << ": to get compute plan" << std::endl;
+	    std::cout << i << ": to get compute plan" << std::endl;
 #ifdef ENABLE_LARGE_GRAPH
-            const UseTemporaryAllocationBlock tempBlock{256 * 1024 * 1024};
+            const UseTemporaryAllocationBlock tempBlock{512 * 1024 * 1024};
 #else
             const UseTemporaryAllocationBlock tempBlock{32 * 1024 * 1024};
 #endif
@@ -1354,13 +1359,10 @@ void PipelineStage::runPipelineWithShuffleSink(HermesExecutionServer* server) {
             SimpleSingleTableQueryProcessorPtr combinerProcessor =
                 aggregate->getCombinerProcessor(stdPartitions);
             size_t myCombinerPageSize = combinerPageSize;
-            if (myCombinerPageSize > conf->getShufflePageSize() - 64) {
-                myCombinerPageSize = conf->getShufflePageSize() - 64;
-            }
             std::cout << "myCombinerPageSize is finally tuned into " << myCombinerPageSize << std::endl;
             void* combinerPage = (void*)calloc(myCombinerPageSize, sizeof(char));
             if (combinerPage == nullptr) {
-                std::cout << "Fatal Error: insufficient memory can be allocated from memory"
+                std::cout << "Fatal Error: insufficient memory can be allocated from memory, please tune the shufflePageSize in netsdb/src/conf/headers/Configuration.h"
                           << std::endl;
                 exit(-1);
             }

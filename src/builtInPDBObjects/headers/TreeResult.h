@@ -4,8 +4,8 @@
 
 //#define MAX_BLOCK_SIZE 2876726 
 //#define MAX_BLOCK_SIZE 275000
-#define MAX_BLOCK_SIZE 500000
-//#define MAX_BLOCK_SIZE 1000000
+//#define MAX_BLOCK_SIZE 500000
+#define MAX_BLOCK_SIZE 1000000
 
 #include <cmath>
 #include <cstdlib>
@@ -45,7 +45,10 @@ namespace pdb
     class TreeResult : public Object
     {
     public:
+
         void setUpAndCopyFrom(void* target, void* source) const override {
+
+             std::cout << "TreeResult: setUpAndCopyFrom" << std::endl;             
              new (target) TreeResult ();
              TreeResult& fromMe = *((TreeResult *) source);
              TreeResult& toMe = *((TreeResult *) target);
@@ -64,7 +67,8 @@ namespace pdb
 
          size_t getSize(void* forMe) override {
              return sizeof(TreeResult);
-         }
+	 } 
+
 
         float data[MAX_BLOCK_SIZE];
 	
@@ -79,6 +83,8 @@ namespace pdb
 
         TreeResult() {}
 
+
+        ~TreeResult() {}
 
 	TreeResult(int treeId, int batchId, int blockSize, ModelType modelType) 
 	{
@@ -96,7 +102,9 @@ namespace pdb
 	}
 
 	int & getKey() {
-	    return batchId;
+
+             std::cout << "Aggregate: batchId=" << batchId << ", treeId=" << treeId <<std::endl;
+             return batchId;
 	
 	}
 
@@ -113,7 +121,7 @@ namespace pdb
 	}
 
 	TreeResult &operator+(TreeResult &other) {
-    
+            std::cout << "combining batch Id" << other.batchId << "& tree Id" << other.treeId << " and batch Id" << this->batchId << " & tree Id" << this-> treeId << std::endl; 
 	    float *myData, *otherData;
 
             myData = this->data;

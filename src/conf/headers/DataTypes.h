@@ -107,4 +107,15 @@ typedef struct {
          float returnClass;
     } Node;
 
+
+// Join types
+typedef enum {
+
+    HashPartitionedJoin,
+    BroadcastJoin,
+    LocalJoin,
+    CrossProduct,
+    UnknownJoin
+} JoinType;
+
 #endif

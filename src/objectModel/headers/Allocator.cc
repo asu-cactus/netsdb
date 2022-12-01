@@ -225,12 +225,11 @@ inline void* defaultGetRAM(size_t howMuch, AllocatorState& myState) {
     // if we got here, then we cannot fit, and we need to carve out a bit at the end
     // if there is not enough RAM
     if (LAST_USED + bytesNeeded > myState.numBytes) {
-
+	std::cout << "Allocator: LAST_USED=" << LAST_USED << std::endl;
+	std::cout << "Allocator: bytesNeeded=" << bytesNeeded << std::endl;
+	std::cout << "Allocator: numBytes=" << myState.numBytes << std::endl;
         // see how we are supposed to react...
         if (myState.throwException) {
-            PDB_COUT << "Allocator: LAST_USED=" << LAST_USED << std::endl;
-            PDB_COUT << "Allocator: bytesNeeded=" << bytesNeeded << std::endl;
-            PDB_COUT << "Allocator: numBytes=" << myState.numBytes << std::endl;
             // either we throw an exception...
             throw myException;
 
@@ -275,17 +274,18 @@ inline void* fastGetRAM(size_t howMuch, AllocatorState& myState) {
     // if we got here, then we cannot fit, and we need to carve out a bit at the end
     // if there is not enough RAM
     if (LAST_USED + bytesNeeded > myState.numBytes) {
+	std::cout << "Allocator: LAST_USED=" << LAST_USED << std::endl;
+	std::cout << "Allocator: bytesNeeded=" << bytesNeeded << std::endl;
+	std::cout << "Allocator: numBytes=" << myState.numBytes << std::endl;
 
         // see how we are supposed to react...
         if (myState.throwException) {
-            PDB_COUT << "Allocator: LAST_USED=" << LAST_USED << std::endl;
-            PDB_COUT << "Allocator: bytesNeeded=" << bytesNeeded << std::endl;
-            PDB_COUT << "Allocator: numBytes=" << myState.numBytes << std::endl;
             // either we throw an exception...
             throw myException;
 
             // or we return a nullptr
         } else {
+	
             return nullptr;
         }
     }
@@ -455,6 +455,8 @@ MultiPolicyAllocator<FirstPolicy, OtherPolicies...>::~MultiPolicyAllocator() {
 // we have no active RAM
 template <typename FirstPolicy, typename... OtherPolicies>
 MultiPolicyAllocator<FirstPolicy, OtherPolicies...>::MultiPolicyAllocator() {
+
+    std::cout << "initializing the Allocator" << std::endl;	
     for (unsigned int i = 0; i < 32; i++) {
         std::vector<void*> temp;
         myState.chunks.push_back(temp);
@@ -482,6 +484,7 @@ MultiPolicyAllocator<FirstPolicy, OtherPolicies...>::MultiPolicyAllocator() {
 
     // by default, we optimize for space
     setPolicy(defaultAllocator);
+    std::cout << "setup default allocation policy" << std::endl;
 }
 
 template <typename FirstPolicy, typename... OtherPolicies>
@@ -736,6 +739,7 @@ inline void MultiPolicyAllocator<FirstPolicy, OtherPolicies...>::setupBlock(
     myState.curBlockUserSupplied = false;
     LAST_USED = HEADER_SIZE;
     ALLOCATOR_REF_COUNT = 0;
+    std::cout << "setup blocks" << std::endl;
 }
 
 template <typename FirstPolicy, typename... OtherPolicies>
