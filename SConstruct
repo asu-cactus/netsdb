@@ -51,8 +51,7 @@ elif common_env['PLATFORM'] == 'posix':
     # for debugging
     # Needs to be turned on for KMeans and TPCH
     common_env.Append(
-        #CXXFLAGS='-std=c++17 -g -O3  -ftree-vectorize -ffast-math -mavx -march=native -Winline  -Wno-deprecated-declarations')
-        CXXFLAGS='-std=c++17 -g -O0  -Winline  -Wno-deprecated-declarations')
+        CXXFLAGS='-std=c++17 -g -O3  -ftree-vectorize -ffast-math -mavx -march=native -Winline  -Wno-deprecated-declarations')
     #common_env.Append(CXXFLAGS = '-std=c++14 -g  -Oz -ldl -lstdc++ -Wno-deprecated-declarations')
     #LIBPYTORCH_PATH = "/home/ubuntu/anaconda3/envs/py37_torch/lib/python3.7/site-packages/torch/lib"
     LIBPYTORCH_PATH = "/home/ubuntu/libtorch/lib"

@@ -75,11 +75,8 @@ Map<KeyType, ValueType>::Map(uint32_t initSize) {
 
 template <class KeyType, class ValueType>
 Map<KeyType, ValueType>::Map() {
-    std::cout << "initialize Map()" << std::endl;
     MapRecordClass<KeyType, ValueType> temp;
     size_t size = temp.getObjSize();
-    std::cout << "size = " << size << std::endl;
-    std::cout << "make array:this->myArray = makeObjectWithExtraStorage<PairArray<KeyType, ValueType>>(size * 2, 2);" << std::endl;
     myArray = makeObjectWithExtraStorage<PairArray<KeyType, ValueType>>(size * 2, 2);
 }
 

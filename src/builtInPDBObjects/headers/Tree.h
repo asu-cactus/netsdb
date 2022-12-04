@@ -370,7 +370,7 @@ namespace pdb
             // set the output matrix
             pdb::Handle<TreeResult> resultMatrix = pdb::makeObject<TreeResult>(treeId, rowIndex, numRows, modelType);
 
-	    float * outData = resultMatrix->data;
+	    float * outData = resultMatrix->data->c_ptr();
 
 	    int featureStartIndex;
 
@@ -392,8 +392,6 @@ namespace pdb
 
                     outData[i] = (float)(tree[curIndex].returnClass);
 	    }
-
-	    resultMatrix->print();
 
             return resultMatrix;
         }

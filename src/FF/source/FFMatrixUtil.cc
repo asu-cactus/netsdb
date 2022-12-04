@@ -305,6 +305,7 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
                      }
                      std::cout << "Dispatched " << storeMatrix->size() << " blocks to " <<curSetName
                       << std::endl;
+		     storeMatrix.emptyOutContainingBlock();
                      pdb::makeObjectAllocatorBlock(size * 1024 * 1024, true);
                      storeMatrix = pdb::makeObject<pdb::Vector<pdb::Handle<T>>>();
                      storeMatrix->push_back(myData);
@@ -351,6 +352,7 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
               }
               std::cout << "Dispatched " << storeMatrix->size() << " blocks to " << curSetName 
                       << std::endl;
+	      storeMatrix.emptyOutContainingBlock();
               pdb::makeObjectAllocatorBlock((size_t)size * (size_t)1024 * (size_t)1024, true);
               storeMatrix = pdb::makeObject<pdb::Vector<pdb::Handle<T>>>();
               if (i == numXBlocks -1) {
@@ -408,6 +410,7 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
               ii = 0;
 	  
               try {
+		  std::cout << "To push back a block" << std::endl;    
 	          storeMatrix->push_back(myData);
 		  std::cout << "Push back a block" << std::endl;
 	      } catch (pdb::NotEnoughSpace &n) {
@@ -418,6 +421,7 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
                   }
 	          std::cout << "Dispatched " << storeMatrix->size() << " blocks to " <<curSetName
                       << std::endl;
+		  storeMatrix.emptyOutContainingBlock();
 		  pdb::makeObjectAllocatorBlock(size * 1024 * 1024, true);
 	          storeMatrix = pdb::makeObject<pdb::Vector<pdb::Handle<T>>>();
 	          storeMatrix->push_back(myData);

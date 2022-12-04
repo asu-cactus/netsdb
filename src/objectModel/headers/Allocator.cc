@@ -225,9 +225,6 @@ inline void* defaultGetRAM(size_t howMuch, AllocatorState& myState) {
     // if we got here, then we cannot fit, and we need to carve out a bit at the end
     // if there is not enough RAM
     if (LAST_USED + bytesNeeded > myState.numBytes) {
-	std::cout << "Allocator: LAST_USED=" << LAST_USED << std::endl;
-	std::cout << "Allocator: bytesNeeded=" << bytesNeeded << std::endl;
-	std::cout << "Allocator: numBytes=" << myState.numBytes << std::endl;
         // see how we are supposed to react...
         if (myState.throwException) {
             // either we throw an exception...
@@ -274,9 +271,6 @@ inline void* fastGetRAM(size_t howMuch, AllocatorState& myState) {
     // if we got here, then we cannot fit, and we need to carve out a bit at the end
     // if there is not enough RAM
     if (LAST_USED + bytesNeeded > myState.numBytes) {
-	std::cout << "Allocator: LAST_USED=" << LAST_USED << std::endl;
-	std::cout << "Allocator: bytesNeeded=" << bytesNeeded << std::endl;
-	std::cout << "Allocator: numBytes=" << myState.numBytes << std::endl;
 
         // see how we are supposed to react...
         if (myState.throwException) {
@@ -434,7 +428,7 @@ MultiPolicyAllocator<FirstPolicy, OtherPolicies...>::~MultiPolicyAllocator() {
 
     if (myState.activeRAM != nullptr && !myState.curBlockUserSupplied) {
         if (getNumObjectsInCurrentAllocatorBlock() != 0) {
-            std::cout << "This is bad.  Current allocation block has "
+            std::cout << "Current allocation block has "
                       << getNumObjectsInCurrentAllocatorBlock() << " references.\n";
         }
         free(myState.activeRAM);
@@ -442,12 +436,10 @@ MultiPolicyAllocator<FirstPolicy, OtherPolicies...>::~MultiPolicyAllocator() {
 
     for (auto& a : allInactives) {
         if (a.areNoReferences()) {
-            std::cout << "This is bad.  There is an allocation block left with no references.\n";
-            // exit (1);
+            std::cout << "There is an allocation block left with no references.\n";
         } else {
-            std::cout << "This is bad.  There is an allocation block left with "
+            std::cout << "There is an allocation block left with "
                       << a.getReferenceCount() << " references.\n";
-            // exit (1);
         }
     }
 }
@@ -456,7 +448,6 @@ MultiPolicyAllocator<FirstPolicy, OtherPolicies...>::~MultiPolicyAllocator() {
 template <typename FirstPolicy, typename... OtherPolicies>
 MultiPolicyAllocator<FirstPolicy, OtherPolicies...>::MultiPolicyAllocator() {
 
-    std::cout << "initializing the Allocator" << std::endl;	
     for (unsigned int i = 0; i < 32; i++) {
         std::vector<void*> temp;
         myState.chunks.push_back(temp);
@@ -484,7 +475,6 @@ MultiPolicyAllocator<FirstPolicy, OtherPolicies...>::MultiPolicyAllocator() {
 
     // by default, we optimize for space
     setPolicy(defaultAllocator);
-    std::cout << "setup default allocation policy" << std::endl;
 }
 
 template <typename FirstPolicy, typename... OtherPolicies>
@@ -520,7 +510,6 @@ MultiPolicyAllocator<FirstPolicy, OtherPolicies...>::MultiPolicyAllocator(size_t
 // set policy
 template <typename FirstPolicy, typename... OtherPolicies>
 inline void MultiPolicyAllocator<FirstPolicy, OtherPolicies...>::setPolicy(AllocatorPolicy policy) {
-    // std :: cout << "to set policy " <<policy << std :: endl;
     myPolicies.setPolicy(policy);
 }
 
@@ -739,7 +728,6 @@ inline void MultiPolicyAllocator<FirstPolicy, OtherPolicies...>::setupBlock(
     myState.curBlockUserSupplied = false;
     LAST_USED = HEADER_SIZE;
     ALLOCATOR_REF_COUNT = 0;
-    std::cout << "setup blocks" << std::endl;
 }
 
 template <typename FirstPolicy, typename... OtherPolicies>
@@ -751,8 +739,6 @@ inline void* MultiPolicyAllocator<FirstPolicy, OtherPolicies...>::getAllocationB
     void* here = forMe.getTarget();
     // see if this guy is from the active block
     if (contains(here)) {
-        // std :: cout << "getAllocationBlock: object offset =" << CHAR_PTR (here) - CHAR_PTR
-        // (myState.activeRAM) << std :: endl;
         // set up the pointer to the object
         OFFSET_TO_OBJECT = CHAR_PTR(here) - CHAR_PTR(myState.activeRAM);
         return myState.activeRAM;

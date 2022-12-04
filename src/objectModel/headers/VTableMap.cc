@@ -178,7 +178,6 @@ inline int16_t VTableMap::getIDByName(std::string objectTypeName, bool withLock)
     } else if (theVTable->objectTypeNamesList.count(objectTypeName) == 0) {
         // we don't know this type, and we have no catalog client
         theVTable->objectTypeNamesList[objectTypeName] = TYPE_NOT_RECOGNIZED;
-	std::cout << "not builtin and no catalog connection, typeId for " << objectTypeName << "is " << TYPE_NOT_RECOGNIZED << std :: endl;
         return TYPE_NOT_RECOGNIZED;
     } else {
         // in the easy case, we have seen it before, so just return the typeID

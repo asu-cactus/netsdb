@@ -535,16 +535,12 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                                                                          Record<Vector<Handle<Object>>> *myRec =
                                                                              (Record<Vector<Handle<Object>>> *) page->getBytes();
                                                                          Handle<Vector<Handle<Object>>> inputData = myRec->getRootObject();
-									 std::cout << "extracted input data from the page" << std::endl;
                                                                          int inputSize = 0;
                                                                          if (inputData != nullptr) {
                                                                            inputSize = inputData->size();
-									   std::cout << "inputSize = " << inputSize << std::endl;
                                                                          }
                                                                          for (int j = 0; j < inputSize; j++) {
-								           std::cout << i << "to load the " << j << "-th object" << std::endl;
                                                                            aggregateProcessor->loadInputObject((*inputData)[j]);
-									   std::cout << i << "loaded the " << j << "-th object" << std::endl;
                                                                            if (aggregateProcessor->needsProcessInput() == false) {
                                                                              continue;
                                                                            }
@@ -624,7 +620,6 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                                                                            inputSize = inputData->size();
                                                                          }
                                                                          for (int j = 0; j < inputSize; j++) {
-								           std::cout << i << ": to load input object " << j << std::endl;
                                                                            aggregateProcessor->loadInputObject((*inputData)[j]);
                                                                            if (aggregateProcessor->needsProcessInput() == false) {
                                                                              continue;

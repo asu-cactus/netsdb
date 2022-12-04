@@ -44,7 +44,7 @@ public:
         std::cout << "ShuffleSink initialized with " << numPartitions << " partitions" << std::endl;
         int i;
         for (i = 0; i < numPartitions; i++) {
-            Handle<Map<KeyType, ValueType>> curMap = makeObject<Map<KeyType, ValueType>>();
+            Handle<Map<KeyType, ValueType>> curMap = makeObject<Map<KeyType, ValueType>>(4);
             returnVal->push_back(curMap);
         }
         return returnVal;

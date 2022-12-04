@@ -155,20 +155,13 @@ RefCountedObject<ObjType>* makeObject(Args&&... args) {
         std :: cout << "makeObject: return nullptr" << std :: endl;
         return nullptr;
     }
-    // std :: cout << "to call the placement new" << std :: endl;
     // call the placement new
     try {
         new ((void*)returnVal->getObject()) ObjType(args...);
     } catch (NotEnoughSpace& n) {
-	std::cout << "to get RAM from allocator with size ="
-              << sizeof(ObjType) + REF_COUNT_PREAMBLE_SIZE << std::endl;
-        std::cout << "failed to run new ((void*)returnVal->getObject()) ObjType(args...);" << std::endl;
-	std::cout << "ObjType type:" << typeid(ObjType).name() << std::endl;
-// for reference counting correctness
-// returnVal->setRefCount(0);
+        // for reference counting correctness
+        // returnVal->setRefCount(0);
         Handle<ObjType> temp = returnVal;
-        std :: cout << "to free RAM for exception" << std :: endl;
-	std :: cout << "temp.getTypeCode()=" << temp.getTypeCode() << std::endl;
 #ifdef DEBUG_OBJECT_MODEL
         getAllocator().freeRAM(returnVal, temp.getTypeCode());
 #else
@@ -176,8 +169,6 @@ RefCountedObject<ObjType>* makeObject(Args&&... args) {
 #endif
         throw n;
     }
-    // std :: cout << "set reference count = 0" << std :: endl;
-    // set the reference count
     returnVal->setRefCount(0);
 
     // and return it
@@ -188,9 +179,6 @@ template <class ObjType, class... Args>
 RefCountedObject<ObjType>* makeObjectWithExtraStorage(size_t extra, Args&&... args) {
       PDBTemplateBase temp;
     temp.template setup<ObjType>();
-     std::cout << "In makeObjectWithExtraStorage:" << std::endl;
-     std::cout << "to get RAM from allocator with size ="
-              << extra + sizeof(ObjType) + REF_COUNT_PREAMBLE_SIZE << std::endl;
 #ifdef DEBUG_OBJECT_MODEL
     PDBTemplateBase temp;
     temp.template setup<ObjType>();
@@ -212,16 +200,13 @@ RefCountedObject<ObjType>* makeObjectWithExtraStorage(size_t extra, Args&&... ar
 #endif
     // if we got a nullptr, get outta there
     if (returnVal == nullptr) {
-	std::cout << "Exception Throw: cannot obtain size =" << extra + sizeof(ObjType) + REF_COUNT_PREAMBLE_SIZE << std::endl;
         return nullptr;
     }
-    // std :: cout << "to call the placement new" << std :: endl;
     // call the placement new
     try {
         new ((void*)returnVal->getObject()) ObjType(args...);
     } catch (NotEnoughSpace& n) {
 
-	std::cout << "Exception Throw: cannot obtain size =" << extra + sizeof(ObjType) + REF_COUNT_PREAMBLE_SIZE << std::endl;
 // added by Jia based on Chris' proposal
 // for reference counting correctness
 // returnVal->setRefCount(0);
@@ -233,7 +218,6 @@ RefCountedObject<ObjType>* makeObjectWithExtraStorage(size_t extra, Args&&... ar
 #endif
         throw n;
     }
-    // std :: cout << "to set reference count = 0" << std :: endl;
     // set the reference count
     returnVal->setRefCount(0);
 
@@ -245,9 +229,7 @@ template <class ObjType>
 Record<ObjType>* getRecord(Handle<ObjType>& forMe) {
 
     // get a pointer to the allocation block for this guy
-    // std :: cout << "to get record..." << std :: endl;
     void* res = getAllocator().getAllocationBlock(forMe);
-    // std :: cout << "record size=" << (size_t)(*(size_t *)res) << std :: endl;
     // and return that
     return (Record<ObjType>*)res;
 }
@@ -295,12 +277,9 @@ Record<ObjType>* getRecord(Handle<ObjType>& forMe, void* putMeHere, size_t numBy
 // added by Jia based on Chris' proposal
 template <class TargetType>
 Handle<TargetType> deepCopyToCurrentAllocationBlock(Handle<TargetType>& copyMe) {
-    // std :: cout << "create a handle for the Holder object" << std :: endl;
     Handle<Holder<TargetType>> temp = makeObject<Holder<TargetType>>();
-    // std :: cout << "to do a deep copy" << std :: endl;
     temp->child = copyMe;  // since temp->child is physically located in the current allocation
                            // block, forces a deep copy
-    // std :: cout << "deep copy done" << std :: endl;
     return temp->child;
 };
 }

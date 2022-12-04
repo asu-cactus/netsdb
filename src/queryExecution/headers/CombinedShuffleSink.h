@@ -50,7 +50,6 @@ public:
 
         int nodeId = myHashID / numPartitionsPerNode;
         int partitionId = myHashID % numPartitionsPerNode;
-	std::cout << "nodeId=" << nodeId << ", partitionId=" << partitionId << std::endl;
         return *((*((*outputData)[nodeId]))[partitionId]);
     }
 
@@ -60,7 +59,6 @@ public:
         Handle<Vector<Handle<Vector<Handle<AggregationMap<KeyType, ValueType>>>>>> returnVal =
             makeObject<Vector<Handle<Vector<Handle<AggregationMap<KeyType, ValueType>>>>>>(
                 numNodes);
-	std::cout << "numNodes=" << numNodes << ", numPartitionsPerNode=" << this->numPartitionsPerNode << std::endl;
         int i, j;
         for (i = 0; i < numNodes; i++) {
             Handle<Vector<Handle<AggregationMap<KeyType, ValueType>>>> nodeData =
@@ -68,7 +66,7 @@ public:
                     this->numPartitionsPerNode);
             for (j = 0; j < this->numPartitionsPerNode; j++) {
                 Handle<AggregationMap<KeyType, ValueType>> curMap =
-                    makeObject<AggregationMap<KeyType, ValueType>>();
+                    makeObject<AggregationMap<KeyType, ValueType>>(4);
                 curMap->setHashPartitionId(j);
                 nodeData->push_back(curMap);
             }
@@ -95,7 +93,6 @@ public:
         for (size_t i = 0; i < length; i++) {
 
             hashVal = Hasher<KeyType>::hash(keyColumn[i]);
-            std::cout << "hashVal = " << hashVal << ", hashVal%(numNodes * numPartitionsPerNode)=" <<hashVal % (numNodes * numPartitionsPerNode) << std::endl;
             AggregationMap<KeyType, ValueType>& myMap =
                 getMap(hashVal % (numNodes * numPartitionsPerNode), writeMe);
             // if this key is not already there...
@@ -114,7 +111,6 @@ public:
                     // if we got here, then we ran out of space, and so we need to delete the
                     // already-processed
                     // data so that we can try again...
-	            std::cout << "run out of page space: temp = &(myMap[keyColumn[i]]);" << std::endl;
                     keyColumn.erase(keyColumn.begin(), keyColumn.begin() + i);
                     valueColumn.erase(valueColumn.begin(), valueColumn.begin() + i);
                     throw n;
@@ -123,7 +119,6 @@ public:
                 // we were able to fit a new key/value pair, so copy over the value
                 try {
                     *temp = valueColumn[i];
-		    std::cout << "CombinedShuffleSink: inserted one TreeResult object" << std::endl;
                     // if we could not fit the value...
                 } catch (NotEnoughSpace& n) {
 
@@ -144,7 +139,6 @@ public:
                 // get the value and a copy of it
                 ValueType& temp = myMap[keyColumn[i]];
                 ValueType copy = temp;
-                std::cout << "CombinedShuffleSink: combined two TreeResult object" << std::endl;
                 // and add to the old value, producing a new one
                 try {
                     temp = copy + valueColumn[i];
