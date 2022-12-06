@@ -66,7 +66,7 @@ public:
                     this->numPartitionsPerNode);
             for (j = 0; j < this->numPartitionsPerNode; j++) {
                 Handle<AggregationMap<KeyType, ValueType>> curMap =
-                    makeObject<AggregationMap<KeyType, ValueType>>(4);
+                    makeObject<AggregationMap<KeyType, ValueType>>(64);
                 curMap->setHashPartitionId(j);
                 nodeData->push_back(curMap);
             }

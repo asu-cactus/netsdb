@@ -372,11 +372,16 @@ namespace pdb
 
 	    float * outData = resultMatrix->data->c_ptr();
 
-	    int featureStartIndex;
-
-            for (int i = 0; i < numRows; i++)
-            {
-		    featureStartIndex = i*numCols;
+	    int featureStartIndex = 0;
+            int base = 0;
+	    int rowNumBase = 0;
+	    int batchSize = 4000; //the numRows must be divided by batchSize
+            
+            for (int i = 0; i < numRows/batchSize; i++) {
+		base = i*batchSize*numCols;
+		rowNumBase = i*batchSize;
+		for (int j = 0; j < batchSize; j++) {
+		    featureStartIndex = base + j*numCols;
                     int curIndex = 0;
                     while (tree[curIndex].isLeaf == false)
                     {
@@ -390,9 +395,9 @@ namespace pdb
                         }
                     }
 
-                    outData[i] = (float)(tree[curIndex].returnClass);
-	    }
-
+                    outData[rowNumBase+j] = (float)(tree[curIndex].returnClass);
+	        }
+            }
             return resultMatrix;
         }
 
