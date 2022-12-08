@@ -64,4 +64,23 @@ pip3 install lleaves (or) conda install -c conda-forge lleaves
 
 pip3 install catboost
 
+# Generating Synthetic Data using TPCxAI
+* Tool Download Link: [TPCxAI Tool](https://www.tpc.org/tpc_documents_current_versions/download_programs/tools-download-request5.asp?bm_type=TPCX-AI&bm_vers=1.0.2&mode=CURRENT-ONLY)
+* Documentation Link: [TPCxAI Documentation](https://www.tpc.org/tpc_documents_current_versions/pdf/tpcx-ai_v1.0.2.pdf)
+## Setup & Instructions
+1. Once Downloaded, in the root folder open file *setenv.sh* and find environment variable `TPCxAI_SCALE_FACTOR`.
+2. Based on the required size, change the value of the Scale Factor. This value represents the size of the generated datasets across all the 10 Use Cases that TPCxAI supports (For more details on the use-cases, check the Documentation). 
+    | Scale Factor  | Size  |
+    | ------------- | ----- |
+    | 1             | 1GB   |
+    | 3             | 3GB   |
+    | 10            | 10GB  |
+    | 30            | 30GB  |
+    | 100           | 100GB |
+    | ...           | ...   |
+    | 10,000        | 10TB  |
+ > TPCxAI Supports Scale Factors in multiples of form `(1|3)*10^x` upto `10,000`. *(i.e.: 1, 3, 10, 30, 100, 300, ..., 10,000)*
+3. Once the value is set, save and close the file.
+4. Run the file `TPCx-AI_Benchmarkrun.sh`. It takes a while depending on the Scale Factor.
+5. Once done, the generated datasets should be available at `[tool_root_dir]/output/data/`
 
