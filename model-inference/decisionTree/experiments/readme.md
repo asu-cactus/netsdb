@@ -74,6 +74,7 @@ wget https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/binary/epsilon_norm
 unxz epsilon_normalized.xz
 unxz epsilon_normalized.t.xz
 ```
+TPCxAI Dataset Instructions available here: [Link](https://github.com/asu-cactus/netsdb/blob/tpcxai-tool-instructions/model-inference/decisionTree/README.md#generating-synthetic-data-using-tpcxai)
 
 To run a certain experiment
 
