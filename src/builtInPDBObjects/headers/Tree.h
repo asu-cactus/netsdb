@@ -375,8 +375,9 @@ namespace pdb
 	    int featureStartIndex = 0;
             int base = 0;
 	    int rowNumBase = 0;
-	    int batchSize = 4000; //the numRows must be divided by batchSize
-            
+	    int batchSize = 4000; 
+            int remainderSize = numRows % batchSize;
+
             for (int i = 0; i < numRows/batchSize; i++) {
 		base = i*batchSize*numCols;
 		rowNumBase = i*batchSize;
@@ -398,6 +399,26 @@ namespace pdb
                     outData[rowNumBase+j] = (float)(tree[curIndex].returnClass);
 	        }
             }
+            rowNumBase = numRows/batchSize*batchSize;
+	    base = rowNumBase * numCols;
+	    for (int i = 0; i < remainderSize; i++) {
+	    
+	       featureStartIndex = base + i*numCols;
+	       int curIndex = 0;
+	       while (tree[curIndex].isLeaf == false)
+               {
+                    if (inData[featureStartIndex + tree[curIndex].indexID] < tree[curIndex].returnClass)
+                    {
+                        curIndex = tree[curIndex].leftChild;
+                    }
+                    else
+                    {
+                        curIndex = tree[curIndex].rightChild;
+                    }
+               }
+	       outData[rowNumBase+i] = (float)(tree[curIndex].returnClass);
+	    
+	    }
             return resultMatrix;
         }
 
