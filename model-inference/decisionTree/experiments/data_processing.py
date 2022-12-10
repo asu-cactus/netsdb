@@ -2,7 +2,7 @@ import os
 import gc
 import json
 import pickle
-from model_helper import relative2abspath, dataset_folder
+from model_helper import relative2abspath, dataset_folder, fetch_epsilon_sparse, todense_fill
 import numpy as np
 import pandas as pd
 from urllib.request import urlretrieve
@@ -13,6 +13,8 @@ import argparse
 import math
 import sys
 import time
+
+from scipy import sparse as sp
 
 
 def parse_arguments():
@@ -26,6 +28,7 @@ def parse_arguments():
             'fraud', 
             'year', 
             'epsilon', 
+            'epsilon_sparse',
             'bosch', 
             'covtype',
             'criteo',
@@ -147,8 +150,20 @@ def prepare_year(dataset_folder, nrows=None):
     df = df.astype({0: np.int8})
     return df
 
-
-def prepare_epsilon(nrows=None):
+# Passing a valid dataset_folder makes this function construct a custom dense dataset from the original sparse dataset.
+def prepare_epsilon(nrows=None, dataset_folder=None):
+    if dataset_folder:
+        print('Preparing Epsilon Sparse Dataset')
+        prepare_epsilon_sparse(dataset_folder)
+        train_data = pd.DataFrame([])
+        print('Fetching Epsilon Sparse Test Dataset [Train is empty]')
+        test_features, test_labels = fetch_epsilon_sparse()
+        print('Fetched Epsilon Sparse Test Dataset')
+        test_labels = np.expand_dims(test_labels, axis=1)
+        test_features = todense_fill(test_features)
+        print(f'Test Features Occupy: {sys.getsizeof(test_features)} bytes')
+        test_data = pd.DataFrame(np.concatenate((test_labels,test_features), axis=1))
+        return test_data, train_data
     from catboost.datasets import epsilon
     print("DOWNLOADING EPSILON")
     train_data, test_data = epsilon()
@@ -169,6 +184,30 @@ def prepare_epsilon(nrows=None):
 
     return test_data, train_data
 
+def prepare_epsilon_sparse(dataset_folder, nrows=None):
+    data_url = 'https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/binary/epsilon_normalized.t.bz2'
+    final_dataset = 'epsilon_normalized_test.svm'
+    file_name = data_url.split('/')[-1]
+    downloaded_file = download_data(data_url, dataset_folder)
+    if (os.path.isfile(downloaded_file)):
+        os.system(f'bzip2 -cdk {downloaded_file} > {dataset_folder}{final_dataset}')
+    # Convert all -1 Output Class to 0 Class
+    import re
+    updated_content = ''
+    with open(f'{dataset_folder}{final_dataset}', 'r') as f:
+        content = f.read()
+        updated_content = re.sub('(^-1 )|(\n-1 )', '\n0 ', content)
+    with open(f'{dataset_folder}{final_dataset}', 'w') as f:
+        f.write(updated_content)
+    # START: Control the Sparsity of Data
+    # x, y = datasets.load_svmlight_file(downloaded_file, dtype=np.float32)
+    # print('DATASET LOADED FOR CUSTOM SPARSITY')
+    # print(f'x Occupy [BEFORE]: {sys.getsizeof(x)} bytes')
+    # x = sp.csr_matrix(todense_fill(x))
+    # print(f'x Occupy [AFTER]: {sys.getsizeof(x)} bytes')
+    # datasets.dump_svmlight_file(x,y,downloaded_file)
+    # print('DATASET DUMPED WITH CUSTOM SPARSITY')
+    # END
 
 def prepare_covtype(dataset_folder, nrows=None): 
     df = datasets.fetch_covtype(data_home=dataset_folder, as_frame=True)["frame"]
@@ -364,14 +403,19 @@ if __name__ == "__main__":
         is_classification = datasetconfig["type"] == "classification"
         df = prepare_airline(is_classification, dataset_folder, nrows=nrows)
     elif dataset == 'epsilon':
-        df_test, df_train = prepare_epsilon(nrows=nrows)
+        df_test, df_train = prepare_epsilon(nrows=nrows) # Default Missing Value
+        # df_test, df_train = prepare_epsilon(nrows=nrows, dataset_folder=dataset_folder) # Custom Missing Value
+        ######
+        # mod = np.nan_to_num(df_test,0)
+        # print("SPARSITY: ",1.0-(np.count_nonzero(mod))/float(mod.size))
+        # exit()
+        ######
     elif dataset == "fraud":
         df = prepare_fraud(dataset_folder, nrows=nrows)
     elif dataset == 'bosch':
         df = prepare_bosch(dataset_folder, nrows=nrows)
     elif dataset == 'covtype':
         df = prepare_covtype(dataset_folder, nrows=nrows)
-
     elif dataset=="tpcxai_fraud":
         if nrows:
             df = prepare_tpcxai_fraud_transactions(dataset_folder, nrows=nrows)
@@ -389,7 +433,9 @@ if __name__ == "__main__":
                 print('-'*50)
                 df = pd.concat([df,prepare_tpcxai_fraud_transactions(dataset_folder, nrows=partition_size, skip_rows=range(1,partition_size*i))])
             print(f'Final Shape of DataFrame: {df.shape}')
-
+    elif dataset == "epsilon_sparse":
+        prepare_epsilon_sparse(dataset_folder)
+        exit()
     elif dataset == 'criteo':
         prepare_criteo(dataset_folder)
         exit()
@@ -428,16 +474,16 @@ if __name__ == "__main__":
         print("LOADING DATA FOR EPSILON")
         columns = [i for i in range(1, 2001)]
         with connection.cursor() as cur:
-            train.head()
-            rows = len(train)
-            for i in range(rows):
-                cur.execute("INSERT INTO epsilon_train(label,row) VALUES(%s, %s)", (int(
-                    train.loc[i, 0]), list(train.loc[i, columns])))
-                if i % 10000 == 0:
-                    print(i)
+            # train.head()
+            # rows = len(train)
+            # for i in range(rows):
+            #     cur.execute("INSERT INTO epsilon_train(label,row) VALUES(%s, %s)", (int(
+            #         train.loc[i, 0]), list(train.loc[i, columns])))
+            #     if i % 10000 == 0:
+            #         print(i)
 
-            connection.commit()
-            print("LOADED "+datasetconfig["table"]+"_train"+" to DB")
+            # connection.commit()
+            # print("LOADED "+datasetconfig["table"]+"_train"+" to DB")
 
             test.head()
             rows = len(test)

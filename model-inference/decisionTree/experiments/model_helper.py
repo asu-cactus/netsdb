@@ -1,17 +1,55 @@
 import pickle
 import time
 import os
+import sys
 import numpy as np
 import math
+import random
+from scipy import sparse as sp
 from sklearn.metrics import classification_report, mean_squared_error
 
 dataset_folder = "dataset/"
 
+fill_missing_value = 0 # np.nan # 0
+density_percentage = 0.5
 
 def calculate_time(start_time, end_time):
     diff = (end_time-start_time)*1000
     return diff
 
+def todense_fill(csr: sp.csr_matrix) -> np.ndarray:
+    """Densify a sparse CSR matrix. Same as csr_matrix.todense()
+    except it fills missing entries with fill_missing_value instead of 0
+    """
+    # dummy_value = np.nan if not np.isnan(fill_missing_value) else np.inf
+    # dummy_check = np.isnan if np.isnan(dummy_value) else np.isinf
+    dummy_value = np.nan
+    dummy_check = np.isnan
+    csr = csr.copy().astype(float)
+    csr.data[csr.data == 0] = dummy_value
+    out = np.array(csr.todense()).squeeze()
+    # ===== Control the Sparsity of the Data
+    if density_percentage>0:
+        print(f'Custom Density Percentage: {density_percentage}')
+        # Varying Sparsity by Row and Column, using scipy random function
+        sparsity_matrix_multiplier = sp.random(out.shape[0],out.shape[1],density=density_percentage, data_rvs=np.ones).todense()
+        print(f'Multiplier Shape: {sparsity_matrix_multiplier.shape}')
+        print(f'Non-zero Values [BEFORE]: {np.count_nonzero(out)}')
+        nonzeros = np.count_nonzero(out)
+        for i in range(out.shape[0]):
+            # print(np.expand_dims(out[i],axis=0).shape, sparsity_matrix_multiplier[i].shape)
+            out[i] = np.multiply(np.expand_dims(out[i],axis=0),sparsity_matrix_multiplier[i])
+        print(f'Non-zero Values [AFTER]: {np.count_nonzero(out)}')
+        print(f'DENSITY: {np.count_nonzero(out)/nonzeros}')
+        # out = np.multiply(out,sparsity_matrix_multiplier)
+        # sparse_column_indices = random.sample(range(out.shape[1]),int(out.shape[1]*density_percentage))
+        # for column_index in sparse_column_indices:
+        #     out[::,column_index] = fill_missing_value
+    # =====
+    # out[out == 0] = fill_missing_value
+    # out[dummy_check(out)] = 0
+    print(f'Non-zero Values [AFTER CHECK]: {np.count_nonzero(out)}')
+    return out
 
 def load_data_from_pickle(dataset, config, suffix, time_consume):
     start_time = time.time()
@@ -38,14 +76,27 @@ def fetch_criteo(suffix, time_consume):
     y = y.astype(np.int8, copy=False)
     return (x, y)
 
-def fetch_data(dataset, config, suffix, time_consume=None):
-    if dataset == "criteo":        
-        return fetch_criteo(suffix, time_consume)
-    print("LOADING " + dataset + " " + suffix)
+def fetch_epsilon_sparse(time_consume=None, dataset="epsilon_normalized_test.svm"):
+    from sklearn import datasets
 
+    start_time = time.time()
+    path = relative2abspath(dataset_folder, dataset)
+    x, y = datasets.load_svmlight_file(path, dtype=np.float32)
+    data_loading_time = calculate_time(start_time,time.time())
+    if time_consume is not None:
+        time_consume["data loading time"] = data_loading_time
+    y = y.astype(np.int8, copy=False)
+    return (x, y)
+
+def fetch_data(dataset, config, suffix, time_consume=None):
+    if dataset == "criteo":
+        return fetch_criteo(suffix, time_consume)
+    elif dataset == "epsilon_sparse":
+        return fetch_epsilon_sparse(time_consume, dataset="epsilon_normalized_test.svm")
+    print("LOADING " + dataset + " " + suffix)
+    import psycopg2
     try:
         import connectorx as cx
-        import psycopg2
         pgsqlconfig = config["pgsqlconfig"]
         datasetconfig = config[dataset]
         query = datasetconfig["query"]+"_"+suffix
@@ -118,7 +169,7 @@ def run_inference(framework, features, input_size, query_size, predict, time_con
         aggregate_func = aggregate_function()
         for i in range(iterations):
             query_data = treelite_runtime.DMatrix(
-                features[i*query_size:(i+1)*query_size])
+                features[i*query_size:(i+1)*query_size], missing=fill_missing_value)
             output = predict(query_data)
             if is_classification:
                 output = np.where(output > 0.5, 1, 0)
