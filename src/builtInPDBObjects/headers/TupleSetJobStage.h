@@ -224,11 +224,27 @@ public:
     }
 
     std::string getJoinType() {
-        return this->joinType;
+        return this->joinTypeStr;
     }
 
     void setJoinType(std::string joinType) {
-        this->joinType = joinType;
+        this->joinTypeStr = joinType;
+    }
+
+    void setJoinType(JoinType joinType) {
+   
+	if (joinType == HashPartitionedJoin) {
+	    this->joinTypeStr = "HashPartitionedJoin";
+	} else if (joinType == BroadcastJoin) {
+	    this->joinTypeStr = "BroadcastJoin";
+	} else if (joinType == LocalJoin) {
+	    this->joinTypeStr = "LocalJoin";
+	} else if (joinType == CrossProduct) {
+	    this->joinTypeStr = "CrossProduct";
+	} else {
+	    this->joinTypeStr = "UnknownJoin";
+	}
+    
     }
 
     JobStageID getStageId() override {
@@ -314,7 +330,7 @@ public:
         std::cout << "[PARTITION LAMBDA] partitionLambdaName="
                   << this->partitionLambdaName << std::endl;
 	std::cout << "[JOINTYPE] joinType="
-		  << this->joinType << std::endl;
+		  << this->joinTypeStr << std::endl;
 
         if (buildTheseTupleSets != nullptr) {
             std::cout << "[PIPELINE]" << std::endl;
@@ -586,7 +602,7 @@ private:
     //Does this stage has local join probe
     bool localJoinProbeOrNot = false;
 
-    String joinType = "Unknown";
+    String joinTypeStr = "Unknown";
 
 };
 }

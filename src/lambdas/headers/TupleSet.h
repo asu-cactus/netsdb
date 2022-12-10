@@ -437,7 +437,6 @@ public:
             getTypeName<ColType>(),
             getSerializedSize<std::is_base_of<PtrBase, ColType>::value, ColType>());
         columns[where] = std::make_pair((void*)addMe, myFuncs);
-        std::cout << "Added column at position=" << where << std::endl;
     }
 };
 }

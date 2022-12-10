@@ -17,7 +17,7 @@ void loadLibrary(pdb::PDBClient &pdbClient, std::string path);
 //create set
 template <class T>
 void createSetGeneric(pdb::PDBClient &pdbClient, std::string dbName,
-               std::string setName, std::string setName1, int size);
+               std::string setName, std::string setName1, int size, int numPartitions = 1);
 
 void createSet(pdb::PDBClient &pdbClient, std::string dbName,
                std::string setName, std::string setName1, int size);

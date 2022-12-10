@@ -2,6 +2,7 @@
 #ifndef JOIN_TUPLE_H
 #define JOIN_TUPLE_H
 
+#include "DataTypes.h"
 #include "JoinMap.h"
 #include "SinkMerger.h"
 #include "SinkShuffler.h"
@@ -11,17 +12,6 @@
 #include "PartitionedHashSet.h"
 
 namespace pdb {
-
-// Join types
-typedef enum {
-
-    HashPartitionedJoin,
-    BroadcastJoin,
-    LocalJoin,
-    CrossProduct
-
-} JoinType;
-
 
 
 template <typename T>
@@ -500,7 +490,7 @@ public:
         } else {
             inputTable = input->getRootObject();
         }
-        //std::cout << "inputTable->size()=" << inputTable->size() << std::endl;
+        std::cout << "inputTable->size()=" << inputTable->size() << std::endl;
         // set up the output tuple
         output = std::make_shared<TupleSet>();
         columns = new void*[positions.size()];
@@ -564,7 +554,6 @@ public:
             // remember how many matches we had
             counts[i] = numHits;
         }
-        //std::cout << "count=" << overallCounter << std::endl;
 
         // truncate if we have extra
         eraseEnd<RHSType>(overallCounter, 0, columns);
@@ -660,14 +649,11 @@ public:
         Handle<Vector<Handle<JoinMap<RHSType>>>> mapsToMerge =
             unsafeCast<Vector<Handle<JoinMap<RHSType>>>>(mergeMe);
         Vector<Handle<JoinMap<RHSType>>>& theOtherMaps = *mapsToMerge;
-        std::cout << "to merge maps with " << theOtherMaps.size() << " elements and mapIndex=" << mapIndex 
-                  << ", listIndex=" << listIndex << std::endl;
         for (int i = 0; i < theOtherMaps.size(); i++) {
             JoinMap<RHSType>& theOtherMap = *(theOtherMaps[i]);
             if (theOtherMap.getPartitionId() != partitionId) {
                 continue;
             }
-            std::cout << "my Id is "<<partitionId <<", theOtherMap.getPartitionId()="<<theOtherMap.getPartitionId() << ", size="<< theOtherMap.size() << std::endl;
             int counter=0;
             for (JoinMapIterator<RHSType> iter = theOtherMap.begin(); iter != theOtherMap.end();
                  ++iter) {
@@ -809,7 +795,6 @@ public:
         if (myRec != nullptr) {
 
             iterateOverMe = myRec->getRootObject();
-            std::cout << myPartitionId << ": PartitionedJoinMapTupleSetIterator: Got iterateOverMe, positions.size()="<< positions.size() << std::endl;
             // create the output vector for objects and put it into the tuple set
             columns = new void*[positions.size()];
             if (columns == nullptr) {
@@ -824,7 +809,6 @@ public:
                 exit(1);
             }
             output->addColumn(positions.size(), hashColumn, true);
-            std::cout << myPartitionId << ": PartitionedJoinMapTupleSetIterator: now we have " << output->getNumColumns() << " columns in the output" << std::endl;
             isDone = false;
 
         } else {
@@ -888,7 +872,6 @@ public:
                   if (curJoinMap->getNumPartitions() >0) {
                     if (((curJoinMap->getPartitionId() % curJoinMap->getNumPartitions()) ==
                         myPartitionId)&&(curJoinMap->size()>0) || partitionedJoinType == CrossProduct) {
-                        //std::cout << "We've got a non-null map with partitionId=" << myPartitionId << ", pos=" << pos <<", size=" << curJoinMap->size() << ", in page Id="<<myPage->getPageID() << ", referenceCount="<< myPage->getRefCount()<< std::endl;
                         //curJoinMap->print();
                         curJoinMapIter = curJoinMap->begin();
                         joinMapEndIter = curJoinMap->end();
@@ -932,8 +915,6 @@ public:
                             myList = myListToRecover;
                             myListSize = myListSizeToRecover;
                             myHash = myHashToRecover;
-                            std::cout << "PartitionedJoinMapTupleSetIterator roll back with partitionId="
-<< myPartitionId << ", pos="<< pos << ", myListSize=" << myListSize << ", myHash=" << myHash << ", posInRecordList=" << posInRecordList << std::endl;
                             throw n;
                         }
                         hashColumn->push_back(myHash);
@@ -1132,8 +1113,6 @@ public:
         int counter = 0;
         int mapIndex = getMapIndex();
         int numPacked = 0;
-        std::cout << nodeId <<": this map has " << mapToShuffle.size() << " elements with mapIndex="<< getMapIndex() 
-                  << ", listIndex=" << getListIndex() << std::endl;
         logger->writeInt(mapToShuffle.size());
         logger->writeLn(" elements with mapIndex=");
         logger->writeInt(getMapIndex());
@@ -1188,7 +1167,6 @@ public:
                             temp = &(myMap.push(myHash));
                         } catch (NotEnoughSpace& n) {
                             //we may loose one element here, but no better way to handle this
-                            std::cout << nodeId<<":mapSize=" << myMap.size()<<std::endl;
                             myMap.setUnused(myHash);
                             //myMap.print();
                             setListIndex(i);
@@ -1316,7 +1294,6 @@ public:
         // now, figure out the attributes that we need to store in the hash table
         useTheseAtts = myMachine.match(additionalAtts);
 
-        std::cout << "NumPartitionsPerNode: " << numPartitionsPerNode << ", NumNodes:" << numNodes << std::endl;    
 
 	if (this->partitionedJoinType == CrossProduct) {
 	
@@ -1347,7 +1324,6 @@ public:
     }
 
     void writeOut(TupleSetPtr input, Handle<Object>& writeToMe) override {
-        std::cout << "PartitionedJoinSink: write out tuples in this tuple set" << std::endl;
         // get the map we are adding to
         Handle<Vector<Handle<Vector<Handle<JoinMap<RHSType>>>>>> writeMe =
             unsafeCast<Vector<Handle<Vector<Handle<JoinMap<RHSType>>>>>>(writeToMe);
@@ -1372,7 +1348,6 @@ public:
         std::vector<size_t>& keyColumn = input->getColumn<size_t>(keyAtt);
 
         size_t length = keyColumn.size();
-	//std::cout << "There are " << length << " elements in the tupleset" << std::endl;
         size_t index;
 
 	if (partitionedJoinType == CrossProduct) {
@@ -1393,13 +1368,10 @@ public:
 
 		 //for cross product
 		 index = curPartitionId % (this->numPartitionsPerNode * this->numNodes);
-                //std::cout << "this is CrossProduct with inex=" << index << std::endl;	    
 	    }	    
             size_t nodeIndex = index / this->numPartitionsPerNode;
             size_t partitionIndex = index % this->numPartitionsPerNode;
             JoinMap<RHSType>& myMap = *((*((*writeMe)[nodeIndex]))[partitionIndex]);
-            //std::cout << "nodeIndex=" << nodeIndex << ", partitionIndex=" <<partitionIndex 
-                      //<< ", myMap.size="<<myMap.size()<<std::endl;
             // try to add the key... this will cause an allocation for a new key/val pair
             if (myMap.count(keyColumn[i]) == 0) {
                 try {

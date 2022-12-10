@@ -45,28 +45,10 @@ namespace pdb
     class TreeResult : public Object
     {
     public:
-        void setUpAndCopyFrom(void* target, void* source) const override {
-             new (target) TreeResult ();
-             TreeResult& fromMe = *((TreeResult *) source);
-             TreeResult& toMe = *((TreeResult *) target);
-	     toMe.blockSize = fromMe.blockSize;
-             for (int i = 0; i < fromMe.blockSize; i++) {
-                 toMe.data[i] = fromMe.data[i];
-             }
-             toMe.treeId = fromMe.treeId;
-             toMe.modelType = fromMe.modelType;
-             toMe.batchId = fromMe.batchId;
-        }
 
-         void deleteObject(void* deleteMe) override {
-             deleter(deleteMe, this);
-         }
+        ENABLE_DEEP_COPY
 
-         size_t getSize(void* forMe) override {
-             return sizeof(TreeResult);
-         }
-
-        float data[MAX_BLOCK_SIZE];
+        Handle<Vector<float>> data;
 	
 	int treeId;
 
@@ -80,15 +62,11 @@ namespace pdb
         TreeResult() {}
 
 
+        ~TreeResult() {}
+
 	TreeResult(int treeId, int batchId, int blockSize, ModelType modelType) 
 	{
-            if (blockSize > MAX_BLOCK_SIZE) {
-	    
-	        std::cout << "FATAL ERROR: TreeResult: blockSize exceeds MAX_BLOCK_SIZE. Try increase MAX_BLOCK_SIZE" << std::endl;
-		exit(1);
-
-	    }
-	    
+	    this->data = makeObject<Vector<float>>(blockSize, blockSize);
 	    this->treeId = treeId;
 	    this->batchId = batchId;
 	    this->blockSize = blockSize;
@@ -96,7 +74,8 @@ namespace pdb
 	}
 
 	int & getKey() {
-	    return batchId;
+
+             return batchId;
 	
 	}
 
@@ -113,40 +92,40 @@ namespace pdb
 	}
 
 	TreeResult &operator+(TreeResult &other) {
-    
 	    float *myData, *otherData;
 
-            myData = this->data;
-            otherData = other.data;
+            myData = this->data->c_ptr();
+            otherData = other.data->c_ptr();
 
             for (int i = 0; i < blockSize; i++) {
                   myData[i] += otherData[i];
 	    }
             return *this;
         }
+
         int getNumPositives () {
+	
+            float * myData = data->c_ptr();
 	    int positive_count = 0;
             for (int i = 0; i < blockSize; i++) {
-   		    positive_count += data[i]; 
+   		    positive_count += myData[i]; 
 	    }
             return positive_count;	
 	}
 	void postprocessing(Handle<TreeResult> res, int numTrees = 0) {
-	   float * resData = res->data;   
-
+	   float * resData = res->data->c_ptr();   
+           float * myData = data->c_ptr();
            if ((modelType == ModelType::XGBoost) || (modelType == ModelType::LightGBM)) {
 	       float threshold = 0.5;
 	       float sigmoid_of_decision;
-	       // Default LR Value Source: https://xgboost.readthedocs.io/en/stable/parameter.html?highlight=0.3#parameters-for-tree-booster
                for (int i = 0; i < blockSize; i++) {
-                   sigmoid_of_decision = 1 / (1 + exp(-1.0 * data[i]));
+                   sigmoid_of_decision = 1 / (1 + exp(-1.0 * myData[i]));
 		   resData[i] = sigmoid_of_decision > threshold ? 1.0 : 0.0;
-                   //std::cout << resData[i] << "," << data[i] << std::endl;
 	       }
                // Reference: https://stats.stackexchange.com/questions/395697/what-is-an-intuitive-interpretation-of-the-leaf-values-in-xgboost-base-learners
 	   } else {
 	       for (int i = 0; i < blockSize; i++) {
-	           resData[i] = data[i] > numTrees/2 ? 1.0 : 0.0;
+	           resData[i] = myData[i] > numTrees/2 ? 1.0 : 0.0;
 	       }
 	   }
 	}

@@ -62,7 +62,6 @@ void AggregationProcessor<KeyType, ValueType>::loadInputObject(Handle<Object>& o
 // loads up another input page to process
 template <class KeyType, class ValueType>
 void AggregationProcessor<KeyType, ValueType>::loadInputPage(void* pageToProcess) {
-    PDB_COUT << "AggregationProcessor-" << id << ": Loading input page" << std::endl;
     Record<Vector<Handle<AggregationMap<KeyType, ValueType>>>>* myRec =
         (Record<Vector<Handle<AggregationMap<KeyType, ValueType>>>>*)pageToProcess;
     inputData = myRec->getRootObject();
@@ -71,15 +70,11 @@ void AggregationProcessor<KeyType, ValueType>::loadInputPage(void* pageToProcess
     for (i = 0; i < numPartitions; i++) {
         curMap = (*inputData)[i];
         HashPartitionID hashIdForCurrentMap = curMap->getHashPartitionId();
-        PDB_COUT << i << "-th map's partitionId is " << hashIdForCurrentMap << std::endl;
         if (curMap->getHashPartitionId() == id) {
-            PDB_COUT << "this map has my id = " << id << std::endl;
             if (begin != nullptr) {
-                PDB_COUT << "we delete the begin iterator of last input page" << std::endl;
                 delete begin;
             }
             if (end != nullptr) {
-                PDB_COUT << "we delete the end iterator of last input page" << std::endl;
                 delete end;
             }
             begin = new PDBMapIterator<KeyType, ValueType>(curMap->getArray(), true);
@@ -97,10 +92,9 @@ void AggregationProcessor<KeyType, ValueType>::loadInputPage(void* pageToProcess
 template <class KeyType, class ValueType>
 void AggregationProcessor<KeyType, ValueType>::loadOutputPage(void* pageToWriteTo,
                                                               size_t numBytesInPage) {
-    PDB_COUT << "AggregationProcessor-" << id << ": Loading output page" << std::endl;
     blockPtr = nullptr;
     blockPtr = std::make_shared<UseTemporaryAllocationBlock>(pageToWriteTo, numBytesInPage);
-    outputData = makeObject<Map<KeyType, ValueType>>();
+    outputData = makeObject<Map<KeyType, ValueType>>(2);
 }
 
 template <class KeyType, class ValueType>
@@ -114,9 +108,9 @@ bool AggregationProcessor<KeyType, ValueType>::fillNextOutputPage() {
 
 
     if (curMap == nullptr) {
-        PDB_COUT << "this page doesn't have my map with id = " << id << std::endl;
         return false;
     }
+
 
 
     // we are not finalized, so process the page
@@ -133,10 +127,14 @@ bool AggregationProcessor<KeyType, ValueType>::fillNextOutputPage() {
             // if the key is not there
             if (outputData->count(curKey) == 0) {
                 ValueType* temp = nullptr;
-                temp = &((*outputData)[curKey]);
+
+		try {
+                    temp = &((*outputData)[curKey]);
+		} catch (NotEnoughSpace& n) {
+		    throw n;
+		}
                 try {
                     *temp = curValue;
-                    ++(*begin);
                     numHashKeys++;
                     // if we couldn't fit the value
                 } catch (NotEnoughSpace& n) {
@@ -152,7 +150,6 @@ bool AggregationProcessor<KeyType, ValueType>::fillNextOutputPage() {
                 // and add to old value, producing a new one
                 try {
                     temp = copy + curValue;
-                    ++(*begin);
                     // if we got here, it means we run out of RAM and we need to restore the old
                     // value in the destination hash map
                 } catch (NotEnoughSpace& n) {
@@ -160,6 +157,7 @@ bool AggregationProcessor<KeyType, ValueType>::fillNextOutputPage() {
                     throw n;
                 }
             }
+            ++(*begin);
         }
 
     } catch (NotEnoughSpace& n) {

@@ -509,21 +509,9 @@ Handle<ObjType>& Handle<ObjType>::operator=(const RefCountedObject<ObjType>* fro
         // copy over the object; use a virtual method so that we get everything set up and copied
         // correctly
         try {
-            if (typeInfo.getTypeCode() == 0) {
-                PDB_COUT << "operator=: typeInfo = 0 before setUpAndCopyFromConstituentObject"
-                         << std::endl;
-            }
-#ifdef DEBUG_DEEP_COPY
-            if (typeInfo.getTypeCode() > 126) {
-                PDB_COUT << "typeInfo=" << typeInfo.getTypeCode() << std::endl;
-            }
-#endif
             typeInfo.setUpAndCopyFromConstituentObject(getTarget()->getObject(),
                                                        fromMe->getObject());
         } catch (NotEnoughSpace& n) {
-            PDB_COUT << "ERROR: Not enough memory when invoking operator = (const "
-                        "RefCountedObject<ObjType>*) in Handle.cc"
-                     << std::endl;
             DEC_OLD_REF_COUNT;
             getTarget()->decRefCount(typeInfo);
             offset = -1;

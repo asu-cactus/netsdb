@@ -19,7 +19,7 @@ namespace pdb {
 
 class PDBTemplateBase {
 
-private:
+public:
     // a number greater than zero indicates a type code associated with a pdb :: Object
     // a number less than zero indicates a non-pdb :: Object for whom we know the size
     // a number equal to zero indicates an error; we have no idea as to the type

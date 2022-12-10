@@ -57,10 +57,10 @@ elif common_env['PLATFORM'] == 'posix':
     LIBPYTORCH_PATH = "/home/ubuntu/libtorch/lib"
     if os.path.exists(LIBPYTORCH_PATH):
         common_env.Append(
-            LINKFLAGS=f'-L{LIBPYTORCH_PATH} -pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++ -lcrypto -lssl -ltorch -ltorch_cpu -lc10')
+            LINKFLAGS='-L{LIBPYTORCH_PATH} -pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++ -lcrypto -lssl -ltorch -ltorch_cpu -lc10')
     else:
         common_env.Append(
-            LINKFLAGS='-pthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++ -lcrypto -lssl')
+            LINKFLAGS='-lpthread -ldl -lgsl -lgslcblas -lm -lsnappy -lstdc++ -lcrypto -lssl -Wl,-fuse-ld=gold')
 
 common_env.Replace(CXX="clang++")
 # common_env.Append(CCFLAGS='-DDEBUG_SIMPLE_FF_VERBOSE')
@@ -88,7 +88,7 @@ common_env.Append(CCFLAGS='-DENABLE_COMPRESSION')
 # common_env.Append(CCFLAGS='-DPDB_DEBUG')
 common_env.Append(CCFLAGS='-DEVICT_STOP_THRESHOLD=0.90')
 # uncomment following for KMeans
-# common_env.Append(CCFLAGS='-DHASH_FOR_TPCH')
+# common_env.Append(CCFLAGS='-DHASH_FOR_TPCH') 
 common_env.Append(CCFLAGS='-DNUM_KMEANS_DIMENSIONS=10')
 # common_env.Append(CCFLAGS='-DUSE_MEMCACHED_SLAB_ALLOCATOR')
 # common_env.Append(CCFLAGS='-DCOLLECT_RESULTS_AS_ONE_PARTITION')

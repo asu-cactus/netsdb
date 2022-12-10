@@ -81,9 +81,6 @@ public:
     // returns the next tuple set to process, or nullptr if there is not one to process
     TupleSetPtr getNextTupleSet() override {
 
-
-        std::cout << "Trying to get next tupleset" << std::endl;
-
         // JiaNote: below two lines are necessary to fix a bug that iterateOverMe may be nullptr
         // when first time get to here
         if (iterateOverMe == nullptr) {

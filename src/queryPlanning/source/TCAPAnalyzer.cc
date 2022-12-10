@@ -168,7 +168,7 @@ bool TCAPAnalyzer::getNextStages(
     tupleSetNames.push_back(outputName);
     bool ret = analyze(physicalPlanToOutput, interGlobalSets, tupleSetNames,
                        curSource, sourceComputation, curInputSetIdentifier,
-                       curNode, jobStageId, curSource, false, defaultAllocator, "", sourceSpecifier);
+                       curNode, jobStageId, curSource, false, UnknownJoin, defaultAllocator, "", sourceSpecifier);
     if (ret == false) {
       return false;
     }
@@ -198,7 +198,7 @@ bool TCAPAnalyzer::getNextStagesOptimized(
     tupleSetNames.push_back(outputName);
     ret = analyze(physicalPlanToOutput, interGlobalSets, tupleSetNames,
                   curSource, sourceComputation, curInputSetIdentifier, curNode,
-                  jobStageId, curSource, false, defaultAllocator, "", sourceSpecifier);
+                  jobStageId, curSource, false, UnknownJoin, defaultAllocator, "", sourceSpecifier);
     if (ret == false) {
       return true;
     }
@@ -284,7 +284,7 @@ bool TCAPAnalyzer::analyze(
     // std :: cout << "set isProbing to false" << std :: endl;
     bool ret = analyze(physicalPlanToOutput, interGlobalSets, tupleSetNames,
                        curSource, sourceComputation, curInputSetIdentifier,
-                       curNode, jobStageId, curSource, false, defaultAllocator, "", sourceSpecifier);
+                       curNode, jobStageId, curSource, false, UnknownJoin, defaultAllocator, "", sourceSpecifier);
     if (ret == false) {
       std::cout << "We met a penalized source set and simply return."
                 << std::endl;
@@ -300,7 +300,7 @@ Handle<TupleSetJobStage> TCAPAnalyzer::createTupleSetJobStage(
     std::vector<std::string> buildTheseTupleSets, std::string outputTypeName,
     Handle<SetIdentifier> sourceContext, Handle<SetIdentifier> combinerContext,
     Handle<SetIdentifier> sinkContext, bool isBroadcasting,
-    bool isRepartitioning, bool needsRemoveInputSet, bool isProbing,
+    bool isRepartitioning, bool needsRemoveInputSet, bool isProbing, JoinType joinType,
     AllocatorPolicy myPolicy, bool isRepartitionJoin, bool isCollectAsMap,
     int numNodesToCollect, bool hasLocalJoinSink, bool hasLocalJoinProbe,
     std::string partitionComputationName, std::string partitionLambdaName) {
@@ -329,6 +329,10 @@ Handle<TupleSetJobStage> TCAPAnalyzer::createTupleSetJobStage(
     }
     jobStage->setHashSetsToProbe(hashSetToProbeForMe);
     outputForJoinSets.clear();
+  }
+
+  if (isProbing == true) {
+    jobStage->setJoinType(joinType);
   }
   if (combinerContext != nullptr) {
     jobStage->setCombinerContext(combinerContext);
@@ -506,14 +510,14 @@ bool TCAPAnalyzer::analyze(
     std::vector<std::string> &buildTheseTupleSets,
     AtomicComputationPtr curSource, Handle<Computation> sourceComputation,
     Handle<SetIdentifier> curInputSetIdentifier, AtomicComputationPtr curNode,
-    int &jobStageId, AtomicComputationPtr prevNode, bool isProbing,
+    int &jobStageId, AtomicComputationPtr prevNode, bool isProbing, JoinType joinType,
     AllocatorPolicy myPolicy, std::string joinSource, std::string prevComputationName, bool hasLocalJoinProbe, std::string partitionComputationSpecifier, std::string partitionLambdaName) {
   // to get consumers
   std::string outputName = curNode->getOutputName();
   std::vector<AtomicComputationPtr> consumers =
       this->computationGraph.getConsumingAtomicComputations(outputName);
   int numConsumersForCurNode = consumers.size();
-
+  
   // to get my type
   std::string mySpecifier = curNode->getComputationName();
   std::cout << "mySpecifier is " << mySpecifier << std::endl;
@@ -556,7 +560,7 @@ bool TCAPAnalyzer::analyze(
       Handle<TupleSetJobStage> jobStage = createTupleSetJobStage(
           jobStageId, sourceTupleSetName, curNode->getInputName(), mySpecifier,
           buildTheseTupleSets, "IntermediateData", curInputSetIdentifier,
-          combiner, aggregator, false, true, false, isProbing, myPolicy, false,
+          combiner, aggregator, false, true, false, isProbing, joinType, myPolicy, false,
           agg->isCollectAsMap(), agg->getNumNodesToCollect(), false, hasLocalJoinProbe, partitionComputationSpecifier, partitionLambdaName);
       // to push back the job stage
       physicalPlanToOutput.push_back(jobStage);
@@ -584,7 +588,7 @@ bool TCAPAnalyzer::analyze(
       Handle<TupleSetJobStage> jobStage = createTupleSetJobStage(
           jobStageId, sourceTupleSetName, curNode->getInputName(), mySpecifier,
           buildTheseTupleSets, myComputation->getOutputType(),
-          curInputSetIdentifier, nullptr, sink, false, false, false, isProbing,
+          curInputSetIdentifier, nullptr, sink, false, false, false, isProbing, joinType,
           myPolicy, false, 0, 0, false, hasLocalJoinProbe, partitionComputationSpecifier, partitionLambdaName);
       physicalPlanToOutput.push_back(jobStage);
       if (this->dynamicPlanningOrNot == true) {
@@ -602,7 +606,7 @@ bool TCAPAnalyzer::analyze(
       Handle<TupleSetJobStage> jobStage = createTupleSetJobStage(
           jobStageId, sourceTupleSetName, curNode->getInputName(), mySpecifier,
           buildTheseTupleSets, myComputation->getOutputType(),
-          curInputSetIdentifier, nullptr, sink, false, true, false, isProbing,
+          curInputSetIdentifier, nullptr, sink, false, true, false, isProbing, joinType,
           myPolicy, false, 0, 0, false, hasLocalJoinProbe, partitionComputationSpecifier, partitionLambdaName);
       physicalPlanToOutput.push_back(jobStage);
       if (this->dynamicPlanningOrNot == true) {
@@ -662,7 +666,7 @@ bool TCAPAnalyzer::analyze(
       Handle<TupleSetJobStage> jobStage = createTupleSetJobStage(
           jobStageId, sourceTupleSetName, curNode->getInputName(), mySpecifier,
           buildTheseTupleSets, "IntermediateData", curInputSetIdentifier,
-          combiner, aggregator, false, true, false, isProbing, myPolicy, false,
+          combiner, aggregator, false, true, false, isProbing, joinType, myPolicy, false,
           agg->isCollectAsMap(), agg->getNumNodesToCollect(), false, hasLocalJoinProbe, partitionComputationSpecifier, partitionLambdaName);
       physicalPlanToOutput.push_back(jobStage);
       // to create the consuming job stage for aggregation
@@ -696,7 +700,7 @@ bool TCAPAnalyzer::analyze(
         
         return analyze(physicalPlanToOutput, interGlobalSets,
                        buildTheseTupleSets, curNode, myComputation, sink,
-                       nextNode, jobStageId, curNode, false, defaultAllocator, "", prevSpecifier, false);
+                       nextNode, jobStageId, curNode, false, joinType, defaultAllocator, "", prevSpecifier, false);
       }
     } else if (curNode->getAtomicComputationType() == "JoinSets") {
       std::shared_ptr<ApplyJoin> joinNode =
@@ -861,7 +865,7 @@ bool TCAPAnalyzer::analyze(
               Handle<TupleSetJobStage> joinPrepStage = createTupleSetJobStage(
                  jobStageId, sourceTupleSetName, targetTupleSetName, mySpecifier,
                  buildTheseTupleSets, "IntermediateData", curInputSetIdentifier,
-                 nullptr, sink, false, true, false, isProbing, myPolicy, true, false, 0, 
+                 nullptr, sink, false, true, false, isProbing, join->getJoinType(), myPolicy, true, false, 0, 
                  false, hasLocalJoinProbe, partitionComputationSpecifier, partitionLambdaName);
 	      if (join->getJoinType()==CrossProduct) {
 	      
@@ -911,7 +915,7 @@ bool TCAPAnalyzer::analyze(
               Handle<TupleSetJobStage> joinPrepStage = createTupleSetJobStage(
                  jobStageId, sourceTupleSetName, targetTupleSetName, mySpecifier,
                  buildTheseTupleSets, "IntermediateData", curInputSetIdentifier,
-                 nullptr, sink, false, true, false, isProbing, myPolicy, false, false, 0,
+                 nullptr, sink, false, true, false, isProbing, join->getJoinType(), myPolicy, false, false, 0,
                  true, hasLocalJoinProbe, partitionComputationSpecifier, partitionLambdaName);
               std::cout << "Set partitionComputationName as " << partitionComputationName << std::endl;
               std::cout << "Set partitionLambdaName as " << partitionLambdaName << std::endl;
@@ -967,7 +971,7 @@ bool TCAPAnalyzer::analyze(
           Handle<TupleSetJobStage> joinPrepStage = createTupleSetJobStage(
               jobStageId, sourceTupleSetName, targetTupleSetName, mySpecifier,
               buildTheseTupleSets, "IntermediateData", curInputSetIdentifier,
-              nullptr, sink, true, false, false, isProbing, myPolicy, false, false, 0,
+              nullptr, sink, true, false, false, isProbing, join->getJoinType(), myPolicy, false, false, 0,
               false, hasLocalJoinProbe, partitionComputationSpecifier, partitionLambdaName);
           physicalPlanToOutput.push_back(joinPrepStage);
           interGlobalSets.push_back(sink);
@@ -1079,7 +1083,7 @@ bool TCAPAnalyzer::analyze(
               Handle<TupleSetJobStage> joinPrepStage = createTupleSetJobStage(
                   jobStageId, sourceTupleSetName, targetTupleSetName, mySpecifier,
                   buildTheseTupleSets, "IntermediateData", curInputSetIdentifier,
-                  nullptr, sink, false, true, false, isProbing, myPolicy, true, false, 0,
+                  nullptr, sink, false, true, false, isProbing, join->getJoinType(), myPolicy, true, false, 0,
                   false, hasLocalJoinProbe, partitionComputationSpecifier, partitionLambdaName);
 
 	      if (join->getJoinType()==CrossProduct) {
@@ -1122,7 +1126,7 @@ bool TCAPAnalyzer::analyze(
               // Now I am the source!
               return analyze(physicalPlanToOutput, interGlobalSets,
                          buildTheseTupleSets, curNode, myComputation, sink,
-                         nextNode, jobStageId, curNode, true, myPolicy,
+                         nextNode, jobStageId, curNode, true, join->getJoinType(), myPolicy,
                          myJoinSource, prevSpecifier, false);
               // we then create a pipeline stage to probe the partitioned hash table
 
@@ -1148,7 +1152,7 @@ bool TCAPAnalyzer::analyze(
               return analyze(physicalPlanToOutput, interGlobalSets,
                          buildTheseTupleSets, curSource, sourceComputation,
                          curInputSetIdentifier, nextNode, jobStageId, curNode,
-                         true, myPolicy, joinSource, prevSpecifier, true, partitionComputationName, partitionLambdaName);
+                         true, join->getJoinType(), myPolicy, joinSource, prevSpecifier, true, partitionComputationName, partitionLambdaName);
 
           }
 
@@ -1163,7 +1167,7 @@ bool TCAPAnalyzer::analyze(
           return analyze(physicalPlanToOutput, interGlobalSets,
                          buildTheseTupleSets, curSource, sourceComputation,
                          curInputSetIdentifier, nextNode, jobStageId, curNode,
-                         true, myPolicy, joinSource, prevSpecifier, hasLocalJoinProbe);
+                         true, joinType, myPolicy, joinSource, prevSpecifier, hasLocalJoinProbe);
         }
       }
 
@@ -1172,7 +1176,7 @@ bool TCAPAnalyzer::analyze(
       buildTheseTupleSets.push_back(curNode->getOutputName());
       return analyze(physicalPlanToOutput, interGlobalSets, buildTheseTupleSets,
                      curSource, sourceComputation, curInputSetIdentifier,
-                     nextNode, jobStageId, curNode, isProbing, myPolicy,
+                     nextNode, jobStageId, curNode, isProbing, joinType, myPolicy,
                      joinSource, prevSpecifier, hasLocalJoinProbe);
     }
 
@@ -1214,7 +1218,7 @@ bool TCAPAnalyzer::analyze(
       Handle<TupleSetJobStage> jobStage = createTupleSetJobStage(
           jobStageId, sourceTupleSetName, curNode->getOutputName(), mySpecifier,
           buildTheseTupleSets, myComputation->getOutputType(),
-          curInputSetIdentifier, nullptr, sink, false, false, false, isProbing,
+          curInputSetIdentifier, nullptr, sink, false, false, false, isProbing, joinType,
           myPolicy, false, false, 0, false, hasLocalJoinProbe, partitionComputationSpecifier, partitionLambdaName);
       physicalPlanToOutput.push_back(jobStage);
     } else if (myComputation->getComputationType() ==
@@ -1241,7 +1245,7 @@ bool TCAPAnalyzer::analyze(
       Handle<TupleSetJobStage> jobStage = createTupleSetJobStage(
           jobStageId, sourceTupleSetName, curNode->getInputName(), mySpecifier,
           buildTheseTupleSets, "IntermediateData", curInputSetIdentifier,
-          combiner, aggregator, false, true, false, isProbing, myPolicy, false,
+          combiner, aggregator, false, true, false, isProbing, joinType, myPolicy, false,
           false, 0, false, hasLocalJoinProbe, partitionComputationSpecifier, partitionLambdaName);
       physicalPlanToOutput.push_back(jobStage);
       // to create the consuming job stage for aggregation
@@ -1285,7 +1289,7 @@ bool TCAPAnalyzer::analyze(
         }
         bool ret = analyze(physicalPlanToOutput, interGlobalSets,
                            buildTheseTupleSets, curNode, myComputation, sink,
-                           nextNode, jobStageId, curNode, false, defaultAllocator, "", prevSpecifier, false); 
+                           nextNode, jobStageId, curNode, false, joinType, defaultAllocator, "", prevSpecifier, false); 
         if (ret == false) {
           return false;
         }

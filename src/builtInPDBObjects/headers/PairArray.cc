@@ -45,7 +45,7 @@ struct MapRecordClass {
     ValueType value;
 
     size_t getObjSize() {
-        return sizeof(MapRecordClass<KeyType, ValueType>);
+	return  sizeof(MapRecordClass<KeyType, ValueType>);
     }
 
     size_t getValueOffset() {
@@ -159,13 +159,6 @@ void PairArray<KeyType, ValueType>::setUpAndCopyFrom(void* target, void* source)
     toMe.keyTypeInfo = fromMe.keyTypeInfo;
     toMe.valueTypeInfo = fromMe.valueTypeInfo;
 
-    if (toMe.keyTypeInfo.getTypeCode() == 0) {
-        std::cout << "PairArray: setUpAndCopyFrom: keyTypeInfo = 0 " << std::endl;
-    }
-
-    if (toMe.valueTypeInfo.getTypeCode() == 0) {
-        std::cout << "PairArray: setUpAndCopyFrom: valueTypeInfo = 0" << std::endl;
-    }
 
     // copy over the size info
     toMe.objSize = fromMe.objSize;
@@ -286,7 +279,6 @@ int PairArray<KeyType, ValueType>::count(const KeyType& me) {
     std::cout << "in count(): hashVal = " << hashVal << ", slot = " << slot
               << ", numSlots =" << numSlots << ". Warning: Ran off the end of the hash table!!\n";
     return 0;
-    // exit (1);
 }
 
 template <class KeyType, class ValueType>
@@ -376,7 +368,6 @@ ValueType& PairArray<KeyType, ValueType>::operator[](const KeyType& me) {
                 usedSlots++;
 
             } catch (NotEnoughSpace& n) {
-                std::cout << "Not enough space when inserting new key" << std::endl;
                 throw n;
             }
 
@@ -412,7 +403,6 @@ ValueType& PairArray<KeyType, ValueType>::operator[](const KeyType& me) {
 
 template <class KeyType, class ValueType>
 PairArray<KeyType, ValueType>::PairArray(uint32_t numSlotsIn) : PairArray() {
-
     // verify that we are a power of two
     bool gotIt = false;
     uint32_t val = 1;
@@ -450,7 +440,6 @@ bool PairArray<KeyType, ValueType>::isOverFull() {
 
 template <class KeyType, class ValueType>
 PairArray<KeyType, ValueType>::PairArray() {
-
     // remember the types for this guy
     keyTypeInfo.setup<KeyType>();
     valueTypeInfo.setup<ValueType>();
@@ -459,7 +448,7 @@ PairArray<KeyType, ValueType>::PairArray() {
     MapRecordClass<KeyType, ValueType> temp;
     objSize = temp.getObjSize();
     valueOffset = temp.getValueOffset();
-
+    
     // zero slots in the array
     numSlots = 0;
 
@@ -481,13 +470,6 @@ PairArray<KeyType, ValueType>::~PairArray() {
         return;
     }
 
-    if (keyTypeInfo.getTypeCode() == 0) {
-        std::cout << "PairArray: ~PairArray: keyTypeInfo = 0 " << std::endl;
-    }
-
-    if (valueTypeInfo.getTypeCode() == 0) {
-        std::cout << "PairArray: ~PairArray: valueTypeInfo = 0" << std::endl;
-    }
     // do no work if the guys we store do not come from pdb :: Object
     if (!keyTypeInfo.descendsFromObject() && !valueTypeInfo.descendsFromObject())
         return;
@@ -511,7 +493,6 @@ Handle<PairArray<KeyType, ValueType>> PairArray<KeyType, ValueType>::doubleArray
     // allocate the new Array
     Handle<PairArray<KeyType, ValueType>> tempArray =
         makeObjectWithExtraStorage<PairArray<KeyType, ValueType>>(objSize * howMany, howMany);
-
     // first, set everything to unused
     // now, re-hash everything
     PairArray<KeyType, ValueType>& newOne = *tempArray;

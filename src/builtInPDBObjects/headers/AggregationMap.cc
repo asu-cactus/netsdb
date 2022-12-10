@@ -8,8 +8,8 @@ namespace pdb {
 //wraps the container for shuffle data for Aggregation
 
 template <class KeyType, class ValueType>
-AggregationMap<KeyType, ValueType>::AggregationMap(uint32_t initSize) {
-
+AggregationMap<KeyType, ValueType>::AggregationMap(uint32_t initSize) : Map<KeyType, ValueType>(initSize) {
+/*
     if (initSize < 2) {
         std::cout << "Fatal Error: Map initialization:" << initSize
                   << " too small; must be at least one.\n";
@@ -22,14 +22,17 @@ AggregationMap<KeyType, ValueType>::AggregationMap(uint32_t initSize) {
     size_t size = temp.getObjSize();
     this->myArray =
         makeObjectWithExtraStorage<PairArray<KeyType, ValueType>>(size * initSize, initSize);
+*/
 }
 
 template <class KeyType, class ValueType>
-AggregationMap<KeyType, ValueType>::AggregationMap() {
-
-    MapRecordClass<KeyType, ValueType> temp;
-    size_t size = temp.getObjSize();
-    this->myArray = makeObjectWithExtraStorage<PairArray<KeyType, ValueType>>(size * 2, 2);
+AggregationMap<KeyType, ValueType>::AggregationMap() : Map<KeyType, ValueType>(){
+    //std::cout << "initialize AggregationMap()" << std::endl;
+    //MapRecordClass<KeyType, ValueType> temp;
+    //size_t size = temp.getObjSize();
+    //std::cout << "size=" << size << std::endl;
+    //std::cout << "make array:this->myArray = makeObjectWithExtraStorage<PairArray<KeyType, ValueType>>(size * 2, 2);" << std::endl;
+    //this->myArray = makeObjectWithExtraStorage<PairArray<KeyType, ValueType>>(size * 2, 2);
 }
 
 template <class KeyType, class ValueType>

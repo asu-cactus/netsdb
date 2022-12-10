@@ -314,7 +314,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
         std::cout << out << std::endl;
 #endif
         PDB_COUT << "hashSetSize = " << hashSetSize << std::endl;
-        getAllocator().setPolicy(AllocatorPolicy::noReuseAllocator);
+        //getAllocator().setPolicy(AllocatorPolicy::noReuseAllocator);
         // to get the sink merger
         std::string sourceTupleSetSpecifier = request->getSourceTupleSetSpecifier();
         std::string targetTupleSetSpecifier = request->getTargetTupleSetSpecifier();
@@ -499,7 +499,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                                                                        (size_t) ((size_t) 32 * (size_t) 1024 * (size_t) 1024));
                                                                    getAllocator().cleanInactiveBlocks(
                                                                        (size_t) ((size_t) 256 * (size_t) 1024 * (size_t) 1024));
-                                                                   getAllocator().setPolicy(AllocatorPolicy::noReuseAllocator);
+                                                                   //getAllocator().setPolicy(AllocatorPolicy::noReuseAllocator);
                                                                    pthread_mutex_lock(&connection_mutex);
                                                                    PDBCommunicatorPtr anotherCommunicatorToFrontend =
                                                                        make_shared<PDBCommunicator>();
@@ -530,6 +530,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                                                                      void *outBytes = nullptr;
                                                                      while (myIter->hasNext()) {
                                                                        PDBPagePtr page = myIter->next();
+								       std::cout << "AggregateProcessor: I've got a page" << std::endl;
                                                                        if (page != nullptr) {
                                                                          Record<Vector<Handle<Object>>> *myRec =
                                                                              (Record<Vector<Handle<Object>>> *) page->getBytes();
@@ -1031,7 +1032,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
             std::cout << out << std::endl;
 #endif
             std::cout << "hashSetSize = " << hashSetSize << std::endl;
-            getAllocator().setPolicy(AllocatorPolicy::noReuseAllocator);
+            //getAllocator().setPolicy(AllocatorPolicy::noReuseAllocator);
             Handle<Object> myMap = merger->createNewOutputContainer();
 
             // setup an output page to store intermediate results and final output

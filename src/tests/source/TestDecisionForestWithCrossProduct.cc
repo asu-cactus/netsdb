@@ -99,9 +99,9 @@ int main(int argc, char *argv[]) {
 
     bool createSet;
 
-    if ((argc <= 6)||(argc > 11)) {
+    if ((argc <= 8)||(argc > 12)) {
     
-        std::cout << "Usage: \n To load data: bin/testDecisionForestWithCrossProduct Y numInstances numFeatures batch_size label_col_index, pageSizeInMB pathToLoadDataFile(N for generating data randomly) pathToModelFolder modelType[XGBoost/RandomForest]\n To run the inference: bin/testDecisionForestWithCrossProduct N numInstances numFeatures batchSize labelColIndex pageSizeInMB pathToLoadDataFile pathToModelFolder modelType[XGBoost/RandomForest]\n Example: \n bin/testDecisionForestWithCrossProduct Y 2200000 28 275000 0 32 model-inference/decisionTree/experiments/HIGGS.csv_test.csv model-inference/decisionTree/experiments/models/higgs_xgboost_500_8_netsdb XGBoost\n bin/testDecisionForestWithCrossProduct N 2200000 28 275000 0 32 model-inference/decisionTree/experiments/HIGGS.csv_test.csv model-inference/decisionTree/experiments/models/higgs_xgboost_500_8_netsdb XGBoost\n";
+        std::cout << "Usage: \n To load data: bin/testDecisionForestWithCrossProduct Y numInstances numFeatures batch_size label_col_index, pageSizeInMB numPartitions pathToLoadDataFile(N for generating data randomly) pathToModelFolder modelType[XGBoost/RandomForest]\n To run the inference: bin/testDecisionForestWithCrossProduct N numInstances numFeatures batchSize labelColIndex pageSizeInMB numPartitions pathToLoadDataFile pathToModelFolder modelType[XGBoost/RandomForest]\n Example: \n bin/testDecisionForestWithCrossProduct Y 2200000 28 275000 0 32 1 model-inference/decisionTree/experiments/HIGGS.csv_test.csv model-inference/decisionTree/experiments/models/higgs_xgboost_500_8_netsdb XGBoost\n bin/testDecisionForestWithCrossProduct N 2200000 28 275000 0 32 1 model-inference/decisionTree/experiments/HIGGS.csv_test.csv model-inference/decisionTree/experiments/models/higgs_xgboost_500_8_netsdb XGBoost\n";
         exit(-1);
     }
 
@@ -114,11 +114,12 @@ int main(int argc, char *argv[]) {
     string forestFolderPath;
     ModelType modelType = ModelType::XGBoost;
     int pageSize = 64;
+    int numPartitions = 1;
     string dataFilePath = "";
     int numTrees = 0;
 
 
-    if(argc >= 6) {
+    if(argc >= 8) {
 
         if(string(argv[1]).compare("Y")==0) {
             createSet = true;
@@ -133,35 +134,41 @@ int main(int argc, char *argv[]) {
 
         label_col_index = std::atoi(argv[5]);//the index of label column
 
-    }
+        if (argc >= 7) {
+            pageSize = std::stoi(argv[6]);
+        }
 
-    if (argc >= 7) {
-        pageSize = std::stoi(argv[6]);
-    }
+	if (argc >= 8) {
+            numPartitions = std::stoi(argv[7]);
+        }
 
-    if (argc >= 8) {
-        dataFilePath = std::string(argv[7]);
     }
 
     if (argc >= 9) {
-        forestFolderPath = std::string(argv[8]);
+        dataFilePath = std::string(argv[8]);
     }
 
+
+
     if (argc >= 10) {
-        if (string(argv[9]).compare("XGBoost") == 0) {
+        forestFolderPath = std::string(argv[9]);
+    }
+
+    if (argc >= 11) {
+        if (string(argv[10]).compare("XGBoost") == 0) {
             modelType = ModelType::XGBoost;
-        } else if (string(argv[9]).compare("RandomForest") == 0) {
+        } else if (string(argv[10]).compare("RandomForest") == 0) {
             modelType = ModelType::RandomForest;
-        } else if (string(argv[9]).compare("LightGBM") == 0) {
+        } else if (string(argv[10]).compare("LightGBM") == 0) {
 	    modelType = ModelType::LightGBM;
 	} else {
-            std::cerr << "Unsupported model type: " << argv[8] << std::endl;
+            std::cerr << "Unsupported model type: " << argv[10] << std::endl;
 	    exit(-1);
         }
     }
 
-    if (argc >= 11) {
-        numTrees = std::stoi(argv[10]);
+    if (argc >= 12) {
+        numTrees = std::stoi(argv[11]);
     }
 
 
@@ -174,11 +181,17 @@ int main(int argc, char *argv[]) {
     if(createSet == true){
         //create set for data
         ff::createDatabase(pdbClient, "decisionForest");
-        ff::createSetGeneric<pdb::TensorBlock2D<float>>(pdbClient, "decisionForest", "inputs", "inputs", pageSize);
+        ff::createSetGeneric<pdb::TensorBlock2D<float>>(pdbClient, "decisionForest", "inputs", "inputs", pageSize, numPartitions);
         if (dataFilePath.compare("N") == 0) {
-	    ff::loadMatrixGeneric<pdb::TensorBlock2D<float>>(pdbClient, "decisionForest", "inputs", rowNum, colNum, block_x, block_y, false, false, errMsg);		   
+
+            if (numPartitions == 1)
+	        ff::loadMatrixGeneric<pdb::TensorBlock2D<float>>(pdbClient, "decisionForest", "inputs", rowNum, colNum, block_x, block_y, false, false, errMsg);		   
+            else {
+		std::cout << "Currently we only support single partition for randomly generated input data" << std::endl;
+		exit(1);
+	    }
 	} else {
-	    ff::loadMatrixGenericFromFile<pdb::TensorBlock2D<float>>(pdbClient, dataFilePath, "decisionForest", "inputs", rowNum, colNum, block_x, block_y, label_col_index, errMsg, 4*pageSize);
+	    ff::loadMatrixGenericFromFile<pdb::TensorBlock2D<float>>(pdbClient, dataFilePath, "decisionForest", "inputs", rowNum, colNum, block_x, block_y, label_col_index, errMsg, 4*pageSize, numPartitions);
 	}
 
 	//create set for tree
@@ -208,11 +221,19 @@ int main(int argc, char *argv[]) {
 
         pdb::makeObjectAllocatorBlock(1024 * 1024 * 1024, true);
 
-        pdb::Handle<pdb::Computation> inputMatrix = pdb::makeObject<pdb::ScanUserSet<pdb::TensorBlock2D<float>>>("decisionForest", "inputs");
-
-	pdb::Handle<pdb::Computation> inputTree = pdb::makeObject<pdb::ScanUserSet<Tree>>("decisionForest", "trees");
+        auto begin = std::chrono::high_resolution_clock::now();
 
 
+	for (int i = 0; i < numPartitions; i++) {
+
+            pdb::Handle<pdb::Computation> inputMatrix = nullptr;
+	    
+	    if (numPartitions == 1)
+		    inputMatrix = pdb::makeObject<pdb::ScanUserSet<pdb::TensorBlock2D<float>>>("decisionForest", "inputs");
+	    else
+	            inputMatrix = pdb::makeObject<pdb::ScanUserSet<pdb::TensorBlock2D<float>>>("decisionForest", std::string("inputs")+std::to_string(i));
+
+	    pdb::Handle<pdb::Computation> inputTree = pdb::makeObject<pdb::ScanUserSet<Tree>>("decisionForest", "trees");
 
             pdb::Handle<pdb::CrossProductComp> treeCrossProduct = makeObject<TreeCrossProduct>();
 
@@ -230,7 +251,8 @@ int main(int argc, char *argv[]) {
 
 	    pdb::Handle<pdb::Computation> treeResultAgg = makeObject<pdb::TreeResultAggregate>();
         
-	
+            treeResultAgg->setUsingCombiner(false);         
+
 	    treeCrossProduct->setInput(0, inputTree);
 
 	    treeCrossProduct->setInput(1, inputMatrix);
@@ -255,10 +277,17 @@ int main(int argc, char *argv[]) {
             }
             auto exe_end = std::chrono::high_resolution_clock::now();
 
-            std::cout << "****Model Inference Time Duration: ****"
+            std::cout << i << ":****Model Inference Time Duration: ****"
                 << std::chrono::duration_cast<std::chrono::duration<double>>(exe_end - exe_begin).count()
                                                                         << " secs." << std::endl;
-       
+       }
+
+       auto end = std::chrono::high_resolution_clock::now();
+
+       std::cout << "****Overall Inference Time Duration: ****"
+                << std::chrono::duration_cast<std::chrono::duration<double>>(end - begin).count()
+                                                                        << " secs." << std::endl;
+
        bool printResult = true;
        if (printResult == true) {
            std::cout << "to print result..." << std::endl;
