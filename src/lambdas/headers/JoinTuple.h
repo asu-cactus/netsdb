@@ -1368,7 +1368,6 @@ public:
 
 		 //for cross product
 		 index = curPartitionId % (this->numPartitionsPerNode * this->numNodes);
-                 std::cout << "this is CrossProduct with inex=" << index << std::endl;	    
 	    }	    
             size_t nodeIndex = index / this->numPartitionsPerNode;
             size_t partitionIndex = index % this->numPartitionsPerNode;
