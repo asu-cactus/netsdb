@@ -113,6 +113,8 @@ def load_data(config, time_consume):
     y_col = config[DATASET]["y_col"]
     x_col = list(test_data.columns)
     x_col.remove(y_col)
+    print("load_data===============")
+    print(config)
     if (config.get("dataset_type","dense")=="sparse"):
         features = test_data.todense()[x_col].to_numpy(dtype=np.float32)
     else:
