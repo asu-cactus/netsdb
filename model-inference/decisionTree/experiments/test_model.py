@@ -107,15 +107,15 @@ def parse_arguments(config):
 def load_data(config, time_consume):
     test_data = fetch_data(DATASET, config, "test", time_consume=time_consume)
     print("load_data===============")
-    print(config)
-    if isinstance(test_data, tuple) and (config.get("dataset_type","dense")!="sparse"):
+    print(config[DATASET])
+    if isinstance(test_data, tuple) and (config[DATASET].get("dataset_type","dense")!="sparse"):
         features, label = test_data
         return (features, label)
         
     y_col = config[DATASET]["y_col"]
     x_col = list(test_data.columns)
     x_col.remove(y_col)
-    if (config.get("dataset_type","dense")=="sparse"):
+    if (config[DATASET].get("dataset_type","dense")=="sparse"):
         features = test_data.todense()[x_col].to_numpy(dtype=np.float32)
     else:
         features = test_data[x_col].to_numpy(dtype=np.float32)
