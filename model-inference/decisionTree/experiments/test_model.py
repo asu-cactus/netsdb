@@ -105,20 +105,18 @@ def parse_arguments(config):
 
 
 def load_data(config, time_consume):
+    # TODO: if config[DATASET]["dataset_type"] == "SPARSE":
+    # load the data in a different way, features should be dense for converting
+    # hummingbird models
     test_data = fetch_data(DATASET, config, "test", time_consume=time_consume)
-    print("load_data===============")
-    print(config[DATASET])
-    if isinstance(test_data, tuple) and (config[DATASET].get("dataset_type","dense")!="sparse"):
+    if isinstance(test_data, tuple):
         features, label = test_data
         return (features, label)
         
     y_col = config[DATASET]["y_col"]
     x_col = list(test_data.columns)
     x_col.remove(y_col)
-    if (config[DATASET].get("dataset_type","dense")=="sparse"):
-        features = test_data.todense()[x_col].to_numpy(dtype=np.float32)
-    else:
-        features = test_data[x_col].to_numpy(dtype=np.float32)
+    features = test_data[x_col].to_numpy(dtype=np.float32)
     label = test_data[y_col]
     return (features, label)
 
@@ -324,7 +322,6 @@ def test_gpu(args, features, label, sklearnmodel, config, time_consume):
     elif FRAMEWORK == "HummingbirdTorchScriptGPU":
         import hummingbird.ml as hml
         start_time = time.time()
-        print("features========================\n",features)
         torch_data = features[0:args.query_size]
         model = hml.convert(sklearnmodel, "torch.jit", torch_data, "cuda")
         conversion_time = calculate_time(start_time, time.time())
