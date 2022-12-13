@@ -322,6 +322,7 @@ def test_gpu(args, features, label, sklearnmodel, config, time_consume):
     elif FRAMEWORK == "HummingbirdTorchScriptGPU":
         import hummingbird.ml as hml
         start_time = time.time()
+        print("features========================\n",features)
         torch_data = features[0:args.query_size]
         model = hml.convert(sklearnmodel, "torch.jit", torch_data, "cuda")
         conversion_time = calculate_time(start_time, time.time())
