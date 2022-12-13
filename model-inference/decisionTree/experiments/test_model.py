@@ -106,7 +106,7 @@ def parse_arguments(config):
 
 def load_data(config, time_consume):
     test_data = fetch_data(DATASET, config, "test", time_consume=time_consume)
-    if isinstance(test_data, tuple):
+    if isinstance(test_data, tuple) and (config.get("dataset_type","dense")!="sparse"):
         features, label = test_data
         return (features, label)
         
