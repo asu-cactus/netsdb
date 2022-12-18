@@ -378,10 +378,6 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
                     new_pos = line.size() - 1;
                 if (colIndex != labelColIndex) {
                     std::string token = line.substr(pos, new_pos - pos);
-                    // if (token.empty())
-                    //     (*(myData->getRawDataHandle()))[ii * blockY + jj] = std::nan("");
-                    // else
-                    //     (*(myData->getRawDataHandle()))[ii * blockY + jj] = std::stod(token);
                     (*(myData->getRawDataHandle()))[ii * blockY + jj] = token.empty() ? std::nan("") : std::stod(token);
                     jj++;
                 }
