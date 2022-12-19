@@ -127,9 +127,17 @@ class Forest : public Object {
             return most_common(begin, end);
         }
     }
+    template <class T>
+    pdb::Handle<pdb::Vector<T>> predictWithMissingValues(Handle<TensorBlock2D<T>> &in) {
+        return predict<T, true>(in);
+    }
 
     template <class T>
-    pdb::Handle<pdb::Vector<T>> predict(Handle<TensorBlock2D<T>> &in) { // TODO: Change all Double References to Float
+    pdb::Handle<pdb::Vector<T>> predictWithoutMissingValues(Handle<TensorBlock2D<T>> &in) {
+        return predict<T, false>(in);
+    }
+    template <class T, bool hasMissing>
+    inline pdb::Handle<pdb::Vector<T>> predict(Handle<TensorBlock2D<T>> &in) { // TODO: Change all Double References to Float
 
         // get the input features matrix information
         uint32_t inNumRow = in->getRowNums();

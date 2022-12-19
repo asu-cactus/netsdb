@@ -369,7 +369,16 @@ class Tree : public Object {
         inputFile.close();
     }
 
-    pdb::Handle<TreeResult> predict(Handle<TensorBlock2D<float>> &in) { // TODO: Change all Double References to Float
+    pdb::Handle<TreeResult> predictWithMissingValues(Handle<TensorBlock2D<float>> &in) {
+        return predict<true>(in);
+    }
+
+    pdb::Handle<TreeResult> predictWithoutMissingValues(Handle<TensorBlock2D<float>> &in) {
+        return predict<false>(in);
+    }
+
+    template <bool hasMissing>
+    inline pdb::Handle<TreeResult> predict(Handle<TensorBlock2D<float>> &in) { // TODO: Change all Double References to Float
         // get the input features matrix information
         uint32_t rowIndex = in->getBlockRowIndex();
         int numRows = in->getRowNums();
@@ -398,7 +407,7 @@ class Tree : public Object {
                 while (tree[curIndex].isLeaf == false) {
                     // When feature value is missing
                     const double featureValue = inData[featureStartIndex + tree[curIndex].indexID];
-                    if (std::isnan(featureValue)) {
+                    if (hasMissing && std::isnan(featureValue)) {
                         curIndex = tree[curIndex].isMissTrackLeft ? tree[curIndex].leftChild : tree[curIndex].rightChild;
                         continue;
                     }
