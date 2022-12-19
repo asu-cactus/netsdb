@@ -282,7 +282,6 @@ class Tree : public Object {
                         tree[parentNodeID].rightChild += MAX_NUM_NODES_PER_TREE / 2;
                     }
                 }
-
 #else
 
                 if (((findStartPosition = currentLine.find_first_of("split")) != std::string::npos) && ((findMidPosition = currentLine.find_first_of("->")) != std::string::npos)) {

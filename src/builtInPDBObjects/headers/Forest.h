@@ -127,6 +127,7 @@ class Forest : public Object {
             return most_common(begin, end);
         }
     }
+
     template <class T>
     pdb::Handle<pdb::Vector<T>> predictWithMissingValues(Handle<TensorBlock2D<T>> &in) {
         return predict<T, true>(in);
@@ -178,7 +179,7 @@ class Forest : public Object {
         }
         return resultMatrix;
     }
-};
+}; // namespace pdb
 } // namespace pdb
 
 #endif // NETSDB_FOREST_H
