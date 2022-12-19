@@ -90,10 +90,10 @@ int main(int argc, char *argv[]) {
 
     bool createSet;
     const char *helperString =
-        "Usage: \n To load data: bin/testDecisionForestWithCrossProduct Y numInstances numFeatures batch_size label_col_index, pageSizeInMB numPartitions pathToLoadDataFile(N for generating data randomly) pathToModelFolder modelType[XGBoost/RandomForest]\n"
-        "To run the inference: bin/testDecisionForestWithCrossProduct N numInstances numFeatures batchSize labelColIndex pageSizeInMB numPartitions pathToLoadDataFile pathToModelFolder modelType[XGBoost/RandomForest]\n"
-        "Example: \n bin/testDecisionForestWithCrossProduct Y 2200000 28 275000 0 32 1 withoutMissing model-inference/decisionTree/experiments/HIGGS.csv_test.csv model-inference/decisionTree/experiments/models/higgs_xgboost_500_8_netsdb XGBoost\n"
-        "bin/testDecisionForestWithCrossProduct N 2200000 28 275000 0 32 1 withoutMissing model-inference/decisionTree/experiments/HIGGS.csv_test.csv model-inference/decisionTree/experiments/models/higgs_xgboost_500_8_netsdb XGBoost\n";
+        "Usage: \n To load data: bin/testDecisionForestWithCrossProduct Y numInstances numFeatures batch_size label_col_index, pageSizeInMB numPartitions pathToLoadDataFile(N for generating data randomly) pathToModelFolder modelType[XGBoost/RandomForest/LightGBM] dataHasMissingValues[withMissing/withoutMissing]\n"
+        "To run the inference: bin/testDecisionForestWithCrossProduct N numInstances numFeatures batchSize labelColIndex pageSizeInMB numPartitions pathToLoadDataFile pathToModelFolder modelType[XGBoost/RandomForest/LightGBM] dataHasMissingValues[withMissing/withoutMissing]\n"
+        "Example: \n bin/testDecisionForestWithCrossProduct Y 2200000 28 275000 0 32 1 model-inference/decisionTree/experiments/HIGGS.csv_test.csv model-inference/decisionTree/experiments/models/higgs_xgboost_500_8_netsdb XGBoost withoutMissing\n"
+        "bin/testDecisionForestWithCrossProduct N 2200000 28 275000 0 32 1 model-inference/decisionTree/experiments/HIGGS.csv_test.csv model-inference/decisionTree/experiments/models/higgs_xgboost_500_8_netsdb XGBoost withoutMissing\n";
     if ((argc <= 8) || (argc > 13)) {
         std::cout << helperString;
         exit(-1);

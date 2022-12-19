@@ -44,10 +44,10 @@ using namespace std;
 int main(int argc, char *argv[]) {
 
     const char *helperString =
-        "Usage: \n To load data: bin/testDecisionForest Y numInstances numFeatures batch_size label_col_index isFloat[F/D] isGraphOrArray[G/A] pageSizeInMB numPartitions pathToLoadDataFile(N for generating data randomly) \n"
-        "To run the inference: bin/testDecisionForest N numInstances numFeatures batchSize label_col_index isFloat[F/D] isGraphOrArray [G/A] pageSizeInMB numPartitions pathToLoadDataFile pathToModelFolder modelType[XGBoost/RandomForest]\n"
-        "Example: \n bin/testDecisionForest Y 2200000 28 275000 0 F A 32 1 withoutMissing model-inference/decisionTree/experiments/HIGGS.csv_test.csv\n"
-        "bin/testDecisionForest N 2200000 28 275000 0 F A 32 1 withoutMissing model-inference/decisionTree/experiments/HIGGS.csv_test.csv model-inference/decisionTree/experiments/models/higgs_xgboost_500_8_netsdb XGBoost\n";
+        "Usage: \n To load data: bin/testDecisionForest Y numInstances numFeatures batch_size label_col_index isFloat[F/D] isGraphOrArray[G/A] pageSizeInMB numPartitions pathToLoadDataFile(N for generating data randomly) dataHasMissingValues[withMissing/withoutMissing]\n"
+        "To run the inference: bin/testDecisionForest N numInstances numFeatures batchSize label_col_index isFloat[F/D] isGraphOrArray [G/A] pageSizeInMB numPartitions pathToLoadDataFile pathToModelFolder modelType[XGBoost/RandomForest/LightGBM] dataHasMissingValues[withMissing/withoutMissing]\n"
+        "Example: \n bin/testDecisionForest Y 2200000 28 275000 0 F A 32 1 model-inference/decisionTree/experiments/HIGGS.csv_test.csv withoutMissing\n"
+        "bin/testDecisionForest N 2200000 28 275000 0 F A 32 1 model-inference/decisionTree/experiments/HIGGS.csv_test.csv model-inference/decisionTree/experiments/models/higgs_xgboost_500_8_netsdb XGBoost withoutMissing\n";
     bool createSet;
 
     if ((argc <= 8) || (argc > 14)) {
