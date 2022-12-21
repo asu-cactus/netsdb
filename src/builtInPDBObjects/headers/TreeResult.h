@@ -2,135 +2,138 @@
 #ifndef NETSDB_TREE_RESULT_H
 #define NETSDB_TREE_RESULT_H
 
-//#define MAX_BLOCK_SIZE 2876726 
-//#define MAX_BLOCK_SIZE 275000
+// #define MAX_BLOCK_SIZE 2876726
+// #define MAX_BLOCK_SIZE 275000
 #define MAX_BLOCK_SIZE 500000
-//#define MAX_BLOCK_SIZE 1000000
+// #define MAX_BLOCK_SIZE 1000000
 
+#include "DataTypes.h"
+#include "PDBClient.h"
+#include "StorageClient.h"
+#include "TensorBlock2D.h"
+#include <algorithm>
+#include <cassert>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
-#include <fstream>
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <cstdlib>
-#include <cstring>
-#include <string>
+#include <fcntl.h>
 #include <filesystem>
+#include <fstream>
 #include <future>
-#include <thread>
+#include <iostream>
+#include <map>
+#include <memory>
+#include <set>
 #include <sstream>
 #include <stdio.h>
 #include <stdlib.h>
-#include <fcntl.h>
+#include <string>
 #include <sys/mman.h>
+#include <thread>
 #include <unistd.h>
-#include <cassert>
-#include <memory>
-#include <algorithm>
-#include <map>
-#include <set>
-#include "TensorBlock2D.h"
-#include "PDBClient.h"
-#include "StorageClient.h"
-#include "DataTypes.h"
+#include <vector>
 
 // PRELOAD %TreeResult%
 
-//this class is used to store the prediction results of a single decision tree on a batch of data
-namespace pdb
-{
+// this class is used to store the prediction results of a single decision tree on a batch of data
+namespace pdb {
 
-    class TreeResult : public Object
-    {
-    public:
+class TreeResult : public Object {
+  public:
+    ENABLE_DEEP_COPY
 
-        ENABLE_DEEP_COPY
+    Handle<Vector<float>> data;
 
-        Handle<Vector<float>> data;
-	
-	int treeId;
+    int treeId;
 
-	int batchId;
+    int batchId;
 
-	int blockSize;
+    int blockSize;
 
+    ModelType modelType;
 
-	ModelType modelType;
+    TreeResult() {}
 
-        TreeResult() {}
+    ~TreeResult() {}
 
+    TreeResult(int treeId, int batchId, int blockSize, ModelType modelType) {
+        this->data = makeObject<Vector<float>>(blockSize, blockSize);
+        this->treeId = treeId;
+        this->batchId = batchId;
+        this->blockSize = blockSize;
+        this->modelType = modelType;
+    }
 
-        ~TreeResult() {}
+    int &getKey() {
 
-	TreeResult(int treeId, int batchId, int blockSize, ModelType modelType) 
-	{
-	    this->data = makeObject<Vector<float>>(blockSize, blockSize);
-	    this->treeId = treeId;
-	    this->batchId = batchId;
-	    this->blockSize = blockSize;
-	    this->modelType = modelType;
-	}
+        return batchId;
+    }
 
-	int & getKey() {
+    void print() {
 
-             return batchId;
-	
-	}
+        std::cout << "TreeResult: " << treeId << ":" << batchId << std::endl;
+    }
 
-        void print() {
-	
-	    std::cout << "TreeResult: " << treeId << ":" << batchId << std::endl;
+    TreeResult &getValue() {
+        return *this;
+    }
 
-	}
+    TreeResult &operator+(TreeResult &other) {
+        float *myData, *otherData;
 
+        myData = this->data->c_ptr();
+        otherData = other.data->c_ptr();
 
-	TreeResult & getValue() {
-	    return *this; 
-	
-	}
-
-	TreeResult &operator+(TreeResult &other) {
-	    float *myData, *otherData;
-
-            myData = this->data->c_ptr();
-            otherData = other.data->c_ptr();
-
-            for (int i = 0; i < blockSize; i++) {
-                  myData[i] += otherData[i];
-	    }
-            return *this;
+        for (int i = 0; i < blockSize; i++) {
+            myData[i] += otherData[i];
         }
+        return *this;
+    }
 
-        int getNumPositives () {
-	
-            float * myData = data->c_ptr();
-	    int positive_count = 0;
+    int getNumPositives() {
+
+        float *myData = data->c_ptr();
+        int positive_count = 0;
+        for (int i = 0; i < blockSize; i++) {
+            positive_count += myData[i];
+        }
+        return positive_count;
+    }
+#if 1
+    void postprocessing(Handle<TreeResult> &res, int numTrees = 0, bool isClassification = true) {
+        float *resData = res->data->c_ptr();
+        float *myData = data->c_ptr();
+        if (modelType == ModelType::RandomForest) {
             for (int i = 0; i < blockSize; i++) {
-   		    positive_count += myData[i]; 
-	    }
-            return positive_count;	
-	}
-	void postprocessing(Handle<TreeResult> res, int numTrees = 0) {
-	   float * resData = res->data->c_ptr();   
-           float * myData = data->c_ptr();
-           if ((modelType == ModelType::XGBoost) || (modelType == ModelType::LightGBM)) {
-	       float threshold = 0.5;
-	       float sigmoid_of_decision;
-               for (int i = 0; i < blockSize; i++) {
-                   sigmoid_of_decision = 1 / (1 + exp(-1.0 * myData[i]));
-		   resData[i] = sigmoid_of_decision > threshold ? 1.0 : 0.0;
-	       }
-               // Reference: https://stats.stackexchange.com/questions/395697/what-is-an-intuitive-interpretation-of-the-leaf-values-in-xgboost-base-learners
-	   } else {
-	       for (int i = 0; i < blockSize; i++) {
-	           resData[i] = myData[i] > numTrees/2 ? 1.0 : 0.0;
-	       }
-	   }
-	}
-
-    };
-}
+                resData[i] = myData[i] / numTrees;
+            }
+        }
+        if (isClassification) {
+            for (int i = 0; i < blockSize; i++) {
+                resData[i] = (myData[i] > 0.5) ? 1.0 : 0.0;
+            }
+        }
+    }
+#else
+    void postprocessing(Handle<TreeResult> &res, int numTrees = 0) {
+        float *resData = res->data->c_ptr();
+        float *myData = data->c_ptr();
+        if ((modelType == ModelType::XGBoost) || (modelType == ModelType::LightGBM)) {
+            float threshold = 0.5;
+            float sigmoid_of_decision;
+            for (int i = 0; i < blockSize; i++) {
+                sigmoid_of_decision = 1 / (1 + exp(-1.0 * myData[i]));
+                resData[i] = sigmoid_of_decision > threshold ? 1.0 : 0.0;
+            }
+            // Reference: https://stats.stackexchange.com/questions/395697/what-is-an-intuitive-interpretation-of-the-leaf-values-in-xgboost-base-learners
+        } else {
+            for (int i = 0; i < blockSize; i++) {
+                resData[i] = myData[i] > numTrees / 2 ? 1.0 : 0.0;
+            }
+        }
+    }
+#endif
+};
+} // namespace pdb
 
 #endif // NETSDB_TREE_RESULT_H

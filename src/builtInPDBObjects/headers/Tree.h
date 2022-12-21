@@ -181,10 +181,22 @@ class Tree : public Object {
                 if ((findEndPosition = currentLine.find_first_of("[label=\"gini")) != string::npos) {
                     nodeID = std::stoi(currentLine.substr(0, findEndPosition - 1));
                 }
+#if 1
+                std::string startStr{"value = ["};
+                if ((findStartPosition = currentLine.find(startStr)) != string::npos && (findEndPosition = currentLine.find("]\\nclass")) != string::npos) {
+                    const std::string pairs = currentLine.substr(findStartPosition + startStr.length(), findEndPosition - findStartPosition - startStr.length());
+                    const std::size_t delimiterIndex = pairs.find(":");
+                    const float classZeroCounts = std::stof(pairs.substr(0, delimiterIndex));
+                    const float classOneCounts = std::stof(pairs.substr(delimiterIndex + 1));
+                    returnClass = classOneCounts / (classZeroCounts + classOneCounts);
+                }
+#else
                 // Output Class of always a Double/Float. ProbabilityValue for Classification, ResultValue for Regression
                 if ((findStartPosition = currentLine.find("y[")) != string::npos && (findEndPosition = currentLine.find("]\"]")) != string::npos) {
                     returnClass = std::stod(currentLine.substr(findStartPosition + 2, findEndPosition - findStartPosition - 2));
                 }
+#endif
+
             } else if (modelType == ModelType::XGBoost) {
 
                 if ((findEndPosition = currentLine.find_first_of("[")) != string::npos) {
@@ -351,7 +363,6 @@ class Tree : public Object {
                 if ((line.size() == 0) || (line.find("graph") != std::string::npos) ||
                     (line.find("digraph Tree {") != std::string::npos) || (line.find("node [shape=box") != std::string::npos) ||
                     (line.find("edge [fontname=") != std::string::npos) || (line.find("}") != std::string::npos)) {
-                    continue;
                 } else {
                     position = line.find("->");
                     if (position != string::npos) {
@@ -377,7 +388,7 @@ class Tree : public Object {
     }
 
     template <bool hasMissing>
-    inline pdb::Handle<TreeResult> predict(Handle<TensorBlock2D<float>> &in) { // TODO: Change all Double References to Float
+    inline pdb::Handle<TreeResult> predict(Handle<TensorBlock2D<float>> &in) const { // TODO: Change all Double References to Float
         // get the input features matrix information
         uint32_t rowIndex = in->getBlockRowIndex();
         int numRows = in->getRowNums();
@@ -389,14 +400,11 @@ class Tree : public Object {
 
         float *outData = resultMatrix->data->c_ptr();
 
-        int featureStartIndex = 0;
-        int base = 0;
-        int rowNumBase = 0;
-        int batchSize = 4000;
-        int remainderSize = numRows % batchSize;
-        const bool hasRemainder = remainderSize != 0;
+        constexpr int batchSize{4000};
+        const int remainderSize{numRows % batchSize};
+        const bool hasRemainder{remainderSize != 0};
         const int iterations = numRows / batchSize + hasRemainder;
-        for (int i = 0; i < iterations; i++) {
+        for (int featureStartIndex{0}, base{0}, rowNumBase{0}, i{0}; i < iterations; i++) {
             base = i * batchSize * numCols;
             rowNumBase = i * batchSize;
             const int blockSize = (hasRemainder && i + 1 == iterations) ? remainderSize : batchSize;
@@ -404,17 +412,15 @@ class Tree : public Object {
                 featureStartIndex = base + j * numCols;
                 int curIndex = 0;
                 while (tree[curIndex].isLeaf == false) {
-                    // When feature value is missing
                     const double featureValue = inData[featureStartIndex + tree[curIndex].indexID];
                     if (hasMissing && std::isnan(featureValue)) {
-                        curIndex = tree[curIndex].isMissTrackLeft ? tree[curIndex].leftChild : tree[curIndex].rightChild;
-                        continue;
-                    }
-                    // When feature value is present
-                    if (featureValue < tree[curIndex].returnClass) {
-                        curIndex = tree[curIndex].leftChild;
+                        curIndex = tree[curIndex].isMissTrackLeft
+                                       ? tree[curIndex].leftChild
+                                       : tree[curIndex].rightChild;
                     } else {
-                        curIndex = tree[curIndex].rightChild;
+                        curIndex = featureValue < tree[curIndex].returnClass
+                                       ? tree[curIndex].leftChild
+                                       : tree[curIndex].rightChild;
                     }
                 }
                 outData[rowNumBase + j] = (float)(tree[curIndex].returnClass);

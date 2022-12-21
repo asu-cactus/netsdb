@@ -84,61 +84,61 @@ class Forest : public Object {
         std::cout << "Number of trees in the forest: " << numTrees << std::endl;
     }
 
-    template <class InputIt, class T = typename std::iterator_traits<InputIt>::value_type>
-    T most_common(InputIt begin, InputIt end) {
-        std::map<T, int> counts;
-        for (InputIt it = begin; it != end; ++it) {
-            if (counts.find(*it) != counts.end()) {
-                ++counts[*it];
-            } else {
-                counts[*it] = 1;
-            }
-        }
-        return std::max_element(counts.begin(), counts.end(), [](const std::pair<T, int> &pair1, const std::pair<T, int> &pair2) { return pair1.second < pair2.second; })
-            ->first;
-    }
+    // template <class InputIt, class T = typename std::iterator_traits<InputIt>::value_type>
+    // T most_common(InputIt begin, InputIt end) const {
+    //     std::map<T, int> counts;
+    //     for (InputIt it = begin; it != end; ++it) {
+    //         if (counts.find(*it) != counts.end()) {
+    //             ++counts[*it];
+    //         } else {
+    //             counts[*it] = 1;
+    //         }
+    //     }
+    //     return std::max_element(counts.begin(), counts.end(), [](const std::pair<T, int> &pair1, const std::pair<T, int> &pair2) { return pair1.second < pair2.second; })
+    //         ->first;
+    // }
 
-    // Decision of an XGBoost Tree (for class-1, not class-0): sigmoid(log(previous_tree_pred(initial_value=0)/(1-previous_tree_pred(initial_value=0))) + learning_rate*(current_tree_prob))
-    template <class InputIt, class T = typename std::iterator_traits<InputIt>::value_type>
-    T aggregate_decisions(InputIt begin, InputIt end) {
-        // Default LR Value Source: https://xgboost.readthedocs.io/en/stable/parameter.html?highlight=0.3#parameters-for-tree-booster
-        double learning_rate = 0.3;       // TODO: Hard-coding XGBoost Library default value. Change this to a parameter if modified.
-        double aggregated_decision = 0.0; // Initial Prediction is 0.5, which makes log(odds) value 0. If different, the default value changes.
-        double threshold = 0.5;
-        for (InputIt it = begin; it != end; ++it) {
-            aggregated_decision += (*it); // Should not be multiplied by Learning Rate
-        }
-        // Reference: https://stats.stackexchange.com/questions/395697/what-is-an-intuitive-interpretation-of-the-leaf-values-in-xgboost-base-learners
-        double sigmoid_of_decision = 1 / (1 + exp(-1.0 * aggregated_decision)); // Sigmoid of the aggregated decision is the final output
-        return sigmoid_of_decision > threshold ? 1.0 : 0.0;                     // Delaying Class Assignment. Class Labels as per RF Code is 1.0 and 2.0
-    }
+    // // Decision of an XGBoost Tree (for class-1, not class-0): sigmoid(log(previous_tree_pred(initial_value=0)/(1-previous_tree_pred(initial_value=0))) + learning_rate*(current_tree_prob))
+    // template <class InputIt, class T = typename std::iterator_traits<InputIt>::value_type>
+    // T aggregate_decisions(InputIt begin, InputIt end) const {
+    //     // Default LR Value Source: https://xgboost.readthedocs.io/en/stable/parameter.html?highlight=0.3#parameters-for-tree-booster
+    //     double learning_rate = 0.3;       // TODO: Hard-coding XGBoost Library default value. Change this to a parameter if modified.
+    //     double aggregated_decision = 0.0; // Initial Prediction is 0.5, which makes log(odds) value 0. If different, the default value changes.
+    //     double threshold = 0.5;
+    //     for (InputIt it = begin; it != end; ++it) {
+    //         aggregated_decision += (*it); // Should not be multiplied by Learning Rate
+    //     }
+    //     // Reference: https://stats.stackexchange.com/questions/395697/what-is-an-intuitive-interpretation-of-the-leaf-values-in-xgboost-base-learners
+    //     double sigmoid_of_decision = 1 / (1 + exp(-1.0 * aggregated_decision)); // Sigmoid of the aggregated decision is the final output
+    //     return sigmoid_of_decision > threshold ? 1.0 : 0.0;                     // Delaying Class Assignment. Class Labels as per RF Code is 1.0 and 2.0
+    // }
 
-    // TODO: Call this function instead of Individual Compute Functions. Instantiate the Class with the Model Type
-    template <class InputIt, class T = typename std::iterator_traits<InputIt>::value_type>
-    T compute_result(InputIt begin, InputIt end) {
-        switch (modelType) {
-        case ModelType::RandomForest:
-            return most_common(begin, end);
-        case ModelType::XGBoost:
-            return aggregate_decisions(begin, end);
-        case ModelType::LightGBM:
-            return aggregate_decisions(begin, end);
-        default: // RF is default
-            return most_common(begin, end);
-        }
-    }
+    // // TODO: Call this function instead of Individual Compute Functions. Instantiate the Class with the Model Type
+    // template <class InputIt, class T = typename std::iterator_traits<InputIt>::value_type>
+    // T compute_result(InputIt begin, InputIt end) const {
+    //     switch (modelType) {
+    //     case ModelType::RandomForest:
+    //         return most_common(begin, end);
+    //     case ModelType::XGBoost:
+    //         return aggregate_decisions(begin, end);
+    //     case ModelType::LightGBM:
+    //         return aggregate_decisions(begin, end);
+    //     default: // RF is default
+    //         return most_common(begin, end);
+    //     }
+    // }
 
-    template <class T>
-    pdb::Handle<pdb::Vector<T>> predictWithMissingValues(Handle<TensorBlock2D<T>> &in) {
+    template <typename T>
+    pdb::Handle<pdb::Vector<T>> predictWithMissingValues(Handle<TensorBlock2D<T>> &in) const {
         return predict<T, true>(in);
     }
 
-    template <class T>
-    pdb::Handle<pdb::Vector<T>> predictWithoutMissingValues(Handle<TensorBlock2D<T>> &in) {
+    template <typename T>
+    pdb::Handle<pdb::Vector<T>> predictWithoutMissingValues(Handle<TensorBlock2D<T>> &in) const {
         return predict<T, false>(in);
     }
     template <class T, bool hasMissing>
-    inline pdb::Handle<pdb::Vector<T>> predict(Handle<TensorBlock2D<T>> &in) { // TODO: Change all Double References to Float
+    inline pdb::Handle<pdb::Vector<T>> predict(Handle<TensorBlock2D<T>> &in, bool isClassification = true) const { // TODO: Change all Double References to Float
 
         // get the input features matrix information
         uint32_t inNumRow = in->getRowNums();
@@ -148,22 +148,17 @@ class Forest : public Object {
 
         // set the output matrix
         pdb::Handle<pdb::Vector<T>> resultMatrix = pdb::makeObject<pdb::Vector<T>>(inNumRow, inNumRow);
-        std::vector<T> thisResultMatrix(numTrees);
 
         T *outData = resultMatrix->c_ptr();
 
-        T inputValue;
-        Node treeNode;
-        int featureStartIndex;
-        int curIndex;
-
         for (int i = 0; i < inNumRow; i++) {
-            featureStartIndex = i * inNumCol;
+            T accumulatedResult{0.0};
+            int featureStartIndex = i * inNumCol;
             for (int j = 0; j < numTrees; j++) {
                 //  inference
                 //  pass the root node of the tree
-                Node *tree = forest[j];
-                treeNode = tree[0];
+                const Node *const tree = forest[j];
+                Node treeNode = tree[0];
                 while (treeNode.isLeaf == false) {
 
                     if (inData[featureStartIndex + treeNode.indexID] <= treeNode.returnClass) {
@@ -172,10 +167,15 @@ class Forest : public Object {
                         treeNode = tree[treeNode.rightChild];
                     }
                 }
-                thisResultMatrix[j] = treeNode.returnClass;
+                accumulatedResult += treeNode.returnClass;
             }
-            T voteResult = compute_result(thisResultMatrix.begin(), thisResultMatrix.end());
-            outData[i] = voteResult;
+            if (modelType == ModelType::RandomForest) {
+                accumulatedResult /= numTrees;
+            }
+            if (isClassification) {
+                accumulatedResult = (accumulatedResult > 0.5) ? 1.0 : 0.0;
+            }
+            outData[i] = accumulatedResult;
         }
         return resultMatrix;
     }
