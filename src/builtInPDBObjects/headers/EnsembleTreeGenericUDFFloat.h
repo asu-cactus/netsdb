@@ -47,7 +47,8 @@ class EnsembleTreeGenericUDFFloat : public SelectionComp<Vector<float>, TensorBl
 
     EnsembleTreeGenericUDFFloat() : hasMissing{false} {}
 
-    EnsembleTreeGenericUDFFloat(std::string forestPathIn, ModelType modelType, bool isClassificationTask) : hasMissing{false} {
+    EnsembleTreeGenericUDFFloat(std::string forestPathIn, ModelType modelType, bool isClassificationTask)
+        : hasMissing{false} {
         forest = makeObject<pdb::Forest>(forestPathIn, modelType, isClassificationTask);
     }
     EnsembleTreeGenericUDFFloat(std::string forestPathIn, ModelType modelType, bool isClassificationTask, bool hasMissing)

@@ -44,13 +44,13 @@ using namespace std;
 int main(int argc, char *argv[]) {
 
     const char *helperString =
-        "Usage: \n To load data: bin/testDecisionForest Y numInstances numFeatures batch_size label_col_index isFloat[F/D] isGraphOrArray[G/A] pageSizeInMB numPartitions pathToLoadDataFile(N for generating data randomly) dataHasMissingValues[withMissing/withoutMissing]\n"
-        "To run the inference: bin/testDecisionForest N numInstances numFeatures batchSize label_col_index isFloat[F/D] isGraphOrArray [G/A] pageSizeInMB numPartitions pathToLoadDataFile pathToModelFolder modelType[XGBoost/RandomForest/LightGBM] dataHasMissingValues[withMissing/withoutMissing]\n"
-        "Example: \n bin/testDecisionForest Y 2200000 28 275000 0 F A 32 1 model-inference/decisionTree/experiments/HIGGS.csv_test.csv withoutMissing\n"
-        "bin/testDecisionForest N 2200000 28 275000 0 F A 32 1 model-inference/decisionTree/experiments/HIGGS.csv_test.csv model-inference/decisionTree/experiments/models/higgs_xgboost_500_8_netsdb XGBoost withoutMissing\n";
+        "Usage: \n To load data: bin/testDecisionForest Y numInstances numFeatures batch_size label_col_index isFloat[F/D] isGraphOrArray[G/A] pageSizeInMB numPartitions pathToLoadDataFile(N for generating data randomly) dataHasMissingValues[withMissing/withoutMissing] taskType[classification/regression]\n"
+        "To run the inference: bin/testDecisionForest N numInstances numFeatures batchSize label_col_index isFloat[F/D] isGraphOrArray [G/A] pageSizeInMB numPartitions pathToLoadDataFile pathToModelFolder modelType[XGBoost/RandomForest/LightGBM] dataHasMissingValues[withMissing/withoutMissing] taskType[classification/regression]\n"
+        "Example: \n bin/testDecisionForest Y 2200000 28 275000 0 F A 32 1 model-inference/decisionTree/experiments/HIGGS.csv_test.csv withoutMissing classification\n"
+        "bin/testDecisionForest N 2200000 28 275000 0 F A 32 1 model-inference/decisionTree/experiments/HIGGS.csv_test.csv model-inference/decisionTree/experiments/models/higgs_xgboost_500_8_netsdb XGBoost withoutMissing classification\n";
     bool createSet;
 
-    if ((argc <= 8) || (argc > 14)) {
+    if ((argc <= 8) || (argc > 15)) {
 
         std::cerr << helperString;
         exit(-1);
@@ -70,6 +70,7 @@ int main(int argc, char *argv[]) {
     int numPartitions = 1;
     string dataFilePath = "";
     bool hasMissing = false;
+    bool isClassification = true;
 
     if (argc >= 8) {
 
@@ -123,8 +124,8 @@ int main(int argc, char *argv[]) {
         } else if (string(argv[12]).compare("RandomForest") == 0) {
             modelType = ModelType::RandomForest;
         } else {
-            std::cerr << "Unsupported model type: " << argv[12] << std::endl;
-            std::cerr << helperString;
+            std::cout << "Unsupported model type: " << argv[12] << std::endl;
+            std::cout << helperString;
             exit(-1);
         }
     }
@@ -135,8 +136,20 @@ int main(int argc, char *argv[]) {
         } else if (std::string(argv[13]).compare("withoutMissing") == 0) {
             hasMissing = false;
         } else {
-            std::cerr << "Please provide an argument `withMissing` or `withoutMissing` to specify the character of the data\n";
-            std::cerr << helperString;
+            std::cout << "Please provide an argument `withMissing` or `withoutMissing` to specify the character of the data\n";
+            std::cout << helperString;
+            exit(-1);
+        }
+    }
+
+    if (argc >= 15) {
+        if (std::string(argv[14]).compare("classification") == 0) {
+            isClassification = true;
+        } else if (std::string(argv[14]).compare("regression") == 0) {
+            isClassification = false;
+        } else {
+            std::cout << "Please provide an argument `classification` or `regression` to specify type of the task\n";
+            std::cout << helperString;
             exit(-1);
         }
     }
@@ -205,21 +218,20 @@ int main(int argc, char *argv[]) {
                 else
                     inputMatrix = pdb::makeObject<pdb::ScanUserSet<pdb::TensorBlock2D<double>>>("decisionForest", std::string("inputs") + std::to_string(i));
             }
-            bool isClassificationTask = true;
             auto model_begin = chrono::high_resolution_clock::now();
 
             pdb::Handle<pdb::Computation> decisionForestUDF = nullptr;
 
             if (isFloat) {
                 if (isGraph)
-                    decisionForestUDF = pdb::makeObject<pdb::EnsembleTreeUDFFloat>(forestFolderPath, modelType, isClassificationTask);
+                    decisionForestUDF = pdb::makeObject<pdb::EnsembleTreeUDFFloat>(forestFolderPath, modelType, isClassification);
                 else
-                    decisionForestUDF = pdb::makeObject<pdb::EnsembleTreeGenericUDFFloat>(forestFolderPath, modelType, isClassificationTask, hasMissing);
+                    decisionForestUDF = pdb::makeObject<pdb::EnsembleTreeGenericUDFFloat>(forestFolderPath, modelType, isClassification, hasMissing);
             } else {
                 if (isGraph)
-                    decisionForestUDF = pdb::makeObject<pdb::EnsembleTreeUDFDouble>(forestFolderPath, modelType, isClassificationTask);
+                    decisionForestUDF = pdb::makeObject<pdb::EnsembleTreeUDFDouble>(forestFolderPath, modelType, isClassification);
                 else
-                    decisionForestUDF = pdb::makeObject<pdb::EnsembleTreeGenericUDFDouble>(forestFolderPath, modelType, isClassificationTask, hasMissing);
+                    decisionForestUDF = pdb::makeObject<pdb::EnsembleTreeGenericUDFDouble>(forestFolderPath, modelType, isClassification, hasMissing);
             }
             auto model_end = chrono::high_resolution_clock::now();
 

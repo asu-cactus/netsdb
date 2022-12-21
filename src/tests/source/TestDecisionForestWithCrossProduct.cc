@@ -40,7 +40,7 @@ using namespace std;
 
 using std::filesystem::directory_iterator;
 
-int loadTreeData(PDBClient &pdbClient, std::string forestFolderPath, ModelType modelType) {
+int loadTreeData(PDBClient &pdbClient, std::string forestFolderPath, ModelType modelType, bool isClassification) {
 
     std::vector<std::string> treePaths;
 
@@ -54,7 +54,7 @@ int loadTreeData(PDBClient &pdbClient, std::string forestFolderPath, ModelType m
     for (const auto &file : directory_iterator(forestFolderPath)) {
         std::string treePath = file.path();
         try {
-            Handle<Tree> tree = makeObject<Tree>(treeId, treePath, modelType);
+            Handle<Tree> tree = makeObject<Tree>(treeId, treePath, modelType, isClassification);
             treePaths.push_back(treePath);
             storeMe->push_back(tree);
         } catch (pdb::NotEnoughSpace &n) {
@@ -68,7 +68,7 @@ int loadTreeData(PDBClient &pdbClient, std::string forestFolderPath, ModelType m
             }
             makeObjectAllocatorBlock(16 * 1024 * 1024, true);
             storeMe = makeObject<Vector<Handle<Tree>>>();
-            Handle<Tree> tree = makeObject<Tree>(treeId, treePath, modelType);
+            Handle<Tree> tree = makeObject<Tree>(treeId, treePath, modelType, isClassification);
             storeMe->push_back(tree);
         }
         treeId++;
@@ -90,11 +90,11 @@ int main(int argc, char *argv[]) {
 
     bool createSet;
     const char *helperString =
-        "Usage: \n To load data: bin/testDecisionForestWithCrossProduct Y numInstances numFeatures batch_size label_col_index, pageSizeInMB numPartitions pathToLoadDataFile(N for generating data randomly) pathToModelFolder modelType[XGBoost/RandomForest/LightGBM] dataHasMissingValues[withMissing/withoutMissing]\n"
-        "To run the inference: bin/testDecisionForestWithCrossProduct N numInstances numFeatures batchSize labelColIndex pageSizeInMB numPartitions pathToLoadDataFile pathToModelFolder modelType[XGBoost/RandomForest/LightGBM] dataHasMissingValues[withMissing/withoutMissing]\n"
-        "Example: \n bin/testDecisionForestWithCrossProduct Y 2200000 28 275000 0 32 1 model-inference/decisionTree/experiments/HIGGS.csv_test.csv model-inference/decisionTree/experiments/models/higgs_xgboost_500_8_netsdb XGBoost withoutMissing\n"
-        "bin/testDecisionForestWithCrossProduct N 2200000 28 275000 0 32 1 model-inference/decisionTree/experiments/HIGGS.csv_test.csv model-inference/decisionTree/experiments/models/higgs_xgboost_500_8_netsdb XGBoost withoutMissing\n";
-    if ((argc <= 8) || (argc > 13)) {
+        "Usage: \n To load data: bin/testDecisionForestWithCrossProduct Y numInstances numFeatures batch_size label_col_index, pageSizeInMB numPartitions pathToLoadDataFile(N for generating data randomly) pathToModelFolder modelType[XGBoost/RandomForest/LightGBM] dataHasMissingValues[withMissing/withoutMissing] taskType[classification/regression]\n"
+        "To run the inference: bin/testDecisionForestWithCrossProduct N numInstances numFeatures batchSize labelColIndex pageSizeInMB numPartitions pathToLoadDataFile pathToModelFolder modelType[XGBoost/RandomForest/LightGBM] dataHasMissingValues[withMissing/withoutMissing] taskType[classification/regression]\n"
+        "Example: \n bin/testDecisionForestWithCrossProduct Y 2200000 28 275000 0 32 1 model-inference/decisionTree/experiments/HIGGS.csv_test.csv model-inference/decisionTree/experiments/models/higgs_xgboost_500_8_netsdb XGBoost withoutMissing classification\n"
+        "bin/testDecisionForestWithCrossProduct N 2200000 28 275000 0 32 1 model-inference/decisionTree/experiments/HIGGS.csv_test.csv model-inference/decisionTree/experiments/models/higgs_xgboost_500_8_netsdb XGBoost withoutMissing classification\n";
+    if ((argc <= 8) || (argc > 14)) {
         std::cout << helperString;
         exit(-1);
     }
@@ -112,7 +112,7 @@ int main(int argc, char *argv[]) {
     string dataFilePath = "";
     int numTrees = 0;
     bool hasMissing = false;
-
+    bool isClassification = true;
     if (argc >= 8) {
 
         if (string(argv[1]).compare("Y") == 0) {
@@ -175,6 +175,17 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    if (argc >= 14) {
+        if (std::string(argv[13]).compare("classification") == 0) {
+            isClassification = true;
+        } else if (std::string(argv[13]).compare("regression") == 0) {
+            isClassification = false;
+        } else {
+            std::cout << "Please provide an argument `classification` or `regression` to specify type of the task\n";
+            std::cout << helperString;
+            exit(-1);
+        }
+    }
     string masterIp = "localhost";
     pdb::PDBLoggerPtr clientLogger = make_shared<pdb::PDBLogger>("DecisionForestClientLog");
     pdb::PDBClient pdbClient(8108, masterIp, clientLogger, false, true);
@@ -203,7 +214,7 @@ int main(int argc, char *argv[]) {
                                        nullptr, nullptr, false);
 
         auto model_begin = chrono::high_resolution_clock::now();
-        int numTrees = loadTreeData(pdbClient, forestFolderPath, modelType);
+        int numTrees = loadTreeData(pdbClient, forestFolderPath, modelType, isClassification);
         auto model_end = chrono::high_resolution_clock::now();
         std::cout << numTrees << " trees loaded" << std::endl;
         std::cout << "****Model Load Time Duration: ****"

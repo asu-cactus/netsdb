@@ -48,18 +48,18 @@ class Forest : public Object {
     Node forest[MAX_NUM_TREES][MAX_NUM_NODES_PER_TREE];
     int numTrees;
     ModelType modelType;
+    bool isClassification;
 
     Forest() {}
 
-    Forest(ModelType type) {
-        this->modelType = type;
+    Forest(ModelType modelType) : modelType{modelType} {}
+
+    Forest(std::string pathToFolder, ModelType modelType, bool isClassification)
+        : modelType{modelType}, isClassification{isClassification} {
+        this->constructForestFromFolder(pathToFolder, modelType);
     }
 
-    Forest(std::string pathToFolder, ModelType modelType, bool isClassification) {
-        this->constructForestFromFolder(pathToFolder, modelType, isClassification);
-    }
-
-    void constructForestFromFolder(std::string pathToFolder, ModelType modelType, bool isClassification) {
+    void constructForestFromFolder(std::string pathToFolder, ModelType modelType) {
 
         std::vector<std::string> treePaths;
 
@@ -68,12 +68,10 @@ class Forest : public Object {
             treePaths.push_back(file.path());
         }
 
-        constructForestFromPaths(treePaths, modelType, isClassification);
+        constructForestFromPaths(treePaths, modelType);
     }
 
-    void constructForestFromPaths(std::vector<std::string> &treesPathIn, ModelType modelType, bool isClassification) {
-
-        this->modelType = modelType;
+    void constructForestFromPaths(std::vector<std::string> &treesPathIn, ModelType modelType) {
         this->numTrees = treesPathIn.size();
 
         for (int n = 0; n < numTrees; ++n) {
@@ -138,7 +136,7 @@ class Forest : public Object {
         return predict<T, false>(in);
     }
     template <class T, bool hasMissing>
-    inline pdb::Handle<pdb::Vector<T>> predict(Handle<TensorBlock2D<T>> &in, bool isClassification = true) const { // TODO: Change all Double References to Float
+    inline pdb::Handle<pdb::Vector<T>> predict(Handle<TensorBlock2D<T>> &in) const { // TODO: Change all Double References to Float
 
         // get the input features matrix information
         uint32_t inNumRow = in->getRowNums();

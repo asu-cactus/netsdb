@@ -51,17 +51,15 @@ class TreeResult : public Object {
     int blockSize;
 
     ModelType modelType;
+    bool isClassification;
 
     TreeResult() {}
 
     ~TreeResult() {}
 
-    TreeResult(int treeId, int batchId, int blockSize, ModelType modelType) {
+    TreeResult(int treeId, int batchId, int blockSize, ModelType modelType, bool isClassification)
+        : treeId{treeId}, batchId{batchId}, blockSize{blockSize}, modelType{modelType}, isClassification{isClassification} {
         this->data = makeObject<Vector<float>>(blockSize, blockSize);
-        this->treeId = treeId;
-        this->batchId = batchId;
-        this->blockSize = blockSize;
-        this->modelType = modelType;
     }
 
     int &getKey() {
@@ -100,7 +98,7 @@ class TreeResult : public Object {
         return positive_count;
     }
 #if 1
-    void postprocessing(Handle<TreeResult> &res, int numTrees = 0, bool isClassification = true) {
+    void postprocessing(Handle<TreeResult> &res, int numTrees = 0) {
         float *resData = res->data->c_ptr();
         float *myData = data->c_ptr();
         if (modelType == ModelType::RandomForest) {

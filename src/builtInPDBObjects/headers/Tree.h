@@ -60,10 +60,10 @@ class Tree : public Object {
     int treeId;
 
     ModelType modelType;
+    bool isClassification;
 
-    Tree(int treeId, std::string treePath, ModelType modelType) {
-        this->treeId = treeId;
-        this->modelType = modelType;
+    Tree(int treeId, std::string treePath, ModelType modelType, bool isClassification)
+        : treeId{treeId}, modelType{modelType}, isClassification{isClassification} {
         this->constructTreeFromPath(treePath, modelType, this->tree);
     }
 
@@ -396,7 +396,7 @@ class Tree : public Object {
         float *inData = in->getValue().rawData->c_ptr();
 
         // set the output matrix
-        pdb::Handle<TreeResult> resultMatrix = pdb::makeObject<TreeResult>(treeId, rowIndex, numRows, modelType);
+        pdb::Handle<TreeResult> resultMatrix = pdb::makeObject<TreeResult>(treeId, rowIndex, numRows, modelType, isClassification);
 
         float *outData = resultMatrix->data->c_ptr();
 
