@@ -87,8 +87,7 @@ class TreeResult : public Object {
         return *this;
     }
 
-    int getNumPositives() {
-
+    int getNumPositives() const {
         float *myData = data->c_ptr();
         int positive_count = 0;
         for (int i = 0; i < blockSize; i++) {
@@ -96,6 +95,16 @@ class TreeResult : public Object {
         }
         return positive_count;
     }
+
+    double getBlockSum() const {
+        float *myData = data->c_ptr();
+        double sum = 0;
+        for (int i = 0; i < blockSize; i++) {
+            sum += static_cast<double>(myData[i]);
+        }
+        return sum;
+    }
+
 #if 1
     void postprocessing(Handle<TreeResult> &res, bool isClassification, int numTrees) {
         float *resData = res->data->c_ptr();

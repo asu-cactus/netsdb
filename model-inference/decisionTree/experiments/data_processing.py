@@ -144,9 +144,7 @@ def prepare_year(dataset_folder, nrows=None):
     url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/00203/YearPredictionMSD.txt.zip'
     local_url = download_data(url, dataset_folder)
     df = pd.read_csv(local_url, dtype=np.float32, nrows=nrows, header=None)
-    df = df.astype({0: np.int8})
     return df
-
 
 def prepare_epsilon(nrows=None):
     from catboost.datasets import epsilon

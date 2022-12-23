@@ -301,18 +301,26 @@ int main(int argc, char *argv[]) {
         bool printResult = true;
         if (printResult == true) {
             std::cout << "to print result..." << std::endl;
+            pdb::SetIterator<pdb::TreeResult> result = pdbClient.getSetIterator<pdb::TreeResult>("decisionForest", "labels");
             int count = 0;
-            int positive_count = 0;
-
-            pdb::SetIterator<pdb::TreeResult> result =
-                pdbClient.getSetIterator<pdb::TreeResult>("decisionForest", "labels");
-
-            for (auto a : result) {
-                positive_count += a->getNumPositives();
-                count += a->blockSize;
+            if (isClassification) {
+                int positiveCounts = 0;
+                for (auto a : result) {
+                    positiveCounts += a->getNumPositives();
+                    count += a->blockSize;
+                }
+                std::cout << "total count:" << count << "\n";
+                std::cout << "positive count:" << positiveCounts << "\n";
+            } else { // TODO: support larger outputs for regression tasks
+                double sum = 0.0;
+                for (auto a : result) {
+                    sum += a->getBlockSum();
+                    count += a->blockSize;
+                }
+                double mean = sum / count;
+                std::cout << "total count:" << count << "\n";
+                std::cout << "output mean:" << mean << '\n';
             }
-            std::cout << "total count:" << count << "\n";
-            std::cout << "positive count:" << positive_count << "\n";
         }
         return 0;
     }
