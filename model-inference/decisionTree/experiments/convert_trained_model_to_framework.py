@@ -1,42 +1,31 @@
 import warnings
 warnings.filterwarnings('ignore')
 
-# from sklearn.ensemble import RandomForestClassifier
-# from sklearn.metrics import classification_report
 import xgboost
-from xgboost import XGBClassifier, XGBRegressor
 import lightgbm
-import treelite
-import treelite.sklearn
 import joblib
 import time
 import json
-import hummingbird.ml as hml
-from skl2onnx.common.data_types import FloatTensorType
-from skl2onnx import convert_sklearn
-import onnxmltools
-import torch
 import os
 import argparse
 from model_helper import *
 
-
-DATASET = "higgs"
-MODEL = "xgboost"
+DATASET = None
+MODEL = None
 FRAMEWORKS = None
 
 def parse_arguments(config):
     # check_argument_conflicts(args)  # TODO: Move this function from the bottom to here, after checking with Prof.
     global DATASET, MODEL, FRAMEWORKS
     parser = argparse.ArgumentParser(description='Arguments for train_model.')
-    parser.add_argument("-d", "--dataset", type=str, choices=['higgs', 'airline_classification', 'airline_regression', 'fraud', 'year', 'epsilon', 'bosch', 'covtype', 'tpcxai_fraud', 'criteo'],
+    parser.add_argument("-d", "--dataset", required=True, type=str, choices=['higgs', 'airline_classification', 'airline_regression', 'fraud', 'year', 'epsilon', 'bosch', 'covtype', 'tpcxai_fraud', 'criteo'],
         help="Dataset to be trained. Choose from ['higgs', 'airline_classification', 'airline_regression', 'fraud', 'year', 'epsilon', 'bosch', 'covtype', 'tpcxai_fraud', 'criteo]")
 
-    parser.add_argument("-m", "--model", type=str, choices=['randomforest', 'xgboost', 'lightgbm'],
+    parser.add_argument("-m", "--model", required=True, type=str, choices=['randomforest', 'xgboost', 'lightgbm'],
         help="Model name. Choose from ['randomforest', 'xgboost', 'lightgbm']")
-    parser.add_argument("-f", "--frameworks", type=str,
+    parser.add_argument("-f", "--frameworks", required=True, type=str,
         help="Zero to multiple values from ['pytorch', 'torch', 'tf-df', 'onnx', 'treelite', 'lleaves', 'netsdb'], seperated by ','")
-    parser.add_argument("-t", "--num_trees", type=int,
+    parser.add_argument("-t", "--num_trees", type=int, default=10,
         help="Number of trees for the model")
     args = parser.parse_args()
     if args.dataset:
@@ -60,6 +49,7 @@ def parse_arguments(config):
 
 def convert_to_pytorch_model(model, config):
     #converting to pytorch model using hummingbird
+    import hummingbird.ml as hml
     humming_pytorch_time_start = time.time()
     model = hml.convert(model, 'pytorch')
     humming_pytorch_time_end = time.time()
@@ -72,6 +62,8 @@ def convert_to_pytorch_model(model, config):
 
 def convert_to_torch_model(model, config):
     #converting to torch model using hummingbird
+    import hummingbird.ml as hml
+    import torch
     humming_torch_time_start = time.time()
     model = hml.convert(model, 'torch')
     humming_torch_time_end = time.time()
@@ -85,12 +77,12 @@ def convert_to_torch_model(model, config):
 def convert_to_tf_df_model(model, config):
     # Converting to TF-DF model
     import tensorflow as tf
-    import scikit_learn_model_converter  # TODO: Can we rename this file or move it, so that it is clear this is only meant for TFDF, and not used anywhere else.
-    import xgboost_model_converter  # TODO: Can we rename this file or move it, so that it is clear this is only meant for TFDF, and not used anywhere else.
+    import external.scikit_learn_model_converter as sk2tfdf_converter  # TODO: Can we rename this file or move it, so that it is clear this is only meant for TFDF, and not used anywhere else.
+    import xgboost_model_converter as xgb2tfdf_converter # TODO: Can we rename this file or move it, so that it is clear this is only meant for TFDF, and not used anywhere else.
 
     if MODEL == "randomforest":
         tfdf_time_start = time.time()
-        tensorflow_model = scikit_learn_model_converter.convert(model,  intermediate_write_path="intermediate_path", )
+        tensorflow_model = sk2tfdf_converter.convert(model,  intermediate_write_path="intermediate_path", )
         libpath = relative2abspath("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}_tfdf")
         tf.saved_model.save(obj=tensorflow_model, export_dir=libpath)
         tfdf_time_end = time.time()
@@ -98,7 +90,7 @@ def convert_to_tf_df_model(model, config):
 
     elif MODEL == "xgboost":
         tfdf_time_start = time.time()
-        tensorflow_model = xgboost_model_converter.convert(model, intermediate_write_path="intermediate_path",)
+        tensorflow_model = xgb2tfdf_converter.convert(model, intermediate_write_path="intermediate_path",)
         libpath = relative2abspath("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}_tfdf")
         tf.saved_model.save(obj=tensorflow_model, export_dir=libpath)
         tfdf_time_end = time.time()
@@ -106,6 +98,9 @@ def convert_to_tf_df_model(model, config):
 
 
 def convert_to_onnx_model(model, config):
+    from skl2onnx.common.data_types import FloatTensorType
+    from skl2onnx import convert_sklearn
+    import onnxmltools
     #converting to ONNX model
     if MODEL == "randomforest":
         onnx_time_start = time.time()
@@ -147,24 +142,19 @@ def convert_to_onnx_model(model, config):
 
 
 def convert_to_treelite_model(model, config):
-    #converting to TreeLite model
     #Prerequisite: install treelite (https://treelite.readthedocs.io/en/latest/install.html)
-    if MODEL in {"xgboost", "lightgbm"}:
-        treelite_time_start = time.time()
-        model_path = relative2abspath("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.model")
-        if MODEL == "lightgbm":  # TODO: Rewrite this Logic.
-            model.booster_.save_model(model_path)
-        else:
-            model.save_model(model_path)  # TODO: Why are we saving this directly to a .model format?
-        treelite_model = treelite.Model.load(model_path, model_format=MODEL)
-        toolchain = 'gcc'
-        libpath = relative2abspath("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.so")
-        treelite_model.export_lib(toolchain, libpath, verbose=True, params={"parallel_comp":os.cpu_count()})
-        treelite_time_end = time.time()
-        print("Time taken to convert and write treelite model "+str(calculate_time(treelite_time_start, treelite_time_end)))
-
-    else:
-        print(f"TreeLite only supports conversion from xgboost, lightgbm and sk-learn based models. Does not support {MODEL}.")
+    import treelite
+    treelite_time_start = time.time()
+    if MODEL == "randomforest":
+        treelite_model = treelite.sklearn.import_model(model)
+    elif MODEL == "xgboost":
+        treelite_model = treelite.Model.from_xgboost(model)
+    elif MODEL == "lightgbm":
+        treelite_model = treelite.Model.from_lightgbm(model)
+    libpath = relative2abspath("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.so")
+    treelite_model.export_lib(toolchain='gcc', libpath=libpath, verbose=True, params={"parallel_comp":os.cpu_count()})
+    treelite_time_end = time.time()
+    print("Time taken to convert and write treelite model "+str(calculate_time(treelite_time_start, treelite_time_end)))
 
 
 def convert_to_lleaves_model(model, config):
@@ -189,42 +179,40 @@ def convert_to_lleaves_model(model, config):
 def convert_to_netsdb_model(model, config):
     #converting to netsDB model
     from sklearn.tree import export_graphviz
-    import graphviz
     import os
     
+    # netsdb_model_dirname = f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}_netsdb"
     netsdb_model_path = os.path.join("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}_netsdb")
-
     if os.path.exists(netsdb_model_path) == False:
         os.mkdir(netsdb_model_path)
     
     if MODEL == "randomforest":
-        estimators = model.estimators_
-
-        for index, model in enumerate(estimators):
-            output_file_path = os.path.join(netsdb_model_path, str(index)+'.txt')
+        for index, model in enumerate(model.estimators_):
+            output_file_path = os.path.join(netsdb_model_path, f'{index}.txt')
             data = export_graphviz(model, class_names=True)
-            f = open(output_file_path, 'w')
-            f.write(data) 
-            f.close()
+            with open(output_file_path, 'w') as f:
+                f.write(data) 
 
     elif MODEL == "xgboost":
         num_trees = config['num_trees']
-        
         for index in range(num_trees):
-            output_file_path = os.path.join(netsdb_model_path, str(index)+'.txt') 
+            output_file_path = os.path.join(netsdb_model_path, f'{index}.txt') 
             data = xgboost.to_graphviz(model, num_trees=index)
-            f = open(output_file_path, 'w')
-            f.write(str(data)) 
-            f.close()
-
+            with open(output_file_path, 'w') as f:
+                f.write(str(data)) 
+   
     elif MODEL == "lightgbm":
-        num_trees = config['num_trees']
-        for index in range(num_trees):
-            output_file_path = os.path.join(netsdb_model_path, str(index)+'.txt')
-            data = lightgbm.create_tree_digraph(model, tree_index=index)
-            f = open(output_file_path, 'w')
-            f.write(str(data))
-            f.close()
+        df = model.booster_.trees_to_dataframe()
+        for index, tree in df.groupby("tree_index"):
+            output_file_path = os.path.join(netsdb_model_path, f"{index}.csv")
+            tree.to_csv(output_file_path, index=False)
+
+        # for index in range(config['num_trees']):
+        #     output_file_path = os.path.join(netsdb_model_path, str(index)+'.txt')
+        #     data = lightgbm.create_tree_digraph(model, tree_index=index)
+        #     with open(output_file_path, 'w') as f:
+        #         f.write(str(data))
+        
 
 def convert_to_xgboost_model(model,config):
     # clf = joblib.load(relative2abspath('models',model_file))
@@ -237,9 +225,6 @@ def convert_to_xgboost_model(model,config):
         raise("Model not xgboost or model already exists")
 
 
-
-
-
 def convert(model, config):
     def print_logs(function,model,config,framework_name):
         border = '-'*30
@@ -250,8 +235,6 @@ def convert(model, config):
         print(border)
         print(f'Converted model to {framework_name}')
         print(border + '\n\n')
-    if FRAMEWORKS is None:
-        return
 
     frameworks = FRAMEWORKS.lower().split(",")
     if "pytorch" in frameworks:

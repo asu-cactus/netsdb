@@ -54,7 +54,7 @@ int loadTreeData(PDBClient &pdbClient, std::string forestFolderPath, ModelType m
     for (const auto &file : directory_iterator(forestFolderPath)) {
         std::string treePath = file.path();
         try {
-            Handle<Tree> tree = makeObject<Tree>(treeId, treePath, modelType, isClassification);
+            Handle<Tree> tree = makeObject<Tree>(treeId, treePath, modelType);
             treePaths.push_back(treePath);
             storeMe->push_back(tree);
         } catch (pdb::NotEnoughSpace &n) {
@@ -68,7 +68,7 @@ int loadTreeData(PDBClient &pdbClient, std::string forestFolderPath, ModelType m
             }
             makeObjectAllocatorBlock(16 * 1024 * 1024, true);
             storeMe = makeObject<Vector<Handle<Tree>>>();
-            Handle<Tree> tree = makeObject<Tree>(treeId, treePath, modelType, isClassification);
+            Handle<Tree> tree = makeObject<Tree>(treeId, treePath, modelType);
             storeMe->push_back(tree);
         }
         treeId++;
@@ -270,7 +270,7 @@ int main(int argc, char *argv[]) {
 
             treeResultAgg->setInput(treeCrossProduct);
 
-            pdb::Handle<pdb::Computation> treeResultPostProcessing = makeObject<pdb::TreeResultPostProcessing>(numTrees);
+            pdb::Handle<pdb::Computation> treeResultPostProcessing = makeObject<pdb::TreeResultPostProcessing>(numTrees, isClassification);
 
             treeResultPostProcessing->setInput(treeResultAgg);
 

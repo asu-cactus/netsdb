@@ -158,15 +158,20 @@ class Forest : public Object {
                 const Node *const tree = forest[j];
                 Node treeNode = tree[0];
                 while (treeNode.isLeaf == false) {
-
-                    if (inData[featureStartIndex + treeNode.indexID] <= treeNode.returnClass) {
-                        treeNode = tree[treeNode.leftChild];
+                    T featureValue = inData[featureStartIndex + treeNode.indexID];
+                    if (hasMissing && std::isnan(featureValue)) {
+                        treeNode = (treeNode.isMissTrackLeft)
+                                       ? tree[treeNode.leftChild]
+                                       : tree[treeNode.rightChild];
                     } else {
-                        treeNode = tree[treeNode.rightChild];
+                        treeNode = (featureValue <= treeNode.threshold)
+                                       ? tree[treeNode.leftChild]
+                                       : tree[treeNode.rightChild];
                     }
                 }
-                accumulatedResult += treeNode.returnClass;
+                accumulatedResult += treeNode.leafValue;
             }
+
             if (modelType == ModelType::RandomForest) {
                 accumulatedResult /= numTrees;
             }
@@ -175,6 +180,7 @@ class Forest : public Object {
             }
             outData[i] = accumulatedResult;
         }
+
         return resultMatrix;
     }
 }; // namespace pdb

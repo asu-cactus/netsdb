@@ -42,12 +42,14 @@ class TreeResultPostProcessing : public SelectionComp<TreeResult, TreeResult> {
     ENABLE_DEEP_COPY
 
     int numTrees = 0;
+    bool isClassification;
 
     TreeResultPostProcessing() {}
 
-    TreeResultPostProcessing(int numTrees) {
-        this->numTrees = numTrees;
-        std::cout << "TreeResultPostProcessing is initialized to have " << numTrees << " trees" << std::endl;
+    TreeResultPostProcessing(int numTrees, bool isClassification)
+        : numTrees{numTrees}, isClassification{isClassification} {
+        std::cout << "TreeResultPostProcessing is initialized to have " << numTrees
+                  << " trees. isClassification=" << (isClassification ? "True\n" : "False\n");
     }
 
     Lambda<bool> getSelection(Handle<TreeResult> checkMe) override {
@@ -57,11 +59,9 @@ class TreeResultPostProcessing : public SelectionComp<TreeResult, TreeResult> {
 
     Lambda<Handle<TreeResult>> getProjection(Handle<TreeResult> in) override {
         return makeLambda(in, [this](Handle<TreeResult> &in) {
-
-		Handle<TreeResult> out = makeObject<TreeResult>(0, in->batchId, in->blockSize, in->modelType, in->isClassification);
-                in->postprocessing(out, numTrees); 
-
-                return out; });
+		    Handle<TreeResult> out = makeObject<TreeResult>(0, in->batchId, in->blockSize, in->modelType);
+            in->postprocessing(out, isClassification, numTrees); 
+            return out; });
     }
 };
 } // namespace pdb

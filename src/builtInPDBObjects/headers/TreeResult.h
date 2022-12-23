@@ -51,14 +51,13 @@ class TreeResult : public Object {
     int blockSize;
 
     ModelType modelType;
-    bool isClassification;
 
     TreeResult() {}
 
     ~TreeResult() {}
 
-    TreeResult(int treeId, int batchId, int blockSize, ModelType modelType, bool isClassification)
-        : treeId{treeId}, batchId{batchId}, blockSize{blockSize}, modelType{modelType}, isClassification{isClassification} {
+    TreeResult(int treeId, int batchId, int blockSize, ModelType modelType)
+        : treeId{treeId}, batchId{batchId}, blockSize{blockSize}, modelType{modelType} {
         this->data = makeObject<Vector<float>>(blockSize, blockSize);
     }
 
@@ -98,17 +97,18 @@ class TreeResult : public Object {
         return positive_count;
     }
 #if 1
-    void postprocessing(Handle<TreeResult> &res, int numTrees = 0) {
+    void postprocessing(Handle<TreeResult> &res, bool isClassification, int numTrees) {
         float *resData = res->data->c_ptr();
         float *myData = data->c_ptr();
-        if (modelType == ModelType::RandomForest) {
-            for (int i = 0; i < blockSize; i++) {
-                resData[i] = myData[i] / numTrees;
-            }
+
+        for (int i = 0; i < blockSize; i++) {
+            resData[i] = (modelType == ModelType::RandomForest)
+                             ? myData[i] / numTrees
+                             : myData[i];
         }
         if (isClassification) {
             for (int i = 0; i < blockSize; i++) {
-                resData[i] = (myData[i] > 0.5) ? 1.0 : 0.0;
+                resData[i] = (resData[i] > 0.5) ? 1.0 : 0.0;
             }
         }
     }

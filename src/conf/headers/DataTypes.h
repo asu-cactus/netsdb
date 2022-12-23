@@ -114,7 +114,10 @@ enum struct ModelType {
 
 typedef struct {
     // returnClass will be the vaule to compare while this is not a leaf node
-    float returnClass;
+    union {
+        float threshold;
+        float leafValue;
+    };
     short indexID;
     short leftChild;
     short rightChild;
