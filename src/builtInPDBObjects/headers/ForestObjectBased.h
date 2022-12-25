@@ -61,7 +61,7 @@ class ForestObjectBased : public Object {
 
     void constructNode(Handle<TreeNodeObjectBased> curNode, Handle<Forest> forest, int treeId, int nodeId) {
         Node correspondingNode = forest->forest[treeId][nodeId];
-        curNode->returnClass = correspondingNode.threshold;
+        curNode->threshold = correspondingNode.threshold;
         if (!correspondingNode.isLeaf) {
             curNode->index = correspondingNode.indexID;
 
@@ -169,7 +169,7 @@ class ForestObjectBased : public Object {
             for (int j = 0; j < numTrees; j++) {
                 treeNode = (*roots)[j];
                 while (treeNode->leftChild != nullptr) {
-                    if (inData[featureStartIndex + treeNode->index] <= treeNode->returnClass) {
+                    if (inData[featureStartIndex + treeNode->index] <= treeNode->threshold) {
                         treeNode = treeNode->leftChild;
                     } else {
                         if (treeNode->rightChild != nullptr)
@@ -178,7 +178,7 @@ class ForestObjectBased : public Object {
                             break;
                     }
                 }
-                thisResultMatrix[j] = treeNode->returnClass;
+                thisResultMatrix[j] = treeNode->leafValue;
             }
             T voteResult = compute_result(thisResultMatrix.begin(), thisResultMatrix.end());
             outData[i] = voteResult;
