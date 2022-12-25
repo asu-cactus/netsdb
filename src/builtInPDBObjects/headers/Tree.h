@@ -41,9 +41,9 @@ class Tree : public Object {
   private:
     inline static std::array<std::string, 15> parseLGBMOneCsvLine(const std::string &line) {
         std::array<std::string, 15> fields;
-        int findEndPosition{0};
-        int findStartPosition{0};
-        for (int i{0}; i < 14; ++i) {
+        int findEndPosition = 0;
+        int findStartPosition = 0;
+        for (int i = 0; i < 14; ++i) {
             findEndPosition = line.find(",", findStartPosition);
             fields[i] = line.substr(findStartPosition, findEndPosition - findStartPosition);
             findStartPosition = findEndPosition + 1;
@@ -61,7 +61,7 @@ class Tree : public Object {
 
     ModelType modelType;
 
-    Tree(int treeId, std::string treePath, ModelType modelType)
+    Tree(int treeId, std::string_view treePath, ModelType modelType)
         : treeId{treeId}, modelType{modelType} {
         this->constructTreeFromPath(treePath, modelType, this->tree);
     }
@@ -387,7 +387,7 @@ class Tree : public Object {
         }
     }
 
-    static void constructTreeFromPath(std::string &treePathIn, ModelType modelType, Node *tree) {
+    static void constructTreeFromPath(std::string_view treePathIn, ModelType modelType, Node *tree) {
         std::vector<std::string> relationships;
         std::vector<std::string> innerNodes;
         std::vector<std::string> leafNodes;
@@ -397,15 +397,14 @@ class Tree : public Object {
         processRelationships(relationships, modelType, tree);
     }
     static void constructTreeFromPathHelper(
-        std::string &treePathIn,
+        std::string_view treePathIn,
         ModelType modelType,
         std::vector<std::string> &relationships,
         std::vector<std::string> &innerNodes,
         std::vector<std::string> &leafNodes) {
 
-        std::string inputFileName = treePathIn;
         std::ifstream inputFile;
-        inputFile.open(inputFileName.data());
+        inputFile.open(treePathIn.data());
         assert(inputFile.is_open());
 
         std::string line;
