@@ -286,8 +286,10 @@ def test_cpu(args, features, label, sklearnmodel, config, time_consume):
     else:
         raise ValueError(f"{FRAMEWORK} is not supported.")
     if args.task_type == "classification":
+        print(f"Number of positives predictions: {sum(results)}")
         find_accuracy(FRAMEWORK, label, results)
     else:
+        print(f"Mean of all predictions: {sum(results)/len(results)}")
         find_MSE(FRAMEWORK, label, results)
     return (time_consume, conversion_time, total_framework_time, config)
 
