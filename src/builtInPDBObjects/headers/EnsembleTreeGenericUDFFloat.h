@@ -1,79 +1,79 @@
 #ifndef ENSEMBLE_TREE_GENERIC_UDF_FLOAT_H
 #define ENSEMBLE_TREE_GENERIC_UDF_FLOAT_H
 
-
+#include <algorithm>
+#include <cassert>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
+#include <exception>
+#include <fcntl.h>
 #include <fstream>
-#include <iostream>
-#include <vector>
 #include <future>
-#include <thread>
+#include <iostream>
+#include <map>
+#include <memory>
+#include <set>
 #include <sstream>
-#include <string>
 #include <stdio.h>
 #include <stdlib.h>
-#include <fcntl.h>
+#include <string>
 #include <sys/mman.h>
+#include <thread>
 #include <unistd.h>
-#include <cassert>
-#include <memory>
-#include <algorithm>
-#include <map>
-#include <set>
-#include <cstring>
-#include <exception>
+#include <vector>
 
-#include "Object.h"
-#include "PDBVector.h"
-#include "PDBString.h"
+#include "Forest.h"
 #include "Handle.h"
-#include "TensorBlock2D.h"
 #include "Lambda.h"
 #include "LambdaCreationFunctions.h"
+#include "Object.h"
+#include "PDBString.h"
+#include "PDBVector.h"
 #include "SelectionComp.h"
-#include "Forest.h"
-
+#include "TensorBlock2D.h"
 
 // PRELOAD %EnsembleTreeGenericUDFFloat%
 
+namespace pdb {
+class EnsembleTreeGenericUDFFloat : public SelectionComp<Vector<float>, TensorBlock2D<float>> {
+  private:
+    bool hasMissing;
 
-namespace pdb 
-{
-    class EnsembleTreeGenericUDFFloat : public SelectionComp<Vector<float>, TensorBlock2D<float>>
-    {
+  public:
+    ENABLE_DEEP_COPY
 
-    public:
-        ENABLE_DEEP_COPY
+    Handle<pdb::Forest> forest;
 
-	Handle<pdb::Forest> forest;
+    EnsembleTreeGenericUDFFloat() : hasMissing{false} {}
 
-        EnsembleTreeGenericUDFFloat() {}
+    EnsembleTreeGenericUDFFloat(std::string forestPathIn, ModelType modelType, bool isClassificationTask)
+        : hasMissing{false} {
+        forest = makeObject<pdb::Forest>(forestPathIn, modelType, isClassificationTask);
+    }
+    EnsembleTreeGenericUDFFloat(std::string forestPathIn, ModelType modelType, bool isClassificationTask, bool hasMissing)
+        : hasMissing{hasMissing} {
+        forest = makeObject<pdb::Forest>(forestPathIn, modelType, isClassificationTask);
+    }
+    Lambda<bool> getSelection(Handle<TensorBlock2D<float>> checkMe) override {
+        return makeLambda(checkMe,
+                          [](Handle<TensorBlock2D<float>> &checkMe) { return true; });
+    }
 
-        EnsembleTreeGenericUDFFloat(std::string forestPathIn, ModelType modelType, bool isClassificationTask)
-        {
-            forest = makeObject<pdb::Forest>(forestPathIn, modelType, isClassificationTask);
-        }
-
-        Lambda<bool> getSelection(Handle<TensorBlock2D<float>> checkMe) override
-        {
-            return makeLambda(checkMe,
-                              [](Handle<TensorBlock2D<float>> &checkMe)
-                              { return true; });
-        }
-
-        Lambda<Handle<Vector<float>>> getProjection(Handle<TensorBlock2D<float>> in) override
-        {
+    Lambda<Handle<Vector<float>>> getProjection(Handle<TensorBlock2D<float>> in) override {
+        if (hasMissing) {
             return makeLambda(in, [this](Handle<TensorBlock2D<float>> &in) {
-
-
                 // set the output matrix
-                pdb::Handle<pdb::Vector<float>> resultMatrix = forest->predict(in);
-
+                pdb::Handle<pdb::Vector<float>> resultMatrix = forest->predictWithMissingValues(in);
+                return resultMatrix; });
+        } else {
+            return makeLambda(in, [this](Handle<TensorBlock2D<float>> &in) {
+                // set the output matrix
+                pdb::Handle<pdb::Vector<float>> resultMatrix = forest->predictWithoutMissingValues(in);
                 return resultMatrix; });
         }
-    };
-}
+    }
+};
+} // namespace pdb
 
 #endif

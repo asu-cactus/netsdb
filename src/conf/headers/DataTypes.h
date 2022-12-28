@@ -113,12 +113,15 @@ enum struct ModelType {
 };
 
 typedef struct {
+    // returnClass will be the vaule to compare while this is not a leaf node
+    union {
+        float threshold;
+        float leafValue;
+    };
     short indexID;
-    bool isLeaf;
     short leftChild;
     short rightChild;
-    // returnClass will be the vaule to compare while this is not a leaf node
-    float returnClass;
+    bool isLeaf;
     // When feature value is missing, whether track/traverseTo the left node
     bool isMissTrackLeft;
 } Node;
