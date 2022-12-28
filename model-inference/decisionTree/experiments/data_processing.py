@@ -298,9 +298,9 @@ def save_as_pickle(train, test, dataset_folder, filename):
 def save_to_csv(train, test, dataset_folder, filename):
     filename = filename.split('.')[0]  # Remove Filetype
     train_csv_path = relative2abspath(dataset_folder, f"{filename}_train.csv")
-    train.to_csv(train_csv_path, index=False, header=False)
+    # train.to_csv(train_csv_path, index=False, header=False)
     test_csv_path = relative2abspath(dataset_folder, f"{filename}_test.csv")
-    test.to_csv(test_csv_path, index=False, header=False)
+    # test.to_csv(test_csv_path, index=False, header=False)
     print(f"{dataset} is saved as train and test CSVs.")
     return (train_csv_path, test_csv_path)
 
@@ -373,22 +373,23 @@ if __name__ == "__main__":
         df = prepare_covtype(dataset_folder, nrows=nrows)
 
     elif dataset=="tpcxai_fraud":
-        if nrows:
-            df = prepare_tpcxai_fraud_transactions(dataset_folder, nrows=nrows)
-        else:
-            partition_size = 1000000
-            num_rows = datasetconfig[f"rows_sf{args.scalefactor}"] if ("scalefactor" in args) else datasetconfig[f"rows"]
-            num_partitions = num_rows//partition_size
-            print('-'*50)
-            print(f'Processing Partition Number 1 of {num_partitions+1}')
-            print('-'*50)
-            df = prepare_tpcxai_fraud_transactions(dataset_folder, nrows=partition_size)
-            for i in range(1,num_partitions+1):
-                print('-'*50)
-                print(f'Processing Partition Number {i+1} of {num_partitions+1}')
-                print('-'*50)
-                df = pd.concat([df,prepare_tpcxai_fraud_transactions(dataset_folder, nrows=partition_size, skip_rows=range(1,partition_size*i))])
-            print(f'Final Shape of DataFrame: {df.shape}')
+        # if nrows:
+        #     df = prepare_tpcxai_fraud_transactions(dataset_folder, nrows=nrows)
+        # else:
+        #     partition_size = 1000000
+        #     num_rows = datasetconfig[f"rows_sf{args.scalefactor}"] if ("scalefactor" in args) else datasetconfig[f"rows"]
+        #     num_partitions = num_rows//partition_size
+        #     print('-'*50)
+        #     print(f'Processing Partition Number 1 of {num_partitions+1}')
+        #     print('-'*50)
+        #     df = prepare_tpcxai_fraud_transactions(dataset_folder, nrows=partition_size)
+        #     for i in range(1,num_partitions+1):
+        #         print('-'*50)
+        #         print(f'Processing Partition Number {i+1} of {num_partitions+1}')
+        #         print('-'*50)
+        #         df = pd.concat([df,prepare_tpcxai_fraud_transactions(dataset_folder, nrows=partition_size, skip_rows=range(1,partition_size*i))])
+        #     print(f'Final Shape of DataFrame: {df.shape}')
+        pass
 
     elif dataset == 'criteo':
         prepare_criteo(dataset_folder)
@@ -453,9 +454,11 @@ if __name__ == "__main__":
         exit()
 
     # Split dataset
-    train_size = math.floor(len(df) * datasetconfig["train"])
-    train = df.head(train_size)
-    test = df.tail(len(df) - train_size)
+    # train_size = math.floor(len(df) * datasetconfig["train"])
+    # train = df.head(train_size)
+    # test = df.tail(len(df) - train_size)
+    train = []
+    test = []
 
     # Store datset
     # ## For wide datasets such as "epsilon", save as pickle file
@@ -469,8 +472,8 @@ if __name__ == "__main__":
         train, test, dataset_folder, datasetconfig['filename'])
 
     # Second step: copy csv to database
-    column_names = list(df.columns)
-    del df
+    column_names = ['amount', 'IBAN', 'senderID', 'receiverID', 'transactionID', 'is_fraud', 'date', 'time'] # list(df.columns)
+    # del df
     gc.collect()
     connection = get_connection(pgsqlconfig)
     print("FETCHING TRAIN AND TEST QUERY")

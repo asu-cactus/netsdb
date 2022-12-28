@@ -1,8 +1,10 @@
 #! /bin/bash
-DATASET="epsilon"
+DATASET="tpcxai_fraud"
 TREES="1600"
-MODELS="randomforest xgboost lightgbm"
+MODELS="randomforest"
 FRAMEWORKS="Sklearn ONNXCPU HummingbirdPytorchCPU HummingbirdTorchScriptCPU HummingbirdTVMCPU TreeLite Lleaves"
+
+aws s3 cp s3://decision-forest-benchmark-paper/models/ models/ --recursive
 
 case $DATASET in
 "higgs")
@@ -38,12 +40,57 @@ case $DATASET in
     BATCHSIZES="1000 10000 100000 1000000 10000000 51882752"
     ;;
 "tpcxai_fraud")
-    TESTSIZE="131564160"
-    BATCHSIZES="1000 10000 100000 1000000 10000000 100000000 131564160"
+    TESTSIZE="447622241"
+    BATCHSIZES="1000 10000 100000 1000000 10000000 100000000 447622241"
     ;;
 esac
 
+python data_processing.py -d tpcxai_fraud -sf 100 -n 100
 
+cat config_10.json > config.json
+TREES="10"
+for MODEL in $MODELS
+    do 
+    for FRAMEWORK in $FRAMEWORKS
+        do
+        for BATCHSIZE in $BATCHSIZES
+            do 
+            if [ $FRAMEWORK == "TFDF" ]
+                then 
+                    QUERYSIZE=$TESTSIZE
+                else
+                    QUERYSIZE=$BATCHSIZE
+            fi
+            echo "python test_model.py -d $DATASET -m $MODEL -f $FRAMEWORK --batch_size $BATCHSIZE --query_size $QUERYSIZE --num_trees $TREES"
+            python test_model.py -d $DATASET -m $MODEL -f $FRAMEWORK --batch_size $BATCHSIZE --query_size $QUERYSIZE --num_trees $TREES
+            echo -e "\n\n"   
+        done
+    done
+done
+
+cat config_500.json > config.json
+TREES="500"
+for MODEL in $MODELS
+    do 
+    for FRAMEWORK in $FRAMEWORKS
+        do
+        for BATCHSIZE in $BATCHSIZES
+            do 
+            if [ $FRAMEWORK == "TFDF" ]
+                then 
+                    QUERYSIZE=$TESTSIZE
+                else
+                    QUERYSIZE=$BATCHSIZE
+            fi
+            echo "python test_model.py -d $DATASET -m $MODEL -f $FRAMEWORK --batch_size $BATCHSIZE --query_size $QUERYSIZE --num_trees $TREES"
+            python test_model.py -d $DATASET -m $MODEL -f $FRAMEWORK --batch_size $BATCHSIZE --query_size $QUERYSIZE --num_trees $TREES
+            echo -e "\n\n"   
+        done
+    done
+done
+
+cat config_1600.json > config.json
+TREES="1600"
 for MODEL in $MODELS
     do 
     for FRAMEWORK in $FRAMEWORKS

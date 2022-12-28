@@ -1,5 +1,5 @@
 {
-    "num_trees": 1600,
+    "num_trees": 500,
     "depth": 8,
     "pgsqlconfig": {
         "host": "localhost",
@@ -64,7 +64,7 @@
         "type": "classification",
         "info": "https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud",
         "query": "SELECT v1,v2,v3,v4,v5,v6,v7,v8,v9,v10,v11,v12,v13,v14,v15,v16,v17,v18,v19,v20,v21,v22,v23,v24,v25,v26,v27,v28,class FROM fraud",
-        "create": "CREATE TABLE ** (v1 DECIMAL NOT NULL, v2 DECIMAL NOT NULL, v3 DECIMAL NOT NULL, v4 DECIMAL NOT NULL, v5 DECIMAL NOT NULL, v6 DECIMAL NOT NULL, v7 DECIMAL NOT NULL, v8 DECIMAL NOT NULL, v9 DECIMAL NOT NULL, v10 DECIMAL NOT NULL, v11 DECIMAL NOT NULL, v12 DECIMAL NOT NULL, v13 DECIMAL NOT NULL, v14 DECIMAL NOT NULL, v15 DECIMAL NOT NULL, v16 DECIMAL NOT NULL, v17 DECIMAL NOT NULL, v18 DECIMAL NOT NULL, v19 DECIMAL NOT NULL, v20 DECIMAL NOT NULL, v21 DECIMAL NOT NULL, v22 DECIMAL NOT NULL, v23 DECIMAL NOT NULL, v24 DECIMAL NOT NULL, v25 DECIMAL NOT NULL, v26 DECIMAL NOT NULL, v27 DECIMAL NOT NULL, v28 DECIMAL NOT NULL, class INTEGER NOT NULL)",
+        "create": "CREATE TABLE ** (time DECIMAL NOT NULL, v1 DECIMAL NOT NULL, v2 DECIMAL NOT NULL, v3 DECIMAL NOT NULL, v4 DECIMAL NOT NULL, v5 DECIMAL NOT NULL, v6 DECIMAL NOT NULL, v7 DECIMAL NOT NULL, v8 DECIMAL NOT NULL, v9 DECIMAL NOT NULL, v10 DECIMAL NOT NULL, v11 DECIMAL NOT NULL, v12 DECIMAL NOT NULL, v13 DECIMAL NOT NULL, v14 DECIMAL NOT NULL, v15 DECIMAL NOT NULL, v16 DECIMAL NOT NULL, v17 DECIMAL NOT NULL, v18 DECIMAL NOT NULL, v19 DECIMAL NOT NULL, v20 DECIMAL NOT NULL, v21 DECIMAL NOT NULL, v22 DECIMAL NOT NULL, v23 DECIMAL NOT NULL, v24 DECIMAL NOT NULL, v25 DECIMAL NOT NULL, v26 DECIMAL NOT NULL, v27 DECIMAL NOT NULL, v28 DECIMAL NOT NULL, amount DECIMAL NOT NULL, class INTEGER NOT NULL)",
         "train": 0.8,
         "test": 0.2,
         "y_col": "class",
@@ -155,7 +155,7 @@
         "train": 0,
         "test": 1,
         "y_col": "is_fraud",
-        "filename": "tpcxai_fraud",
+        "filename": "tpcxai_fraud.csv",
         "table": "tpcxai_fraud",
         "header": true
     },
