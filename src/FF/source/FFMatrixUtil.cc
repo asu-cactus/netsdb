@@ -234,7 +234,6 @@ int allocateMyDataHelper(pdb::Handle<T> &myData, int xBlockCounter, int numXBloc
     myData = pdb::makeObject<T>(xBlockCounter, 0, curBlockRows, blockY,
                                 curPartitionSize, totalY, partitionByCol);
     myData->print();
-    std::cout << "curBlockRows=" << curBlockRows << std::endl;
     return curBlockRows;
 }
 
@@ -376,7 +375,6 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
         int curPartitionSize = (curPartitionIndex == numPartitions - 1)
                                    ? remainderPartitionSize
                                    : partitionSize;
-
         int numXBlocks = ceil(curPartitionSize / (double)blockX);
         std::cout << "current partition index: " << curPartitionIndex
                   << "; number of blocks within the current partition: " << numXBlocks << '\n';
@@ -392,6 +390,7 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
         std::string line;
         int xBlockCounter = 0;
         int xBlockRowCounter = 0;
+        int curBlockRows = blockX;
         while (true) {
             if (xBlockCounter >= numXBlocks)
                 break;
@@ -409,12 +408,11 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
                 total++;
             }
 
-            int curBlockRows = blockX;
             if (myData == nullptr) {
                 curBlockRows = allocateMyData(pdbClient, storeMatrix, myData, curSetName, dbName, errMsg, xBlockCounter, numXBlocks,
                                               blockX, blockY, curPartitionSize, totalY, partitionByCol, size);
             }
-
+            
             // Process one line of the input file.
             if (fileSuffix == ".csv") {
                 processOneCsvLine(myData, line, labelColIndex, xBlockRowCounter, blockY);
@@ -424,7 +422,7 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
                 std::cout << "Cannot process file with suffix: " << fileSuffix << std::endl;
                 exit(1);
             }
-
+           
             xBlockRowCounter++;
             if (xBlockRowCounter == curBlockRows) {
                 xBlockRowCounter = 0;
