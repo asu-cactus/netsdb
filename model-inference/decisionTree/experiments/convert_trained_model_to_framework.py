@@ -226,14 +226,12 @@ def convert_to_xgboost_model(model,config):
 
 
 def convert_to_lightgbm_model(model,config):
-    # clf = joblib.load(relative2abspath('models',model_file))
-    # clf.save_model(relative2abspath('models',model_file.split('.')[0]+'.model'))
     new_model = f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.model"
     if (MODEL == "lightgbm") and (new_model not in os.listdir("models")):
         model_path = relative2abspath("models", new_model)
-        model.save_model(model_path)
+        model.booster_.save_model(model_path)
     else:
-        raise("Model not xgboost or model already exists")
+        raise("Model not lightgbm or model already exists")
 
 
 def convert(model, config):
