@@ -24,7 +24,7 @@ def parse_arguments(config):
     parser.add_argument("-m", "--model", required=True, type=str, choices=['randomforest', 'xgboost', 'lightgbm'],
         help="Model name. Choose from ['randomforest', 'xgboost', 'lightgbm']")
     parser.add_argument("-f", "--frameworks", required=True, type=str,
-        help="Zero to multiple values from ['pytorch', 'torch', 'tf-df', 'onnx', 'treelite', 'lleaves', 'netsdb'], seperated by ','")
+        help="Zero to multiple values from ['pytorch', 'torch', 'tf-df', 'onnx', 'treelite', 'lleaves', 'netsdb', 'xgboost', 'lightgbm'], seperated by ','")
     parser.add_argument("-t", "--num_trees", type=int, default=10,
         help="Number of trees for the model")
     args = parser.parse_args()
@@ -33,10 +33,10 @@ def parse_arguments(config):
     if args.model:
         MODEL = args.model.lower()
     if args.frameworks:
-        framework_options = ['pytorch', 'torch', 'tf-df', 'onnx', 'treelite', 'lleaves', 'netsdb']
+        framework_options = ['pytorch', 'torch', 'tf-df', 'onnx', 'treelite', 'lleaves', 'netsdb', 'xgboost', 'lightgbm']
         for framework in args.frameworks.lower().split(","):
             if framework not in framework_options:
-                raise ValueError(f"Framework {framework} is not supported. Choose from ['pytorch', 'torch', 'tf-df', 'onnx', 'treelite', 'lleaves', 'netsdb']")
+                raise ValueError(f"Framework {framework} is not supported. Choose from ['pytorch', 'torch', 'tf-df', 'onnx', 'treelite', 'lleaves', 'netsdb', 'xgboost', 'lightgbm']")
         FRAMEWORKS = args.frameworks  # TODO: Better to store these as a List? Instead of as a string.
     if args.num_trees:
         config["num_trees"] = args.num_trees
@@ -225,6 +225,17 @@ def convert_to_xgboost_model(model,config):
         raise("Model not xgboost or model already exists")
 
 
+def convert_to_lightgbm_model(model,config):
+    # clf = joblib.load(relative2abspath('models',model_file))
+    # clf.save_model(relative2abspath('models',model_file.split('.')[0]+'.model'))
+    new_model = f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.model"
+    if (MODEL == "lightgbm") and (new_model not in os.listdir("models")):
+        model_path = relative2abspath("models", new_model)
+        model.save_model(model_path)
+    else:
+        raise("Model not xgboost or model already exists")
+
+
 def convert(model, config):
     def print_logs(function,model,config,framework_name):
         border = '-'*30
@@ -253,7 +264,8 @@ def convert(model, config):
         print_logs(convert_to_netsdb_model, model, config, "netsdb")
     if "xgboost" in frameworks:
         print_logs(convert_to_xgboost_model, model, config, "xgboost")
-
+    if "lightgbm" in frameworks:
+        print_logs(convert_to_lightgbm_model, model, config, "lightgbm")
 
 def load_model(config):
     model = joblib.load(relative2abspath("models", f"{DATASET}_{MODEL}_{config['num_trees']}_{config['depth']}.pkl"))
