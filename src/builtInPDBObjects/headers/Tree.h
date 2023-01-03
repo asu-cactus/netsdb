@@ -393,16 +393,12 @@ class Tree : public Object {
         std::vector<std::string> relationships;
         std::vector<std::string> innerNodes;
         std::vector<std::string> leafNodes;
-        std::cout << "Start constructing tree\n";
         constructTreeFromPathHelper(treePathIn, modelType, relationships, innerNodes, leafNodes);
-        std::cout << "Start processing inner nodes\n";
         processInnerNodes(innerNodes, modelType, tree);
-        std::cout << "Start processing leaf nodes\n";
         processLeafNodes(leafNodes, modelType, tree);
-        std::cout << "Start processing relations\n";
         processRelationships(relationships, modelType, tree);
-        std::cout << "Done constructing tree\n";
     }
+
     static void constructTreeFromPathHelper(
         std::string_view treePathIn,
         ModelType modelType,
