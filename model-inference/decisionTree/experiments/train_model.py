@@ -124,9 +124,12 @@ def train(config, train_data):
         else:
             raise ValueError(
                 "Task type in config.json must be one of ['classification', 'regression']")
+
+        zero_as_missing = True if DATASET == 'criteo' else False
         model = ModelClass(
             max_depth=config["depth"],
             n_estimators=config["num_trees"],
+            zero_as_missing=zero_as_missing,
             num_leaves=256,
             reg_lambda=1,
             n_jobs=-1,
