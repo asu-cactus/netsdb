@@ -163,7 +163,7 @@ class Tree : public Object {
             } else {                                  // modelType == ModelType::LightGBM
 #if 1
                 auto fields = parseLGBMOneCsvLine(currentLine);
-                nodeID = std::stoi(fields[2].substr(3));
+                nodeID = std::stoi(fields[2].substr(fields[2].find("S") + 1));
                 indexID = std::stoi(fields[6].substr(7));
                 threshold = std::stod(fields[8]);
 #else
@@ -264,7 +264,7 @@ class Tree : public Object {
             } else { // modelType == ModelType::LightGBM
 #if 1
                 auto fields = parseLGBMOneCsvLine(currentLine);
-                nodeID = std::stoi(fields[2].substr(3));
+                nodeID = std::stoi(fields[2].substr(fields[2].find("L") + 1));
                 leafValue = std::stod(fields[12]);
 #else
                 if (((findStartPosition = currentLine.find_first_of("leaf")) != string::npos) && ((findEndPosition = currentLine.find_first_of("[")) != string::npos)) {
@@ -339,20 +339,22 @@ class Tree : public Object {
             } else { // modelType == ModelType::LightGBM
 #if 1
                 auto fields = parseLGBMOneCsvLine(currentLine);
-                parentNodeID = std::stoi(fields[2].substr(3));
+                parentNodeID = std::stoi(fields[2].substr(fields[2].find("S") + 1));
                 const std::string leftChildString = fields[3];
                 const std::string rightChildString = fields[4];
 
                 if (!leftChildString.empty()) {
-                    tree[parentNodeID].leftChild = std::stoi(leftChildString.substr(3));
-                    if (bool isLeftChildLeaf = (leftChildString[2] == 'L'); isLeftChildLeaf) {
+                    tree[parentNodeID].leftChild = std::stoi(leftChildString.substr(leftChildString.find("-") + 2));
+                    bool isLeftChildLeaf = (leftChildString.find("L") != std::string::npos);
+                    if (isLeftChildLeaf) {
                         tree[parentNodeID].leftChild += MAX_NUM_NODES_PER_TREE / 2;
                     }
                 }
 
                 if (!rightChildString.empty()) {
-                    tree[parentNodeID].rightChild = std::stoi(rightChildString.substr(3));
-                    if (bool isRighChildLeaf = (rightChildString[2] == 'L'); isRighChildLeaf) {
+                    tree[parentNodeID].rightChild = std::stoi(rightChildString.substr(rightChildString.find("-") + 2));
+                    bool isRighChildLeaf = (rightChildString.find("L") != std::string::npos);
+                    if (isRighChildLeaf) {
                         tree[parentNodeID].rightChild += MAX_NUM_NODES_PER_TREE / 2;
                     }
                 }
@@ -391,10 +393,15 @@ class Tree : public Object {
         std::vector<std::string> relationships;
         std::vector<std::string> innerNodes;
         std::vector<std::string> leafNodes;
+        std::cout << "Start constructing tree\n";
         constructTreeFromPathHelper(treePathIn, modelType, relationships, innerNodes, leafNodes);
+        std::cout << "Start processing inner nodes\n";
         processInnerNodes(innerNodes, modelType, tree);
+        std::cout << "Start processing leaf nodes\n";
         processLeafNodes(leafNodes, modelType, tree);
+        std::cout << "Start processing relations\n";
         processRelationships(relationships, modelType, tree);
+        std::cout << "Done constructing tree\n";
     }
     static void constructTreeFromPathHelper(
         std::string_view treePathIn,
