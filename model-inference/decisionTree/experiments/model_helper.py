@@ -24,7 +24,6 @@ def load_data_from_pickle(dataset, config, suffix, time_consume):
         time_consume["data loading time"] = data_loading_time
     print(
         f"Time Taken to load {dataset} as a dataframe is: {data_loading_time}")
-    # import pdb; pdb.set_trace()
     return dataframe
 
 def fetch_criteo(suffix, time_consume):
@@ -193,12 +192,8 @@ def relative2abspath(path, *paths):
 
 def check_argument_conflicts(args):
     model = args.model.lower()
-
     if hasattr(args, "frameworks"):
         frameworks = args.frameworks.lower().split(",")
-        if "treelite" in frameworks and model == "randomforest":
-            raise ValueError(
-                "TreeLite models only supports xgboost algorithm, but does not support randomforest algorithm.")
         if "lleaves" in frameworks and not model == "lightgbm":
             raise ValueError(
                 "LLeaves Framework supports compilation of LightGBM Models.")
