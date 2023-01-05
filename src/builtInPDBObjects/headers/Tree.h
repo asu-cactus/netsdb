@@ -109,6 +109,7 @@ class Tree : public Object {
                     nodeID = std::stoi(currentLine.substr(0, findEndPosition - 1));
                 } else {
                     std::cout << "Error in extracting inner node nodeID\n";
+                    std::cout << "currentLine: " << currentLine << '\n';
                     exit(1);
                 }
 
@@ -117,6 +118,7 @@ class Tree : public Object {
                     indexID = std::stoi(currentLine.substr(findStartPosition + 2, findEndPosition - findStartPosition - 2));
                 } else {
                     std::cout << "Error in extracting inner node indexID\n";
+                    std::cout << "currentLine: " << currentLine << '\n';
                     exit(1);
                 }
 
@@ -125,12 +127,13 @@ class Tree : public Object {
                     // For Classifiers
                     // std::cout << "threshold==" << currentLine.substr(findStartPosition + 3, findEndPosition - findStartPosition - 3) << '\n';
                     threshold = std::stod(currentLine.substr(findStartPosition + 3, findEndPosition - findStartPosition - 3));
-                } else if (findStartPosition != string::npos && (findEndPosition = currentLine.find("\\nmse")) != string::npos) {
+                } else if (findStartPosition != string::npos && (findEndPosition = currentLine.find("\\nsqu")) != string::npos) {
                     // For Regressors
                     // std::cout << "threshold==" << currentLine.substr(findStartPosition + 3, findEndPosition - findStartPosition - 3) << '\n';
                     threshold = std::stod(currentLine.substr(findStartPosition + 3, findEndPosition - findStartPosition - 3));
                 } else {
                     std::cout << "Error in extracting inner node threshold\n";
+                    std::cout << "currentLine: " << currentLine << '\n';
                     exit(1);
                 }
 
@@ -212,7 +215,7 @@ class Tree : public Object {
             float leafValue = -1.0f;
             if (modelType == ModelType::RandomForest) {
                 if ((findEndPosition = currentLine.find("[label=\"gini")) != string::npos ||
-                    (findEndPosition = currentLine.find("[label=\"mse")) != string::npos) {
+                    (findEndPosition = currentLine.find("[label=\"squ")) != string::npos) {
                     // std::cout << "nodeID in leaf==" << currentLine.substr(0, findEndPosition - 1) << '\n';
                     nodeID = std::stoi(currentLine.substr(0, findEndPosition - 1));
                 } else {
@@ -420,7 +423,7 @@ class Tree : public Object {
 
                     if (line.find("->") != string::npos) {
                         relationships.push_back(line);
-                    } else if ((line.find("[label=\"gini") != string::npos) || (line.find("[label=\"mse") != string::npos)) {
+                    } else if ((line.find("[label=\"gini") != string::npos) || (line.find("[label=\"squ") != string::npos)) {
                         leafNodes.push_back(line);
                     } else {
                         innerNodes.push_back(line);
