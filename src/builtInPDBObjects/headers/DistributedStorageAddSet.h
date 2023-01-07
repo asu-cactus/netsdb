@@ -29,7 +29,8 @@ public:
                              Handle<LambdaIdentifier> lambdaIdentifier = nullptr,
                              size_t desiredSize = 1,
                              bool isMRU = false,
-			     bool isSharedTensorBlockSet = false)
+			     bool isSharedTensorBlockSet = false,
+			     bool isModelSet = false)
         : dataBase(dataBase), setName(setName), typeName(typeName), pageSize(pageSize), createdJobId(createdJobId) {
 
         this->dispatchComputation = dispatchComputation;
@@ -37,6 +38,7 @@ public:
         this->desiredSize = desiredSize;
         this->isMRU = isMRU;
         this->isSharedTensorBlockSet = isSharedTensorBlockSet;
+	this->isModelSet = isModelSet;
     }
 
 
@@ -104,6 +106,14 @@ public:
         this->isSharedTensorBlockSet = isSharedTensorBlockSet;
     }
 
+    bool getModelSet() {
+        return isModelSet;
+    }
+
+    void setModelSet(bool isThisModelSet) {
+        this->isModelSet = isThisModelSet;
+    }
+
     ENABLE_DEEP_COPY
 
 private:
@@ -117,6 +127,7 @@ private:
     size_t desiredSize;
     bool isMRU;
     bool isSharedTensorBlockSet;
+    bool isModelSet;
 };
 }
 

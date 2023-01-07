@@ -194,7 +194,7 @@ int main(int argc, char *argv[]) {
     if (createSet == true) {
         // create set for data
         ff::createDatabase(pdbClient, "decisionForest");
-        ff::createSetGeneric<pdb::TensorBlock2D<float>>(pdbClient, "decisionForest", "inputs", "inputs", pageSize, numPartitions);
+        ff::createSetGeneric<pdb::TensorBlock2D<float>>(pdbClient, "decisionForest", "inputs", "inputs", pageSize, numPartitions, false);
         if (dataFilePath.compare("N") == 0) {
 
             if (numPartitions == 1)
@@ -210,8 +210,8 @@ int main(int argc, char *argv[]) {
         // create set for tree
         pdbClient.removeSet("decisionForest", "trees", errMsg);
         pdbClient.createSet<pdb::Tree>("decisionForest", "trees",
-                                       errMsg, 8 * 1024 * 1024, "trees",
-                                       nullptr, nullptr, false);
+                                       errMsg, 1 * 1024 * 1024, "trees",
+                                       nullptr, nullptr, false, true);
 
         auto model_begin = chrono::high_resolution_clock::now();
         int numTrees = loadTreeData(pdbClient, forestFolderPath, modelType, isClassification);
@@ -229,7 +229,7 @@ int main(int argc, char *argv[]) {
         // create set for labels
         pdbClient.removeSet("decisionForest", "labels", errMsg);
         pdbClient.createSet<pdb::TreeResult>("decisionForest", "labels",
-                                             errMsg, 64 * 1024 * 1024, "labels",
+                                             errMsg, 1 * 1024 * 1024, "labels",
                                              nullptr, nullptr, false);
 
         pdb::makeObjectAllocatorBlock(1024 * 1024 * 1024, true);

@@ -59,7 +59,8 @@ bool DistributedStorageManagerClient::createSet(const std::string& databaseName,
                                                 Handle<LambdaIdentifier> lambdaIdentifier,
                                                 size_t desiredSize,
                                                 bool isMRU,
-	       bool isSharedTensorBlockSet	) {
+	       bool isSharedTensorBlockSet,
+               bool isModelSet	       ) {
     std::cout << "to create set for " << databaseName << ":" << setName << std::endl;
     if (lambdaIdentifier != nullptr) {
 
@@ -83,7 +84,8 @@ bool DistributedStorageManagerClient::createSet(const std::string& databaseName,
         lambdaIdentifier,
         desiredSize,
         isMRU,
-	isSharedTensorBlockSet
+	isSharedTensorBlockSet,
+	isModelSet
         );
 }
 
@@ -104,11 +106,12 @@ bool DistributedStorageManagerClient::createSet(const std::string& databaseName,
                                                 std::string lambdaName2,
                                                 size_t desiredSize,
                                                 bool isMRU,
-	                                        bool isSharedTensorBlockSet	) {
+	                                        bool isSharedTensorBlockSet,
+	                                        bool isModelSet	) {
     std::cout << "to create set for " << databaseName << ":" << setName << std::endl;
     std::cout << "jobName is " << jobName << std::endl;
     Handle<DistributedStorageAddSetWithPartition> request = makeObject<DistributedStorageAddSetWithPartition> (databaseName,
-    setName, typeName, pageSize, createdJobId, dispatchComputations, jobName, jobName1, jobName2, computationName1, computationName2, lambdaName1, lambdaName2, desiredSize, isMRU, isSharedTensorBlockSet);
+    setName, typeName, pageSize, createdJobId, dispatchComputations, jobName, jobName1, jobName2, computationName1, computationName2, lambdaName1, lambdaName2, desiredSize, isMRU, isSharedTensorBlockSet, isModelSet);
     return simpleDoubleRequest<DistributedStorageAddSetWithPartition, Vector<Handle<Computation>>, SimpleRequestResult, bool>(
         logger,
         port,

@@ -29,7 +29,7 @@ void loadLibrary(pdb::PDBClient &pdbClient, string path) {
 
 template <class T>
 void createSetGeneric(pdb::PDBClient &pdbClient, std::string dbName,
-               std::string setName, std::string setName1, int size, int numPartitions) {
+               std::string setName, std::string setName1, int size, int numPartitions, bool isModelSet) {
 
   string errMsg;
 
@@ -39,7 +39,7 @@ void createSetGeneric(pdb::PDBClient &pdbClient, std::string dbName,
 
      if (!pdbClient.createSet<T>(
           dbName, setName, errMsg, (size_t)size * (size_t)1024 * (size_t)1024,
-          setName1)) {
+          setName1, nullptr, nullptr, false, isModelSet)) {
 
 	  cout << "Not able to create set: " + setName + ":" << errMsg;
   
@@ -60,7 +60,7 @@ void createSetGeneric(pdb::PDBClient &pdbClient, std::string dbName,
       pdbClient.removeSet(dbName, curSetName, errMsg);
       if (!pdbClient.createSet<T>(
           dbName, curSetName, errMsg, (size_t)size * (size_t)1024 * (size_t)1024,
-          setName1)) {
+          setName1, nullptr, nullptr, false, isModelSet)) {
           cout << "Not able to create set: " + curSetName + ":" << errMsg;
       } else {
           cout << "Created set " << curSetName << ".\n";
@@ -70,16 +70,16 @@ void createSetGeneric(pdb::PDBClient &pdbClient, std::string dbName,
 }
 
 template void createSetGeneric<pdb::TensorBlock2D<float>>(pdb::PDBClient &pdbClient, std::string dbName,
-               std::string setName, std::string setName1, int size, int numPartitions);
+               std::string setName, std::string setName1, int size, int numPartitions, bool isModelSet);
 
 template void createSetGeneric<pdb::TensorBlock2D<double>>(pdb::PDBClient &pdbClient, std::string dbName,
-               std::string setName, std::string setName1, int size, int numPartitions);
+               std::string setName, std::string setName1, int size, int numPartitions, bool isModelSet);
 
 template void createSetGeneric<pdb::Vector<float>>(pdb::PDBClient &pdbClient, std::string dbName,
-               std::string setName, std::string setName1, int size, int numPartitions);
+               std::string setName, std::string setName1, int size, int numPartitions, bool isModelSet);
 
 template void createSetGeneric<pdb::Vector<double>>(pdb::PDBClient &pdbClient, std::string dbName,
-               std::string setName, std::string setName1, int size, int numPartitions);
+               std::string setName, std::string setName1, int size, int numPartitions, bool isModelSet);
 
 void createSet(pdb::PDBClient &pdbClient, string dbName, string setName, string setName1, int size) {
   createSetGeneric<FFMatrixBlock>(pdbClient, dbName, setName, setName1, size);

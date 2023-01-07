@@ -16,6 +16,7 @@ struct DataStatistics {
 
   std::string databaseName;
   std::string setName;
+  bool isModelSet = false;
   int numPages = 0;
   size_t pageSize = 0;
   size_t numBytes = 0;
@@ -63,6 +64,13 @@ public:
   // to clear penalized costs
   void clearPenalizedCosts() {
     penalizedCosts.clear();
+  }
+
+  void setModelSet(std::string databaseName, std::string setName, bool isThisModelSet) {
+     std::string key = databaseName + ":" + setName;
+     if (dataStatistics.count(key) > 0) {
+	 dataStatistics[key].isModelSet = isThisModelSet;    
+     }
   }
 
   // remove set
@@ -126,10 +134,14 @@ public:
   // to return numBytes of a set
   size_t getNumBytes(std::string databaseName, std::string setName) {
     std::string key = databaseName + ":" + setName;
+
     if (dataStatistics.count(key) == 0) {
       return 0;
     } else {
-      return dataStatistics[key].numBytes;
+      if (dataStatistics[key].isModelSet)
+	  return 0;
+      else
+          return dataStatistics[key].numBytes;
     }
   }
 

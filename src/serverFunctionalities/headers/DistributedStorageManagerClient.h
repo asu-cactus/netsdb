@@ -39,7 +39,8 @@ public:
                    Handle<LambdaIdentifier> lambdaForDispatch = nullptr,
                    size_t desiredSize = 0,
                    bool isMRU = false,
-		   bool isSharedTensorBlockSet = false);
+		   bool isSharedTensorBlockSet = false,
+		   bool isModelSet = false);
 
 
     bool createSet(const std::string& databaseName,
@@ -58,7 +59,8 @@ public:
                    std::string lambdaName2, 
                    size_t desiredSize = 0,
                    bool isMRU = false,
-		   bool isSharedTensorBlockSet = false);
+		   bool isSharedTensorBlockSet = false,
+		   bool isModelSet = false);
 
 
     // create a temp set that only goes through storage
@@ -84,7 +86,8 @@ public:
                    Handle<LambdaIdentifier> lambdaForDispatch = nullptr,
                    size_t desiredSize = 0,
                    bool isMRU = false,
-		   bool isSharedTensorBlockSet = false);
+		   bool isSharedTensorBlockSet = false,
+		   bool isModelSet = false);
 
 
     // templated createSet
@@ -104,7 +107,8 @@ public:
                    std::string lambdaName2,
                    size_t desiredSize = 0,
                    bool isMRU = false,
-		   bool isSharedTensorBlockSet = false);
+		   bool isSharedTensorBlockSet = false,
+		   bool isModelSet = false);
 
 
    bool addSharedPage(std::string sharingDatabase,

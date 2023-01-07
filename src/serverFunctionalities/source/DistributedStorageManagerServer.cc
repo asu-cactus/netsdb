@@ -634,6 +634,7 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                 }
                 stats->setNumPages(request->getDatabase(), request->getSetName(), 0);
                 stats->setNumBytes(request->getDatabase(), request->getSetName(), 0);
+		stats->setModelSet(request->getDatabase(), request->getSetName(), request->getModelSet());
             }
 
             if (this->selfLearningOrNot == true) {
@@ -815,6 +816,7 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                 }
                 stats->setNumPages(request->getDatabase(), request->getSetName(), 0);
                 stats->setNumBytes(request->getDatabase(), request->getSetName(), 0);
+		stats->setModelSet(request->getDatabase(), request->getSetName(), request->getModelSet());
             }
 
             if (this->selfLearningOrNot == true) {
