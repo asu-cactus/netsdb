@@ -349,7 +349,7 @@ void processOneSvmLine(pdb::Handle<T> &myData, const std::string &line, int labe
     } while (endIndex != std::string::npos);
 }
 
-//TODO: Because adding a key-value pair to the Map may lead to doubling the pairarray size, we have to catch the NotEnoughSpaceException
+//TODO: Because adding a key-value pair to the Map may lead to doubling the pairarray size, we have to catch the NotEnoughSpaceException, just in case we do not know how many non-zero elements exist in a tuple.
 void processOneSvmLineSparse(pdb::Map<int, float> &myData, const std::string &line) {
 
     std::string::size_type startIndex = line.find(' ') + 1;

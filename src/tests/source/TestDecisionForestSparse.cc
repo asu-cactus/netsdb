@@ -120,7 +120,7 @@ int main(int argc, char *argv[]) {
     if (createSet == true) {
         ff::createDatabase(pdbClient, "decisionForest");
         ff::createSetGeneric<pdb::Map<int, float>>(pdbClient, "decisionForest", "inputs", "inputs", pageSize, numPartitions);
-        ff::loadMapFromSVMFile(pdbClient, dataFilePath, "decisionForest", "inputs", rowNum, colNum, errMsg, 4 * pageSize, numPartitions);
+        ff::loadMapFromSVMFile(pdbClient, dataFilePath, "decisionForest", "inputs", rowNum, colNum, errMsg, 2 * pageSize, numPartitions);
     } else {
         std::cout << "Not create a set and not load new data to the input set" << std::endl;
     }
