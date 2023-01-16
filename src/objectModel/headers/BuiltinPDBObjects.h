@@ -127,6 +127,7 @@
 #include "/home/ubuntu/netsdb/src/builtInPDBObjects/headers/DistributedStorageAddSetWithPartition.h"
 #include "/home/ubuntu/netsdb/src/builtInPDBObjects/headers/DistributedStorageClearSet.h"
 #include "/home/ubuntu/netsdb/src/builtInPDBObjects/headers/EnsembleTreeUDFDouble.h"
+#include "/home/ubuntu/netsdb/src/builtInPDBObjects/headers/EnsembleTreeGenericUDFSparse.h"
 #include "/home/ubuntu/netsdb/src/builtInPDBObjects/headers/CatGetSetResult.h"
 #include "/home/ubuntu/netsdb/src/builtInPDBObjects/headers/LambdaIdentifier.h"
 #include "/home/ubuntu/netsdb/src/builtInPDBObjects/headers/DoneWithResult.h"

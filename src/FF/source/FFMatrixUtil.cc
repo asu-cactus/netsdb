@@ -262,20 +262,39 @@ int allocateMyData(pdb::PDBClient &pdbClient, pdb::Handle<pdb::Vector<pdb::Handl
     return curBlockRows;
 }
 
+
+template <class T>
+void allocateMyDataSparse(pdb::PDBClient &pdbClient, pdb::Handle<pdb::Vector<pdb::Handle<T>>> &storeMatrix, pdb::Handle<T> &myData,
+                   std::string curSetName, std::string dbName, std::string &errMsg, int size) {
+    try {
+        myData = pdb::makeObject<pdb::Map<int, float>>(64);
+    } catch (pdb::NotEnoughSpace &n) {
+        if (!pdbClient.sendData<T>(
+                pair<string, string>(curSetName, dbName), storeMatrix, errMsg)) {
+            cout << "Failed to send data to dispatcher server" << endl;
+            exit(1);
+        }
+        std::cout << "Dispatched " << storeMatrix->size() << " blocks to " << curSetName << '\n';
+        storeMatrix.emptyOutContainingBlock();
+        pdb::makeObjectAllocatorBlock((size_t)size * (size_t)1024 * (size_t)1024, true);
+        storeMatrix = pdb::makeObject<pdb::Vector<pdb::Handle<T>>>();
+	myData = pdb::makeObject<pdb::Map<int, float>>(64);
+    }
+    return;
+}
+
 template <class T>
 void pushBackMyDataToStoreMatrix(pdb::PDBClient &pdbClient, pdb::Handle<pdb::Vector<pdb::Handle<T>>> &storeMatrix, pdb::Handle<T> &myData,
                                  std::string curSetName, std::string dbName, std::string &errMsg, int size, int total) {
     try {
-        std::cout << "To push back a block\n";
         storeMatrix->push_back(myData);
-        std::cout << "Push back a block\n";
     } catch (pdb::NotEnoughSpace &n) {
         if (!pdbClient.sendData<T>(
                 pair<string, string>(curSetName, dbName), storeMatrix, errMsg)) {
             std::cout << "Failed to send data to dispatcher server\n";
             exit(1);
         }
-        std::cout << "Dispatched " << storeMatrix->size() << " blocks to " << curSetName << '\n';
+        std::cout << "Dispatched " << storeMatrix->size() << " objects to " << curSetName << '\n';
         storeMatrix.emptyOutContainingBlock();
         pdb::makeObjectAllocatorBlock(size * 1024 * 1024, true);
         storeMatrix = pdb::makeObject<pdb::Vector<pdb::Handle<T>>>();
@@ -324,10 +343,114 @@ void processOneSvmLine(pdb::Handle<T> &myData, const std::string &line, int labe
         const std::string feature = line.substr(startIndex, endIndex - startIndex);
         midIndex = feature.find(':');
         int featureIndex = std::stoi(feature.substr(0, midIndex));
-        double featureValue = std::stod(feature.substr(midIndex + 1));
+        float featureValue = std::stod(feature.substr(midIndex + 1));
         (*(myData->getRawDataHandle()))[startOffset + featureIndex] = featureValue;
         startIndex = endIndex + 1;
     } while (endIndex != std::string::npos);
+}
+
+//TODO: Because adding a key-value pair to the Map may lead to doubling the pairarray size, we have to catch the NotEnoughSpaceException
+void processOneSvmLineSparse(pdb::Map<int, float> &myData, const std::string &line) {
+
+    std::string::size_type startIndex = line.find(' ') + 1;
+    std::string::size_type midIndex = 0;
+    std::string::size_type endIndex = 0;
+    do {
+        endIndex = line.find(' ', startIndex);
+        const std::string feature = line.substr(startIndex, endIndex - startIndex);
+        midIndex = feature.find(':');
+        int featureIndex = std::stoi(feature.substr(0, midIndex));
+        float featureValue = std::stod(feature.substr(midIndex + 1));
+        myData[featureIndex] = featureValue;
+        startIndex = endIndex + 1;
+    } while (endIndex != std::string::npos);
+}
+
+
+// the number of columns in the input file should be equivalent to the blockY
+void loadMapFromSVMFile(pdb::PDBClient &pdbClient, std::string path,
+                               pdb::String dbName, pdb::String setName,
+                               int totalX, int totalY, 
+                               std::string &errMsg, int size, int numPartitions, bool partitionByCol) {
+
+    ifstream inFile(path);
+    if (!inFile.is_open()) {
+        std::cout << __FILE__ << ": Error: Input file [" << path << "] is not found!!!\n";
+        exit(1);
+    }
+
+    pdb::makeObjectAllocatorBlock(size * 1024 * 1024, true);
+
+    int partitionSize = 0;
+    int remainderPartitionSize = 0;
+    if (numPartitions == 1) {
+        partitionSize = totalX;
+        remainderPartitionSize = totalX;
+    } else {
+        partitionSize = totalX / numPartitions;
+        remainderPartitionSize = totalX - partitionSize * (numPartitions - 1);
+    }
+    std::cout << "partitionSize: " << partitionSize << "; remainderPartitionSize: " << remainderPartitionSize << std::endl;
+
+    int total = 0;
+    for (int curPartitionIndex = 0; curPartitionIndex < numPartitions; curPartitionIndex++) {
+        int curPartitionSize = (curPartitionIndex == numPartitions - 1)
+                                   ? remainderPartitionSize
+                                   : partitionSize;
+
+        std::cout << "current partition index: " << curPartitionIndex << '\n';
+
+        std::string curSetName = std::string(setName);
+        if (numPartitions > 1) {
+            curSetName = curSetName + std::to_string(curPartitionIndex);
+        }
+        std::cout << "curSetName = " << curSetName << std::endl;
+
+        pdb::Handle<pdb::Vector<pdb::Handle<pdb::Map<int, float>>>> storeMatrix = pdb::makeObject<pdb::Vector<pdb::Handle<pdb::Map<int, float>>>>();
+        std::string line;
+
+	pdb::Handle<pdb::Map<int, float>> myData = nullptr;
+
+        while (total < totalY) {
+            //std::cout << "total = " << total << std::endl;
+            //std::cout << "totalY = " << totalY << std::endl; 	    
+	    if (!std::getline(inFile, line)) {
+                std::cout << "We come to the end of the input file" << std::endl;
+                if (myData != nullptr) {
+                    pushBackMyDataToStoreMatrix(pdbClient, storeMatrix, myData, curSetName, dbName, errMsg, size, total);
+                    myData = nullptr;
+                }
+                break;
+            } else {
+		//std::cout << line << std::endl;
+                total++;
+            }
+
+	    if (myData == nullptr) {
+                allocateMyDataSparse(pdbClient, storeMatrix, myData, curSetName, dbName, errMsg, size); 
+            }
+
+            processOneSvmLineSparse(*myData, line);
+
+            pushBackMyDataToStoreMatrix(pdbClient, storeMatrix, myData, curSetName, dbName, errMsg, size, total);
+            myData = nullptr;
+	
+	}
+
+	if (storeMatrix->size() > 0) {
+            if (!pdbClient.sendData<pdb::Map<int, float>>(
+                    pair<string, string>(curSetName, dbName), storeMatrix, errMsg)) {
+                std::cout << "Failed to send data to dispatcher server\n";
+                exit(1);
+            }
+            std::cout << "Dispatched " << storeMatrix->size() << " maps to " << curSetName << '\n';
+        }
+    }
+
+    // to write back all buffered records
+    pdbClient.flushData(errMsg);
+    inFile.close();
+
 }
 
 // the number of columns in the input file should be equivalent to the blockY
@@ -336,10 +459,11 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
                                pdb::String dbName, pdb::String setName,
                                int totalX, int totalY, int blockX, int blockY, int labelColIndex,
                                std::string &errMsg, int size, int numPartitions, bool partitionByCol) {
-    std::cout << "totalX=" << totalX << std::endl;
-    std::cout << "totalY=" << totalY << std::endl;
+
     std::cout << "blockX=" << blockX << std::endl;
     std::cout << "blockY=" << blockY << std::endl;
+    std::cout << "totalX=" << totalX << std::endl;
+    std::cout << "totalY=" << totalY << std::endl;
     std::cout << "size=" << size << std::endl;
     std::cout << "numPartitions=" << numPartitions << std::endl;
 
@@ -375,9 +499,13 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
         int curPartitionSize = (curPartitionIndex == numPartitions - 1)
                                    ? remainderPartitionSize
                                    : partitionSize;
+
         int numXBlocks = ceil(curPartitionSize / (double)blockX);
-        std::cout << "current partition index: " << curPartitionIndex
-                  << "; number of blocks within the current partition: " << numXBlocks << '\n';
+        
+	
+	std::cout << "current partition index: " << curPartitionIndex
+           << "; number of blocks within the current partition: " << numXBlocks << '\n';
+        
 
         std::string curSetName = std::string(setName);
         if (numPartitions > 1) {
@@ -390,7 +518,9 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
         std::string line;
         int xBlockCounter = 0;
         int xBlockRowCounter = 0;
+
         int curBlockRows = blockX;
+
         while (true) {
             if (xBlockCounter >= numXBlocks)
                 break;
@@ -592,6 +722,8 @@ template void loadMatrixGenericFromFile<pdb::TensorBlock2D<double>>(pdb::PDBClie
                                                                     pdb::String setName, int totalX, int totalY, int blockX,
                                                                     int blockY, int label_col_index, string &errMsg,
                                                                     int size = 128, int numPartitions = 1, bool partitionByCol = true);
+
+
 
 void load_matrix_from_file(string path, vector<vector<double>> &matrix) {
     if (path.size() == 0) {

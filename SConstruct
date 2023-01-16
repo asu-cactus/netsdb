@@ -1395,6 +1395,9 @@ common_env.Program('bin/testDecisionForest',
 common_env.Program('bin/testDecisionForestWithCrossProduct',
                         ['build/tests/TestDecisionForestWithCrossProduct.cc', 'build/FF/FFMatrixUtil.cc',
                         'build/FF/SimpleFF.cc'] + all + pdb_client)
+common_env.Program('bin/testDecisionForestSparse',
+                        ['build/tests/TestDecisionForestSparse.cc', 'build/FF/FFMatrixUtil.cc',
+                        'build/FF/SimpleFF.cc'] + all + pdb_client)
 # Semantic Classifier
 common_env.SharedLibrary('libraries/libEmbeddingLookupSparse.so',
                         ['build/word2vec/EmbeddingLookupSparse.cc'] + all)
@@ -2049,7 +2052,8 @@ libDFTest = common_env.Alias('libDFTest', [
     'bin/pdb-cluster',
     'bin/pdb-server',
     'bin/testDecisionForest',
-    'bin/testDecisionForestWithCrossProduct'
+    'bin/testDecisionForestWithCrossProduct',
+    'bin/testDecisionForestSparse'
 ])
 
 libConv2DProjTest = common_env.Alias('libConv2DProjTest', [

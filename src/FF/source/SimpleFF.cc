@@ -81,6 +81,12 @@ template void createSetGeneric<pdb::Vector<float>>(pdb::PDBClient &pdbClient, st
 template void createSetGeneric<pdb::Vector<double>>(pdb::PDBClient &pdbClient, std::string dbName,
                std::string setName, std::string setName1, int size, int numPartitions, bool isModelSet);
 
+template void createSetGeneric<pdb::Map<int, float>>(pdb::PDBClient &pdbClient, std::string dbName,
+               std::string setName, std::string setName1, int size, int numPartitions, bool isModelSet);
+
+template void createSetGeneric<float>(pdb::PDBClient &pdbClient, std::string dbName,
+               std::string setName, std::string setName1, int size, int numPartitions, bool isModelSet);
+
 void createSet(pdb::PDBClient &pdbClient, string dbName, string setName, string setName1, int size) {
   createSetGeneric<FFMatrixBlock>(pdbClient, dbName, setName, setName1, size);
 }
