@@ -118,9 +118,9 @@ typedef struct {
         float threshold;
         float leafValue;
     };
-    short indexID;
-    short leftChild;
-    short rightChild;
+    int indexID;
+    int leftChild;
+    int rightChild;
     bool isLeaf;
     // When feature value is missing, whether track/traverseTo the left node
     bool isMissTrackLeft;
