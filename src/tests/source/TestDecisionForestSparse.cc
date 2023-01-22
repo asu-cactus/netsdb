@@ -71,10 +71,10 @@ int main(int argc, char *argv[]) {
             createSet = false;
         }
 
-        rowNum = std::stoi(argv[2]);  // total size of input feature vectors
-        colNum = std::stoi(argv[3]);  // number of features
+        rowNum = std::stoi(argv[2]); // total size of input feature vectors
+        colNum = std::stoi(argv[3]); // number of features
         pageSize = std::stoi(argv[4]);
-	numPartitions = std::stoi(argv[5]);
+        numPartitions = std::stoi(argv[5]);
     }
 
     if (argc >= 7) {
@@ -99,7 +99,6 @@ int main(int argc, char *argv[]) {
         }
     }
 
-
     if (argc >= 10) {
         if (std::string(argv[9]).compare("classification") == 0) {
             isClassification = true;
@@ -120,7 +119,7 @@ int main(int argc, char *argv[]) {
     if (createSet == true) {
         ff::createDatabase(pdbClient, "decisionForest");
         ff::createSetGeneric<pdb::Map<int, float>>(pdbClient, "decisionForest", "inputs", "inputs", pageSize, numPartitions);
-        ff::loadMapFromSVMFile(pdbClient, dataFilePath, "decisionForest", "inputs", rowNum, colNum, errMsg, 2 * pageSize, numPartitions);
+        ff::loadMapFromSVMFile(pdbClient, dataFilePath, "decisionForest", "inputs", rowNum, colNum, errMsg, 4 * pageSize, numPartitions);
     } else {
         std::cout << "Not create a set and not load new data to the input set" << std::endl;
     }
@@ -145,7 +144,7 @@ int main(int argc, char *argv[]) {
 
             pdb::Handle<pdb::Computation> decisionForestUDFSparse = pdb::makeObject<pdb::EnsembleTreeGenericUDFSparse>(forestFolderPath, modelType, isClassification);
 
-	    auto model_end = chrono::high_resolution_clock::now();
+            auto model_end = chrono::high_resolution_clock::now();
 
             decisionForestUDFSparse->setInput(inputScanner);
 
@@ -180,26 +179,26 @@ int main(int argc, char *argv[]) {
             std::cout << "to print result..." << std::endl;
 
             pdb::SetIterator<float> result = pdbClient.getSetIterator<float>("decisionForest", "labels");
-                int count = 0;
-                if (isClassification) {
-                    int positiveCounts = 0;
-                    for (auto a : result) {
-                        positiveCounts += *a;
-			count++;
-                    }
-                    std::cout << "output count:" << count << "\n";
-                    std::cout << "positive count:" << positiveCounts << "\n";
-                } else { // TODO: support larger outputs for regression tasks
-                    double sum = 0.0;
-                    for (auto a : result) {
-                        count++;
-                        sum += *a;
-                    }
-                    double mean = sum / count;
-                    std::cout << "output count:" << count << "\n";
-                    std::cout << "output mean:" << mean << '\n';
+            int count = 0;
+            if (isClassification) {
+                int positiveCounts = 0;
+                for (auto a : result) {
+                    positiveCounts += *a;
+                    count++;
                 }
-       }
+                std::cout << "output count:" << count << "\n";
+                std::cout << "positive count:" << positiveCounts << "\n";
+            } else { // TODO: support larger outputs for regression tasks
+                double sum = 0.0;
+                for (auto a : result) {
+                    count++;
+                    sum += *a;
+                }
+                double mean = sum / count;
+                std::cout << "output count:" << count << "\n";
+                std::cout << "output mean:" << mean << '\n';
+            }
+        }
     }
     return 0;
 }

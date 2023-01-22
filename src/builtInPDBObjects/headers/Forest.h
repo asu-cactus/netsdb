@@ -11,6 +11,7 @@
 #define MAX_NUM_TREES 1600
 
 #include "PDBClient.h"
+#include "SparseMatrixBlock.h"
 #include "StorageClient.h"
 #include "TensorBlock2D.h"
 #include <algorithm>
@@ -128,12 +129,12 @@ class Forest : public Object {
     }
 #endif
 
-    Handle<Vector<float>> predictSparseBlock(Handle<Vector<Handle<Map<int, float>>>> &in) const {
+    Handle<Vector<float>> predictSparseBlock(Handle<SparseMatrixBlock> &in) const {
         std::size_t blockSize = in->size();
         std::cout << "Predict Sparse Block blockSize: " << blockSize << std::endl;
         Handle<Vector<float>> results = makeObject<Vector<float>>(blockSize);
         // TODO: Use iterator for Vector?
-        Vector<Handle<Map<int, float>>> &sparseTuples = *in; // we need dereference it first for acceration.
+        Vector<Handle<Map<int, float>>> &sparseTuples = *(*in).mapBlockHandle; // we need dereference it first for acceration.
         for (int j = 0; j < blockSize; j++) {
             Map<int, float> &sparseTuple = *sparseTuples[j];
             float accumulatedResult = 0.0f;

@@ -31,7 +31,6 @@
 #include "ScanUserSet.h"
 #include "SimpleFF.h"
 #include "StorageClient.h"
-#include "TensorBlock2D.h"
 #include "VectorDoubleWriter.h"
 #include "VectorFloatWriter.h"
 #include "WriteUserSet.h"
@@ -118,8 +117,8 @@ int main(int argc, char *argv[]) {
 
     if (createSet == true) {
         ff::createDatabase(pdbClient, "decisionForest");
-        ff::createSetGeneric<pdb::Vector<pdb::Handle<pdb::Map<int, float>>>>(pdbClient, "decisionForest", "inputs", "inputs", pageSize, numPartitions);
-        ff::loadMapFromSVMFile(pdbClient, dataFilePath, "decisionForest", "inputs", rowNum, colNum, errMsg, 2 * pageSize, numPartitions);
+        ff::createSetGeneric<pdb::SparseMatrixBlock>(pdbClient, "decisionForest", "inputs", "inputs", pageSize, numPartitions);
+        ff::loadMapBlockFromSVMFile(pdbClient, dataFilePath, "decisionForest", "inputs", rowNum, colNum, errMsg, 4 * pageSize, numPartitions);
     } else {
         std::cout << "Not create a set and not load new data to the input set" << std::endl;
     }
@@ -136,9 +135,9 @@ int main(int argc, char *argv[]) {
             pdb::Handle<pdb::Computation> inputScanner = nullptr;
 
             if (numPartitions == 1)
-                inputScanner = pdb::makeObject<pdb::ScanUserSet<pdb::Vector<pdb::Handle<pdb::Map<int, float>>>>>("decisionForest", "inputs");
+                inputScanner = pdb::makeObject<pdb::ScanUserSet<pdb::SparseMatrixBlock>>("decisionForest", "inputs");
             else
-                inputScanner = pdb::makeObject<pdb::ScanUserSet<pdb::Vector<pdb::Handle<pdb::Map<int, float>>>>>("decisionForest", std::string("inputs") + std::to_string(i));
+                inputScanner = pdb::makeObject<pdb::ScanUserSet<pdb::SparseMatrixBlock>>("decisionForest", std::string("inputs") + std::to_string(i));
 
             auto model_begin = chrono::high_resolution_clock::now();
 

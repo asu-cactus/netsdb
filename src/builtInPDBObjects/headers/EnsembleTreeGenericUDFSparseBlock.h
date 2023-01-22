@@ -31,12 +31,12 @@
 #include "PDBString.h"
 #include "PDBVector.h"
 #include "SelectionComp.h"
-#include "TensorBlock2D.h"
+#include "SparseMatrixBlock.h"
 
 // PRELOAD %EnsembleTreeGenericUDFSparseBlock%
 
 namespace pdb {
-class EnsembleTreeGenericUDFSparseBlock : public SelectionComp<Vector<float>, Vector<Handle<Map<int, float>>>> {
+class EnsembleTreeGenericUDFSparseBlock : public SelectionComp<Vector<float>, SparseMatrixBlock> {
 
   public:
     ENABLE_DEEP_COPY
@@ -49,14 +49,14 @@ class EnsembleTreeGenericUDFSparseBlock : public SelectionComp<Vector<float>, Ve
         forest = makeObject<pdb::Forest>(forestPathIn, modelType, isClassificationTask);
     }
 
-    Lambda<bool> getSelection(Handle<Vector<Handle<Map<int, float>>>> checkMe) override {
+    Lambda<bool> getSelection(Handle<SparseMatrixBlock> checkMe) override {
         return makeLambda(checkMe,
-                          [](Handle<Vector<Handle<Map<int, float>>>> &checkMe) { return true; });
+                          [](Handle<SparseMatrixBlock> &checkMe) { return true; });
     }
 
-    Lambda<Handle<Vector<float>>> getProjection(Handle<Vector<Handle<Map<int, float>>>> in) override {
+    Lambda<Handle<Vector<float>>> getProjection(Handle<SparseMatrixBlock> in) override {
         std::cout << "Get Projection in size: " << in->size() << std::endl;
-        return makeLambda(in, [this](Handle<Vector<Handle<Map<int, float>>>> &in) {
+        return makeLambda(in, [this](Handle<SparseMatrixBlock> &in) {
             Handle<Vector<float>> result = forest->predictSparseBlock(in);
             return result; });
     }

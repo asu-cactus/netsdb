@@ -15,6 +15,7 @@
 #include "FFTransposeBiasSum.h"
 #include "FFTransposeMult.h"
 #include "PDBClient.h"
+#include "SparseMatrixBlock.h"
 #include "TensorBlock2D.h"
 
 namespace ff {
@@ -78,8 +79,8 @@ template void createSetGeneric<pdb::Vector<float>>(pdb::PDBClient &pdbClient, st
 template void createSetGeneric<pdb::Vector<double>>(pdb::PDBClient &pdbClient, std::string dbName,
                                                     std::string setName, std::string setName1, int size, int numPartitions, bool isModelSet);
 
-template void createSetGeneric<pdb::Vector<pdb::Handle<::Map<int, float>>>>(pdb::PDBClient &pdbClient, std::string dbName,
-                                                                            std::string setName, std::string setName1, int size, int numPartitions, bool isModelSet);
+template void createSetGeneric<pdb::SparseMatrixBlock>(pdb::PDBClient &pdbClient, std::string dbName,
+                                                       std::string setName, std::string setName1, int size, int numPartitions, bool isModelSet);
 
 template void createSetGeneric<pdb::Map<int, float>>(pdb::PDBClient &pdbClient, std::string dbName,
                                                      std::string setName, std::string setName1, int size, int numPartitions, bool isModelSet);

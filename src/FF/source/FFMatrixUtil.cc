@@ -1,6 +1,7 @@
 #include "FFMatrixUtil.h"
 #include "FFMatrixBlock.h"
 #include "PDBClient.h"
+#include "SparseMatrixBlock.h"
 #include "TensorBlock2D.h"
 #include <algorithm>
 #include <fstream>
@@ -9,21 +10,6 @@
 using namespace std;
 
 namespace ff {
-
-class SparseMatrixBlock {
-    // Type alias
-    using MapBlock = pdb::Vector<pdb::Handle<pdb::Map<int, float>>>;
-
-  public:
-    int blockID;
-    int blockSize;
-    pdb::Handle<MapBlock> mapBlockHandle;
-
-    SparseMatrixBlock(int blockid, int blocksize)
-        : blockID{blockid}, blockSize{blocksize} {
-        mapBlockHandle = pdb::makeObject<MapBlock>(blocksize * 64, blocksize * 64);
-    }
-};
 
 void load_matrix_data(pdb::PDBClient &pdbClient, string path,
                       pdb::String dbName, pdb::String setName, int blockX,
@@ -251,6 +237,7 @@ template <class T>
 inline void allocateMyDataSparseHelper(pdb::Handle<T> &myData, int blockID, int blockSize) {
     // For now T is SparseMatrixBlock
     myData = pdb::makeObject<T>(blockID, blockSize);
+    std::cout << "allocateMyDataSparseHelper finish!\n";
 }
 
 template <class T>
@@ -401,7 +388,7 @@ void processOneSvmLine(pdb::Handle<T> &myData, const std::string &line, int labe
 }
 
 // TODO: Because adding a key-value pair to the Map may lead to doubling the pairarray size, we have to catch the NotEnoughSpaceException, just in case we do not know how many non-zero elements exist in a tuple.
-void processOneSvmLineSparse(SparseMatrixBlock &myData, const std::string &line, int xBlockRowCounter) {
+void processOneSvmLineSparse(pdb::SparseMatrixBlock &myData, const std::string &line, int xBlockRowCounter) {
     // SparseMatrixBlock.mapBlockHandle is of type pdb::Handle<pdb::Vector<pdb::Handle<pdb::Map<int, float>>>>
     pdb::Map<int, float> &myMap = *(*myData.mapBlockHandle)[xBlockRowCounter];
     std::string::size_type startIndex = line.find(' ') + 1;
@@ -522,8 +509,8 @@ void loadMapFromSVMFile(pdb::PDBClient &pdbClient, std::string path,
 void loadMapBlockFromSVMFile(pdb::PDBClient &pdbClient, std::string path,
                              pdb::String dbName, pdb::String setName,
                              int totalX, int totalY,
-                             std::string &errMsg, int size, int numPartitions, bool partitionByCol) {
-    const int blockXSize = 10000;
+                             std::string &errMsg, int size, int numPartitions) {
+    const int blockXSize = 100000;
     ifstream inFile(path);
     if (!inFile.is_open()) {
         std::cout << __FILE__ << ": Error: Input file [" << path << "] is not found!!!\n";
@@ -559,10 +546,10 @@ void loadMapBlockFromSVMFile(pdb::PDBClient &pdbClient, std::string path,
         }
         std::cout << "curSetName = " << curSetName << std::endl;
 
-        pdb::Handle<pdb::Vector<pdb::Handle<SparseMatrixBlock>>> storeMatrix = pdb::makeObject<pdb::Vector<pdb::Handle<SparseMatrixBlock>>>();
+        pdb::Handle<pdb::Vector<pdb::Handle<pdb::SparseMatrixBlock>>> storeMatrix = pdb::makeObject<pdb::Vector<pdb::Handle<pdb::SparseMatrixBlock>>>();
         std::string line;
 
-        pdb::Handle<SparseMatrixBlock> myData = nullptr;
+        pdb::Handle<pdb::SparseMatrixBlock> myData = nullptr;
 
         int xBlockCounter = 0;
         int xBlockRowCounter = 0;
@@ -606,7 +593,7 @@ void loadMapBlockFromSVMFile(pdb::PDBClient &pdbClient, std::string path,
         }
 
         if (storeMatrix->size() > 0) {
-            if (!pdbClient.sendData<SparseMatrixBlock>(
+            if (!pdbClient.sendData<pdb::SparseMatrixBlock>(
                     pair<string, string>(curSetName, dbName), storeMatrix, errMsg)) {
                 std::cout << "Failed to send data to dispatcher server\n";
                 exit(1);
