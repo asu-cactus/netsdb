@@ -1,5 +1,5 @@
-#ifndef ENSEMBLE_TREE_GENERIC_UDF_SPARSE_H
-#define ENSEMBLE_TREE_GENERIC_UDF_SPARSE_H
+#ifndef ENSEMBLE_TREE_GENERIC_UDF_SPARSE_BLOCK_H
+#define ENSEMBLE_TREE_GENERIC_UDF_SPARSE_BLOCK_H
 
 #include <algorithm>
 #include <cassert>
@@ -36,7 +36,7 @@
 // PRELOAD %EnsembleTreeGenericUDFSparseBlock%
 
 namespace pdb {
-class EnsembleTreeGenericUDFSparseBlock : public SelectionComp<float, Vector<Handle<Map<int, float>>>> {
+class EnsembleTreeGenericUDFSparseBlock : public SelectionComp<Vector<float>, Vector<Handle<Map<int, float>>>> {
 
   public:
     ENABLE_DEEP_COPY
@@ -55,6 +55,7 @@ class EnsembleTreeGenericUDFSparseBlock : public SelectionComp<float, Vector<Han
     }
 
     Lambda<Handle<Vector<float>>> getProjection(Handle<Vector<Handle<Map<int, float>>>> in) override {
+        std::cout << "Get Projection in size: " << in->size() << std::endl;
         return makeLambda(in, [this](Handle<Vector<Handle<Map<int, float>>>> &in) {
             Handle<Vector<float>> result = forest->predictSparseBlock(in);
             return result; });

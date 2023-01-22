@@ -136,9 +136,9 @@ int main(int argc, char *argv[]) {
             pdb::Handle<pdb::Computation> inputScanner = nullptr;
 
             if (numPartitions == 1)
-                inputScanner = pdb::makeObject<pdb::ScanUserSet<pdb::Vector<pdb::Map<int, float>>>>("decisionForest", "inputs");
+                inputScanner = pdb::makeObject<pdb::ScanUserSet<pdb::Vector<pdb::Handle<pdb::Map<int, float>>>>>("decisionForest", "inputs");
             else
-                inputScanner = pdb::makeObject<pdb::ScanUserSet<pdb::Vector<pdb::Map<int, float>>>>("decisionForest", std::string("inputs") + std::to_string(i));
+                inputScanner = pdb::makeObject<pdb::ScanUserSet<pdb::Vector<pdb::Handle<pdb::Map<int, float>>>>>("decisionForest", std::string("inputs") + std::to_string(i));
 
             auto model_begin = chrono::high_resolution_clock::now();
 
