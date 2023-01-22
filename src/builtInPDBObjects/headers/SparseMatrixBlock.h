@@ -4,6 +4,8 @@
 #include "Handle.h"
 #include "PDBVector.h"
 
+// PRELOAD %SparseMatrixBlock%
+
 namespace pdb {
 
 class SparseMatrixBlock : public pdb::Object {

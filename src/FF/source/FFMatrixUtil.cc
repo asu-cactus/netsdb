@@ -237,7 +237,6 @@ template <class T>
 inline void allocateMyDataSparseHelper(pdb::Handle<T> &myData, int blockID, int blockSize) {
     // For now T is SparseMatrixBlock
     myData = pdb::makeObject<T>(blockID, blockSize);
-    std::cout << "allocateMyDataSparseHelper finish!\n";
 }
 
 template <class T>
@@ -391,17 +390,22 @@ void processOneSvmLine(pdb::Handle<T> &myData, const std::string &line, int labe
 void processOneSvmLineSparse(pdb::SparseMatrixBlock &myData, const std::string &line, int xBlockRowCounter) {
     // SparseMatrixBlock.mapBlockHandle is of type pdb::Handle<pdb::Vector<pdb::Handle<pdb::Map<int, float>>>>
     pdb::Map<int, float> &myMap = *(*myData.mapBlockHandle)[xBlockRowCounter];
+
+    std::cout << "Line: " << line << "\n";
     std::string::size_type startIndex = line.find(' ') + 1;
     std::string::size_type midIndex = 0;
     std::string::size_type endIndex = 0;
+    int count = 0;
     do {
         endIndex = line.find(' ', startIndex);
         const std::string feature = line.substr(startIndex, endIndex - startIndex);
         midIndex = feature.find(':');
         int featureIndex = std::stoi(feature.substr(0, midIndex));
         float featureValue = std::stof(feature.substr(midIndex + 1));
+        std::cout << "featureIndex: " << featureIndex << ", featureValue: " << featureValue << "\n";
         myMap[featureIndex] = featureValue;
         startIndex = endIndex + 1;
+        std::cout << "Added " << count++ << " feature to myMap.\n";
     } while (endIndex != std::string::npos);
 }
 
@@ -574,9 +578,8 @@ void loadMapBlockFromSVMFile(pdb::PDBClient &pdbClient, std::string path,
             }
 
             if (myData == nullptr) {
-                allocateMyDataBlockSparse(pdbClient, storeMatrix, myData, xBlockCounter, blockXSize, curSetName,
-                                          dbName, errMsg, xBlockCounter, numXBlocks, curPartitionSize, size);
-                curBlockRows = 1;
+                curBlockRows = allocateMyDataBlockSparse(pdbClient, storeMatrix, myData, xBlockCounter, blockXSize, curSetName,
+                                                         dbName, errMsg, xBlockCounter, numXBlocks, curPartitionSize, size);
             }
 
             // Process one line of the input file.

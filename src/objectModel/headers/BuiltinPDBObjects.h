@@ -17,6 +17,7 @@
 #include "/root/netsdb/src/builtInPDBObjects/headers/StorageRemoveDatabase.h"
 #include "/root/netsdb/src/builtInPDBObjects/headers/PDBMap.h"
 #include "/root/netsdb/src/builtInPDBObjects/headers/BackendTestSetCopy.h"
+#include "/root/netsdb/src/builtInPDBObjects/headers/SparseMatrixBlock.h"
 #include "/root/netsdb/src/builtInPDBObjects/headers/StorageAddModel.h"
 #include "/root/netsdb/src/builtInPDBObjects/headers/CatPrintCatalogResult.h"
 #include "/root/netsdb/src/builtInPDBObjects/headers/DoubleVectorResult.h"
