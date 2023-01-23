@@ -131,8 +131,7 @@ class Forest : public Object {
 
     Handle<Vector<float>> predictSparseBlock(Handle<SparseMatrixBlock> &in) const {
         std::size_t blockSize = in->size();
-        std::cout << "Predict Sparse Block blockSize: " << blockSize << std::endl;
-        Handle<Vector<float>> results = makeObject<Vector<float>>(blockSize);
+        Handle<Vector<float>> results = makeObject<Vector<float>>(blockSize, blockSize);
         // TODO: Use iterator for Vector?
         Vector<Handle<Map<int, float>>> &sparseTuples = *(*in).mapBlockHandle; // we need dereference it first for acceration.
         for (int j = 0; j < blockSize; j++) {

@@ -50,13 +50,11 @@ class EnsembleTreeGenericUDFSparseBlock : public SelectionComp<Vector<float>, Sp
     }
 
     Lambda<bool> getSelection(Handle<SparseMatrixBlock> checkMe) override {
-        std::cout << "getSelection in size: " << checkMe->size() << std::endl;
         return makeLambda(checkMe,
                           [](Handle<SparseMatrixBlock> &checkMe) { return true; });
     }
 
     Lambda<Handle<Vector<float>>> getProjection(Handle<SparseMatrixBlock> in) override {
-        std::cout << "Get Projection in size: " << in->size() << std::endl;
         return makeLambda(in, [this](Handle<SparseMatrixBlock> &in) {
             Handle<Vector<float>> result = forest->predictSparseBlock(in);
             return result; });
