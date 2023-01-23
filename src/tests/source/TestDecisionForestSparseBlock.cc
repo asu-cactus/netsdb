@@ -39,21 +39,22 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 
+    // TODO: change helperString
     const char *helperString =
         "Usage: \n To load data: bin/testDecisionForestSparse Y numInstances numFeatures pageSizeInMB numPartitions pathToLoadDataFile pathToModelFolder modelType[XGBoost/RandomForest/LightGBM] taskType[classification/regression]\n"
         "To run the inference: bin/testDecisionForestSparse N numInstances numFeatures pageSizeInMB numPartitions pathToLoadDataFile pathToModelFolder modelType[XGBoost/RandomForest/LightGBM] taskType[classification/regression]\n"
         "Example: \n bin/testDecisionForestSparse Y 2200000 28 32 1 model-inference/decisionTree/experiments/HIGGS.csv_test.csv model-inference/decisionTree/experiments/models/higgs_xgboost_500_8_netsdb XGBoost classification\n"
         "bin/testDecisionForestSparse N 2200000 28 32 1 model-inference/decisionTree/experiments/HIGGS.csv_test.csv model-inference/decisionTree/experiments/models/higgs_xgboost_500_8_netsdb XGBoost classification\n";
-    bool createSet;
+    bool createSet = true;
 
-    if ((argc < 6) || (argc > 10)) {
-
+    if ((argc < 7) || (argc > 11)) {
         std::cerr << helperString;
         exit(-1);
     }
 
     int rowNum = -1;
     int colNum = -1;
+    int blockXSize = -1;
     string errMsg;
     string forestFolderPath;
     ModelType modelType = ModelType::XGBoost;
@@ -62,7 +63,7 @@ int main(int argc, char *argv[]) {
     string dataFilePath = "";
     bool isClassification = true;
 
-    if (argc >= 6) {
+    if (argc >= 7) {
 
         if (string(argv[1]).compare("Y") == 0) {
             createSet = true;
@@ -72,36 +73,37 @@ int main(int argc, char *argv[]) {
 
         rowNum = std::stoi(argv[2]); // total size of input feature vectors
         colNum = std::stoi(argv[3]); // number of features
-        pageSize = std::stoi(argv[4]);
-        numPartitions = std::stoi(argv[5]);
-    }
-
-    if (argc >= 7) {
-        dataFilePath = std::string(argv[6]);
+        blockXSize = std::stoi(argv[4]);
+        pageSize = std::stoi(argv[5]);
+        numPartitions = std::stoi(argv[6]);
     }
 
     if (argc >= 8) {
-        forestFolderPath = std::string(argv[7]);
+        dataFilePath = std::string(argv[7]);
     }
 
     if (argc >= 9) {
-        if (string(argv[8]).compare("XGBoost") == 0) {
+        forestFolderPath = std::string(argv[8]);
+    }
+
+    if (argc >= 10) {
+        if (string(argv[9]).compare("XGBoost") == 0) {
             modelType = ModelType::XGBoost;
-        } else if (string(argv[8]).compare("LightGBM") == 0) {
+        } else if (string(argv[9]).compare("LightGBM") == 0) {
             modelType = ModelType::LightGBM;
-        } else if (string(argv[8]).compare("RandomForest") == 0) {
+        } else if (string(argv[9]).compare("RandomForest") == 0) {
             modelType = ModelType::RandomForest;
         } else {
-            std::cout << "Unsupported model type: " << argv[8] << std::endl;
+            std::cout << "Unsupported model type: " << argv[9] << std::endl;
             std::cout << helperString;
             exit(-1);
         }
     }
 
-    if (argc >= 10) {
-        if (std::string(argv[9]).compare("classification") == 0) {
+    if (argc >= 11) {
+        if (std::string(argv[10]).compare("classification") == 0) {
             isClassification = true;
-        } else if (std::string(argv[9]).compare("regression") == 0) {
+        } else if (std::string(argv[10]).compare("regression") == 0) {
             isClassification = false;
         } else {
             std::cout << "Please provide an argument `classification` or `regression` to specify type of the task\n";
@@ -118,7 +120,7 @@ int main(int argc, char *argv[]) {
     if (createSet == true) {
         ff::createDatabase(pdbClient, "decisionForest");
         ff::createSetGeneric<pdb::SparseMatrixBlock>(pdbClient, "decisionForest", "inputs", "inputs", pageSize, numPartitions);
-        ff::loadMapBlockFromSVMFile(pdbClient, dataFilePath, "decisionForest", "inputs", rowNum, colNum, errMsg, 4 * pageSize, numPartitions);
+        ff::loadMapBlockFromSVMFile(pdbClient, dataFilePath, "decisionForest", "inputs", rowNum, colNum, blockXSize, errMsg, 4 * pageSize, numPartitions);
     } else {
         std::cout << "Not create a set and not load new data to the input set" << std::endl;
     }

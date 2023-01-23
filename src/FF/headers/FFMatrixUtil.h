@@ -45,7 +45,7 @@ void loadMapFromSVMFile(pdb::PDBClient &pdbClient, std::string path,
                         std::string &errMsg, int size = 128, int numPartitions = 1, bool partitionByCol = true);
 void loadMapBlockFromSVMFile(pdb::PDBClient &pdbClient, std::string path,
                              pdb::String dbName, pdb::String setName,
-                             int totalX, int totalY,
+                             int totalX, int totalY, int blockXSize,
                              std::string &errMsg, int size = 128, int numPartitions = 1);
 void load_matrix_from_file(std::string path,
                            std::vector<std::vector<double>> &matrix);

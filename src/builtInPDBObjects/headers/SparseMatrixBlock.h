@@ -11,18 +11,25 @@ namespace pdb {
 class SparseMatrixBlock : public pdb::Object {
     ENABLE_DEEP_COPY
     // Type alias
-    using MapBlock = pdb::Vector<pdb::Handle<pdb::Map<int, float>>>;
+    using MapBlock = Vector<Handle<Map<int, float>>>;
 
   public:
     int blockID;
     int blockSize;
-    pdb::Handle<MapBlock> mapBlockHandle;
+    Handle<MapBlock> mapBlockHandle;
 
-    SparseMatrixBlock() {}
-    ~SparseMatrixBlock() {}
+    SparseMatrixBlock() = default;
+    ~SparseMatrixBlock() = default; // TODO: Do we need to free memory in destructor?
     SparseMatrixBlock(int blockid, int blocksize)
         : blockID{blockid}, blockSize{blocksize} {
-        mapBlockHandle = pdb::makeObject<MapBlock>(blocksize * 64, blocksize * 64);
+        mapBlockHandle = makeObject<MapBlock>(blocksize, blocksize);
+        for (int i = 0; i < blocksize; i++) {
+            try {
+                (*mapBlockHandle)[i] = makeObject<Map<int, float>>(64);
+            } catch (pdb::NotEnoughSpace &n) {
+                throw;
+            }
+        }
     }
 
     int size() const {
