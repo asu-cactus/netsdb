@@ -11,6 +11,7 @@
 #define MAX_NUM_TREES 1600
 
 #include "PDBClient.h"
+#include "SparseMatrixBlock.h"
 #include "StorageClient.h"
 #include "TensorBlock2D.h"
 #include <algorithm>
@@ -128,13 +129,55 @@ class Forest : public Object {
     }
 #endif
 
-    Handle<float> predictSparse(Handle<Map<int, float>> & in) const {
+    Handle<Vector<float>> predictSparseBlock(Handle<SparseMatrixBlock> &in) const {
+        std::size_t blockSize = in->size();
+        Handle<Vector<float>> results = makeObject<Vector<float>>(blockSize, blockSize);
+        // TODO: Use iterator for Vector?
+        Vector<Handle<Map<int, float>>> &sparseTuples = *(*in).mapBlockHandle; // we need dereference it first for acceration.
+        for (int j = 0; j < blockSize; j++) {
+            Map<int, float> &sparseTuple = *sparseTuples[j];
+            float accumulatedResult = 0.0f;
+            for (int i = 0; i < numTrees; i++) {
+                //  inference
+                const Node *const tree = forest[i];
+                //  pass the root node of the tree
+                Node treeNode = tree[0];
+                while (treeNode.isLeaf == false) {
+                    int featureIndex = treeNode.indexID;
+                    if (sparseTuple.count(featureIndex) == 0) {
+                        // the feature is missing
+                        treeNode = (treeNode.isMissTrackLeft)
+                                       ? tree[treeNode.leftChild]
+                                       : tree[treeNode.rightChild];
 
-    	Handle<float> result = makeObject<float>();
-        float accumulatedResult = *result;
-	accumulatedResult = 0.0;
+                    } else {
 
-	Map<int, float> & sparseTuple = *in; //we need dereference it first for acceration. 
+                        treeNode = (sparseTuple[featureIndex] <= treeNode.threshold)
+                                       ? tree[treeNode.leftChild]
+                                       : tree[treeNode.rightChild];
+                    }
+                }
+                accumulatedResult += treeNode.leafValue;
+            }
+
+            if (modelType == ModelType::RandomForest) {
+                (*results)[j] = accumulatedResult / numTrees;
+            }
+
+            if (isClassification) {
+                (*results)[j] = (accumulatedResult > 0.5) ? 1.0 : 0.0;
+            }
+        }
+        return results;
+    }
+
+    Handle<float> predictSparse(Handle<Map<int, float>> &in) const {
+
+        Handle<float> result = makeObject<float>();
+        float &accumulatedResult = *result;
+        accumulatedResult = 0.0;
+
+        Map<int, float> &sparseTuple = *in; // we need dereference it first for acceration.
         for (int i = 0; i < numTrees; i++) {
             //  inference
             const Node *const tree = forest[i];
@@ -142,19 +185,18 @@ class Forest : public Object {
             Node treeNode = tree[0];
             while (treeNode.isLeaf == false) {
                 int featureIndex = treeNode.indexID;
-                if (sparseTuple.count(featureIndex)==0) {
-		   //the feature is missing
-		   treeNode = (treeNode.isMissTrackLeft)
-                                       ? tree[treeNode.leftChild]
-                                       : tree[treeNode.rightChild];
-		
-		} else {
-		
-		   treeNode = (sparseTuple[featureIndex] <= treeNode.threshold)
-                                       ? tree[treeNode.leftChild]
-                                       : tree[treeNode.rightChild];
-		
-		}
+                if (sparseTuple.count(featureIndex) == 0) {
+                    // the feature is missing
+                    treeNode = (treeNode.isMissTrackLeft)
+                                   ? tree[treeNode.leftChild]
+                                   : tree[treeNode.rightChild];
+
+                } else {
+
+                    treeNode = (sparseTuple[featureIndex] <= treeNode.threshold)
+                                   ? tree[treeNode.leftChild]
+                                   : tree[treeNode.rightChild];
+                }
             }
             accumulatedResult += treeNode.leafValue;
         }
@@ -166,10 +208,9 @@ class Forest : public Object {
         if (isClassification) {
             accumulatedResult = (accumulatedResult > 0.5) ? 1.0 : 0.0;
         }
-        
-	return result;
-         
-    }  
+
+        return result;
+    }
 
     template <typename T>
     pdb::Handle<pdb::Vector<T>> predictWithMissingValues(Handle<TensorBlock2D<T>> &in) const {
