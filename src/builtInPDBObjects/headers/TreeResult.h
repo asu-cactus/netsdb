@@ -117,7 +117,7 @@ class TreeResult : public Object {
         }
         if (isClassification) {
             for (int i = 0; i < blockSize; i++) {
-                resData[i] = (resData[i] > 0.5) ? 1.0 : 0.0;
+                resData[i] = (resData[i] > 0.0) ? 1.0 : 0.0;
             }
         }
     }

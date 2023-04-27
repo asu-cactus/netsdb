@@ -165,7 +165,7 @@ class Forest : public Object {
             }
 
             if (isClassification) {
-                (*results)[j] = (accumulatedResult > 0.5) ? 1.0 : 0.0;
+                (*results)[j] = (accumulatedResult > 0.0) ? 1.0 : 0.0;
             }
         }
         return results;
@@ -206,7 +206,7 @@ class Forest : public Object {
         }
 
         if (isClassification) {
-            accumulatedResult = (accumulatedResult > 0.5) ? 1.0 : 0.0;
+            accumulatedResult = (accumulatedResult > 0.0) ? 1.0 : 0.0;
         }
 
         return result;
@@ -262,7 +262,7 @@ class Forest : public Object {
                 accumulatedResult /= numTrees;
             }
             if (isClassification) {
-                accumulatedResult = (accumulatedResult > 0.5) ? 1.0 : 0.0;
+                accumulatedResult = (accumulatedResult > 0.0) ? 1.0 : 0.0;
             }
             outData[i] = accumulatedResult;
         }
