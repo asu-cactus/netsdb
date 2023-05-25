@@ -2,6 +2,8 @@ import psycopg2
 import numpy as np
 import torch
 import time
+import connectorx as cx
+import tensorflow as tf
 
 def get_db_connection():
     # connect to postgresql database
@@ -11,6 +13,17 @@ def get_db_connection():
     t_user = "postgres"
     t_pw = "postgres"
     return psycopg2.connect(host=t_host, port=t_port, dbname=t_dbname, user=t_user, password=t_pw)
+
+def get_db_url():
+    # connect to postgresql database
+    t_host = "localhost"
+    t_port = "5432"
+    t_dbname = "postgres"
+    t_user = "postgres"
+    t_pw = "postgres"
+    return "postgresql://"+t_user+":"+t_pw + \
+            "@"+ t_host +":" + \
+                t_port +"/"+ t_dbname
 
 
 def create_tables(db_cursor):
@@ -32,7 +45,7 @@ def load_input_to_db(db_connection, input_dimensions, iterations):
     # commit the changes to the database
     db_connection.commit()
     db_cursor.close()
-    
+
 def load_kernel_to_db(db_connection, kernel_dimensions, kernel_id):
     db_cursor = db_connection.cursor()
     kernel = np.random.rand(*kernel_dimensions).astype('f')
@@ -58,6 +71,9 @@ def load_input_to_file(input_file_path, input_dimensions, iterations):
     for id in range (0,iterations):
         img = np.random.rand(*input_dimensions).astype('f')
         np.save(input_file_path + str(id), img)
+
+
+
 
 def load_kernel_to_file_torch(kernel_file_path, kernel_dimensions):
     img = torch.randn(*kernel_dimensions)
@@ -85,4 +101,12 @@ def read_input_from_db(db_cursor, id, input_dimensions):
     blob = db_cursor.fetchone()
     input = np.frombuffer(blob[0], dtype=np.float32)
     input = input.reshape(*input_dimensions)
+    return input
+
+def read_input_from_db_cx(db_cursor, id, input_dimensions):
+    query = "SELECT array_data FROM images WHERE id = " + str(id)
+    
+    input = cx.read_sql(get_db_url(), query)
+    print(input)
+    input = np.frombuffer(input.iloc[0]['array_data'], dtype=np.float32).reshape(*input_dimensions)
     return input

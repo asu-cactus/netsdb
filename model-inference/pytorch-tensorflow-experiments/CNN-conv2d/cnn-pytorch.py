@@ -2,25 +2,28 @@ import psycopg2
 import torch
 import time
 import argparse
-from utils import get_db_connection, create_tables, load_input_to_db, load_input_to_file_torch, load_kernel_to_file_torch, read_input_from_db
+from utils import get_db_connection, create_tables, load_input_to_db, load_input_to_file_torch, load_kernel_to_file_torch, read_input_from_db, read_input_from_db_cx
 
 # defaults
 default_number_of_images = 100
 # batchsize, channels, width, height
 default_input_size = "10, 3, 224, 224"
-# number of filters, channels, width, height
+# out_channels, in_channels, height, width
 default_kernel_size = "64, 3, 7, 7"
 # stride along width and height
 default_stride = 1
 # load input data from file
 default_load_data = 'N'
+# db option
+default_db_option = 'cx'
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--images", type=int, help="total number of input images", default=default_number_of_images)
 parser.add_argument("--inputsize", type=str, help=f"input size 'batchsize, channels, width, height', default value = '{default_input_size}'", default=default_input_size)
-parser.add_argument("--kernelsize", type=str, help=f"kernel size 'number of kernels, channels, width, height', default value = '{default_kernel_size}'", default=default_kernel_size)
+parser.add_argument("--kernelsize", type=str, help=f"kernel size 'number of kernels, channels, height, width', default value = '{default_kernel_size}'", default=default_kernel_size)
 parser.add_argument("--stride", type=int, help=f"stride along width, height', default value = '{default_stride}'", default=default_stride)
 parser.add_argument("--loadFromFile", type=str, help=f"load data from file Y: Yes, N: No', default value = {default_load_data}'", default=default_load_data)
+parser.add_argument("--db", type=str, help=f"database for storing the feature vectors 'postgres or cx', default value = '{default_db_option}'", default=default_db_option)
 args = parser.parse_args()
 
 # constants
@@ -33,6 +36,7 @@ stride = args.stride
 load_data_from_file = True if args.loadFromFile == 'Y' else False
 input_file_path = 'cnn-pytorch-input'
 kernel_file_path = 'cnn-pytorch-kernel'
+db = args.db
 
 _iterations = number_of_images
 # connect to postgresql database
@@ -70,9 +74,12 @@ try:
         startTime = time.time()
         if load_data_from_file:
             input = torch.load(input_file_path + str(id) + '.pt')
-        else:
+        elif db == 'postgres':
             input = read_input_from_db(db_cursor, id, input_dimensions)
             input = torch.tensor(input, dtype=torch.float32) # TODO: find optimal implementation for this. 
+        elif db == 'cx':
+            input = read_input_from_db_cx(db_cursor, id, input_dimensions)
+            input = torch.tensor(input, dtype=torch.float32) # TODO: find optimal implementation for this.
         endTime = time.time()
         inputLoadTime = inputLoadTime + (endTime - startTime)
 
@@ -80,10 +87,13 @@ try:
         print ("input", input.dtype)
         print ("filter", filter.shape)
         print ("filter", filter.dtype)
+        print ("bias", bias.shape)
+        print ("bias", bias.dtype)
 
         startTime = time.time()
         output = torch.nn.functional.conv2d(input, filter, stride=stride, bias=bias)
         endTime = time.time()
+        print(output)
         conv2dOpTime = conv2dOpTime + (endTime - startTime)
         print ("Output Shape: ", output.shape)
 except(Exception, psycopg2.DatabaseError) as error:

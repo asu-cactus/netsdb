@@ -1,27 +1,31 @@
 import psycopg2
 import numpy as np
-import tensorflow as tf
 import time
 import argparse
-from utils import get_db_connection, create_tables, load_input_to_db, load_input_to_file, load_kernel_to_file, read_kernel_data, read_input_from_db
+from utils import get_db_connection, create_tables, load_input_to_db, load_input_to_file, load_kernel_to_file, read_kernel_data, read_input_from_db, read_input_from_db_cx
+
+print("parsing parameters")
 
 # defaults
 default_number_of_images = 100
-# batchsize, channels, width, height
+# batchsize, width, height, num_channels
 default_input_size = "10, 224, 224, 3"
-# number of filters, channels, width, height
+# number of width, height, in_channels, out_channels 
 default_kernel_size = "7, 7, 3, 64"
 # stride along width and height
 default_stride = 1
 # load input data from file
 default_load_data = 'N'
+# db option
+default_db_option = 'cx'
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--images", type=int, help="total number of input images", default=default_number_of_images)
-parser.add_argument("--inputsize", type=str, help=f"input size 'batchsize, channels, width, height', default value = '{default_input_size}'", default=default_input_size)
-parser.add_argument("--kernelsize", type=str, help=f"kernel size 'number of kernels, channels, width, height', default value = '{default_kernel_size}'", default=default_kernel_size)
+parser.add_argument("--inputsize", type=str, help=f"input size 'batchsize, width, height, channels', default value = '{default_input_size}'", default=default_input_size)
+parser.add_argument("--kernelsize", type=str, help=f"kernel size 'height, width, in_channels, out_channels', default value = '{default_kernel_size}'", default=default_kernel_size)
 parser.add_argument("--stride", type=int, help=f"stride along width, height', default value = '{default_stride}'", default=default_stride)
 parser.add_argument("--loadFromFile", type=str, help=f"load data from file Y: Yes, N: No', default value = {default_load_data}'", default=default_load_data)
+parser.add_argument("--db", type=str, help=f"database for storing the feature vectors 'postgres or cx', default value = '{default_db_option}'", default=default_db_option)
 args = parser.parse_args()
 
 # constants
@@ -34,6 +38,7 @@ stride = args.stride
 load_data_from_file = True if args.loadFromFile == 'Y' else False
 input_file_path = 'cnn-tensorflow-input'
 kernel_file_path = 'cnn-tensorflow-kernel'
+db = args.db
 
 _iterations = number_of_images
 # connect to postgresql database
@@ -64,6 +69,7 @@ try:
     endKernelLoad = time.time()
     kernelLoadTime = endKernelLoad - startKernelLoad
     
+    import tensorflow as tf
     inputLoadTime = 0
     conv2dOpTime = 0
     # read input data
@@ -71,8 +77,13 @@ try:
         startTime = time.time()
         if load_data_from_file:
             input = np.load(input_file_path + str(id) + '.npy')
-        else:
+        elif db == 'postgres':
             input = read_input_from_db(db_cursor, id, input_dimensions)
+        elif db == 'cx':
+            input = read_input_from_db_cx(db_cursor, id, input_dimensions)
+            print(input)
+            #print(input.iloc[0])
+            #input = tf.convert_to_tensor(input.iloc[0].to_numpy(), dtype=tf.float32)
         endTime = time.time()
         inputLoadTime = inputLoadTime + (endTime - startTime)
 
