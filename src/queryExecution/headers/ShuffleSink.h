@@ -127,7 +127,7 @@ public:
                 // and add to the old value, producing a new one
                 try {
                     temp = copy + valueColumn[i];
-		    std::cout << "ShuffleSink: combined two tree result blocks: " << i << std::endl;
+		    //std::cout << "ShuffleSink: combined two tree result blocks: " << i << std::endl;
                     // if we got here, then it means that we ram out of RAM when we were trying
                     // to put the new value into the hash table
                 } catch (NotEnoughSpace& n) {
