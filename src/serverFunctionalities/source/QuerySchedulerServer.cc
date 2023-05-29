@@ -1196,7 +1196,7 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
         make_shared<SimpleRequestHandler<ExecuteComputation>>(
 
             [&](Handle<ExecuteComputation> request, PDBCommunicatorPtr sendUsingMe) {
-
+                auto begin = std::chrono::high_resolution_clock::now();
                 std::string errMsg;
                 bool success;
 
@@ -1232,12 +1232,26 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                         this->jobId, instanceId);
                     
                 }
+                auto selflearningEnd = std::chrono::high_resolution_clock::now();
+
+                std::cout << "Time Duration for selflearning overheads: "
+                                      << std::chrono::duration_cast<std::chrono::duration<float>>(
+                                             selflearningEnd - begin)
+                                             .count()
+                                      << " seconds." << std::endl;
+
 
                 DistributedStorageManagerClient dsmClient(this->port, "localhost", logger);
 
                 // create the database first
                 success = dsmClient.createDatabase(this->jobId, errMsg);
-
+                
+		auto creatingdatabaseEnd = std::chrono::high_resolution_clock::now();
+		std::cout << "Time Duration for creating dsm client and database: "
+                                      << std::chrono::duration_cast<std::chrono::duration<float>>(
+                                             creatingdatabaseEnd - selflearningEnd)
+                                             .count()
+                                      << " seconds." << std::endl;
 
                 if ((request->getWhetherToPreCompile() == true) && (materializedWorkloads.count(request->getJobName()))) {
 
@@ -1292,7 +1306,13 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                     } else {
 
                         // analyze resources
-                       
+		        auto collectingResourceBegin = std::chrono::high_resolution_clock::now();
+                        std::cout << "Time Duration for preparing: "
+                                      << std::chrono::duration_cast<std::chrono::duration<float>>(
+                                             collectingResourceBegin - creatingdatabaseEnd)
+                                             .count()
+                                      << " seconds." << std::endl;
+
                         PDB_COUT << "To get the resource object from the resource manager"
                                  << std::endl;
                         getFunctionality<QuerySchedulerServer>().initialize(true);
@@ -1302,8 +1322,12 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                         if (this->statsForOptimization == nullptr) {
                             this->collectStats();
                         }
-
-
+                        auto collectingResourceEnd = std::chrono::high_resolution_clock::now();
+                        std::cout << "Time Duration for collecting resources: "
+                                      << std::chrono::duration_cast<std::chrono::duration<float>>(
+                                             collectingResourceEnd - collectingResourceBegin)
+                                             .count()
+                                      << " seconds." << std::endl;
                         // dyanmic planning
                         // initialize tcapAnalyzer
                         this->tcapAnalyzerPtr = make_shared<TCAPAnalyzer>(
@@ -1328,6 +1352,14 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                         // materialized sets
                         std::vector<Handle<SetIdentifier>> setsToMaterialize;
 
+                        auto preparingEnd = std::chrono::high_resolution_clock::now();
+
+                        std::cout << "Time Duration for preparing overheads: "
+                                      << std::chrono::duration_cast<std::chrono::duration<float>>(
+                                             preparingEnd - collectingResourceEnd)
+                                             .count()
+                                      << " seconds." << std::endl;
+
 
                         while (this->tcapAnalyzerPtr->getNumSources() > 0) {
                             std::vector<Handle<AbstractJobStage>> jobStages;
@@ -1339,6 +1371,8 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
 #endif
                             while ((jobStages.size() == 0) &&
                                    (this->tcapAnalyzerPtr->getNumSources() > 0)) {
+                                 
+				auto scheduling_begin = std::chrono::high_resolution_clock::now();    
 
                                 // analyze all sources and select a source based on cost model
                                 int indexOfBestSource = this->tcapAnalyzerPtr->getBestSource(
@@ -1508,7 +1542,8 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
 #endif
                         }//while
                         // to remove remaining intermediate sets:
-                        std::cout << "to remove remaining intermediate sets" << std::endl;
+                        auto removeRemainingSetBegin = std::chrono::high_resolution_clock::now();
+			std::cout << "to remove remaining intermediate sets" << std::endl;
 
                         removeIntermediateSets(dsmClient, this->interGlobalSets, errMsg);
 
@@ -1521,9 +1556,16 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                             workload->print();
                             materializedWorkloads[request->getJobName()] = workload;
                         }
+			auto removeRemainingSetEnd = std::chrono::high_resolution_clock::now();
+                        std::cout << "Time Duration for removing ramining sets: "
+                                      << std::chrono::duration_cast<std::chrono::duration<float>>(
+                                             removeRemainingSetEnd - removeRemainingSetBegin)
+                                             .count()
+                                      << " seconds." << std::endl;
 
                     }//if dynamic scheduling is false
                 }//if database is successfully created
+		auto postprocessingBegin = std::chrono::high_resolution_clock::now();
                 if (selfLearningOrNot == true) {
                     std::string status;
                     if (success == true) {
@@ -1534,6 +1576,12 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                     getFunctionality<SelfLearningServer>().updateJobInstanceForCompletion (instanceId, status);
                 }
                 PDB_COUT << "To send back response to client" << std::endl;
+		auto executionEnd = std::chrono::high_resolution_clock::now();
+		std::cout << "Time Duration for update selflearning: "
+                                      << std::chrono::duration_cast<std::chrono::duration<float>>(
+                                             executionEnd - postprocessingBegin)
+                                             .count()
+                                      << " seconds." << std::endl;
                 Handle<SimpleRequestResult> result =
                     makeObject<SimpleRequestResult>(success, errMsg);
                 if (!sendUsingMe->sendObject(result, errMsg)) {
@@ -1543,6 +1591,12 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                 }
                 PDB_COUT << "to cleanup" << std::endl;
                 getFunctionality<QuerySchedulerServer>().cleanup();
+		auto serverEnd = std::chrono::high_resolution_clock::now();
+                std::cout << "Overall Time Duration for server-side processing: "
+                                      << std::chrono::duration_cast<std::chrono::duration<float>>(
+                                             serverEnd - begin)
+                                             .count()
+                                      << " seconds." << std::endl;
                 return std::make_pair(true, errMsg);
             }
 

@@ -103,6 +103,16 @@ def read_input_from_db(db_cursor, id, input_dimensions):
     input = input.reshape(*input_dimensions)
     return input
 
+def read_all_input_from_db(db_cursor, input_dimensions):
+    db_cursor.execute(""" SELECT array_data FROM images """)
+    blobs = db_cursor.fetchall()
+    print(blobs)
+    input = []
+    for i in range(len(blobs)):
+        input.append((np.frombuffer(blobs[i][0], dtype=np.float32)).reshape(*input_dimensions))
+    #print(input)
+    return input
+
 def read_input_from_db_cx(db_cursor, id, input_dimensions):
     query = "SELECT array_data FROM images WHERE id = " + str(id)
     
@@ -110,3 +120,13 @@ def read_input_from_db_cx(db_cursor, id, input_dimensions):
     print(input)
     input = np.frombuffer(input.iloc[0]['array_data'], dtype=np.float32).reshape(*input_dimensions)
     return input
+
+def read_all_input_from_db_cx(db_cursor, input_dimensions):
+    query = "SELECT array_data FROM images"
+
+    input = cx.read_sql(get_db_url(), query)
+    print(input)
+    inputs = []
+    for i in range(len(input.index)):
+       inputs.append(np.frombuffer(input.iloc[i]['array_data'], dtype=np.float32).reshape(*input_dimensions))
+    return inputs

@@ -54,7 +54,11 @@ public:
       Handle<::FFMatrixBlock> myData = makeObject<::FFMatrixBlock>(
           checkMe->block_x_index, checkMe->block_y_index, real_block_x,
           real_block_y, batch_size, total_features, true);
-
+      std::cout << "real_block_x=" << real_block_x << std::endl;
+      std::cout << "real_block_y=" << real_block_y << std::endl;
+      std::cout << "batch_size=" << batch_size << std::endl;
+      std::cout << "myData->getRowNums()=" << myData->getRowNums() << std::endl;
+      std::cout << "myData->getColNums()=" << myData->getColNums() << std::endl;
       Map<int, Vector<double>> &chunk = checkMe->getBlock();
       // Because each chunk has a mapping between the actual index of the
       // comment and the features. These may be stored out of order in the

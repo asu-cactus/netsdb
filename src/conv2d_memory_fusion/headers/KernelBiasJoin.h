@@ -33,8 +33,16 @@ public:
         in1, in2,
         [](Handle<::FFMatrixBlock> &in1, Handle<::FFMatrixBlock> &in2) {
           // in1 is kernel, in2 is bias
+	  std::cout << "in2->getColNums()=" << in2->getColNums() << std::endl;
+	  std::cout << "in2->getTotalColNums()=" << in2->getTotalColNums() << std::endl;
+	  std::cout << "in2->getRowNums()=" << in2->getRowNums() << std::endl;
+	  std::cout << "in1->getRowNums()=" << in1->getRowNums() << std::endl;
+	  std::cout << "in1->getTotalRowNums()=" << in1->getTotalRowNums() << std::endl;
+	  std::cout << "in1->getColNums()=" << in1->getColNums() << std::endl;
+	  std::cout << "in1->getTotalColNums()=" << in1->getTotalColNums() << std::endl;
+	  std::cout << "in2->isLastColBlock()=" <<in2->isLastColBlock() << std::endl;
           assert(in2->getColNums() == 1 && in2->getTotalColNums() == 1 &&
-                 in1->getRowNums() == in2->getRowNums() &&
+                 in1->getTotalRowNums() == in2->getRowNums() &&
                  in2->isLastColBlock());
 
           double *in1Data = in1->getValue().rawData->c_ptr();
