@@ -61,7 +61,7 @@ except(Exception, psycopg2.DatabaseError) as error:
     print("error while loading data", error)
 
 
-print ("before try block")
+# print ("before try block")
 try:
     # read kernel data
     startKernelLoad = time.time()
@@ -107,4 +107,4 @@ db_cursor.close()
 print("Total time duration: ", kernelLoadTime + inputLoadTime + conv2dOpTime)
 print("Kernel load duration: ", kernelLoadTime)
 print("Input load duration: ", inputLoadTime)
-print("Conv2d load duration: ", conv2dOpTime)
+print("Conv2d ops duration: ", conv2dOpTime)

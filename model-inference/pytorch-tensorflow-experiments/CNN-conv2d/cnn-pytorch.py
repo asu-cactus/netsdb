@@ -65,7 +65,7 @@ try:
     kernelLoadTime = endKernelLoad - startKernelLoad
     
     # TODO: Add bias since conv2d includes bias
-    bias = torch.randn(kernel_dimensions[0], dtype=torch.float32)
+    # bias = torch.randn(kernel_dimensions[0], dtype=torch.float32)
 
     # read input data
     inputLoadTime = 0
@@ -91,7 +91,7 @@ try:
         print ("bias", bias.dtype)
 
         startTime = time.time()
-        output = torch.nn.functional.conv2d(input, filter, stride=stride, bias=bias)
+        output = torch.nn.functional.conv2d(input, filter, stride=stride)
         endTime = time.time()
         print(output)
         conv2dOpTime = conv2dOpTime + (endTime - startTime)
@@ -108,4 +108,4 @@ db_cursor.close()
 print("Total time duration: ", kernelLoadTime + inputLoadTime + conv2dOpTime)
 print("Kernel load duration: ", kernelLoadTime)
 print("Input load duration: ", inputLoadTime)
-print("Conv2d load duration: ", conv2dOpTime)
+print("Conv2d ops duration: ", conv2dOpTime)
