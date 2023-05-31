@@ -222,7 +222,7 @@ Handle<ObjType> PDBCommunicator::getNextObject(bool& success, std::string& errMs
         return nullptr;
     }
     // read in the object
-    void* mem = calloc(msgSize, 1);
+    void* mem = calloc((size_t)(msgSize), 1);
     if (mem == nullptr) {
         PDB_COUT << "nextTypeId = " << nextTypeID << std::endl;
         PDB_COUT << "msgSize = " << msgSize << std::endl;
@@ -230,8 +230,8 @@ Handle<ObjType> PDBCommunicator::getNextObject(bool& success, std::string& errMs
         exit(-1);
     }
     Handle<ObjType> temp = getNextObject<ObjType>(mem, success, errMsg);
-    std::cout << "getNextObject with msgSize=" << msgSize << std::endl;
-    UseTemporaryAllocationBlock myBlock{(size_t)(msgSize) + (size_t)16 * (size_t)1024 * (size_t)1024};
+    std::cout << "2:getNextObject with msgSize=" << msgSize << std::endl;
+    UseTemporaryAllocationBlock myBlock{(size_t)(msgSize) + (size_t)128 * (size_t)1024 * (size_t)1024};
     // if we were successful, then copy it to the current allocation block
     if (success) {
         logToMe->trace("PDBCommunicator: about to do the deep copy.");

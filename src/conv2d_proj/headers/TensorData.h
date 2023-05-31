@@ -38,6 +38,15 @@ public:
 
   }
 
+  void print(){
+  
+     for (int i = 0; i < numRanks; i++) {
+        std::cout << (*dimensions)[i] << " ";
+     } 
+     std::cout << std::endl;
+  }
+
+
   //initialize raw data using external data
   TensorData(int numRanksIn, pdb::Handle<pdb::Vector<unsigned int>> dimensionsIn,
                pdb::Handle<pdb::Vector<float>> rawDataIn)

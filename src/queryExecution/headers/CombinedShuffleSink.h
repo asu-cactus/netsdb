@@ -66,7 +66,7 @@ public:
                     this->numPartitionsPerNode);
             for (j = 0; j < this->numPartitionsPerNode; j++) {
                 Handle<AggregationMap<KeyType, ValueType>> curMap =
-                    makeObject<AggregationMap<KeyType, ValueType>>();
+                    makeObject<AggregationMap<KeyType, ValueType>>(64);
                 curMap->setHashPartitionId(j);
                 nodeData->push_back(curMap);
             }
@@ -93,7 +93,6 @@ public:
         for (size_t i = 0; i < length; i++) {
 
             hashVal = Hasher<KeyType>::hash(keyColumn[i]);
-
             AggregationMap<KeyType, ValueType>& myMap =
                 getMap(hashVal % (numNodes * numPartitionsPerNode), writeMe);
             // if this key is not already there...
@@ -123,6 +122,8 @@ public:
                     // if we could not fit the value...
                 } catch (NotEnoughSpace& n) {
 
+		    std::cout << "run out of page space: *temp = valueColumn[i];" << std::endl;
+
                     // then we need to erase the key from the map
                     myMap.setUnused(keyColumn[i]);
 
@@ -138,14 +139,13 @@ public:
                 // get the value and a copy of it
                 ValueType& temp = myMap[keyColumn[i]];
                 ValueType copy = temp;
-
                 // and add to the old value, producing a new one
                 try {
                     temp = copy + valueColumn[i];
                     // if we got here, then it means that we ram out of RAM when we were trying
                     // to put the new value into the hash table
                 } catch (NotEnoughSpace& n) {
-
+                    std::cout << "run out of page space: temp = copy + valueColumn[i];" << std::endl;
                     // restore the old value
                     temp = copy;
 

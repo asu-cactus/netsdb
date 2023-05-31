@@ -49,7 +49,7 @@ void create_database(pdb::PDBClient &pdbClient, std::string dbName,
   for (auto &s : sets) {
     pdbClient.removeSet(dbName, s, errMsg);
     if (!pdbClient.createSet<conv2d_memory_fusion::Image>(
-            dbName, s, errMsg, (size_t)128 * (size_t)1024 * (size_t)1024, s)) {
+            dbName, s, errMsg, (size_t)8 * (size_t)1024 * (size_t)1024, s)) {
       cout << "Not able to create set " + s + ": " + errMsg;
     } else {
       cout << "Created set " << s << ".\n";
@@ -63,55 +63,36 @@ void pipelined_test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbNam
                           std::string imageset, std::string kernelset,
                           std::string biasset, bool reloadData, bool materializeModel) {
 
-  std::vector<std::string> allSets{kernelset, biasset, "kernel_flat", "image_flat", "result"};
+  std::vector<std::string> allSets{imageset, kernelset, biasset, "kernel_flat", "image_flat", "result"};
 
   std::vector<std::string> intermediateSets{"image_flat", "result"};
 
   std::string errMsg;
 
-  int block_x = 32;
-  int block_y = 32;
-  int kernel = 7;//kernel shape should be $kernelx$kernel (e.g., 7x7)
+  int block_x = 112;
+  int block_y = 112;
   int strides = 1;
   int padding = 0;
-  bool block_padding = true;
-  int channels = 3;
+  bool block_padding = false;
 
+  int height = 112, width = 112, channels = 64, numOfImages = 1;
+  int kHeight = 1, kWidth = 1, kChannels = 64, numOfFilters = 64;
 
   if (reloadData) {
 
       test_common1::create_database(pdbClient, dbName, allSets, reloadData);
 
-      pdbClient.removeSet(dbName, imageset, errMsg);
-      if (!pdbClient.createSet<conv2d_memory_fusion::Image>(
-            dbName, imageset, errMsg, (size_t)2 * (size_t)1024 * (size_t)1024, imageset)) {
-            cout << "Not able to create set " + imageset + ": " + errMsg;
-      } else {
-            cout << "Created set " << imageset << ".\n";
-      }
-
-
-
       std::cout << "Loading image data..." << std::endl;
-      conv2d_memory_fusion::load_imgs_from_file<conv2d_memory_fusion::Image>(
-     //     pdbClient, "/home/ubuntu/conv2d/images_1.np", dbName, imageset);
-     //     pdbClient, "/home/ubuntu/images_10_3_112_112.np", dbName, imageset);
-            pdbClient, "/home/ubuntu/images_100_3_112_112.np", dbName, imageset, 100, 3, 112, 112);
-     //     pdbClient, "/home/ubuntu/images_100.np", dbName, imageset);
-     //     pdbClient, "/home/ubuntu/images_100_3_224_224.np", dbName, imageset);
+      conv2d_memory_fusion::loadRandomImages(width, height, channels, numOfImages, pdbClient, dbName, imageset, 8);
      
-
       std::cout << "Loading kernel data..." << std::endl;
-      conv2d_memory_fusion::load_imgs_from_file<conv2d_memory_fusion::Kernel>(
-      //    pdbClient, "/home/ubuntu/conv2d/kernel_3.np", dbName, kernelset);
-            pdbClient, "/home/ubuntu/conv2d/kernel_64_3_7_7.np", dbName, kernelset, 64, 3, 7, 7);
+      conv2d_memory_fusion::loadRandomImages(kHeight, kWidth, kChannels, numOfFilters, pdbClient, dbName, kernelset, 1);
+
       std::cout << "Loading bias data..." << std::endl;
-      //ff::load_matrix_data(pdbClient, "/home/ubuntu/conv2d/bias_3.np", dbName, biasset,
-      ff::load_matrix_data(pdbClient, "/home/ubuntu/conv2d/bias_64.np", dbName, biasset,
-          block_x, 1, !block_padding, !block_padding, errMsg);
+      ff::loadMatrix(pdbClient, dbName, biasset, numOfFilters, 1, block_x, 1, !block_padding, !block_padding, errMsg, 1, false);
+
   } else {
 
-      //test_common1::create_database(pdbClient, dbName, intermediateSets, reloadData);
       pdbClient.clearSet(dbName, "image_flat", "FFMatrixBlock", errMsg);
       pdbClient.clearSet(dbName, "result", "FFMatrixBlock", errMsg);
 
@@ -130,9 +111,6 @@ void pipelined_test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbNam
       std::cout << "Running kernel ops..." << std::endl;
 
 
-      //kernel_conv_flatten::kernel_to_chunks(pdbClient, dbName, kernelset,
-                                        //"temp_kernel", block_x, block_y);
-
       pdb::Handle<pdb::Computation> readKernel =
       makeObject<ScanUserSet<conv2d_memory_fusion::Kernel>>(dbName, kernelset);
 
@@ -142,21 +120,14 @@ void pipelined_test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbNam
       kernel_chunk->setInput(readKernel);
 
 
-      //img_conv_flatten::chunks_to_blocks(pdbClient, dbName, "temp_kernel",
-                                     //"temp_kernel1", block_x);
-
       pdb::Handle<pdb::Computation> kernel_block =
           pdb::makeObject<conv2d_memory_fusion::ImageChunksToBlock>(block_x);
       kernel_block->setInput(kernel_chunk);
 
 
-      //img_conv_flatten::blocks_to_matrix(pdbClient, dbName, "temp_kernel1",
-                                     //"temp_kernel2", block_x, block_y,
-                                     //block_padding, 64, 147 + 1);
-
       pdb::Handle<pdb::Computation> kernel_matrix =
          pdb::makeObject<conv2d_memory_fusion::ImageBlockToMatrix>(block_x, block_y,
-                                                  block_padding, 64, 147+1);
+                                                  block_padding, numOfFilters, kWidth * kHeight * kChannels+1);
       kernel_matrix->setInput(kernel_block);
 
 
@@ -164,8 +135,6 @@ void pipelined_test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbNam
       std::cout << "Running kernel bias join..." << std::endl;
 
 
-      //kernel_conv_flatten::kernel_bias_join(pdbClient, dbName, "temp_kernel2",
-                                     //   biasset, "kernel_flat");
       pdb::Handle<pdb::Computation> readB =
           makeObject<ScanUserSet<::FFMatrixBlock>>(dbName, biasset);
 
@@ -192,20 +161,14 @@ void pipelined_test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbNam
   std::cout << "Running image op..." << std::endl;
 
 
-  //img_conv_flatten::img_to_chunks(pdbClient, dbName, imageset, "temp_image",
-                                  //block_x, block_y, strides, kernel, padding);
-
   pdb::Handle<pdb::Computation> readA =
       makeObject<ScanUserSet<conv2d_memory_fusion::Image>>(dbName, imageset);
 
   pdb::Handle<pdb::Computation> chunk =
-      pdb::makeObject<conv2d_memory_fusion::ImageToChunks>(block_y, kernel, strides, padding);
+      pdb::makeObject<conv2d_memory_fusion::ImageToChunks>(block_y, kWidth, strides, padding);
 
   chunk->setInput(readA);
 
-
-  //img_conv_flatten::chunks_to_blocks(pdbClient, dbName, "temp_image",
-                                     //"temp_image1", block_x);
 
   pdb::Handle<pdb::Computation> block =
       pdb::makeObject<conv2d_memory_fusion::ImageChunksToBlock>(block_x);
@@ -221,7 +184,7 @@ void pipelined_test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbNam
 
   pdb::Handle<pdb::Computation> matrix =
       pdb::makeObject<conv2d_memory_fusion::ImageBlockToMatrix>(block_x, block_y,
-                                                  block_padding, 1123600, 147+1);
+                                                  block_padding, (width - kWidth + 1) * (height - kHeight + 1), kWidth * kHeight * kChannels + 1);
   matrix->setInput(block);
 
 

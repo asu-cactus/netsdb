@@ -2,6 +2,7 @@
 #ifndef JOIN_TUPLE_H
 #define JOIN_TUPLE_H
 
+#include "DataTypes.h"
 #include "JoinMap.h"
 #include "SinkMerger.h"
 #include "SinkShuffler.h"
@@ -11,16 +12,6 @@
 #include "PartitionedHashSet.h"
 
 namespace pdb {
-
-// Join types
-typedef enum {
-
-    HashPartitionedJoin,
-    BroadcastJoin,
-    LocalJoin
-
-} JoinType;
-
 
 
 template <typename T>
@@ -318,6 +309,11 @@ private:
     // inside of the output tuple
     int offset;
 
+
+    JoinType partitionedJoinType;
+
+    int threadId;
+
 public:
     ~PartitionedJoinProbe() {
     }
@@ -338,12 +334,16 @@ public:
               TupleSpec& inputSchema,
               TupleSpec& attsToOperateOn,
               TupleSpec& attsToIncludeInOutput,
-              bool needToSwapLHSAndRhs)
+              bool needToSwapLHSAndRhs,
+	      JoinType partitionedJoinType,
+	      int threadId)
         : myMachine(inputSchema, attsToIncludeInOutput) {
         std::cout << "*****Created a PartitionedJoinProbe instance with numPartitionsPerNode=" 
                   << numPartitionsPerNode << ", numNodes=" << numNodes << std::endl; 
         this->numPartitionsPerNode = numPartitionsPerNode;
         this->numNodes = numNodes;
+	this->partitionedJoinType = partitionedJoinType;
+        this->threadId = threadId;
 
         // extract the hash table we've been given
         for (int i = 0; i < partitionedHashTable->getNumPages(); i++) {
@@ -392,7 +392,12 @@ public:
         for (int i = 0; i < inputHash.size(); i++) {
             size_t value = inputHash[i];
             //to see which hash the i-th element should go
-            size_t index = value % (this->numPartitionsPerNode * this->numNodes)% this->numPartitionsPerNode; 
+            size_t index;
+	   
+	    if (partitionedJoinType != CrossProduct)
+	        index = value % (this->numPartitionsPerNode * this->numNodes)% this->numPartitionsPerNode; 
+	    else
+		index = threadId;
             JoinMap<RHSType>& inputTableRef = *(inputTables[index]);
             // deal with all of the matches
             int numHits = inputTableRef.count(value);
@@ -485,7 +490,7 @@ public:
         } else {
             inputTable = input->getRootObject();
         }
-        //std::cout << "inputTable->size()=" << inputTable->size() << std::endl;
+        std::cout << "inputTable->size()=" << inputTable->size() << std::endl;
         // set up the output tuple
         output = std::make_shared<TupleSet>();
         columns = new void*[positions.size()];
@@ -549,7 +554,6 @@ public:
             // remember how many matches we had
             counts[i] = numHits;
         }
-        //std::cout << "count=" << overallCounter << std::endl;
 
         // truncate if we have extra
         eraseEnd<RHSType>(overallCounter, 0, columns);
@@ -645,14 +649,11 @@ public:
         Handle<Vector<Handle<JoinMap<RHSType>>>> mapsToMerge =
             unsafeCast<Vector<Handle<JoinMap<RHSType>>>>(mergeMe);
         Vector<Handle<JoinMap<RHSType>>>& theOtherMaps = *mapsToMerge;
-        std::cout << "to merge maps with " << theOtherMaps.size() << " elements and mapIndex=" << mapIndex 
-                  << ", listIndex=" << listIndex << std::endl;
         for (int i = 0; i < theOtherMaps.size(); i++) {
             JoinMap<RHSType>& theOtherMap = *(theOtherMaps[i]);
             if (theOtherMap.getPartitionId() != partitionId) {
                 continue;
             }
-            std::cout << "my Id is "<<partitionId <<", theOtherMap.getPartitionId()="<<theOtherMap.getPartitionId() << ", size="<< theOtherMap.size() << std::endl;
             int counter=0;
             for (JoinMapIterator<RHSType> iter = theOtherMap.begin(); iter != theOtherMap.end();
                  ++iter) {
@@ -753,6 +754,8 @@ private:
 
     RecordIteratorPtr myIter = nullptr;
 
+    JoinType partitionedJoinType;
+
 public:
     // the first param is the partition id of this iterator
     // the second param is a callback function that the iterator will call in order to obtain the
@@ -765,11 +768,14 @@ public:
                                        std::function<PDBPagePtr()> getAnotherVector,
                                        std::function<void(PDBPagePtr)> doneWithVector,
                                        size_t chunkSize,
-                                       std::vector<int> positions)
+                                       std::vector<int> positions, 
+				       JoinType partitionedJoinType)
         : getAnotherVector(getAnotherVector), doneWithVector(doneWithVector), chunkSize(chunkSize) {
 
         // set my partition id
         this->myPartitionId = myPartitionId;
+
+	this->partitionedJoinType = partitionedJoinType;
 
         // create the tuple set that we'll return during iteration
         output = std::make_shared<TupleSet>();
@@ -789,7 +795,6 @@ public:
         if (myRec != nullptr) {
 
             iterateOverMe = myRec->getRootObject();
-            std::cout << myPartitionId << ": PartitionedJoinMapTupleSetIterator: Got iterateOverMe, positions.size()="<< positions.size() << std::endl;
             // create the output vector for objects and put it into the tuple set
             columns = new void*[positions.size()];
             if (columns == nullptr) {
@@ -804,7 +809,6 @@ public:
                 exit(1);
             }
             output->addColumn(positions.size(), hashColumn, true);
-            std::cout << myPartitionId << ": PartitionedJoinMapTupleSetIterator: now we have " << output->getNumColumns() << " columns in the output" << std::endl;
             isDone = false;
 
         } else {
@@ -867,8 +871,7 @@ public:
                 if (curJoinMap != nullptr){
                   if (curJoinMap->getNumPartitions() >0) {
                     if (((curJoinMap->getPartitionId() % curJoinMap->getNumPartitions()) ==
-                        myPartitionId)&&(curJoinMap->size()>0)) {
-                        std::cout << "We've got a non-null map with partitionId=" << myPartitionId << ", pos=" << pos <<", size=" << curJoinMap->size() << ", in page Id="<<myPage->getPageID() << ", referenceCount="<< myPage->getRefCount()<< std::endl;
+                        myPartitionId)&&(curJoinMap->size()>0) || partitionedJoinType == CrossProduct) {
                         //curJoinMap->print();
                         curJoinMapIter = curJoinMap->begin();
                         joinMapEndIter = curJoinMap->end();
@@ -912,8 +915,6 @@ public:
                             myList = myListToRecover;
                             myListSize = myListSizeToRecover;
                             myHash = myHashToRecover;
-                            std::cout << "PartitionedJoinMapTupleSetIterator roll back with partitionId="
-<< myPartitionId << ", pos="<< pos << ", myListSize=" << myListSize << ", myHash=" << myHash << ", posInRecordList=" << posInRecordList << std::endl;
                             throw n;
                         }
                         hashColumn->push_back(myHash);
@@ -1112,8 +1113,6 @@ public:
         int counter = 0;
         int mapIndex = getMapIndex();
         int numPacked = 0;
-        std::cout << nodeId <<": this map has " << mapToShuffle.size() << " elements with mapIndex="<< getMapIndex() 
-                  << ", listIndex=" << getListIndex() << std::endl;
         logger->writeInt(mapToShuffle.size());
         logger->writeLn(" elements with mapIndex=");
         logger->writeInt(getMapIndex());
@@ -1140,7 +1139,7 @@ public:
                         try {
                             RHSType* temp = &(myMap.push(myHash));
                             packData(*temp, ((*myList)[i]));
-                            //std::cout << temp->myData.toString();
+                            //temp->myData.toString();
                             numPacked++;
                         } catch (NotEnoughSpace& n) {
                             myMap.setUnused(myHash);
@@ -1168,7 +1167,6 @@ public:
                             temp = &(myMap.push(myHash));
                         } catch (NotEnoughSpace& n) {
                             //we may loose one element here, but no better way to handle this
-                            std::cout << nodeId<<":mapSize=" << myMap.size()<<std::endl;
                             myMap.setUnused(myHash);
                             //myMap.print();
                             setListIndex(i);
@@ -1263,6 +1261,10 @@ private:
     // this is the list of columns that we are processing
     void** columns = nullptr;
 
+    JoinType partitionedJoinType;
+
+    int curPartitionId = 0;
+
 public:
     ~PartitionedJoinSink() {
     }
@@ -1272,12 +1274,15 @@ public:
                         TupleSpec& inputSchema,
                         TupleSpec& attsToOperateOn,
                         TupleSpec& additionalAtts,
-                        std::vector<int>& whereEveryoneGoes)
+                        std::vector<int>& whereEveryoneGoes,
+			JoinType partitionedJoinType)
         : whereEveryoneGoes(whereEveryoneGoes) {
 
         this->numPartitionsPerNode = numPartitionsPerNode;
 
         this->numNodes = numNodes;
+
+	this->partitionedJoinType = partitionedJoinType;
 
         // used to manage attributes and set up the output
         TupleSetSetupMachine myMachine(inputSchema);
@@ -1288,6 +1293,17 @@ public:
 
         // now, figure out the attributes that we need to store in the hash table
         useTheseAtts = myMachine.match(additionalAtts);
+
+
+	if (this->partitionedJoinType == CrossProduct) {
+	
+		std::cout << "JoinSink from CrossProduct" << std::endl;
+	
+	} else {
+	
+		std::cout << "For this JoinSink, it is not a CrossProduct" << std::endl;
+	
+	}
     }
 
     Handle<Object> createNewOutputContainer() override {
@@ -1308,7 +1324,6 @@ public:
     }
 
     void writeOut(TupleSetPtr input, Handle<Object>& writeToMe) override {
-        //std::cout << "PartitionedJoinSink: write out tuples in this tuple set" << std::endl;
         // get the map we are adding to
         Handle<Vector<Handle<Vector<Handle<JoinMap<RHSType>>>>>> writeMe =
             unsafeCast<Vector<Handle<Vector<Handle<JoinMap<RHSType>>>>>>(writeToMe);
@@ -1333,20 +1348,30 @@ public:
         std::vector<size_t>& keyColumn = input->getColumn<size_t>(keyAtt);
 
         size_t length = keyColumn.size();
-        //std::cout << "length is " << length << std::endl;
+        size_t index;
+
+	if (partitionedJoinType == CrossProduct) {
+            curPartitionId++;
+	}
+
         for (size_t i = 0; i < length; i++) {
+	    if (partitionedJoinType != CrossProduct) {
 #ifndef NO_MOD_PARTITION
-            size_t index = keyColumn[i] % (this->numPartitionsPerNode * this->numNodes);
+                index = keyColumn[i] % (this->numPartitionsPerNode * this->numNodes);
 #else
-            size_t index = (keyColumn[i] / (this->numPartitionsPerNode * this->numNodes)) %
+                index = (keyColumn[i] / (this->numPartitionsPerNode * this->numNodes)) %
                 (this->numPartitionsPerNode * this->numNodes);
 #endif
-            //std::cout << "index=" << index << std::endl;
+		std::cout << "this is not CrossProduct with index = " << index << std::endl;
+	    }
+            else {
+
+		 //for cross product
+		 index = curPartitionId % (this->numPartitionsPerNode * this->numNodes);
+	    }	    
             size_t nodeIndex = index / this->numPartitionsPerNode;
             size_t partitionIndex = index % this->numPartitionsPerNode;
             JoinMap<RHSType>& myMap = *((*((*writeMe)[nodeIndex]))[partitionIndex]);
-            //std::cout << "nodeIndex=" << nodeIndex << ", partitionIndex=" <<partitionIndex 
-              //        << ", myMap.size="<<myMap.size()<<std::endl;
             // try to add the key... this will cause an allocation for a new key/val pair
             if (myMap.count(keyColumn[i]) == 0) {
                 try {
@@ -1571,7 +1596,9 @@ public:
               TupleSpec& inputSchema,
               TupleSpec& attsToOperateOn,
               TupleSpec& attsToIncludeInOutput,
-              bool needToSwapLHSAndRhs) = 0;
+              bool needToSwapLHSAndRhs,
+	      JoinType partitionedJoinType,
+	      int threadId) = 0;
 
 
 
@@ -1585,14 +1612,16 @@ public:
                                               TupleSpec& consumeMe,
                                               TupleSpec& attsToOpOn,
                                               TupleSpec& projection,
-                                              std::vector<int>& whereEveryoneGoes) = 0;
+                                              std::vector<int>& whereEveryoneGoes,
+					      JoinType partitionedJoinType) = 0;
 
 
     virtual ComputeSourcePtr getPartitionedSource(size_t myPartitionId,
                                                   std::function<PDBPagePtr()> getAnotherVector,
                                                   std::function<void(PDBPagePtr)> doneWithVector,
                                                   size_t chunkSize,
-                                                  std::vector<int>& whereEveryoneGoes) = 0;
+                                                  std::vector<int>& whereEveryoneGoes,
+						  JoinType partitionedJoinType) = 0;
 
     virtual SinkMergerPtr getMerger(int partitionId) = 0;
 
@@ -1631,7 +1660,9 @@ public:
               TupleSpec& inputSchema,
               TupleSpec& attsToOperateOn,
               TupleSpec& attsToIncludeInOutput,
-              bool needToSwapLHSAndRhs) override {
+              bool needToSwapLHSAndRhs,
+	      JoinType partitionedJoinType,
+              int threadId) override {
 
         return std::make_shared<PartitionedJoinProbe<HoldMe>>(
                                                    partitionedHashTable,
@@ -1641,7 +1672,9 @@ public:
                                                    inputSchema,
                                                    attsToOperateOn,
                                                    attsToIncludeInOutput,
-                                                   needToSwapLHSAndRhs);
+                                                   needToSwapLHSAndRhs,
+						   partitionedJoinType,
+						   threadId);
 
   }
 
@@ -1662,9 +1695,10 @@ public:
                                       TupleSpec& consumeMe,
                                       TupleSpec& attsToOpOn,
                                       TupleSpec& projection,
-                                      std::vector<int>& whereEveryoneGoes) override {
+                                      std::vector<int>& whereEveryoneGoes,
+				      JoinType partitionedJoinType) override {
         return std::make_shared<PartitionedJoinSink<HoldMe>>(
-            numPartitionsPerNode, numNodes, consumeMe, attsToOpOn, projection, whereEveryoneGoes);
+            numPartitionsPerNode, numNodes, consumeMe, attsToOpOn, projection, whereEveryoneGoes, partitionedJoinType);
     }
 
     // JiaNote: create a partitioned source for this particular type
@@ -1673,9 +1707,10 @@ public:
                                           std::function<void(PDBPagePtr)> doneWithVector,
                                           size_t chunkSize,
 
-                                          std::vector<int>& whereEveryoneGoes) override {
+                                          std::vector<int>& whereEveryoneGoes,
+					  JoinType partitionedJoinType) override {
             return std::make_shared<PartitionedJoinMapTupleSetIterator<HoldMe>>(
-                myPartitionId, getAnotherVector, doneWithVector, chunkSize, whereEveryoneGoes);
+                myPartitionId, getAnotherVector, doneWithVector, chunkSize, whereEveryoneGoes, partitionedJoinType);
     }
 
 

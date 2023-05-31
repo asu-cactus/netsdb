@@ -256,7 +256,8 @@ inline SinkShufflerPtr ComputePlan::getShuffler(std::string sourceTupleSetName,
 
 
 // JiaNote: add a new buildPipeline method to avoid ambiguity
-inline PipelinePtr ComputePlan::buildPipeline(std::vector<std::string> buildTheseTupleSets,
+inline PipelinePtr ComputePlan::buildPipeline(int threadId,
+		                              std::vector<std::string> buildTheseTupleSets,
                                               std::string sourceTupleSetName,
                                               std::string targetComputationName,
                                               std::function<std::pair<void*, size_t>()> getPage,
@@ -266,7 +267,8 @@ inline PipelinePtr ComputePlan::buildPipeline(std::vector<std::string> buildThes
 
     auto begin = std::chrono::high_resolution_clock::now();
     std::map<std::string, ComputeInfoPtr> params;
-    return buildPipeline(buildTheseTupleSets,
+    return buildPipeline(threadId,
+		         buildTheseTupleSets,
                          sourceTupleSetName,
                          targetComputationName,
                          getPage,
@@ -280,7 +282,8 @@ inline PipelinePtr ComputePlan::buildPipeline(std::vector<std::string> buildThes
 }
 
 
-inline PipelinePtr ComputePlan::buildPipeline(std::string sourceTupleSetName,
+inline PipelinePtr ComputePlan::buildPipeline(int threadId,
+		                              std::string sourceTupleSetName,
                                               std::string targetTupleSetName,
                                               std::string targetComputationName,
                                               std::function<std::pair<void*, size_t>()> getPage,
@@ -288,7 +291,8 @@ inline PipelinePtr ComputePlan::buildPipeline(std::string sourceTupleSetName,
                                               std::function<void(void*)> writeBackPage) {
 
     std::map<std::string, ComputeInfoPtr> params;
-    return buildPipeline(sourceTupleSetName,
+    return buildPipeline(threadId,
+		         sourceTupleSetName,
                          targetTupleSetName,
                          targetComputationName,
                          getPage,
@@ -299,7 +303,8 @@ inline PipelinePtr ComputePlan::buildPipeline(std::string sourceTupleSetName,
 
 
 // JiaNote: add below method to make sure the pipeline to build is unique, and no ambiguity.
-inline PipelinePtr ComputePlan::buildPipeline(std::vector<std::string> buildTheseTupleSets,
+inline PipelinePtr ComputePlan::buildPipeline(int threadId,
+		                              std::vector<std::string> buildTheseTupleSets,
                                               std::string sourceTupleSetName,
                                               std::string targetComputationName,
                                               std::function<std::pair<void*, size_t>()> getPage,
@@ -528,13 +533,17 @@ inline PipelinePtr ComputePlan::buildPipeline(std::vector<std::string> buildThes
                 // if we are pipelining the right input, then we don't need to switch left and right
                 // inputs
                 if (params.count(a->getOutput().getSetName()) == 0) {
+		    std::cout << threadId << ": pipelining the right input without params" << std::endl;
                     returnVal->addStage(myComp.getExecutor(true,
+					                   threadId,
                                                            myJoin->getProjection(),
                                                            lastOne->getOutput(),
                                                            myJoin->getRightInput(),
                                                            myJoin->getRightProjection()));
                 } else {
+		    std::cout << threadId << ": pipelining the right input with params: " << params[a->getOutput().getSetName()] << std::endl;
                     returnVal->addStage(myComp.getExecutor(true,
+					                   threadId,
                                                            myJoin->getProjection(),
                                                            lastOne->getOutput(),
                                                            myJoin->getRightInput(),
@@ -546,16 +555,18 @@ inline PipelinePtr ComputePlan::buildPipeline(std::vector<std::string> buildThes
 
                 // std :: cout << "We are pipelining the left input...\n";
 
-                // if we are pipelining the right input, then we don't need to switch left and right
-                // inputs
                 if (params.count(a->getOutput().getSetName()) == 0) {
+		    std::cout << threadId << ": pipelining the left input without params" << std::endl;
                     returnVal->addStage(myComp.getExecutor(false,
+					                   threadId,
                                                            myJoin->getRightProjection(),
                                                            lastOne->getOutput(),
                                                            myJoin->getInput(),
                                                            myJoin->getProjection()));
                 } else {
+		    std::cout << threadId << ": pipelining the left input with params: " << params[a->getOutput().getSetName()] << std::endl;
                     returnVal->addStage(myComp.getExecutor(false,
+					                   threadId,
                                                            myJoin->getRightProjection(),
                                                            lastOne->getOutput(),
                                                            myJoin->getInput(),
@@ -580,7 +591,8 @@ inline PipelinePtr ComputePlan::buildPipeline(std::vector<std::string> buildThes
     return returnVal;
 }
 
-inline PipelinePtr ComputePlan::buildPipeline(std::string sourceTupleSetName,
+inline PipelinePtr ComputePlan::buildPipeline(int threadId,
+		                              std::string sourceTupleSetName,
                                               std::string targetTupleSetName,
                                               std::string targetComputationName,
                                               std::function<std::pair<void*, size_t>()> getPage,
@@ -833,12 +845,14 @@ inline PipelinePtr ComputePlan::buildPipeline(std::string sourceTupleSetName,
                 // inputs
                 if (params.count(a->getOutput().getSetName()) == 0) {
                     returnVal->addStage(myComp.getExecutor(true,
+					                   threadId,
                                                            myJoin->getProjection(),
                                                            lastOne->getOutput(),
                                                            myJoin->getRightInput(),
                                                            myJoin->getRightProjection()));
                 } else {
                     returnVal->addStage(myComp.getExecutor(true,
+					                   threadId,
                                                            myJoin->getProjection(),
                                                            lastOne->getOutput(),
                                                            myJoin->getRightInput(),
@@ -854,12 +868,14 @@ inline PipelinePtr ComputePlan::buildPipeline(std::string sourceTupleSetName,
                 // inputs
                 if (params.count(a->getOutput().getSetName()) == 0) {
                     returnVal->addStage(myComp.getExecutor(false,
+					                   threadId,
                                                            myJoin->getRightProjection(),
                                                            lastOne->getOutput(),
                                                            myJoin->getInput(),
                                                            myJoin->getProjection()));
                 } else {
                     returnVal->addStage(myComp.getExecutor(false,
+					                   threadId,
                                                            myJoin->getRightProjection(),
                                                            lastOne->getOutput(),
                                                            myJoin->getInput(),

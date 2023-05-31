@@ -381,7 +381,7 @@ void CatalogServer::registerHandlers(PDBServer &forMe) {
           if (res) {
 
             // grab the bytes
-            auto bytesPointer = bytes.data();
+            const char * bytesPointer = bytes.data();
 
             // do the vtable fix and update res
             res = loadAndRegisterType(typeId, bytesPointer, bytes.size(), errMsg) && res;
@@ -559,7 +559,7 @@ void CatalogServer::registerHandlers(PDBServer &forMe) {
         auto typeID = request->typeID;
         auto type = request->typeName;
         auto internalTypeName = VTableMap::getInternalTypeName(type);
-
+        std::cout << "the internalTypeName for " << type << " is " << internalTypeName << " and typeID is " << typeID << std::endl;
         // ok this is a bit of an oddity in the system, essentially if create a set of a type like int, char or something similar.
         // the typeID is going to be 8191 or TYPE_NOT_RECOGNIZED so we have to register a type with the provided name and this type
         if(typeID == TYPE_NOT_RECOGNIZED && !pdbCatalog->typeExists(type)) {

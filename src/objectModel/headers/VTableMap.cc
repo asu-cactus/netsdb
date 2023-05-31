@@ -2,6 +2,7 @@
 #include "Object.h"
 #include "Nothing.h"
 
+
 #ifndef PDBCATALOG_VTABLEMAP_C_
 #define PDBCATALOG_VTABLEMAP_C_
 
@@ -70,14 +71,14 @@ inline void VTableMap::listVtableLabels() {
     std::map<std::string, int16_t> iterator;
 
     for (auto& iterator : theVTable->objectTypeNamesList) {
-        std::cout << "Type name= " << iterator.first << " | TypeId= " << iterator.second
+        PDB_COUT << "Type name= " << iterator.first << " | TypeId= " << iterator.second
                   << std::endl;
     }
 }
 
 inline std::string VTableMap::getInternalTypeName(const std::string &realName) {
 
-    // PDB_COUT << "getIDByName for " << objectTypeName << std :: endl;
+    //std::cout << "getIDByName for " << realName << std :: endl;
     // one important issue is that we might need to lookup soething nasty like:
     //
     // pdb::PairArray<pdb::Handle<pdb::String>,pdb::Handle<pdb::Employee>>
@@ -91,6 +92,13 @@ inline std::string VTableMap::getInternalTypeName(const std::string &realName) {
     // Any time that we see a "," at depth 1, it means we've hit an additional template arguement,
     // and so we add
     // a "<pdb::Nothing>" to the replacement string
+
+    //First, let's handle exception 
+    if (realName == std::string("pdb::EnsembleTreeGenericUDF<float>"))
+	    return realName;
+
+    if (realName == std::string("pdb::EnsembleTreeGenericUDF<double>"))
+	    return std::string("pdb::EnsembleTreeGenericUDF<float>");
 
     std::string replacementString;
     std::string prefix;
@@ -116,8 +124,9 @@ inline std::string VTableMap::getInternalTypeName(const std::string &realName) {
     // if this was a template, do the normalization
     if (isTemplate) {
         return std::move(prefix + std::string("<") + replacementString + std::string(">"));
-    }
+    } 
 
+    //std::cout << "normalized realName=" << realName << std::endl;
     return realName;
 }
 
@@ -128,7 +137,7 @@ inline std::string VTableMap::getInternalTypeName(const std::string &realName) {
 inline int16_t VTableMap::getIDByName(std::string objectTypeName, bool withLock) {
 
     // now, check to make sure that we have seen the given object type before
-    // PDB_COUT << "objectTypeName=" << objectTypeName << std :: endl;
+    //std::cout << "objectTypeName=" << objectTypeName << std :: endl;
     if (theVTable->objectTypeNamesList.count(objectTypeName) == 0 &&
         theVTable->catalog != nullptr) {
 
@@ -143,10 +152,12 @@ inline int16_t VTableMap::getIDByName(std::string objectTypeName, bool withLock)
             // so let the caller know, and remember that we have not seen it
             if (identifier == -1) {
                 theVTable->objectTypeNamesList[objectTypeName] = TYPE_NOT_RECOGNIZED;
+		std::cout << "type not recognized: " << identifier << std::endl;
                 return TYPE_NOT_RECOGNIZED;
                 // otherwise, return the ID
             } else {
                 theVTable->objectTypeNamesList[objectTypeName] = identifier;
+		//std::cout << "type recognized: " << identifier << std::endl;
                 return identifier;
             }
         } else {
@@ -155,24 +166,24 @@ inline int16_t VTableMap::getIDByName(std::string objectTypeName, bool withLock)
             // so let the caller know, and remember that we have not seen it
             if (identifier == -1) {
                 theVTable->objectTypeNamesList[objectTypeName] = TYPE_NOT_RECOGNIZED;
+		std::cout << "type not recognized: " << identifier << std::endl;
                 return TYPE_NOT_RECOGNIZED;
                 // otherwise, return the ID
             } else {
                 theVTable->objectTypeNamesList[objectTypeName] = identifier;
+		//std::cout << "type recognized: " << identifier << std::endl;
                 return identifier;
             }
         }
     } else if (theVTable->objectTypeNamesList.count(objectTypeName) == 0) {
         // we don't know this type, and we have no catalog client
         theVTable->objectTypeNamesList[objectTypeName] = TYPE_NOT_RECOGNIZED;
-        // PDB_COUT << "not builtin and no catalog connection, typeId for " << objectTypeName << "
-        // is " << TYPE_NOT_RECOGNIZED << std :: endl;
         return TYPE_NOT_RECOGNIZED;
     } else {
         // in the easy case, we have seen it before, so just return the typeID
         int16_t identifier = theVTable->objectTypeNamesList[objectTypeName];
-        // PDB_COUT << "builtin, typeId for " << objectTypeName << " is " << identifier << std ::
-        // endl;
+        PDB_COUT << "builtin, typeId for " << objectTypeName << " is " << identifier << std ::
+           endl;
         return identifier;
     }
 

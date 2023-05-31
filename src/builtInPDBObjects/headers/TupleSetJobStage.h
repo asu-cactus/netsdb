@@ -223,6 +223,30 @@ public:
         return this->combineOrNot;
     }
 
+    std::string getJoinType() {
+        return this->joinTypeStr;
+    }
+
+    void setJoinType(std::string joinType) {
+        this->joinTypeStr = joinType;
+    }
+
+    void setJoinType(JoinType joinType) {
+   
+	if (joinType == HashPartitionedJoin) {
+	    this->joinTypeStr = "HashPartitionedJoin";
+	} else if (joinType == BroadcastJoin) {
+	    this->joinTypeStr = "BroadcastJoin";
+	} else if (joinType == LocalJoin) {
+	    this->joinTypeStr = "LocalJoin";
+	} else if (joinType == CrossProduct) {
+	    this->joinTypeStr = "CrossProduct";
+	} else {
+	    this->joinTypeStr = "UnknownJoin";
+	}
+    
+    }
+
     JobStageID getStageId() override {
         return this->id;
     }
@@ -286,6 +310,7 @@ public:
     }
 
     void print() override {
+
         std::cout << "[JOB ID] jobId=" << jobId << std::endl;
         std::cout << "[STAGE ID] id=" << id << std::endl;
         std::cout << "[INPUT] databaseName=" << sourceContext->getDatabase()
@@ -304,6 +329,9 @@ public:
                   << this->partitionComputationSpecifier << std::endl;
         std::cout << "[PARTITION LAMBDA] partitionLambdaName="
                   << this->partitionLambdaName << std::endl;
+	std::cout << "[JOINTYPE] joinType="
+		  << this->joinTypeStr << std::endl;
+
         if (buildTheseTupleSets != nullptr) {
             std::cout << "[PIPELINE]" << std::endl;
             size_t mySize = buildTheseTupleSets->size();
@@ -311,11 +339,13 @@ public:
                 std::cout << i << ": " << (*buildTheseTupleSets)[i] << std::endl;
             }
         }
+
         std::cout << "[Probing] isProbing=" << this->probeOrNot << std::endl;
         std::cout << "Number of cluster nodes=" << getNumNodes() << std::endl;
         std::cout << "Total memory on this node is " << totalMemoryOnThisNode << std::endl;
         std::cout << "Number of total partitions=" << getNumTotalPartitions() << std::endl;
-        int i;
+
+	int i;
         for (i = 0; i < numNodes; i++) {
             Handle<Vector<HashPartitionID>> partitions = getNumPartitions(i);
             std::cout << "Number of partitions on node-" << i << " is " << partitions->size()
@@ -572,7 +602,7 @@ private:
     //Does this stage has local join probe
     bool localJoinProbeOrNot = false;
 
-
+    String joinTypeStr = "Unknown";
 
 };
 }

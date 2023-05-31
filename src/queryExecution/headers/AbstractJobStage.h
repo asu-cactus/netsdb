@@ -1,6 +1,7 @@
 #ifndef ABSTRACT_JOBSTAGE_H
 #define ABSTRACT_JOBSTAGE_H
 
+#include "../../conf/headers/DataTypes.h"
 
 namespace pdb {
 

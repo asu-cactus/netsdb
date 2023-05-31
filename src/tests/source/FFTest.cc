@@ -106,14 +106,14 @@ int main(int argc, char *argv[]) {
 
     std::cout << "To load matrix for ff:b1" << std::endl;
     ff::loadMatrix(pdbClient, "ff", "b1", numNeurons, 1, block_x,
-                   block_y, false, true, errMsg);
+                   1, false, true, errMsg);
 
     std::cout << "To load matrix for ff:wo" << std::endl;
     ff::loadMatrix(pdbClient, "ff", "wo", numLabels, numNeurons, block_x,
-                   block_y, false, false, errMsg);
+                   block_x, false, false, errMsg);
     // 2 x 1
     std::cout << "To load matrix for ff:bo" << std::endl;
-    ff::loadMatrix(pdbClient, "ff", "bo", numLabels, 1, block_x, block_y,
+    ff::loadMatrix(pdbClient, "ff", "bo", numLabels, 1, block_x, 1,
                    false, true, errMsg);
   }
 

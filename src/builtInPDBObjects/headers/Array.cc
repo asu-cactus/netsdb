@@ -129,9 +129,7 @@ Array<TypeContained>::Array() {
 // TypeContained
 template <class TypeContained>
 Array<TypeContained>::~Array() {
-    if (typeInfo.getTypeCode() == 0) {
-        std::cout << "Array::~Array: typeInfo = 0 before getSizeOfConstituentObject" << std::endl;
-    }
+    /*
     // do no work if the guys we store do not come from pdb :: Object
     if (!typeInfo.descendsFromObject())
         return;
@@ -141,13 +139,15 @@ Array<TypeContained>::~Array() {
 
     // get the size of the constituent object
     uint32_t objSize = 0;
-    if (usedSlots > 0)
+    if (usedSlots > 0) {
         objSize = typeInfo.getSizeOfConstituentObject(location);
-
+    }
     // now, delete each of the objects in there, if we have got an object type
     for (uint32_t i = 0; i < usedSlots; i++) {
+	std::cout << "i=" << i << std::endl;
         typeInfo.deleteConstituentObject(location + i * objSize);
     }
+    */
 }
 
 template <class TypeContained>

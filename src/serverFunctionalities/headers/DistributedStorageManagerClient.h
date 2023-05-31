@@ -39,7 +39,8 @@ public:
                    Handle<LambdaIdentifier> lambdaForDispatch = nullptr,
                    size_t desiredSize = 0,
                    bool isMRU = false,
-		   bool isSharedTensorBlockSet = false);
+		   bool isSharedTensorBlockSet = false,
+		   bool isModelSet = false);
 
 
     bool createSet(const std::string& databaseName,
@@ -58,7 +59,8 @@ public:
                    std::string lambdaName2, 
                    size_t desiredSize = 0,
                    bool isMRU = false,
-		   bool isSharedTensorBlockSet = false);
+		   bool isSharedTensorBlockSet = false,
+		   bool isModelSet = false);
 
 
     // create a temp set that only goes through storage
@@ -84,7 +86,8 @@ public:
                    Handle<LambdaIdentifier> lambdaForDispatch = nullptr,
                    size_t desiredSize = 0,
                    bool isMRU = false,
-		   bool isSharedTensorBlockSet = false);
+		   bool isSharedTensorBlockSet = false,
+		   bool isModelSet = false);
 
 
     // templated createSet
@@ -104,7 +107,8 @@ public:
                    std::string lambdaName2,
                    size_t desiredSize = 0,
                    bool isMRU = false,
-		   bool isSharedTensorBlockSet = false);
+		   bool isSharedTensorBlockSet = false,
+		   bool isModelSet = false);
 
 
    bool addSharedPage(std::string sharingDatabase,
@@ -119,6 +123,22 @@ public:
                    bool whetherToAddSharedSet,
                    NodeID nodeId,
 		   std::string& errMsg);
+
+
+  /* Link a shared block to its actual position in a tensor*/
+  bool addSharedMapping(std::string sharingDatabase,
+                  std::string sharingSetName,
+                  std::string sharingTypeName,
+                  std::string sharedDatabase,
+                  std::string sharedSetName,
+                  std::string sharedTypeName,
+                  std::string fileName,
+                  size_t totalRows,
+                  size_t totalCols,
+		  bool transpose,
+                  std::string& errMsg);
+
+
 
 
     // storage cleanup to flush buffered data to disk

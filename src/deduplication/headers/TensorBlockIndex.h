@@ -104,7 +104,6 @@ public:
 
     size_t getSetKey(DatabaseID dbId, UserTypeID typeId, SetID setId) {
         size_t code = (size_t)typeId + (size_t)setId * (size_t)100000 + (size_t)dbId * (size_t)100000000;
-	std::cout << "code = " << code << std::endl;
 	return code;
     }
 

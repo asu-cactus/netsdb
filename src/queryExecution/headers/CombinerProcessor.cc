@@ -15,7 +15,6 @@ CombinerProcessor<KeyType, ValueType>::CombinerProcessor(std::vector<HashPartiti
 
     int i;
     for (i = 0; i < partitions.size(); i++) {
-        std::cout << i << ":" << partitions[i] << std::endl;
         nodePartitionIds.push_back(partitions[i]);
     }
     count = 0;
@@ -70,6 +69,7 @@ void CombinerProcessor<KeyType, ValueType>::loadOutputPage(void* pageToWriteTo,
 
     blockPtr = nullptr;
     blockPtr = std::make_shared<UseTemporaryAllocationBlock>(pageToWriteTo, numBytesInPage);
+    std::cout << "numBytesInPage=" << numBytesInPage << std::endl;
     outputData =
         makeObject<Vector<Handle<AggregationMap<KeyType, ValueType>>>>(this->numNodePartitions);
     int i;
@@ -109,12 +109,8 @@ bool CombinerProcessor<KeyType, ValueType>::fillNextOutputPage() {
             if (!((*begin) != (*end))) {
                 if (curPartPos < numNodePartitions - 1) {
                     curPartPos++;
-                    std::cout << "curPartPos=" << curPartPos << std::endl;
                     curPartId = nodePartitionIds[curPartPos];
-                    std::cout << "curPartId=" << curPartId << std::endl;
                     curMap = (*inputData)[curPartId];
-                    std::cout << "(*inputData)[" << curPartId << "].size()=" << curMap->size()
-                             << std::endl;
                     if (curMap->size() > 0) {
                         if (begin != nullptr) delete begin;
                         if (end != nullptr) delete end;
@@ -132,7 +128,7 @@ bool CombinerProcessor<KeyType, ValueType>::fillNextOutputPage() {
                         if ((*begin) != (*end)) {
                             curOutputMap = (*outputData)[curPartPos];
                         } else {
-                            std::cout << "this is strage: map size > 0 but begin == end"
+                            std::cout << "this is strange: map size > 0 but begin == end"
                                      << std::endl;
                             continue;
                         }
@@ -165,6 +161,7 @@ bool CombinerProcessor<KeyType, ValueType>::fillNextOutputPage() {
                     *temp = curValue;
                     ++(*begin);
                     count++;
+		    std::cout << "inserted one new TreeResult object: " << count << std::endl;
                     // if we couldn't fit the value
                 } catch (NotEnoughSpace& n) {
                     curOutputMap->setUnused(curKey);
@@ -180,11 +177,11 @@ bool CombinerProcessor<KeyType, ValueType>::fillNextOutputPage() {
 
                 // and add to old value, producing a new one
                 try {
-
+                    std::cout << "combining two TreeResult objects: " << count << std::endl;
                     temp = copy + curValue;
                     ++(*begin);
                     count++;
-
+                    std::cout << "combined two TreeResult objects: " << count << std::endl;
                     // if we got here, it means we run out of RAM and we need to restore the old
                     // value in the destination hash map
                 } catch (NotEnoughSpace& n) {
@@ -205,7 +202,8 @@ bool CombinerProcessor<KeyType, ValueType>::fillNextOutputPage() {
 
 template <class KeyType, class ValueType>
 void CombinerProcessor<KeyType, ValueType>::finalize() {
-    finalized = true;
+   std::cout << "finalized a page" << std::endl;
+   finalized = true;
 }
 
 template <class KeyType, class ValueType>

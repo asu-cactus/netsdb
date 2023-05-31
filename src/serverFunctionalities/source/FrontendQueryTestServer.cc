@@ -31,6 +31,8 @@
 #include "AggregationJobStage.h"
 #include "BroadcastJoinBuildHTJobStage.h"
 #include "HashPartitionedJoinBuildHTJobStage.h"
+#include "StorageAddModel.h"
+#include "StorageAddModelResponse.h"
 #include <snappy.h>
 
 namespace pdb {
@@ -384,7 +386,7 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
 
             } else {
                 getFunctionality<PangeaStorageServer>().cleanup(false);
-                PDB_COUT << "input set size=" << inputSet->getNumPages() << std::endl;
+		std::cout << "input set size=" << inputSet->getNumPages() << std::endl;
             }
             sourceContext->setDatabaseId(inputSet->getDbID());
             sourceContext->setTypeId(inputSet->getTypeID());
@@ -393,7 +395,7 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
             newRequest->setSourceContext(sourceContext);
             newRequest->setNeedsRemoveInputSet(request->getNeedsRemoveInputSet());
             newRequest->setNeedsRemoveInputSet(false);  // the scheduler will remove this set
-            PDB_COUT << "Input is set with setName=" << inSetName
+	    std::cout << "Input is set with setName=" << inSetName
                      << ", setId=" << inputSet->getSetID() << std::endl;
 
 
@@ -609,7 +611,8 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
             SetPtr outputSet = getFunctionality<PangeaStorageServer>().getSet(outDatabaseAndSet);
             if (outputSet == nullptr) {
                 success = getFunctionality<PangeaStorageServer>().addSet(
-                    outDatabaseName, request->getOutputTypeName(), outSetName);
+                    outDatabaseName, request->getOutputTypeName(), outSetName, DEFAULT_SHUFFLE_PAGE_SIZE);
+	
                 outputSet = getFunctionality<PangeaStorageServer>().getSet(outDatabaseAndSet);
                 std::cout << "Output set is created in storage with database=" << outDatabaseName
                          << ", set=" << outSetName << ", type=IntermediateData" << std::endl;
@@ -705,7 +708,6 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
                 }
             }
 
-            getFunctionality<PangeaStorageServer>().cleanup(false);
             Handle<SetIdentifier> result = nullptr;
 
             if (needsRemoveCombinerSet == true) {
@@ -725,7 +727,6 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
 
 
             // now, we send back the result
-            getFunctionality<PangeaStorageServer>().cleanup(false);
             if (result == nullptr) {
                 result = makeObject<SetIdentifier>(outDatabaseName, outSetName);
                 result->setNumPages(outputSet->getNumPages());
@@ -779,6 +780,55 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
                 return std::make_pair(true, std::string("delete complete"));
             }
         }));
+
+
+    // handle a request to materialize a model in the backend
+    forMe.registerHandler(
+        StorageAddModel_TYPEID,
+        make_shared<SimpleRequestHandler<StorageAddModel>>([&](Handle<StorageAddModel> request,
+                                                         PDBCommunicatorPtr sendUsingMe) {
+            std::string errMsg;
+            bool success;
+            PDB_COUT << "Frontend got a request for materializing a model" << std::endl;
+            const UseTemporaryAllocationBlock tempBlock{1 * 1024 * 1024};
+            PDBCommunicatorPtr communicatorToBackend = make_shared<PDBCommunicator>();
+            if (communicatorToBackend->connectToLocalServer(
+                    getFunctionality<PangeaStorageServer>().getLogger(),
+                    getFunctionality<PangeaStorageServer>().getPathToBackEndServer(),
+                    errMsg)) {
+                std::cout << errMsg << std::endl;
+                return std::make_pair(false, errMsg);
+            }
+            PDB_COUT << "Frontend connected to backend" << std::endl;
+            Handle<StorageAddModel> newRequest =
+                deepCopyToCurrentAllocationBlock<StorageAddModel>(request);
+
+	    if (!communicatorToBackend->sendObject(newRequest, errMsg)) {
+                std::cout << errMsg << std::endl;
+                errMsg = std::string("can't send message to backend: ") + errMsg;
+                success = false;
+            } else {
+                PDB_COUT << "Frontend sent request to backend" << std::endl;
+                // wait for backend to finish.
+                Handle<StorageAddModelResponse> response = communicatorToBackend->getNextObject<StorageAddModelResponse>(success, errMsg);
+                if (!success) {
+                    std::cout << "Error waiting for backend to finish this job stage. "
+                                  << errMsg << std::endl;
+                    errMsg = std::string("backend failure: ") + errMsg;
+                }
+                // return the results
+                if (!sendUsingMe->sendObject(response, errMsg)) {
+                    return std::make_pair(false, errMsg);
+                }
+	    }
+
+	    if (success == false) {
+                    // TODO:restart backend
+            }
+            return std::make_pair(success, errMsg);
+
+        }));
+
 
     // handle a request to iterate through a file
     forMe.registerHandler(

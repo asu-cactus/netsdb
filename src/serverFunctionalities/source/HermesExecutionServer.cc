@@ -5,9 +5,11 @@
 #include "PDBDebug.h"
 #include "GenericWork.h"
 #include "HermesExecutionServer.h"
+#include "StorageAddModel.h"
 #include "StoragePagePinned.h"
 #include "StorageNoMorePage.h"
 #include "StorageRemoveHashSet.h"
+#include "StorageAddModelResponse.h"
 #include "SimpleRequestHandler.h"
 #include "SimpleRequestResult.h"
 #include "BackendTestSetScan.h"
@@ -312,7 +314,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
         std::cout << out << std::endl;
 #endif
         PDB_COUT << "hashSetSize = " << hashSetSize << std::endl;
-        getAllocator().setPolicy(AllocatorPolicy::noReuseAllocator);
+        //getAllocator().setPolicy(AllocatorPolicy::noReuseAllocator);
         // to get the sink merger
         std::string sourceTupleSetSpecifier = request->getSourceTupleSetSpecifier();
         std::string targetTupleSetSpecifier = request->getTargetTupleSetSpecifier();
@@ -497,7 +499,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                                                                        (size_t) ((size_t) 32 * (size_t) 1024 * (size_t) 1024));
                                                                    getAllocator().cleanInactiveBlocks(
                                                                        (size_t) ((size_t) 256 * (size_t) 1024 * (size_t) 1024));
-                                                                   getAllocator().setPolicy(AllocatorPolicy::noReuseAllocator);
+                                                                   //getAllocator().setPolicy(AllocatorPolicy::noReuseAllocator);
                                                                    pthread_mutex_lock(&connection_mutex);
                                                                    PDBCommunicatorPtr anotherCommunicatorToFrontend =
                                                                        make_shared<PDBCommunicator>();
@@ -528,6 +530,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                                                                      void *outBytes = nullptr;
                                                                      while (myIter->hasNext()) {
                                                                        PDBPagePtr page = myIter->next();
+								       std::cout << "AggregateProcessor: I've got a page" << std::endl;
                                                                        if (page != nullptr) {
                                                                          Record<Vector<Handle<Object>>> *myRec =
                                                                              (Record<Vector<Handle<Object>>> *) page->getBytes();
@@ -1029,7 +1032,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
             std::cout << out << std::endl;
 #endif
             std::cout << "hashSetSize = " << hashSetSize << std::endl;
-            getAllocator().setPolicy(AllocatorPolicy::noReuseAllocator);
+            //getAllocator().setPolicy(AllocatorPolicy::noReuseAllocator);
             Handle<Object> myMap = merger->createNewOutputContainer();
 
             // setup an output page to store intermediate results and final output
@@ -1356,6 +1359,29 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
 
       }));
 
+
+
+    forMe.registerHandler(
+      StorageAddModel_TYPEID,
+      make_shared<SimpleRequestHandler<StorageAddModel>>([&](
+          Handle<StorageAddModel> request, PDBCommunicatorPtr sendUsingMe) {
+        std::string errMsg;
+        bool success = true;
+        std::string pathToModel = request->getPathToModel();
+	std::string modelMaterializationType = request->getModelMaterializationType();
+	std::string modelType = request->getModelType();
+
+	//based on above information, let's materialize the model
+	void * modelPointer = materializeModel(pathToModel, modelMaterializationType, modelType, errMsg);
+
+	PDB_COUT << "to send back reply" << std::endl;
+        const UseTemporaryAllocationBlock block{1024};
+        Handle<StorageAddModelResponse> response = makeObject<StorageAddModelResponse>(pathToModel, modelMaterializationType, modelType, modelPointer);
+        // return the result
+        success = sendUsingMe->sendObject(response, errMsg);
+        return make_pair(success, errMsg);
+
+      }));
 
   // register a handler to process the BackendTestSetScan message
   forMe.registerHandler(

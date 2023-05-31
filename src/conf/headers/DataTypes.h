@@ -30,18 +30,30 @@ typedef enum {
     TransientLifetimeNotEndedHashData
 } PriorityLevel;
 
-typedef enum { JobData, ShuffleData, HashPartitionData, PartialAggregationData } LocalityType;
+typedef enum { JobData,
+               ShuffleData,
+               HashPartitionData,
+               PartialAggregationData } LocalityType;
 
-typedef enum { LRU, MRU, Random } LocalitySetReplacementPolicy;
+typedef enum { LRU,
+               MRU,
+               Random } LocalitySetReplacementPolicy;
 
-typedef enum { UnifiedLRU, UnifiedMRU, UnifiedCost, UnifiedIntelligent, UnifiedDBMIN } CacheStrategy;
+typedef enum { UnifiedLRU,
+               UnifiedMRU,
+               UnifiedCost,
+               UnifiedIntelligent,
+               UnifiedDBMIN } CacheStrategy;
 
+typedef enum { Read,
+               RepeatedRead,
+               Write } OperationType;
 
-typedef enum { Read, RepeatedRead, Write } OperationType;
+typedef enum { TryCache,
+               CacheThrough } DurabilityType;
 
-typedef enum { TryCache, CacheThrough } DurabilityType;
-
-typedef enum { FixedSize, VariableSize } SmallPageType;
+typedef enum { FixedSize,
+               VariableSize } SmallPageType;
 
 typedef enum {
     StraightSequential,
@@ -50,21 +62,25 @@ typedef enum {
 
 } AccessPattern;
 
-typedef enum { Transient, Persistent } PersistenceType;
+typedef enum { Transient,
+               Persistent } PersistenceType;
 
-typedef enum { Direct, Recreation, DeepCopy } ObjectCreationMode;
+typedef enum { Direct,
+               Recreation,
+               DeepCopy } ObjectCreationMode;
 
-typedef enum { SequenceFileType, PartitionedFileType } FileType;
+typedef enum { SequenceFileType,
+               PartitionedFileType } FileType;
 
-typedef enum { PeriodicTimer, OneshotTimer } TimerType;
+typedef enum { PeriodicTimer,
+               OneshotTimer } TimerType;
 
 typedef enum {
     UserSetType,
-    SharedHashSetType,  // the input for first phase scan join, or the input for second phase
-                        // probing of shuffle join
-    PartitionedHashSetType,  // the input for second phase of shuffle join and aggregation
+    SharedHashSetType,      // the input for first phase scan join, or the input for second phase
+                            // probing of shuffle join
+    PartitionedHashSetType, // the input for second phase of shuffle join and aggregation
 } SetType;
-
 
 typedef struct {
     DatabaseID dbId;
@@ -89,5 +105,35 @@ typedef struct {
     UserTypeID typeId;
     SetID setId;
 } SetKey;
+
+enum struct ModelType {
+    RandomForest,
+    XGBoost,
+    LightGBM
+};
+
+typedef struct {
+    // returnClass will be the vaule to compare while this is not a leaf node
+    union {
+        float threshold;
+        float leafValue;
+    };
+    int indexID;
+    int leftChild;
+    int rightChild;
+    bool isLeaf;
+    // When feature value is missing, whether track/traverseTo the left node
+    bool isMissTrackLeft;
+} Node;
+
+// Join types
+typedef enum {
+
+    HashPartitionedJoin,
+    BroadcastJoin,
+    LocalJoin,
+    CrossProduct,
+    UnknownJoin
+} JoinType;
 
 #endif
