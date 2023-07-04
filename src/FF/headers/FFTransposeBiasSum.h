@@ -63,18 +63,18 @@ public:
                     in1->getBlockColIndex(), in1->getBlockRowIndex(), J, I,
                     in1->getTotalColNums(), in1->getTotalRowNums(), false);
 
-            double *outData = resultFFMatrixBlock->getValue().rawData->c_ptr();
-            double *in1Data = in1->getValue().rawData->c_ptr();
-            double *in2Data = in2->getValue().rawData->c_ptr();
+            float *outData = resultFFMatrixBlock->getValue().rawData->c_ptr();
+            float *in1Data = in1->getValue().rawData->c_ptr();
+            float *in2Data = in2->getValue().rawData->c_ptr();
 
-            Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
+            Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic,
                                      Eigen::RowMajor>>
                 currentMatrix1(in1Data, I, J);
             Eigen::Map<
-                Eigen::Matrix<double, Eigen::Dynamic, 1, Eigen::ColMajor>>
+                Eigen::Matrix<float, Eigen::Dynamic, 1, Eigen::ColMajor>>
                 currentMatrix2(in2Data, I, 1);
 
-            Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
+            Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic,
                                      Eigen::RowMajor>>
                 sumMatrix(outData, I, J);
 

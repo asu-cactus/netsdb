@@ -6,7 +6,7 @@ from keras import layers
 import connectorx as cx
 
 input_dimension = 597540
-batch = 1000
+batch = 8000
 
 # save the model
 totalStart = time.time()
@@ -17,7 +17,7 @@ modelEnd = time.time()
 # Load input from DB using connectorX
 inputStart = time.time()
 conn_string = "postgresql://postgres:postgres@localhost:5432/postgres"
-query = f"SELECT * FROM images where id >= {0} and id < {1000}"
+query = f"SELECT * FROM images where id >= {0} and id < {8000}"
 data = cx.read_sql(conn_string, query)
 df = data["array_data"]
 

@@ -220,7 +220,7 @@ public:
         int numInputs = getNumInputs();
         for (int i = 0; i < numInputs; i++) {
             std::string curInputType = getIthInputType(i);
-            std::cout << curInputType << std::endl;
+            //std::cout << curInputType << std::endl;
             computationInputTypes.push_back(curInputType);
         }
         Lambda<bool> selectionLambda = callGetSelection(*this);
@@ -280,9 +280,9 @@ public:
                 sources.push_back(std::pair<std::string, std::string>(curComputation->getDatabaseName(), curComputation->getSetName()));
             }
         }
-        for (int i = 0; i < sources.size(); i++) {
+        /*for (int i = 0; i < sources.size(); i++) {
             std::cout << i <<"-th source of join "<< sources[i].first << ":" << sources[i].second << std::endl;
-        }
+        }*/
     }
 
 
@@ -297,14 +297,14 @@ public:
                                 TupleSpec& attsToOpOn,
                                 TupleSpec& projection,
                                 ComputePlan& plan) override {
-        std :: cout << "to get sink merger for partitionId=" << partitionId << std :: endl;
-        std :: cout << "consumeMe=" << consumeMe << std :: endl;
-        std :: cout << "attsToOpOn=" << attsToOpOn << std :: endl;
-        std :: cout << "projection=" << projection << std :: endl;
+        //std :: cout << "to get sink merger for partitionId=" << partitionId << std :: endl;
+        //std :: cout << "consumeMe=" << consumeMe << std :: endl;
+        //std :: cout << "attsToOpOn=" << attsToOpOn << std :: endl;
+        //std :: cout << "projection=" << projection << std :: endl;
         // loop through each of the attributes that we are supposed to accept, and for each of them,
         // find the type
         std::vector<std::string> typeList;
-        std::cout << "consumeMe.getSetName()=" << consumeMe.getSetName() << std::endl;
+        //std::cout << "consumeMe.getSetName()=" << consumeMe.getSetName() << std::endl;
         AtomicComputationPtr producer =
             plan.getPlan()->getComputations().getProducingAtomicComputation(consumeMe.getSetName());
         for (auto& a : projection.getAtts()) {
@@ -331,9 +331,9 @@ public:
             }
         }
 
-         for (auto &aa : typeList) {
+         /*for (auto &aa : typeList) {
                  std :: cout << "Got type " << aa << "\n";
-         }
+         }*/
 
         // now we get the correct join tuple, that will allow us to pack tuples from the join in a
         // hash table
@@ -349,7 +349,7 @@ public:
                                     TupleSpec& attsToOpOn,
                                     TupleSpec& projection,
                                     ComputePlan& plan) override {
-        std :: cout << "to get sink shuffler" << std :: endl;
+        //std :: cout << "to get sink shuffler" << std :: endl;
         // loop through each of the attributes that we are supposed to accept, and for each of them,
         // find the type
         std::vector<std::string> typeList;
@@ -379,9 +379,9 @@ public:
             }
         }
 
-        for (auto &aa : typeList) {
+        /*for (auto &aa : typeList) {
                 std :: cout << "Got type " << aa << "\n";
-        }
+        }*/
 
         // now we get the correct join tuple, that will allow us to pack tuples from the join in a
         // hash table
@@ -398,15 +398,15 @@ public:
                                   TupleSpec& attsToOpOn,
                                   TupleSpec& projection,
                                   ComputePlan& plan) override {
-        std :: cout << "to get compute sink for Join" << std :: endl;
+        //std :: cout << "to get compute sink for Join" << std :: endl;
         // loop through each of the attributes that we are supposed to accept, and for each of them,
         // find the type
         std::vector<std::string> typeList;
         AtomicComputationPtr producer =
             plan.getPlan()->getComputations().getProducingAtomicComputation(consumeMe.getSetName());
-        std :: cout << "consumeMe was: " << consumeMe << "\n";
-        std :: cout << "attsToOpOn was: " << attsToOpOn << "\n";
-        std :: cout << "getComputeSink: projection was: " << projection << "\n";
+        //std :: cout << "consumeMe was: " << consumeMe << "\n";
+        //std :: cout << "attsToOpOn was: " << attsToOpOn << "\n";
+        //std :: cout << "getComputeSink: projection was: " << projection << "\n";
         
         for (auto& a : projection.getAtts()) {
 
@@ -435,9 +435,9 @@ public:
             }
         }
 
-        for (auto &aa : typeList) {
+        /*for (auto &aa : typeList) {
             std :: cout << "Got type " << aa << "\n";
-        }
+        }*/
 
         // now we get the correct join tuple, that will allow us to pack tuples from the join in a
         // hash table
@@ -462,13 +462,13 @@ public:
 
     // JiaNote: to get compute source for HashPartitionedJoin
     ComputeSourcePtr getComputeSource(TupleSpec& outputScheme, ComputePlan& plan) override {
-        std::cout << "to get compute source" << std::endl;
+        //std::cout << "to get compute source" << std::endl;
         if ((this->joinType != HashPartitionedJoin) && (this->joinType != LocalJoin) && (this->joinType != CrossProduct)) {
             return nullptr;
         }
         // loop through each of the attributes that we are supposed to accept, and for each of them,
         // find the type
-        std :: cout << "outputScheme is " << outputScheme << std :: endl;
+        //std :: cout << "outputScheme is " << outputScheme << std :: endl;
         std::vector<std::string> typeList;
         AtomicComputationPtr producer =
             plan.getPlan()->getComputations().getProducingAtomicComputation(
@@ -481,7 +481,7 @@ public:
             // find the identity of the producing computation
             std::pair<std::string, std::string> res =
                 producer->findSource(a, plan.getPlan()->getComputations());
-            std :: cout << "got " << res.first << " " << res.second << "\n";
+            //std :: cout << "got " << res.first << " " << res.second << "\n";
 
             // and find its type... in the first case, there is not a particular lambda that we need
             // to ask for
@@ -493,7 +493,7 @@ public:
             } else {
                 std::string myType =
                     plan.getPlan()->getNode(res.first).getLambda(res.second)->getOutputType();
-                std::cout << "myType=" << myType << std::endl;
+                //std::cout << "myType=" << myType << std::endl;
                 if (myType.find_first_of("pdb::Handle<") == 0) {
                     typeList.push_back(myType);
                 } else {
@@ -501,9 +501,9 @@ public:
                 }
             }
         }
-        for (auto &aa : typeList) {
+        /*for (auto &aa : typeList) {
                 std :: cout << "Got type " << aa << "\n";
-        }
+        }*/
 
         // now we get the correct join tuple, that will allow us to pack tuples from the join in a
         // hash table
@@ -615,7 +615,7 @@ public:
                     i, inputTupleSets[i].getColumnNamesToKeep());
                 this->multiInputsBase->setInputColumnsToApplyForIthInput(
                     i, inputTupleSets[i].getColumnNamesToApply());
-                std::cout << "JoinComp: setInputColumnsToApplyForIthInput: " << i << ":" << inputTupleSets[i].getColumnNamesToApply()[0] << std::endl;
+                //std::cout << "JoinComp: setInputColumnsToApplyForIthInput: " << i << ":" << inputTupleSets[i].getColumnNamesToApply()[0] << std::endl;
                 inputNames.push_back(inputTupleSets[i].getColumnNamesToApply()[0]);
             }
             analyzeInputSets(inputNames);
@@ -701,7 +701,7 @@ public:
                                    TupleSpec& pipelinedAttsToOperateOn,
                                    TupleSpec& pipelinedAttsToIncludeInOutput,
                                    ComputeInfoPtr arg) override {
-        std::cout << "to get executor" << std::endl;
+        //std::cout << "to get executor" << std::endl;
         // get the argument to the join
         JoinArg& joinArg = *((JoinArg*)arg.get());
 
@@ -736,9 +736,9 @@ public:
                 }
             }
         }
-        for (auto &aa : typeList) {
+        /*for (auto &aa : typeList) {
                 std :: cout << "Got type " << aa << "\n";
-        }
+        }*/
 
         // now we get the correct join tuple, that will allow us to pack tuples from the join in a
         // hash table
@@ -749,13 +749,13 @@ public:
         // and return the correct probing code
 
         if (joinArg.partitionedHashSet == nullptr) {
-            std::cout << "to get prober:" << std::endl;
+            /*std::cout << "to get prober:" << std::endl;
             std::cout << "pipelinedInputSchema:" << pipelinedInputSchema << std::endl;
             std::cout << "pipelinedAttsToOperateOn:" << pipelinedAttsToOperateOn << std::endl;
             std::cout << "pipelinedAttsToIncludeInOutput:" << pipelinedAttsToIncludeInOutput << std::endl;
             if (needToSwapAtts){
                std::cout << "needToSwapAtts=true" << std::endl;
-            }
+            }*/
             return correctJoinTuple->getProber(joinArg.pageWhereHashTableIs,
                                            whereEveryoneGoes,
                                            pipelinedInputSchema,

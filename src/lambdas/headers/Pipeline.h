@@ -110,7 +110,7 @@ public:
 
     ~Pipeline() {
 
-        std::cout << id << ": cleanup pipeline" << std::endl;
+        //std::cout << id << ": cleanup pipeline" << std::endl;
         // kill all of the pipeline stages
         while (pipeline.size())
             pipeline.pop_back();
@@ -146,11 +146,11 @@ public:
         // take care of getting rid of any pages... but only get rid of those from two iterations
         // ago...
         // pages from the last iteration may still have pointers into them
-        std::cout << id << ": to clean page for iteration-" << iteration << std::endl;
-        std::cout << id << ": unwrittenPages.size() =" << unwrittenPages.size() << std::endl;
+        //std::cout << id << ": to clean page for iteration-" << iteration << std::endl;
+        //std::cout << id << ": unwrittenPages.size() =" << unwrittenPages.size() << std::endl;
         while (unwrittenPages.size() > 0 && iteration > unwrittenPages.front()->iteration + delay) {
-            std::cout << id << ": iteration=" << iteration << " and unwrittenPages.front()->iteration=" << unwrittenPages.front()->iteration
-                     << std::endl;
+            //std::cout << id << ": iteration=" << iteration << " and unwrittenPages.front()->iteration=" << unwrittenPages.front()->iteration
+            //         << std::endl;
             // in this case, the page did not have any output data written to it... it only had
             // intermediate results, and so we will just discard it
             if (unwrittenPages.front()->outputSink == nullptr) {
@@ -163,16 +163,16 @@ public:
                     // chunk does not store an output vector
                     emptyOutContainingBlock(unwrittenPages.front()->location);
 
-                    std::cout << id << ": This is Strange... how did I find a page with objects??\n";
+                    //std::cout << id << ": This is Strange... how did I find a page with objects??\n";
                 }
-                std::cout << id << ": to discard a page in iteration=" << iteration << " and page iteration =" << unwrittenPages.front()->iteration << std::endl;
+                //std::cout << id << ": to discard a page in iteration=" << iteration << " and page iteration =" << unwrittenPages.front()->iteration << std::endl;
                 discardPage(unwrittenPages.front()->location);
                 unwrittenPages.pop();
 
                 // in this case, the page DID have some data written to it
             } else {
                 // and force the reference count for this guy to go to zero
-                std::cout << id << ": to empty out containing block" << std::endl;
+                //std::cout << id << ": to empty out containing block" << std::endl;
                 unwrittenPages.front()->outputSink.emptyOutContainingBlock();
 
                 // OK, because we will have invalidated the current object allocator block, we need
@@ -181,7 +181,7 @@ public:
                 if (iteration == 999999999)
                     makeObjectAllocatorBlock(1024, true);
                 // make sure he is written
-                std::cout << id << ": to write back a page in iteration=" << iteration << " and page iteration =" << unwrittenPages.front()->iteration << " and page location =" << unwrittenPages.front()->location << std::endl;
+                //std::cout << id << ": to write back a page in iteration=" << iteration << " and page iteration =" << unwrittenPages.front()->iteration << " and page location =" << unwrittenPages.front()->location << std::endl;
                 writeBackPage(unwrittenPages.front()->location);
                 
                 // and get ridda him
@@ -194,9 +194,9 @@ public:
     void run() {
 
         // this is where we are outputting all of our results to
-        std::cout << id << ": to get a new output page" << std::endl;
+        //std::cout << id << ": to get a new output page" << std::endl;
         MemoryHolderPtr myRAM = std::make_shared<MemoryHolder>(getNewPage());
-        std::cout << id << ": got a new page" << std::endl;
+        //std::cout << id << ": got a new page" << std::endl;
 
         if (myRAM->location == nullptr) {
             std::cout << "ERROR: insufficient memory in heap" << std::endl;
@@ -221,12 +221,12 @@ public:
                curChunk = nullptr;
                myRAM->setIteration(iteration);
                unwrittenPages.push(myRAM);
-               std::cout << id << ": 1- setIteration=" << iteration << std::endl;
+               //std::cout << id << ": 1- setIteration=" << iteration << std::endl;
                iteration++;
                cleanPages(iteration);
-               std::cout << id <<": to get a new output page" << std::endl;
+               //std::cout << id <<": to get a new output page" << std::endl;
                myRAM = std::make_shared<MemoryHolder>(getNewPage());
-               std::cout << id <<": got a new output page" << std::endl;
+               //std::cout << id <<": got a new output page" << std::endl;
                if (myRAM->location == nullptr) {
                    std::cout << id << ": ERROR: insufficient memory in heap" << std::endl;
                    return;
@@ -254,16 +254,16 @@ public:
                     // and get a new page
                     myRAM->setIteration(iteration);
                     unwrittenPages.push(myRAM);
-                    std::cout << id << ": 2- setIteration=" << iteration << std::endl;
+                    //std::cout << id << ": 2- setIteration=" << iteration << std::endl;
                     iteration++;
                     cleanPages(iteration);
-                    std::cout << id <<": to get a new output page" << std::endl;
+                    //std::cout << id <<": to get a new output page" << std::endl;
                     myRAM = std::make_shared<MemoryHolder>(getNewPage());
                     if (myRAM->location == nullptr) {
                         std::cout << "ERROR: insufficient memory in heap or the corresponding partition sink is used up" << std::endl;
                         return;
                     }
-                    std::cout << id <<": got a new output page" << std::endl;
+                    //std::cout << id <<": got a new output page" << std::endl;
                     myRAM->outputSink = dataSink->createNewOutputContainer();
 
                     // then try again
@@ -298,16 +298,16 @@ public:
                     // output page
                     myRAM->setIteration(iteration);
                     unwrittenPages.push(myRAM);
-                    std::cout << id << ": 3- setIteration=" << iteration << std::endl;
+                    //std::cout << id << ": 3- setIteration=" << iteration << std::endl;
                     iteration++;
                     cleanPages(iteration);
-                    std::cout << id <<": to get a new output page" << std::endl;
+                    //std::cout << id <<": to get a new output page" << std::endl;
                     myRAM = std::make_shared<MemoryHolder>(getNewPage());
                     if (myRAM->location == nullptr) {
                         std::cout << "ERROR: insufficient memory in heap or the corresponding partition sink is used up" << std::endl;
                         return;
                     }
-                    std::cout << id <<": got a new output page" << std::endl;
+                    //std::cout << id <<": got a new output page" << std::endl;
                  }
            }
             // lastly, write back all of the output pages
@@ -315,7 +315,7 @@ public:
 
         // set the iteration
         myRAM->setIteration(iteration);
-        std::cout << id << ": 4- setIteration=" << iteration << std::endl;
+        //std::cout << id << ": 4- setIteration=" << iteration << std::endl;
         // and remember the page
         unwrittenPages.push(myRAM);
         iteration++;

@@ -81,7 +81,8 @@ public:
             if ((partitionStatus[partitionId] == true)&&(anyway == false)) {
                 std::cerr << "Attempting to request for a new partition-"<< partitionId << 
                         " page, which indicates that the hash page size is not big enough" << std::endl;
-                return nullptr;
+                pthread_mutex_unlock(&myMutex);
+		return nullptr;
             } else {
                 retPtr = partitionPages[partitionId];
                 partitionStatus[partitionId] = true;

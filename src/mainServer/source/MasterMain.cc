@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
     std::string masterIp;
     std::string pemFile = "conf/pdb.key";
     bool pseudoClusterMode = false;
-    double partitionToCoreRatio = 1;
+    double partitionToCoreRatio = 0.5;
     bool trainingMode = false;
     if (argc == 3) {
         masterIp = argv[1];

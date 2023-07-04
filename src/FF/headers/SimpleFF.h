@@ -36,18 +36,18 @@ void setup(pdb::PDBClient &pdbClient, std::string database);
 void inference(pdb::PDBClient &pdbClient, std::string database, std::string w1,
                std::string w2, std::string wo, std::string inputs,
                std::string b1, std::string b2, std::string bo,
-               std::string output, double dropout_rate, bool enablePartition=false);
+               std::string output, float dropout_rate, bool enablePartition=false);
 
 void inference_unit(pdb::PDBClient &pdbClient, std::string database, std::string w1,
                std::string wo, std::string inputs,
                std::string b1, std::string bo,
-               std::string output, double dropout_rate, bool enablePartition=false);
+               std::string output, float dropout_rate, bool enablePartition=false);
 
 
 void inference(pdb::PDBClient &pdbClient, std::string database, std::string w1,
                std::string w2, std::string wo, std::string inputs,
                std::string b1, std::string b2, std::string bo,
-               pdb::Handle<pdb::Computation> &output, double dropout_rate, bool enablePartition=false);
+               pdb::Handle<pdb::Computation> &output, float dropout_rate, bool enablePartition=false);
 
 void cleanup(pdb::PDBClient &pdblient, std::string database);
 } // namespace ff

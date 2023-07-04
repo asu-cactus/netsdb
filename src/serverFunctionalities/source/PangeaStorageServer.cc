@@ -225,7 +225,7 @@ void PangeaStorageServer::writeBackRecords(pair<std::string, std::string> databa
         //return;
     }
     size_t pageSize = myPage->getSize();
-    std::cout << "pageSize = " << pageSize << std::endl;
+    //std::cout << "pageSize = " << pageSize << std::endl;
     // the position in the output vector
     int pos = 0;
 
@@ -263,7 +263,7 @@ void PangeaStorageServer::writeBackRecords(pair<std::string, std::string> databa
             // if we got here, all records have been processed
 
             // comment the following three lines of code to allow Pangea to manage pages
-            std::cout << "Write all of the bytes in the record.\n";
+            //std::cout << "Write all of the bytes in the record.\n";
             getRecord(data);
 
             CacheKey key;
@@ -273,7 +273,7 @@ void PangeaStorageServer::writeBackRecords(pair<std::string, std::string> databa
             key.pageId = myPage->getPageID();
             this->getCache()->decPageRefCount(key);
             if (flushOrNot == true) {
-                std::cout << "to flush without eviction" << std::endl;
+                //std::cout << "to flush without eviction" << std::endl;
                 this->getCache()->flushPageWithoutEviction(key);
             }
             break;
@@ -281,7 +281,7 @@ void PangeaStorageServer::writeBackRecords(pair<std::string, std::string> databa
             // put the extra objects tht we could not store back in the record
         } catch (NotEnoughSpace& n) {
             // comment the following three lines of code to allow Pangea to manage pages
-            std::cout << "Writing back a page!!\n";
+            //std::cout << "Writing back a page!!\n";
             getRecord(data);
             if (data->size() == 0) {
                 std::cout
@@ -343,7 +343,7 @@ void PangeaStorageServer::writeBackRecords(pair<std::string, std::string> databa
         }
     }
 
-    std::cout << "Now all the records are back.\n";
+    //std::cout << "Now all the records are back.\n";
     sizes[databaseAndSet] = numBytesToProcess;
 }
 
@@ -502,11 +502,11 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
 
             std::string errMsg;
             bool res = true;
-	    if (request->getSharedTensorBlockSet()) {
+	    /*if (request->getSharedTensorBlockSet()) {
 	        std::cout << "%%%%%%%%Pangea to add a shared set%%%%%%%%%%%%" << std::endl;
 	    } else {
 	        std::cout << "%%%%%%%%Pangea to add a private set%%%%%%%%%%%" << std::endl;
-	    }
+	    }*/
             if (request->getPageSize() > conf->getMaxPageSize()) {
                 errMsg = "Error: page size is larger than maxPageSize\n";
                 std::cout << errMsg << std::endl;
@@ -889,7 +889,7 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
 
                 // get the record
                 size_t numBytes = sendUsingMe->getSizeOfNextObject();
-                std::cout << "received " << numBytes << " bytes" << std::endl;
+                //std::cout << "received " << numBytes << " bytes" << std::endl;
 #ifdef ENABLE_COMPRESSION
                 char* readToHere = new char[numBytes];
 #else
@@ -1005,8 +1005,8 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                 std::string errMsg;
                 auto databaseAndSet = make_pair((std::string)request->getSharingDatabase(),
                                                 (std::string)request->getSharingSetName());
-                std::cout << "to link shared blocks to " << request->getSharingDatabase() <<
-                        ":" << request->getSharingSetName() << std::endl;
+                //std::cout << "to link shared blocks to " << request->getSharingDatabase() <<
+                  //      ":" << request->getSharingSetName() << std::endl;
                 SetPtr mySet = getFunctionality<PangeaStorageServer>().getSet(databaseAndSet);
                 if (mySet == nullptr) {
                     std::cout << "Set doesn't exist: " << request->getSharingDatabase() << ":" << request->getSharingSetName() << std::endl;
@@ -1020,7 +1020,7 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
 
 
 
-		std::cout << "shared set:" << request->getSharedDatabase() << ":" << request->getSharedSetName() << std::endl;
+		//std::cout << "shared set:" << request->getSharedDatabase() << ":" << request->getSharedSetName() << std::endl;
                 SetPtr mySet1 = getFunctionality<PangeaStorageServer>().getSet(sharedDatabaseAndSet);
 		if (mySet1 == nullptr) {
                     std::cout << "Set doesn't exist: " << request->getSharedDatabase() << ":" << request->getSharedSetName() << std::endl;
@@ -1035,9 +1035,9 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                      key.dbId = mySharedSet->getDbID();
                      key.typeId = mySharedSet->getTypeID();
                      key.setId = mySharedSet->getSetID();
-                     std::cout << "shared set: dbId=" << key.dbId
-                          << ", typeId=" << key.typeId
-                          << ", setId=" << key.setId << std::endl;
+                     //std::cout << "shared set: dbId=" << key.dbId
+                       //   << ", typeId=" << key.typeId
+                         // << ", setId=" << key.setId << std::endl;
                      std::string fileName = request->getFileName();
 		     size_t totalRows = request->getTotalRows();
 		     size_t totalCols = request->getTotalCols();
@@ -1062,8 +1062,8 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
 		std::string errMsg;
 		auto databaseAndSet = make_pair((std::string)request->getSharingDatabase(),
                                                 (std::string)request->getSharingSetName());
-                std::cout << "to link shared page to " << request->getSharingDatabase() <<
-                        ":" << request->getSharingSetName() << std::endl;
+                //std::cout << "to link shared page to " << request->getSharingDatabase() <<
+                  //      ":" << request->getSharingSetName() << std::endl;
                 SetPtr mySet = getFunctionality<PangeaStorageServer>().getSet(databaseAndSet);
                 if (mySet == nullptr) {
                     std::cout << "Set doesn't exist: " << request->getSharingDatabase() << ":" << request->getSharingSetName() << std::endl;
@@ -1076,7 +1076,7 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
 
 		    auto sharedDatabaseAndSet = make_pair((std::string)request->getSharedDatabase(),
                                                 (std::string)request->getSharedSetName());
-		    std::cout << "shared set:" << request->getSharedDatabase() << ":" << request->getSharedSetName() << std::endl;
+		    //std::cout << "shared set:" << request->getSharedDatabase() << ":" << request->getSharedSetName() << std::endl;
 		    SetPtr mySharedSet =  getFunctionality<PangeaStorageServer>().getSet(sharedDatabaseAndSet);
 		    if(mySharedSet == nullptr) {
 		        std::cout << "Error: empty shared set" << std::endl;
@@ -1137,14 +1137,14 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                 }
                 objectsToStore = sendUsingMe->getNextObject<Vector<Handle<Object>>>(
                     readToHere, everythingOK, errMsg);
-                std::cout << "received " << objectsToStore->size() << " objects to store " << numBytes << " bytes" << std::endl;
+                //std::cout << "received " << objectsToStore->size() << " objects to store " << numBytes << " bytes" << std::endl;
             } else {
                 char* temp = new char[numBytes];
                 if(temp == nullptr) {
                     std::cout << "PangeaStorageServer.cc: Failed to allocate memory with size=" << numBytes << std::endl;
                     exit(1);
                 }
-                std::cout << "received " << numBytes << " bytes" << std::endl;
+                //std::cout << "received " << numBytes << " bytes" << std::endl;
                 sendUsingMe->receiveBytes(temp, errMsg);
                 size_t uncompressedSize = 0;
                 snappy::GetUncompressedLength(temp, numBytes, &uncompressedSize);
@@ -1185,8 +1185,8 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                 // at this point, we have performed the serialization, so remember the record
                 auto databaseAndSet = make_pair((std::string)request->getDatabase(),
                                                 (std::string)request->getSetName());
-                std::cout << "to store data to " << request->getDatabase() <<
-                        ":" << request->getSetName() << std::endl;
+                //std::cout << "to store data to " << request->getDatabase() <<
+                  //      ":" << request->getSetName() << std::endl;
                 SetPtr mySet = getFunctionality<PangeaStorageServer>().getSet(databaseAndSet);
                 if (mySet == nullptr) {
                    std::cout << "Set doesn't exist: " << request->getDatabase() << ":" << request->getSetName() << std::endl;
@@ -1203,16 +1203,16 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                     size_t rawPageSize = myPageSize;
                     
                     if (numBytesToProcess < (size_t)rawPageSize * (size_t)(this->inflationFactor)) {
-                        std::cout << "data is buffered, all buffered data size=" << numBytesToProcess
-                                 << std::endl;
+                        //std::cout << "data is buffered, all buffered data size=" << numBytesToProcess
+                          //       << std::endl;
                     } else {
                         // if we have enough space to fill up a page, do it
-                        std::cout << "Got the data.\n";
-                        std::cout << "Are " << sizes[databaseAndSet] << " bytes to write.\n";
+                        //std::cout << "Got the data.\n";
+                        //std::cout << "Are " << sizes[databaseAndSet] << " bytes to write.\n";
                         getFunctionality<PangeaStorageServer>().writeBackRecords(
                             databaseAndSet, request->isFlushing());
-                        std::cout << "Done with write back.\n";
-                        std::cout << "Are " << sizes[databaseAndSet] << " bytes left.\n";
+                        //std::cout << "Done with write back.\n";
+                        //std::cout << "Are " << sizes[databaseAndSet] << " bytes left.\n";
                     }
 
                 } else {
@@ -1372,7 +1372,7 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                 PageID pageId = request->getPageID();
                 bool wasNewPage = request->getWasNewPage();
 
-                std::cout << "to pin page in set with pageId=" << pageId << ", setId=" << setId << std::endl;
+                //std::cout << "to pin page in set with pageId=" << pageId << ", setId=" << setId << std::endl;
                 bool res;
                 string errMsg;
 
@@ -1518,8 +1518,8 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
             } else {
                 getFunctionality<PangeaStorageServer>().getCache()->evictionUnlock();
                 getFunctionality<PangeaStorageServer>().getCache()->evictionMutexUnlock();
-                std::cout << "Unpin dbId=" << dbId << ", typeId=" << typeId << ", setId=" << setId
-                          << ", pageId=" << pageId << std::endl;
+                //std::cout << "Unpin dbId=" << dbId << ", typeId=" << typeId << ", setId=" << setId
+                  //        << ", pageId=" << pageId << std::endl;
 #ifdef ENABLE_EVICTION
                 getFunctionality<PangeaStorageServer>().getCache()->evictPage(key);
 #endif
@@ -1547,6 +1547,7 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
         make_shared<SimpleRequestHandler<StorageGetSetPages>>([&](
             Handle<StorageGetSetPages> request, PDBCommunicatorPtr sendUsingMe) {
 
+            std::cout << "Received StorageGetSetPages" << std::endl;
             DatabaseID dbId = request->getDatabaseID();
             UserTypeID typeId = request->getUserTypeID();
             SetID setId = request->getSetID();
@@ -1568,14 +1569,14 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
             // each file partition
 	    
             std::vector<PageIteratorPtr>* iterators;
-	    std::cout << "*********The set " << set->getSetName() << " has " << set->getNumSharedPages() << " pages*********" << std::endl;
+	    //std::cout << "*********The set " << set->getSetName() << " has " << set->getNumSharedPages() << " shared pages*********" << std::endl;
 	    if (set->getNumSharedPages()==0) {
 	        iterators = set->getIterators();
 	    } else {
 		SetKey sharedSet = set->getFile()->getSharedSet();
-		std::cout << "SharedSet dbId:" << sharedSet.dbId << std::endl;
-                std::cout << "SharedSet typeId:" << sharedSet.typeId << std::endl;
-                std::cout << "SharedSet setId:" << sharedSet.setId << std::endl;
+		//std::cout << "SharedSet dbId:" << sharedSet.dbId << std::endl;
+                //std::cout << "SharedSet typeId:" << sharedSet.typeId << std::endl;
+                //std::cout << "SharedSet setId:" << sharedSet.setId << std::endl;
 		sharedSetPtr = getFunctionality<PangeaStorageServer>().getSet(sharedSet.dbId, sharedSet.typeId, sharedSet.setId);
 	        iterators = set->getIteratorsExtended(sharedSetPtr);
 	    }
@@ -1587,11 +1588,11 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
 	    }
 	    int numIterators = iterators->size();
 
-            std::cout<<"GetSetPages iterators:" << numIterators << std::endl;
+            //std::cout<<"GetSetPages iterators:" << numIterators << std::endl;
 
             PDBBuzzerPtr tempBuzzer = make_shared<PDBBuzzer>([](PDBAlarm myAlarm, atomic_int& counter) {
                 counter++;
-                std::cout << "GetSetPages: counter = " << counter << std::endl;
+                //std::cout << "GetSetPages: counter = " << counter << std::endl;
             });
 
             // scan pages and load pages in a multi-threaded style
@@ -1603,6 +1604,7 @@ void PangeaStorageServer::registerHandlers(PDBServer& forMe) {
                 PDBScanWorkPtr scanWork = make_shared<PDBScanWork>(
                     iterators->at(i), &getFunctionality<PangeaStorageServer>(), counter);
                 worker->execute(scanWork, tempBuzzer);
+		//std::cout << "returned a scan worker" << std::endl;
             }
 
             while (counter < numIterators) {
@@ -2071,9 +2073,9 @@ bool PangeaStorageServer::addSet(
         }
     }
     type->addSet(setName, setId, pageSize, desiredSize, isMRU, isTransient, isSharedTensorBlockSet);
-    std::cout << "to add set with dbName=" << dbName << ", typeName=" << typeName
-              << ", setName=" << setName << ", setId=" << setId << ", pageSize=" << pageSize
-              << std::endl;
+    //std::cout << "to add set with dbName=" << dbName << ", typeName=" << typeName
+      //        << ", setName=" << setName << ", setId=" << setId << ", pageSize=" << pageSize
+        //      << std::endl;
     set = type->getSet(setId);
     if (isMRU) {
         this->getCache()->pin(set, MRU, Write);
@@ -2110,8 +2112,8 @@ bool PangeaStorageServer::addSet(std::string dbName,
         addDatabase(dbName);
     }
     SetID setId = usersetSeqIds->at(dbName)->getNextSequenceID();
-    std::cout << "to add set with dbName=" << dbName << ", typeName=" << typeName
-             << ", setName=" << setName << ", setId=" << setId << ", pageSize=" << pageSize << std::endl;
+    //std::cout << "to add set with dbName=" << dbName << ", typeName=" << typeName
+      //       << ", setName=" << setName << ", setId=" << setId << ", pageSize=" << pageSize << std::endl;
     pthread_mutex_unlock(&this->usersetLock);
     return addSet(dbName, typeName, setName, setId, pageSize, desiredSize, isMRU, isTransient, isSharedTensorBlockSet);
 }
@@ -2480,7 +2482,7 @@ void PangeaStorageServer::addDatabaseByPartitionedFiles(string dbName,
         exit(-1);
     }
     // initialize it
-    std::cout << "to initialize meta file: " << metaDBPath << std::endl;
+    //std::cout << "to initialize meta file: " << metaDBPath << std::endl;
     db->initializeFromMetaDBDir(metaDBPath);
     // add it to map
     pthread_mutex_lock(&this->databaseLock);
@@ -2508,8 +2510,8 @@ void PangeaStorageServer::addDatabaseByPartitionedFiles(string dbName,
                 maxSetId = setId + 1;
             }
             SetPtr set = setIter->second;
-            std::cout << "Loaded existing set with database: " << dbName << ", type: " << typeName
-                     << ", set: " << set->getSetName() << std::endl;
+            //std::cout << "Loaded existing set with database: " << dbName << ", type: " << typeName
+             //        << ", set: " << set->getSetName() << std::endl;
             pthread_mutex_lock(&this->usersetLock);
             this->userSets->insert(std::pair<std::pair<DatabaseID, SetID>, SetPtr>(
                 std::pair<DatabaseID, SetID>(dbId, setId), set));

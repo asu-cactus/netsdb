@@ -112,9 +112,15 @@ PDBWorkerPtr PDBWorkerQueue::getWorker() {
     PDBWorkerPtr myWorker;
 
     {
+	//std::cout << "to get a worker" << std::endl;
         // make sure there is a worker
         const LockGuard guard{waitingMutex};
+	//std::cout << "waiting.size() = " << waiting.size() << std::endl;
+	//std::cout << "working.size() = " << working.size() << std::endl;
+	//std::cout << "threads.size() = " << threads.size() << std::endl;
+	//std::cout << "numOut = " << numOut << std::endl;
         while (waiting.size() == 0 && numOut != 0) {
+	    //std::cout << "to wait for other threads to finish" << std::endl;
             pthread_cond_wait(&waitingSignal, &waitingMutex);
         }
 
@@ -126,6 +132,7 @@ PDBWorkerPtr PDBWorkerQueue::getWorker() {
         // get the worker
         myWorker = waiting.back();
         waiting.pop_back();
+	//std::cout << "obtained a worker" << std::endl;
     }
 
     {
@@ -133,7 +140,7 @@ PDBWorkerPtr PDBWorkerQueue::getWorker() {
         const LockGuard guard{workingMutex};
         working.insert(myWorker);
     }
-
+    //std::cout << "now to return a worker" << std::endl;
     return myWorker;
 }
 

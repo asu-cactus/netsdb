@@ -80,12 +80,12 @@ public:
   }
 
   bool isLastColBlock() {
-    int numYBlocks = ceil(getTotalColNums() / (double)getColNums());
+    int numYBlocks = ceil(getTotalColNums() / (float)getColNums());
     return getBlockColIndex() == numYBlocks - 1;
   }
 
   bool isLastRowBlock() {
-    int numXBlocks = ceil(getTotalRowNums() / (double)getRowNums());
+    int numXBlocks = ceil(getTotalRowNums() / (float)getRowNums());
     return getBlockRowIndex() == numXBlocks - 1;
   }
 
@@ -108,11 +108,11 @@ public:
   int getTotalColNums() { return meta->totalCols; }
 
   int getNumRowBlocks() {
-      return ceil(getTotalRowNums() / (double)getRowNums());
+      return ceil(getTotalRowNums() / (float)getRowNums());
   }
 
   int getNumColBlocks() {
-      return ceil(getTotalColNums() / (double)getColNums());
+      return ceil(getTotalColNums() / (float)getColNums());
   }
 
   // This is needed for row-wise computation

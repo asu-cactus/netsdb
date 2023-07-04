@@ -230,9 +230,12 @@ bool PDBServer::handleOneRequest(PDBBuzzerPtr callerBuzzer, PDBCommunicatorPtr m
 
     // figure out what type of message the client is sending us
     int16_t requestID = myCommunicator->getObjectTypeID();
+
+    //std::cout << "Received Message with RequestID = " << requestID << std::endl;
+
     string info;
     bool success;
-
+    
     // if there was a request to close the connection, just get outta here
     if (requestID == CloseConnection_TYPEID) {
         UseTemporaryAllocationBlock tempBlock{2048};
@@ -309,7 +312,13 @@ bool PDBServer::handleOneRequest(PDBBuzzerPtr callerBuzzer, PDBCommunicatorPtr m
 
         // Chris' old code: (Observed problem: sometimes, buzzer never get buzzed.)
         // get a worker to run the handler (this blocks if no workers available)
+
+        //std::cout << "PDBServer: found an appropriate handler" << std::endl;	
+
         PDBWorkerPtr tempWorker = myWorkers->getWorker();
+
+        //std::cout << "PDBServer: got a worker, start to do something..." << std::endl;
+
         myLogger->trace("PDBServer: got a worker, start to do something...");
         myLogger->trace("PDBServer: requestID " + std::to_string(requestID));
 
@@ -317,6 +326,7 @@ bool PDBServer::handleOneRequest(PDBBuzzerPtr callerBuzzer, PDBCommunicatorPtr m
 
         myLogger->trace("PDBServer: setting guts");
         tempWork->setGuts(myCommunicator);
+	//std::cout << "PDBServer: to execute the worker" << std::endl;
         tempWorker->execute(tempWork, callerBuzzer);
         callerBuzzer->wait();
         myLogger->trace("PDBServer: handler has completed its work");

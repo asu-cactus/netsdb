@@ -33,7 +33,7 @@ public:
                 Handle<CommentsChunk> in2) override {
     return makeLambda(
         in1, in2, [](Handle<::FFMatrixBlock> &in1, Handle<CommentsChunk> &in2) {
-          double *data = in1->getRawDataHandle()->c_ptr();
+          float *data = in1->getRawDataHandle()->c_ptr();
           Handle<CommentsChunk> tmp = makeObject<CommentsChunk>(*in2);
 
           Map<int, Comment> &rhs = tmp->getChunk();

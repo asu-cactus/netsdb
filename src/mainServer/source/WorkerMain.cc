@@ -124,7 +124,7 @@ int main(int argc, char* argv[]) {
             std::cout << "Fatal Error: fork failed." << std::endl;
         } else {
             // I'm the frontend server
-            pdb::PDBServer frontEnd(localPort, 100, logger);
+            pdb::PDBServer frontEnd(localPort, 200, logger);
             // frontEnd.addFunctionality<pdb :: PipelineDummyTestServer>();
             frontEnd.addFunctionality<pdb::PangeaStorageServer>(
                 shm, frontEnd.getWorkerQueue(), logger, conf, standalone);

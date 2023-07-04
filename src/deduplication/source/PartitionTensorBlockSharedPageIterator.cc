@@ -28,7 +28,7 @@ PartitionTensorBlockSharedPageIterator::PartitionTensorBlockSharedPageIterator(P
     this->it = sharedPageMap->begin();
     this->numPages = sharedPageMap->size();
     this->numIteratedPages = 0;
-    std::cout << "PartitionTensorBlockSharedPageIterator: " << numPages << " to scan in partition-" << partitionId << std::endl;
+    //std::cout << "PartitionTensorBlockSharedPageIterator: " << numPages << " to scan in partition-" << partitionId << std::endl;
 
 }
 
@@ -40,9 +40,9 @@ PDBPagePtr PartitionTensorBlockSharedPageIterator::next() {
     if (it != this->sharedPageMap->end()) {
         PageID pageId = it->first;
         PageIndex pageIndex = it->second;
-        std::cout << this->partitionId << ": PartitionedTensorBlockSharedPageIterator: curTypeId=" << this->fileOfSharedSet->getTypeId()
-                     << ",curSetId=" << this->fileOfSharedSet->getSetId()
-                     << ",curPageId=" << pageId << ",partitionId="<<pageIndex.partitionId << ",pageSeqId=" << pageIndex.pageSeqInPartition << "\n";
+        //std::cout << this->partitionId << ": PartitionedTensorBlockSharedPageIterator: curTypeId=" << this->fileOfSharedSet->getTypeId()
+          //           << ",curSetId=" << this->fileOfSharedSet->getSetId()
+            //         << ",curPageId=" << pageId << ",partitionId="<<pageIndex.partitionId << ",pageSeqId=" << pageIndex.pageSeqInPartition << "\n";
             pageToReturn = cache->getPage(this->fileOfSharedSet,
                                           pageIndex.partitionId,
                                           pageIndex.pageSeqInPartition,

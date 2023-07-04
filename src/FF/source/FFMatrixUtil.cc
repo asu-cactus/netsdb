@@ -38,17 +38,17 @@ void load_matrix_data(pdb::PDBClient &pdbClient, string path,
 
     cout << totalX << ", " << totalY << endl;
 
-    vector<vector<double>> matrix;
+    vector<vector<float>> matrix;
 
-    double val;
+    float val;
     int total = 0;
     pdb::makeObjectAllocatorBlock(size * 1024 * 1024, true);
 
     pdb::Handle<pdb::Vector<pdb::Handle<FFMatrixBlock>>> storeMatrix1 =
         pdb::makeObject<pdb::Vector<pdb::Handle<FFMatrixBlock>>>();
 
-    int numXBlocks = ceil(totalX / (double)blockX);
-    int numYBlocks = ceil(totalY / (double)blockY);
+    int numXBlocks = ceil(totalX / (float)blockX);
+    int numYBlocks = ceil(totalY / (float)blockY);
 
     int i = 0;
     int j = 0;
@@ -86,7 +86,7 @@ void load_matrix_data(pdb::PDBClient &pdbClient, string path,
                                 is.ignore();
 
                             // row = i * blockX + ii, col = j * blockY + jj
-                            double data = curX >= totalX || curY >= totalY ? 0 : val;
+                            float data = curX >= totalX || curY >= totalY ? 0 : val;
                             (*(myData->getRawDataHandle()))[ii * actual_blockY + jj] = data;
                             jj++;
                         }
@@ -159,11 +159,11 @@ void load_matrix_data(pdb::PDBClient &pdbClient, string path,
 
     cout << totalX << ", " << totalY << endl;
 
-    vector<vector<double>> matrix;
+    vector<vector<float>> matrix;
 
-    double val;
+    float val;
     for (int i = 0; i < totalX; i++) {
-        vector<double> line;
+        vector<float> line;
         for (int j = 0; j < totalY; j++) {
             is >> val;
             line.push_back(val);
@@ -189,7 +189,7 @@ void load_matrix_data(pdb::PDBClient &pdbClient, string path,
 
         for (int i = 0; i < totalX + pad_x; i++) {
             for (int j = 0; j < totalY + pad_y; j++) {
-                double data = i >= totalX || j >= totalY
+                float data = i >= totalX || j >= totalY
                                   ? 0 // padding to adjust to dimensions
                                   : matrix[i][j];
                 (*(myData->getRawDataHandle()))[i * (totalY + pad_y) + j] = data;
@@ -230,7 +230,7 @@ void allocateMyDataHelper(pdb::Handle<T> &myData, int xBlockCounter, int curBloc
     constexpr int startOffset = 0;
     myData = pdb::makeObject<T>(xBlockCounter, startOffset, curBlockRows, blockYSize,
                                 curPartitionSize, totalY, partitionByCol);
-    myData->print();
+    //myData->print();
 }
 
 template <class T>
@@ -527,7 +527,7 @@ void loadMapBlockFromSVMFile(pdb::PDBClient &pdbClient, std::string path,
         int curPartitionSize = (curPartitionIndex == numPartitions - 1)
                                    ? remainderPartitionSize
                                    : partitionSize;
-        int numXBlocks = ceil(curPartitionSize / (double)blockXSize);
+        int numXBlocks = ceil(curPartitionSize / (float)blockXSize);
 
         std::cout << "current partition index: " << curPartitionIndex << '\n';
         std::cout << "Number of blocks: " << numXBlocks << '\n';
@@ -645,7 +645,7 @@ void loadMatrixGenericFromFile(pdb::PDBClient &pdbClient, std::string path,
                                    ? remainderPartitionSize
                                    : partitionSize;
 
-        int numXBlocks = ceil(curPartitionSize / (double)blockXSize);
+        int numXBlocks = ceil(curPartitionSize / (float)blockXSize);
 
         std::cout << "current partition index: " << curPartitionIndex
                   << "; number of blocks within the current partition: " << numXBlocks << '\n';
@@ -751,8 +751,8 @@ void loadMatrixGeneric(pdb::PDBClient &pdbClient, pdb::String dbName,
     pdb::Handle<pdb::Vector<pdb::Handle<T>>> storeMatrix1 =
         pdb::makeObject<pdb::Vector<pdb::Handle<T>>>();
 
-    int numXBlocks = ceil(totalX / (double)blockX);
-    int numYBlocks = ceil(totalY / (double)blockY);
+    int numXBlocks = ceil(totalX / (float)blockX);
+    int numYBlocks = ceil(totalY / (float)blockY);
 
     int i = 0;
     int j = 0;
@@ -774,7 +774,7 @@ void loadMatrixGeneric(pdb::PDBClient &pdbClient, pdb::String dbName,
                         pdb::makeObject<T>(i, j, actual_blockX, actual_blockY,
                                            totalX, totalY, partitionByCol);
 
-                    myData->print();
+                    //myData->print();
 
                     while (ii < actual_blockX) {
                         while (jj < actual_blockY) {
@@ -866,7 +866,7 @@ template void loadMatrixGenericFromFile<pdb::TensorBlock2D<double>>(pdb::PDBClie
                                                                     int blockY, int label_col_index, string &errMsg,
                                                                     int size = 128, int numPartitions = 1, bool partitionByCol = true);
 
-void load_matrix_from_file(string path, vector<vector<double>> &matrix) {
+void load_matrix_from_file(string path, vector<vector<float>> &matrix) {
     if (path.size() == 0) {
         throw runtime_error("Invalid filepath: " + path);
     }
@@ -890,9 +890,9 @@ void load_matrix_from_file(string path, vector<vector<double>> &matrix) {
 
     cout << totalX << ", " << totalY << endl;
 
-    double val;
+    float val;
     for (int i = 0; i < totalX; i++) {
-        vector<double> line;
+        vector<float> line;
         for (int j = 0; j < totalY; j++) {
             is >> val;
             line.push_back(val);
@@ -925,7 +925,7 @@ void print(pdb::PDBClient &pdbClient, string dbName, string setName) {
     bool first = true;
     int count = 0;
     for (auto r : it) {
-        double *ndata = r->getRawDataHandle()->c_ptr();
+        float *ndata = r->getRawDataHandle()->c_ptr();
         int x = r->getBlockRowIndex();
         int y = r->getBlockColIndex();
         int bx = r->getRowNums();
@@ -980,7 +980,7 @@ void print_old(pdb::PDBClient &pdbClient, string dbName, string setName) {
                 for (int l = 0; l < by; l++) {
                     if (data[i][k]->getRawDataHandle() == nullptr)
                         continue;
-                    double *ndata = data[i][k]->getRawDataHandle()->c_ptr();
+                    float *ndata = data[i][k]->getRawDataHandle()->c_ptr();
                     int pos = j * by + l;
                     cout << ndata[pos] << ",";
                 }

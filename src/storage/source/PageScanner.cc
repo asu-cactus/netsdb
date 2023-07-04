@@ -110,6 +110,7 @@ vector<PageCircularBufferIteratorPtr> PageScanner::getSetIterators(NodeID nodeId
     // send request to storage
     if (!this->communicator->sendObject<pdb::StorageGetSetPages>(getSetPagesRequest, errMsg)) {
         errMsg = "Could not send data to server.";
+	std::cout << errMsg << std::endl;
         logger->error(std::string("PageScanner: ") + errMsg);
         return vec;
     }

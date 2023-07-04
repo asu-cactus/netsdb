@@ -47,10 +47,10 @@ public:
           ceil(checkMe->get_conv2d_matrix_cols(kernel_size, stride, padding) /
                (double)block_y);
       int windows = checkMe->get_conv2d_window_count(kernel_size, stride, padding);
+      result.resize(windows);
       std::cout << "[ImageToChunks] windows: " << windows << ", kernel: " << kernel_size << ", strides: " << stride << ", padding: " << padding << std::endl;
       int channels = checkMe->get_num_channels();
       int row_start = checkMe->getKey() * windows;
-
       int counter = 0;
       Handle<ImageChunk> chunk = nullptr;
 

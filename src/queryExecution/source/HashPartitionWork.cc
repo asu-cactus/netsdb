@@ -128,9 +128,9 @@ void HashPartitionWork :: execute(PDBBuzzerPtr callerBuzzer) {
                                 logger->writeLn(": output page is full, send it out");
                                 Handle<Vector<Handle<JoinMap<JoinTuple<Object, char[0]>>>>> mapsToPrint 
                                     = unsafeCast<Vector<Handle<JoinMap<JoinTuple<Object, char[0]>>>>>(myMaps);
-                                for (int j = 0; j < mapsToPrint->size(); j++) {
-                                    ((*mapsToPrint)[j])->print();
-                                }
+                                //for (int j = 0; j < mapsToPrint->size(); j++) {
+                                  //  ((*mapsToPrint)[j])->print();
+                                //}
                                 getRecord(myMaps);
                                 Record<Object>* myRecord = (Record<Object>*)output;
                                 size_t numBytes = myRecord->numBytes();

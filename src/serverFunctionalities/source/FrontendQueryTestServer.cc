@@ -707,7 +707,7 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
                     }
                 }
             }
-
+            getFunctionality<PangeaStorageServer>().cleanup(false);
             Handle<SetIdentifier> result = nullptr;
 
             if (needsRemoveCombinerSet == true) {
@@ -727,6 +727,7 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
 
 
             // now, we send back the result
+	    getFunctionality<PangeaStorageServer>().cleanup(false);
             if (result == nullptr) {
                 result = makeObject<SetIdentifier>(outDatabaseName, outSetName);
                 result->setNumPages(outputSet->getNumPages());
@@ -862,9 +863,9 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
                SetKey sharedSet = loopingSet->getFile()->getSharedSet();
 	       SetPtr sharedSetPtr = getFunctionality<PangeaStorageServer>().getSet(sharedSet.dbId, sharedSet.typeId, sharedSet.setId);
 	       if(sharedSetPtr) {
-                   std::cout << "Set dbId:" << sharedSet.dbId << std::endl;
-                   std::cout << "Set typeId:" << sharedSet.typeId << std::endl;
-                   std::cout << "Set setId:" << sharedSet.setId << std::endl;
+                   //std::cout << "Set dbId:" << sharedSet.dbId << std::endl;
+                   //std::cout << "Set typeId:" << sharedSet.typeId << std::endl;
+                   //std::cout << "Set setId:" << sharedSet.setId << std::endl;
 	           pageIters = loopingSet->getIteratorsExtended(sharedSetPtr);
 	       }
 	    } else {
@@ -872,7 +873,7 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
 	    }
             // loop through all pages
             int numIterators = pageIters->size();
-	    std::cout << "We've got " << numIterators << " iterators" << std::endl;
+	    //std::cout << "We've got " << numIterators << " iterators" << std::endl;
             for (int i = 0; i < numIterators; i++) {
                 PageIteratorPtr iter = pageIters->at(i);
                 while (iter->hasNext()) {
@@ -907,7 +908,7 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
                         if (vecSize != 0) {
                             const UseTemporaryAllocationBlock tempBlock{2048};
 #ifdef ENABLE_COMPRESSION
-                            std::cout << "nextPage->getSize() = " << nextPage->getSize() << std::endl;
+                            //std::cout << "nextPage->getSize() = " << nextPage->getSize() << std::endl;
                             char* newRecord = (char*)calloc(nextPage->getSize(), 1);
                             try {
                                 myRec = getRecord(inputVec, newRecord, nextPage->getSize());

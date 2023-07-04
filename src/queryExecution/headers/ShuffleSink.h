@@ -76,7 +76,7 @@ public:
             Map<KeyType, ValueType>& myMap =
                 *((*writeMe)[(hashVal / numPartitions) % numPartitions]);
 #endif
-            std::cout << "hashVal=" << hashVal << ", index=" << (hashVal / numPartitions) % numPartitions << "myMap.size=" << myMap.size()<< std::endl;
+            //std::cout << "hashVal=" << hashVal << ", index=" << (hashVal / numPartitions) % numPartitions << "myMap.size=" << myMap.size()<< std::endl;
             // if this key is not already there...
             if (myMap.count(keyColumn[i]) == 0) {
 
@@ -102,7 +102,7 @@ public:
                 // we were able to fit a new key/value pair, so copy over the value
                 try {
                     *temp = valueColumn[i];
-		    std::cout << "ShuffleSink: inserted a tree result blocks: " << i << std::endl;
+		    //std::cout << "ShuffleSink: inserted a tree result blocks: " << i << std::endl;
                     // if we could not fit the value...
                 } catch (NotEnoughSpace& n) {
 

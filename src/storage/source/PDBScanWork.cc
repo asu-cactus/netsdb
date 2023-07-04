@@ -118,14 +118,14 @@ void PDBScanWork::execute(PDBBuzzerPtr callerBuzzer) {
     if (retry > 0) {
     }
 
-    std::cout << "PDBScanWork: pin pages..." << std::endl;
+    //std::cout << "PDBScanWork: pin pages..." << std::endl;
     logger->debug("PDBScanWork: pin pages...");
     // for each loaded page retrieved from iterator, notify backend server!
     while (this->iter->hasNext()) {
         page = this->iter->next();
         if (page != nullptr) {
             // send PagePinned object to backend
-            std::cout << "PDBScanWork: pin page with pageId =" << page->getPageID() << "\n";
+            //std::cout << "PDBScanWork: pin page with pageId =" << page->getPageID() << "\n";
             retry = 0;
 
             while (retry < MAX_RETRIES) {
@@ -146,7 +146,7 @@ void PDBScanWork::execute(PDBBuzzerPtr callerBuzzer) {
                     continue;
                 }
                 // receive ack object from backend
-                std::cout << "PDBScanWork: waiting for ack..." << std::endl;
+                //std::cout << "PDBScanWork: waiting for ack..." << std::endl;
                 logger->debug("PDBScanWork: waiting for ack... ");
                 ret = this->acceptPagePinnedAck(communicatorToBackEnd, wasError, info, errMsg);
                 if (ret == false) {
@@ -155,7 +155,7 @@ void PDBScanWork::execute(PDBBuzzerPtr callerBuzzer) {
                     continue;
                 }
                 logger->debug("PDBScanWork: ack received ");
-                std::cout << "PDBScanWork: got ack!" << std::endl;
+                //std::cout << "PDBScanWork: got ack!" << std::endl;
                 break;
             }
         }

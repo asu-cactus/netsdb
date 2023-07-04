@@ -49,7 +49,7 @@ void create_database(pdb::PDBClient &pdbClient, std::string dbName,
   for (auto &s : sets) {
     pdbClient.removeSet(dbName, s, errMsg);
     if (!pdbClient.createSet<conv2d_memory_fusion::Image>(
-            dbName, s, errMsg, (size_t)8 * (size_t)1024 * (size_t)1024, s)) {
+            dbName, s, errMsg, (size_t)320 * (size_t)1024 * (size_t)1024, s)) {
       cout << "Not able to create set " + s + ": " + errMsg;
     } else {
       cout << "Created set " << s << ".\n";
@@ -69,21 +69,21 @@ void pipelined_test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbNam
 
   std::string errMsg;
 
-  int block_x = 112;
-  int block_y = 112;
+  int block_x = 2500;
+  int block_y = 4;
   int strides = 1;
   int padding = 0;
   bool block_padding = false;
 
-  int height = 112, width = 112, channels = 64, numOfImages = 1;
-  int kHeight = 1, kWidth = 1, kChannels = 64, numOfFilters = 64;
+  int height = 2500, width = 2500, channels = 3, numOfImages = 32;
+  int kHeight = 1, kWidth = 1, kChannels = 3, numOfFilters = 2048;
 
   if (reloadData) {
 
       test_common1::create_database(pdbClient, dbName, allSets, reloadData);
 
       std::cout << "Loading image data..." << std::endl;
-      conv2d_memory_fusion::loadRandomImages(width, height, channels, numOfImages, pdbClient, dbName, imageset, 8);
+      conv2d_memory_fusion::loadRandomImages(width, height, channels, numOfImages, pdbClient, dbName, imageset, 320);
      
       std::cout << "Loading kernel data..." << std::endl;
       conv2d_memory_fusion::loadRandomImages(kHeight, kWidth, kChannels, numOfFilters, pdbClient, dbName, kernelset, 1);

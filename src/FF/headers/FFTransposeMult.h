@@ -67,22 +67,22 @@ public:
                 pdb::makeObject<FFMatrixBlock>(
                     in1->getBlockRowIndex(), in2->getBlockRowIndex(), I, J,
                     in1->getTotalRowNums(), in2->getTotalRowNums(), false);
-	    std::cout << "OUTPUT BLOCK[" << in1->getBlockRowIndex() << "," << in2->getBlockRowIndex() <<"]"
-		    << ": "<< I << "X" << J << " in " << in1->getTotalRowNums() <<"X" << in2->getTotalRowNums() << std::endl;
+	    //std::cout << "OUTPUT BLOCK[" << in1->getBlockRowIndex() << "," << in2->getBlockRowIndex() <<"]"
+	//	    << ": "<< I << "X" << J << " in " << in1->getTotalRowNums() <<"X" << in2->getTotalRowNums() << std::endl;
 
             // get the ptrs
-            double *outData = resultFFMatrixBlock->getValue().rawData->c_ptr();
-            double *in1Data = in1->getValue().rawData->c_ptr();
-            double *in2Data = in2->getValue().rawData->c_ptr();
+            float *outData = resultFFMatrixBlock->getValue().rawData->c_ptr();
+            float *in1Data = in1->getValue().rawData->c_ptr();
+            float *in2Data = in2->getValue().rawData->c_ptr();
 
-            Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
+            Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic,
                                      Eigen::RowMajor>>
                 currentMatrix1(in1Data, in1->getRowNums(), in1->getColNums());
-            Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
+            Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic,
                                      Eigen::RowMajor>>
                 currentMatrix2(in2Data, in2->getRowNums(), in2->getColNums());
 
-            Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
+            Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic,
                                      Eigen::RowMajor>>
                 productMatrix(outData, I, J);
 

@@ -91,10 +91,10 @@ bool CombinerProcessor<KeyType, ValueType>::fillNextOutputPage() {
 
     // if we are finalized, see if there are some left over records
     if (finalized) {
-        for (int i = 0; i < numNodePartitions; i++) {
+        /*for (int i = 0; i < numNodePartitions; i++) {
             std::cout << "outputData[" << i << "].size()=" << (*outputData)[i]->size() << std::endl;
             std::cout << "count=" << count << std::endl;
-        }
+        }*/
 
         getRecord(outputData);
         return false;
@@ -161,7 +161,7 @@ bool CombinerProcessor<KeyType, ValueType>::fillNextOutputPage() {
                     *temp = curValue;
                     ++(*begin);
                     count++;
-		    std::cout << "inserted one new TreeResult object: " << count << std::endl;
+		    //std::cout << "inserted one new TreeResult object: " << count << std::endl;
                     // if we couldn't fit the value
                 } catch (NotEnoughSpace& n) {
                     curOutputMap->setUnused(curKey);
@@ -177,11 +177,11 @@ bool CombinerProcessor<KeyType, ValueType>::fillNextOutputPage() {
 
                 // and add to old value, producing a new one
                 try {
-                    std::cout << "combining two TreeResult objects: " << count << std::endl;
+                    //std::cout << "combining two TreeResult objects: " << count << std::endl;
                     temp = copy + curValue;
                     ++(*begin);
                     count++;
-                    std::cout << "combined two TreeResult objects: " << count << std::endl;
+                    //std::cout << "combined two TreeResult objects: " << count << std::endl;
                     // if we got here, it means we run out of RAM and we need to restore the old
                     // value in the destination hash map
                 } catch (NotEnoughSpace& n) {
@@ -192,9 +192,9 @@ bool CombinerProcessor<KeyType, ValueType>::fillNextOutputPage() {
         }
 
     } catch (NotEnoughSpace& n) {
-        for (int i = 0; i < numNodePartitions; i++) {
+        /*for (int i = 0; i < numNodePartitions; i++) {
             std::cout << "outputData[" << i << "].size()=" << (*outputData)[i]->size() << std::endl;
-        }
+        }*/
         getRecord(outputData);
         return true;
     }

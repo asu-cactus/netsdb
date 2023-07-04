@@ -7,7 +7,7 @@ from keras import layers
 
 input_dimension = 597540
 input_path = 'amazon_14K_Input'
-batch = 1000
+batch = 8000
 
 # create the structure of the model
 model = tf.keras.Sequential()

@@ -1362,7 +1362,7 @@ public:
                 index = (keyColumn[i] / (this->numPartitionsPerNode * this->numNodes)) %
                 (this->numPartitionsPerNode * this->numNodes);
 #endif
-		std::cout << "this is not CrossProduct with index = " << index << std::endl;
+		//std::cout << "this is not CrossProduct with index = " << index << std::endl;
 	    }
             else {
 

@@ -52,7 +52,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
       StoragePagePinned_TYPEID,
       make_shared<SimpleRequestHandler<StoragePagePinned>>([&](Handle<StoragePagePinned> request,
                                                                PDBCommunicatorPtr sendUsingMe) {
-        PDB_COUT << "Start a handler to process StoragePagePinned messages\n";
+	std::cout << "Start a handler to process StoragePagePinned messages\n";
         bool res;
         std::string errMsg;
         PageScannerPtr scanner = getFunctionality<HermesExecutionServer>().getCurPageScanner();
@@ -61,7 +61,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
           errMsg = "Fatal Error: No job is running in execution server.";
           std::cout << errMsg << std::endl;
         } else {
-          PDB_COUT << "StoragePagePinned handler: to throw pinned pages to a circular buffer!"
+	  std::cout << "StoragePagePinned handler: to throw pinned pages to a circular buffer!"
                    << std::endl;
           scanner->recvPagesLoop(request, sendUsingMe);
           res = true;

@@ -22,8 +22,8 @@ int main(int argc, char *argv[]) {
   int block_x, block_y, batch_size;
   int numFeatures, numNeurons, numLabels;
   if (argc < 3) {
-    cout << "Usage: blockDimensionX blockDimensionY batchSize numFeatures numNeurons numLabels Y"
-            "path/to/weights/and/bias(leave empty if generate random)"
+    cout << "Usage: blockDimensionX blockDimensionY batchSize numFeatures numNeurons numLabels reloading(Y/N)"
+            " path/to/weights/and/bias(leave empty if generate random)"
          << endl;
     exit(-1);
   }
@@ -57,10 +57,10 @@ int main(int argc, char *argv[]) {
       ff::createDatabase(pdbClient, "ff");
       ff::setup(pdbClient, "ff");
 
-      ff::createSet(pdbClient, "ff", "inputs", "inputs", 64);
+      ff::createSet(pdbClient, "ff", "inputs", "inputs", 256);
       ff::createSet(pdbClient, "ff", "label", "label", 64);
 
-      ff::createSet(pdbClient, "ff", "w1", "W1", 64);
+      ff::createSet(pdbClient, "ff", "w1", "W1", 256);
       ff::createSet(pdbClient, "ff", "b1", "B1", 64);
 
       ff::createSet(pdbClient, "ff", "wo", "WO", 64);
@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
 
   }
 
-  ff::createSet(pdbClient, "ff", "output", "Output", 256);
+  ff::createSet(pdbClient, "ff", "output", "Output", 64);
 
   ff::createSet(pdbClient, "ff", "y1", "Y1", 64);
 
@@ -86,8 +86,10 @@ int main(int argc, char *argv[]) {
     // load the input data
     ff::load_matrix_data(pdbClient, input_path, "ff", "inputs",
                                       block_x, block_y, false, false, errMsg);
+    sleep(20);
     (void)ff::load_matrix_data(pdbClient, w1_path, "ff", "w1", block_x, block_y,
                                false, false, errMsg);
+    sleep(20);
     (void)ff::load_matrix_data(pdbClient, wo_path, "ff", "wo", block_x, block_y,
                                false, false, errMsg);
     (void)ff::load_matrix_data(pdbClient, b1_path, "ff", "b1", block_x, block_y,
@@ -117,7 +119,7 @@ int main(int argc, char *argv[]) {
                    false, true, errMsg);
   }
 
-  double dropout_rate = 0.5;
+  float dropout_rate = 0.5;
 
 
 
@@ -133,7 +135,7 @@ int main(int argc, char *argv[]) {
 
 
 
-  vector<vector<double>> labels_test;
+  vector<vector<float>> labels_test;
 
   if (!generate)
     ff::load_matrix_from_file(labels_path, labels_test);
@@ -141,7 +143,7 @@ int main(int argc, char *argv[]) {
   int count = 0;
   int correct = 0;
   {
-    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+    const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 256};
 
     auto it = pdbClient.getSetIterator<FFMatrixBlock>("ff", "output");
 
@@ -150,7 +152,7 @@ int main(int argc, char *argv[]) {
 
       count++;
 
-      double *data = r->getRawDataHandle()->c_ptr();
+      float *data = r->getRawDataHandle()->c_ptr();
       int i = 0;
       int j = r->getBlockRowIndex() * r->getRowNums();
       while (i < r->getRowNums() * r->getColNums()) {
