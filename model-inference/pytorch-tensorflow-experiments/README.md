@@ -240,8 +240,7 @@ See https://github.com/asu-cactus/netsdb/tree/master/model-inference/feedforward
 
 ## Conv2d
 
-See https://github.com/asu-cactus/netsdb/edit/master/model-inference/convolutional-neural-network/README.
-md
+See https://github.com/asu-cactus/netsdb/edit/master/model-inference/convolutional-neural-network/README.md
 
 ## Decision Forest
 
