@@ -247,6 +247,9 @@ public:
   bool executeComputations(std::string &errMsg, std::string jobName, bool preCompile, Handle<Computation> firstParam,
                            Handle<Types>... args);
 
+template <class... Types>
+  bool executeComputations(std::string &errMsg, std::string jobName, bool preCompile, int size, Handle<Computation> firstParam,
+                           Handle<Types>... args);
 
 
   /* Deletes a set. */

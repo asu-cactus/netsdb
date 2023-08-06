@@ -8,12 +8,12 @@
 
 GET_V_TABLE(SemanticClassifierSingleBlock)
 
-double sigmoid(double x) { return 1 / (1 + exp(-x)); }
+float sigmoid(float x) { return 1 / (1 + exp(-x)); }
 
-double relu(double x) { return std::max(0.0, x); }
+float relu(float x) { return std::max(0.0, x); }
 
-double outLabel(double x) {
-    double threshold = 0.5;
+float outLabel(float x) {
+    float threshold = 0.5;
     if (x > threshold) {
         return 1;
     } else {

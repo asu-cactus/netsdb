@@ -140,7 +140,7 @@ void cleanup(pdb::PDBClient &pdblient, string database) {
     // pdblient.removeSet(database, "yo", errMsg);
 }
 
-static bool materializeHash = true;
+static bool materializeHash = false;
 
 void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
                        string w2, string wo, string inputs, string b1,
@@ -148,7 +148,7 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
     string errMsg;
 
     {
-        const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+        pdb::makeObjectAllocatorBlock(1024 * 1024 * 128, true);
 
         // make the computation
         pdb::Handle<pdb::Computation> readA =
@@ -198,7 +198,6 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
     // pdbClient.flushData (errMsg);
 
     {
-        const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 #ifdef DEBUG_SIMPLE_FF
         print_stats(pdbClient, database, w1);
         print_stats(pdbClient, database, inputs);
@@ -214,7 +213,7 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
     }
 
     {
-        const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+        pdb::makeObjectAllocatorBlock(1024 * 1024 * 128, true);
 
         // make the computation
         pdb::Handle<pdb::Computation> readA =
@@ -263,7 +262,6 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
     // pdbClient.flushData (errMsg);
 
     {
-        const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 #ifdef DEBUG_SIMPLE_FF
         print_stats(pdbClient, database, w2);
         print_stats(pdbClient, database, "y1");
@@ -279,7 +277,7 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
     }
 
     {
-        const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+        pdb::makeObjectAllocatorBlock(1024 * 1024 * 128, true);
 
         // make the computation
         pdb::Handle<pdb::Computation> readA =
@@ -324,7 +322,6 @@ void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
     // pdbClient.flushData (errMsg);
 
     {
-        const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
 #ifdef DEBUG_SIMPLE_FF
         print_stats(pdbClient, database, wo);
         print_stats(pdbClient, database, "y2");
@@ -348,7 +345,7 @@ void inference(pdb::PDBClient &pdbClient, string database, string w1, string w2,
                       dropout_rate, enablePartition);
 
     {
-        const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+        pdb::makeObjectAllocatorBlock(1024 * 1024 * 128, true);
 
         // make the computation
         pdb::Handle<pdb::Computation> readA =
@@ -385,7 +382,7 @@ void inference_unit(pdb::PDBClient &pdbClient, string database, string w1,
     string errMsg;
 
     {
-        const pdb::UseTemporaryAllocationBlock tempBlock{1024 * 1024 * 128};
+        pdb::makeObjectAllocatorBlock(1024 * 1024 * 128, true);
 
         // make the computation
         pdb::Handle<pdb::Computation> readA =

@@ -9,9 +9,9 @@
 
 using namespace pdb;
 
-double sigmoid(double x);
-double relu(double x);
-double outLabel(double x);
+float sigmoid(float x);
+float relu(float x);
+float outLabel(float x);
 
 class SemanticClassifier : public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
   private:
@@ -64,30 +64,30 @@ class SemanticClassifier : public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
 
 
             // init weights and bias
-            std::vector<double> embedOutput(sizeEmbed * sizeBatch, 1);
-            std::vector<double> dense0Weight(sizeDense0 * sizeEmbed, 1);
-            std::vector<double> dense0Bias(sizeDense0, 1);
-            std::vector<double> dense0Output(sizeDense0 * sizeBatch, 1);
-            std::vector<double> dense1Weight(sizeDense1 * sizeDense0, 1);
-            std::vector<double> dense1Bias(sizeDense1, 1);
-            std::vector<double> dense1Output(sizeDense1 * sizeBatch, 1);
+            std::vector<float> embedOutput(sizeEmbed * sizeBatch, 1);
+            std::vector<float> dense0Weight(sizeDense0 * sizeEmbed, 1);
+            std::vector<float> dense0Bias(sizeDense0, 1);
+            std::vector<float> dense0Output(sizeDense0 * sizeBatch, 1);
+            std::vector<float> dense1Weight(sizeDense1 * sizeDense0, 1);
+            std::vector<float> dense1Bias(sizeDense1, 1);
+            std::vector<float> dense1Output(sizeDense1 * sizeBatch, 1);
             
-            double *inData = in->getValue().rawData->c_ptr();
+            float *inData = in->getValue().rawData->c_ptr();
             // dense 0
             // x0 [sizeEmbed, sizeBatch]
-            Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
+            Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic,
                                      Eigen::RowMajor>>
                 x0(inData, sizeEmbed, sizeBatch);
             // w0 [sizeDense0, sizeEmbed]
-            Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
+            Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic,
                                      Eigen::RowMajor>>
                 w0(&dense0Weight.data()[0], sizeDense0, sizeEmbed);
             // b1 [sizeDense0, 1]
-            Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
+            Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic,
                                      Eigen::RowMajor>>
                 b0(&dense0Bias.data()[0], sizeDense0, 1);
             // y0
-            Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
+            Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic,
                                      Eigen::RowMajor>>
                 y0(&dense0Output.data()[0], sizeDense0, sizeBatch);
 
@@ -99,15 +99,15 @@ class SemanticClassifier : public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
             // dense 1
             // x1 = y0
             // w1 [sizeDense1, sizeDense0]
-            Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
+            Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic,
                                      Eigen::RowMajor>>
                 w1(&dense1Weight.data()[0], sizeDense1, sizeDense0);
             // b1 [sizeDense1, 1]
-            Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
+            Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic,
                                      Eigen::RowMajor>>
                 b1(&dense1Bias.data()[0], sizeDense1, 1);
 
-            Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
+            Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic,
                                      Eigen::RowMajor>>
                 y1(&dense1Output.data()[0], sizeDense1, sizeBatch);
 
@@ -123,9 +123,9 @@ class SemanticClassifier : public SelectionComp<FFMatrixBlock, FFMatrixBlock> {
                                                sizeDense1, sizeBatch, 
                                                sizeDense1, sizeBatch, false);
 
-            double *outData = resultFFMatrixBlock->getValue().rawData->c_ptr();
+            float *outData = resultFFMatrixBlock->getValue().rawData->c_ptr();
 
-            Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic,
+            Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic,
                                      Eigen::RowMajor>>
                 resultMatrix(outData, sizeDense1, sizeBatch);
 

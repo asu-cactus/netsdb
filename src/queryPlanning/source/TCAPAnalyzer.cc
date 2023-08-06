@@ -127,8 +127,10 @@ TCAPAnalyzer::TCAPAnalyzer(std::string jobId,
 TCAPAnalyzer::~TCAPAnalyzer() {
   this->sources.clear();
   this->logicalPlan = nullptr;
-  this->computePlan->nullifyPlanPointer();
-  this->computePlan = nullptr;
+  if (this->computePlan != nullptr) {
+      this->computePlan->nullifyPlanPointer();
+      this->computePlan = nullptr;
+  }
   this->hashSetsToProbe = nullptr;
 }
 

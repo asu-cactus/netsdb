@@ -109,6 +109,7 @@ void QuerySchedulerServer::cleanup() {
     this->interGlobalSets.clear();
 
     this->jobStageId = 0;
+    this->tcapAnalyzerPtr = nullptr;
 }
 
 QuerySchedulerServer::QuerySchedulerServer(std::string resourceManagerIp,
@@ -1330,6 +1331,7 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                                       << " seconds." << std::endl;
                         // dyanmic planning
                         // initialize tcapAnalyzer
+			this->tcapAnalyzerPtr = nullptr;
                         this->tcapAnalyzerPtr = make_shared<TCAPAnalyzer>(
                             jobId, computations, tcapString, this->logger, this->conf, 
                             getFunctionality<SelfLearningServer>().getDB(), true);
