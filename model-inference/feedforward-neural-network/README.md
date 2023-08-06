@@ -2,17 +2,19 @@
 
 A feed-forward neural network implementation. It has two fully-connected hidden layers.
 
-## Example Application Source:
 
-[Feed-forward Neural Network Application Code](https://github.com/asu-cactus/netsdb/blob/master/src/tests/source/FFTest.cc)
+## Relation-Centric Implementation
+### Example Application Source:
 
-## Compilation:
+[Relation-Centric Feed-forward Neural Network Application Code](https://github.com/asu-cactus/netsdb/blob/master/src/tests/source/FFTest.cc)
+
+### Compilation:
 
 ```
 scons libFFTest
 ```
 
-## Run:
+### Run:
 
 Once you start the netsDB system [Start Cluster](https://github.com/asu-cactus/netsdb/blob/master/README.md), run following command:
 
@@ -35,3 +37,25 @@ You can pass the command line parameters or modify variables in the example appl
 | num\_labels               | number of labels used for the classification task         |
 
 Variables can be directly modified [here](https://github.com/asu-cactus/netsdb/blob/master/src/tests/source/FFTest.cc). Needs to recompile after modifying the variables.
+
+
+## UDF-Centric Implementation
+### Example Application Source:
+
+[UDF-Centric Feed-forward Neural Network Application Code](https://github.com/asu-cactus/netsdb/blob/master/src/tests/source/FCProjTest.cc)
+
+### Compilation:
+
+```
+scons libclassifier
+```
+
+### Run:
+
+Once you start the netsDB system [Start Cluster](https://github.com/asu-cactus/netsdb/blob/master/README.md), run following command:
+
+```
+bin/FCProjTest blockDimensionX blockDimensionY whetherToLoadData path/to/weights/and/bias(leave empty if generate random)
+```
+
+
