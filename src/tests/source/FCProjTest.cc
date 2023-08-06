@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
   int block_x, block_y, batch_size;
 
   if (argc < 3) {
-    cout << "Usage: blockDimensionX blockDimensionY batchSize numFeatures numNeurons numLabels YY"
+    cout << "Usage: blockDimensionX blockDimensionY batchSize numFeatures numNeurons numLabels Y "
             "path/to/weights/and/bias(leave empty if generate random)"
          << endl;
     exit(-1);
@@ -46,7 +46,6 @@ int main(int argc, char *argv[]) {
   }
   cout << "Using block dimensions " << block_x << ", " << block_y << endl;
 
-  bool generate = true;
 
   string masterIp = "localhost";
   pdb::PDBLoggerPtr clientLogger = make_shared<pdb::PDBLogger>("FFclientLog");
@@ -58,23 +57,20 @@ int main(int argc, char *argv[]) {
   if (reloadData) {
 
       ff::createDatabase(pdbClient, "ff");
-      ff::setup(pdbClient, "ff");
+      ff::loadLibrary(pdbClient, "libraries/libFFMatrixMeta.so");
+      ff::loadLibrary(pdbClient, "libraries/libFFMatrixData.so");
+      ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlock.so");
+      ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlockScanner.so");
+      ff::loadLibrary(pdbClient, "libraries/libFFMatrixWriter.so");
       pdbClient.registerType("libraries/libFullyConnectedNetwork.so", errMsg);
-      ff::createSet(pdbClient, "ff", "inputs", "inputs", 64);
+      ff::createSet(pdbClient, "ff", "inputs", "inputs", 4);
 
   }
 
-  ff::createSet(pdbClient, "ff", "output", "Output", 64);
+  ff::createSet(pdbClient, "ff", "output", "Output", 4);
 
 
-  if (!generate && reloadData) {
-    input_path = string(argv[4]) + "/input.out";
-    labels_path = string(argv[4]) + "/labels.out";
-
-    // load the input data
-    ff::load_matrix_data(pdbClient, input_path, "ff", "inputs",
-                                      block_x, block_y, false, false, errMsg);
-  } else if (reloadData) {
+  if (reloadData) {
 
     // X x features_size = None x 5000
     std::cout << "To load matrix for ff:inputs" << std::endl;
@@ -83,7 +79,7 @@ int main(int argc, char *argv[]) {
 
   }
 
-  const pdb::UseTemporaryAllocationBlock tempBlock1{(size_t)6 * (size_t)1024 * (size_t)1024 * (size_t)1024};
+  pdb::makeObjectAllocatorBlock((size_t)100 * (size_t)1024 * (size_t)1024, true);
 
   pdb::Handle<pdb::Computation> inputScanner =
       pdb::makeObject<pdb::ScanUserSet<FFMatrixBlock>>("ff", "inputs"); 
@@ -100,7 +96,7 @@ int main(int argc, char *argv[]) {
 
   auto begin = std::chrono::high_resolution_clock::now();
     // run the computation
-  if (!pdbClient.executeComputations(errMsg, "fc-proj", writer)) {
+  if (!pdbClient.executeComputations(errMsg, "fc-proj", false, 100, writer)) {
     cout << "Computation failed. Message was: " << errMsg << "\n";
     exit(1);
   }
@@ -110,50 +106,6 @@ int main(int argc, char *argv[]) {
               << std::chrono::duration_cast<std::chrono::duration<float>>(end - begin).count()
               << " secs." << std::endl;
 
-
-
-  vector<vector<double>> labels_test;
-
-  if (!generate)
-    ff::load_matrix_from_file(labels_path, labels_test);
-
-  int correct = 0;
-  {
-    const pdb::UseTemporaryAllocationBlock tempBlock{(size_t)128 * (size_t)1024 * (size_t)1024};
-
-    auto it = pdbClient.getSetIterator<FFMatrixBlock>("ff", "output");
-
-    for (auto r : it) {
-      double *data = r->getRawDataHandle()->c_ptr();
-      int i = 0;
-      int j = r->getBlockRowIndex() * r->getRowNums();
-      while (i < r->getRowNums() * r->getColNums()) {
-        if (!generate && j >= labels_test.size())
-          break;
-        // double a = exp(data[i]);
-        // double b = exp(data[i + 1]);
-        // double sum = a + b;
-
-        cout << data[i] << ", " << data[i + 1] << endl;
-
-        if (!generate) {
-          int pos1 = data[i] > data[i + 1] ? 0 : 1;
-          int pos2 = labels_test[j][0] > labels_test[j][1] ? 0 : 1;
-
-          if (pos1 == pos2)
-            correct++;
-        }
-
-        i += r->getColNums();
-        j++;
-      }
-    }
-
-    if (!generate)
-      cout << "Accuracy: " << correct << "/" << labels_test.size() << std::endl;
-  }
-
-  sleep(20);
 
   return 0;
 }

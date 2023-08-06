@@ -156,11 +156,22 @@ if (typeName != getTypeName <Type> ()) {
         return executeComputations(errMsg, jobName, preCompile, args...);
     }
 
+template <class... Types>
+    bool executeComputations(std::string& errMsg,
+                             std::string jobName,
+                             bool preCompile,
+			     int size,
+                             Handle<Computation> firstParam,
+                             Handle<Types>... args) {
+        queryGraph->push_back(firstParam);
+        return executeComputations(errMsg, jobName, preCompile, size, args...);
+    }
 
-    bool executeComputations(std::string& errMsg, std::string jobName = "", bool preCompile = false) {
+
+    bool executeComputations(std::string& errMsg, std::string jobName = "", bool preCompile = false, int size = 64) {
 
         // this is the request
-        const UseTemporaryAllocationBlock myBlock{256 * 1024 * 1024};
+        const UseTemporaryAllocationBlock myBlock{(size_t)size * (size_t)1024 * (size_t)1024};
         QueryGraphAnalyzer queryAnalyzer(this->queryGraph);
         std::string tcapString = queryAnalyzer.parseTCAPString();
         std::vector<Handle<Computation>> computations;

@@ -64,7 +64,15 @@ bool PDBClient::executeComputations(std::string &errMsg,
 }
 
 
-
+template <class... Types>
+bool PDBClient::executeComputations(std::string &errMsg,
+                                    std::string jobName,
+                                    bool preCompile,
+				    int size,
+                                    Handle<Computation> firstParam,
+                                    Handle<Types>... args) {
+  return queryClient.executeComputations(errMsg, jobName, preCompile, size, firstParam, args...);
+}
 
 
 template <class Type>

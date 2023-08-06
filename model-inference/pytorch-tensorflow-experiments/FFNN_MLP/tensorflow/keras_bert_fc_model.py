@@ -5,17 +5,17 @@ from tensorflow import keras
 import tensorflow as tf
 from keras import layers
 
-input_dimension = 597540
-input_path = 'amazon_14K_Input'
-batch = 8000
+input_dimension = 768
+input_path = 'keras_Bert_Input'
+batch = 1000
 
 # create the structure of the model
 model = tf.keras.Sequential()
 model.add(tf.keras.Input(shape=(input_dimension,), batch_size=batch))
-model.add(layers.Dense(1024, activation= 'relu'))
-model.add(layers.Dense(14588, activation= 'softmax'))
+model.add(layers.Dense(3072, activation= 'relu'))
+model.add(layers.Dense(768, activation= 'softmax'))
 
-# set the weights and bias of the model using float precision
+# set the weights and bias of the model using float32 precision
 for layer in model.layers:
     print (layer.get_weights()[0].shape)
     a,b = layer.get_weights()[0].shape
@@ -27,7 +27,7 @@ for layer in model.layers:
 model.compile()
 
 # # save the model
-model.save('amazon_14K.h5')
+model.save('keras_Bert.h5')
 
 def get_db_connection():
     # connect to postgresql database
