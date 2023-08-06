@@ -153,9 +153,13 @@ optional arguments:
 </pre>
 
 ##### Example
-`$ python3 cnn-connectorx-tensorflow.py --input '40, 224, 224, 64' --kernel '3,3,64,64' --stride 1 --images 10 --loadFromFile Y`
 
-Above example, performs 10 convolution operation on input (N: 40, H: 224, W: 224, C: 64) with kernel (H: 3, W: 3, C: 64, number of filters: 64) producing 10 output of shape (40, 222, 222, 64) 
+`$ python3 load-data.py --images 40 --inputsize '40, 224, 224, 64' --kernelsize '3,3,64,64' --stride 1  --loadFromFile N`
+ 
+`$ python3 cnn-connectorx-tensorflow.py --images 40 --inputsize '40, 224, 224, 64' --kernelsize '3,3,64,64' --stride 1  --loadFromFile N`
+
+
+Above example, performs 1 convolution operation on input (N: 40, H: 224, W: 224, C: 64) with kernel (H: 3, W: 3, C: 64, number of filters: 64) producing 1 output of shape (40, 222, 222, 64) 
 
 #### Pytorch
 
@@ -167,7 +171,7 @@ Load the data
 
 Run the inferences
 
-`$ python3 cnn-pytorch.py`
+`$ python3 cnn-connectorx-pytorch.py`
 
 This script accepts following parameters
 
@@ -182,6 +186,78 @@ optional arguments:
 </pre>
 
 ##### Example
-`$ python3 cnn-connectorx-pytorch.py --input '40, 64, 224, 224' --kernel '64,64,3,3' --images 10 --stride 1 --loadFromFile Y`
 
-Above example, performs 10 convolution operation on input (N: 40, C: 64, H: 224, W: 64) with kernel (number of filters: 64, C: 3, H: 64, W: 64) producing 10 output of shape (N: 40, C: 64, H: 222, W: 222)
+`$ python3 load-data.py --images 40 --inputsize '40, 224, 224, 64' --kernelsize '3,3,64,64' --stride 1  --loadFromFile N`
+
+`$ python3 cnn-connectorx-pytorch.py --inputsize '40, 64, 224, 224' --kernelsize '64,64,3,3' --images 40 --stride 1 --loadFromFile N`
+
+Above example, performs 1 convolution operation on input (N: 40, C: 64, H: 224, W: 64) with kernel (number of filters: 64, C: 3, H: 64, W: 64) producing 1 output of shape (N: 40, C: 64, H: 222, W: 222)
+
+
+## Decision Forest
+
+See https://github.com/asu-cactus/DFInferBench
+
+
+# Experiments for the UDF Centric Architecture
+
+## FFNN
+
+See https://github.com/asu-cactus/netsdb/tree/master/model-inference/feedforward-neural-network
+
+## Conv2d
+
+See https://github.com/asu-cactus/netsdb/edit/master/model-inference/convolutional-neural-network/README.md
+
+
+## Decision Forest
+
+Compile model by running scons libDFTest.
+
+Make sure to start the cluster:
+```bash
+./scripts/cleanupNode.sh
+./scripts/startPseudoCluster.py [num-of-threads] [shared-memory-size in MB]
+```
+
+Then run UDF-centric:
+```
+NETSDB_ROOT=[root-path-for-model-and-data]
+
+bin/testDecisionForest Y [row-number] [column-number] [block-size] [label-column-index] F A [page-size] [num-of-partition] [datsaet-path] [netsdb-model-path] [model: XGboost, LightGBM, or RandomForest] [whether-to-support-missing: missing or withoutMissing] [task-type: classification or regression]
+
+bin/testDecisionForest N [row-number] [column-number] [block-size] [label-column-index] F A [page-size] [num-of-partition] [dataset-path] [netsdb-model-path] [model: XGboost, LightGBM, or RandomForest] [whether-to-support-missing: missing or withoutMissing] [task-type: classification or regression]
+
+```
+
+
+# Experiments for the Relation Centric Architecture
+
+## FFNN
+
+See https://github.com/asu-cactus/netsdb/tree/master/model-inference/feedforward-neural-network
+
+
+## Conv2d
+
+See https://github.com/asu-cactus/netsdb/edit/master/model-inference/convolutional-neural-network/README.
+md
+
+## Decision Forest
+
+First, compile model by running scons libDFTest.
+
+Make sure to start the cluster:
+```bash
+./scripts/cleanupNode.sh
+./scripts/startPseudoCluster.py [num-of-threads] [shared-memory-size in MB]
+```
+
+```
+NETSDB_ROOT=[root-path-for-model-and-data]
+
+bin/testDecisionForestWithCrossProduct Y [row-number] [column-number] [block-size] [label-column-index] [page-size] [num-of-partitions] [datset-path] [netsdb-model-path] [model: XGboost, LightGBM, or RandomForest] [tree-number] [whether-to-support-missing: missing or withoutMissing] [task-type: classification or regression]
+
+bin/testDecisionForestWithCrossProduct N [row-number] [column-number] [block-size] [label-column-index] [page-size] [num-of-partitions] [datset-path] [netsdb-model-path] [model: XGboost, LightGBM, or RandomForest] [tree-number] [whether-to-support-missing: missing or withoutMissing] [task-type: classification or regression]
+
+```
