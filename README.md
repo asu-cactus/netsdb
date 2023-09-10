@@ -11,28 +11,24 @@ netsDB is built on top of an earlier version of the open source project PlinyCom
 Requirements:  
 Software:
 
-clang/llvm/build-essential
+clang/llvm/build-essential: sudo apt install clang llvm build-essential (LLVM/clang++3.8 or above)
 
-sudo apt install clang llvm build-essential
-
-scons http://scons.org/
+scons: http://scons.org/
 
 bison
 
 flex
 
-LLVM/clang++3.8 or above
+Snappy:	libsnappy1v5, libsnappy-dev
 
-Snappy	libsnappy1v5, libsnappy-dev
+GSL:	     libgsl-dev
 
-GSL	     libgsl-dev
-
-Boost	libboost-dev, libboost-program-options-dev, libboost-filesystem-dev, libboost-system-dev
+Boost:	libboost-dev, libboost-program-options-dev, libboost-filesystem-dev, libboost-system-dev
 
 
-OS: Ubuntu-16, MacOS, Ubuntu-20
+OS: Ubuntu-16, MacOS, Ubuntu-20, Ubuntu-22
 
-Run: scons 
+## Run scons
 
 ## Run netsDB on local
 
@@ -44,7 +40,7 @@ python scripts/startPseudoCluster.py #numThreads #sharedMemPoolSize (MB)
 scripts/cleanupNode.sh
 
 
-## Run netsDB on a Cluster 
+## Run netsDB on a Ubuntu Cluster 
 
 ### Configuration
 
