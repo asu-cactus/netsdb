@@ -246,7 +246,7 @@ int main(int argc, char *argv[]) {
 
             labelWriter->setInput(decisionForestUDF);
 
-            bool materializeHash = true;
+            bool materializeHash = false;
             auto exe_begin = std::chrono::high_resolution_clock::now();
             if (!pdbClient.executeComputations(errMsg, "decisionForest", materializeHash, labelWriter)) {
                 cout << "Computation failed. Message was: " << errMsg << "\n";

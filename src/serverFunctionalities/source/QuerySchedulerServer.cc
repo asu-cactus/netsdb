@@ -1331,7 +1331,7 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                                       << " seconds." << std::endl;
                         // dyanmic planning
                         // initialize tcapAnalyzer
-			this->tcapAnalyzerPtr = nullptr;
+			//this->tcapAnalyzerPtr = nullptr;
                         this->tcapAnalyzerPtr = make_shared<TCAPAnalyzer>(
                             jobId, computations, tcapString, this->logger, this->conf, 
                             getFunctionality<SelfLearningServer>().getDB(), true);
@@ -1339,8 +1339,8 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                         int jobStageId = 0;
 
                         // this is to specify whether we should materialize all stages regarding the current workload
-                        // in order to save time for future executions
-                        bool materializeThisWorkloadOrNot = false;
+                        // in order to save time for future execuitions
+                        bool materializeThisWorkloadOrNot = request->getWhetherToPreCompile();
 
 
                         // a sequence of stages to be materialized for this workload
