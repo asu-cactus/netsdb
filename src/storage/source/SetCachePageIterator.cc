@@ -43,7 +43,6 @@ PDBPagePtr SetCachePageIterator::next() {
             key.typeId = this->set->getTypeID();
             key.setId = this->set->getSetID();
             key.pageId = this->iter->first;
-            //std::cout << "SetCachePageIterator: in cache: curPageId=" << key.pageId << "\n";
 #ifdef USE_LOCALITY_SET
             PDBPagePtr page = this->cache->getPage1(key, this->set);
 #else
@@ -55,7 +54,6 @@ PDBPagePtr SetCachePageIterator::next() {
         } else {
             // the page is already flushed to file, so load from file
             PageID pageId = this->iter->first;
-            //std::cout << "SetCachePageIterator: not in cache: curPageId=" << pageId << "\n";
             FileSearchKey searchKey = this->iter->second;
             this->cache->evictionUnlock();
 

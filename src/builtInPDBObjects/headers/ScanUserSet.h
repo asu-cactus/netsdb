@@ -68,7 +68,6 @@ public:
 
     virtual ComputeSourcePtr getComputeSource(TupleSpec& schema, ComputePlan& plan) override {
          if (!isFollowedByLocalJoin()) {
-            std::cout << computationName << ": ****Return VectorTupleSetIterator****" << std::endl;
             return std::make_shared<VectorTupleSetIterator>(
 
             [&]() -> void* {
@@ -113,7 +112,6 @@ public:
 
             );
         } else {
-            std::cout << computationName << ": ****Return PartitionedVectorTupleSetIterator****" << std::endl;
             return std::make_shared<PartitionedVectorTupleSetIterator<OutputClass>>(
 
             myPartitionId,
@@ -130,13 +128,10 @@ public:
                     return nullptr;
                 }
                 while (this->iterator->hasNext() == true) {
-                    std::cout << myPartitionId << ": to get a page" << std::endl;
                     PDBPagePtr page = this->iterator->next();
                     if (page != nullptr) {
-                        std::cout << myPartitionId << ": PartitionedVectorTupleSetIterator got a page with ID=" << page->getPageID() << std::endl;
                         return page;
                     } else {
-                        std::cout << myPartitionId << ": PartitionedVectorTupleSetIterator got a null page" << std::endl;
                         sched_yield();
                     }
                 }
@@ -165,11 +160,9 @@ public:
                        
                         try {
                             this->proxy->unpinUserPage(nodeId, dbId, typeId, setId, freeMe, false);
-                            std::cout << myPartitionId << ": Unpinned page: "<< freeMe->getPageID() << std::endl;
                         } catch (NotEnoughSpace& n) {
                             makeObjectAllocatorBlock(4096, true);
                             this->proxy->unpinUserPage(nodeId, dbId, typeId, setId, freeMe, false);
-                            std::cout << "Unpinned page: "<< freeMe->getPageID() << std::endl;
                         }
                     }
 #ifdef PROFILING_CACHE
@@ -268,7 +261,6 @@ public:
 
 
     std::string getComputationType() override {
-        std::cout << "***" << this->getComputationName() << std::endl;
         return std::string("ScanUserSet");
     }
 

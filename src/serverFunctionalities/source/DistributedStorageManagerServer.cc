@@ -155,7 +155,6 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
             const auto nodes = getFunctionality<ResourceManagerServer>().getAllNodes();
             std::string address = static_cast<std::string>((*nodes)[nodeId]->getAddress());
             std::string port = std::to_string((*nodes)[nodeId]->getPort());
-	    std::cout << address << ":" << port << std::endl;
             allNodes.push_back(address + ":" + port);
             nodesToBroadcastTo = allNodes;
             Handle<StorageAddSharedPage> storageCmd =
@@ -270,7 +269,6 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
         make_shared<SimpleRequestHandler<DistributedStorageClearSet>>(
             [&](Handle<DistributedStorageClearSet> request, PDBCommunicatorPtr sendUsingMe) {
                 const UseTemporaryAllocationBlock tempBlock{8 * 1024 * 1024};
-                std::cout << "received DistributedStorageClearSet message" << std::endl;
                 std::string errMsg;
                 bool res = true;
                 mutex lock;
@@ -355,7 +353,6 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
             if (desiredSize == 0) {
                 desiredSize = 1;
             }
-            std::cout << "******************** desired size = " << desiredSize << "********************" << std::endl;
             Handle<StorageAddSet> storageCmd = makeObject<StorageAddSet>(request->getDatabaseName(),
                                                                          request->getSetName(),
                                                                          request->getTypeName(),
@@ -401,12 +398,10 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                 if (createdJobId == "") {
                     createdJobId = this->getNextClientId();
                 }
-                std::cout << "to create data in sqlite database for " << request->getDatabaseName() << ":" << request->getSetName() << std::endl;
                 getFunctionality<SelfLearningServer>().createData(request->getDatabaseName(), request->getSetName(),
                                                             createdJobId, "UserSet",
                                                             request->getTypeName(), typeId,
                                                             request->getPageSize(), -1, 1, id);
-                std::cout << "created data in sqlite database" << std::endl;
                 idMap[std::pair<std::string, std::string>(request->getDatabaseName(), request->getSetName())] = id;
             }
          
@@ -440,9 +435,7 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
             long lambdaId = -1;
 
 
-            if (getFunctionality<CatalogClient>().setExists(database, set)) {
-                std::cout << "Set " << database << ":" << set << " already exists " << std::endl;
-            } else {
+            if (!(getFunctionality<CatalogClient>().setExists(database, set))) {
                 std::cout << "Set " << database << ":" << set << " does not exist" << std::endl;
 
                 // JiaNote: comment out below line because searchForObjectTypeName doesn't work for
@@ -514,11 +507,6 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                 desiredSize = 1000;
             }
 
-            std::cout << "******************** desired size = " << desiredSize << "********************" << std::endl;
-	    if (request->getSharedTensorBlockSet())
-	        std::cout << "%%%%%%%%%%%%%%%%%DistributedStorageManagerServer: to add shared set%%%%%%%%%%%%%%%" << std::endl;
-	    else 
-		std::cout << "%%%%%%%%%%%%%%%%%DistributedStorageManagerServer: to add private set%%%%%%%%%%%%%%%" << std::endl;
             Handle<StorageAddSet> storageCmd = makeObject<StorageAddSet>(request->getDatabase(),
                                                                          request->getSetName(),
                                                                          request->getTypeName(),
@@ -527,7 +515,6 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                                                                          request->getMRUorNot(),
                                                                          request->getMRUorNot(),
 									 request->getSharedTensorBlockSet());
-            std::cout << "Page size is determined to be " << pageSize << std::endl;
             
 
             //there are five cases:
@@ -541,7 +528,6 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
             Handle<LambdaIdentifier> myLambdaIdentifier = request->getLambdaIdentifier();
             if (myLambdaIdentifier == nullptr) {
                  if ((this->selfLearningOrNot == true) && (optimizer != nullptr)&&(this->trainingOrNot == false)){
-                     std::cout << "to get the best lambda" << std::endl;
                      myLambdaIdentifier = optimizer->getBestLambda();
                  }
             }
@@ -558,35 +544,28 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                      std::string jobName = myLambdaIdentifier->getJobName();
                      std::string computationName = myLambdaIdentifier->getComputationName();
                      std::string lambdaName = myLambdaIdentifier->getLambdaName();
-                      std::cout << "my best lambda is " << jobName << ", " << computationName << ", " << lambdaName << std::endl;
                      //to get the computation object 
                      Handle<Computation> myComputation = getFunctionality<SelfLearningServer>().getComputation(
                        jobName, computationName);
                      //to get the lambda object
                      if (myComputation != nullptr) {
                          ComputationNode myNode(myComputation);
-                         std::cout << "lambda name is " << lambdaName << std::endl;
                          GenericLambdaObjectPtr myLambda = myNode.getLambda(lambdaName); 
 
                          if (myLambda != nullptr) {   
                              int numNodes = shuffleInfo->getNumNodes();
                              int numPartitions = shuffleInfo->getNumHashPartitions();    
-                             std::cout << "numNodes = " << numNodes << std::endl;
-                             std::cout << "numPartitions = " << numPartitions << std::endl;
                              //to create a LambdaPolicy
                              PartitionPolicyPtr myLambdaPolicy = std::make_shared<LambdaPolicy>(numNodes, numPartitions, myLambda);
                              //to set the LambdaPolicy
-                             std::cout << "to register policy" << std::endl;
 #ifndef TEST_LACHESIS_OVERHEAD
                              getFunctionality<DispatcherServer>().registerSet(std::pair<std::string, std::string>(request->getSetName(), request->getDatabase()), myLambdaPolicy);
 #endif
                          }
                      }
                      lambdaId = getFunctionality<SelfLearningServer>().getLambdaId(jobName, computationName, lambdaName);
-                     std::cout << "the lambda id is " << lambdaId << std::endl;
 
             } else {
-                 std::cout << "No Computation and Lambda for partitioning" << std::endl;
                  if (this->selfLearningOrNot == true) {
                  //to fetch the lambda object
                  //TODO
@@ -601,8 +580,6 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
             bool isRepeatedLambda = false;
             if ((this->selfLearningOrNot == true) && (this->trainingOrNot == false)) {
                 long latestLambdaId = getFunctionality<SelfLearningServer>().getLatestLambdaIdForLoadJob(request->getCreatedJobId());
-                std::cout << "received lambdaId is " << lambdaId << std::endl;
-                std::cout << "last lambdaId applied to the same data is " << latestLambdaId << std::endl;
                 if (latestLambdaId == lambdaId) {
                     isRepeatedLambda = true;
                 } else {
@@ -611,14 +588,12 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
             }
 #endif
 
-            std::cout << "to broadcast StorageAddset" << std::endl; 
             getFunctionality<DistributedStorageManagerServer>()
                 .broadcast<StorageAddSet, Object, SimpleRequestResult>(
                     storageCmd,
                     nullptr,
                     nodesToBroadcast,
                     generateAckHandler(successfulNodes, failureNodes, lock));
-            std::cout << "broadcasted StorageAddSet" << std::endl;
             auto storageAddSetEnd = std::chrono::high_resolution_clock::now();
 
 
@@ -643,15 +618,11 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                 if (createdJobId == "") {
                     createdJobId = this->getNextClientId();
                 }
-                std::cout << "createdJobId is " << createdJobId << std::endl;
                 int typeId = VTableMap::getIDByName(request->getTypeName());
-                std::cout << "typeId is " << typeId << std::endl;
-                std::cout << "create data in sqlite for " << request->getDatabase() << ":" << request->getSetName() << std::endl;
                 getFunctionality<SelfLearningServer>().createData(request->getDatabase(), request->getSetName(),
                                                             createdJobId, "UserSet", 
                                                             request->getTypeName(), typeId, 
                                                             request->getPageSize(), lambdaId, 1, id);
-                std::cout << "created data in sqlite" << std::endl;
                 idMap[std::pair<std::string, std::string>(request->getDatabase(), request->getSetName())] = id;
             }
             auto catalogAddSetEnd = std::chrono::high_resolution_clock::now();
@@ -715,15 +686,11 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
             std::string database = request->getDatabase();
             std::string set = request->getSetName();
             std::string jobName = request->getJobName();
-            std::cout <<"create database="<<database<<", set="<<set<<",using partitioning computation extracted from job=" << jobName; 
 
             long lambdaId = -1;
             long lambdaId1 = -1;
 
-            if (getFunctionality<CatalogClient>().setExists(database, set)) {
-                std::cout << "Set " << database << ":" << set << " already exists " << std::endl;
-            } else {
-                PDB_COUT << "Set " << database << ":" << set << " does not exist" << std::endl;
+            if (!(getFunctionality<CatalogClient>().setExists(database, set))) {
 
                 // JiaNote: comment out below line because searchForObjectTypeName doesn't work for
                 // complex type like Vector<Handle<Foo>>
@@ -763,7 +730,6 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                 desiredSize = 1000;
             }
 
-            std::cout << "******************** desired size = " << desiredSize << "********************" << std::endl;
             Handle<StorageAddSet> storageCmd = makeObject<StorageAddSet>(request->getDatabase(),
                                                                          request->getSetName(),
                                                                          request->getTypeName(),
@@ -772,8 +738,6 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                                                                          request->getMRUorNot(),
                                                                          request->getMRUorNot(),
 									 request->getSharedTensorBlockSet());
-            std::cout << "Page size is determined to be " << pageSize << std::endl;
-            std::cout << "jobName to match is " << jobName << std::endl; 
 
             std::pair<std::string, std::string> source;
             source.first = request->getDatabase();
@@ -781,26 +745,19 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
 
             int numNodes = shuffleInfo->getNumNodes();
             int numPartitions = shuffleInfo->getNumHashPartitions();
-            std::cout << "numNodes = " << numNodes << std::endl;
-            std::cout << "numPartitions = " << numPartitions << std::endl;
             //to create an IRPolicy
             PartitionPolicyPtr myIRPolicy = std::make_shared<IRPolicy>(numNodes, numPartitions, myComputations, source);
             //to set the IRPolicy
-            std::cout << "to register policy" << std::endl;
             getFunctionality<DispatcherServer>().registerSet(std::pair<std::string, std::string>(request->getSetName(), request->getDatabase()), myIRPolicy);
             lambdaId = getFunctionality<SelfLearningServer>().getLambdaId(request->getJobName1(), request->getComputationName1(), request->getLambdaName1());
             lambdaId1 = getFunctionality<SelfLearningServer>().getLambdaId(request->getJobName2(), request->getComputationName2(), request->getLambdaName2());
-            std::cout << "the lambda id is " << lambdaId << std::endl;
-            std::cout << "the lambda id1 is " << lambdaId1 << std::endl;
 
-            std::cout << "to broadcast StorageAddset" << std::endl;
             getFunctionality<DistributedStorageManagerServer>()
                 .broadcast<StorageAddSet, Object, SimpleRequestResult>(
                     storageCmd,
                     nullptr,
                     nodesToBroadcast,
                     generateAckHandler(successfulNodes, failureNodes, lock));
-            std::cout << "broadcasted StorageAddSet" << std::endl;
             auto storageAddSetEnd = std::chrono::high_resolution_clock::now();
 
 
@@ -825,15 +782,11 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                 if (createdJobId == "") {
                     createdJobId = this->getNextClientId();
                 }
-                std::cout << "createdJobId is " << createdJobId << std::endl;
                 int typeId = VTableMap::getIDByName(request->getTypeName());
-                std::cout << "typeId is " << typeId << std::endl;
-                std::cout << "create data in sqlite for " << request->getDatabase() << ":" << request->getSetName() << std::endl;
                 getFunctionality<SelfLearningServer>().createData(request->getDatabase(), request->getSetName(),
                                                             createdJobId, "UserSet",
                                                             request->getTypeName(), typeId,
                                                             request->getPageSize(), lambdaId, 1, id, lambdaId1);
-                std::cout << "created data in sqlite" << std::endl;
                 idMap[std::pair<std::string, std::string>(request->getDatabase(), request->getSetName())] = id;
             }
             auto catalogAddSetEnd = std::chrono::high_resolution_clock::now();
@@ -1049,7 +1002,6 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
 
                // check if the type exists
                if(type == nullptr) {
-                   std::cout << "Remove set, can not find the type with the id : " << *set->type << "\n";
                    Handle<SimpleRequestResult> response = makeObject<SimpleRequestResult>(false, errMsg);
                    bool res = sendUsingMe->sendObject(response, errMsg);
                    return make_pair(res, errMsg);
@@ -1080,7 +1032,6 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
 #endif
 
             auto catalogGetNodesEnd = std::chrono::high_resolution_clock::now();
-            std::cout << "to broadcast StorageRemoveUserSet" << std::endl;
             Handle<StorageRemoveUserSet> storageCmd = makeObject<StorageRemoveUserSet>(
                 request->getDatabase(), request->getSetName(), typeName);
             getFunctionality<DistributedStorageManagerServer>()
@@ -1184,16 +1135,13 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
 
             [&](Handle<DistributedStorageCleanup> request, PDBCommunicatorPtr sendUsingMe) {
                 const UseTemporaryAllocationBlock tempBlock{1 * 1024 * 1024};
-                std::cout << "received DistributedStorageCleanup" << std::endl;
                 std::string errMsg;
                 mutex lock;
                 auto successfulNodes = std::vector<std::string>();
                 auto failureNodes = std::vector<std::string>();
 
                 std::vector<std::string> allNodes;
-                std::cout << "to wait for all requests get processed" << std::endl;
                 getFunctionality<DispatcherServer>().waitAllRequestsProcessed();
-                std::cout << "All data requests have been served" << std::endl;
                 const auto nodes = getFunctionality<ResourceManagerServer>().getAllNodes();
                 for (int i = 0; i < nodes->size(); i++) {
                     std::string address = static_cast<std::string>((*nodes)[i]->getAddress());
@@ -1237,14 +1185,12 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
             
             [&](Handle<DistributedStorageRemoveHashSet> request, PDBCommunicatorPtr sendUsingMe) {
                 const UseTemporaryAllocationBlock tempBlock{1 * 1024 * 1024};
-                std::cout << "received DistributedStorageRemoveHashSet" << std::endl;
                 std::string errMsg;
                 mutex lock;
                 auto successfulNodes = std::vector<std::string>();
                 auto failureNodes = std::vector<std::string>();
                 
                 std::vector<std::string> allNodes;
-                std::cout << "All data requests have been served" << std::endl;
                 const auto nodes = getFunctionality<ResourceManagerServer>().getAllNodes();
                 for (int i = 0; i < nodes->size(); i++) {
                     std::string address = static_cast<std::string>((*nodes)[i]->getAddress());
@@ -1427,7 +1373,6 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                     std::cout << errMsg << std::endl;
                     break;
                 }
-                std::cout << "sent SetScan object to " << address << std::endl;
                 while (true) {
                     if (curPage != nullptr) {
                         free(curPage);
@@ -1437,45 +1382,30 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                                 Handle<KeepGoing> temp =
                                     sendUsingMe->getNextObject<KeepGoing>(success, errMsg);
                                 if (!success) {
-                                    // std :: cout << "DistributedStorageMangerServer: Problem
-                                    // getting keep going from client: "<< errMsg << std :: endl;
                                     communicator = nullptr;
                                     break;
                                 }
-                                // std :: cout << "got keep going" << std :: endl;
                                 if (!communicator->sendObject(temp, errMsg)) {
-                                    std::cout << "Problem forwarding keep going: " << errMsg
-                                              << std::endl;
                                     communicator = nullptr;
                                     break;
                                 }
-                                // std :: cout << "sent keep going" << std :: endl;
                                 keepGoingSent = true;
                             } else {
                                 Handle<DoneWithResult> doneMsg =
                                     sendUsingMe->getNextObject<DoneWithResult>(success, errMsg);
                                 if (!success) {
-                                    std::cout
-                                        << "Problem getting done message from client: " << errMsg
-                                        << std::endl;
                                     communicator = nullptr;
                                     return std::make_pair(false, errMsg);
                                 }
-                                // std :: cout << "got done from this client!" <<  std :: endl;
                                 if (!communicator->sendObject(doneMsg, errMsg)) {
-                                    std::cout << "Problem forwarding done message: " << errMsg
-                                              << std::endl;
                                     communicator = nullptr;
                                     return std::make_pair(false, errMsg);
                                 }
-                                // std :: cout << "sent done message!" << std :: endl;
                                 return std::make_pair(true, errMsg);
                             }
                         }
                     }
                     size_t objSize = communicator->getSizeOfNextObject();
-                    // std :: cout << "Distributed storage to receive size " << objSize << std ::
-                    // endl;
                     if (communicator->getObjectTypeID() == DoneWithResult_TYPEID) {
                         PDB_COUT << "got done from this slave!" << std::endl;
                         communicator = nullptr;
@@ -1487,22 +1417,18 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
                         exit(1);
                     }
                     if (!communicator->receiveBytes(curPage, errMsg)) {
-                        std::cout << "Problem getting data from slave: " << errMsg << std::endl;
                         communicator = nullptr;
                         break;
                     }
                     if (!sendUsingMe->sendBytes(curPage, objSize, errMsg)) {
-                        std::cout << "Problem forwarding data to client: " << errMsg << std::endl;
                         communicator = nullptr;
                         break;
                     }
-                    // std :: cout << "sent data to client!" << std :: endl;
                     keepGoingSent = false;
                 }
             }
             Handle<DoneWithResult> doneWithResult = makeObject<DoneWithResult>();
             if (!sendUsingMe->sendObject(doneWithResult, errMsg)) {
-                std::cout << "Problem sending done message to client: " << errMsg << std::endl;
                 return std::make_pair(false, "could not send done message: " + errMsg);
             }
             PDB_COUT << "sent done message to client!" << std::endl;
@@ -1515,7 +1441,6 @@ void DistributedStorageManagerServer::registerHandlers(PDBServer& forMe) {
         make_shared<SimpleRequestHandler<DistributedStorageAddModel>>(
             [&](Handle<DistributedStorageAddModel> request, PDBCommunicatorPtr sendUsingMe) {
                 const UseTemporaryAllocationBlock tempBlock{8 * 1024 * 1024};
-                std::cout << "received DistributedStorageAddModel message" << std::endl;
                 std::string errMsg;
                 bool res = true;
                 mutex lock;

@@ -127,7 +127,6 @@ vector<PageCircularBufferIteratorPtr> PageScanner::getSetIterators(NodeID nodeId
 
 bool PageScanner::recvPagesLoop(pdb::Handle<pdb::StoragePagePinned> pinnedPage,
                                 pdb::PDBCommunicatorPtr myCommunicator) {
-    std::cout << "PageScanner: recvPagesLoop processing.\n";
 
     string errMsg;
     bool morePagesToLoad = pinnedPage->getMorePagesToLoad();
@@ -144,16 +143,9 @@ bool PageScanner::recvPagesLoop(pdb::Handle<pdb::StoragePagePinned> pinnedPage,
     // Due to the new handling mechanism, we need to process the first message then accept the next
     // message;
     do {
-        std::cout << "dataPageId:" << dataPageId << "\n";
-        std::cout << "morePagesToLoad:" << morePagesToLoad << "\n";
-        logger->debug(string("got a page with pageId=") + to_string(dataPageId));
         // if there are no more pages to send at the frontend side, send ACK and return.
         if (morePagesToLoad == false) {
-            std::cout << "BackEndServer: sending Ack to frontEnd to end loop...\n";
-            logger->debug(string("BackEndServer: sending Ack to frontEnd to end loop...\n"));
             this->sendPagePinnedAck(myCommunicator, false, "", errMsg);
-            std::cout << "BackEndServer: sent Ack to frontend to end loop...\n";
-            logger->debug(string("BackEndServer: sent Ack to frontend to end loop...\n"));
             return true;
         }
         // if there are more pages to send at the frontend side,
@@ -161,8 +153,6 @@ bool PageScanner::recvPagesLoop(pdb::Handle<pdb::StoragePagePinned> pinnedPage,
         else {
             char* rawData = (char*)this->shm->getPointer(offset);
             page = make_shared<PDBPage>(rawData, offset, 0);
-            std::cout << "BackEndServer: add page scanner page to circular buffer...\n";
-            logger->debug(string("BackEndServer: add page scanner page to circular buffer...\n"));
             if (this->buffer != nullptr) {
                 this->buffer->addPageToTail(page);
             } else {
@@ -170,11 +160,7 @@ bool PageScanner::recvPagesLoop(pdb::Handle<pdb::StoragePagePinned> pinnedPage,
                 logger->error("Fatal Error: this is bad, the circular buffer is null!");
                 return true;
             }
-            std::cout << "BackEndServer: sending PagePinnedAck to frontEnd...\n";
-            logger->debug("BackEndServer: sending PagePinnedAck to frontEnd...\n");
             this->sendPagePinnedAck(myCommunicator, false, "", errMsg);
-            std::cout << "BackEndServer: sent PagePinnedAck to frontEnd...\n";
-            logger->debug("BackEndServer: sent PagePinnedAck to frontEnd...\n");
         }
     } while ((ret = this->acceptPagePinned(myCommunicator,
                                            errMsg,
@@ -186,8 +172,6 @@ bool PageScanner::recvPagesLoop(pdb::Handle<pdb::StoragePagePinned> pinnedPage,
                                            dataPageId,
                                            pageSize,
                                            offset)) == true);
-    std::cout << "PageScanner Work is done" << endl;
-    logger->debug("PageScanner Work is done");
     return false;
 }
 

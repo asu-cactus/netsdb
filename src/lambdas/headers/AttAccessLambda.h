@@ -173,23 +173,17 @@ public:
                     std::string curInput = multiInputsComp->getNameForIthInput(index);
                     auto iter = std::find(outputColumns.begin(), outputColumns.end(), curInput);
                     if (iter != outputColumns.end()) {
-                        PDB_COUT << "MultiInputBase for index=" << index << " is updated"
-                                 << std::endl;
                         multiInputsComp->setTupleSetNameForIthInput(index, outputTupleSetName);
                         multiInputsComp->setInputColumnsForIthInput(index, outputColumns);
                         multiInputsComp->setInputColumnsToApplyForIthInput(index, outputColumnName);
 
-                        std::cout << "AttAccessLambda: setInputColumnsToApplyForIthInput: " << index << ":" << outputColumnName << std::endl;
 
                     }
                     if (originalInputColumnToApply == curInput) {
-                        PDB_COUT << "MultiInputBase for index=" << index << " is updated"
-                                 << std::endl;
                         multiInputsComp->setTupleSetNameForIthInput(index, outputTupleSetName);
                         multiInputsComp->setInputColumnsForIthInput(index, outputColumns);
                         multiInputsComp->setInputColumnsToApplyForIthInput(index, outputColumnName);
 
-                        std::cout << "AttAccessLambda: setInputColumnsToApplyForIthInput: " << index << ":" << outputColumnName << std::endl;
 
                     }
                 }

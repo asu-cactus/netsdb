@@ -52,7 +52,6 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
       StoragePagePinned_TYPEID,
       make_shared<SimpleRequestHandler<StoragePagePinned>>([&](Handle<StoragePagePinned> request,
                                                                PDBCommunicatorPtr sendUsingMe) {
-	std::cout << "Start a handler to process StoragePagePinned messages\n";
         bool res;
         std::string errMsg;
         PageScannerPtr scanner = getFunctionality<HermesExecutionServer>().getCurPageScanner();
@@ -61,8 +60,6 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
           errMsg = "Fatal Error: No job is running in execution server.";
           std::cout << errMsg << std::endl;
         } else {
-	  std::cout << "StoragePagePinned handler: to throw pinned pages to a circular buffer!"
-                   << std::endl;
           scanner->recvPagesLoop(request, sendUsingMe);
           res = true;
         }
@@ -77,15 +74,10 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                             Handle<StorageNoMorePage> request, PDBCommunicatorPtr sendUsingMe) {
                           bool res;
                           std::string errMsg;
-                          std::cout << "Got StorageNoMorePage object." << std::endl;
                           PageScannerPtr scanner =
                               getFunctionality<HermesExecutionServer>().getCurPageScanner();
-                          std::cout << "To close the scanner..." << std::endl;
-                          if (scanner == nullptr) {
-                            std::cout << "The scanner has already been closed." << std::endl;
-                          } else {
+                          if (scanner != nullptr) {
                             scanner->closeBuffer();
-                            std::cout << "We closed the scanner buffer." << std::endl;
                           }
                           res = true;
                           return make_pair(res, errMsg);
@@ -195,7 +187,6 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
         // create a SharedHashSet instance
         size_t hashSetSize = conf->getBroadcastPageSize() * (size_t) (request->getNumPages()) *
             JOIN_HASH_TABLE_SIZE_RATIO;
-        std::cout << "BroadcastJoinBuildHTJobStage: hashSetSize=" << hashSetSize << std::endl;
         SharedHashSetPtr sharedHashSet =
             make_shared<SharedHashSet>(request->getHashSetName(), hashSetSize);
         if (sharedHashSet->isValid() == false) {
@@ -214,8 +205,6 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
           }
 
 #endif
-          std::cout << "BroadcastJoinBuildHTJobStage: tuned hashSetSize to be " << hashSetSize
-                    << std::endl;
           sharedHashSet = make_shared<SharedHashSet>(request->getHashSetName(), hashSetSize);
         }
         if (request->getMaterializeOutput()) {
@@ -235,9 +224,6 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
           return make_pair(success, errMsg);
         }
         this->addHashSet(request->getHashSetName(), sharedHashSet);
-        std::cout << "added shared hash set " << request->getHashSetName() << std::endl;
-        std::cout << "BroadcastJoinBuildHTJobStage: hashSetName=" << request->getHashSetName()
-                  << std::endl;
         // tune backend circular buffer size
         int numThreads = 1;
         int backendCircularBufferSize = 1;
@@ -427,7 +413,6 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                                                                if (tunedHashPageSize > (size_t) 2048 * (size_t) 1024 * (size_t) 1024){
                                                                   tunedHashPageSize = (size_t) 2048 * (size_t) 1024 * (size_t) 1024;
                                                                }  
-                                                               std::cout << "Tuned hash page size is " << tunedHashPageSize << std::endl;
                                                                conf->setHashPageSize(tunedHashPageSize);
 #endif
 
@@ -454,7 +439,6 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                                                                      hashCounter++;
                                                                      PDB_COUT << "hashCounter = " << hashCounter << std::endl;
                                                                    });
-                                                               std::cout << "to run aggregation with " << numPartitions << " threads." << std::endl;
                                                                atomic_int hashCounter;
                                                                hashCounter = 0;
 
@@ -465,11 +449,9 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                                                                  std::string dbName = sinkSetIdentifier->getDatabase();
                                                                  std::string setName = sinkSetIdentifier->getSetName();
                                                                  hashSetName = dbName + ":" + setName;
-                                                                 std::cout << "hashSetSize is tuned to" << this->conf->getHashPageSize() << std::endl;
                                                                  aggregationSet =
                                                                      make_shared<PartitionedHashSet>(hashSetName, this->conf->getHashPageSize());
                                                                  this->addHashSet(hashSetName, aggregationSet);
-                                                                 std::cout << "Added hash set for aggregation"<< hashSetName << std::endl;
                                                                  
                                                                }
 
@@ -530,7 +512,6 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                                                                      void *outBytes = nullptr;
                                                                      while (myIter->hasNext()) {
                                                                        PDBPagePtr page = myIter->next();
-								       std::cout << "AggregateProcessor: I've got a page" << std::endl;
                                                                        if (page != nullptr) {
                                                                          Record<Vector<Handle<Object>>> *myRec =
                                                                              (Record<Vector<Handle<Object>>> *) page->getBytes();
@@ -793,13 +774,11 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                                                                }
 
                                                                // get iterators
-                                                               std::cout << "To send GetSetPages message" << std::endl;
                                                                std::vector<PageCircularBufferIteratorPtr> iterators =
                                                                    scanner->getSetIterators(nodeId,
                                                                                             request->getSourceContext()->getDatabaseId(),
                                                                                             request->getSourceContext()->getTypeId(),
                                                                                             request->getSourceContext()->getSetId());
-                                                               std::cout << "GetSetPages message is sent" << std::endl;
                                                                int numIteratorsReturned = iterators.size();
                                                                if (numIteratorsReturned != numThreads) {
                                                                  int k;
@@ -837,7 +816,6 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                                                                for (int j = 0; j < numThreads; j++) {
                                                                  PDBWorkerPtr worker =
                                                                      getFunctionality<HermesExecutionServer>().getWorkers()->getWorker();
-                                                                 std::cout << "to run the " << j << "-th scan work..." << std::endl;
                                                                  // start threads
                                                                  PDBWorkPtr myWork = make_shared<GenericWork>([&, j](PDBBuzzerPtr callerBuzzer) {
                                                                    // setup an output page to store intermediate results and final output
@@ -928,7 +906,6 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
         if (numPages == 0) {
           numPages = 1;
         }
-        std::cout << "numPages=" << numPages << std::endl;
         size_t hashSetSize = (double) (conf->getShufflePageSize()) *
             (double) (numPages) * (double) (HASH_PARTITIONED_JOIN_SIZE_RATIO) / (double) (numPartitions);
         // create hash set
@@ -939,14 +916,12 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
         if (hashSetSize < (size_t)(2)*(size_t)(1024)*(size_t)(1024)*(size_t)(1024)) {
             hashSetSize = (size_t)(2)*(size_t)(1024)*(size_t)(1024)*(size_t)(1024);
         }
-        std::cout << "hashSetSize is tuned to" << hashSetSize << std::endl;
         std::string hashSetName = request->getHashSetName();
         PartitionedHashSetPtr partitionedSet = make_shared<PartitionedHashSet>(hashSetName, hashSetSize);
         if (request->getMaterializeOutput()) {
             partitionedSet->setMaterialized(true);
         }
         this->addHashSet(hashSetName, partitionedSet);
-        std::cout << "Added hash set for HashPartitionedJoin to probe " << hashSetName << std::endl;
         for (int i = 0; i < numPartitions; i++) {
           void *bytes = partitionedSet->addPage();
           if (bytes == nullptr) {
@@ -976,7 +951,6 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
               hashCounter++;
               PDB_COUT << "hashCounter = " << hashCounter << std::endl;
             });
-        std::cout << "to build hashtables with " << numPartitions << " threads." << std::endl;
         atomic_int hashCounter;
         hashCounter = 0;
 
@@ -1031,7 +1005,6 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                 << std::endl;
             std::cout << out << std::endl;
 #endif
-            std::cout << "hashSetSize = " << hashSetSize << std::endl;
             //getAllocator().setPolicy(AllocatorPolicy::noReuseAllocator);
             Handle<Object> myMap = merger->createNewOutputContainer();
 
@@ -1042,14 +1015,11 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
               while (myIter->hasNext()) {
                 page = myIter->next();
                 if (page != nullptr) {
-                  std::cout << "get a non-empty page" << std::endl;
                   // to get the map on the page
                   RecordIteratorPtr recordIter = make_shared<RecordIterator>(page);
                   while (recordIter->hasNext()) {
                     Record<Object> *record = recordIter->next();
-                    std::cout <<"get a record" << std::endl;
                     if (record != nullptr) {
-                      std::cout <<"get a non-empty record" << std::endl; 
                       Handle<Object> mapsToMerge = record->getRootObject();
                       merger->writeVectorOut(mapsToMerge, myMap);
                     }
@@ -1064,12 +1034,9 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                                        page);
                   }
 
-                } else {
-                    std::cout << "####Scanner got a null page" << std::endl;
                 }
               }
             }
-            std::cout << "To get record" << std::endl;
             getRecord(myMap);
             int numHashKeysInCurPartition = merger->getNumHashKeys();
             pthread_mutex_lock(&connection_mutex);
@@ -1091,7 +1058,6 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
           worker->execute(myWork, hashBuzzer);
 
         }  // for
-        std::cout << "numHashKeys in total is " << numHashKeys << std::endl;
         // get input set and start a one thread scanner to scan that input set, and put the
         // pointer to pages to each of the queues
         // start single-thread scanner
@@ -1261,31 +1227,25 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                                                                      conf->getBatchSize(),
                                                                      conf->getNumThreads());
           if (request->isRepartitionJoin() == true) {
-            std::cout << "run pipeline for hash partitioned join" << std::endl;
             pipeline->runPipelineWithHashPartitionSink(this);
           } else if (((request->isRepartition() == false) ||
               (request->isCombining() == false)) &&
               (request->isBroadcasting() == false)) {
             //pipeline or local join
-            std::cout << "run pipeline..." << std::endl;
             pipeline->runPipeline(this);
           } else if (request->isBroadcasting() == true) {
-            std::cout << "run pipeline with broadcasting..." << std::endl;
             pipeline->runPipelineWithBroadcastSink(this);
           } else {
-            std::cout << "run pipeline with combiner..." << std::endl;
             pipeline->runPipelineWithShuffleSink(this);
           }
           if ((sourceContext->isAggregationResult() == true) &&
               (sourceContext->getSetType() == PartitionedHashSetType)) {
-              std::cout << "to remove hash set for aggregation result" << std::endl;
             std::string hashSetName =
                 sourceContext->getDatabase() + ":" + sourceContext->getSetName();
             AbstractHashSetPtr hashSet = this->getHashSet(hashSetName);
             if ((hashSet != nullptr)&&(!hashSet->isMaterialized())) {
               hashSet->cleanup();
               this->removeHashSet(hashSetName);
-              std::cout << "removed hash set " << hashSetName << std::endl;
             } else {
               std::cout << "Can't remove hash set " << hashSetName
                         << ": set doesn't exist or set is materialized" << std::endl;
@@ -1294,7 +1254,6 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
 
           // if this stage scans hash tables we need remove those hash tables
           if (request->isProbing() == true) {
-            std::cout << "to remove hash set for probing stage" << std::endl;
             Handle<Map<String, String>> hashTables = request->getHashSets();
             if (hashTables != nullptr) {
               for (PDBMapIterator<String, String> mapIter = hashTables->begin();
@@ -1302,12 +1261,10 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                    ++mapIter) {
                 std::string key = (*mapIter).key;
                 std::string hashSetName = (*mapIter).value;
-                std::cout << "remove " << key << ":" << hashSetName << std::endl;
                 AbstractHashSetPtr hashSet = this->getHashSet(hashSetName);
                 if ((hashSet != nullptr)&&(!hashSet->isMaterialized())) {
                   hashSet->cleanup();
                   this->removeHashSet(hashSetName);
-                  std::cout << "removed hash set " << hashSetName << std::endl;
                 } else {
                   std::cout << "Can't remove hash set " << hashSetName
                             << ": set doesn't exist or set is materialized" << std::endl;
@@ -1344,7 +1301,6 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
         if (hashSet != nullptr) {
           hashSet->cleanup();
           this->removeHashSet(hashSetName);
-          std::cout << "removed hash set " << hashSetName << std::endl;
         } else {
           errMsg = std::string("Can't remove hash set ") + hashSetName +
               std::string(": set doesn't exist");

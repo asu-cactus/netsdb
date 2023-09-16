@@ -98,7 +98,6 @@ public:
         if (myRec != nullptr) {
             iterateOverMe = myRec->getRootObject();
             this->mySize = iterateOverMe->size();
-            std::cout << myPartitionId << ": Got iterateOverMe with " << mySize << " objects" << std::endl;
         } else {
             iterateOverMe = nullptr;
         }
@@ -119,7 +118,6 @@ public:
             // this means that we got to the end of the vector
             lastPage = myPage;
             if (lastPage != nullptr) {
-                std::cout << myPartitionId << ": to update the page with ID="<< myPage->getPageID() << ", mySize="<< mySize << ", pos=" << pos << std::endl;
                 doneWithVector(lastPage);
                 lastPage = nullptr;
                 myRec = nullptr;
@@ -138,7 +136,6 @@ public:
                 iterateOverMe = myRec->getRootObject();
                 // JiaNote: we also need to reset mySize
                 this->mySize = iterateOverMe->size();
-                std::cout << myPartitionId << ": Got iterateOverMe with " << mySize << " objects" << std::endl;
                 pos = 0;
                 if (mySize > 0) return;
             } else {
@@ -160,11 +157,8 @@ public:
     // returns the next tuple set to process, or nullptr if there is not one to process
     TupleSetPtr getNextTupleSet() override {
 
-        loopId++;
 
-        if (loopId % 20000 == 0) {
-            std::cout << myPartitionId<< ": has processed "<< loopId << " objects" << std::endl;
-        }
+
 
         if (iterateOverMe == nullptr) {
             return nullptr;
@@ -232,7 +226,6 @@ public:
     }
 
     ~PartitionedVectorTupleSetIterator() {
-        std::cout << "cleanup PartitionedVectorTUpleSetIterator for myPartitionId=" << myPartitionId << std::endl;
     }
 };
 }

@@ -23,7 +23,6 @@ Record<Object>* RecordIterator::next() {
 
     // 1st field: record data size
     size_t objectDataSize = *((size_t*)this->curPosInPage);
-    std::cout << "objectDataSize=" << objectDataSize << std::endl;
     // 2nd field: record data
     Record<Object>* ret = (Record<Object>*)(curPosInPage + sizeof(size_t));
     #ifdef DEBUG_SHUFFLING

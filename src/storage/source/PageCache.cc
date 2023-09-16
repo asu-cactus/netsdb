@@ -37,22 +37,16 @@ PageCache::PageCache(ConfigurationPtr conf,
     this->size = 0;
     this->warnSize = (this->maxSize) * WARN_THRESHOLD;
 
-    std::cout << "maxSize=" << maxSize << std::endl;
 
     this->evictStopSize = (this->maxSize) * EVICT_STOP_THRESHOLD;
 
-    std::cout << "evictStopSize=" << evictStopSize << std::endl;
 
     if (this->evictStopSize >= (shm->getShmSize() - 6 * conf->getMaxPageSize())) {
         this->evictStopSize = shm->getShmSize() - 6 * conf->getMaxPageSize();
-        std::cout << "evictStopSize=" << evictStopSize << std::endl;
         if (this->evictStopSize <= conf->getMaxPageSize()) {
             this->evictStopSize = conf->getMaxPageSize();
-            std::cout << "evictStopSize=" << evictStopSize << std::endl;
         }
     }
-    std::cout << "PageCache: EVICT_STOP_SIZE is automatically tuned to be " << this->evictStopSize
-              << std::endl;
     this->flushBuffer = flushBuffer;
     this->logger = logger;
     this->shm = shm;
@@ -95,7 +89,6 @@ void PageCache::cachePage(PDBPagePtr page, LocalitySet* set) {
         if (set != nullptr) {
             if (this->strategy == UnifiedDBMIN) {
                 set->setNumCachedPages(set->getNumCachedPages()+1);
-                //std::cout << "set->getNumCachedPages()=" << set->getNumCachedPages() << std::endl;
             }
         }
         this->stats.incCached();
@@ -319,14 +312,11 @@ bool PageCache::freePage(PDBPagePtr curPage) {
 
 void PageCache::evictForDBMIN(LocalitySet * set) {
 
-        std::cout << "numCachedPages = " << set->getNumCachedPages() << std::endl;
-        std::cout << "desiredSize = " << set->getDesiredSize() << std::endl;
         this->evictionLock();
         while (set->getNumCachedPages() >= set->getDesiredSize()) {
              PDBPagePtr  pageToEvict = set->selectPageForReplacement();
              if (pageToEvict != nullptr) {
                 this->evictionUnlock();
-                std::cout << "to evict page with Id=" << pageToEvict->getPageID() << " and set Id=" << pageToEvict->getSetID() << std::endl;
                 bool ret = this->evictPageForDBMIN(pageToEvict, set);
                 if (ret == false) {
                     break;
@@ -334,7 +324,6 @@ void PageCache::evictForDBMIN(LocalitySet * set) {
                 pageToEvict = nullptr;
                 this->evictionLock();
              } else {
-                //std::cout << "no page to evict" << std::endl;
                 break;
              }
         }
@@ -354,7 +343,6 @@ PDBPagePtr PageCache::getPage(PartitionedFilePtr file,
     
     if (this->strategy == UnifiedDBMIN) {
         pthread_mutex_lock(&this->evictionMutex);
-        std::cout << "to run evictForDBMIN for getPage with Id=" << pageId << ", set=" << file->getSetId() << std::endl;
         evictForDBMIN(set);
         pthread_mutex_unlock(&this->evictionMutex);
     }
@@ -474,7 +462,6 @@ PDBPagePtr PageCache::getNewPageNonBlocking(NodeID nodeId,
     if (this->strategy == UnifiedDBMIN) {
 
         pthread_mutex_lock(&evictionMutex);
-        //std::cout << "to run evictForDBMIN for getNewPageNonBlocking with Id="<< key.pageId << ", setId=" << key.setId << std::endl;
         evictForDBMIN(set);
         pthread_mutex_unlock(&evictionMutex);
     }
@@ -521,7 +508,6 @@ PDBPagePtr PageCache::getNewPage(NodeID nodeId, CacheKey key, LocalitySet* set, 
 
     pthread_mutex_lock(&evictionMutex);
     if (this->strategy == UnifiedDBMIN) {
-        std::cout << "to run evictForDBMIN for getNewPage with Id=" << key.pageId << ", setId=" << key.setId << std::endl;
         evictForDBMIN(set);
     }
 
@@ -532,13 +518,8 @@ PDBPagePtr PageCache::getNewPage(NodeID nodeId, CacheKey key, LocalitySet* set, 
     pthread_mutex_unlock(&evictionMutex);
     int internalOffset = 0;
     char* pageData;
-    std::cout << "to allocate a page with size=" << pageSize << std::endl;
     pageData = allocateBufferFromSharedMemoryBlocking(pageSize, internalOffset);
-    if (pageData != nullptr) {
-        std::cout << "PageCache: getNewPage: Page created for typeId=" << key.typeId
-                 << ",setId=" << key.setId << ",pageId=" << key.pageId << "\n";
-    } else {
-        PDB_COUT << "failed!!!\n";
+    if (pageData == nullptr) {
         return nullptr;
     }
     PDBPagePtr page = make_shared<PDBPage>(pageData,
@@ -697,12 +678,6 @@ bool PageCache::flushPageWithoutEviction(CacheKey key) {
 bool PageCache::evictPage(CacheKey key, bool tryFlushOrNot) {
     if (this->containsPage(key) == true) {
         PDBPagePtr page = this->cache->at(key);
-        if (page->isDirty()==true) {
-            std::cout << "the page is dirty" << std::endl;
-        }
-        if (page->isInFlush()==true) {
-            std::cout << "the page is in flush" << std::endl;
-        }
 #ifndef UNPIN_FOR_NON_ZERO_REF_COUNT
         if (page->getRefCount() > 0) {
             cout << "can't be unpinned due to non-zero reference count " << page->getRefCount()
@@ -733,7 +708,6 @@ bool PageCache::evictPage(CacheKey key, bool tryFlushOrNot) {
                 this->flushBuffer->addPageToTail(page);
 
             }  else if (page->isInFlush() == true) {
-                std::cout << "going to evict a page in flush" << std::endl;
                 page->setInEviction(true);
             }  else if (page->isInFlush() == false) {
 #ifdef PROFILING_CACHE
@@ -764,7 +738,6 @@ bool PageCache::evictPage(CacheKey key, bool tryFlushOrNot) {
         }
 
     } else {
-        std::cout << "can not find page in cache!\n";
         this->logger->writeLn("LRUPageCache: can not evict page because it is not in cache");
         return false;
     }
@@ -798,12 +771,10 @@ bool PageCache::evictPageForDBMIN(PDBPagePtr page, LocalitySet* set) {
     key.pageId = page->getPageID();
     bool ret = evictPage(key);
     if (ret == true) {
-        std::cout << "Evicted page with pageId=" << page->getPageID() << ", setId="<< page->getSetID() << std::endl;
         if (set != nullptr) {
             set->removeCachedPage(page);
             if (this->strategy == UnifiedDBMIN) {
                 set->setNumCachedPages(set->getNumCachedPages()-1);
-                std::cout << "evictPageForDBMIN: set->getNumCachedPages()=" << set->getNumCachedPages() << std::endl;
             }
         }
     } else {
@@ -844,7 +815,6 @@ void PageCache::evict() {
      * index = 4, TransientLifetimeNotEndedShuffleData, write cost = 630, read cost = 426
      * index = 5, TransientLifetimeNotEndedHashData, write cost = 1282, read cost = 807
      */
-        std::cout << "to evict pages using a cost model" << std::endl;
 
         double profiledWriteCosts[6] = {0, 0, 0, 6.30, 6.30, 12.82};
         double profiledReadCosts[6] = {0, 0, 4.26, 4.26, 4.26, 8.07};
@@ -879,7 +849,6 @@ void PageCache::evict() {
         
         int numEvicted = 0;
         while (numEvicted <= 0 && localitySets->size() >0) {
-             std::cout << "numEvicted=" << numEvicted <<", localitySets->size()=" << localitySets->size()<<std::endl;
              LocalitySetPtr set = localitySets->top();
              if (set != nullptr) {
                  vector<PDBPagePtr>* pagesToEvict = nullptr;
@@ -899,8 +868,6 @@ void PageCache::evict() {
              if (localitySets->size()>0) {
                  if (set != nullptr) {
                      localitySets->pop();
-                 } else {
-                     std::cout << "top is empty in the localitySets." << std::endl;
                  }
              } 
         }

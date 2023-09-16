@@ -87,7 +87,6 @@ public:
             std::cout << "JoinTuple.h: Failed to allocate memory" << std::endl;
             exit(1);
         }
-        std::cout << "Allocated column at where=" << where << std::endl;
         processMe.addColumn(where, me, true);
         return me;
     }
@@ -95,15 +94,10 @@ public:
     // JiaNote: add the below two functions to facilitate JoinMap merging for broadcast join
     void copyDataFrom(Handle<HoldMe> me) {
         pdb::copyFrom(myData, me);
-        //std::cout << "copyFrom: " ;
-        //std::cout << me->toString() << std::endl; 
     }
 
     void copyDataFrom(HoldMe me) {
         pdb::copyFrom(myData, me);
-        //std::cout << "copyFrom: ";
-        //std::cout << me.toString() << ",";
-        //std::cout << myData.toString() << std::endl;
     }
 
     void copyFrom(void* input, int whichPos) {
@@ -121,10 +115,6 @@ public:
         } else {
             pdb::copyTo(myData, me[whichPos]);
         }
-        //std::cout << "from :";
-        //std::cout << myData.toString() << std::endl;
-        //std::cout << "copyTo :";
-        //std::cout << me[whichPos]->toString() << std::endl;
     }
 
     static void truncate(void* input, int i) {
@@ -338,8 +328,6 @@ public:
 	      JoinType partitionedJoinType,
 	      int threadId)
         : myMachine(inputSchema, attsToIncludeInOutput) {
-        std::cout << "*****Created a PartitionedJoinProbe instance with numPartitionsPerNode=" 
-                  << numPartitionsPerNode << ", numNodes=" << numNodes << std::endl; 
         this->numPartitionsPerNode = numPartitionsPerNode;
         this->numNodes = numNodes;
 	this->partitionedJoinType = partitionedJoinType;
@@ -415,7 +403,6 @@ public:
             }
             // remember how many matches we had
             counts[i] = numHits;
-            std::cout << "hash=" << value <<", index=" << index << ", counts[" << i << "]=" << numHits << std::endl;
         }
 
         // truncate if we have extra
@@ -490,11 +477,9 @@ public:
         } else {
             inputTable = input->getRootObject();
         }
-        std::cout << "inputTable->size()=" << inputTable->size() << std::endl;
         // set up the output tuple
         output = std::make_shared<TupleSet>();
         columns = new void*[positions.size()];
-        std::cout << "To get Prober: positions.size()=" << positions.size() << std::endl;
         if (columns == nullptr) { 
             std::cout << "Error: No memory on heap, thrown from JoinProbe constructor" << std::endl;
             exit(1);
@@ -510,7 +495,6 @@ public:
         // this is the input attribute that we will hash in order to try to find matches
         std::vector<int> matches = myMachine.match(attsToOperateOn);
         whichAtt = matches[0];
-        std::cout << "JoinProber is created with "<< output->getNumColumns() << " columns and whichAtt is " << whichAtt << std::endl;
     }
 
     std::string getType() override {
@@ -521,9 +505,7 @@ public:
         if (inputTable == nullptr) {
             return nullptr;
         }
-        //std::cout << "whichAtt = " << whichAtt << std::endl;
         std::vector<size_t> inputHash = input->getColumn<size_t>(whichAtt);
-        //std::cout << "inputHash.size()=" << inputHash.size() << std::endl;
         JoinMap<RHSType>& inputTableRef = *inputTable;
 
         // redo the vector of hash counts if it's not the correct size
@@ -774,7 +756,6 @@ public:
 
         // set my partition id
         this->myPartitionId = myPartitionId;
-
 	this->partitionedJoinType = partitionedJoinType;
 
         // create the tuple set that we'll return during iteration
@@ -836,7 +817,6 @@ public:
 
     // returns the next tuple set to process, or nullptr if there is not one to process
     TupleSetPtr getNextTupleSet() override {
-
         // JiaNote: below two lines are necessary to fix a bug that iterateOverMe may be nullptr
         // when first time get to here
         if (isDone == true) {
@@ -871,8 +851,8 @@ public:
                 if (curJoinMap != nullptr){
                   if (curJoinMap->getNumPartitions() >0) {
                     if (((curJoinMap->getPartitionId() % curJoinMap->getNumPartitions()) ==
-                        myPartitionId)&&(curJoinMap->size()>0) || partitionedJoinType == CrossProduct) {
-                        //curJoinMap->print();
+                        myPartitionId) || (partitionedJoinType == CrossProduct)) {
+                        curJoinMap->print();
                         curJoinMapIter = curJoinMap->begin();
                         joinMapEndIter = curJoinMap->end();
                         posInRecordList = 0;
@@ -1101,9 +1081,6 @@ public:
                                                    mapToShuffle.getNumPartitions());
         } catch (NotEnoughSpace& n) {
             std::cout << nodeId << ": Can't allocate for new map with " << mapToShuffle.size() << " elements" << std::endl;
-            logger->writeLn("Can't allocate for new map with ");
-            logger->writeInt(mapToShuffle.size());
-            logger->writeLn(" elements");
             if (mapToShuffle.size() > 1000000000) {
                 exit(1);
             }
@@ -1126,7 +1103,6 @@ public:
             }  
             std::shared_ptr<JoinRecordList<RHSType>> myList = *iter;
             if (myList == nullptr) {
-                std::cout << "meet a null list in JoinRecordList" << std::endl;
                 continue;
             }
             
@@ -1139,11 +1115,10 @@ public:
                         try {
                             RHSType* temp = &(myMap.push(myHash));
                             packData(*temp, ((*myList)[i]));
-                            //temp->myData.toString();
                             numPacked++;
                         } catch (NotEnoughSpace& n) {
                             myMap.setUnused(myHash);
-                            //myMap.print();
+                            myMap.print();
                             setListIndex(i);
                             setMapIndex(counter);
                             std::cout << nodeId << ":1: Run out of space in shuffling, to allocate a new page with listIndex=" << getListIndex() 
@@ -1165,10 +1140,11 @@ public:
                         RHSType* temp = nullptr;
                         try {
                             temp = &(myMap.push(myHash));
+
                         } catch (NotEnoughSpace& n) {
                             //we may loose one element here, but no better way to handle this
                             myMap.setUnused(myHash);
-                            //myMap.print();
+                            myMap.print();
                             setListIndex(i);
                             setMapIndex(counter);
                             std::cout << nodeId << ":2: Run out of space in shuffling, to allocate a new page with listIndex=" << getListIndex() 
@@ -1189,11 +1165,10 @@ public:
                         }
                         try {
                             packData(*temp, ((*myList)[i]));
-                            //std::cout << temp->myData.toString();
                             numPacked++;
                         } catch (NotEnoughSpace& n) {
                             myMap.setUnused(myHash);
-                            //myMap.print();
+                            myMap.print();
                             setListIndex(i);
                             setMapIndex(counter);
                             std::cout << nodeId << ":3: Run out of space in shuffling, to allocate a new page with listIndex=" << getListIndex() 
@@ -1224,7 +1199,7 @@ public:
         // next call.
         try {
              myMaps.push_back(thisMap);
-             //myMaps[myMaps.size()-1]->print();
+             myMaps[myMaps.size()-1]->print();
         } catch (NotEnoughSpace& n) {
              std::cout << nodeId <<": Run out of space in shuffling at the beginning of processing a map, to allocate a new page with listIndex=" << getListIndex()
              << ", mapIndex=" << getMapIndex() << std::endl;
@@ -1294,16 +1269,6 @@ public:
         // now, figure out the attributes that we need to store in the hash table
         useTheseAtts = myMachine.match(additionalAtts);
 
-
-	if (this->partitionedJoinType == CrossProduct) {
-	
-		std::cout << "JoinSink from CrossProduct" << std::endl;
-	
-	} else {
-	
-		std::cout << "For this JoinSink, it is not a CrossProduct" << std::endl;
-	
-	}
     }
 
     Handle<Object> createNewOutputContainer() override {
@@ -1336,12 +1301,9 @@ public:
             }
         }
         int counter = 0;
-        // before: for (auto &a: whereEveryoneGoes) {
         for (counter = 0; counter < whereEveryoneGoes.size(); counter++) {
-            // before: columns[a] = (void *) &(input->getColumn <int> (useTheseAtts[counter]));
             columns[counter] =
                 (void*)&(input->getColumn<int>(useTheseAtts[whereEveryoneGoes[counter]]));
-            // before: counter++;
         }
 
         // this is where the hash attribute is located
@@ -1362,7 +1324,6 @@ public:
                 index = (keyColumn[i] / (this->numPartitionsPerNode * this->numNodes)) %
                 (this->numPartitionsPerNode * this->numNodes);
 #endif
-		//std::cout << "this is not CrossProduct with index = " << index << std::endl;
 	    }
             else {
 
@@ -1389,7 +1350,6 @@ public:
                     myMap.setUnused(keyColumn[i]);
                     truncate<RHSType>(i, 0, columns);
                     keyColumn.erase(keyColumn.begin(), keyColumn.begin() + i);
-                    std::cout << "remove " << i << " from " << length << std::endl;
                     throw n;
                 }
 
@@ -1410,7 +1370,6 @@ public:
                     myMap.setUnused(keyColumn[i]);
                     truncate<RHSType>(i, 0, columns);
                     keyColumn.erase(keyColumn.begin(), keyColumn.begin() + i);
-                    std::cout << "remove " << i << " from " << length << std::endl;
                     throw n;
                 }
 
@@ -1427,7 +1386,6 @@ public:
                     myMap.setUnused(keyColumn[i]);
                     truncate<RHSType>(i, 0, columns);
                     keyColumn.erase(keyColumn.begin(), keyColumn.begin() + i);
-                    std::cout << "remove " << i << " from " << length << std::endl;
                     throw n;
                 }
             }
@@ -1460,7 +1418,6 @@ private:
 
 public:
     ~JoinSink() {
-        std::cout << "JoinSink: cleanup columns" << std::endl;
     }
 
     JoinSink(TupleSpec& inputSchema,
@@ -1481,7 +1438,6 @@ public:
     }
 
     Handle<Object> createNewOutputContainer() override {
-        std::cout << "JoinSink: to create new JoinMap instance" << std::endl;
         // we simply create a new map to store the output
         Handle<JoinMap<RHSType>> returnVal = makeObject<JoinMap<RHSType>>();
         return returnVal;
@@ -1489,8 +1445,6 @@ public:
 
     void writeOut(TupleSetPtr input, Handle<Object>& writeToMe) override {
         loopId++;
-        if (loopId%20000==0)
-           std::cout << "JoinSink: write out "<< loopId <<" tuple sets" << std::endl;
         // get the map we are adding to
         Handle<JoinMap<RHSType>> writeMe = unsafeCast<JoinMap<RHSType>>(writeToMe);
         JoinMap<RHSType>& myMap = *writeMe;
@@ -1533,8 +1487,6 @@ public:
                     myMap.setUnused(keyColumn[i]);
                     truncate<RHSType>(i, 0, columns);
                     keyColumn.erase(keyColumn.begin(), keyColumn.begin() + i);
-                    std::cout << "remove " << i << " from " << length << std::endl;
-                    std::cout << "JoinMap overflows the page with " << myMap.size() << " elements" << std::endl;
                     throw n;
                 }
 
@@ -1553,8 +1505,6 @@ public:
                     myMap.setUnused(keyColumn[i]);
                     truncate<RHSType>(i, 0, columns);
                     keyColumn.erase(keyColumn.begin(), keyColumn.begin() + i);
-                    std::cout << "remove " << i << " from " << length << std::endl;
-                    std::cout << "JoinMap overflows the page with " << myMap.size() << " elements" << std::endl;
                     throw n;
                 }
 
@@ -1568,8 +1518,6 @@ public:
                     myMap.setUnused(keyColumn[i]);
                     truncate<RHSType>(i, 0, columns);
                     keyColumn.erase(keyColumn.begin(), keyColumn.begin() + i);
-                    std::cout << "remove " << i << " from " << length << std::endl;
-                    std::cout << "JoinMap overflows the page with " << myMap.size() << " elements" << std::endl;
                     throw n;
                 }
             }
@@ -1729,7 +1677,6 @@ typedef std::shared_ptr<JoinTupleSingleton> JoinTuplePtr;
 
 inline int findType(std::string& findMe, std::vector<std::string>& typeList) {
     for (int i = 0; i < typeList.size(); i++) {
-        //std::cout << "typeList[" << i << "]=" << typeList[i] << std::endl;
         if (typeList[i] == findMe) {
             typeList[i] = std::string("");
             return i;
@@ -1760,17 +1707,12 @@ typename std::enable_if<!std::is_base_of<JoinTupleBase, In1>::value, JoinTuplePt
 findCorrectJoinTuple(std::vector<std::string>& typeList, std::vector<int>& whereEveryoneGoes) {
 
     // we must always have one type...
-    //std::cout << "to find correct join tuple" << std::endl;
     JoinTuplePtr returnVal;
     std::string in1Name = getTypeName<Handle<In1>>();
-    std::cout << "in1Name is " << in1Name << std::endl;
-    std::cout << "to find type for " << in1Name << std::endl; 
     int in1Pos = findType(in1Name, typeList);
-    std::cout << "in1Pos is " << in1Pos << std::endl;
     if (in1Pos != -1) {
         whereEveryoneGoes.push_back(in1Pos);
         typeList[in1Pos] = in1Name;
-        std::cout << "typeList[" << in1Pos << "]=" << in1Name << std::endl;
         return std::make_shared<JoinSingleton<JoinTuple<In1, char[0]>>>();
     } else {
         std::cout << "Why did we not find a type?\n";

@@ -234,7 +234,6 @@ void QuerySchedulerServer::scheduleStages(std::vector<Handle<AbstractJobStage>>&
             Handle<AbstractJobStage> curStage = stagesToSchedule[i];
             int jobStageId =  curStage->getStageId();
             std::string stageType = curStage->getJobStageType();
-            std::cout << "To schedule a job stage of the type " << stageType << std::endl;
             std::string sourceType = "";
             std::string sinkType = "";
             std::string probeType = "";
@@ -344,10 +343,8 @@ void QuerySchedulerServer::scheduleStages(std::vector<Handle<AbstractJobStage>>&
                //add the entry to the DATA_JOB_STAGE
                long sourceMappingId;
                int indexInInputs = sourceContext->getIndexInInputs();
-               std::cout << "my input in index is " << indexInInputs << std::endl;
                getFunctionality<SelfLearningServer>().
                    createDataJobStageMapping(sourceDataId, jobInstanceStageId, indexInInputs, "Source", sourceMappingId);
-               std::cout << "||||create data job stage mapping: " << sourceDataId << "=>" << jobInstanceStageId << std::endl;
                //sink
                Handle<SetIdentifier> sinkContext =
                    curTupleSetJobStage->getSinkContext();
@@ -358,7 +355,6 @@ void QuerySchedulerServer::scheduleStages(std::vector<Handle<AbstractJobStage>>&
                long sinkMappingId;
                getFunctionality<SelfLearningServer>().
                    createDataJobStageMapping(sinkDataId, jobInstanceStageId, -1, "Sink", sinkMappingId);
-               std::cout << "||||create data job stage mapping: " << sinkDataId << "=>" << jobInstanceStageId << std::endl;
 
                //probe
                if (curTupleSetJobStage->isProbing()) {
@@ -402,7 +398,6 @@ void QuerySchedulerServer::scheduleStages(std::vector<Handle<AbstractJobStage>>&
                long sourceMappingId;
                getFunctionality<SelfLearningServer>().
                    createDataJobStageMapping(sourceDataId, jobInstanceStageId, 0, "Source", sourceMappingId);
-               std::cout << "||||create data job stage mapping: " << sourceDataId << "=>" << jobInstanceStageId << std::endl; 
                //sink
                Handle<SetIdentifier> sinkContext =
                    curAggregationJobStage->getSinkContext();
@@ -420,7 +415,6 @@ void QuerySchedulerServer::scheduleStages(std::vector<Handle<AbstractJobStage>>&
                long sinkMappingId;
                getFunctionality<SelfLearningServer>().
                    createDataJobStageMapping(sinkDataId, jobInstanceStageId, -1, "Sink", sinkMappingId);
-               std::cout << "||||create data job stage mapping: " << sinkDataId << "=>" << jobInstanceStageId << std::endl; 
 
             } else if (stageType == "HashPartitionedJoinBuildHTJobStage") {
                Handle<HashPartitionedJoinBuildHTJobStage> curHashPartitionJobStage =
@@ -437,7 +431,6 @@ void QuerySchedulerServer::scheduleStages(std::vector<Handle<AbstractJobStage>>&
                long sourceMappingId;
                getFunctionality<SelfLearningServer>().
                    createDataJobStageMapping(sourceDataId, jobInstanceStageId, -1, "Source", sourceMappingId);
-               std::cout << "||||create data job stage mapping: " << sourceDataId << "=>" << jobInstanceStageId << std::endl; 
                //sink
                std::string sinkSetName = curHashPartitionJobStage->getHashSetName();
                //get id of set
@@ -451,7 +444,6 @@ void QuerySchedulerServer::scheduleStages(std::vector<Handle<AbstractJobStage>>&
                long sinkMappingId;
                getFunctionality<SelfLearningServer>().
                    createDataJobStageMapping(sinkDataId, jobInstanceStageId, -1, "Sink", sinkMappingId);
-               std::cout << "||||create data job stage mapping: " << sinkDataId << "=>" << jobInstanceStageId << std::endl;
             } else if (stageType == "BroadcastJoinBuildHTJobStage") {
                Handle<BroadcastJoinBuildHTJobStage> curBroadcastJobStage =
                    unsafeCast<BroadcastJoinBuildHTJobStage, AbstractJobStage>
@@ -467,7 +459,6 @@ void QuerySchedulerServer::scheduleStages(std::vector<Handle<AbstractJobStage>>&
                long sourceMappingId;
                getFunctionality<SelfLearningServer>().
                    createDataJobStageMapping(sourceDataId, jobInstanceStageId, -1, "Source", sourceMappingId);
-               std::cout << "||||create data job stage mapping: " << sourceDataId << "=>" << jobInstanceStageId << std::endl; 
 
                //sink
                std::string sinkSetName = curBroadcastJobStage->getHashSetName();
@@ -482,7 +473,6 @@ void QuerySchedulerServer::scheduleStages(std::vector<Handle<AbstractJobStage>>&
                long sinkMappingId;
                getFunctionality<SelfLearningServer>().
                    createDataJobStageMapping(sinkDataId, jobInstanceStageId, -1, "Sink", sinkMappingId);
-               std::cout << "||||create data job stage mapping: " << sinkDataId << "=>" << jobInstanceStageId << std::endl;
             } else {
                 std::cout << "Unrecognized JobStage Type: " << stageType << std::endl;
             }
@@ -597,7 +587,6 @@ void QuerySchedulerServer::scheduleStages(std::vector<Handle<AbstractJobStage>>&
               //update the jobStage entry
               getFunctionality<SelfLearningServer>().updateJobStageForCompletion(jobInstanceStageId, "Succeeded");
 
-              std::cout << "****NumHashKeys = " << numHashKeys << std::endl;
               if (numHashKeys > 0) {
                   getFunctionality<SelfLearningServer>().updateJobStageForKeyDistribution(jobInstanceStageId-1, numHashKeys);
               }
@@ -659,10 +648,7 @@ bool QuerySchedulerServer::scheduleStage(int index,
     PDB_COUT << "to receive query response from the " << index << "-th remote node" << std::endl;
     Handle<SetIdentifier> result = communicator->getNextObject<SetIdentifier>(success, errMsg);
     if (result != nullptr) {
-        std::cout << "//////////update stats for TupleSetJobStage" << std::endl; 
         this->updateStats(result);
-        PDB_COUT << "TupleSetJobStage execute: wrote set:" << result->getDatabase() << ":"
-                 << result->getSetName() << std::endl;
     } else {
         PDB_COUT << "TupleSetJobStage execute failure: can't get results" << std::endl;
         return false;
@@ -748,13 +734,8 @@ bool QuerySchedulerServer::scheduleStage(int index,
         this->updateStats(result);
         pthread_mutex_lock(&connection_mutex);
         this->numHashKeys += result->getNumHashKeys();
-        std::cout << "***result->getNumHashKeys()=" << result->getNumHashKeys() << std::endl;
-        std::cout << "***this->numHashKeys=" << this->numHashKeys << std::endl;
         pthread_mutex_unlock(&connection_mutex);
-        PDB_COUT << "AggregationJobStage execute: wrote set:" << result->getDatabase() << ":"
-                 << result->getSetName() << std::endl;
     } else {
-        PDB_COUT << "AggregationJobStage execute failure: can't get results" << std::endl;
         return false;
     }
 
@@ -796,8 +777,6 @@ bool QuerySchedulerServer::scheduleStage(int index,
         this->updateStats(result);
         pthread_mutex_lock(&connection_mutex);
         this->numHashKeys += result->getNumHashKeys();
-        std::cout << "***result->getNumHashKeys()=" << result->getNumHashKeys() << std::endl;
-        std::cout << "***this->numHashKeys=" << this->numHashKeys << std::endl;
         pthread_mutex_unlock(&connection_mutex);
         PDB_COUT << "HashPartitionedJoinBuildHTJobStage execute: wrote set:"
                  << result->getDatabase() << ":" << result->getSetName() << std::endl;
@@ -950,7 +929,6 @@ void QuerySchedulerServer::updateStats(Handle<SetIdentifier> setToUpdateStats) {
     statsForOptimization->setPageSize(databaseName, setName, pageSize);
     size_t numBytes = numPages * pageSize;
     statsForOptimization->incrementNumBytes(databaseName, setName, numBytes);
-    std::cout << "to increment " << numBytes << " for size" << std::endl;    
 }
 
 void QuerySchedulerServer::resetStats(Handle<SetIdentifier> setToResetStats) {
@@ -1040,7 +1018,6 @@ bool QuerySchedulerServer::whetherToMaterialize(Handle<AbstractJobStage> stage) 
 
     if ((stageType == "BroadcastJoinBuildHTJobStage") ||
        (stageType == "HashPartitionedJoinBuildHTJobStage")) {
-         std::cout << "Identified a stage to materialize: " << stageType << std::endl;
          return true;
 
     } else {
@@ -1075,16 +1052,13 @@ bool QuerySchedulerServer::checkMaterialize(bool materializeThisWorkloadOrNot,
     //    3.2 if yes, we need set the first stage's source or hashContext to materialized
     //    3.3 if no, we simply push the stages to stagesToMaterialize
 
-    std::cout << "to check whether to materialize this workload" << std::endl;
 
     bool ret = false;
 
 
-    std::cout << "we check whether any of the " << jobStages.size() << " stages should trigger a materialization" << std::endl;
 
     for (int i = 0; i < jobStages.size(); i++) {
 
-        std::cout << "to check the " << i << "-th stage" << std::endl;
 
         if (whetherToMaterialize(jobStages[i]) == true) {
 
@@ -1095,7 +1069,6 @@ bool QuerySchedulerServer::checkMaterialize(bool materializeThisWorkloadOrNot,
            Handle<SetIdentifier> sinkSetIdentifier = makeObject<SetIdentifier>();
 
            std::string stageType = curStage->getJobStageType();
-           std::cout << "the stageType is " << stageType << std::endl;
            if (stageType == "TupleSetJobStage") {
                Handle<TupleSetJobStage> castedStage = unsafeCast<TupleSetJobStage>(curStage);
                sinkSetIdentifier = castedStage->getSinkContext();           
@@ -1205,7 +1178,6 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                 const UseTemporaryAllocationBlock block{256 * 1024 * 1024};
 
 
-                std::cout << "Got the ExecuteComputation object" << std::endl;
                 Handle<Vector<Handle<Computation>>> computations =
                     sendUsingMe->getNextObject<Vector<Handle<Computation>>>(success, errMsg);
                 std::string tcapString = request->getTCAPString();
@@ -1215,16 +1187,13 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                 long id = -1;
                 long instanceId = -1;
                 if (this->selfLearningOrNot == true) {
-                    std::cout << "To create the Job if not existing" << std::endl;
                     bool ret = getFunctionality<SelfLearningServer>().createJob(request->getJobName(), 
                         tcapString, computations, id);
                     if (ret == true) {
                         size_t numComputations = computations->size();
                         for (size_t i = 0; i < numComputations; i++) {
                             Handle<Computation> curComp = (*computations)[i];
-                            std::cout << "check computation: " << curComp->getComputationName() << std::endl;
                             if((curComp->getComputationType() == "JoinComp")||(curComp->getComputationType() == "ClusterAggregationComp")) {
-                                std::cout << "to populate lambdas" << std::endl;
                                 curComp->populateLambdas(id, getFunctionality<SelfLearningWrapperServer>());
                             }
                         } 
@@ -1369,7 +1338,6 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                             Handle<SetIdentifier> sourceSet;
 #ifdef PROFILING
                             auto dynamicPlanBegin = std::chrono::high_resolution_clock::now();
-                            std::cout << "JobStageId " << jobStageId << "============>";
 #endif
                             while ((jobStages.size() == 0) &&
                                    (this->tcapAnalyzerPtr->getNumSources() > 0)) {
@@ -1383,7 +1351,6 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                                 // get the job stages and intermediate data sets for this source
                                 std::string sourceName =
                                     this->tcapAnalyzerPtr->getSourceSetName(indexOfBestSource);
-                                std::cout << "best source is " << sourceName << std::endl;
                                 sourceSet =
                                     this->tcapAnalyzerPtr->getSourceSetIdentifier(sourceName);
                                 AtomicComputationPtr sourceAtomicComp =
@@ -1397,7 +1364,6 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                                     sourceSet,
                                     sourceConsumerIndex,
                                     jobStageId);
-                                std::cout << "jobStages have " << jobStages.size() << " stages" << std::endl;
                                 if (jobStages.size() > 0) {
                                     this->tcapAnalyzerPtr->incrementConsumerIndex(sourceName);
                                     break;
@@ -1430,13 +1396,11 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                             //    3.3 if no, we simply push the stages to stagesToMaterialize
 
                             if (request->getWhetherToPreCompile() == true) {
-                                std::cout << "invoking checkMaterialize" << std::endl;
                                 bool ret = checkMaterialize(materializeThisWorkloadOrNot, setsToMaterialize, sourceSet,
                                                  jobStages, stagesToMaterialize,
                                                  intermediateSets, setIdentifiersToMaterialize);
                                 materializeThisWorkloadOrNot = ret;
                                 if (ret) {
-                                    std::cout << "We need to materialize the workload" << std::endl;
                                     std::cout << "there are " << stagesToMaterialize.size() << " stages to materialize" << std::endl;
                                     std::cout << "there are " << setIdentifiersToMaterialize.size() << " intermediate set identifiers to materialize" << std::endl;
                                     std::cout << "there are " << setsToMaterialize.size() << " sets to materialize" << std::endl;
@@ -1506,8 +1470,6 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                                         // to get the id of the set
                                         long id = getFunctionality<DistributedStorageManagerServer>().getIdForData(
                                                     intermediateSet->getDatabase(), intermediateSet->getSetName());
-                                        std::cout <<"///////////id for " << intermediateSet->getDatabase() << ":" << intermediateSet->getSetName() 
-                                                  <<" is " << id << std::endl;
 
                                         // to get the size of the set
                                         size_t size = this->statsForOptimization->getNumBytes(
@@ -1515,7 +1477,6 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                                     
                                         // update the size of the set
                                         getFunctionality<SelfLearningServer>().updateDataForSize(id, size);
-                                        std::cout <<"///////////to update data with id=" << id << " for size=" << size << std::endl;
                                     }
 
                                     bool res =
@@ -1525,11 +1486,6 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                                                                 errMsg);
                                     if (res != true) {
                                         std::cout << "can't remove temp set: " << errMsg
-                                                  << std::endl;
-                                    } else {
-                                        std::cout << "Removed set with database="
-                                                  << intermediateSet->getDatabase()
-                                                  << ", set=" << intermediateSet->getSetName()
                                                   << std::endl;
                                     }
                                 }
@@ -1545,7 +1501,6 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                         }//while
                         // to remove remaining intermediate sets:
                         auto removeRemainingSetBegin = std::chrono::high_resolution_clock::now();
-			std::cout << "to remove remaining intermediate sets" << std::endl;
 
                         removeIntermediateSets(dsmClient, this->interGlobalSets, errMsg);
 
@@ -1553,7 +1508,6 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                         // insert the PreCompiledWorkload to a hashmap
 
                         if (request->getWhetherToPreCompile() == true) {
-                            std::cout << "to create precompiled stages" << std::endl;
                             PreCompiledWorkloadPtr workload = std::make_shared<PreCompiledWorkload>(stagesToMaterialize, setIdentifiersToMaterialize);
                             workload->print();
                             materializedWorkloads[request->getJobName()] = workload;
@@ -1577,7 +1531,6 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                     }
                     getFunctionality<SelfLearningServer>().updateJobInstanceForCompletion (instanceId, status);
                 }
-                PDB_COUT << "To send back response to client" << std::endl;
 		auto executionEnd = std::chrono::high_resolution_clock::now();
 		std::cout << "Time Duration for update selflearning: "
                                       << std::chrono::duration_cast<std::chrono::duration<float>>(

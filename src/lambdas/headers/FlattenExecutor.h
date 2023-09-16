@@ -59,7 +59,6 @@ public:
     TupleSetPtr process(TupleSetPtr input) override {
 
         if (input == nullptr) return nullptr;
-        // std :: cout << "FlattenExecutor: to process a tuple set" << std :: endl;
 
         std::vector<Vector<Handle<Object>>> inputVecData =
             input->getColumn<Vector<Handle<Object>>>(whichAtt);
@@ -74,7 +73,6 @@ public:
         for (int i = 0; i < inputVecData.size(); i++) {
             Vector<Handle<Object>>& myVec = inputVecData[i];
             int mySize = myVec.size();
-            // std :: cout << "mySize is" << mySize << std :: endl;
             counts[i] = mySize;
             numFlattenedRows += mySize;
         }

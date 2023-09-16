@@ -55,12 +55,8 @@ public:
         std::vector<int> matches = myMachine.match(attsToOperateOn);
         whichAttToStore = matches[0];
         whichAttToHash = matches[1];
-        std::cout << "whichAttToStore=" << whichAttToStore << std::endl;
-        std::cout << "whichAttToHash=" << whichAttToHash << std::endl;
         this->numPartitions = numPartitions;
         this->numNodes = numNodes;
-        std::cout << "numPartitions=" << numPartitions << std::endl;
-        std::cout << "numNodes=" << numNodes << std::endl;
 
         this->storeConflictingObjects = storeConflictingObjectsOrNot;
         this->myNodeId = myNodeId;

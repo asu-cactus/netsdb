@@ -38,7 +38,6 @@ private:
         std::string myName = root->getTypeOfLambda();
         myName = myName + "_" + std::to_string(startLabel);
         startLabel++;
-        //std::cout << "to populate lambda with name = " << myName << std::endl;
         fillMe[myName] = root;
     }
 
@@ -52,31 +51,22 @@ private:
                                          int& startLabel) {
         for (int i = 0; i < root->getNumChildren(); i++) {
             GenericLambdaObjectPtr child = root->getChild(i);
-            std::cout << i << ": traverseForSelfLearning on lambda " << root->getTypeOfLambda() << " with computationName " << computationName << std::endl;
             traverseForSelfLearning(jobId, computationName, computationInputTypes, server, child, startLabel);
         }
         //now we only create lambda record for lambdas that has one input and one output
         if ((root->getNumChildren() == 0)&&(root->getNumInputs() == 1)) {
-             std::cout << "lambda is " << root->getTypeOfLambda() << ", jobId = " << jobId << 
-                ", computationName = " << computationName << ", startLabel = " << startLabel << std::endl;
              
              std::string lambdaName = root->getTypeOfLambda() + "_" + std::to_string(startLabel);
-             std::cout << "current lambda name is " << lambdaName << std::endl;
              std::string outputType = root->getOutputType();
-             std::cout << "outputType of lambda is " << outputType << std::endl;
              int outputTypeId = VTableMap::getIDByName(outputType);
-             std::cout << "outputTypeId of lambda is " << outputTypeId << std::endl;
              unsigned int numInputs = root->getNumInputs();
-             std::cout << "lambda numInputs is " << numInputs << std::endl;
              std::string inputTypes = "";
              int firstInputTypeId = 8191;
              unsigned int indexInComputationInputs = root->getInputIndex(0);
              if(computationName.find("Aggregation") != string::npos) {
                  indexInComputationInputs = 0; 
              }
-             std::cout << 0 << ": current index in computation inputs is " << indexInComputationInputs << std::endl;
              std::string curTypeName = computationInputTypes[indexInComputationInputs];
-             std::cout << "current input type of lambda is " << curTypeName << std::endl;
              //add an entry for this lambda to self learning database
              long id;
              server.createLambda(jobId, 
@@ -298,7 +288,6 @@ public:
                                 SelfLearningWrapperServer& server,
                                 int& startLabel 
                                 ) {
-        std::cout << "toSelfLearning: computationName is " << computationName << std::endl;
         traverseForSelfLearning(jobId, computationName, computationInputTypes, server,
                                 tree, startLabel); 
 

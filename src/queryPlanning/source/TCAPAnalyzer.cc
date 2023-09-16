@@ -95,31 +95,20 @@ TCAPAnalyzer::TCAPAnalyzer(std::string jobId,
       }
       std::string mySourceSetName = curInputSetIdentifier->getDatabase() + ":" +
                                     curInputSetIdentifier->getSetName();
-      std::cout << "mySourceSetName=" << mySourceSetName << std::endl;
       int j = 0;
       for (; j < curSourceSetNames.size(); j++) {
         if (curSourceSetNames[j].compare(mySourceSetName) == 0) {
-          std::cout << "curSourceSetName[" << j << "]=" << curSourceSetNames[j]
-                    << std::endl;
           break;
         }
       }
       if (j == curSourceSetNames.size()) {
-        std::cout << j << ": add new source: " << mySourceSetName << std::endl;
         curSourceSetNames.push_back(mySourceSetName);
         curSourceSets[mySourceSetName] = curInputSetIdentifier;
         curProcessedConsumers[mySourceSetName] = 0;
         curSourceNodes[mySourceSetName].push_back(curSource);
       } else {
-        std::cout << "add new computation for source: " << mySourceSetName
-                  << std::endl;
         curSourceNodes[mySourceSetName].push_back(curSource);
       }
-    }
-    // check current string
-    std::cout << "All initial sources: " << std::endl;
-    for (std::string &myStr : curSourceSetNames) {
-      std::cout << myStr << std::endl;
     }
   }
 }
@@ -283,7 +272,6 @@ bool TCAPAnalyzer::analyze(
     AtomicComputationPtr curNode = consumers[i];
     std::vector<std::string> tupleSetNames;
     tupleSetNames.push_back(outputName);
-    // std :: cout << "set isProbing to false" << std :: endl;
     bool ret = analyze(physicalPlanToOutput, interGlobalSets, tupleSetNames,
                        curSource, sourceComputation, curInputSetIdentifier,
                        curNode, jobStageId, curSource, false, UnknownJoin, defaultAllocator, "", sourceSpecifier);
@@ -456,7 +444,6 @@ bool TCAPAnalyzer::removeSource(std::string oldSetName) {
     ret = false;
   }
 
-  std::cout << "removed set " << oldSetName << std::endl;
   return ret;
 }
 
@@ -522,7 +509,6 @@ bool TCAPAnalyzer::analyze(
   
   // to get my type
   std::string mySpecifier = curNode->getComputationName();
-  std::cout << "mySpecifier is " << mySpecifier << std::endl;
   Handle<Computation> myComputation =
       this->logicalPlan->getNode(mySpecifier).getComputationHandle();
 
@@ -558,7 +544,6 @@ bool TCAPAnalyzer::analyze(
       }
       Handle<AbstractAggregateComp> agg =
           unsafeCast<AbstractAggregateComp, Computation>(myComputation);
-      std::cout << "to create TupleSetJobStage, because I am an aggregation at the end" << std::endl;
       Handle<TupleSetJobStage> jobStage = createTupleSetJobStage(
           jobStageId, sourceTupleSetName, curNode->getInputName(), mySpecifier,
           buildTheseTupleSets, "IntermediateData", curInputSetIdentifier,
@@ -586,7 +571,6 @@ bool TCAPAnalyzer::analyze(
         sourceTupleSetName = joinSource;
         joinSource = "";
       }
-      std::cout << "to create TupleSetJobStage, because I am a non-aggregtion at the end" << std::endl;
       Handle<TupleSetJobStage> jobStage = createTupleSetJobStage(
           jobStageId, sourceTupleSetName, curNode->getInputName(), mySpecifier,
           buildTheseTupleSets, myComputation->getOutputType(),
@@ -604,7 +588,6 @@ bool TCAPAnalyzer::analyze(
         sourceTupleSetName = joinSource;
         joinSource = "";
       }
-      std::cout << "to create TupleSetJobStage with repartitioning, because I am a partition computation at the end" << std::endl;
       Handle<TupleSetJobStage> jobStage = createTupleSetJobStage(
           jobStageId, sourceTupleSetName, curNode->getInputName(), mySpecifier,
           buildTheseTupleSets, myComputation->getOutputType(),
@@ -664,7 +647,6 @@ bool TCAPAnalyzer::analyze(
       }
       Handle<AbstractAggregateComp> agg =
           unsafeCast<AbstractAggregateComp, Computation>(myComputation);
-      std::cout << "to create TupleSetJobStage, because I am an aggregation in the middle" << std::endl;
       Handle<TupleSetJobStage> jobStage = createTupleSetJobStage(
           jobStageId, sourceTupleSetName, curNode->getInputName(), mySpecifier,
           buildTheseTupleSets, "IntermediateData", curInputSetIdentifier,
@@ -748,26 +730,6 @@ bool TCAPAnalyzer::analyze(
               unsafeCast<JoinComp<Object, Object, Object>, Computation>(
                   myComputation);
 
-	  if (join->getJoinType()==CrossProduct) {
-
-                  std::cout << "JoinType = CrossProduct" << std::endl;
-
-              } else if (join->getJoinType()==HashPartitionedJoin) {
-
-                  std::cout << "JoinType = HashPartitionedJoin" << std::endl;
-
-              } else if (join->getJoinType()==LocalJoin) {
-
-                  std::cout << "JoinType = LocalJoin" << std::endl;
-
-              } else if (join->getJoinType()==BroadcastJoin) {
-
-                  std::cout << "JoinType = BroadcastJoin" << std::endl;
-
-              } else {
-
-                  std::cout << "JoinType = UnknownJoin" << std::endl;
-              }
 
           // I am a pipeline breaker.
           // We first need to create a TupleSetJobStage with a repartition sink
@@ -775,9 +737,6 @@ bool TCAPAnalyzer::analyze(
           sink = makeObject<SetIdentifier>(this->jobId,
                                            outputName + "_repartitionData");
           sink->setPageSize(conf->getBroadcastPageSize());
-          std::cout << "this->exactSizeOfCurSource" << this->exactSizeOfCurSource << std::endl;
-          std::cout << "conf->getBroadcastPageSize()" << conf->getBroadcastPageSize() << std::endl;
-          std::cout << "this->numNodesInCluster" << this->numNodesInCluster << std::endl;
           size_t desiredSize = (size_t)this->exactSizeOfCurSource/(size_t)conf->getBroadcastPageSize()/(size_t)this->numNodesInCluster;
           if (desiredSize == 0) {
               desiredSize = 1;
@@ -804,16 +763,10 @@ bool TCAPAnalyzer::analyze(
                                                  partitionLambdaName);
 
           int indexInInputs = -1;
-          std::cout << "to set index in inputs by matching prev computation: " << prevComputationName 
-                   << std::endl;
           indexInInputs = join->getIndexInInputsByComputationName(prevComputationName);
-          std::cout << "to set index in inputs by matching computation: " << indexInInputs
-                      << std::endl;
           
           if ((indexInInputs < 0) || (indexInInputs > join->getNumInputs())) {
               indexInInputs = join->getIndexInInputsByTypeName(curInputSetIdentifier->getDataType());
-              std::cout << "to set index in inputs by matching type: " << indexInInputs
-                      << std::endl;
           }
           if ((indexInInputs < 0) || (indexInInputs > join->getNumInputs())) {
               indexInInputs = 0;
@@ -836,13 +789,7 @@ bool TCAPAnalyzer::analyze(
               }
           }
           std::string otherSourceSetName = curScannerSource.first + ":" + curScannerSource.second;
-          std::cout << "otherSourceSetName: " << otherSourceSetName << std::endl;
           std::vector<AtomicComputationPtr> rhsSources = curSourceNodes[otherSourceSetName];
-          std::cout << "Sources: " << std::endl;
-          for (auto a : curSourceNodes) {
-              std::cout << a.first << std::endl;
-          }
-          std::cout << "rhsSources.size()=" << rhsSources.size() << std::endl;
           std::string rhsPartitionComputationName = "";
           std::string rhsPartitionLambdaName = "";
           bool otherMatchOrNot = false;
@@ -855,14 +802,11 @@ bool TCAPAnalyzer::analyze(
                                                  rhsSourceIdentifier,
                                                  rhsPartitionComputationName,
                                                  rhsPartitionLambdaName);
-               std::cout << "rhsPartitionComputationName: " << rhsPartitionComputationName
-                    << ", rhsPartitionLambdaName: " << rhsPartitionLambdaName << std::endl;
 
           }
           if ((matchOrNot == false)||(otherMatchOrNot == false)) {
               if (join->getJoinType() != CrossProduct)
 		  join->setJoinType(HashPartitionedJoin);
-              std::cout << "to create TupleSetJobStage to repartition data for join" << std::endl; 
               hashSetName = sink->getDatabase() + ":" + sink->getSetName();
               Handle<TupleSetJobStage> joinPrepStage = createTupleSetJobStage(
                  jobStageId, sourceTupleSetName, targetTupleSetName, mySpecifier,
@@ -872,27 +816,22 @@ bool TCAPAnalyzer::analyze(
 	      if (join->getJoinType()==CrossProduct) {
 	      
 		  joinPrepStage->setJoinType("CrossProduct");
-	          std::cout << "JoinType = CrossProduct" << std::endl;
 	      
 	      } else if (join->getJoinType()==HashPartitionedJoin) {
 
 		  joinPrepStage->setJoinType("HashPartitionedJoin");
-		  std::cout << "JoinType = HashPartitionedJoin" << std::endl;
 
               } else if (join->getJoinType()==LocalJoin) {
 
 		  joinPrepStage->setJoinType("LocalJoin");
-	          std::cout << "JoinType = LocalJoin" << std::endl;	  
 	      
 	      } else if (join->getJoinType()==BroadcastJoin) {
 	      
                   joinPrepStage->setJoinType("BroadcastJoin");
-		  std::cout << "JoinType = BroadcastJoin" << std::endl;
 
 	      } else {
 	          
                   joinPrepStage->setJoinType("UnknownJoinType");
-		  std::cout << "JoinType = UnknownJoin" << std::endl;
 	      }
               physicalPlanToOutput.push_back(joinPrepStage);
               interGlobalSets.push_back(sink);
@@ -912,15 +851,12 @@ bool TCAPAnalyzer::analyze(
                      scanner->setFollowedByLocalJoin(true);
               }
               //we simply build hash table for local join
-              std::cout << "to create TupleSetJobStage to build hash table for local join with jobStageId=" << jobStageId << std::endl;
               hashSetName = sink->getDatabase() + ":" + sink->getSetName();
               Handle<TupleSetJobStage> joinPrepStage = createTupleSetJobStage(
                  jobStageId, sourceTupleSetName, targetTupleSetName, mySpecifier,
                  buildTheseTupleSets, "IntermediateData", curInputSetIdentifier,
                  nullptr, sink, false, true, false, isProbing, join->getJoinType(), myPolicy, false, false, 0,
                  true, hasLocalJoinProbe, partitionComputationSpecifier, partitionLambdaName);
-              std::cout << "Set partitionComputationName as " << partitionComputationName << std::endl;
-              std::cout << "Set partitionLambdaName as " << partitionLambdaName << std::endl;
               joinPrepStage->setPartitionComputationSpecifier(partitionComputationName);
               joinPrepStage->setPartitionLambdaName(partitionLambdaName);
               physicalPlanToOutput.push_back(joinPrepStage);
@@ -954,22 +890,15 @@ bool TCAPAnalyzer::analyze(
                   myComputation);
 
           int indexInInputs = -1;
-          std::cout << "to set index in inputs by matching prev computation: " << prevComputationName
-                      << std::endl;
           indexInInputs = join->getIndexInInputsByComputationName(prevComputationName);
-          std::cout << "to set index in inputs by matching computation: " << indexInInputs
-                      << std::endl;
           
           if ((indexInInputs < 0) || (indexInInputs > join->getNumInputs())) {
               indexInInputs = join->getIndexInInputsByTypeName(curInputSetIdentifier->getDataType());
-              std::cout << "to set index in inputs by matching type: " << indexInInputs
-                      << std::endl;
           }
           if ((indexInInputs < 0) || (indexInInputs > join->getNumInputs())) {
               indexInInputs = 0;
           }
           curInputSetIdentifier->setIndexInInputs(indexInInputs);
-          std::cout << "to create TupleSetJobStage to broadcast data for join" << std::endl;
           Handle<TupleSetJobStage> joinPrepStage = createTupleSetJobStage(
               jobStageId, sourceTupleSetName, targetTupleSetName, mySpecifier,
               buildTheseTupleSets, "IntermediateData", curInputSetIdentifier,
@@ -1005,7 +934,7 @@ bool TCAPAnalyzer::analyze(
           // we probe the partitioned hash table
           // we first create a pipeline breaker to partition RHS
           sink = makeObject<SetIdentifier>(this->jobId,
-                                           outputName + "_repartitionData");
+                                           outputName + "_probingData");
           sink->setPageSize(conf->getBroadcastPageSize());
           size_t desiredSize = this->exactSizeOfCurSource/conf->getBroadcastPageSize()/this->numNodesInCluster;
           if (desiredSize == 0) {
@@ -1039,39 +968,13 @@ bool TCAPAnalyzer::analyze(
               unsafeCast<JoinComp<Object, Object, Object>, Computation>(
                   myComputation);
 
-              if (join->getJoinType()==CrossProduct) {
-
-                  std::cout << "JoinType = CrossProduct" << std::endl;
-
-              } else if (join->getJoinType()==HashPartitionedJoin) {
-
-                  std::cout << "JoinType = HashPartitionedJoin" << std::endl;
-
-              } else if (join->getJoinType()==LocalJoin) {
-
-                  std::cout << "JoinType = LocalJoin" << std::endl;
-
-              } else if (join->getJoinType()==BroadcastJoin) {
-
-                  std::cout << "JoinType = BroadcastJoin" << std::endl;
-
-              } else {
-
-                  std::cout << "JoinType = UnknownJoin" << std::endl;
-              }
 
 	  
           int indexInInputs = -1;
-          std::cout << "to set index in inputs by matching prev computation: " << prevComputationName
-                      << std::endl;
           indexInInputs = join->getIndexInInputsByComputationName(prevComputationName);
-          std::cout << "to set index in inputs by matching computation: " << indexInInputs
-                      << std::endl;
 
           if ((indexInInputs < 0) || (indexInInputs > join->getNumInputs())) {
               indexInInputs = join->getIndexInInputsByTypeName(curInputSetIdentifier->getDataType());
-              std::cout << "to set index in inputs by matching type: " << indexInInputs
-                      << std::endl;
           }
           if ((indexInInputs < 0) || (indexInInputs > join->getNumInputs())) {
               indexInInputs = 0;
@@ -1081,7 +984,6 @@ bool TCAPAnalyzer::analyze(
           if ((matchOrNot == false)||(join->getJoinType() != LocalJoin)) {
               if (join->getJoinType() != CrossProduct)
                   join->setJoinType(HashPartitionedJoin);
-              std::cout << "to create a TupleSetJobStage to repartition data for probing" << std::endl;
               Handle<TupleSetJobStage> joinPrepStage = createTupleSetJobStage(
                   jobStageId, sourceTupleSetName, targetTupleSetName, mySpecifier,
                   buildTheseTupleSets, "IntermediateData", curInputSetIdentifier,
@@ -1091,27 +993,22 @@ bool TCAPAnalyzer::analyze(
 	      if (join->getJoinType()==CrossProduct) {
 
                   joinPrepStage->setJoinType("CrossProduct");
-                  std::cout << "JoinType = CrossProduct" << std::endl;
 
               } else if (join->getJoinType()==HashPartitionedJoin) {
 
                   joinPrepStage->setJoinType("HashPartitionedJoin");
-                  std::cout << "JoinType = HashPartitionedJoin" << std::endl;
 
               } else if (join->getJoinType()==LocalJoin) {
 
                   joinPrepStage->setJoinType("LocalJoin");
-                  std::cout << "JoinType = LocalJoin" << std::endl;
 
               } else if (join->getJoinType()==BroadcastJoin) {
 
                   joinPrepStage->setJoinType("BroadcastJoin");
-                  std::cout << "JoinType = BroadcastJoin" << std::endl;
 
               } else {
 
                   joinPrepStage->setJoinType("UnknownJoinType");
-                  std::cout << "JoinType = UnknownJoin" << std::endl;
               }
 
               joinPrepStage->setJoinTupleSourceOrNot(true);
@@ -1124,7 +1021,6 @@ bool TCAPAnalyzer::analyze(
               outputForJoinSets.push_back(outputName);
               buildTheseTupleSets.push_back(lastOne);
               buildTheseTupleSets.push_back(curNode->getOutputName());
-              std::cout << "to continue to analyze the graph with a join source" << std::endl;
               // Now I am the source!
               return analyze(physicalPlanToOutput, interGlobalSets,
                          buildTheseTupleSets, curNode, myComputation, sink,
@@ -1145,12 +1041,11 @@ bool TCAPAnalyzer::analyze(
 
 
               std::string outputName = joinNode->getOutputName();
-              std::string partitionedHashSetToProbe = (*hashSetsToProbe)[outputName];
-              (*hashSetsToProbe)[outputName] = partitionedHashSetToProbe;
+              //std::string partitionedHashSetToProbe = (*hashSetsToProbe)[outputName];
+              //(*hashSetsToProbe)[outputName] = partitionedHashSetToProbe;
 
               buildTheseTupleSets.push_back(curNode->getOutputName());
               outputForJoinSets.push_back(outputName);
-              std::cout << "rhs is pre-partitioned with the same lambda, we continue to analyze for pipeline stage with stageId = " << jobStageId << std::endl;
               return analyze(physicalPlanToOutput, interGlobalSets,
                          buildTheseTupleSets, curSource, sourceComputation,
                          curInputSetIdentifier, nextNode, jobStageId, curNode,
@@ -1216,7 +1111,6 @@ bool TCAPAnalyzer::analyze(
         sourceTupleSetName = joinSource;
         joinSource = "";
       }
-      std::cout << "to create a TupleSetJobStage because I have two consumers and my computation is not aggregation" << std::endl;
       Handle<TupleSetJobStage> jobStage = createTupleSetJobStage(
           jobStageId, sourceTupleSetName, curNode->getOutputName(), mySpecifier,
           buildTheseTupleSets, myComputation->getOutputType(),
@@ -1243,7 +1137,6 @@ bool TCAPAnalyzer::analyze(
         sourceTupleSetName = joinSource;
         joinSource = "";
       }
-      std::cout << "to create a TupleSetJobStage because I have two consumers and my computation is aggregation" << std::endl;
       Handle<TupleSetJobStage> jobStage = createTupleSetJobStage(
           jobStageId, sourceTupleSetName, curNode->getInputName(), mySpecifier,
           buildTheseTupleSets, "IntermediateData", curInputSetIdentifier,
@@ -1347,7 +1240,6 @@ int TCAPAnalyzer::getBestSource(StatisticsPtr stats) {
       if (curCost < 1) {
           curCost = 1;
       }
-      std::cout << "Cost of set <" << curSourceSetNames[i] << ">:" << curCost << std::endl;
       for (size_t j = 0; j < penalizedSourceSets.size(); j++) {
         if (curSourceSetNames[i] == penalizedSourceSets[j]) {
           if (stats->getPenalizedCost(curSourceSetNames[i]) > 0) {
@@ -1410,26 +1302,13 @@ std::pair<std::string, std::string> TCAPAnalyzer::getHashSource (AtomicComputati
                                                      std::shared_ptr<ApplyJoin> joinNode,
                                                      LogicalPlanPtr logicalPlan) {
 
-          std::cout << "#################################################" << std::endl;
-          std::cout << "sourceTupleSetName=" << curSource->getOutputName() << std::endl;
-          std::cout << "#################################################" << std::endl;
-          std::cout << "outputName=" << joinNode->getOutputName() << std::endl;
-          std::cout << "output=" << joinNode->getOutput() << std::endl;
-          std::cout << "inputName=" << joinNode->getInputName() << std::endl;
-          std::cout << "input=" << joinNode->getInput() << std::endl;
-          std::cout << "projection=" << joinNode->getProjection() << std::endl;
-          std::cout << "rightInput=" << joinNode->getRightInput() << std::endl;
-          std::cout << "rightProjection=" << joinNode->getRightProjection() << std::endl;
 
           //to determine which side is the current input: left or right
           std::string sourceAtt = (curSource->getOutput().getAtts())[0];
-          std::cout << "sourceAtt=" << sourceAtt << std::endl;
           //left projection att
           std::string leftAtt = (joinNode->getProjection().getAtts())[0];
-          std::cout << "leftAtt=" << leftAtt << std::endl;
           //right projection att
           std::string rightAtt = (joinNode->getRightProjection().getAtts())[0];
-          std::cout << "rightAtt=" << rightAtt << std::endl;
           std::pair<std::string, std::string> res;
           if ((sourceAtt == leftAtt)||((sourceAtt.find("in")!=std::string::npos)&&(rightAtt.find("in")!=std::string::npos)&&(sourceAtt != rightAtt))) {
               AtomicComputationPtr producer = this->logicalPlan->getComputations().getProducingAtomicComputation(joinNode->getInput().getSetName());
@@ -1441,8 +1320,6 @@ std::pair<std::string, std::string> TCAPAnalyzer::getHashSource (AtomicComputati
               res = producer->findSource((joinNode->getRightInput().getAtts())[0], this->logicalPlan->getComputations());
           } 
 
-          std::cout << "res.first=" << res.first << std::endl;
-          std::cout << "res.second=" << res.second << std::endl;
 
           return res;
 
@@ -1467,21 +1344,13 @@ bool TCAPAnalyzer::matchSourceWithQuery(std::string jobInstanceId,
           //we ignore everything in jobName after # so that users can pack additional runtime information after #
           size_t pos = origJobName.find('#');
           std::string jobName = origJobName.substr(0, pos);
-          std::cout << "jobName is " << jobName << std::endl;
           Handle<Vector<Handle<LambdaIdentifier>>> partitionLambdas =
             this->db->getPartitionLambdas(sourceSetIdentifier->getDatabase(),
                                          sourceSetIdentifier->getSetName());
 
-          std::cout << sourceSetIdentifier->getDatabase() << ":"<<sourceSetIdentifier->getSetName() << " has " 
-              << partitionLambdas->size() << " lambdas" << std::endl;
           for (int i = 0; i < partitionLambdas->size(); i++) {
 
 	      Handle<LambdaIdentifier> partitionLambda = (*partitionLambdas)[i];
-              std::cout << "Query: jobName is " << jobName << ", computationName is " << res.first
-                        << ", lambdaName is " << res.second << std::endl;
-              std::cout << "PartitionLambda: jobName is " << partitionLambda->getJobName()
-                        << ", computationName is " << partitionLambda->getComputationName()
-                        << ", lambdaName is " << partitionLambda->getLambdaName() << std::endl;
 
               computationName = res.first;
               lambdaName = res.second;
@@ -1498,8 +1367,6 @@ bool TCAPAnalyzer::matchSourceWithQuery(std::string jobInstanceId,
 
                   Handle<LambdaIdentifier> queryLambda =
                     this->db->getLambda(jobName, res.first, res.second);
-                  std::cout << "Query: lambdaIdentifier is " << queryLambda->getLambdaIdentifier() << ", lambdaInputClass is " << queryLambda->getLambdaInputClass() << std::endl;
-                  std::cout << "PartitionLambda: lambdaIdentifier is " << partitionLambda->getLambdaIdentifier() << ", lambdaInputClass is " << partitionLambda->getLambdaInputClass() << std::endl;
 
                   if ((partitionLambda->getLambdaIdentifier() == queryLambda->getLambdaIdentifier())                      && (partitionLambda->getLambdaInputClass() == queryLambda->getLambdaInputClass())) {
 

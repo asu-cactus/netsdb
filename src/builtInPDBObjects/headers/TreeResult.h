@@ -62,13 +62,11 @@ class TreeResult : public Object {
     }
 
     int &getKey() {
-
         return batchId;
     }
 
     void print() {
 
-        std::cout << "TreeResult: " << treeId << ":" << batchId << std::endl;
     }
 
     TreeResult &getValue() {

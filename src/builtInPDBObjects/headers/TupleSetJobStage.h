@@ -366,6 +366,12 @@ public:
             std::cout << "isLocalJoinProbe: true" << std::endl;
         }
 
+        if (this->probeOrNot == true) {
+	    std::cout <<"Hash sets to probe" << std::endl;
+	    for (auto a : *(this->hashSetsToProbe)) {
+	        std::cout << a.key << ":" << a.value << std::endl;
+	    }
+        }
     }
 
     std::string getOutputTypeName() {

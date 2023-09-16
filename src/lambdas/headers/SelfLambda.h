@@ -72,7 +72,6 @@ public:
                int numPartitions,
                Handle<Vector<Handle<Object>>> & inputObjects,
                std::shared_ptr<std::unordered_map<NodeID, Handle<Vector<Handle<Object>>>>> partitionedObjects) {
-            std::cout << "to run partitioner from SelfLambda" << std::endl;
             size_t numObjects = inputObjects->size();
             for (int i = 0; i < numObjects; i++) {
                Handle<Object> myObj = (*inputObjects)[i];

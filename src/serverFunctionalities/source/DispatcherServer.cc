@@ -57,8 +57,6 @@ void DispatcherServer::registerHandlers(PDBServer& forMe) {
             char* tempPage = nullptr;
             char* readToHere = nullptr;
             if (request->isShallowCopy() == false) {
-                std::cout << "Not shallow copy" << std::endl;
-                std::cout << "To send " << numBytes << " data" << std::endl;
                 const UseTemporaryAllocationBlock tempBlock{(size_t)numBytes + (size_t)128*(size_t)1024*(size_t)1024};
                 dataToSend = sendUsingMe->getNextObject<Vector<Handle<Object>>>(res, errMsg);
             } else {
@@ -200,21 +198,12 @@ void DispatcherServer::registerStorageNodes(
 
 void DispatcherServer::registerSet(std::pair<std::string, std::string> setAndDatabase,
                                    PartitionPolicyPtr partitionPolicy) {
-    if (partitionPolicies.find(setAndDatabase) != partitionPolicies.end()) {
-        std::cout << "Updating old set" << setAndDatabase.first << ":" << setAndDatabase.second
-                 << std::endl;
-    } else {
-        std::cout << "Found new set: " << setAndDatabase.first << ":" << setAndDatabase.second
-                 << std::endl;
-    }
     partitionPolicies.insert(std::pair<std::pair<std::string, std::string>, PartitionPolicyPtr>(
         setAndDatabase, partitionPolicy));
     partitionPolicies[setAndDatabase]->updateStorageNodes(storageNodes);
 }
 
 void DispatcherServer::deregisterSet(std::pair<std::string, std::string> setAndDatabase) {
-    std::cout << "to deregister partition policy for " << setAndDatabase.first << ":"
-              << setAndDatabase.second << std::endl;
     partitionPolicies.erase(setAndDatabase);
 
 }
@@ -226,14 +215,10 @@ bool DispatcherServer::dispatchData(std::pair<std::string, std::string> setAndDa
     // TODO: Implement this
 
     if (partitionPolicies.find(setAndDatabase) == partitionPolicies.end()) {
-        std::cout << "No partition policy was found for set: " << setAndDatabase.first << ":"
-                 << setAndDatabase.second << std::endl;
-        std::cout << "Defaulting to random policy" << std::endl;
         registerSet(setAndDatabase, PartitionPolicyFactory::buildDefaultPartitionPolicy());
         return dispatchData(setAndDatabase, type, toDispatch);
     } else {
         auto mappedPartitions = partitionPolicies[setAndDatabase]->partition(toDispatch);
-        std::cout << "mappedPartitions size = " << mappedPartitions->size() << std::endl;
         for (auto const& pair : (*mappedPartitions)) {
             if (pair.second != nullptr) {           
                 if (!sendData(setAndDatabase, type, findNode(pair.first), pair.second)) {
@@ -325,17 +310,11 @@ bool DispatcherServer::sendBytes(std::pair<std::string, std::string> setAndDatab
                                  Handle<NodeDispatcherData> destination,
                                  char* bytes,
                                  size_t numBytes) {
-#ifndef ENABLE_COMPRESSION
-    std::cout << "Now only objects or compressed bytes can be dispatched!!" << std::endl;
-#endif
     int port = destination->getPort();
     std::string address = destination->getAddress();
     std::string databaseName = setAndDatabase.second;
     std::string setName = setAndDatabase.first;
     std::string errMsg;
-    std::cout << "store compressed bytes to address=" << address << " and port=" << port
-              << ", with compressed byte size = " << numBytes << " to database=" << databaseName
-              << " and set=" << setName << " and type = IntermediateData" << std::endl;
     return simpleSendBytesRequest<StorageAddData, SimpleRequestResult, bool>(
         logger,
         port,

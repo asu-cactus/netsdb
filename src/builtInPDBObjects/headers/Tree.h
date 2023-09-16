@@ -53,6 +53,7 @@ class Tree : public Object {
     }
 
   public:
+
     Node tree[MAX_NUM_NODES_PER_TREE];
 
     Tree() {}
@@ -105,7 +106,6 @@ class Tree : public Object {
             // to get nodeID
             if (modelType == ModelType::RandomForest) {
                 if ((findEndPosition = currentLine.find("[label")) != string::npos) {
-                    // std::cout << "nodeID==" << currentLine.substr(0, findEndPosition - 1) << '\n';
                     nodeID = std::stoi(currentLine.substr(0, findEndPosition - 1));
                 } else {
                     std::cout << "Error in extracting inner node nodeID\n";
@@ -114,7 +114,6 @@ class Tree : public Object {
                 }
 
                 if ((findStartPosition = currentLine.find("X[")) != string::npos && (findEndPosition = currentLine.find("] <=")) != string::npos) {
-                    // std::cout << "indexID==" << currentLine.substr(findStartPosition + 2, findEndPosition - findStartPosition - 2) << '\n';
                     indexID = std::stoi(currentLine.substr(findStartPosition + 2, findEndPosition - findStartPosition - 2));
                 } else {
                     std::cout << "Error in extracting inner node indexID\n";
@@ -125,11 +124,9 @@ class Tree : public Object {
                 findStartPosition = currentLine.find("<=");
                 if (findStartPosition != string::npos && (findEndPosition = currentLine.find("\\ngini")) != string::npos) {
                     // For Classifiers
-                    // std::cout << "threshold==" << currentLine.substr(findStartPosition + 3, findEndPosition - findStartPosition - 3) << '\n';
                     threshold = std::stod(currentLine.substr(findStartPosition + 3, findEndPosition - findStartPosition - 3));
                 } else if (findStartPosition != string::npos && (findEndPosition = currentLine.find("\\nsqu")) != string::npos) {
                     // For Regressors
-                    // std::cout << "threshold==" << currentLine.substr(findStartPosition + 3, findEndPosition - findStartPosition - 3) << '\n';
                     threshold = std::stod(currentLine.substr(findStartPosition + 3, findEndPosition - findStartPosition - 3));
                 } else {
                     std::cout << "Error in extracting inner node threshold\n";
@@ -140,7 +137,6 @@ class Tree : public Object {
                 tree[nodeID].isMissTrackLeft = false; // Doesn't matter to RandomForest
             } else if (modelType == ModelType::XGBoost) {
                 if ((findEndPosition = currentLine.find("[ label")) != string::npos) {
-                    // std::cout << "nodeID==" << currentLine.substr(4, findEndPosition - 1 - 4) << '\n';
                     nodeID = std::stoi(currentLine.substr(4, findEndPosition - 1 - 4));
                 } else {
                     std::cout << "Error in extracting inner node nodeID\n";
@@ -148,7 +144,6 @@ class Tree : public Object {
                 }
 
                 if ((findStartPosition = currentLine.find("f")) != string::npos && (findEndPosition = currentLine.find("<")) != string::npos) {
-                    // std::cout << "indexID==" << currentLine.substr(findStartPosition + 1, findEndPosition - findStartPosition - 1) << '\n';
                     indexID = std::stoi(currentLine.substr(findStartPosition + 1, findEndPosition - findStartPosition - 1));
                 } else {
                     std::cout << "Error in extracting inner node indexID\n";
@@ -156,7 +151,6 @@ class Tree : public Object {
                 }
 
                 if ((findStartPosition = currentLine.find("<")) != string::npos && (findEndPosition = currentLine.find("\" ]")) != string::npos) {
-                    // std::cout << "threshold==" << currentLine.substr(findStartPosition + 1, findEndPosition - findStartPosition - 1) << '\n';
                     threshold = std::stod(currentLine.substr(findStartPosition + 1, findEndPosition - findStartPosition - 1));
                 } else {
                     std::cout << "Error in extracting inner node threshold\n";
@@ -216,7 +210,6 @@ class Tree : public Object {
             if (modelType == ModelType::RandomForest) {
                 if ((findEndPosition = currentLine.find("[label=\"gini")) != string::npos ||
                     (findEndPosition = currentLine.find("[label=\"squ")) != string::npos) {
-                    // std::cout << "nodeID in leaf==" << currentLine.substr(0, findEndPosition - 1) << '\n';
                     nodeID = std::stoi(currentLine.substr(0, findEndPosition - 1));
                 } else {
                     std::cout << "Error in extracting leaf node nodeID\n";
@@ -225,7 +218,6 @@ class Tree : public Object {
 #if 1
                 if ((findStartPosition = currentLine.find("value = [")) != string::npos && (findEndPosition = currentLine.find("]\\nclass")) != string::npos) {
                     // For classifiers
-                    // std::cout << "leafValue from pairs in leaf==" << currentLine.substr(findStartPosition + 9, findEndPosition - findStartPosition - 9) << '\n';
                     const std::string pairs = currentLine.substr(findStartPosition + 9, findEndPosition - findStartPosition - 9);
                     findMidPosition = pairs.find(", ");
                     const int classZeroCounts = std::stoi(pairs.substr(0, findMidPosition));
@@ -233,7 +225,6 @@ class Tree : public Object {
                     leafValue = classOneCounts / static_cast<float>(classZeroCounts + classOneCounts);
                 } else if ((findStartPosition = currentLine.find("value = ")) != string::npos || (findEndPosition = currentLine.find("\"]")) != string::npos) {
                     // For Regressors
-                    // std::cout << "leafValue from pairs in leaf==" << currentLine.substr(findStartPosition + 8, findEndPosition - findStartPosition - 8) << '\n';
                     leafValue = std::stof(currentLine.substr(findStartPosition + 8, findEndPosition - findStartPosition - 8));
                 } else {
                     std::cout << "Error in extracting leaf node leafValue\n";
@@ -248,7 +239,6 @@ class Tree : public Object {
 #endif
             } else if (modelType == ModelType::XGBoost) {
                 if ((findEndPosition = currentLine.find("[")) != string::npos) {
-                    // std::cout << "nodeID in leaf==" << currentLine.substr(4, findEndPosition - 1 - 4) << '\n';
                     nodeID = std::stoi(currentLine.substr(4, findEndPosition - 1 - 4));
                 } else {
                     std::cout << "Error in extracting leaf node nodeID\n";
@@ -257,7 +247,6 @@ class Tree : public Object {
 
                 // Output Class of XGBoost always a Double/Float. ProbabilityValue for Classification, ResultValue for Regression
                 if ((findStartPosition = currentLine.find("leaf=")) != string::npos && (findEndPosition = currentLine.find("\" ]")) != string::npos) {
-                    // std::cout << "leafValue in leaf==" << currentLine.substr(findStartPosition + 5, findEndPosition - 3 - findStartPosition - 5) << '\n';
                     leafValue = std::stod(currentLine.substr(findStartPosition + 5, findEndPosition - 3 - findStartPosition - 5));
                 } else {
                     std::cout << "Error in extracting leaf node leafValue\n";
@@ -303,7 +292,6 @@ class Tree : public Object {
 
             if (modelType == ModelType::RandomForest) {
                 if ((findMidPosition = currentLine.find("->")) != std::string::npos) {
-                    // std::cout << "parentNodeID==" << currentLine.substr(0, findMidPosition - 1) << '\n';
                     parentNodeID = std::stoi(currentLine.substr(0, findMidPosition - 1));
                 } else {
                     std::cout << "Error in extracting parentNodeID\n";
@@ -312,7 +300,6 @@ class Tree : public Object {
 
                 std::string endPositionStr = (parentNodeID == 0) ? "[label" : ";";
                 if ((findEndPosition = currentLine.find(endPositionStr)) != std::string::npos) {
-                    // std::cout << "childNodeID==" << currentLine.substr(findMidPosition + 3, findEndPosition - 1 - findMidPosition - 3) << '\n';
                     childNodeID = std::stoi(currentLine.substr(findMidPosition + 3, findEndPosition - 1 - findMidPosition - 3));
                 } else {
                     std::cout << "Error in extracting childNodeID\n";
@@ -321,7 +308,6 @@ class Tree : public Object {
 
             } else if (modelType == ModelType::XGBoost) {
                 if ((findMidPosition = currentLine.find("->")) != std::string::npos) {
-                    // std::cout << "parentNodeID==" << currentLine.substr(4, findMidPosition - 1 - 4) << '\n';
                     parentNodeID = std::stoi(currentLine.substr(4, findMidPosition - 1 - 4));
                 } else {
                     std::cout << "Error in extracting parentNodeID\n";
@@ -329,7 +315,6 @@ class Tree : public Object {
                 }
 
                 if ((findEndPosition = currentLine.find("[")) != std::string::npos) {
-                    // std::cout << "childNodeID==" << currentLine.substr(findMidPosition + 3, findEndPosition - 1 - findMidPosition - 3) << '\n';
                     childNodeID = std::stoi(currentLine.substr(findMidPosition + 3, findEndPosition - 1 - findMidPosition - 3));
                 } else {
                     std::cout << "Error in extracting childNodeID\n";
@@ -462,21 +447,19 @@ class Tree : public Object {
     }
 
     pdb::Handle<TreeResult> predictWithMissingValues(Handle<TensorBlock2D<float>> &in) {
-        return predict<true>(in);
+        return predict(in, true);
     }
 
     pdb::Handle<TreeResult> predictWithoutMissingValues(Handle<TensorBlock2D<float>> &in) {
-        return predict<false>(in);
+        return predict(in, false);
     }
 
-    template <bool hasMissing>
-    inline pdb::Handle<TreeResult> predict(Handle<TensorBlock2D<float>> &in) const { // TODO: Change all Double References to Float
+    inline pdb::Handle<TreeResult> predict(Handle<TensorBlock2D<float>> &in, bool hasMissing) const { // TODO: Change all Double References to Float
         // get the input features matrix information
         uint32_t rowIndex = in->getBlockRowIndex();
         int numRows = in->getRowNums();
         int numCols = in->getColNums();
         float *inData = in->getValue().rawData->c_ptr();
-
         // set the output matrix
         pdb::Handle<TreeResult> resultMatrix = pdb::makeObject<TreeResult>(treeId, rowIndex, numRows, modelType);
 

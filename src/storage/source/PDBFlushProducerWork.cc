@@ -8,7 +8,6 @@ PDBFlushProducerWork::PDBFlushProducerWork(pdb::PangeaStorageServer* server) {
 }
 
 void PDBFlushProducerWork::execute(PDBBuzzerPtr callerBuzzer) {
-    server->getLogger()->writeLn("PDBFlushWork: started!");
     callerBuzzer->buzz(PDBAlarm::WorkAllDone);
 }
 

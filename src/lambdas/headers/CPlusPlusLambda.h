@@ -321,12 +321,6 @@ public:
                                              std::string& myLambdaName,
                                              MultiInputsBase* multiInputsComp) override {
 
-        std::cout << "CPlusPlusLambda for Join condition" << std::endl;
-        std::cout << "outputTupleSetName is " << outputTupleSetName << std::endl;
-        std::cout << "outputColumnName is " << outputColumnName << std::endl;
-        for (int i = 0; i < outputColumns.size(); i++) {
-            std::cout << "outputColumns[" << i << "]=" << outputColumns[i] << std::endl;
-        }
         std::string tcapString = "";
         myLambdaName = "native_lambda_" + std::to_string(lambdaLabel);
         std::string myComputationName = computationName + "_" + std::to_string(computationLabel);
@@ -380,7 +374,6 @@ public:
                        std::cout << "Error: We have no columns to apply" << std::endl;
                        exit(1);                       
                     }
-                    std::cout << i << ": curInputColumnsToApply[0]=" << curInputColumnsToApply[0] << std::endl;
                     std::string curPrefix = "hashOneFor_" + std::to_string(computationLabel) + "_" +
                         std::to_string(lambdaLabel);
                     if (curLeftIndexes.size() > 1) {
@@ -399,7 +392,6 @@ public:
                         curOutputColumnNames.push_back(curLeftColumnsToKeep[j]);
                     }
                     curOutputColumnNames.push_back(curLeftHashColumnName);
-                    std::cout << "CPlusPlusLambda left input HASHONE" << std::endl;
                     tcapString += this->getTCAPString(curLeftInputTupleSetName,
                                                       curLeftColumnsToKeep,
                                                       curInputColumnsToApply,
@@ -420,7 +412,6 @@ public:
                     std::cout << "Error: We have no columns to apply" << std::endl;                                 exit(1);
                 }
 
-                std::cout << i+1 << ": curInputColumnsToApply[0]=" << curInputColumnsToApply[0] << std::endl;
                 std::vector<unsigned int> curIndexes = inputPartitions[curInputTupleSetName];
                 std::string curPrefix = "hashOneFor_" + std::to_string(computationLabel) + "_" +
                     std::to_string(lambdaLabel);
@@ -440,7 +431,6 @@ public:
                     curOutputColumnNames.push_back(curInputColumnNames[j]);
                 }
                 curOutputColumnNames.push_back(curOutputColumnName);
-                std::cout << "CPlusPlusLambda right input HASHONE" << std::endl;
                 tcapString += this->getTCAPString(curInputTupleSetName,
                                                   curInputColumnNames,
                                                   curInputColumnsToApply,
@@ -565,7 +555,6 @@ public:
                 multiInputsComp->setInputColumnsForIthInput(i, curLeftColumnsToKeep);
                 multiInputsComp->setInputColumnsToApplyForIthInput(i, curInputColumnsToApply);
 
-                std::cout << "CPlusPlusLambda: setInputColumnsToApplyForIthInput: " << i << ":" << curInputColumnsToApply[0] << std::endl;
 
             }
         }
@@ -584,7 +573,6 @@ public:
             if (this->numInputs > 1) {
                 return false;
             } 
-            std::cout << "to run partitioner from CPlusPlusLambda" << std::endl;
             size_t numObjects = inputObjects->size();
             for (size_t i = 0; i < numObjects; i++) {
                Handle<Object> myObj = (*inputObjects)[i];

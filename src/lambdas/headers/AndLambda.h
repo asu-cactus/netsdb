@@ -204,13 +204,11 @@ public:
                 return "";
             } else {
 
-                std::cout << "AND lambda in Join" << std::endl;
                 // we need a cartesian join
                 // hashone for lhs
                 std::string leftTupleSetName =
                     multiInputsComp->getTupleSetNameForIthInput(leftIndex);
                 std::string leftColumnToApply = lhsInputNames[0];
-                std::cout << "leftColumnToApply: " << leftColumnToApply << std::endl;
                 std::vector<std::string> leftColumnsToApply;
                 leftColumnsToApply.push_back(leftColumnToApply);
                 std::string leftOutputTupleSetName = "hashOneFor_" + leftColumnToApply + "_" +
@@ -222,7 +220,6 @@ public:
                     leftOutputColumns.push_back(lhsColumnNames[i]);
                 }
                 leftOutputColumns.push_back(leftOutputColumnName);
-                std::cout << "ANDLambda left input HASHONE" << std::endl;
                 tcapString += this->getTCAPString(leftTupleSetName,
                                                   lhsColumnNames,
                                                   leftColumnsToApply,
@@ -237,7 +234,6 @@ public:
                 std::string rightTupleSetName =
                     multiInputsComp->getTupleSetNameForIthInput(rightIndex);
                 std::string rightColumnToApply = rhsInputNames[0];
-                std::cout << "rightColumnToApply: " << rightColumnToApply << std::endl;
                 std::vector<std::string> rightColumnsToApply;
                 rightColumnsToApply.push_back(rightColumnToApply);
                 std::string rightOutputTupleSetName = "hashOneFor_" + rightColumnToApply + "_" +
@@ -249,7 +245,6 @@ public:
                     rightOutputColumns.push_back(rhsColumnNames[i]);
                 }
                 rightOutputColumns.push_back(rightOutputColumnName);
-                std::cout << "ANDLambda right input HASHONE" << std::endl;
                 tcapString += this->getTCAPString(rightTupleSetName,
                                                   rhsColumnNames,
                                                   rightColumnsToApply,
@@ -312,7 +307,6 @@ public:
                         multiInputsComp->setInputColumnsForIthInput(i, outputColumns);
                         multiInputsComp->setInputColumnsToApplyForIthInput(i, outputColumns);
 
-                        std::cout << "AndLambda: setInputColumnsToApplyForIthInput: " << i << ":" << outputColumns[0] << std::endl;
                     }
                 }
                 return tcapString;

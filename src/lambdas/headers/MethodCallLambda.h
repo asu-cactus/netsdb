@@ -39,8 +39,6 @@ public:
           inputTypeName(inputTypeName),
           methodName(methodName),
           returnTypeName(returnTypeName) {
-        PDB_COUT << "MethodCallLambda: input type code is " << input.getExactTypeInfoValue()
-                 << std::endl;
         this->setInputIndex(0, -(input.getExactTypeInfoValue() + 1));
     }
 

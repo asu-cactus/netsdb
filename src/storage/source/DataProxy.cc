@@ -404,14 +404,12 @@ bool DataProxy::pinBytes(DatabaseID dbId,
                 sleep(numTries + 1);
                 return pinBytes(dbId, typeId, setId, sizeOfBytes, bytes, needMem, numTries + 1);
             }
-            std::cout << "Sent pdb::StoragePinBytes message" << std::endl;
         }
         // receive the PageBytes object
         {
             bool success;
             pdb::Handle<pdb::StorageBytesPinned> ack =
                 this->communicator->getNextObject<pdb::StorageBytesPinned>(success, errMsg);
-            std::cout << "Received pdb::StorageBytesPinned message" << std::endl;
             if (ack == nullptr) {
                 cout << "Receiving ack failure:" << errMsg << "\n";
                 sleep(numTries + 1);

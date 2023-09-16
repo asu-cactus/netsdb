@@ -8,7 +8,6 @@
 
 // gets the computation that builds the tuple set with the specified name
 AtomicComputationPtr AtomicComputationList::getProducingAtomicComputation(std::string outputName) {
-    std::cout << "outputName is " << outputName << std::endl;
     if (producers.count(outputName) == 0) {
         std::cout << "This could be bad... can't find the guy producing output " << outputName
                  << ".\n";

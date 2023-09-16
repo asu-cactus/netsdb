@@ -60,7 +60,6 @@ int PageCircularBuffer::addPageToTail(PDBPagePtr page) {
     }
 
     this->logger->writeLn("PageCircularBuffer:got a place.");
-    std::cout << "PageCircularBuffer:got a place." << std::endl;
     this->pageArrayTail = (this->pageArrayTail + 1) % this->maxArraySize;
     this->pageArray[this->pageArrayTail] = page;
     pthread_mutex_unlock(&(this->addPageMutex));
@@ -80,21 +79,17 @@ PDBPagePtr PageCircularBuffer::popPageFromHead() {
     pthread_mutex_lock(&(this->mutex));
     if (this->isEmpty() && (this->closed == false)) {
         this->logger->writeLn("PageCircularBuffer: array is empty.");
-        std::cout << "PageCircularBuffer: array is empty." << std::endl;
         pthread_cond_wait(&(this->cond), &(this->mutex));
     }
     if (!this->isEmpty()) {
         this->logger->debug("PageCircularBuffer: not empty, return the head element");
-        std::cout << "PageCircularBuffer: not empty, return the head element" << std::endl;
         this->pageArrayHead = (this->pageArrayHead + 1) % this->maxArraySize;
         PDBPagePtr ret = this->pageArray[this->pageArrayHead];
-        std::cout << "Head pageID=" << ret->getPageID() << std::endl;
         this->pageArray[this->pageArrayHead] = nullptr;
         pthread_mutex_unlock(&(this->mutex));
         return ret;
     } else {
         pthread_mutex_unlock(&(this->mutex));
-        std::cout << "Head is nullptr" << std::endl;
         return nullptr;
     }
 }

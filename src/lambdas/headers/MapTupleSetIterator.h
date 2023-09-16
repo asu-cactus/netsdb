@@ -51,6 +51,7 @@ public:
 
     // returns the next tuple set to process, or nullptr if there is not one to process
     TupleSetPtr getNextTupleSet() override {
+
         PDBMapIterator<KeyType, ValueType> beginToRecover = begin;
         PDBMapIterator<KeyType, ValueType> endToRecover = end;
         // see if there are no more items in the vector to iterate over

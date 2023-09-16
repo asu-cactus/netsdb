@@ -81,7 +81,6 @@ public:
         int numInputs = getNumInputs();
         for (int i = 0; i < numInputs; i++) {
             std::string curInputType = getIthInputType(i);
-            std::cout << curInputType << std::endl;
             computationInputTypes.push_back(curInputType);
         }
 
@@ -131,8 +130,6 @@ public:
             if (whereHashTableSitsForThePartition != nullptr) {
                 Handle<Object> myHashTable =
                     ((Record<Object>*)whereHashTableSitsForThePartition)->getRootObject();
-                std::cout << "ClusterAggregate: getComputeSource: BATCHSIZE=" << batchSize
-                          << std::endl;
                 return std::make_shared<MapTupleSetIterator<KeyClass, ValueClass, OutputClass>>(
                     myHashTable, batchSize);
             }

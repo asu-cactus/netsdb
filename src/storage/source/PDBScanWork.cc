@@ -118,19 +118,14 @@ void PDBScanWork::execute(PDBBuzzerPtr callerBuzzer) {
     if (retry > 0) {
     }
 
-    //std::cout << "PDBScanWork: pin pages..." << std::endl;
-    logger->debug("PDBScanWork: pin pages...");
     // for each loaded page retrieved from iterator, notify backend server!
     while (this->iter->hasNext()) {
         page = this->iter->next();
         if (page != nullptr) {
             // send PagePinned object to backend
-            //std::cout << "PDBScanWork: pin page with pageId =" << page->getPageID() << "\n";
             retry = 0;
 
             while (retry < MAX_RETRIES) {
-                logger->debug(string("PDBScanWork: pin pages with pageId = ") +
-                              to_string(page->getPageID()));
                 bool ret = this->sendPagePinned(communicatorToBackEnd,
                                                 true,
                                                 page->getNodeID(),
@@ -146,23 +141,17 @@ void PDBScanWork::execute(PDBBuzzerPtr callerBuzzer) {
                     continue;
                 }
                 // receive ack object from backend
-                //std::cout << "PDBScanWork: waiting for ack..." << std::endl;
-                logger->debug("PDBScanWork: waiting for ack... ");
                 ret = this->acceptPagePinnedAck(communicatorToBackEnd, wasError, info, errMsg);
                 if (ret == false) {
                     communicatorToBackEnd->reconnect(errMsg);
                     retry++;
                     continue;
                 }
-                logger->debug("PDBScanWork: ack received ");
-                //std::cout << "PDBScanWork: got ack!" << std::endl;
                 break;
             }
         }
     }
     // close the connection
-    std::cout << "PDBScanWork to close the loop" << std::endl;
-    logger->debug("PDBScanWork to close the loop");
     retry = 0;
     while (retry < MAX_RETRIES) {
         bool ret = this->sendPagePinned(communicatorToBackEnd, false, 0, 0, 0, 0, 0, 0, 0);
@@ -178,8 +167,6 @@ void PDBScanWork::execute(PDBBuzzerPtr callerBuzzer) {
             continue;
         }
         // notify the caller that this scan thread has finished work.
-        std::cout << "PDBScanWork finished.\n";
-        logger->debug("PDBScanWork finished.\n");
         break;
     }
     callerBuzzer->buzz(PDBAlarm::WorkAllDone, this->counter);

@@ -47,10 +47,6 @@ public:
         : myMachine(inputSchema, attsToIncludeInOutput) {
 
         // this is the input attribute that we will process
-        std::cout << "to initialize HashOneExecutor..." << std::endl;
-        std::cout << "inputSchema: " << inputSchema << std::endl;
-        std::cout << "attsToOperateOn: " << attsToOperateOn << std::endl;
-        std::cout << "attsToIncludeInOutput: " << attsToIncludeInOutput << std::endl;
         output = std::make_shared<TupleSet>();
         std::vector<int> matches = myMachine.match(attsToOperateOn);
         whichAtt = matches[0];
@@ -81,7 +77,6 @@ public:
         outColumn.resize(numRows);
         for (int i = 0; i < numRows; i++) {
             outColumn[i] = 1;
-	    //std::cout << "outputColumn[" << i << "]=" << 1 << std::endl;
         }
 
 

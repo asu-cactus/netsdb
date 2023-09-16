@@ -48,8 +48,6 @@ class TreeResultPostProcessing : public SelectionComp<TreeResult, TreeResult> {
 
     TreeResultPostProcessing(int numTrees, bool isClassification)
         : numTrees{numTrees}, isClassification{isClassification} {
-        std::cout << "TreeResultPostProcessing is initialized to have " << numTrees
-                  << " trees. isClassification=" << (isClassification ? "True\n" : "False\n");
     }
 
     Lambda<bool> getSelection(Handle<TreeResult> checkMe) override {

@@ -16,7 +16,7 @@ typedef std::shared_ptr<struct LAExpressionNode> LAExpressionNodePtr;
 struct LAExpressionNode : public LAASTNode {
 public:
     LAExpressionNode(int t) : LAASTNode(t) {}
-    ~LAExpressionNode() {}
+    virtual ~LAExpressionNode() {}
     virtual pdb::Handle<pdb::Computation>& evaluate(LAPDBInstance& instance) = 0;
     virtual std::string toString() = 0;
     virtual bool isSyntaxSugarInitializer() = 0;

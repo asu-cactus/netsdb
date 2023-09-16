@@ -123,13 +123,9 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
             sourceContext->setPageSize(inputSet->getPageSize());
             sourceContext->setNumPages(inputSet->getNumPages());
             newRequest->setSourceContext(sourceContext);
-            std::cout << "HashPartitioned data set size: " << inputSet->getNumPages() << " pages"
-                      << std::endl;
             newRequest->setNumPages(inputSet->getNumPages());
             newRequest->setNeedsRemoveInputSet(request->getNeedsRemoveInputSet());
             newRequest->setNeedsRemoveInputSet(false);  // the scheduler will remove this set
-            std::cout << "Input is set with setName=" << inSetName
-                      << ", setId=" << inputSet->getSetID() << std::endl;
 
 
             // forward the request
@@ -253,13 +249,9 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
             sourceContext->setSetId(inputSet->getSetID());
             sourceContext->setPageSize(inputSet->getPageSize());
             newRequest->setSourceContext(sourceContext);
-            std::cout << "Broadcasted data set size: " << inputSet->getNumPages() << " pages"
-                      << std::endl;
             newRequest->setNumPages(inputSet->getNumPages());
             newRequest->setNeedsRemoveInputSet(request->getNeedsRemoveInputSet());
             newRequest->setNeedsRemoveInputSet(false);  // the scheduler will remove this set
-            PDB_COUT << "Input is set with setName=" << inSetName
-                     << ", setId=" << inputSet->getSetID() << std::endl;
 
 
             // forward the request
@@ -386,7 +378,6 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
 
             } else {
                 getFunctionality<PangeaStorageServer>().cleanup(false);
-		std::cout << "input set size=" << inputSet->getNumPages() << std::endl;
             }
             sourceContext->setDatabaseId(inputSet->getDbID());
             sourceContext->setTypeId(inputSet->getTypeID());
@@ -395,8 +386,6 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
             newRequest->setSourceContext(sourceContext);
             newRequest->setNeedsRemoveInputSet(request->getNeedsRemoveInputSet());
             newRequest->setNeedsRemoveInputSet(false);  // the scheduler will remove this set
-	    std::cout << "Input is set with setName=" << inSetName
-                     << ", setId=" << inputSet->getSetID() << std::endl;
 
 
             // output set
@@ -567,8 +556,6 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
                     inputSet->unpinBufferPage();
                     getFunctionality<PangeaStorageServer>().cleanup(false);
                 }
-                std::cout << "number of pages in set " << inSetName << " is "
-                          << inputSet->getNumPages()+inputSet->getNumSharedPages() << std::endl;
                 if (inputSet->getNumPages() + inputSet->getNumSharedPages()== 0) {
                     PDB_COUT << "FrontendQueryTestServer: input set doesn't have any pages in this machine"
                              << std::endl;
@@ -614,8 +601,6 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
                     outDatabaseName, request->getOutputTypeName(), outSetName, DEFAULT_SHUFFLE_PAGE_SIZE);
 	
                 outputSet = getFunctionality<PangeaStorageServer>().getSet(outDatabaseAndSet);
-                std::cout << "Output set is created in storage with database=" << outDatabaseName
-                         << ", set=" << outSetName << ", type=IntermediateData" << std::endl;
             }
 
             if (success == true) {
@@ -707,7 +692,6 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
                     }
                 }
             }
-            getFunctionality<PangeaStorageServer>().cleanup(false);
             Handle<SetIdentifier> result = nullptr;
 
             if (needsRemoveCombinerSet == true) {
@@ -733,9 +717,7 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
                 result->setNumPages(outputSet->getNumPages());
                 result->setPageSize(outputSet->getPageSize());
             }
-            std::cout << "sending back result with " << result->getNumPages() << " pages" << std::endl;
             if (success == true) {
-                PDB_COUT << "Stage is done. " << std::endl;
                 errMsg = std::string("execution complete");
             } else {
                 std::cout << "Stage failed at server" << std::endl;
@@ -851,9 +833,6 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
                 errMsg = "FATAL ERROR in handling SetScan request: set doesn't exist";
                 std::cout << errMsg << std::endl;
                 return std::make_pair(false, errMsg);
-            } else {
-                std::cout << "To scan set " << whichDatabase << ":" << whichSet << 
-                    " with " << loopingSet->getNumPages() << " pages." << std::endl;
             }
             loopingSet->setPinned(true);
   	    vector<PageIteratorPtr>* pageIters;
@@ -863,9 +842,6 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
                SetKey sharedSet = loopingSet->getFile()->getSharedSet();
 	       SetPtr sharedSetPtr = getFunctionality<PangeaStorageServer>().getSet(sharedSet.dbId, sharedSet.typeId, sharedSet.setId);
 	       if(sharedSetPtr) {
-                   //std::cout << "Set dbId:" << sharedSet.dbId << std::endl;
-                   //std::cout << "Set typeId:" << sharedSet.typeId << std::endl;
-                   //std::cout << "Set setId:" << sharedSet.setId << std::endl;
 	           pageIters = loopingSet->getIteratorsExtended(sharedSetPtr);
 	       }
 	    } else {
@@ -873,7 +849,6 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
 	    }
             // loop through all pages
             int numIterators = pageIters->size();
-	    //std::cout << "We've got " << numIterators << " iterators" << std::endl;
             for (int i = 0; i < numIterators; i++) {
                 PageIteratorPtr iter = pageIters->at(i);
                 while (iter->hasNext()) {
@@ -883,11 +858,7 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
                         Record<Vector<Handle<Object>>>* myRec =
                             (Record<Vector<Handle<Object>>>*)(nextPage->getBytes());
                         Handle<Vector<Handle<Object>>> inputVec = myRec->getRootObject();
-                        if (inputVec != nullptr) {
-                            std::cout << "this record on this page has " << inputVec->size() << " elements" << std::endl;
-                        }
                         if (inputVec == nullptr) {
-                            std::cout << "no vector in this page" << std::endl;
                             // to evict this page
                             PageCachePtr cache = getFunctionality<PangeaStorageServer>().getCache();
                             CacheKey key;
@@ -908,7 +879,6 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
                         if (vecSize != 0) {
                             const UseTemporaryAllocationBlock tempBlock{2048};
 #ifdef ENABLE_COMPRESSION
-                            //std::cout << "nextPage->getSize() = " << nextPage->getSize() << std::endl;
                             char* newRecord = (char*)calloc(nextPage->getSize(), 1);
                             try {
                                 myRec = getRecord(inputVec, newRecord, nextPage->getSize());
@@ -923,9 +893,6 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
                                                 myRec->numBytes(),
                                                 compressedBytes,
                                                 &compressedSize);
-                            std::cout << "Frontend=>Client: size before compression is "
-                                      << myRec->numBytes() << " and size after compression is "
-                                      << compressedSize << std::endl;
                             sendUsingMe->sendBytes(compressedBytes, compressedSize, errMsg);
 
                             delete[] compressedBytes;
@@ -980,7 +947,6 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
                 return std::make_pair(false, "could not send done message: " + errMsg);
             }
             // we got to here means success!!  We processed the query, and got all of the results
-            std::cout << "We have finished scanning this set" << std::endl;
             return std::make_pair(true, std::string("query completed!!"));
         }));
 }

@@ -99,8 +99,6 @@ public:
         // application goes)
         // then we asked for it
         if (counter == getOutput().getAtts().size() - 1) {
-            //std::cout << "Why are you trying to find the origin of a hash value??\n";
-            //exit(1);
             return allComps.getProducingAtomicComputation(getInput().getSetName())
             ->findSource((getInput().getAtts())[0], allComps);
         }
@@ -153,8 +151,6 @@ public:
         // application goes)
         // then we asked for it
         if (counter == getOutput().getAtts().size() - 1) {
-            //std::cout << "Why are you trying to find the origin of a hash value??\n";
-            //exit(1);
             return allComps.getProducingAtomicComputation(getInput().getSetName())
             ->findSource((getInput().getAtts())[0], allComps);
         }
@@ -178,8 +174,6 @@ public:
     HashOne(TupleSpec& input, TupleSpec& output, TupleSpec& projection, std::string nodeName)
         : AtomicComputation(input, output, projection, nodeName) {
 
-        // std :: cout << "HashOne input tuple spec: " << input << ", output tuple spec: " << output
-        // << ", projection tuple spec: " << projection << std :: endl;
     }
 
     std::string getAtomicComputationType() override {
@@ -197,10 +191,7 @@ public:
 
         // find where the attribute appears in the outputs
         // otherwise, find our parent
-        std::cout << "attName is " << attName << std::endl;
         int counter = findPosInOutputAtts(attName);
-        std::cout << "counter is " << counter << std::endl;
-        std::cout << "projection is " << getProjection() << std::endl;
         if (counter >= getProjection().getAtts().size()) {
            return allComps.getProducingAtomicComputation(getProjection().getSetName())
             ->findSource((getProjection().getAtts())[0], allComps);
@@ -225,8 +216,6 @@ public:
     Flatten(TupleSpec& input, TupleSpec& output, TupleSpec& projection, std::string nodeName)
         : AtomicComputation(input, output, projection, nodeName) {
 
-        // std :: cout << "Flatten input tuple spec: " << input << ", output tuple spec: " << output
-        // << ", projection tuple spec: " << projection << std :: endl;
     }
 
     std::string getAtomicComputationType() override {
@@ -241,7 +230,6 @@ public:
         //
         // (projection atts) (hash value)
         //
-        // std :: cout << "Flatten findSource for attName=" << attName << std :: endl;
         // find where the attribute appears in the outputs
         int counter = findPosInOutputAtts(attName);
 
@@ -250,10 +238,7 @@ public:
         }
 
         // otherwise, find our parent
-        // std :: cout << "Flatten projection set name is " << getProjection().getSetName() << std
-        // :: endl;
 
-        // std :: cout << "Flatten getProjection is " << getProjection() << std :: endl;
         return allComps.getProducingAtomicComputation(getProjection().getSetName())
             ->findSource((getProjection().getAtts())[counter], allComps);
     }
@@ -270,8 +255,6 @@ public:
 
     ApplyFilter(TupleSpec& input, TupleSpec& output, TupleSpec& projection, std::string nodeName)
         : AtomicComputation(input, output, projection, nodeName) {
-        // std :: cout << "Filter input tuple spec: " << input << ", output tuple spec: " << output
-        // << ", projection tuple spec: " << projection << std :: endl;
     }
 
     std::string getAtomicComputationType() override {

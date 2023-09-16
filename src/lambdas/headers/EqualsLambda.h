@@ -262,10 +262,8 @@ public:
             outputColumns.pop_back();
             outputTupleSetName = tupleSetNamePrefix + "_FILTERED";
             tcapString += outputTupleSetName + "(" + outputColumns[0];
-            //std::cout << "outputColumns[0]=" << outputColumns[0] << std::endl;
             for (int i = 1; i < outputColumns.size(); i++) {
                 tcapString += ", " + outputColumns[i];
-                //std::cout << "outputColumns[" << i << "]=" << outputColumns[i] << std::endl;
             }
             tcapString += ") <= FILTER (" + inputTupleSetName + "(bool_" +
                 std::to_string(lambdaLabel) + "_" + std::to_string(computationLabel) + "), " +
@@ -278,13 +276,11 @@ public:
             if (isSelfJoin == false) {
                 for (unsigned int index = 0; index < multiInputsComp->getNumInputs(); index++) {
                     std::string curInput = multiInputsComp->getNameForIthInput(index);
-                    //std::cout << "curInput is " << curInput << std::endl;
                     auto iter = std::find(outputColumns.begin(), outputColumns.end(), curInput);
                     if (iter != outputColumns.end()) {
                         multiInputsComp->setTupleSetNameForIthInput(index, outputTupleSetName);
                         multiInputsComp->setInputColumnsForIthInput(index, outputColumns);
                         multiInputsComp->setInputColumnsToApplyForIthInput(index, curInput);
-                        //std::cout << "EqualLambda: setInputColumnsToApplyForIthInput: " << index << ":" << outputColumnName << std::endl;
                     }
                 }
             }

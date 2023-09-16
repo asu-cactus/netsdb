@@ -78,7 +78,6 @@ inline void VTableMap::listVtableLabels() {
 
 inline std::string VTableMap::getInternalTypeName(const std::string &realName) {
 
-    //std::cout << "getIDByName for " << realName << std :: endl;
     // one important issue is that we might need to lookup soething nasty like:
     //
     // pdb::PairArray<pdb::Handle<pdb::String>,pdb::Handle<pdb::Employee>>
@@ -126,7 +125,6 @@ inline std::string VTableMap::getInternalTypeName(const std::string &realName) {
         return std::move(prefix + std::string("<") + replacementString + std::string(">"));
     } 
 
-    //std::cout << "normalized realName=" << realName << std::endl;
     return realName;
 }
 
@@ -137,7 +135,6 @@ inline std::string VTableMap::getInternalTypeName(const std::string &realName) {
 inline int16_t VTableMap::getIDByName(std::string objectTypeName, bool withLock) {
 
     // now, check to make sure that we have seen the given object type before
-    //std::cout << "objectTypeName=" << objectTypeName << std :: endl;
     if (theVTable->objectTypeNamesList.count(objectTypeName) == 0 &&
         theVTable->catalog != nullptr) {
 
@@ -152,12 +149,10 @@ inline int16_t VTableMap::getIDByName(std::string objectTypeName, bool withLock)
             // so let the caller know, and remember that we have not seen it
             if (identifier == -1) {
                 theVTable->objectTypeNamesList[objectTypeName] = TYPE_NOT_RECOGNIZED;
-		std::cout << "type not recognized: " << identifier << std::endl;
                 return TYPE_NOT_RECOGNIZED;
                 // otherwise, return the ID
             } else {
                 theVTable->objectTypeNamesList[objectTypeName] = identifier;
-		//std::cout << "type recognized: " << identifier << std::endl;
                 return identifier;
             }
         } else {
@@ -166,12 +161,10 @@ inline int16_t VTableMap::getIDByName(std::string objectTypeName, bool withLock)
             // so let the caller know, and remember that we have not seen it
             if (identifier == -1) {
                 theVTable->objectTypeNamesList[objectTypeName] = TYPE_NOT_RECOGNIZED;
-		std::cout << "type not recognized: " << identifier << std::endl;
                 return TYPE_NOT_RECOGNIZED;
                 // otherwise, return the ID
             } else {
                 theVTable->objectTypeNamesList[objectTypeName] = identifier;
-		//std::cout << "type recognized: " << identifier << std::endl;
                 return identifier;
             }
         }
