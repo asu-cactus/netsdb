@@ -97,7 +97,7 @@ protected:
     int numPartitions;
     // number of nodes in the cluster
     int numNodes;
-    int batchSize;
+    int batchSize = 1;
     void* whereHashTableSitsForThePartition = nullptr;
     bool materializeAggOut = false;
     bool useCombinerOrNot = true;

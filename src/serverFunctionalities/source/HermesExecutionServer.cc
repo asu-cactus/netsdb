@@ -407,11 +407,11 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                                                                if (memSize * ((size_t) (1024)) <
                                                                    sharedMemPoolSize + (size_t) 512 * (size_t) 1024 * (size_t) 1024) {
                                                                  std::cout << "WARNING: Auto tuning can not work, use default values" << std::endl;
-                                                                 tunedHashPageSize = (size_t) 2048 * (size_t) 1024 * (size_t) 1024;
+                                                                 tunedHashPageSize = (size_t) 1024 * (size_t) 1024 * (size_t) 1024;
                                                                }
 
-                                                               if (tunedHashPageSize > (size_t) 2048 * (size_t) 1024 * (size_t) 1024){
-                                                                  tunedHashPageSize = (size_t) 2048 * (size_t) 1024 * (size_t) 1024;
+                                                               if (tunedHashPageSize > (size_t) 1024 * (size_t) 1024 * (size_t) 1024){
+                                                                  tunedHashPageSize = (size_t) 1024 * (size_t) 1024 * (size_t) 1024;
                                                                }  
                                                                conf->setHashPageSize(tunedHashPageSize);
 #endif

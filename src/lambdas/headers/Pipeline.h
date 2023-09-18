@@ -215,7 +215,13 @@ public:
                    return;
                }
                myRAM->outputSink = dataSink->createNewOutputContainer();
-               curChunk = dataSource->getNextTupleSet();
+
+	       try {
+                   curChunk = dataSource->getNextTupleSet();
+	       } catch(NotEnoughSpace& n) {
+		   std::cout << "Insufficient memory to hold a chunk, please increase shuffle page size" << std::endl;
+	           exit(1);
+	       }
            }
 
            if (curChunk == nullptr) {

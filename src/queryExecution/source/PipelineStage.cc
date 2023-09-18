@@ -1522,7 +1522,6 @@ void PipelineStage::runPipelineWithHashPartitionSink(HermesExecutionServer* serv
 
     // each queue has multiple producers and one consumer
     int shuffleBufferSize = 2*numThreads;
-    PDB_COUT << "shuffleBufferSize=" << shuffleBufferSize << std::endl;
     std::vector<PageCircularBufferPtr> shuffleBuffers;
     std::vector<PageCircularBufferIteratorPtr> shuffleIters;
 
