@@ -28,6 +28,14 @@ Boost:	libboost-dev, libboost-program-options-dev, libboost-filesystem-dev, libb
 
 OS: Ubuntu-16, MacOS, Ubuntu-20, Ubuntu-22
 
+### Potential Issues
+
+By default, the code is using direct I/O. 
+If your computer doesn't support direct I/O, please disable it by setting usingDirect = false in PartitionedFile.cc.
+
+
+
+
 
 ## Run scons
 
