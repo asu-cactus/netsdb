@@ -9,7 +9,6 @@ netsDB is built on top of an earlier version of the open source project PlinyCom
 ## Building
 
 Requirements:  
-Software:
 
 clang/llvm/build-essential: sudo apt install clang llvm build-essential (LLVM/clang++3.8 or above)
 
