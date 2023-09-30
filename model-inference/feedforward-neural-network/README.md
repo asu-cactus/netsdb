@@ -55,7 +55,7 @@ scons libclassifier
 Once you start the netsDB system [Start Cluster](https://github.com/asu-cactus/netsdb/blob/master/README.md), run following command:
 
 ```
-bin/FCProjTest blockDimensionX blockDimensionY whetherToLoadData path/to/weights/and/bias(leave empty if generate random)
+bin/FCProjTest blockDimensionX blockDimensionY batchSize numFeatures numNeurons numLabels whetherToLoadData path/to/weights/and/bias(leave empty if generate random)
 ```
 
 
