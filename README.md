@@ -9,7 +9,6 @@ netsDB is built on top of an earlier version of the open source project PlinyCom
 ## Building
 
 Requirements:  
-Software:
 
 clang/llvm/build-essential: sudo apt install clang llvm build-essential (LLVM/clang++3.8 or above)
 
@@ -27,6 +26,14 @@ Boost:	libboost-dev, libboost-program-options-dev, libboost-filesystem-dev, libb
 
 
 OS: Ubuntu-16, MacOS, Ubuntu-20, Ubuntu-22
+
+### Potential Issues
+
+By default, the code is using direct I/O. 
+If your computer doesn't support direct I/O, please disable it by setting usingDirect = false in PartitionedFile.cc.
+
+
+
 
 
 ## Run scons
