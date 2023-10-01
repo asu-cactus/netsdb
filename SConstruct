@@ -51,7 +51,7 @@ elif common_env['PLATFORM'] == 'posix':
     # for debugging
     # Needs to be turned on for KMeans and TPCH
     common_env.Append(
-        CXXFLAGS='-std=c++17 -g -O3  -D_GLIBCXX_USE_CXX11_ABI=0 -ftree-vectorize -ffast-math -mavx -march=native -Winline  -Wno-deprecated-declarations')
+        CXXFLAGS='-std=c++17 -g -O3 -D_GLIBCXX_USE_CXX11_ABI=0 -ftree-vectorize -ffast-math -mavx -march=native -Winline  -Wno-deprecated-declarations')
     #common_env.Append(CXXFLAGS = '-std=c++14 -g  -Oz -ldl -lstdc++ -Wno-deprecated-declarations')
     #LIBPYTORCH_PATH = "/home/ubuntu/anaconda3/envs/py37_torch/lib/python3.7/site-packages/torch/lib"
     LIBPYTORCH_PATH = "/home/ubuntu/libtorch/lib"
@@ -83,7 +83,7 @@ common_env.Append(CCFLAGS='-DENABLE_LARGE_GRAPH')
 common_env.Append(CCFLAGS='-DJOIN_HASH_TABLE_SIZE_RATIO=1.5')
 common_env.Append(CCFLAGS='-DHASH_PARTITIONED_JOIN_SIZE_RATIO=2.0')
 common_env.Append(CCFLAGS='-DPROFILING')
-common_env.Append(CCFLAGS='-DJOIN_COST_THRESHOLD=0')
+common_env.Append(CCFLAGS='-DJOIN_COST_THRESHOLD=2000')
 common_env.Append(CCFLAGS='-DENABLE_COMPRESSION')
 # common_env.Append(CCFLAGS='-DPDB_DEBUG')
 common_env.Append(CCFLAGS='-DEVICT_STOP_THRESHOLD=0.90')
@@ -1348,6 +1348,11 @@ common_env.Program('bin/Conv2dProjTest',
                    ['build/tests/Conv2dProjTest.cc'] + all + pdb_client)
 common_env.Program('bin/FCProjTest', ['build/tests/FCProjTest.cc',
                                   'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc', 'build/FF_proj/FullyConnectedNetwork.cc'] + all + pdb_client)
+
+common_env.Program('bin/FCHybridTest', ['build/tests/FCHybridTest.cc',
+                                  'build/FF/SimpleFF.cc', 'build/FF/FFMatrixUtil.cc', 'build/FF_proj/HybridFullyConnectedNetwork.cc'] + all + pdb_client)
+
+
 # PageRank
 
 common_env.Program(
@@ -1387,6 +1392,9 @@ common_env.Program(
 # Fully Connected Network
 common_env.SharedLibrary('libraries/libFullyConnectedNetwork.so', 
                          ['build/FF_proj/FullyConnectedNetwork.cc'] + all)
+
+common_env.SharedLibrary('libraries/libHybridFullyConnectedNetwork.so',
+                         ['build/FF_proj/HybridFullyConnectedNetwork.cc'] + all)
 
 # Decision Tree
 common_env.Program('bin/testDecisionForest', 
@@ -1963,8 +1971,10 @@ libFFTest = common_env.Alias('libclassifier', [
     'bin/classifier',
     'bin/dedupClassifier',
     'bin/FCProjTest',
+    'bin/FCHybridTest',
     # Other libraries from src/FF
     'libraries/libFullyConnectedNetwork.so',
+    'libraries/libHybridFullyConnectedNetwork.so',
     'libraries/libSemanticClassifier.so',
     'libraries/libFFMatrixBlock.so',
     'libraries/libFFMatrixMeta.so',

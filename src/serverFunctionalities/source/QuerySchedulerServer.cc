@@ -489,7 +489,7 @@ void QuerySchedulerServer::scheduleStages(std::vector<Handle<AbstractJobStage>>&
 #endif
 
 
-                const UseTemporaryAllocationBlock block(256 * 1024 * 1024);
+                const UseTemporaryAllocationBlock block((size_t)4096 * (size_t)1024 * (size_t)1024);
 
 
                 int port = (*(this->standardResources))[j]->getPort();
@@ -609,7 +609,7 @@ bool QuerySchedulerServer::scheduleStage(int index,
              << "-th remote node" << std::endl;
 
     if (mode == DeepCopy) {
-        const UseTemporaryAllocationBlock block(256 * 1024 * 1024);
+        const UseTemporaryAllocationBlock block((size_t)4096 * (size_t)1024 * (size_t)1024);
         Handle<TupleSetJobStage> stageToSend =
             deepCopyToCurrentAllocationBlock<TupleSetJobStage>(stage);
         stageToSend->setNumNodes(this->shuffleInfo->getNumNodes());
@@ -1175,7 +1175,7 @@ void QuerySchedulerServer::registerHandlers(PDBServer& forMe) {
                 bool success;
 
                 // parse the query
-                const UseTemporaryAllocationBlock block{256 * 1024 * 1024};
+                const UseTemporaryAllocationBlock block{(size_t) 4096 * (size_t) 1024 * (size_t) 1024};
 
 
                 Handle<Vector<Handle<Computation>>> computations =

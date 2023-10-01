@@ -34,7 +34,7 @@ HashPartitionWork :: ~HashPartitionWork() {
 
 void HashPartitionWork :: execute(PDBBuzzerPtr callerBuzzer) {
 
-    UseTemporaryAllocationBlock tempBlock{32 * 1024 * 1024};
+    UseTemporaryAllocationBlock tempBlock{128 * 1024 * 1024};
 
 
     // to combine data for node-i

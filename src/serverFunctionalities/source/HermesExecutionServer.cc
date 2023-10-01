@@ -491,7 +491,7 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                                                                    DataProxyPtr proxy =
                                                                        make_shared<DataProxy>(nodeId, anotherCommunicatorToFrontend, shm, logger);
 #ifdef ENABLE_LARGE_GRAPH
-                                                                   const UseTemporaryAllocationBlock block{256 * 1024 * 1024};
+                                                                   const UseTemporaryAllocationBlock block{(size_t)256 * (size_t)1024 * (size_t)1024};
 #else
                                                                    const UseTemporaryAllocationBlock block{32 * 1024 * 1024};
 #endif
@@ -1197,14 +1197,14 @@ void HermesExecutionServer::registerHandlers(PDBServer &forMe) {
                                                               PDBCommunicatorPtr sendUsingMe) {
         getAllocator().cleanInactiveBlocks((size_t) ((size_t) 32 * (size_t) 1024 * (size_t) 1024));
 
-        getAllocator().cleanInactiveBlocks((size_t) ((size_t) 256 * (size_t) 1024 * (size_t) 1024));
+        getAllocator().cleanInactiveBlocks((size_t) ((size_t) 4096 * (size_t) 1024 * (size_t) 1024));
         PDB_COUT << "Backend got Tuple JobStage message with Id=" << request->getStageId()
                  << std::endl;
         request->print();
         bool res = true;
         std::string errMsg;
 #ifdef ENABLE_LARGE_GRAPH
-        const UseTemporaryAllocationBlock block1{256 * 1024 * 1024};
+        const UseTemporaryAllocationBlock block1{(size_t)4096 * (size_t)1024 * (size_t)1024};
 #else
         const UseTemporaryAllocationBlock block1{32 * 1024 * 1024};
 #endif

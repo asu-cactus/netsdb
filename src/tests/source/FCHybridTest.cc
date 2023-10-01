@@ -7,10 +7,12 @@
 
 #include "PDBClient.h"
 #include "SimpleFF.h"
+#include "FFTransposeMult.h"
 #include "FFMatrixBlock.h"
 #include "FFMatrixUtil.h"
-#include "FullyConnectedNetwork.h"
+#include "HybridFullyConnectedNetwork.h"
 #include "WriteUserSet.h"
+#include "FFAggMatrix.h"
 
 using namespace std;
 
@@ -62,12 +64,14 @@ int main(int argc, char *argv[]) {
       ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlock.so");
       ff::loadLibrary(pdbClient, "libraries/libFFMatrixBlockScanner.so");
       ff::loadLibrary(pdbClient, "libraries/libFFMatrixWriter.so");
-      pdbClient.registerType("libraries/libFullyConnectedNetwork.so", errMsg);
-      ff::createSet(pdbClient, "ff", "inputs", "inputs", 100);
-
+      ff::loadLibrary(pdbClient, "libraries/libFFTransposeMult.so");
+      ff::loadLibrary(pdbClient, "libraries/libFFAggMatrix.so");
+      pdbClient.registerType("libraries/libHybridFullyConnectedNetwork.so", errMsg);
+      ff::createSet(pdbClient, "ff", "inputs", "inputs", 64);
+      ff::createSet(pdbClient, "ff", "w1", "W1", 64);
   }
 
-  ff::createSet(pdbClient, "ff", "output", "Output", 4);
+  ff::createSet(pdbClient, "ff", "output", "Output", 64);
 
 
   if (reloadData) {
@@ -76,27 +80,40 @@ int main(int argc, char *argv[]) {
     std::cout << "To load matrix for ff:inputs" << std::endl;
     ff::loadMatrix(pdbClient, "ff", "inputs", batch_size, features, block_x,
                    block_y, false, false, errMsg);
-
+    ff::loadMatrix(pdbClient, "ff", "w1", hid_size, features, block_x, block_y,
+                   false, false, errMsg);
   }
 
-  pdb::makeObjectAllocatorBlock((size_t)4 * (size_t)1024 * (size_t)1024 * (size_t)1024, true);
+  pdb::makeObjectAllocatorBlock((size_t)512 * (size_t)1024 * (size_t)1024, true);
 
   pdb::Handle<pdb::Computation> inputScanner =
       pdb::makeObject<pdb::ScanUserSet<FFMatrixBlock>>("ff", "inputs"); 
 
-  pdb::Handle<pdb::Computation> fullyConnectedNetwork = 
-      pdb::makeObject<FullyConnectedNetwork>(features, num_labels, hid_size, batch_size);
+  pdb::Handle<pdb::Computation> weightScanner =
+      pdb::makeObject<pdb::ScanUserSet<FFMatrixBlock>>("ff", "w1");
 
-  fullyConnectedNetwork->setInput(0, inputScanner);
+  pdb::Handle<pdb::Computation> join = pdb::makeObject<FFTransposeMult>();
+        join->setInput(0, inputScanner);
+        join->setInput(1, weightScanner);
+
+  pdb::Handle<pdb::Computation> myAggregation =
+            pdb::makeObject<FFAggMatrix>();
+        myAggregation->setInput(join);
+
+  pdb::Handle<pdb::Computation> fullyConnectedNetwork = 
+      pdb::makeObject<HybridFullyConnectedNetwork>(features, num_labels, hid_size, batch_size);
+
+  fullyConnectedNetwork->setInput(0, myAggregation);
 
   pdb::Handle<pdb::Computation> writer =
       pdb::makeObject<pdb::WriteUserSet<FFMatrixBlock>>("ff", "output"); 
 
-  writer->setInput(0, fullyConnectedNetwork);
+  //writer->setInput(0, fullyConnectedNetwork);
+  writer->setInput(0, myAggregation);
 
   auto begin = std::chrono::high_resolution_clock::now();
     // run the computation
-  if (!pdbClient.executeComputations(errMsg, "fc-proj", false, 4096, writer)) {
+  if (!pdbClient.executeComputations(errMsg, "fc-proj", true, 256, writer)) {
     cout << "Computation failed. Message was: " << errMsg << "\n";
     exit(1);
   }

@@ -64,7 +64,7 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
                      << std::endl;
             request->print();
 #ifdef EANBLE_LARGE_GRAPH
-            makeObjectAllocatorBlock(256 * 1024 * 1024, true);
+            makeObjectAllocatorBlock((size_t)512 * (size_t)1024 * (size_t)1024, true);
 #else
             makeObjectAllocatorBlock(32 * 1024 * 1024, true);
 #endif
@@ -82,6 +82,8 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
                 return std::make_pair(false, errMsg);
             }
             PDB_COUT << "Frontend connected to backend" << std::endl;
+
+	    request->nullifyComputePlanPointer();
 
             Handle<HashPartitionedJoinBuildHTJobStage> newRequest =
                 deepCopyToCurrentAllocationBlock<HashPartitionedJoinBuildHTJobStage>(request);
@@ -502,7 +504,7 @@ void FrontendQueryTestServer::registerHandlers(PDBServer& forMe) {
             PDB_COUT << "Frontend got a request for TupleSetJobStage" << std::endl;
             request->print();
 #ifdef ENABLE_LARGE_GRAPH
-            makeObjectAllocatorBlock(256 * 1024 * 1024, true);
+            makeObjectAllocatorBlock((size_t)4096 * (size_t)1024 * (size_t)1024, true);
 #else
             makeObjectAllocatorBlock(32 * 1024 * 1024, true);
 #endif

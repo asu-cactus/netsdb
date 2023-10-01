@@ -140,7 +140,7 @@ void cleanup(pdb::PDBClient &pdblient, string database) {
     // pdblient.removeSet(database, "yo", errMsg);
 }
 
-static bool materializeHash = false;
+static bool materializeHash = true;
 
 void inference_compute(pdb::PDBClient &pdbClient, string database, string w1,
                        string w2, string wo, string inputs, string b1,

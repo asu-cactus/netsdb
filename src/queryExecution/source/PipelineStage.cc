@@ -360,7 +360,7 @@ void PipelineStage::executePipelineWork(int i,
 
 // setup an output page to store intermediate results and final output
 #ifdef ENABLE_LARGE_GRAPH
-    const UseTemporaryAllocationBlock tempBlock{256 * 1024 * 1024};
+    const UseTemporaryAllocationBlock tempBlock{(size_t)4096 * (size_t)1024 * (size_t)1024};
 #else
     const UseTemporaryAllocationBlock tempBlock{32 * 1024 * 1024};
 #endif
@@ -878,7 +878,7 @@ void PipelineStage::runPipeline(HermesExecutionServer* server,
                                 std::vector<PageCircularBufferPtr> sinkBuffers,
                                 SetSpecifierPtr outputSet) {
 #ifdef ENABLE_LARGE_GRAPH
-    UseTemporaryAllocationBlock tempBlock{256 * 1024 * 1024};
+    UseTemporaryAllocationBlock tempBlock{(size_t)4096 * (size_t)1024 * (size_t)1024};
 #else
     UseTemporaryAllocationBlock tempBlock{32 * 1024 * 1024};
 #endif
@@ -1216,7 +1216,7 @@ void PipelineStage::runPipelineWithShuffleSink(HermesExecutionServer* server) {
             }
             // get aggregate computation
 #ifdef ENABLE_LARGE_GRAPH
-            const UseTemporaryAllocationBlock tempBlock{512 * 1024 * 1024};
+            const UseTemporaryAllocationBlock tempBlock{(size_t)4096 * (size_t)1024 * (size_t)1024};
 #else
             const UseTemporaryAllocationBlock tempBlock{32 * 1024 * 1024};
 #endif

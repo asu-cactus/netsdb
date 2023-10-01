@@ -852,7 +852,7 @@ public:
                   if (curJoinMap->getNumPartitions() >0) {
                     if (((curJoinMap->getPartitionId() % curJoinMap->getNumPartitions()) ==
                         myPartitionId) || (partitionedJoinType == CrossProduct)) {
-                        curJoinMap->print();
+                        //curJoinMap->print();
                         curJoinMapIter = curJoinMap->begin();
                         joinMapEndIter = curJoinMap->end();
                         posInRecordList = 0;
@@ -1118,7 +1118,7 @@ public:
                             numPacked++;
                         } catch (NotEnoughSpace& n) {
                             myMap.setUnused(myHash);
-                            myMap.print();
+                            //myMap.print();
                             setListIndex(i);
                             setMapIndex(counter);
                             std::cout << nodeId << ":1: Run out of space in shuffling, to allocate a new page with listIndex=" << getListIndex() 
@@ -1144,7 +1144,7 @@ public:
                         } catch (NotEnoughSpace& n) {
                             //we may loose one element here, but no better way to handle this
                             myMap.setUnused(myHash);
-                            myMap.print();
+                            //myMap.print();
                             setListIndex(i);
                             setMapIndex(counter);
                             std::cout << nodeId << ":2: Run out of space in shuffling, to allocate a new page with listIndex=" << getListIndex() 
@@ -1168,7 +1168,7 @@ public:
                             numPacked++;
                         } catch (NotEnoughSpace& n) {
                             myMap.setUnused(myHash);
-                            myMap.print();
+                            //myMap.print();
                             setListIndex(i);
                             setMapIndex(counter);
                             std::cout << nodeId << ":3: Run out of space in shuffling, to allocate a new page with listIndex=" << getListIndex() 
@@ -1199,7 +1199,7 @@ public:
         // next call.
         try {
              myMaps.push_back(thisMap);
-             myMaps[myMaps.size()-1]->print();
+             //myMaps[myMaps.size()-1]->print();
         } catch (NotEnoughSpace& n) {
              std::cout << nodeId <<": Run out of space in shuffling at the beginning of processing a map, to allocate a new page with listIndex=" << getListIndex()
              << ", mapIndex=" << getMapIndex() << std::endl;
