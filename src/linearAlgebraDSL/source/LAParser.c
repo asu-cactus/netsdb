@@ -140,7 +140,7 @@ extern int LAdebug;
   {
     LAEMPTY = -2,
     END = 0,                       /* "end of file"  */
-    LAERR = 256,                 /* error  */
+    //LAerror = 256,                 /* error  */
     LAUNDEF = 794,                 /* "invalid token"  */
     TOKEN_ZEROS = 701,             /* TOKEN_ZEROS  */
     TOKEN_ONES = 702,              /* TOKEN_ONES  */
@@ -1258,7 +1258,7 @@ yybackup:
       yytoken = YYSYMBOL_YYEOF;
       YYDPRINTF ((stderr, "Now at end of input.\n"));
     }
-  else if (yychar == LAERR)
+  else if (yychar == LAerror)
     {
       /* The scanner already issued an error message, process directly
          to error recovery.  But do not keep the error token as
