@@ -129,7 +129,7 @@ void verify_data(pdb::PDBClient &pdbClient, std::string dbName,
     for (int c = 0; c < r->get_num_channels(); c++) {
       pdb::Handle<FFMatrixBlock> chan = r->getMatrixAtIndex(c);
       std::cout << "Channel " << c << std::endl;
-      double *data = chan->getValue().rawData->c_ptr();
+      float *data = chan->getValue().rawData->c_ptr();
       for (int i = 0; i < r->x * r->y; i++) {
         std::cout << data[i] << ",";
       }
@@ -173,7 +173,7 @@ void verify_matrices(pdb::PDBClient &pdbClient, std::string dbName,
   for (auto r : it) {
     std::cout << "Block " << r->getBlockRowIndex() << ","
               << r->getBlockColIndex() << std::endl;
-    double *data = r->getValue().rawData->c_ptr();
+    float *data = r->getValue().rawData->c_ptr();
     for (int i = 0; i < r->getColNums() * r->getRowNums(); i++) {
       std::cout << data[i] << ",";
     }

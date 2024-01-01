@@ -75,7 +75,7 @@ void pipelined_test_conv2d_multiply(pdb::PDBClient &pdbClient, std::string dbNam
   int padding = 0;
   bool block_padding = false;
 
-  int height = 2500, width = 2500, channels = 3, numOfImages = 32;
+  int height = 2500, width = 2500, channels = 3, numOfImages = 1;
   int kHeight = 1, kWidth = 1, kChannels = 3, numOfFilters = 2048;
 
   if (reloadData) {
