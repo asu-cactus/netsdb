@@ -45,8 +45,8 @@ public:
                  in1->getTotalRowNums() == in2->getRowNums() &&
                  in2->isLastColBlock());
 
-          double *in1Data = in1->getValue().rawData->c_ptr();
-          double *in2Data = in2->getValue().rawData->c_ptr();
+          float *in1Data = in1->getValue().rawData->c_ptr();
+          float *in2Data = in2->getValue().rawData->c_ptr();
           int pos = in1->getTotalColNums() % in1->getColNums() - 1;
 
           // Copy bias values

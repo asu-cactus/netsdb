@@ -45,7 +45,7 @@ public:
       Vector<Handle<ImageChunk>> result;
       int num_y_blocks =
           ceil(checkMe->get_conv2d_matrix_cols(kernel_size, stride, padding) /
-               (double)block_y);
+               (float)block_y);
       int windows = checkMe->get_conv2d_window_count(kernel_size, stride, padding);
       result.resize(windows);
       std::cout << "[ImageToChunks] windows: " << windows << ", kernel: " << kernel_size << ", strides: " << stride << ", padding: " << padding << std::endl;

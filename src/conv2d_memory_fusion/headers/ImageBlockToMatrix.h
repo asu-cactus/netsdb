@@ -59,7 +59,7 @@ public:
       std::cout << "batch_size=" << batch_size << std::endl;
       std::cout << "myData->getRowNums()=" << myData->getRowNums() << std::endl;
       std::cout << "myData->getColNums()=" << myData->getColNums() << std::endl;
-      Map<int, Vector<double>> &chunk = checkMe->getBlock();
+      Map<int, Vector<float>> &chunk = checkMe->getBlock();
       // Because each chunk has a mapping between the actual index of the
       // comment and the features. These may be stored out of order in the
       // map.
@@ -67,7 +67,7 @@ public:
 
       for (int x = 0; x < real_block_x; x++) {
         for (int y = 0; y < real_block_y; y++) {
-          double data =
+          float data =
               x >= checkMe->getActualBlockSize() || y >= checkMe->feature_count
                   ? 0
                   : chunk[offset + x][y];

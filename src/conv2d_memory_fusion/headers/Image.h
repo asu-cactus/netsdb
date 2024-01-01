@@ -33,7 +33,7 @@ public:
 
   // TODO: odd Padding, odd strides, odd kernels
   // Maybe another class that can save state and operate on this img?
-  double get_win_value(int window, int i, int j, int stride, int channel,
+  float get_win_value(int window, int i, int j, int stride, int channel,
                        int kernel_size, int padding) {
     int h_slides = get_h_slides(padding, kernel_size, stride);
     int v_slides = get_v_slides(padding, kernel_size, stride);

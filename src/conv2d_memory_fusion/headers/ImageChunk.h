@@ -10,7 +10,7 @@ class ImageChunk : public pdb::Object {
 public:
   int block_row;
   int y_index;
-  pdb::Vector<double> chunk;
+  pdb::Vector<float> chunk;
   int chunk_size;
   int y_size;
 
@@ -27,7 +27,7 @@ public:
 
   int getChunkActualRowIndex() { return block_row_start + block_row; }
 
-  pdb::Vector<double> &getChunk() { return chunk; }
+  pdb::Vector<float> &getChunk() { return chunk; }
 
   void dump() {
     std::cout << "size: " << chunk_size << ", block_row: " << block_row << ", y_index: " << y_index << ", block_row_start" << block_row_start << std::endl;
